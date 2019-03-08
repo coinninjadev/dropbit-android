@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:ems="20"
+        android:gravity="center_horizontal"
+        android:lines="4"
+        android:text="@string/activity_verify_phone_headline" />
+
+    <TextView
+        android:id="@+id/error_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/headline"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:ems="12"
+        android:gravity="center_horizontal"
+        android:lines="2"
+        android:text="@string/activity_verify_phone_error_message"
+        android:textAppearance="@style/TextAppearance.Error"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/example"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/error_message"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:ems="12"
+        android:gravity="center_horizontal"
+        android:lines="1"
+        android:text="@string/verify_phone_number_example" />
+
+    <EditText
+        android:id="@+id/phone_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/example"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:background="@drawable/background_verify_phone"
+        android:digits="0123456789-"
+        android:gravity="center"
+        android:inputType="number"
+        android:lines="1"
+        android:minHeight="44dp"
+        android:minWidth="278dp"
+        android:padding="@dimen/horizontal_padding"
+        android:paddingHorizontal="@dimen/horizontal_padding"
+        android:paddingVertical="@dimen/vertical_padding"
+        android:textAppearance="@style/TextAppearance.Accent.Medium"
+        android:textColor="@color/colorAccent"
+        tools:ignore="TextFields,UnusedAttribute" />
+
+</RelativeLayout>

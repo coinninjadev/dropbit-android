@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/id_no_internet_message"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/error_background"
+    android:paddingBottom="@dimen/message_vertical_padding"
+    android:paddingLeft="@dimen/message_horizontal_padding"
+    android:paddingRight="@dimen/message_horizontal_padding"
+    android:paddingTop="@dimen/message_vertical_padding">
+
+    <TextView
+        android:id="@+id/component_message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/component_message_action"
+        android:gravity="left"
+        android:text="@string/message_system_no_internet"
+        android:textAppearance="@style/TextAppearance.Message.Error" />
+
+    <ImageView
+        android:id="@+id/component_message_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/horizontal_margin"
+        app:srcCompat="@drawable/ic_refresh" />
+
+</RelativeLayout>

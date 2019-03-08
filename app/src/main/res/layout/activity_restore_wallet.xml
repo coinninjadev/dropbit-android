@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:ems="12"
+        android:gravity="center_horizontal"
+        android:lines="2"
+        android:text="@string/restore_wallet_subtitle" />
+
+    <com.coinninja.coinkeeper.view.ViewPagerNoSwipe
+        android:id="@+id/recovery_words_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/headline"
+        android:layout_marginEnd="@dimen/horizontal_margin_large"
+        android:layout_marginStart="@dimen/horizontal_margin_large"
+        android:layout_marginTop="@dimen/vertical_margin_small" />
+
+
+</RelativeLayout>

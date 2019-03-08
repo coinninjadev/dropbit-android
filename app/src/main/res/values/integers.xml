@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="slogan_animation_length_ms">2500</integer>
+    <integer name="footer_animation_length_ms">2000</integer>
+    <integer name="logo_animation_length_ms">1000</integer>
+</resources>

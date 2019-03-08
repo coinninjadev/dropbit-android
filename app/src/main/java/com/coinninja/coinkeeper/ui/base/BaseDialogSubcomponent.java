@@ -1,0 +1,12 @@
+package com.coinninja.coinkeeper.ui.base;
+
+import dagger.Subcomponent;
+import dagger.android.AndroidInjectionModule;
+import dagger.android.AndroidInjector;
+
+@ActivityScope
+@Subcomponent(modules = {AndroidInjectionModule.class, AndroidFragmentBuilder.class})
+public interface BaseDialogSubcomponent extends AndroidInjector<BaseDialogFragment> {
+    @Subcomponent.Builder
+    abstract class Builder extends AndroidInjector.Builder<BaseDialogFragment> {};
+}

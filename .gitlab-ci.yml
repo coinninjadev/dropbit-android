@@ -1,0 +1,192 @@
+image: registry.coinninja.net/engineering/android-sdk:latest
+
+variables:
+  GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle
+  GRADLE_OPTS: "-Dorg.gradle.daemon=true"
+
+stages:
+- verify
+- compile
+- test
+- instrument
+- assemble
+- deploy
+
+before_script:
+- chmod +x ./gradlew
+- ./gradlew --version
+- ./gradlew --status
+- export ANDROID_HOME=/sdk-tools/
+- export PATH=$PATH:/sdk-tools/platform-tools/
+- export APP_VERSION=`./sh/appversion_lookup.sh $HOCKEY_APP_API_TOKEN`
+- echo $APP_VERSION
+- echo "${__google_services_json}" | base64 -d > ./app/google-services.json
+
+cache:
+  key: ${CI_PROJECT_ID}
+  paths:
+  - .gradle/
+
+staging:
+  stage: compile
+  tags:
+  - linux
+  script:
+  - ./gradlew compileStagingDebugUnitTestSources compileStagingReleaseUnitTestSources compileStagingReleaseSources compileStagingDebugSources compileStagingDebugAndroidTestSources
+
+production:
+  stage: compile
+  tags:
+  - linux
+  script:
+  - ./gradlew compileProductionDebugUnitTestSources compileProductionReleaseUnitTestSources compileProductionDebugAndroidTestSources compileProductionDebugSources compileProductionReleaseSources
+
+lint:
+  stage: verify
+  script:
+  - ./gradlew lint
+  tags:
+  - linux
+  artifacts:
+    when: always
+    expire_in: '1 week'
+    paths:
+    - ./app/build/**/lint-results.*
+    reports:
+      junit: ./app/build/reports/lint-results.xml
+
+units:
+  stage: test
+  tags:
+  - linux
+  script:
+  - ./gradlew clean cleanBuildCache
+  - ./gradlew testProductionDebugUnitTest --stacktrace
+  after_script:
+  - vmstat
+  artifacts:
+    when: always
+    expire_in: '1 week'
+    paths:
+    - ./app/build/test-results/**/*
+    reports:
+      junit: ./app/build/test-results/testStagingDebugUnitTest/TEST*.xml
+
+.build_and_sign: &build_and_sign
+  before_script:
+  - export APP_VERSION=`./sh/appversion_lookup.sh $HOCKEY_APP_API_TOKEN`
+  - echo $APP_VERSION
+  - export ANDROID_HOME=/sdk-tools/
+  - export PATH=$PATH:/sdk-tools/platform-tools/
+  - chmod +x ./gradlew
+  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.coinninja.net/cn/coin-keeper-android-code-signing.git /tmp/secret
+  - mv /tmp/secret/*.enc app/
+  - echo "${__google_services_json}" | base64 -d > ./app/google-services.json
+  - echo "${__key_encryption_key}" | base64 -d > /tmp/secret/key
+  - echo "${__playstore_service_key}" | base64 -d > ./app/build/google_play.json
+  - openssl enc -d -aes-256-cbc -kfile /tmp/secret/key -in app/keystore.properties.enc -out app/keystore.properties
+  - openssl enc -d -aes-256-cbc -kfile /tmp/secret/key -in app/coinkeeper-release.jks.enc -out app/coinkeeper-release.jks
+  - export PREVIOUS_DEPLOY_COMMIT=`sh/gitlab_deploys.sh -t "${API_TOKEN}"`
+
+release:
+  stage: assemble
+  tags:
+  - linux
+  script:
+  - ./gradlew assembleRelease
+  artifacts:
+    when: always
+    expire_in: '1 week'
+    paths:
+    - ./app/build/**/*.apk
+  <<: *build_and_sign
+
+debug:
+  stage: assemble
+  tags:
+  - linux
+  script:
+  - ./gradlew assembleDebug
+  artifacts:
+    when: always
+    expire_in: '1 week'
+    paths:
+    - ./app/build/**/*.apk
+
+#automate-prod:
+#    stage: instrument
+#    script:
+#        - ./gradlew connectedProductionDebugAndroidTest
+#    artifacts:
+#        when: always
+#        expire_in: '1 week'
+#        paths:
+#            - ./app/build/**/*Test*
+#
+#automate-staging:
+#    stage: instrument
+#    script:
+#        - ./gradlew connectedStagingDebugAndroidTest
+#    artifacts:
+#        when: always
+#        expire_in: '1 week'
+#        paths:
+#           - ./app/build/**/*Test*
+
+
+release-candidate:
+  stage: deploy
+  script:
+  - ./gradlew publishApkProductionRelease
+  #- ./gradlew publishProductionRelease # with listings
+  environment:
+    name: internal
+  tags:
+  - linux
+  artifacts:
+    name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
+    when: always
+    expire_in: '1 week'
+    paths:
+    - ./app/build/**/*.apk
+  <<: *build_and_sign
+  when: manual
+  only:
+  - develop@cn/coin-keeper-android
+  - build-variants
+
+production-debug:
+  stage: deploy
+  script:
+  - ./gradlew uploadProductionDebugToHockeyApp
+  only:
+  - develop@cn/coin-keeper-android
+  - build-variants
+  tags:
+  - linux
+  environment:
+    name: internal
+  artifacts:
+    name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
+    when: always
+    expire_in: '1 week'
+    paths:
+    - ./app/build/**/*.apk
+
+staging-debug:
+  stage: deploy
+  script:
+  - ./gradlew uploadStagingDebugToHockeyApp
+  only:
+  - develop@cn/coin-keeper-android
+  - build-variants
+  tags:
+  - linux
+  environment:
+    name: internal
+  artifacts:
+    name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
+    when: always
+    expire_in: '1 week'
+    paths:
+    - ./app/build/**/*.apk

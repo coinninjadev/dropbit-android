@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/memo_container"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/rounded_view"
+    android:orientation="vertical"
+    android:windowSoftInputMode="stateVisible">
+
+    <TextView
+        android:id="@+id/memo_text_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:hint="@string/memo_hint"
+        android:paddingTop="15dp"
+        android:textAlignment="center"
+        android:textSize="@dimen/text_size_normal"
+        app:layout_constraintBottom_toTopOf="@+id/memo_background_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/memo_background_view"
+        android:layout_width="match_parent"
+        android:layout_height="39dp"
+        android:background="@drawable/bottom_rounded_border_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/shared_memo_tooltip_button"
+        android:layout_width="20dp"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="11dp"
+        android:layout_marginStart="15dp"
+        android:background="@drawable/question_mark_circle"
+        android:text="?"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/security_message"
+        app:layout_constraintStart_toEndOf="@id/security_message"
+        app:layout_constraintTop_toTopOf="@+id/security_message" />
+
+    <TextView
+        android:id="@+id/security_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/montserrat_light"
+        android:maxLines="1"
+        android:text="@string/security_label"
+        android:textSize="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/memo_background_view" />
+
+    <ImageView
+        android:id="@+id/shared_memo_toggle_button"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_toStartOf="@+id/security_message"
+        android:src="@mipmap/ic_success_foreground"
+        android:background="@color/ic_success_background"
+        app:layout_constraintBottom_toBottomOf="@+id/security_message"
+        app:layout_constraintEnd_toStartOf="@+id/security_message"
+        app:layout_constraintTop_toTopOf="@+id/security_message" />
+
+    <ImageView
+        android:id="@+id/unshare_memo_toggle_button"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_toStartOf="@+id/security_message"
+        android:src="@drawable/border_view"
+        app:layout_constraintBottom_toBottomOf="@+id/security_message"
+        app:layout_constraintEnd_toStartOf="@+id/security_message"
+        app:layout_constraintTop_toTopOf="@+id/security_message" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/shared_memo_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="security_message,shared_memo_tooltip_button,memo_background_view" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

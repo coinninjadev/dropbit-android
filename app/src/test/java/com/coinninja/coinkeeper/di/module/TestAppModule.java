@@ -1,0 +1,366 @@
+package com.coinninja.coinkeeper.di.module;
+
+import android.annotation.SuppressLint;
+import android.app.Application;
+import android.content.ClipboardManager;
+import android.content.ContentProvider;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Handler;
+import android.util.TypedValue;
+
+import com.coinninja.bindings.TransactionBuilder;
+import com.coinninja.coinkeeper.CoinKeeperApplication;
+import com.coinninja.coinkeeper.CoinKeeperLifecycleListener;
+import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
+import com.coinninja.coinkeeper.cn.wallet.DataSigner;
+import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
+import com.coinninja.coinkeeper.di.component.AppComponent;
+import com.coinninja.coinkeeper.di.component.TestAppComponent;
+import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
+import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
+import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
+import com.coinninja.coinkeeper.di.interfaces.DebugBuild;
+import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
+import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
+import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler;
+import com.coinninja.coinkeeper.di.interfaces.UUID;
+import com.coinninja.coinkeeper.interfaces.Authentication;
+import com.coinninja.coinkeeper.interfaces.PinEntry;
+import com.coinninja.coinkeeper.model.db.Account;
+import com.coinninja.coinkeeper.model.helpers.UserHelper;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.service.ContactLookupService;
+import com.coinninja.coinkeeper.service.runner.FailedBroadcastCleaner;
+import com.coinninja.coinkeeper.service.runner.FulfillSentInvitesRunner;
+import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
+import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
+import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
+import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
+import com.coinninja.coinkeeper.util.PhoneNumberUtil;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.PermissionsUtil;
+import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
+import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
+import com.coinninja.messaging.MessageCryptor;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import dagger.Module;
+import dagger.Provides;
+
+import static org.mockito.Mockito.mock;
+
+@Module
+public class TestAppModule {
+
+    @Provides
+    CoinKeeperApplication coinKeeperApplication(Application application) {
+        return (CoinKeeperApplication) application;
+    }
+
+    @Provides
+    TestCoinKeeperApplication testCoinKeeperApplication(Application application) {
+        return (TestCoinKeeperApplication) application;
+    }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    AppComponent appComponent(TestAppComponent testAppComponent) {
+        return testAppComponent;
+    }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    CoinKeeperLifecycleListener coinKeeperLifecycleListener(TestCoinKeeperApplication app) {
+        if (app.coinKeeperLifecycleListener == null)
+            app.coinKeeperLifecycleListener = mock(CoinKeeperLifecycleListener.class);
+        return app.coinKeeperLifecycleListener;
+    }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    @ApplicationContext
+    Context context(CoinKeeperApplication application) {
+        return application;
+    }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    ContentResolver contentResolver(TestCoinKeeperApplication application) {
+        return application.getContentResolver();
+    }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    ContactLookupService contactLookupService() {
+        return new ContactLookupService();
+    }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    Analytics analytics(TestCoinKeeperApplication app) {
+        if (app.analytics == null)
+            app.analytics = mock(Analytics.class);
+        return app.analytics;
+    }
+   
+    @Provides
+    MessageCryptor messageCryptor(TestCoinKeeperApplication app) {
+        if (app.messageCryptor == null)
+            app.messageCryptor = mock(MessageCryptor.class);
+        return app.messageCryptor;
+    }
+
+    @Provides
+    PhoneNumberUtil phoneNumberUtil(TestCoinKeeperApplication app) {
+        if (app.phoneNumberUtil == null)
+            app.phoneNumberUtil = mock(PhoneNumberUtil.class);
+        return app.phoneNumberUtil;
+    }
+
+    @Provides
+    @UUID
+    @SuppressLint("HardwareIds")
+    String uuid(TestCoinKeeperApplication app) {
+        return app.UUID;
+    }
+
+    @Provides
+    LocalBroadcastManager localBroadcastManager(@ApplicationContext Context context) {
+        // Robolectric will dispatch real broadcasts
+        return LocalBroadcastManager.getInstance(context);
+    }
+
+    @Provides
+    LocalBroadCastUtil localBroadCastUtil(TestCoinKeeperApplication app) {
+        if (app.localBroadCastUtil == null)
+            app.localBroadCastUtil = mock(LocalBroadCastUtil.class);
+        return app.localBroadCastUtil;
+    }
+
+    @Provides
+    ClipboardManager clipboardManager(TestCoinKeeperApplication app) {
+        if (app.clipboardManager == null)
+            app.clipboardManager = mock(ClipboardManager.class);
+        return app.clipboardManager;
+    }
+
+    @Provides
+    HDWallet hdWallet(TestCoinKeeperApplication app) {
+        if (app.hdWallet == null)
+            app.hdWallet = mock(HDWallet.class);
+        return app.hdWallet;
+    }
+
+    @Provides
+    BitcoinUtil bitcoinUtil(TestCoinKeeperApplication app) {
+        if (app.bitcoinUtil == null)
+            app.bitcoinUtil = mock(BitcoinUtil.class);
+        return app.bitcoinUtil;
+    }
+
+    @Provides
+    SyncWalletManager syncWalletManager(TestCoinKeeperApplication app) {
+        if (app.syncWalletManager == null) {
+            app.syncWalletManager = mock(SyncWalletManager.class);
+        }
+        return app.syncWalletManager;
+    }
+
+    @Provides
+    SharedPreferences sharedPreferences(TestCoinKeeperApplication app) {
+        if (app.sharedPreferences == null) {
+            app.sharedPreferences = mock(SharedPreferences.class);
+        }
+        return app.sharedPreferences;
+    }
+
+    @Provides
+    WalletHelper walletHelper(TestCoinKeeperApplication app) {
+        if (app.walletHelper == null) {
+            app.walletHelper = mock(WalletHelper.class);
+        }
+        return app.walletHelper;
+    }
+
+    @Provides
+    Account account(TestCoinKeeperApplication app) {
+        if (app.account == null) {
+            app.account = mock(Account.class);
+        }
+        return app.account;
+    }
+
+    @Provides
+    DataSigner dataSigner(TestCoinKeeperApplication app) {
+        if (app.dataSigner == null) {
+            app.dataSigner = mock(DataSigner.class);
+        }
+        return app.dataSigner;
+    }
+
+    @Provides
+    JobServiceScheduler jobServiceScheduler(TestCoinKeeperApplication app) {
+        if (app.jobServiceScheduler == null) {
+            app.jobServiceScheduler = mock(JobServiceScheduler.class);
+        }
+        return app.jobServiceScheduler;
+    }
+
+    @BuildVersionName
+    @Provides
+    String provideVersionName(TestCoinKeeperApplication app) {
+        return app.version_name;
+    }
+
+    @DebugBuild
+    @Provides
+    boolean provideIsDebug(TestCoinKeeperApplication app) {
+        return app.debug;
+    }
+
+    @Provides
+    Authentication authentication(TestCoinKeeperApplication app) {
+        if (app.authentication == null) {
+            app.authentication = mock(Authentication.class);
+        }
+        return app.authentication;
+    }
+
+    @Provides
+    PinEntry pinEntry(TestCoinKeeperApplication app) {
+        if (app.pinEntry == null) {
+            app.pinEntry = mock(PinEntry.class);
+        }
+        return app.pinEntry;
+    }
+
+    @Provides
+    UserHelper userHelper(TestCoinKeeperApplication app) {
+        if (app.userHelper == null) {
+            app.userHelper = mock(UserHelper.class);
+        }
+        return app.userHelper;
+    }
+
+    @TimeOutHandler
+    @Provides
+    Handler timeoutHandler(TestCoinKeeperApplication app) {
+        if (app.handler == null) {
+            app.handler = mock(Handler.class);
+        }
+        return app.handler;
+    }
+
+    @Provides
+    @ThreadHandler
+    Handler threadHandler(TestCoinKeeperApplication app) {
+        return timeoutHandler(app);
+    }
+
+    @Provides
+    CNWalletManager cnWalletManager(TestCoinKeeperApplication app) {
+        if (app.cnWalletManager == null) {
+            app.cnWalletManager = mock(CNWalletManager.class);
+        }
+        return app.cnWalletManager;
+    }
+
+    //TODO DELETE BELOW
+
+    @Provides
+    SyncIncomingInvitesRunner syncIncomingInvitesRunner(TestCoinKeeperApplication app) {
+        if (app.syncIncomingInvitesRunner == null) {
+            app.syncIncomingInvitesRunner = mock(SyncIncomingInvitesRunner.class);
+        }
+        return app.syncIncomingInvitesRunner;
+    }
+
+    @Provides
+    FulfillSentInvitesRunner fulfillSentInvitesRunner(TestCoinKeeperApplication app) {
+        if (app.fulfillSentInvitesRunner == null) {
+            app.fulfillSentInvitesRunner = mock(FulfillSentInvitesRunner.class);
+        }
+        return app.fulfillSentInvitesRunner;
+    }
+
+    @Provides
+    ReceivedInvitesStatusRunner receivedInvitesStatusRunner(TestCoinKeeperApplication app) {
+        if (app.receivedInvitesStatusRunner == null) {
+            app.receivedInvitesStatusRunner = mock(ReceivedInvitesStatusRunner.class);
+        }
+        return app.receivedInvitesStatusRunner;
+    }
+
+    @Provides
+    NegativeBalanceRunner negativeBalanceRunner(TestCoinKeeperApplication app) {
+        if (app.negativeBalanceRunner == null) {
+            app.negativeBalanceRunner = mock(NegativeBalanceRunner.class);
+        }
+        return app.negativeBalanceRunner;
+    }
+
+    @Provides
+    FailedBroadcastCleaner failedBroadcastCleaner(TestCoinKeeperApplication app) {
+        if (app.failedBroadcastCleaner == null) {
+            app.failedBroadcastCleaner = mock(FailedBroadcastCleaner.class);
+        }
+        return app.failedBroadcastCleaner;
+    }
+
+    @Provides
+    PermissionsUtil permissionsUtil(TestCoinKeeperApplication app) {
+        if (app.permissionsUtil == null) {
+            app.permissionsUtil = mock(PermissionsUtil.class);
+        }
+        return app.permissionsUtil;
+    }
+
+    @Provides
+    HealthCheckTimerRunner healthCheckTimerRunner(TestCoinKeeperApplication app) {
+        if (app.healthCheckTimerRunner == null) {
+            app.healthCheckTimerRunner = mock(HealthCheckTimerRunner.class);
+        }
+        return app.healthCheckTimerRunner;
+
+    }
+
+    @Provides
+    CNServiceConnection cnServiceConnection(TestCoinKeeperApplication app) {
+        if (app.cnServiceConnection == null) {
+            app.cnServiceConnection = mock(CNServiceConnection.class);
+        }
+        return app.cnServiceConnection;
+
+    }
+
+
+    @Provides
+    TransactionBuilder transactionBuilder(TestCoinKeeperApplication app) {
+        if (app.transactionBuilder == null) {
+            app.transactionBuilder = mock(TransactionBuilder.class);
+        }
+        return app.transactionBuilder;
+    }
+
+    @NumAddressesToCache
+    @Provides
+    int provideNumAddressesAhead() {
+        return 10;
+    }
+
+
+    @Provides
+    TypedValue typedValue(TestCoinKeeperApplication app) {
+        if (app.typedValue == null) {
+            app.typedValue = mock(TypedValue.class);
+        }
+        return app.typedValue;
+    }
+
+}

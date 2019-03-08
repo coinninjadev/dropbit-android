@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/horizontal_margin_xlarge"
+    android:paddingStart="@dimen/horizontal_margin_xlarge"
+    android:paddingEnd="@dimen/horizontal_margin_xlarge"
+    android:paddingTop="@dimen/vertical_margin"
+    android:windowSoftInputMode="stateVisible">
+
+    <TextView
+        android:id="@+id/recovery_words_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:lines="2"
+        android:text="@string/recovery_words_body"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/seed_words_pager"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="true" />
+
+    <TextView
+        android:id="@+id/seed_word_position_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/seed_words_pager"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:gravity="center"
+        android:text="@string/word_0_of_0"
+        android:textAppearance="@style/TextAppearance.Small" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/seed_word_back_btn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="@dimen/horizontal_margin"
+            android:text="@string/back" />
+
+        <Button
+            android:id="@+id/seed_word_next_btn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/next" />
+    </LinearLayout>
+
+</RelativeLayout>

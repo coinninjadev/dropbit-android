@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Actionbar -->
+    <dimen name="actionBarSize">55dp</dimen>
+
+    <!-- Margins -->
+    <dimen name="horizontal_margin_small">5dp</dimen>
+    <dimen name="horizontal_margin">10dp</dimen>
+    <dimen name="horizontal_margin_medium">20dp</dimen>
+    <dimen name="horizontal_margin_large">36dp</dimen>
+    <dimen name="horizontal_margin_xlarge">52dp</dimen>
+    <dimen name="horizontal_margin_xxlarge">72dp</dimen>
+
+    <dimen name="vertical_margin_xsmall">5dp</dimen>
+    <dimen name="vertical_margin_small">10dp</dimen>
+    <dimen name="vertical_margin">15dp</dimen>
+    <dimen name="vertical_margin_medium">22dp</dimen>
+    <dimen name="vertical_margin_large">36dp</dimen>
+    <dimen name="vertical_margin_xlarge">52dp</dimen>
+    <dimen name="vertical_margin_xxlarge">72dp</dimen>
+
+
+    <!-- Padding -->
+    <dimen name="horizontal_padding">15dp</dimen>
+    <dimen name="vertical_padding">15dp</dimen>
+    <dimen name="dialog_padding">20dp</dimen>
+    <dimen name="dialog_close_button_padding">40dp</dimen>
+    <dimen name="button_horizontal_padding">14dp</dimen>
+    <dimen name="button_vertical_padding">10dp</dimen>
+    <dimen name="message_vertical_padding">28dp</dimen>
+    <dimen name="message_horizontal_padding">20dp</dimen>
+
+    <!-- Font Sizes -->
+    <dimen name="text_size_normal">14sp</dimen>
+    <dimen name="text_size_small">10sp</dimen>
+    <dimen name="text_size_header_small">16sp</dimen>
+    <dimen name="start_btn_text">14sp</dimen>
+    <dimen name="start_btn_marginTop">10dp</dimen>
+
+
+    <!-- Refactor Out -->
+    <dimen name="start_footer_layout_marginBottom">15dp</dimen>
+    <dimen name="start_slogan_marginTop">20dp</dimen>
+    <dimen name="start_main_layout_marginTop">30dp</dimen>
+
+    <!-- Navigation Drawer -->
+    <dimen name="max_width">150dp</dimen>
+
+    <!-- Request Screen -->
+    <dimen name="dialog_exit_icon_margin">30dp</dimen>
+    <dimen name="dialog_exit_icon_margin_small">15dp</dimen>
+    <dimen name="qr_image_scale_min">146dp</dimen>
+    <dimen name="qr_image_scale_max">205dp</dimen>
+    <dimen name="vertical_margin_tiny">3dp</dimen>
+    <dimen name="vertical_margin_mini">7dp</dimen>
+    <dimen name="pay_dialog_large_text">32sp</dimen>
+    <dimen name="pay_dialog_normal_text">15sp</dimen>
+    <dimen name="pay_dialog_small_text">12sp</dimen>
+    <dimen name="paste_box_horizontal_padding">15dp</dimen>
+    <dimen name="paste_box_vertical_padding">10dp</dimen>
+
+    <!-- Confirm Hold Button -->
+    <dimen name="confirm_hold_button_size">70dp</dimen>
+    <dimen name="confirm_hold_button_size_double">134dp</dimen>
+    <dimen name="confirm_name_text">26sp</dimen>
+
+
+    <!-- Setting -->
+    <dimen name="preference_body_padding">16dp</dimen>
+    <dimen name="preference_horizontal_margin_small">16dp</dimen>
+    <dimen name="preference_horizontal_margin">36dp</dimen>
+    <dimen name="preference_horizontal_margin_large">66dp</dimen>
+    <dimen name="preference_vertical_margin">30dp</dimen>
+    <dimen name="preference_small_text">12sp</dimen>
+    <dimen name="preference_icon_size">10dp</dimen>
+    <dimen name="preference_icon_margin">34dp</dimen>
+    <dimen name="preference_exit_x_size">15dp</dimen>
+
+    <!-- ProgressBar Circle -->
+    <dimen name="circle_thickness_small">4sp</dimen>
+    <dimen name="circle_thickness">6sp</dimen>
+
+    <!-- Broadcast Activity -->
+    <dimen name="broadcast_sending_progress_label_text">20sp</dimen>
+    <dimen name="broadcast_sending_progress_margin">30dp</dimen>
+    <dimen name="broadcast_sending_progress_size">127dp</dimen>
+    <dimen name="broadcast_sending_progress_normal_text">15sp</dimen>
+    <dimen name="broadcast_sending_progress_small_text">13sp</dimen>
+    <dimen name="broadcast_sending_progress_margin_right">36dp</dimen>
+    <dimen name="broadcast_sending_progress_margin_bottom_small">3dp</dimen>
+    <dimen name="broadcast_sending_progress_margin_bottom">30dp</dimen>
+    <dimen name="broadcast_sending_progress_action_btn_width">293dp</dimen>
+    <dimen name="broadcast_sending_progress_action_btn_height">53dp</dimen>
+
+    <!-- Contacts Activity -->
+    <dimen name="oval_question_size">17dp</dimen>
+    <dimen name="list_divider">39dp</dimen>
+    <dimen name="tiny_font">10sp</dimen>
+    <dimen name="training_footer_height">115dp</dimen>
+    <dimen name="training_dots_padding">26dp</dimen>
+    <dimen name="training_footer_action_button_width">255dp</dimen>
+    <dimen name="training_footer_action_button_height">49dp</dimen>
+    <dimen name="training_footer_action_button_padding">16dp</dimen>
+    <dimen name="training_drop_logo_width">166dp</dimen>
+    <dimen name="training_drop_logo_height">49dp</dimen>
+    <dimen name="training_drop_background_width">141dp</dimen>
+    <dimen name="training_drop_background_height">306dp</dimen>
+    <dimen name="training_drop_video_height">60dp</dimen>
+    <dimen name="training_drop_text">13sp</dimen>
+    <dimen name="training_video_margin">30dp</dimen>
+    <dimen name="training_body_width">290dp</dimen>
+    <dimen name="training_body_height">170dp</dimen>
+    <dimen name="training_body_padding">16dp</dimen>
+    <dimen name="training_body_text_height">95dp</dimen>
+    <dimen name="training_body_text_size">13sp</dimen>
+    <dimen name="training_body_padding_small">8dp</dimen>
+    <dimen name="training_body_text_small">10sp</dimen>
+    <dimen name="dropbit_logo_width">210dp</dimen>
+    <dimen name="dropbit_logo_height">61dp</dimen>
+
+    <!-- Internal Notification -->
+    <dimen name="internet_notification_exit_width">25dp</dimen>
+    <dimen name="internet_notification_exit_height">25dp</dimen>
+
+    <!-- Internal Notification -->
+    <dimen name="badge_radius">4dp</dimen>
+
+    <!-- Confirmation Bead Dimens -->
+    <dimen name="bead_diameter">24dp</dimen>
+    <dimen name="bead_connector_length">39dp</dimen>
+
+    <!-- TX Details Screen -->
+    <dimen name="tx_detail_send_state_icon_size">40dp</dimen>
+</resources>

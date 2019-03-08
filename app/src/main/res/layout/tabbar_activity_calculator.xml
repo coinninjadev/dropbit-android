@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.tabs.TabLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/calculator_tab_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ActionbarStyle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    app:tabSelectedTextColor="@color/tabColorSelected"
+    app:tabTextAppearance="@style/AppTabTextAppearance">
+
+    <com.google.android.material.tabs.TabItem
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="fill_horizontal"
+        android:text="@string/tab_calculator_usd" />
+
+    <com.google.android.material.tabs.TabItem
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="fill_horizontal"
+        android:text="@string/tab_calculator_btc" />
+
+
+</com.google.android.material.tabs.TabLayout>

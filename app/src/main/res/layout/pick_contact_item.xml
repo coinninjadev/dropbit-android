@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/vertical_padding">
+
+    <LinearLayout
+        android:id="@+id/contact_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/contact_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="Michael Yomyis"
+            android:textAppearance="@style/TextAppearance.Contact.Name" />
+
+        <TextView
+            android:id="@+id/contact_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="3305551111"
+            android:textAppearance="@style/TextAppearance.History" />
+
+    </LinearLayout>
+
+
+    <Button
+        style="@style/FlatButton.Accent"
+        android:id="@+id/contact_action_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:lines="1"
+        android:text="@string/contact_send" />
+
+
+    <Button
+        android:id="@+id/contact_action_invite"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:background="@drawable/ic_dropbit"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:lines="1" />
+
+</RelativeLayout>

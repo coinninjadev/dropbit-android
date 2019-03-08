@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/vertical_margin_medium">
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:textAppearance="@style/TextAppearance.Contact.Name"
+        android:lines="1"
+        tools:ignore="RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/list_link_indicator"
+        android:layout_width="6dp"
+        android:layout_height="9dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/ic_list_link"
+        tools:ignore="RtlHardcoded" />
+
+</RelativeLayout>

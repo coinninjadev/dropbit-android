@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/vertical_margin"
+    android:background="@color/colorPrimaryDark"
+    android:gravity="bottom">
+
+    <ImageView
+        android:id="@+id/drawer_action_footer_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/dropbit_logo"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/drawer_action_footer_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:layout_below="@id/drawer_action_footer_logo"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        tools:text="@string/app_version_label"
+        android:textAppearance="@style/TextAppearance.Small"
+        android:paddingBottom="@dimen/dialog_padding" />
+
+</RelativeLayout>

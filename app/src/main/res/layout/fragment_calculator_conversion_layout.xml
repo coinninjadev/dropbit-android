@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/calculator_conversion"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="bottom"
+    android:layout_margin="@dimen/vertical_margin_mini"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/standard_currency"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+
+        <TextView
+            android:id="@+id/standard_currency_symbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/standard_currency_whole_values"
+            android:layout_gravity="center"
+            android:layout_toStartOf="@+id/standard_currency_whole_values"
+            android:lines="1"
+            android:paddingTop="10dp"
+            android:text="$"
+            android:textAppearance="@style/TextAppearance.Calc.Small"
+            android:visibility="gone" />
+
+
+        <ImageView
+            android:id="@+id/btc_currency_symbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/standard_currency_whole_values"
+            android:layout_alignBottom="@+id/standard_currency_whole_values"
+            android:layout_toStartOf="@+id/standard_currency_whole_values"
+            app:srcCompat="@drawable/btc_dark"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:visibility="visible" />
+
+
+        <TextView
+            android:id="@+id/standard_currency_whole_values"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="@dimen/horizontal_margin"
+            android:lines="1"
+            android:text="@string/zero"
+            android:textAppearance="@style/TextAppearance.Calc.Large" />
+
+        <TextView
+            android:id="@+id/standard_currency_sub_delimiter_large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/standard_currency_whole_values"
+            android:layout_alignBottom="@+id/standard_currency_whole_values"
+            android:layout_toRightOf="@id/standard_currency_whole_values"
+            android:lines="1"
+            android:paddingTop="15dp"
+            android:text="@string/dot"
+            android:textAppearance="@style/TextAppearance.Calc.Large"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/standard_currency_sub_delimiter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/standard_currency_sub_values"
+            android:layout_gravity="center"
+            android:layout_toEndOf="@id/standard_currency_whole_values"
+            android:layout_toRightOf="@id/standard_currency_whole_values"
+            android:lines="1"
+            android:paddingTop="20dp"
+            android:text="@string/dot"
+            android:textAppearance="@style/TextAppearance.Calc.Small"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/standard_currency_sub_values"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/standard_currency_whole_values"
+            android:layout_gravity="center"
+            android:layout_toRightOf="@id/standard_currency_sub_delimiter"
+            android:lines="1"
+            android:paddingTop="10dp"
+            android:hint="@string/cents"
+            android:textAppearance="@style/TextAppearance.Calc.Small"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/converted_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/vertical_margin_xlarge"
+        android:textAppearance="@style/TextAppearance.Calc.AltCurrency" />
+</LinearLayout>

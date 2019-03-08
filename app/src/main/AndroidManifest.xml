@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.coinninja.coinkeeper">
+
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application
+        android:name=".CoinKeeperApplication"
+        android:allowBackup="false"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_adaptive_dropbit_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_adaptive_dropbit_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/CoinKeeperTheme.Dark.Toolbar">
+
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="true" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_dropbit_logo_small" />
+
+        <activity
+            android:name=".view.activity.SplashActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.NoActionBar.BlockChain">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.activity.StartActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.NoActionBar.BlockChain" />
+
+        <activity
+            android:name=".view.activity.TrainingActivity"
+            android:label=""
+            android:noHistory="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff" />
+        <activity
+            android:name=".view.activity.VerifyRecoverywordsActivity"
+            android:label="@string/verify_recovery_words_header"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn.SkipOn" />
+        <activity
+            android:name=".view.activity.AuthenticateActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff" />
+        <activity
+            android:name=".view.activity.CreatePinActivity"
+            android:label="@string/set_pin_header"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn" />
+        <activity
+            android:name=".view.activity.BackupActivity"
+            android:label="@string/backup_recovery_words_title"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn.SkipOn"
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
+        <activity
+            android:name=".view.activity.CalculatorActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer" />
+        <activity
+            android:name=".view.activity.TransactionHistoryActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Dark.Toolbar" />
+        <activity
+            android:name=".ui.transaction.details.TransactionDetailsActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOn" />
+        <activity
+            android:name=".view.activity.QrScanActivity"
+            android:label="@string/scan_qr_label"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
+        <activity
+            android:name=".view.activity.VerifyPhoneNumberActivity"
+            android:label="@string/activity_verify_phone_number_header"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff.SkipOnAccent"
+            android:windowSoftInputMode="stateVisible|stateAlwaysVisible">
+            <intent-filter
+                android:autoVerify="false"
+                tools:targetApi="m">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="${APP_LINKING_HOST}"
+                    android:pathPattern="/verify-phone"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.activity.VerifyPhoneVerificationCodeActivity"
+            android:label="@string/activity_verify_phone_code_header"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff"
+            android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:label="@string/settings_title"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
+        <activity
+            android:name=".view.activity.BroadcastActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff" />
+        <activity
+            android:name=".view.activity.InviteSendActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff" />
+
+        <activity
+            android:name=".view.activity.PickContactActivity"
+            android:label="@string/pay_contacts_label"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOn" />
+
+        <activity
+            android:name=".view.activity.AuthorizedActionActivity"
+            android:label=""
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff"
+            android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
+
+        <activity
+            android:name=".view.activity.RestoreWalletActivity"
+            android:label="@string/restore_wallet_header"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn"
+            android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
+
+        <activity
+            android:name=".view.activity.RecoverWalletActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff" />
+
+        <activity
+            android:name=".view.activity.CoinKeeperSupportActivity"
+            android:label="@string/support_title"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
+        <activity
+            android:name=".view.activity.LicensesActivity"
+            android:label=""
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOn" />
+
+        <activity
+            android:name=".ui.backup.BackupRecoveryWordsStartActivity"
+            android:label="@string/backup_recovery_words_title"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
+
+        <receiver
+            android:name=".receiver.DeviceRebootBootCompletedReceiver"
+            android:enabled="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="${applicationId}.SCHEDULE_SYNC" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receiver.WalletCreatedBroadCastReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="${applicationId}.ACTION_WALLET_CREATED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receiver.WalletRegistrationCompleteReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="${applicationId}.ACTION_WALLET_REGISTRATION_COMPLETE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receiver.StartupCompleteReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="${applicationId}.ACTION_ON_APPLICATION_FOREGROUND_STARTUP" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receiver.AuthenticationCompleteReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="${applicationId}.ACTION_ON_USER_AUTH_SUCCESSFULLY" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receiver.ApplicationStartedReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="${applicationId}.ACTION_ON_APPLICATION_START" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receiver.WalletSyncCompletedReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="${applicationId}.ACTION_ON_APPLICATION_START" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".service.QRCodeService"
+            android:exported="false" />
+
+        <service
+            android:name=".service.RegisterUsersPhoneService"
+            android:exported="false" />
+
+        <service
+            android:name=".service.UserPhoneConfirmationService"
+            android:exported="false" />
+        <service
+            android:name=".service.DeleteWalletService"
+            android:exported="false" />
+        <service
+            android:name=".service.ResendPhoneVerificationService"
+            android:exported="false" />
+        <service
+            android:name=".service.BroadcastTransactionService"
+            android:exported="false" />
+        <service
+            android:name=".service.SaveInviteService"
+            android:exported="false" />
+        <service
+            android:name=".service.SyncDropBitService"
+            android:exported="false" />
+        <service
+            android:name=".service.FulfillSentInvitesService"
+            android:exported="false" />
+        <service
+            android:name=".service.BtcBroadcastNotificationService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".cn.wallet.service.CNWalletService"
+            android:exported="false" />
+        <service
+            android:name=".service.DeviceRegistrationService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".cn.service.CNGlobalMessagingService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".cn.service.CNFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="@string/push_notification_channel_id" />
+
+        </service>
+        <service
+            android:name=".service.PushNotificationEndpointRegistrationService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".service.DropbitServicePatchService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".service.WalletTransactionRetrieverService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".service.blockchain.BlockChainService"
+            android:exported="false" />
+
+        <service
+            android:name=".service.DeverifyAccountService"
+            android:exported="false" />
+
+        <service
+            android:name=".cn.wallet.service.CNWalletAddressRequestService"
+            android:exported="false" />
+
+        <service
+            android:name=".cn.dropbit.DropBitService"
+            android:exported="false" />
+
+        <service
+            android:name=".service.ContactLookupService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+    </application>
+
+</manifest>

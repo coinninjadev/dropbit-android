@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:background="@color/background_color"
+    android:windowSoftInputMode="stateVisible">
+
+
+    <TextView
+        android:id="@+id/headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="@dimen/horizontal_margin_xxlarge"
+        android:layout_marginRight="@dimen/horizontal_margin_xxlarge"
+        android:layout_marginTop="@dimen/vertical_margin_xxlarge"
+        android:gravity="center"
+        android:text="@string/set_pin_headline" />
+
+    <TextView
+        android:id="@+id/error_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/headline"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="@dimen/horizontal_margin_xxlarge"
+        android:layout_marginRight="@dimen/horizontal_margin_xxlarge"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Error"
+        android:visibility="invisible" />
+
+    <com.coinninja.coinkeeper.view.edittext.PinEditText
+        android:id="@+id/pin_entry_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/error_message"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/vertical_margin_xxlarge"
+        android:cursorVisible="false"
+        android:digits="1234567890"
+        android:inputType="numberPassword"
+        android:maxLength="6"
+        android:textAppearance="@style/TextAppearance.Medium"
+        android:textIsSelectable="false" />
+
+</RelativeLayout>

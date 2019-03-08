@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/training_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/training_footer" />
+
+    <RelativeLayout
+        android:id="@+id/training_footer"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/training_footer_height"
+        android:layout_alignParentBottom="true">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/training_footer_dots"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/training_footer_learn_link"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="@dimen/training_dots_padding"
+            android:visibility="visible"
+            android:layout_marginTop="@dimen/training_dots_padding"
+            app:tabBackground="@drawable/training_selector"
+            app:tabGravity="center"
+            app:tabIndicatorHeight="0dp" />
+
+        <Button
+            android:id="@+id/training_footer_action_button"
+            android:layout_width="@dimen/training_footer_action_button_width"
+            android:layout_height="@dimen/training_footer_action_button_height"
+            android:layout_above="@+id/training_footer_learn_link"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/training_footer_action_button_padding"
+            android:visibility="gone"
+            android:text="@string/training_action_button_label" />
+
+        <TextView
+            android:id="@+id/training_footer_learn_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="@dimen/training_dots_padding"
+            android:textColor="@color/colorAccent"
+            tools:text="Learn" />
+    </RelativeLayout>
+</RelativeLayout>

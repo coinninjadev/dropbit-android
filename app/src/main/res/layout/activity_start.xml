@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.coinninja.coinkeeper.view.activity.StartActivity">
+
+
+    <ImageView
+        android:id="@+id/img_logo"
+        android:layout_width="@dimen/dropbit_logo_width"
+        android:layout_height="@dimen/dropbit_logo_height"
+        android:layout_above="@+id/start_txt_slogan"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/vertical_margin"
+        android:transitionName="ease_in"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/dropbit_logo_full"
+        tools:ignore="UnusedAttribute"
+        android:contentDescription="@string/app_name" />
+
+    <TextView
+        android:id="@+id/start_txt_slogan"
+        android:layout_width="182dp"
+        android:layout_height="38dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:gravity="top|center_horizontal"
+        android:lines="2"
+        android:maxLines="2"
+        android:text="@string/start_screen_headline"
+        android:textColor="@color/colorBTNText" />
+
+
+    <LinearLayout
+        android:id="@+id/start_footer_rellayout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/start_txt_slogan"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/vertical_margin_xlarge"
+        android:gravity="center_horizontal|bottom"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/start_btn_new_wallet"
+            android:layout_marginLeft="@dimen/horizontal_margin_xxlarge"
+            android:layout_marginRight="@dimen/horizontal_margin_xxlarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_new_wallet" />
+
+        <Button
+            android:id="@+id/start_btn_restore"
+            android:theme="@style/FlatButton.Accent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin"
+            android:text="@string/btn_restore" />
+
+    </LinearLayout>
+
+</RelativeLayout>

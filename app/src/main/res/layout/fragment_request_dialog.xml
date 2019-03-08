@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="bottom"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/RequestDialog">
+
+        <TextView
+            android:id="@+id/request_header_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/request_label"
+            style="@style/RequestDialog.Header" />
+
+        <FrameLayout
+            android:id="@+id/close_btn"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/close"
+                android:layout_marginTop="@dimen/dialog_exit_icon_margin_small"
+                android:layout_marginBottom="@dimen/dialog_exit_icon_margin_small"
+                android:layout_marginRight="@dimen/dialog_exit_icon_margin"
+                android:layout_marginLeft="@dimen/dialog_exit_icon_margin"
+                style="@style/Dialog.Exit" />
+        </FrameLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/request_price_display_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/request_header_label"
+            android:layout_marginTop="@dimen/dialog_padding"
+            android:layout_marginLeft="@dimen/horizontal_margin_large"
+            android:layout_marginRight="@dimen/horizontal_margin_large"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/primary_currency"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/colorAccent"
+                android:autoSizeTextType="uniform"
+                android:textSize="35dp"
+                android:maxLines="1"
+                android:gravity="center"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/secondary_currency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/primary_currency"
+                android:layout_marginTop="@dimen/vertical_margin_small"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/request_body_qr_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/request_price_display_layout"
+            android:layout_above="@id/request_copy_button"
+            android:scaleType="fitCenter"
+            style="@style/RequestDialog.Image.QR" />
+
+
+        <Button
+            android:id="@+id/request_copy_button"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_above="@+id/request_footer_copy_description_txt"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/request_dialog_background"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_marginLeft="@dimen/horizontal_margin_large"
+            android:layout_marginRight="@dimen/horizontal_margin_large"
+            android:textSize="@dimen/text_size_small" />
+
+        <TextView
+            android:id="@+id/request_footer_copy_description_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/request_funds"
+            android:layout_centerHorizontal="true"
+            android:paddingTop="5dp"
+            android:paddingBottom="@dimen/horizontal_margin_large"
+            android:text="@string/tap_address_to_save_to_clipboard"
+            android:textSize="@dimen/text_size_small" />
+
+        <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
+            android:id="@+id/request_funds"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="@dimen/horizontal_margin_large"
+            android:layout_marginRight="@dimen/horizontal_margin_large"
+            android:text="@string/send_request" />
+    </RelativeLayout>
+</LinearLayout>

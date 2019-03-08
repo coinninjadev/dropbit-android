@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/ic_close"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:contentDescription="close dialog button"
+        android:padding="16dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
+
+    <ImageView
+        android:id="@+id/ic_send_state"
+        android:layout_width="@dimen/tx_detail_send_state_icon_size"
+        android:layout_height="@dimen/tx_detail_send_state_icon_size"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="@dimen/horizontal_margin_large"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="set me in adapter"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText"
+        tools:src="@drawable/ic_transaction_send" />
+
+    <TextView
+        android:id="@+id/confirmations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ic_send_state"
+        tools:text="@string/confirmations_view_stage_5" />
+
+    <TextView
+        android:id="@+id/label_when_sent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/horizontal_margin_xlarge"
+        android:layout_marginTop="32dp"
+        android:text="@string/transaction_details_when_sent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirmations" />
+
+
+    <TextView
+        android:id="@+id/value_when_sent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="@dimen/horizontal_margin_xlarge"
+        app:layout_constraintBottom_toBottomOf="@+id/label_when_sent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/label_when_sent"
+        app:layout_constraintTop_toTopOf="@+id/label_when_sent"
+        tools:text="0.05 ($205.00)" />
+
+    <TextView
+        android:id="@+id/label_network_fee"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/horizontal_margin_xlarge"
+        android:layout_marginTop="16dp"
+        android:text="@string/transaction_details_network_fee"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/label_when_sent" />
+
+
+    <TextView
+        android:id="@+id/value_network_fee"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="@dimen/horizontal_margin_xlarge"
+        app:layout_constraintBottom_toBottomOf="@+id/label_network_fee"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/label_network_fee"
+        app:layout_constraintTop_toTopOf="@+id/label_network_fee"
+        tools:text="0.00026 ($1.50)" />
+
+    <TextView
+        android:id="@+id/label_confirmations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/horizontal_margin_xlarge"
+        android:layout_marginTop="16dp"
+        android:text="@string/transaction_details_confirmations"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/label_network_fee" />
+
+
+    <TextView
+        android:id="@+id/value_confirmations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="@dimen/horizontal_margin_xlarge"
+        app:layout_constraintBottom_toBottomOf="@+id/label_confirmations"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/label_confirmations"
+        app:layout_constraintTop_toTopOf="@+id/label_confirmations"
+        tools:text="6+" />
+
+    <Button
+        android:id="@+id/receive_address"
+        style="@style/FlatButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/label_confirmations"
+        tools:text="13uhkJ5kmYOK45YuJKP09GLLVBDF67s7A" />
+
+    <Button
+        android:id="@+id/see_on_block"
+        style="@style/buttonCallToAction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/vertical_margin_medium"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="@dimen/vertical_margin_medium"
+        android:text="@string/transaction_details_see_transaction_details"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/receive_address"
+        app:layout_constraintWidth_percent="1" />
+
+    <Button
+        android:id="@+id/share_transaction"
+        style="@style/FlatButton.Accent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/transaction_details_share_transaction_id"
+        android:textAllCaps="true"
+        android:textColor="@color/font_accent"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/see_on_block"
+        app:layout_constraintVertical_bias="0.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

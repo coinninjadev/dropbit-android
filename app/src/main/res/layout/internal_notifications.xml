@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/internet_notification_main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent_background"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusedByDefault="true">
+
+
+    <ImageButton
+        android:id="@+id/exit_button"
+        android:layout_width="@dimen/internet_notification_exit_width"
+        android:layout_height="@dimen/internet_notification_exit_height"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/ic_close"
+        android:contentDescription="@string/close"
+        android:padding="@dimen/horizontal_margin_xlarge"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.507" />
+
+    <TextView
+        android:id="@+id/internal_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/horizontal_margin_large"
+        android:padding="@dimen/vertical_margin"
+        android:textSize="@dimen/text_size_header_small"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/exit_button"
+        tools:text="This is an example of a longer notification message.
+It would wrap like this" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

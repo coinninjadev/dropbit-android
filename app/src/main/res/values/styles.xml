@@ -1,0 +1,644 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="CoinKeeperTheme.Dark.Toolbar" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="android:fontFamily">@font/montserat</item>
+        <item name="android:buttonStyle">@style/Button</item>
+        <item name="android:textAppearance">@style/TextAppearance</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.Small</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.Medium</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.Large</item>
+        <item name="android:borderlessButtonStyle">@style/FlatButton</item>
+        <!--
+        <item name="android:dialogTheme">@style/DialogTheme</item>
+        <item name="android:alertDialogStyle">@style/AlertDialog.AppCompat</item>
+        -->
+        <item name="android:alertDialogTheme">@style/CoinKeeperTheme.LightActionBar.Dialog</item>
+        <item name="alertDialogCenterButtons">false</item>
+        <item name="android:listDividerAlertDialog">@null</item>
+        <item name="android:actionBarStyle">@style/ActionbarStyle</item>
+        <item name="android:actionBarTabStyle">@style/AppTabLayout</item>
+        <item name="actionBarStyle">@style/ActionbarStyle</item>
+        <item name="actionBarTabStyle">@style/AppTabLayout</item>
+        <item name="navigationIcon">@drawable/ic_back</item>
+        <item name="actionBarTitleStyle">@style/ActionBarTitleDark</item>
+        <item name="actionBarMenuType">@id/actionbar_dark_up_on</item>
+        <item name="cn_background">@style/BackgroundNormal</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar" parent="CoinKeeperTheme.Dark.Toolbar">
+        <item name="android:actionBarStyle">@style/ActionbarStyle.Light</item>
+        <item name="actionBarStyle">@style/ActionbarStyle.Light</item>
+        <item name="android:actionBarTabStyle">@style/AppTabLayout.Light</item>
+        <item name="actionBarTabStyle">@style/AppTabLayout.Light</item>
+        <item name="navigationIcon">@drawable/ic_back_accent</item>
+        <item name="colorPrimary">@color/background_color</item>
+        <item name="actionBarTitleStyle">@style/ActionBarTitleLight</item>
+    </style>
+
+    <style name="CoinKeeperTheme.DarkActionBar" parent="CoinKeeperTheme.Dark.Toolbar">
+        <item name="android:actionBarStyle">@style/ActionbarStyle.Light</item>
+        <item name="actionBarStyle">@style/ActionbarStyle.Light</item>
+        <item name="android:actionBarTabStyle">@style/AppTabLayout.Light</item>
+        <item name="actionBarTabStyle">@style/AppTabLayout.Light</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="actionBarTitleStyle">@style/ActionBarTitleDark</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.UpOff" parent="CoinKeeperTheme.LightActionBar">
+        <item name="actionBarMenuType">@id/actionbar_light_up_off</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.UpOn" parent="CoinKeeperTheme.LightActionBar">
+        <item name="actionBarMenuType">@id/actionbar_light_up_on</item>
+        <item name="textAllCaps">false</item>
+        <item name="actionButtonStyle">@style/FlatButton</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.UpOn.SkipOn" parent="CoinKeeperTheme.LightActionBar">
+        <item name="actionBarMenuType">@id/actionbar_light_up_on_skip_on</item>
+        <item name="textAllCaps">false</item>
+        <item name="actionButtonStyle">@style/FlatButton</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.UpOff.SkipOnAccent" parent="CoinKeeperTheme.LightActionBar">
+        <item name="actionBarMenuType">@id/actionbar_light_up_off_skip_on</item>
+        <item name="textAllCaps">false</item>
+        <item name="actionButtonStyle">@style/FlatButton.Accent</item>
+        <item name="android:actionMenuTextColor">@color/colorAccent</item>
+    </style>
+
+    <style name="CoinKeeperTheme.DarkActionBar.UpOff" parent="CoinKeeperTheme.DarkActionBar">
+        <item name="actionBarMenuType">@id/actionbar_gone</item>
+    </style>
+
+    <style name="CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" parent="CoinKeeperTheme.DarkActionBar">
+        <item name="actionBarMenuType">@id/actionbar_dark_up_off_close_on</item>
+    </style>
+
+    <style name="CoinKeeperTheme.DarkActionBar.UpOn" parent="CoinKeeperTheme.DarkActionBar">
+        <item name="actionBarMenuType">@id/actionbar_dark_up_on</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.Dialog" parent="Base.V7.ThemeOverlay.AppCompat.Dialog">
+        <item name="buttonStyle">@style/FlatButton</item>
+    </style>
+
+
+    <style name="CoinKeeperTheme.Drawer" parent="CoinKeeperTheme.DarkActionBar">
+        <item name="navigationIcon">@drawable/ic_menu</item>
+        <item name="actionBarMenuType">@id/actionbar_dark_up_on_with_nav_bar</item>
+    </style>
+
+    <style name="ActionBarTitleDark" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="ActionBarTitleLight" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">19sp</item>
+    </style>
+
+    <style name="CoinKeeperTheme.NoActionBar.BlockChain" parent="CoinKeeperTheme.Dark.Toolbar">
+        <item name="actionBarMenuType">@id/actionbar_gone</item>
+        <item name="cn_background">@style/BlockChain</item>
+    </style>
+
+    <style name="CoinKeeperTheme.NoActionBar.Transparent" parent="CoinKeeperTheme.Dark.Toolbar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="actionBarMenuType">@id/actionbar_gone</item>
+        <item name="cn_background">@style/Transparent</item>
+    </style>
+    <!-- Main Background -->
+    <style name="Transparent">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="BackgroundNormal">
+        <item name="android:background">@color/background_color</item>
+    </style>
+
+    <style name="BlockChain">
+        <item name="android:backgroundDimAmount">30</item>
+        <item name="android:background">@drawable/blockchain_background</item>
+        <item name="android:backgroundStacked">@color/background_color</item>
+    </style>
+    <!-- actionbar style -->
+    <style name="ActionbarStyle" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@drawable/backgrouind_dark_actionbar</item>
+        <item name="background">@drawable/backgrouind_dark_actionbar</item>
+        <item name="android:textAppearance">@style/textAppearance.Appbar</item>
+    </style>
+
+    <style name="ActionbarStyle.Light" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@drawable/background_light_actionbar</item>
+        <item name="background">@drawable/background_light_actionbar</item>
+        <item name="android:textAppearance">@style/textAppearance.Appbar.LightActionBar</item>
+    </style>
+
+    <style name="AppTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@color/colorAccent</item>
+        <item name="tabIndicatorHeight">4dp</item>
+        <item name="tabPaddingStart">8dp</item>
+        <item name="tabPaddingEnd">8dp</item>
+        <item name="tabBackground">@drawable/button_cta</item>
+        <item name="tabTextAppearance">@style/AppTabTextAppearance</item>
+        <item name="tabSelectedTextColor">@color/tabColorSelected</item>
+    </style>
+
+    <style name="AppTabLayout.Light" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@color/colorAccent</item>
+        <item name="tabIndicatorHeight">4dp</item>
+        <item name="tabPaddingStart">8dp</item>
+        <item name="tabPaddingEnd">8dp</item>
+        <item name="tabBackground">@drawable/button_cta</item>
+        <item name="tabTextAppearance">@style/AppTabTextAppearance</item>
+        <item name="tabSelectedTextColor">@color/tabColorSelected</item>
+    </style>
+
+    <!-- for text -->
+    <style name="AppTabTextAppearance" parent="textAppearance.Appbar">
+        <item name="textAllCaps">true</item>
+        <item name="tabSelectedTextColor">@color/tabColor</item>
+    </style>
+
+    <style name="Confirmations">
+        <item name="beadActiveColor">@color/background_bead_active</item>
+        <item name="beadInactiveColor">@color/background_bead_inactive</item>
+        <item name="beadDiameter">@dimen/bead_diameter</item>
+        <item name="beadConnectorLength">@dimen/bead_connector_length</item>
+        <item name="lastStepVector">@drawable/ic_confirmation_check</item>
+    </style>
+
+    <!-- BUTTON STYLES -->
+    <style name="Button" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/primary_button</item>
+        <item name="android:textAppearance">@style/TextAppearance.Button</item>
+        <item name="android:minHeight">48dip</item>
+        <item name="android:minWidth">88dip</item>
+        <item name="android:paddingTop">@dimen/button_vertical_padding</item>
+        <item name="android:paddingBottom">@dimen/button_vertical_padding</item>
+        <item name="android:paddingLeft">@dimen/button_horizontal_padding</item>
+        <item name="android:paddingRight">@dimen/button_horizontal_padding</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+    </style>
+
+    <style name="Button.Small" parent="Button">
+        <item name="android:textAppearance">@style/TextAppearance.Button.Small</item>
+    </style>
+
+    <style name="Button.Error" parent="Button">
+        <item name="android:background">@drawable/error_button</item>
+    </style>
+
+    <style name="Button.Error.Small" parent="Button.Small">
+        <item name="android:background">@drawable/error_button</item>
+    </style>
+
+    <style name="FlatButton" parent="Theme.AppCompat.Light">
+        <item name="android:textAppearance">@style/TextAppearance</item>
+        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="colorControlHighlight">@color/colorFlatHover</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="FlatButton.Accent">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorAccent</item>
+
+    </style>
+
+    <style name="keyBoardButton" parent="Button">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">@color/button_flat_selector</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <style name="buttonCallToAction" parent="Button">
+        <item name="android:background">@drawable/cta_button</item>
+    </style>
+
+    <style name="buttonError" parent="Button">
+        <item name="android:background">@drawable/error_button</item>
+    </style>
+
+    <style name="textAppearance.Appbar" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/font_lightest_gray</item>
+    </style>
+
+    <style name="textAppearance.Appbar.LightActionBar" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="TextAppearance.Button" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/font_lightest_gray</item>
+    </style>
+
+    <style name="TextAppearance.Button.Small" parent="TextAppearance.Button">
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="textAppearanceSecondaryButton" parent="TextAppearance.AppCompat.Widget.Button.Borderless.Colored">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/button_flat_selector</item>
+    </style>
+
+
+    <!-- Text Styles -->
+
+    <style name="TextAppearance.Message.Error" parent="TextAppearance">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/font_lightest_gray</item>
+    </style>
+
+    <style name="TextAppearance.Strong.PrimaryColor" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Strong.PrimaryColor.Caps" parent="TextAppearance.Strong.PrimaryColor">
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/font_default</item>
+        <item name="android:lineSpacingExtra">5sp</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Inverse" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Currency" parent="TextAppearance">
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Address" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Send.Value" parent="TextAppearance.History.Address">
+        <item name="android:textColor">@color/color_error</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Receive.Value" parent="TextAppearance.History.Address">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance.History" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/fontColor</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+
+    <style name="TextAppearance.Drawer" parent="TextAppearance.Inverse">
+        <item name="android:fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/flat_white_base</item>
+        <item name="android:textSize">11.6sp</item>
+    </style>
+
+    <style name="TextAppearance.Error" parent="TextAppearance">
+        <item name="android:textColor">@color/color_error</item>
+    </style>
+
+    <style name="TextAppearance.Balance.Primary" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/light</item>
+        <item name="android:textSize">19sp</item>
+    </style>
+
+    <style name="TextAppearance.Balance.Secondary" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/font_lighter_gray</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Calc.Large" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">80sp</item>
+    </style>
+
+    <style name="TextAppearance.Calc.Small" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">50sp</item>
+    </style>
+
+
+    <style name="TextAppearance.Calc.Small.Light" parent="TextAppearance.Calc.Small">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textSize">30sp</item>
+    </style>
+
+    <style name="TextAppearance.Calc.AltCurrency" parent="TextAppearance.Calc.Small">
+        <item name="android:textColor">@color/colorDisabled</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+
+    <style name="TextAppearance.Contact.Name" parent="TextAppearance.Calc.Small">
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.Calc.AltCurrency.Light" parent="TextAppearance.Calc.AltCurrency">
+        <item name="android:textColor">@color/font_light_gray</item>
+    </style>
+
+    <style name="TextAppearance.Large" parent="TextAppearance.AppCompat.Large">
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textSize">35sp</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="TextAppearance.Medium" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textSize">19sp</item>
+    </style>
+
+    <style name="TextAppearance.Medium.White">
+        <item name="android:textColor">@color/font_white</item>
+    </style>
+
+    <style name="TextAppearance.Small" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextAppearance.Small.PrimaryDark" parent="TextAppearance.Small">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+
+    <style name="TextAppearance.Small.Accent" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="TextAppearance.Small.Error" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/color_error</item>
+    </style>
+
+    <style name="TextAppearance.Small.Success" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/colorSuccess</item>
+    </style>
+
+    <style name="TextAppearance.History.Details.Contact" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_medium</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Details.Confirmations" parent="TextAppearance">
+        <item name="android:textColor">@color/fontColor</item>
+        <item name="android:fontFamily">@font/montserrat_light</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Details.Date" parent="TextAppearance.History.Details.Confirmations">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Details.BTC" parent="TextAppearance.History.Details.Date">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Details.Address" parent="TextAppearance.History.Details.BTC">
+        <item name="android:textColor">@color/colorSuccess</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+    </style>
+
+    <style name="TextAppearance.History.Details.CashValue" parent="TextAppearance.History.Details.Address">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">50sp</item>
+    </style>
+
+    <style name="TextAppearance.Accent" parent="TextAppearance">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Accent.Medium" parent="TextAppearance">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <!-- Alert Dialog -->
+    <style name="DialogTheme" parent="Base.V7.ThemeOverlay.AppCompat.Dialog">
+        <item name="android:borderlessButtonStyle">@style/FlatButton</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+    </style>
+
+    <!-- Wide Alert Dialog -->
+    <style name="WideDialogTheme" parent="Base.V7.ThemeOverlay.AppCompat.Dialog">
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+    </style>
+
+    <style name="DialogTitle" parent="Base.DialogWindowTitle.AppCompat">
+        <item name="android:maxLines">1</item>
+        <item name="android:scrollHorizontally">true</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
+    </style>
+
+    <style name="DialogTitleBackgroundStyle" parent="Base.DialogWindowTitleBackground.AppCompat">
+        <!--
+        <item name="android:background">@null</item>
+        <item name="android:paddingLeft">?attr/dialogPreferredPadding</item>
+        <item name="android:paddingRight">?attr/dialogPreferredPadding</item>
+        <item name="android:paddingTop">@dimen/abc_dialog_padding_top_material</item>
+        -->
+    </style>
+
+    <style name="DialogMessage" parent="Base.TextAppearance.AppCompat.Subhead">
+        <!--
+        <item name="android:textSize">@dimen/abc_text_size_subhead_material</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        -->
+    </style>
+
+    <style name="FlatButton.Accent2">
+        <item name="buttonStyle">@drawable/request_dialog_background</item>
+
+    </style>
+
+
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_in</item>
+        <item name="android:windowExitAnimation">@anim/slide_out</item>
+    </style>
+
+    <style name="Theme_Dialog" parent="">
+
+
+        <item name="android:colorPrimary" tools:targetApi="lollipop">?attr/colorPrimary</item>
+        <item name="android:colorPrimaryDark" tools:targetApi="lollipop">?attr/colorPrimaryDark
+        </item>
+        <item name="android:colorAccent" tools:targetApi="lollipop">?attr/colorAccent</item>
+        <item name="android:colorControlNormal" tools:targetApi="lollipop">
+            ?attr/colorControlNormal
+        </item>
+        <item name="android:colorControlActivated" tools:targetApi="lollipop">
+            ?attr/colorControlActivated
+        </item>
+        <item name="android:colorControlHighlight" tools:targetApi="lollipop">
+            ?attr/colorControlHighlight
+        </item>
+        <item name="android:colorButtonNormal" tools:targetApi="lollipop">?attr/colorButtonNormal
+        </item>
+
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:colorBackground">@null</item>
+
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowTitleBackgroundStyle">
+            @null
+        </item>
+        <item name="android:windowBackground">@color/colorTransparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowActionModeOverlay">false</item>
+
+        <item name="listPreferredItemPaddingLeft">@null</item>
+        <item name="listPreferredItemPaddingRight">@null</item>
+
+        <item name="android:listDivider">@null</item>
+
+        <item name="android:listPreferredItemHeightLarge">@null</item>
+        <item name="android:listPreferredItemHeightSmall">@null</item>
+        <item name="android:listPreferredItemHeight">@null</item>
+        <item name="android:fitsSystemWindows">false</item>
+
+
+        <item name="android:windowMinWidthMajor">95%</item>
+        <item name="android:windowMinWidthMinor">95%</item>
+        <item name="windowFixedHeightMajor">80%</item>
+        <item name="windowFixedHeightMinor">80%</item>
+
+    </style>
+
+    <style name="RequestDialog" parent="">
+        <item name="android:minHeight">565dp</item>
+        <item name="android:paddingBottom">@dimen/horizontal_margin_large</item>
+        <item name="android:background">@drawable/request_dialog_background</item>
+        <item name="android:layout_marginTop">@dimen/horizontal_margin_xxlarge</item>
+
+    </style>
+
+    <style name="RequestDialog.Image.QR" parent="">
+        <item name="android:minHeight">@dimen/qr_image_scale_min</item>
+        <item name="android:minWidth">@dimen/qr_image_scale_min</item>
+        <item name="android:maxWidth">@dimen/qr_image_scale_max</item>
+        <item name="android:maxHeight">@dimen/qr_image_scale_max</item>
+    </style>
+
+    <style name="RequestDialog.Header" parent="">
+        <item name="android:layout_marginTop">@dimen/vertical_margin</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:textSize">@dimen/text_size_header_small</item>
+    </style>
+
+    <style name="Dialog.Exit" parent="">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:background">@color/light</item>
+        <item name="android:src">@drawable/ic_close</item>
+    </style>
+
+    <style name="Dialog.Exit.Pay" parent="">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:padding">@dimen/dialog_close_button_padding</item>
+        <item name="android:background">@color/light</item>
+        <item name="android:src">@drawable/ic_close</item>
+    </style>
+
+    <style name="PayDialog" parent="">
+        <item name="android:minHeight">565dp</item>
+        <item name="android:background">@drawable/request_dialog_background</item>
+    </style>
+
+    <style name="PayDialog.EditText" parent="Base.Widget.MaterialComponents.TextInputEditText">
+        <item name="android:background">@drawable/paste_box</item>
+        <item name="android:longClickable">false</item>
+        <item name="android:textColor">@color/light_border</item>
+        <item name="android:textSize">@dimen/pay_dialog_small_text</item>
+    </style>
+
+    <style name="PayDialog.Header" parent="">
+        <item name="android:layout_marginTop">@dimen/vertical_margin</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:textSize">@dimen/text_size_header_small</item>
+    </style>
+
+    <style name="QrScan.Exit" parent="">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:src">@drawable/ic_close_light</item>
+    </style>
+
+
+    <style name="Preference.Exit" parent="">
+        <item name="android:layout_width">@dimen/preference_exit_x_size</item>
+        <item name="android:layout_height">@dimen/preference_exit_x_size</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:src">@drawable/ic_close_light</item>
+    </style>
+
+
+</resources>

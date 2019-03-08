@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginEnd="@dimen/horizontal_margin_xlarge"
+    android:layout_marginStart="@dimen/horizontal_margin_xlarge">
+
+    <TextView
+        android:id="@+id/page_instructions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:text="@string/restore_wallet_select_word_instructions"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance"
+        android:visibility="invisible" />
+
+    <EditText
+        android:id="@+id/word"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/page_instructions"
+        android:layout_marginTop="@dimen/vertical_margin_medium"
+        android:background="@drawable/lighter_button_background"
+        android:inputType="textVisiblePassword"
+        android:lines="1"
+        android:padding="@dimen/vertical_padding"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Accent"
+        android:textColor="@color/font_accent"
+        tools:text="satoshi" />
+
+    <TextView
+        android:id="@+id/page_marker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/word"
+        android:layout_marginTop="@dimen/vertical_margin_small"
+        android:text="@string/restore_wallet_enter_x_of_12"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Small"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/words"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/word"
+        android:paddingBottom="@dimen/vertical_margin"
+        android:layout_marginTop="@dimen/vertical_margin_small">
+
+        <Button
+            style="@style/TextAppearance.Button.Small"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="6sp"
+            android:autoSizeStepGranularity="2sp"
+            android:autoSizeTextType="uniform"
+            android:textAlignment="center"
+            app:autoSizeMaxTextSize="12sp"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            tools:ignore="MissingPrefix,UnusedAttribute" />
+
+        <Button
+            style="@style/TextAppearance.Button.Small"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="@dimen/horizontal_margin_small"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="6sp"
+            android:autoSizeStepGranularity="2sp"
+            android:autoSizeTextType="uniform"
+            android:textAlignment="center"
+            app:autoSizeMaxTextSize="12sp"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            tools:ignore="MissingPrefix,UnusedAttribute" />
+
+        <Button
+            style="@style/TextAppearance.Button.Small"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="@dimen/horizontal_margin_small"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="6sp"
+            android:autoSizeStepGranularity="2sp"
+            android:autoSizeTextType="uniform"
+            android:textAlignment="center"
+            app:autoSizeMaxTextSize="12sp"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            tools:ignore="MissingPrefix,UnusedAttribute" />
+
+        <Button
+            style="@style/TextAppearance.Button.Small"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="@dimen/horizontal_margin_small"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="6sp"
+            android:autoSizeStepGranularity="2sp"
+            android:autoSizeTextType="uniform"
+            android:textAlignment="center"
+            app:autoSizeMaxTextSize="12sp"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            tools:ignore="MissingPrefix,UnusedAttribute" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/back"
+        style="@style/FlatButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/page_marker"
+        android:layout_marginTop="@dimen/vertical_margin_large"
+        android:text="@string/restore_wallet_back_to_previous_word_label"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance"
+        android:textColor="@color/font_accent"
+        android:visibility="invisible" />
+</RelativeLayout>

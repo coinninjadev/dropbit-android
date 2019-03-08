@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/rounded_view"
+    android:orientation="vertical"
+    android:windowSoftInputMode="stateVisible">
+
+    <TextView
+        android:id="@+id/shared_memo_text_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:paddingTop="15dp"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance"
+        app:layout_constraintBottom_toTopOf="@+id/shared_memo_background_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/shared_memo_background_view"
+        android:layout_width="match_parent"
+        android:background="@drawable/bottom_rounded_border_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="39dp"/>
+
+    <TextView
+        android:id="@+id/shared_memo_status_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/montserrat_light"
+        android:maxLines="1"
+        android:textSize="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/shared_memo_background_view" />
+
+    <ImageView
+        android:id="@+id/shared_status_image_view"
+        android:layout_width="13dp"
+        android:layout_height="13dp"
+        android:layout_marginEnd="15dp"
+        android:layout_toStartOf="@+id/shared_memo_text_view"
+        app:layout_constraintBottom_toBottomOf="@+id/shared_memo_status_text_view"
+        app:layout_constraintEnd_toStartOf="@+id/shared_memo_status_text_view"
+        app:layout_constraintTop_toTopOf="@+id/shared_memo_status_text_view"
+        tools:layout_editor_absoluteX="63dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

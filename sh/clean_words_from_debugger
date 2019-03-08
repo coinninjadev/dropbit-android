@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+
+import sys
+import re
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKCYAN = '\033[96m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+EXAMPLE= """
+./sh/clean_words_from_debugger  \\
+\"\"\"
+    0 = "cupboard"
+    1 = "unique"
+    2 = "purse"
+    3 = "possible"
+    4 = "make"
+    5 = "matter"
+    6 = "adapt"
+    7 = "copy"
+    8 = "lunch"
+    9 = "bracket"
+    10 = "vivid"
+    11 = "broom"
+\"\"\"
+"""
+
+def seed_to_list(arg):
+    arg = arg.strip()
+    arg = arg.replace("\t", "").replace("    ", "")
+    arg = re.sub('\d+ = ', '', arg)
+    return arg.split("\n")
+
+def for_gradle(words):
+    s = "SEED_WORDS="
+    for word in words:
+        s += "\\\"" + word + "\\\","
+    return s[:-1]
+
+def to_string_array(words):
+    s = ""
+    for word in words:
+        s += "\"" + word + "\","
+    return "{" +  s[:-1] + "}"
+
+if __name__ == "__main__":
+    print bcolors.OKGREEN + "\n|-- Taking seedword input and stringifing for different input uses --|\n" + bcolors.ENDC
+
+    if len(sys.argv) == 1:
+        print bcolors.FAIL + "\n\n|---- Please provide seedword from android debugger. See example input below" + bcolors.ENDC
+        print bcolors.WARNING + EXAMPLE + bcolors.ENDC
+        sys.exit(128)
+
+    print bcolors.HEADER + "|---- INPUT ----|" + bcolors.ENDC
+
+    arg = sys.argv[1]
+    print bcolors.OKBLUE + arg + bcolors.ENDC
+
+    words = seed_to_list(arg)
+    print bcolors.OKGREEN + "\n|---- TO LIST ----|\n" + bcolors.ENDC
+    print bcolors.OKCYAN, words, bcolors.ENDC
+
+    print bcolors.OKGREEN + "\n|---- TO String[] ----|\n" + bcolors.ENDC
+    print bcolors.OKCYAN, to_string_array(words), bcolors.ENDC
+
+    print bcolors.OKGREEN + "\n|---- For ELECTRUM ----|\n" + bcolors.ENDC
+    print bcolors.OKCYAN, " ".join(words), bcolors.ENDC
+
+    print bcolors.OKGREEN + "\n|---- For ~/.gradle/gradle.properties ----|\n" + bcolors.ENDC
+    print bcolors.OKCYAN, for_gradle(words), bcolors.ENDC, "\n\n\n"

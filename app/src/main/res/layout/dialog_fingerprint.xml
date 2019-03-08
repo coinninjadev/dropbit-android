@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fingerprint_pref"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="290dp"
+    android:orientation="vertical"
+    android:padding="@dimen/dialog_padding">
+
+    <TextView
+        android:id="@+id/header"
+        android:textAppearance="@style/TextAppearance.Medium"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:text="@string/sign_in" />
+
+    <TextView
+        android:id="@+id/headline"
+        android:textAppearance="@style/TextAppearance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:text="@string/use_touch_to_unlock" />
+
+    <include layout="@layout/dialog_fingerprint_scan" />
+
+    <Button
+        android:id="@+id/negative_button"
+        android:theme="@style/FlatButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="@string/fingerprint_negative_button" />
+
+</LinearLayout>

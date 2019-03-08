@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="CoinKeeperTheme.Dark.Toolbar" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="android:fontFamily">@font/montserat</item>
+        <item name="android:buttonStyle">@style/Button</item>
+        <item name="android:textAppearance">@style/TextAppearance</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.Small</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.Medium</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.Large</item>
+        <item name="android:borderlessButtonStyle">@style/FlatButton</item>
+        <!--
+        <item name="android:dialogTheme">@style/DialogTheme</item>
+        <item name="android:alertDialogStyle">@style/AlertDialog.AppCompat</item>
+        -->
+        <item name="android:alertDialogTheme">@style/CoinKeeperTheme.LightActionBar.Dialog</item>
+        <item name="alertDialogCenterButtons">false</item>
+        <item name="android:listDividerAlertDialog">@null</item>
+        <item name="android:actionBarStyle">@style/ActionbarStyle</item>
+        <item name="android:actionBarTabStyle">@style/AppTabLayout</item>
+        <item name="actionBarStyle">@style/ActionbarStyle</item>
+        <item name="actionBarTabStyle">@style/AppTabLayout</item>
+        <item name="navigationIcon">@drawable/ic_back</item>
+        <item name="actionBarTitleStyle">@style/ActionBarTitleDark</item>
+        <item name="actionBarMenuType">@id/actionbar_dark_up_on</item>
+        <item name="confirmations">@style/Confirmations</item>
+        <item name="cn_background">@style/BackgroundNormal</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar" parent="CoinKeeperTheme.Dark.Toolbar">
+        <item name="android:actionBarStyle">@style/ActionbarStyle.Light</item>
+        <item name="actionBarStyle">@style/ActionbarStyle.Light</item>
+        <item name="android:actionBarTabStyle">@style/AppTabLayout.Light</item>
+        <item name="actionBarTabStyle">@style/AppTabLayout.Light</item>
+        <item name="navigationIcon">@drawable/ic_back_accent</item>
+        <item name="colorPrimary">@color/background_color</item>
+        <item name="actionBarTitleStyle">@style/ActionBarTitleLight</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.UpOff" parent="CoinKeeperTheme.LightActionBar">
+        <item name="actionBarMenuType">@id/actionbar_light_up_off</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.UpOn" parent="CoinKeeperTheme.LightActionBar">
+        <item name="actionBarMenuType">@id/actionbar_light_up_on</item>
+        <item name="textAllCaps">false</item>
+        <item name="actionButtonStyle">@style/FlatButton</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.UpOn.SkipOn" parent="CoinKeeperTheme.LightActionBar">
+        <item name="actionBarMenuType">@id/actionbar_light_up_on_skip_on</item>
+        <item name="textAllCaps">false</item>
+        <item name="actionButtonStyle">@style/FlatButton</item>
+    </style>
+
+
+    <style name="CoinKeeperTheme.LightActionBar.UpOff.SkipOnAccent" parent="CoinKeeperTheme.LightActionBar">
+        <item name="actionBarMenuType">@id/actionbar_light_up_off_skip_on</item>
+        <item name="textAllCaps">false</item>
+        <item name="actionButtonStyle">@style/FlatButton.Accent</item>
+        <item name="android:actionMenuTextColor">@color/colorAccent</item>
+    </style>
+
+    <style name="CoinKeeperTheme.DarkActionBar" parent="CoinKeeperTheme.Dark.Toolbar">
+        <item name="android:actionBarStyle">@style/ActionbarStyle.Light</item>
+        <item name="actionBarStyle">@style/ActionbarStyle.Light</item>
+        <item name="android:actionBarTabStyle">@style/AppTabLayout.Light</item>
+        <item name="actionBarTabStyle">@style/AppTabLayout.Light</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="actionBarTitleStyle">@style/ActionBarTitleDark</item>
+    </style>
+
+    <style name="CoinKeeperTheme.DarkActionBar.UpOff" parent="CoinKeeperTheme.DarkActionBar">
+        <item name="actionBarMenuType">@id/actionbar_gone</item>
+    </style>
+
+    <style name="CoinKeeperTheme.DarkActionBar.UpOn" parent="CoinKeeperTheme.DarkActionBar">
+        <item name="actionBarMenuType">@id/actionbar_dark_up_on</item>
+    </style>
+
+    <style name="CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" parent="CoinKeeperTheme.DarkActionBar">
+        <item name="actionBarMenuType">@id/actionbar_dark_up_off_close_on</item>
+    </style>
+
+    <style name="CoinKeeperTheme.LightActionBar.Dialog" parent="Base.V7.ThemeOverlay.AppCompat.Dialog">
+        <item name="buttonStyle">@style/FlatButton</item>
+    </style>
+
+    <style name="CoinKeeperTheme.NoActionBar.BlockChain" parent="CoinKeeperTheme.Dark.Toolbar">
+        <item name="actionBarMenuType">@id/actionbar_gone</item>
+        <item name="cn_background">@style/BlockChain</item>
+    </style>
+
+    <!-- ActionBar styles -->
+    <style name="ActionbarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/backgrouind_dark_actionbar</item>
+        <item name="background">@drawable/backgrouind_dark_actionbar</item>
+    </style>
+
+    <style name="ActionbarStyle.Light" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/background_light_actionbar</item>
+        <item name="background">@drawable/background_light_actionbar</item>
+    </style>
+
+
+    <style name="DialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <!--
+        <item name="android:buttonBarStyle">@style/Widget.AppCompat.ButtonBar.AlertDialog</item>
+        <item name="android:windowTitleBackgroundStyle">@style/DialogTitleBackgroundStyle</item>
+        <item name="android:windowTitleStyle">@style/DialogTitle</item>
+        -->
+        <item name="android:borderlessButtonStyle">@style/FlatButton</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+
+        <!-- Copy our color theme attributes to the framework -->
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <!--
+        <item name="android:colorAccent">@color/colorAccent</item>
+        -->
+        <item name="android:colorAccent">@android:color/transparent</item>
+        <item name="android:colorControlNormal">@android:color/transparent</item>
+        <item name="android:colorControlActivated">@android:color/transparent</item>
+        <item name="android:colorControlHighlight">@android:color/transparent</item>
+        <item name="android:colorButtonNormal">@color/colorPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
+</resources>

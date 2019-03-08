@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0c344b</color>
+    <color name="colorPrimaryDark">#242536</color>
+    <color name="colorAccent">#2cd1ff</color>
+    <color name="colorSuccess">#2cd1ff</color>
+    <color name="colorDisabled">#40000000</color>
+    <color name="colorFlatHover">#20000000</color>
+
+    <color name="tabColor">#b3ffffff</color>
+    <color name="tabColorSelected">#ffffff</color>
+
+    <!-- Background Colors -->
+    <color name="background_color_white">#ffffff</color>
+    <color name="background_color">#f4f4f4</color>
+    <color name="background_color_transparent">#0ff4f4f4</color>
+    <color name="background_dark_transparent">#99000000</color>
+
+    <!-- Font Colors -->
+    <color name="font_default">#9b9b9b</color>
+    <color name="font_accent">#2cd1ff</color>
+    <color name="font_disabled">#40000000</color>
+    <color name="font_light_gray">#a5565454</color>
+    <color name="font_gray">#9b9b9b</color>
+    <color name="font_lighter_gray">#a9a9a9</color>
+    <color name="font_lightest_gray">#f4f4f4</color>
+    <color name="font_white">#ffffff</color>
+
+
+    <!-- Button Colors -->
+    <!-- Primary Button Colors -->
+    <color name="primary">#2cd1ff</color>
+    <color name="primary_pressed">#992cd1ff</color>
+    <color name="primary_disabled">#992cd1ff</color>
+
+    <!-- CTA Buttons (Call To Action) -->
+    <color name="cta">#242536</color>
+    <color name="cta_pressed">#99242536</color>
+    <color name="cta_disabled">#99242536</color>
+
+    <!-- Flat Buttons -->
+    <color name="flat">#2cd1ff</color>
+    <color name="flat_pressed">#992cd1ff</color>
+    <color name="flat_disabled">#40000000</color>
+
+
+    <!-- Navigation Icon -->
+    <color name="dark">#4a4a4a</color>
+
+
+    <!-- BTC Symbol Tint-->
+    <color name="btc_tx_history_tint">#F79E36</color>
+
+    <color name="orange">#ffa41c</color>
+    <color name="colorBTNText">#242536</color>
+    <color name="colorRestoreBTN">#2cd1ff</color>
+    <color name="colorTransparent">#00FFFFFF</color>
+    <color name="color_error">#e76c6c</color>
+    <color name="color_error_pressed">#E49E9E</color>
+
+    <color name="fontColor">#9b9b9b</color>
+    <color name="back">#f4f4f4f4</color>
+    <color name="light">#ffffffff</color>
+    <color name="light_border">#D8D8D8</color>
+
+
+    <color name="light_btn">#f4f4f4</color>
+    <color name="light_btn_pressed">#e3e3e3</color>
+    <color name="light_btn_border">#e3e3e3</color>
+
+    <color name="lighter_btn">#b8ffffff</color>
+    <color name="lighter_btn_border">#e3e3e3</color>
+
+    <color name="blue">#2cd1ff</color>
+
+    <color name="fingerprint_standard">#242536</color>
+    <color name="fingerprint_success">#2cd1ff</color>
+    <color name="fingerprint_error">#e76c6c</color>
+    <color name="fingerprint_instruction">#8a000000</color>
+    <color name="fingerprint_headline">#8a000000</color>
+    <color name="fingerprint_header">#de000000</color>
+
+    <color name="btn_blue_light">#2cd1ff</color>
+    <color name="border">#e3e3e3</color>
+    <color name="view_pager_background">#80000000</color>
+
+    <color name="background_transaction_detail_tax">#fafafa</color>
+    <color name="border_transaction_detail_tax">#e0e0e0</color>
+
+    <!-- Broadcast Activity -->
+    <color name="broadcast_sending_progress_label_text_color">#9b9b9b</color>
+
+    <!-- Internal Notifications -->
+    <color name="transparent_background">#E6fafafa</color>
+    <color name="success_background">#83cf1c</color>
+    <color name="error_background">#e87676</color>
+    <color name="info_background">#ffffff</color>
+    <color name="warn_background">#e0b100</color>
+
+    <!-- Training Screens -->
+    <color name="training_background">#242536</color>
+    <color name="training_body_color">#242536</color>
+
+    <!-- Confirmation Bead Colors -->
+    <color name="background_bead_active">#ff83cf1c</color>
+    <color name="background_bead_inactive">#ffdadada</color>
+</resources>

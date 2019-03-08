@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="calc_large_font_size">
+        <item>80f</item>
+        <item>80f</item>
+        <item>75f</item>
+        <item>70f</item>
+        <item>65f</item>
+        <item>60f</item>
+        <item>55f</item>
+        <item>50f</item>
+        <item>45f</item>
+        <item>40f</item>
+        <item>35f</item>
+        <item>35f</item>
+        <item>35f</item>
+        <item>35f</item>
+        <item>30f</item>
+        <item>30f</item>
+        <item>30f</item>
+        <item>30f</item>
+        <item>30f</item>
+    </array>
+    <array name="calc_small_font_size">
+        <item>50f</item>
+        <item>50f</item>
+        <item>45f</item>
+        <item>40f</item>
+        <item>35f</item>
+        <item>30f</item>
+        <item>25f</item>
+        <item>20f</item>
+        <item>17f</item>
+        <item>15f</item>
+        <item>12f</item>
+        <item>12f</item>
+        <item>12f</item>
+        <item>12f</item>
+        <item>10f</item>
+        <item>10f</item>
+        <item>10f</item>
+        <item>10f</item>
+        <item>10f</item>
+    </array>
+
+    <array name="dialog_header_font_sizes">
+        <item>40f</item>
+        <item>40f</item>
+        <item>40f</item>
+        <item>40f</item>
+        <item>40f</item>
+        <item>35f</item>
+        <item>35f</item>
+        <item>35f</item>
+        <item>35f</item>
+        <item>30f</item>
+        <item>30f</item>
+        <item>30f</item>
+        <item>30f</item>
+        <item>26f</item>
+        <item>26f</item>
+        <item>26f</item>
+        <item>26f</item>
+        <item>26f</item>
+        <item>26f</item>
+    </array>
+
+</resources>

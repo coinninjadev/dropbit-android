@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="@dimen/oval_question_size"
+        android:layout_height="@dimen/oval_question_size"
+        android:background="@drawable/ic_oval" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textSize="@dimen/pay_dialog_small_text"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="@string/oval_question" />
+
+</RelativeLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lists_divider"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_divider"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/vertical_padding"
+    android:paddingRight="@dimen/vertical_padding">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:text="@string/send_and_invite_to_keeper_app"
+        android:textColor="@color/font_white"
+        android:textSize="@dimen/pay_dialog_small_text" />
+
+    <TextView
+        android:id="@+id/what_is_dropbit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="@string/what_is_dropbit"
+        android:textAppearance="@style/TextAppearance.Small.Accent"
+        android:textSize="@dimen/tiny_font" />
+
+</RelativeLayout>

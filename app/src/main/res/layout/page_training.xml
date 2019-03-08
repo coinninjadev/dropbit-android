@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/training_drop_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:background="@color/training_background"
+        android:gravity="center"
+        android:layout_above="@+id/training_body_layout"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerInParent="true"
+            android:background="@color/training_background"
+            android:gravity="top|center">
+
+            <ImageView
+                android:layout_width="@dimen/training_drop_logo_width"
+                android:layout_height="@dimen/training_drop_logo_height"
+                android:src="@drawable/group_2_copy_3"
+                android:layout_marginBottom="@dimen/training_dots_padding" />
+
+            <ImageView
+                android:layout_width="@dimen/training_drop_background_width"
+                android:layout_height="@dimen/training_drop_background_height"
+                android:src="@drawable/pixel" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/video_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/training_background"
+        android:gravity="bottom|center"
+        android:visibility="visible"
+        android:layout_above="@+id/training_body_layout">
+
+
+        <TextView
+            android:id="@+id/video_message"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/training_drop_video_height"
+            android:textColor="@color/colorAccent"
+            android:gravity="center"
+            android:textSize="@dimen/training_drop_text"
+            tools:text="the top" />
+
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/training_video_margin"
+            android:layout_marginLeft="@dimen/training_video_margin"
+            android:visibility="invisible"
+            android:orientation="vertical" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/training_body_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/training_body_height"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true"
+        android:gravity="bottom|center"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:id="@+id/training_body_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/training_body_color"
+            android:paddingTop="@dimen/training_body_padding"
+            android:gravity="center_horizontal"
+            android:text="@string/training_body_header" />
+
+        <TextView
+            android:id="@+id/training_body"
+            android:layout_width="@dimen/training_body_width"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/training_body_text_size"
+            android:textColor="@color/training_body_color"
+            android:gravity="center_horizontal"
+            android:paddingTop="@dimen/training_body_padding_small"
+            android:paddingBottom="@dimen/training_body_padding_small" />
+
+        <TextView
+            android:id="@+id/training_body_subtext"
+            android:layout_width="@dimen/training_body_width"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/training_body_text_small"
+            android:textColor="@color/colorAccent"
+            android:gravity="center_horizontal"
+            android:paddingTop="@dimen/training_body_padding_small"
+            android:layout_marginBottom="@dimen/training_body_padding"
+            android:text="@string/training_body_subtext" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>
