@@ -3,14 +3,13 @@ package com.coinninja.coinkeeper.service;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.runner.SaveTransactionRunner;
 import com.coinninja.coinkeeper.util.Intents;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 
 import org.junit.Before;
 import org.junit.Test;

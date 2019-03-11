@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.cn.wallet;
 
 import com.coinninja.coinkeeper.cn.account.AccountManager;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -14,7 +14,6 @@ import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.After;
 import org.junit.Before;
@@ -73,19 +72,16 @@ public class CNWalletManagerTest {
     private TransactionHelper transactionHelper;
 
     @Mock
-    PhoneNumberUtil phoneNumberUtil;
+    private PhoneNumber phoneNumber;
 
     @InjectMocks
     private CNWalletManager cnWalletManager;
-
-    private PhoneNumber phoneNumber;
 
     @Before
     public void setUp() throws Exception {
         when(bitcoinUtil.isValidBIP39Words(valid_words)).thenReturn(true);
         when(bitcoinUtil.isValidBIP39Words(invalid_words)).thenReturn(false);
         when(walletHelper.getSeedWords()).thenReturn(valid_words);
-        phoneNumber = new PhoneNumber("+12223334444");
     }
 
     @After
@@ -295,7 +291,7 @@ public class CNWalletManagerTest {
         when(account.getPhoneNumber()).thenReturn(phoneNumber);
 
         PhoneNumber actualPhone = cnWalletManager.getContact().getPhoneNumber();
-        assertThat(actualPhone, equalTo(this.phoneNumber));
+        assertThat(actualPhone, equalTo(phoneNumber));
     }
 
     @Test

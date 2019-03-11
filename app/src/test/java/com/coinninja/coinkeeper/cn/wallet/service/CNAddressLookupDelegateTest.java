@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.cn.wallet.service;
 import android.content.Context;
 import android.content.Intent;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.Hasher;
@@ -11,8 +11,6 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.After;
 import org.junit.Before;

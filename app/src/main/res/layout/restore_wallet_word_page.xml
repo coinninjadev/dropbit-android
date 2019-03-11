@@ -24,7 +24,7 @@
         android:layout_below="@+id/page_instructions"
         android:layout_marginTop="@dimen/vertical_margin_medium"
         android:background="@drawable/lighter_button_background"
-        android:inputType="textVisiblePassword"
+        android:inputType="textVisiblePassword|textNoSuggestions"
         android:lines="1"
         android:padding="@dimen/vertical_padding"
         android:textAlignment="center"

@@ -24,6 +24,7 @@ import com.coinninja.coinkeeper.di.component.TestAppComponent;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
+import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
 import com.coinninja.coinkeeper.di.interfaces.DebugBuild;
 import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
@@ -47,8 +48,14 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
+import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
+import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
 
+import java.util.List;
+import java.util.Locale;
+
+import androidx.core.os.ConfigurationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import dagger.Module;
 import dagger.Provides;
@@ -83,6 +90,11 @@ public class TestAppModule {
     }
 
     @Provides
+    com.google.i18n.phonenumbers.PhoneNumberUtil provideI18PhoneNumberUtil() {
+        return com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance();
+    }
+
+    @Provides
     @CoinkeeperApplicationScope
     @ApplicationContext
     Context context(CoinKeeperApplication application) {
@@ -108,7 +120,7 @@ public class TestAppModule {
             app.analytics = mock(Analytics.class);
         return app.analytics;
     }
-   
+
     @Provides
     MessageCryptor messageCryptor(TestCoinKeeperApplication app) {
         if (app.messageCryptor == null)
@@ -363,4 +375,15 @@ public class TestAppModule {
         return app.typedValue;
     }
 
+    @CountryCodeLocales
+    @Provides
+    List<CountryCodeLocale> provideCountryCodeLocales(CountryCodeLocaleGenerator countryCodeLocaleGenerator) {
+        return mock(List.class);
+    }
+
+    @CoinkeeperApplicationScope
+    @Provides
+    Locale locale(@ApplicationContext Context context) {
+        return ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
+    }
 }

@@ -12,9 +12,9 @@ import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.model.FundingUTXOs;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.helpers.BroadcastBtcInviteHelper;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
@@ -25,7 +25,6 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import javax.inject.Inject;
 

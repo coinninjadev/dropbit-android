@@ -1,9 +1,9 @@
 package com.coinninja.coinkeeper.model.helpers;
 
 import com.coinninja.bindings.TransactionBroadcastResult;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.Wallet;
@@ -62,18 +62,15 @@ public class InviteTransactionSummaryHelperTest {
     // Actual Invite
     @Mock
     InviteTransactionSummary inviteTransactionSummary;
-
-    private PhoneNumber phoneNumber;
-    private PhoneNumber senderPhoneNumber;
-    private PhoneNumber receiverPhoneNumber;
-
     @Mock
     PhoneNumberUtil phoneNumberUtil;
-
-
     @InjectMocks
     InviteTransactionSummaryHelper helper;
-    private String senderPhoneNumberString;
+
+    @Mock
+    private PhoneNumber senderPhoneNumber;
+    @Mock
+    private PhoneNumber receiverPhoneNumber;
 
     @After
     public void tearDown() {
@@ -88,10 +85,8 @@ public class InviteTransactionSummaryHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        PhoneNumberUtil realPhoneNumberUtil = new PhoneNumberUtil();
-        phoneNumber = new PhoneNumber();
-        senderPhoneNumber = new PhoneNumber(SENDER_PHONE_STRING);
-        receiverPhoneNumber = new PhoneNumber(RECEIVER_PHONE_STRING);
+        when(senderPhoneNumber.toString()).thenReturn(SENDER_PHONE_STRING);
+        when(receiverPhoneNumber.toString()).thenReturn(RECEIVER_PHONE_STRING);
     }
 
     @Test

@@ -4,11 +4,9 @@ import android.content.res.Resources;
 
 import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.After;
 import org.junit.Test;
@@ -30,6 +28,13 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FulfillSentInvitesRunnerTest {
+
+    @Mock
+    BroadcastBtcInviteRunner broadcastBtcInviteRunner;
+    @Mock
+    private PhoneNumber receiverPhoneNumber;
+    @Mock
+    private PhoneNumber senderPhoneNumber;
     @Mock
     private CoinKeeperApplication application;
     @Mock
@@ -38,14 +43,8 @@ public class FulfillSentInvitesRunnerTest {
     private TransactionHelper txHelper;
     @Mock
     private SentInvitesStatusSender sender;
-    @Mock
-    BroadcastBtcInviteRunner broadcastBtcInviteRunner;
-
     @InjectMocks
     private FulfillSentInvitesRunner fulfillRunner;
-    private final PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
-    private final PhoneNumber receiverPhoneNumber = new PhoneNumber("+12223334444");
-    private final PhoneNumber senderPhoneNumber = new PhoneNumber("+12062020925");
 
     @After
     public void tearDown() throws Exception {
@@ -55,6 +54,8 @@ public class FulfillSentInvitesRunnerTest {
         sender = null;
         broadcastBtcInviteRunner = null;
         fulfillRunner = null;
+        receiverPhoneNumber = null;
+        senderPhoneNumber = null;
     }
 
     @Test

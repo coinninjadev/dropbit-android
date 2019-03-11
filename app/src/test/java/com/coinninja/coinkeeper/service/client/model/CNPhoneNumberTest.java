@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.service.client.model;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.google.gson.Gson;
 
 import org.junit.Before;
@@ -30,13 +30,18 @@ public class CNPhoneNumberTest {
     }
 
     @Test
+    public void toPhoneNumber(){
+        assertThat(number.toPhoneNumber(), equalTo(phoneNumber));
+    }
+
+    @Test
     public void inits_from_phone_number() {
         assertThat(number.getPhoneNumber(), equalTo(NUMBER));
     }
 
 
     @Test
-    public void init_from_i18(){
+    public void init_from_i18() {
         CNPhoneNumber CNPhoneNumber = new CNPhoneNumber(I18N);
         assertThat(COUNTRY_CODE, equalTo(CNPhoneNumber.getCountryCode()));
         assertThat(NUMBER, equalTo(CNPhoneNumber.getPhoneNumber()));

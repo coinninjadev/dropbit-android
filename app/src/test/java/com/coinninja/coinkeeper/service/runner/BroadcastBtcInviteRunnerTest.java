@@ -12,9 +12,9 @@ import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.BroadcastBtcInviteHelper;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
@@ -23,7 +23,6 @@ import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -91,8 +90,6 @@ public class BroadcastBtcInviteRunnerTest {
     @Mock
     private TransactionsInvitesSummary transactionsInvitesSummary;
     @Mock
-    private PhoneNumberUtil phoneNumberUtil;
-    @Mock
     private SyncWalletManager syncWalletManager;
 
     @InjectMocks
@@ -104,6 +101,8 @@ public class BroadcastBtcInviteRunnerTest {
     String address = "--address--";
     String nameOfReceiver = "Joe Blow";
 
+    @Mock
+    PhoneNumber phoneNumber;
 
     @Before
     public void setUp() throws Exception {
@@ -111,7 +110,7 @@ public class BroadcastBtcInviteRunnerTest {
         when(context.getResources()).thenReturn(resources);
         when(invite.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
         when(invite.getServerId()).thenReturn(serverId);
-        when(invite.getReceiverPhoneNumber()).thenReturn(new PhoneNumber("+12565245258"));
+        when(invite.getReceiverPhoneNumber()).thenReturn(phoneNumber);
         when(invite.getInviteName()).thenReturn(nameOfReceiver);
         when(invite.getAddress()).thenReturn(address);
         when(invite.getValueFeesSatoshis()).thenReturn(fee);

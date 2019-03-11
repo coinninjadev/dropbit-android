@@ -6,11 +6,9 @@ import android.widget.TextView;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.Before;
 import org.junit.Test;

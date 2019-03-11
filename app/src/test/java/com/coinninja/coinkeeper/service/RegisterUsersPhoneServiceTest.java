@@ -4,11 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.RegisterPhoneNumberRunnable;
 import com.coinninja.coinkeeper.util.Intents;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.Before;
 import org.junit.Test;

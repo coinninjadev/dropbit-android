@@ -3,13 +3,13 @@ package com.coinninja.coinkeeper.model.helpers;
 import android.util.Log;
 
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.FundingStatDao;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummaryDao;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TargetStat;
 import com.coinninja.coinkeeper.model.db.TargetStatDao;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;

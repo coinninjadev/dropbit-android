@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.service.tasks;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
@@ -47,7 +48,9 @@ public class CoinNinjaUserQueryTaskTest {
     private List<Contact> unverifiedContacts;
     private List<List<Contact>> hunks;
 
-    private static final String NUMBER = "+12165551111";
+    @Mock
+    private PhoneNumber phoneNumber;
+
     private static final String NAME = "Jane Doe";
     private static final String HASH = "--- phone-hash ";
     private List<JsonObject> responses;
@@ -192,7 +195,7 @@ public class CoinNinjaUserQueryTaskTest {
             hash = buildHashFor(i);
             contact = new Contact();
             contact.setDisplayName(NAME + " - " + String.valueOf(i));
-            contact.setPhoneNumber(NUMBER);
+            contact.setPhoneNumber(phoneNumber);
             contact.setHash(hash);
             contacts.add(contact);
             hunks.get(which).add(contact);

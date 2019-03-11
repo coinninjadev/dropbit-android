@@ -31,13 +31,12 @@ public class IncomingInviteResponder implements Runnable {
     private final AccountManager accountManager;
     private final Analytics analytics;
     private final CNLogger logger;
-    private PhoneNumberUtil phoneNumberUtil;
 
     @Inject
     public IncomingInviteResponder(SignedCoinKeeperApiClient client, TransactionHelper transactionHelper,
                                    InternalNotificationHelper internalNotificationHelper,
                                    WalletHelper walletHelper, AccountManager accountManager,
-                                   Analytics analytics, CNLogger logger, PhoneNumberUtil phoneNumberUtil) {
+                                   Analytics analytics, CNLogger logger) {
         this.client = client;
         this.walletHelper = walletHelper;
         this.transactionHelper = transactionHelper;
@@ -45,7 +44,6 @@ public class IncomingInviteResponder implements Runnable {
         this.accountManager = accountManager;
         this.analytics = analytics;
         this.logger = logger;
-        this.phoneNumberUtil = phoneNumberUtil;
     }
 
     @Override

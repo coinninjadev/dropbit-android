@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.model.db;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.converter.PhoneNumberConverter;
 
 import org.greenrobot.greendao.DaoException;
@@ -49,11 +50,15 @@ public class TransactionsInvitesSummary {
     @Property
     String inviteTxID;
 
-    /** Used to resolve relations */
+    /**
+     * Used to resolve relations
+     */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
-    /** Used for active entity operations. */
+    /**
+     * Used for active entity operations.
+     */
     @Generated(hash = 1017584317)
     private transient TransactionsInvitesSummaryDao myDao;
 
@@ -64,8 +69,8 @@ public class TransactionsInvitesSummary {
     private transient Long inviteTransactionSummary__resolvedKey;
 
     public TransactionsInvitesSummary(Long id, Long transactionSummaryID, Long transactionNotificationID,
-            String toName, PhoneNumber toPhoneNumber, Long inviteSummaryID, long inviteTime, long btcTxTime,
-            String transactionTxID, String inviteTxID) {
+                                      String toName, PhoneNumber toPhoneNumber, Long inviteSummaryID, long inviteTime, long btcTxTime,
+                                      String transactionTxID, String inviteTxID) {
         this.id = id;
         this.transactionSummaryID = transactionSummaryID;
         this.toName = toName;
@@ -79,8 +84,8 @@ public class TransactionsInvitesSummary {
 
     @Generated(hash = 839588361)
     public TransactionsInvitesSummary(Long id, Long transactionSummaryID, String toName,
-            PhoneNumber toPhoneNumber, Long inviteSummaryID, long inviteTime, long btcTxTime,
-            String transactionTxID, String inviteTxID) {
+                                      PhoneNumber toPhoneNumber, Long inviteSummaryID, long inviteTime, long btcTxTime,
+                                      String transactionTxID, String inviteTxID) {
         this.id = id;
         this.transactionSummaryID = transactionSummaryID;
         this.toName = toName;
@@ -97,7 +102,7 @@ public class TransactionsInvitesSummary {
     }
 
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
@@ -105,7 +110,7 @@ public class TransactionsInvitesSummary {
     }
 
     public Long getTransactionSummaryID() {
-        return this.transactionSummaryID;
+        return transactionSummaryID;
     }
 
     public void setTransactionSummaryID(Long transactionSummaryID) {
@@ -113,7 +118,7 @@ public class TransactionsInvitesSummary {
     }
 
     public String getToName() {
-        return this.toName;
+        return toName;
     }
 
     public void setToName(String toName) {
@@ -121,7 +126,7 @@ public class TransactionsInvitesSummary {
     }
 
     public Long getInviteSummaryID() {
-        return this.inviteSummaryID;
+        return inviteSummaryID;
     }
 
     public void setInviteSummaryID(Long inviteSummaryID) {
@@ -129,7 +134,7 @@ public class TransactionsInvitesSummary {
     }
 
     public long getInviteTime() {
-        return this.inviteTime;
+        return inviteTime;
     }
 
     public void setInviteTime(long inviteTime) {
@@ -137,7 +142,7 @@ public class TransactionsInvitesSummary {
     }
 
     public long getBtcTxTime() {
-        return this.btcTxTime;
+        return btcTxTime;
     }
 
     public void setBtcTxTime(long btcTxTime) {
@@ -145,7 +150,7 @@ public class TransactionsInvitesSummary {
     }
 
     public String getTransactionTxID() {
-        return this.transactionTxID;
+        return transactionTxID;
     }
 
     public void setTransactionTxID(String transactionTxID) {
@@ -153,7 +158,7 @@ public class TransactionsInvitesSummary {
     }
 
     public String getInviteTxID() {
-        return this.inviteTxID;
+        return inviteTxID;
     }
 
     public void setInviteTxID(String inviteTxID) {
@@ -179,7 +184,9 @@ public class TransactionsInvitesSummary {
         return transactionSummary;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 124943922)
     public void setTransactionSummary(TransactionSummary transactionSummary) {
         synchronized (this) {
@@ -193,8 +200,7 @@ public class TransactionsInvitesSummary {
     @Generated(hash = 408633770)
     public InviteTransactionSummary getInviteTransactionSummary() {
         Long __key = this.inviteSummaryID;
-        if (inviteTransactionSummary__resolvedKey == null
-                || !inviteTransactionSummary__resolvedKey.equals(__key)) {
+        if (inviteTransactionSummary__resolvedKey == null || !inviteTransactionSummary__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
@@ -209,7 +215,9 @@ public class TransactionsInvitesSummary {
         return inviteTransactionSummary;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 690463659)
     public void setInviteTransactionSummary(InviteTransactionSummary inviteTransactionSummary) {
         synchronized (this) {
@@ -256,7 +264,7 @@ public class TransactionsInvitesSummary {
     }
 
     public PhoneNumber getToPhoneNumber() {
-        return this.toPhoneNumber;
+        return toPhoneNumber;
     }
 
 

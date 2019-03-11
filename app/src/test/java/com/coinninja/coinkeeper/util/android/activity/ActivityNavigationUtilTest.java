@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.After;
 import org.junit.Before;
@@ -138,6 +141,20 @@ public class ActivityNavigationUtilTest {
         activityNavigationUtil.explainSharedMemos(activity);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Intents.URI_SHARED_MEMOS);
+        assertThat(activity, activityWithIntentStarted(intent));
+    }
+
+    @Test
+    public void navigates_to_verify_phone_number() {
+        Phonenumber.PhoneNumber phoneNumber = new Phonenumber.PhoneNumber();
+        phoneNumber.setNationalNumber(3305555555L);
+        phoneNumber.setCountryCode(1);
+        PhoneNumber number = new PhoneNumber(phoneNumber);
+
+        activityNavigationUtil.navigateToVerifyPhoneNumber(activity, number);
+
+        Intent intent = new Intent(activity, VerifyPhoneVerificationCodeActivity.class);
+        intent.putExtra(Intents.EXTRA_PHONE_NUMBER, number);
         assertThat(activity, activityWithIntentStarted(intent));
     }
 }

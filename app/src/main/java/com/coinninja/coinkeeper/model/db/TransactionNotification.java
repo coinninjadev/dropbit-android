@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.model.db;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.converter.PhoneNumberConverter;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Convert;
@@ -40,8 +40,8 @@ public class TransactionNotification {
 
     @Generated(hash = 131708261)
     public TransactionNotification(Long id, String dropbitMeHandle, String avatar, String displayName,
-            String memo, boolean isShared, long amount, String amountCurrency, String txid,
-            PhoneNumber phoneNumber) {
+                                   String memo, boolean isShared, long amount, String amountCurrency, String txid,
+                                   PhoneNumber phoneNumber) {
         this.id = id;
         this.dropbitMeHandle = dropbitMeHandle;
         this.avatar = avatar;
@@ -158,9 +158,9 @@ public class TransactionNotification {
         myDao.update(this);
     }
 
-    
+
     public String getTxid() {
-        return this.txid;
+        return txid;
     }
 
     public void setTxid(String txid) {

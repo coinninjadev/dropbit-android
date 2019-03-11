@@ -1,13 +1,12 @@
 package com.coinninja.coinkeeper.service.client;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
-import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
-import com.coinninja.coinkeeper.service.client.model.CNTopic;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
+import com.coinninja.coinkeeper.service.client.model.CNTopic;
+import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.List;
 

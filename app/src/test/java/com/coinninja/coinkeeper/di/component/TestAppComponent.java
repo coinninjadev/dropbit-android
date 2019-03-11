@@ -13,6 +13,8 @@ import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
+import java.util.Locale;
+
 import dagger.BindsInstance;
 import dagger.Component;
 import dagger.android.AndroidInjectionModule;
@@ -35,4 +37,5 @@ public interface TestAppComponent extends AppComponent {
 
     void inject(TestCoinKeeperApplication application);
 
+    Locale getLocale();
 }

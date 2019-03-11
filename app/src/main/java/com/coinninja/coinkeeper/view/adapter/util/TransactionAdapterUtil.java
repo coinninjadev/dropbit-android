@@ -4,10 +4,10 @@ import android.content.Context;
 
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TargetStat;
 import com.coinninja.coinkeeper.model.db.TransactionNotification;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;

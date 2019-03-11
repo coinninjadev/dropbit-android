@@ -2,19 +2,17 @@ package com.coinninja.coinkeeper.service.runner;
 
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.google.gson.Gson;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +61,6 @@ public class IncomingInviteResponderTest {
     private AccountManager accountManager;
     @Mock
     private CNLogger cnLogger;
-    @Mock
-    private PhoneNumberUtil phoneNumberUtil;
 
     @InjectMocks
     private IncomingInviteResponder incomingInviteResponder;
@@ -81,6 +77,11 @@ public class IncomingInviteResponderTest {
     private HashMap<String, String> addressToPubKey = new HashMap<String, String>();
     private List<InviteTransactionSummary> sampleInvites;
 
+    @Mock
+    private PhoneNumber phoneNumber;
+
+    public static final String FORMATTED_PHONE = "(222) 111-3333";
+
     @Before
     public void setUp() {
         addressToPubKey.put(addressOne, addressOnePubKey);
@@ -93,10 +94,9 @@ public class IncomingInviteResponderTest {
 
     @Test
     public void send_address_to_server_show_internal_notification_test() {
-        String formattedPhone = "(222) 333-4444";
         String expectedNotificationMessage =
                 "We have sent a Bitcoin address to "
-                        + formattedPhone
+                        + FORMATTED_PHONE
                         + " for "
                         + new BTCCurrency(0.04521568).toFormattedCurrency()
                         + " to be sent.";
@@ -133,12 +133,11 @@ public class IncomingInviteResponderTest {
 
         InviteTransactionSummary sampleInvite = mock(InviteTransactionSummary.class);
         Long sampleValueSatoshis = 4521568l;
-        PhoneNumber phoneNumber = new PhoneNumber("+12223334444");
-
 
         when(sampleInvite.getServerId()).thenReturn(sampleInviteServerID);
         when(sampleInvite.getValueSatoshis()).thenReturn(sampleValueSatoshis);
         when(sampleInvite.getSenderPhoneNumber()).thenReturn(phoneNumber);
+        when(phoneNumber.toNationalDisplayText()).thenReturn(FORMATTED_PHONE);
         sampleInvites.add(sampleInvite);
         return sampleInvites;
     }

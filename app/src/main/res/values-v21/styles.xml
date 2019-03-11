@@ -30,6 +30,7 @@
         <item name="actionBarTitleStyle">@style/ActionBarTitleDark</item>
         <item name="actionBarMenuType">@id/actionbar_dark_up_on</item>
         <item name="confirmations">@style/Confirmations</item>
+        <item name="phoneNumberInput">@style/PhoneNumberInputWidgetStyle</item>
         <item name="cn_background">@style/BackgroundNormal</item>
     </style>
 

@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.ResendPhoneVerificationService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
 import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
@@ -19,7 +19,6 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +31,7 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
+import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -383,7 +383,7 @@ public class VerifyPhoneVerificationCodeActivityTest {
     }
 
     @Test
-    public void sets_focus_on_first_child_once_user_acknowleges_code_message() {
+    public void sets_focus_on_first_child_once_user_acknowledges_code_message() {
         receiver.onReceive(activity, new Intent(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT));
 
         GenericAlertDialog dialog = (GenericAlertDialog) activity.getFragmentManager().findFragmentByTag(VerifyPhoneVerificationCodeActivity.VERIFICATION_CODE_SENT);
@@ -416,15 +416,11 @@ public class VerifyPhoneVerificationCodeActivityTest {
 
     @Test
     public void headline_message_has_formatted_string_test() {
-        String expectedPhoneNumberInMessage = "2162626262";
-        Intent startingIntent = new Intent();
-        startingIntent.putExtra(Intents.EXTRA_PHONE_NUMBER, new PhoneNumber(1, expectedPhoneNumberInMessage));
-        activity = Robolectric.buildActivity(VerifyPhoneVerificationCodeActivity.class, startingIntent).create().resume().start().visible().get();
-
-
         TextView headline = activity.findViewById(R.id.headline);
 
-
-        assertThat(headline.getText(), equalTo("We’ve sent a six digit verification code to (216-262-6262). It may take up to 30 seconds to receive the text."));
+        assertThat(headline,
+                hasText(activity.getResources()
+                        .getString(R.string.activity_verify_phone_code_headline,
+                                phoneNumber.toInternationalDisplayText())));
     }
 }

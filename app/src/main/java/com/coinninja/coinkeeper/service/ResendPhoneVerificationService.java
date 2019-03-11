@@ -3,11 +3,10 @@ package com.coinninja.coinkeeper.service;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.ResendPhoneVerificationRunner;
 import com.coinninja.coinkeeper.util.Intents;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import androidx.annotation.Nullable;
 

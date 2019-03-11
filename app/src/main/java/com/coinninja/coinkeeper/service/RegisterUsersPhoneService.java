@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.service;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.RegisterPhoneNumberRunnable;
 import com.coinninja.coinkeeper.util.Intents;

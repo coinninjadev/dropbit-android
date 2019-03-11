@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 
 import javax.inject.Inject;
 
@@ -93,5 +95,11 @@ public class ActivityNavigationUtil {
 
     public void explainSharedMemos(Context context) {
         openWebsite(context, Intents.URI_SHARED_MEMOS);
+    }
+
+    public void navigateToVerifyPhoneNumber(Context context, PhoneNumber phoneNumber) {
+        Intent intent = new Intent(context, VerifyPhoneVerificationCodeActivity.class);
+        intent.putExtra(Intents.EXTRA_PHONE_NUMBER, phoneNumber);
+        context.startActivity(intent);
     }
 }

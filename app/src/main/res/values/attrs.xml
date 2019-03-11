@@ -3,6 +3,7 @@
     <attr name="actionBarTitleStyle" format="reference" />
     <attr name="actionBarMenuType" format="reference" />
     <attr name="confirmations" format="reference" />
+    <attr name="phoneNumberInput" format="reference" />
     <attr name="cn_background" format="reference" />
 
     <declare-styleable name="ConfirmationsWidgetStyle">
@@ -22,5 +23,9 @@
             <enum name="transaction" value="32" />
         </attr>
         <attr name="lastStepVector" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="PhoneNumberInputView">
+        <attr name="textAppearance" format="reference" />
     </declare-styleable>
 </resources>

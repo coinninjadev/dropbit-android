@@ -4,7 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TransactionNotification;
 import com.coinninja.coinkeeper.model.db.TransactionNotificationDao;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
@@ -48,14 +48,16 @@ public class ContactLookupService extends JobIntentService {
     @Override
     public void onCreate() {
         AndroidInjection.inject(this);
-        this.transactionInviteSummaryDao = sessionManager.getTransactionsInvitesSummaryDao();
+        transactionInviteSummaryDao = sessionManager.getTransactionsInvitesSummaryDao();
         super.onCreate();
     }
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
         if (!permissionsUtil.hasPermission(Manifest.permission.READ_CONTACTS) ||
-                !transactionSummaryDataSource.shouldAttemptToMapContacts()) { return; }
+                !transactionSummaryDataSource.shouldAttemptToMapContacts()) {
+            return;
+        }
         queryForAllLocalContacts();
         List<TransactionsInvitesSummary> transactionSummaries = queryAllTransactionSummariesWithoutToName();
         for (TransactionsInvitesSummary summary : transactionSummaries) {
@@ -94,12 +96,14 @@ public class ContactLookupService extends JobIntentService {
     }
 
     boolean compare(PhoneNumber localPhoneNumber, PhoneNumber transactionSummaryPhoneNumber) {
-        if(localPhoneNumber == null || !localPhoneNumber.isValid() ||
-                transactionSummaryPhoneNumber == null || !transactionSummaryPhoneNumber.isValid()) { return false; }
+        if (localPhoneNumber == null || localPhoneNumber.getNationalNumber() <= 1 ||
+                transactionSummaryPhoneNumber == null || !transactionSummaryPhoneNumber.isValid()) {
+            return false;
+        }
 
         String localNational = String.valueOf(localPhoneNumber.getNationalNumber());
         String transactionSummaryNational = String.valueOf(transactionSummaryPhoneNumber.getNationalNumber());
-        return transactionSummaryNational.contains(localNational);
+        return transactionSummaryNational.endsWith(localNational);
     }
 
     @CoinkeeperApplicationScope

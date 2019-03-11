@@ -1,6 +1,8 @@
 package com.coinninja.coinkeeper.model.db;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.converter.PhoneNumberConverter;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
@@ -26,14 +28,14 @@ public class Account {
         public int getId() {
             return id;
         }
-        
+
     }
 
     public void populateStatus(String value) {
         if (value.equals("verified") || value.equals("pending-verification"))
-            this.status = Status.PENDING_VERIFICATION;
+            status = Status.PENDING_VERIFICATION;
         else
-            this.status = Status.UNVERIFIED;
+            status = Status.UNVERIFIED;
     }
 
 
@@ -80,7 +82,7 @@ public class Account {
 
     @Generated(hash = 153492231)
     public Account(Long id, Long walletId, String cnWalletId, String cnUserId, Status status,
-            String phoneNumberHash, PhoneNumber phoneNumber, long verification_ttl) {
+                   String phoneNumberHash, PhoneNumber phoneNumber, long verification_ttl) {
         this.id = id;
         this.walletId = walletId;
         this.cnWalletId = cnWalletId;
@@ -98,7 +100,7 @@ public class Account {
 
 
     public Long getId() {
-        return this.id;
+        return id;
     }
 
 
@@ -108,7 +110,7 @@ public class Account {
 
 
     public Long getWalletId() {
-        return this.walletId;
+        return walletId;
     }
 
 
@@ -118,7 +120,7 @@ public class Account {
 
 
     public String getCnWalletId() {
-        return this.cnWalletId;
+        return cnWalletId;
     }
 
 
@@ -128,7 +130,7 @@ public class Account {
 
 
     public String getCnUserId() {
-        return this.cnUserId;
+        return cnUserId;
     }
 
 
@@ -138,7 +140,7 @@ public class Account {
 
 
     public Status getStatus() {
-        return this.status;
+        return status;
     }
 
 
@@ -148,7 +150,7 @@ public class Account {
 
 
     public String getPhoneNumberHash() {
-        return this.phoneNumberHash;
+        return phoneNumberHash;
     }
 
 
@@ -157,7 +159,7 @@ public class Account {
     }
 
     public long getVerification_ttl() {
-        return this.verification_ttl;
+        return verification_ttl;
     }
 
 
@@ -170,9 +172,7 @@ public class Account {
     private transient Long wallet__resolvedKey;
 
 
-    /**
-     * To-one relationship, resolved on first access.
-     */
+    /** To-one relationship, resolved on first access. */
     @Generated(hash = 1903052073)
     public Wallet getWallet() {
         Long __key = this.walletId;
@@ -250,7 +250,7 @@ public class Account {
 
 
     public PhoneNumber getPhoneNumber() {
-        return this.phoneNumber;
+        return phoneNumber;
     }
 
 

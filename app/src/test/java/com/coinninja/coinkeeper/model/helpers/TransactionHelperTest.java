@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
@@ -9,7 +10,6 @@ import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.FundingStatDao;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummaryDao;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TargetStat;
 import com.coinninja.coinkeeper.model.db.TargetStatDao;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
@@ -38,7 +38,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +56,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class TransactionHelperTest {
 
-    public static final String SENDER_PHONE_STRING = "3305550000";
-    public static final String RECEIVER_PHONE_STRING = "3305551111";
-    public static final int COUNTRY_CODE = 1;
+    private static final String SENDER_PHONE_STRING = "3305550000";
+    private static final String RECEIVER_PHONE_STRING = "3305551111";
+    private static final int COUNTRY_CODE = 1;
+
     @Mock
     private WalletHelper walletHelper;
     @Mock
@@ -72,30 +74,32 @@ public class TransactionHelperTest {
 
     @InjectMocks
     private TransactionHelper helper;
+    @Mock
     private TransactionSummaryDao transactionSummaryDao;
+    @Mock
     private InviteTransactionSummaryDao inviteDao;
+    @Mock
     private QueryBuilder tsQuery;
+    @Mock
     private QueryBuilder tsInviteQuery;
+    @Mock
     private QueryBuilder inviteQuery;
+    @Mock
     private TransactionSummary transaction;
+    @Mock
     private TransactionsInvitesSummaryDao transactionInviteSummaryDao;
+    @Mock
     private TransactionsInvitesSummary transactionsInvitesSummary;
     private long currentTimeInMillsec = 654654L;
-    private final PhoneNumber receiverPhoneNumber = new PhoneNumber(1, RECEIVER_PHONE_STRING);
-    private final PhoneNumber senderPhoneNumber = new PhoneNumber(1, SENDER_PHONE_STRING);
+
+    @Mock
+    private PhoneNumber receiverPhoneNumber;
+    @Mock
+    private PhoneNumber senderPhoneNumber;
 
     @Before
     public void setUp() throws Exception {
-
-        transaction = mock(TransactionSummary.class);
-        transactionSummaryDao = mock(TransactionSummaryDao.class);
-        inviteDao = mock(InviteTransactionSummaryDao.class);
-        tsQuery = mock(QueryBuilder.class);
-        inviteQuery = mock(QueryBuilder.class);
-        tsInviteQuery = mock(QueryBuilder.class);
-        transactionInviteSummaryDao = mock(TransactionsInvitesSummaryDao.class);
-        transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-
+        MockitoAnnotations.initMocks(this);
         when(transactionInviteSummaryHelper.getOrCreateTransactionInviteSummaryFor(transaction)).thenReturn(transactionsInvitesSummary);
         when(dateUtil.getCurrentTimeInMillis()).thenReturn(currentTimeInMillsec);
         when(daoSessionManager.getTransactionSummaryDao()).thenReturn(transactionSummaryDao);
@@ -104,6 +108,8 @@ public class TransactionHelperTest {
         when(transactionSummaryDao.queryBuilder()).thenReturn(tsQuery);
         when(transactionInviteSummaryDao.queryBuilder()).thenReturn(tsInviteQuery);
         when(inviteDao.queryBuilder()).thenReturn(inviteQuery);
+        when(receiverPhoneNumber.toString()).thenReturn(RECEIVER_PHONE_STRING);
+        when(senderPhoneNumber.toString()).thenReturn(RECEIVER_PHONE_STRING);
     }
 
     @Test
@@ -838,7 +844,6 @@ public class TransactionHelperTest {
 
         helper.saveReceivedInviteTransaction(wallet, receivedInvite);
 
-        // TODO why is this on our model if it is always empty?
         verify(invite).setInviteName("");
 
         verify(invite).setHistoricValue(100L);

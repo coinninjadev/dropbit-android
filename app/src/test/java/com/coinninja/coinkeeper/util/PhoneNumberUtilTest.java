@@ -1,30 +1,43 @@
 package com.coinninja.coinkeeper.util;
 
 
+import android.os.Parcel;
+
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
+@RunWith(RobolectricTestRunner.class)
 public class PhoneNumberUtilTest {
+    public static final int COUNTRY_CODE = 1;
     static final String I18N_PHONE = "+12345678901";
     static final long NATIONAL_NUMBER = 2345678901L;
     static final String NATIONAL_NUMBER_STRING = String.valueOf(NATIONAL_NUMBER);
-    public static final int COUNTRY_CODE = 1;
-
-    PhoneNumber phoneNumber;
-
-    PhoneNumberUtil util;
+    private PhoneNumber phoneNumber;
+    private PhoneNumberUtil util;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         util = new PhoneNumberUtil();
         phoneNumber = new PhoneNumber();
         phoneNumber.setCountryCode(COUNTRY_CODE);
         phoneNumber.setNationalNumber(NATIONAL_NUMBER);
+    }
+
+    @After
+    public void tearDown() {
+        util = null;
+        phoneNumber = null;
     }
 
     @Test
@@ -35,8 +48,23 @@ public class PhoneNumberUtilTest {
     }
 
     @Test
-    public void toPhoneNumber_null() {
-        assertNull(util.toPhoneNumber((String) null));
+    @Config(qualifiers = "es-rAR")
+    public void toPhoneNumber_from_international_number() {
+        PhoneNumber phoneNumber = util.toPhoneNumber("+5491123456789");
+        assertThat(phoneNumber.getCountryCode(), equalTo(54));
+        assertThat(phoneNumber.getNationalNumber(), equalTo(91123456789L));
+
+        phoneNumber = util.toPhoneNumber("5491123456789");
+        assertThat(phoneNumber.getNationalNumber(), equalTo(91123456789L));
+        assertThat(phoneNumber.getCountryCode(), equalTo(54));
+
+        phoneNumber = util.toPhoneNumber("91123456789");
+        assertThat(phoneNumber.getNationalNumber(), equalTo(91123456789L));
+        assertThat(phoneNumber.getCountryCode(), equalTo(54));
+
+        phoneNumber = util.toPhoneNumber("123456789");
+        assertThat(phoneNumber.getNationalNumber(), equalTo(123456789L));
+        assertThat(phoneNumber.getCountryCode(), equalTo(54));
     }
 
     @Test
@@ -45,13 +73,23 @@ public class PhoneNumberUtilTest {
     }
 
     @Test
-    public void i18Formatted(){
+    public void i18Formatted() {
         String formatted = util.i18Formatted(phoneNumber);
         assertThat(formatted, equalTo(I18N_PHONE));
     }
 
     @Test
-    public void i18Formatted_null(){
+    public void i18Formatted_null() {
         assertNull(util.i18Formatted((PhoneNumber) null));
     }
+
+    @Test
+    public void formats_international_number() {
+        Phonenumber.PhoneNumber number = new Phonenumber.PhoneNumber();
+        number.setNationalNumber(91123456789L);
+        number.setCountryCode(54);
+
+        assertThat(util.toInternationalDisplayText(number), equalTo("+54 9 11 2345-6789"));
+    }
+
 }

@@ -2,11 +2,11 @@ package com.coinninja.coinkeeper.cn.transaction;
 
 import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.UnspentTransactionOutput;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.TransactionNotificationMapper;
 import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TransactionNotification;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
@@ -19,11 +19,10 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.encryption.MessageEncryptor;
 
-
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -44,9 +43,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionNotificationManagerTest {
 
-    public static final String PHONE_NUMBER_HASH = "710c3ec37d3bbab4d9b140656ea8ab28d14bad091e12b912dc73d0fbcd78664d";
-    public static final String TXID = "--txid--";
-    public static final String PUBKEY = "--pubkey--";
+    private static final String PHONE_NUMBER_HASH = "710c3ec37d3bbab4d9b140656ea8ab28d14bad091e12b912dc73d0fbcd78664d";
+    private static final String TXID = "--txid--";
+    private static final String PUBKEY = "--pubkey--";
     private final String ADDRESS = "--address--";
     @Mock
     CNLogger logger;
@@ -62,10 +61,17 @@ public class TransactionNotificationManagerTest {
     private MessageEncryptor messageEncryptor;
     @Mock
     private Account account;
+    @Mock
+    private PhoneNumber receiverPhone;
+
     @InjectMocks
     private TransactionNotificationManager transactionNotificationManager;
-    private final PhoneNumber receiverPhone = new PhoneNumber("+3305551111");
 
+
+    @Before
+    public void setUp() {
+        when(receiverPhone.toString()).thenReturn("+13305551111");
+    }
 
     @After
     public void tearDown() {
@@ -76,8 +82,8 @@ public class TransactionNotificationManagerTest {
         logger = null;
         account = null;
         messageEncryptor = null;
+        receiverPhone = null;
     }
-
 
     @Test
     public void sends_encrypted_notification_when_invite_with_transaction_notification() {

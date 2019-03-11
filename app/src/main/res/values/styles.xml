@@ -24,6 +24,8 @@
         <item name="android:actionBarStyle">@style/ActionbarStyle</item>
         <item name="android:actionBarTabStyle">@style/AppTabLayout</item>
         <item name="actionBarStyle">@style/ActionbarStyle</item>
+        <item name="confirmations">@style/Confirmations</item>
+        <item name="phoneNumberInput">@style/PhoneNumberInputWidgetStyle</item>
         <item name="actionBarTabStyle">@style/AppTabLayout</item>
         <item name="navigationIcon">@drawable/ic_back</item>
         <item name="actionBarTitleStyle">@style/ActionBarTitleDark</item>
@@ -173,6 +175,10 @@
     <style name="AppTabTextAppearance" parent="textAppearance.Appbar">
         <item name="textAllCaps">true</item>
         <item name="tabSelectedTextColor">@color/tabColor</item>
+    </style>
+
+    <style name="PhoneNumberInputWidgetStyle">
+        <item name="android:background">@drawable/input_background</item>
     </style>
 
     <style name="Confirmations">

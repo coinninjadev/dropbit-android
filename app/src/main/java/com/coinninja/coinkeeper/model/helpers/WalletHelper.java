@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
 import com.coinninja.coinkeeper.model.db.Address;
@@ -7,7 +8,6 @@ import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummaryDao;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TargetStat;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao;
@@ -25,7 +25,6 @@ import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
@@ -41,7 +40,6 @@ public class WalletHelper {
     private static final String TAG = WalletHelper.class.getSimpleName();
     private final DaoSessionManager daoSessionManager;
     private final WalletDao walletDao;
-    PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
 
     private WordHelper wordHelper;
 
@@ -221,7 +219,7 @@ public class WalletHelper {
         account.populateStatus(cnUserAccount.getStatus());
         account.setCnUserId(cnUserAccount.getId());
         account.setPhoneNumberHash(cnUserAccount.getPhoneNumberHash());
-        account.setPhoneNumber(new PhoneNumber(phoneNumber));
+        account.setPhoneNumber(phoneNumber.toPhoneNumber());
         account.update();
     }
 

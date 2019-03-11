@@ -1,12 +1,12 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.DaoSession;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TargetStat;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao;
@@ -19,10 +19,9 @@ import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
-import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
+import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.greenrobot.greendao.query.QueryBuilder;
@@ -84,7 +83,6 @@ public class WalletHelperTest {
         when(wallet.getAddressses()).thenReturn(addresses);
 
         walletHelper = new WalletHelper(daoSessionManager, wordHelper);
-        walletHelper.phoneNumberUtil = phoneNumberUtil;
         phoneNumber = new PhoneNumber();
     }
 
@@ -653,9 +651,7 @@ public class WalletHelperTest {
         CNPhoneNumber cnPhoneNumber = mock(CNPhoneNumber.class);
         String cnUserId = "---some id ---";
         String phoneNumberHash = "---phoneNumberHash ---";
-        String phoneString = "2223334444";
-        when(cnPhoneNumber.getPhoneNumber()).thenReturn(phoneString);
-        when(cnPhoneNumber.getCountryCode()).thenReturn(1);
+        when(cnPhoneNumber.toPhoneNumber()).thenReturn(phoneNumber);
         when(cnUserAccount.getId()).thenReturn(cnUserId);
         String verificationStatus = "pending-verification";
         when(cnUserAccount.getStatus()).thenReturn(verificationStatus);
@@ -673,7 +669,7 @@ public class WalletHelperTest {
 
         walletHelper.saveAccountRegistration(cnUserAccount, cnPhoneNumber);
 
-        verify(account).setPhoneNumber(new PhoneNumber("+12223334444"));
+        verify(account).setPhoneNumber(phoneNumber);
         verify(account).setPhoneNumberHash(phoneNumberHash);
         verify(account).setCnUserId(cnUserId);
         verify(account).populateStatus(verificationStatus);

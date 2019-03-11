@@ -1,18 +1,18 @@
 package com.coinninja.coinkeeper.service.client;
 
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNDeviceEndpoint;
+import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNSharedMemo;
 import com.coinninja.coinkeeper.service.client.model.CNSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNSubscriptionState;
 import com.coinninja.coinkeeper.service.client.model.CNTopic;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
-import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
+import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
@@ -187,8 +187,12 @@ public class SignedCoinKeeperApiClientTest {
         ArgumentCaptor<JsonObject> captor = ArgumentCaptor.forClass(JsonObject.class);
         when(client.queryUsers(any(JsonObject.class))).thenReturn(mock(Call.class));
         SignedCoinKeeperApiClient apiClient = new SignedCoinKeeperApiClient(client, FCM_APP_ID);
-        Contact contact1 = new Contact(new PhoneNumber("+15555555555"), "John Daoh", true);
-        Contact contact2 = new Contact(new PhoneNumber("+15556666666"), "Jane Daoh", true);
+        String contact1Hash = "df7c846cd38e5af8c94985e4ad1a699a08d5dfe11afc12b3a5aa67d3cd604a16";
+        String contact2Hash = "760bb6b0bb25ee44e91e5967033899dee64a7141224792ab959977a8f1e6acda";
+        Contact contact1 = mock(Contact.class);
+        Contact contact2 = mock(Contact.class);
+        when(contact1.getHash()).thenReturn(contact1Hash);
+        when(contact2.getHash()).thenReturn(contact2Hash);
         ArrayList<Contact> contacts = new ArrayList<Contact>();
         contacts.add(contact1);
         contacts.add(contact2);
@@ -197,8 +201,8 @@ public class SignedCoinKeeperApiClientTest {
                 "  \"query\": {" +
                 "    \"terms\": {" +
                 "      \"phone_number_hash\": [" +
-                "        \"df7c846cd38e5af8c94985e4ad1a699a08d5dfe11afc12b3a5aa67d3cd604a16\"," +
-                "        \"760bb6b0bb25ee44e91e5967033899dee64a7141224792ab959977a8f1e6acda\"" +
+                "        \"" + contact1Hash +"\"," +
+                "        \"" + contact2Hash +"\"" +
                 "      ]" +
                 "    }" +
                 "  }" +

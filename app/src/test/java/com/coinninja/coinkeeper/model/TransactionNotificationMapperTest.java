@@ -4,7 +4,6 @@ import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.TransactionNotification;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
@@ -12,22 +11,23 @@ import com.coinninja.coinkeeper.model.encryptedpayload.v1.InfoV1;
 import com.coinninja.coinkeeper.model.encryptedpayload.v1.MetaV1;
 import com.coinninja.coinkeeper.model.encryptedpayload.v1.ProfileV1;
 import com.coinninja.coinkeeper.model.encryptedpayload.v1.TransactionNotificationV1;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
+import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(JUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class TransactionNotificationMapperTest {
 
     private static final String MEMO = "Here's your 5 dollars \uD83D\uDCB8";
@@ -37,51 +37,30 @@ public class TransactionNotificationMapperTest {
     private static final String TXID = "txid";
     private static final long AMOUNT = 599L;
     private static final String CURRENCY = "USD";
-    public static final int COUNTRY_CODE = 1;
+    private static final int COUNTRY_CODE = 1;
     private static final int VERSION = COUNTRY_CODE;
     private static final String PHONE_NUMBER = "555555555";
     private static final CNPhoneNumber PHONE = new CNPhoneNumber(COUNTRY_CODE, PHONE_NUMBER);
-    public static final String PHONE_NUMBER_STRING = "3305551111";
-    public static final String CONTACT_PHONE_STRING = "+13305551111";
+    private static final String PHONE_NUMBER_STRING = "3305551111";
+    private static final String CONTACT_PHONE_STRING = "+13305551111";
 
     private TransactionNotificationMapper mapper;
-    private final PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
 
+    @Mock
+    private PhoneNumberUtil phoneNumberUtil;
+
+    @Mock
     private PhoneNumber phoneNumber;
-    private PhoneNumber contactPhoneNumber = new PhoneNumber(CONTACT_PHONE_STRING);
+    @Mock
+    private PhoneNumber contactPhoneNumber;
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         mapper = new TransactionNotificationMapper(phoneNumberUtil);
-        phoneNumber = new PhoneNumber(COUNTRY_CODE, PHONE_NUMBER_STRING);
-    }
-
-    @Test
-    public void test_to_v1() {
-        TransactionNotification transactionNotification = new TransactionNotification();
-        transactionNotification.setTxid(TXID);
-        transactionNotification.setAmountCurrency(CURRENCY);
-        transactionNotification.setAmount(AMOUNT);
-        transactionNotification.setDisplayName(DISPLAY_NAME);
-        transactionNotification.setDropbitMeHandle(HANDLE);
-        transactionNotification.setAvatar(AVATAR);
-        transactionNotification.setMemo(MEMO);
-
-        transactionNotification.setPhoneNumber(new PhoneNumber(PHONE));
-
-        TransactionNotificationV1 v1 = mapper.toV1(transactionNotification);
-
-        assertEquals(v1.getMeta().getVersion(), COUNTRY_CODE);
-        assertEquals(v1.getTxid(), TXID);
-        assertEquals(v1.getInfo().getCurrency(), CURRENCY);
-        assertEquals(v1.getInfo().getAmount(), AMOUNT);
-        assertEquals(v1.getInfo().getMemo(), MEMO);
-        assertEquals(v1.getProfile().getAvatar(), AVATAR);
-        assertEquals(v1.getProfile().getDisplayName(), DISPLAY_NAME);
-        assertEquals(v1.getProfile().getHandle(), HANDLE);
-        assertEquals(v1.getProfile().getCountryCode(), COUNTRY_CODE);
-        assertEquals(v1.getProfile().getPhoneNumber(), PHONE_NUMBER);
-
+        when(phoneNumber.getCountryCode()).thenReturn(COUNTRY_CODE);
+        when(phoneNumber.getNationalNumber()).thenReturn(Long.parseLong(PHONE_NUMBER_STRING));
+        when(contactPhoneNumber.toString()).thenReturn(CONTACT_PHONE_STRING);
     }
 
     @Test

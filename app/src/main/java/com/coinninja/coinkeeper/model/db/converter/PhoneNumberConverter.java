@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.model.db.converter;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 
 import org.greenrobot.greendao.converter.PropertyConverter;
 

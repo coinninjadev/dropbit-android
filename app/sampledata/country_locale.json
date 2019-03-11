@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "country": "United States",
+      "country_code": "+1",
+      "flag": "🇺🇸"
+    },
+    {
+      "country": "Japan",
+      "country_code": "+81",
+      "flag": "🇯🇵"
+    },
+    {
+      "country": "Great Britain",
+      "country_code": "+44",
+      "flag": "🇬🇧"
+    }
+  ]
+}

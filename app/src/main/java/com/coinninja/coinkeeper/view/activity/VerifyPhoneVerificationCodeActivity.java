@@ -13,7 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.ResendPhoneVerificationService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
 import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
@@ -55,14 +55,9 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         error_message = findViewById(R.id.error_message);
 
         phoneNumber = getIntent().getParcelableExtra(Intents.EXTRA_PHONE_NUMBER);
-        PhoneNumberUtil util = PhoneNumberUtil.getInstance();
-        String formattedNumber = util.format(phoneNumber.getPhoneNumber(), PhoneNumberUtil.PhoneNumberFormat.NATIONAL).
-                replace("(", "").
-                replace(") ", "-").
-                replace(")", "-");
-
         TextView headline = findViewById(R.id.headline);
-        String headlineCopy = headline.getResources().getString(R.string.activity_verify_phone_code_headline, formattedNumber);
+        String headlineCopy = headline.getResources().
+                getString(R.string.activity_verify_phone_code_headline, phoneNumber.toInternationalDisplayText());
         headline.setText(headlineCopy);
 
         resend_link = findViewById(R.id.resend_link);

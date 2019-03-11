@@ -1,8 +1,9 @@
 package com.coinninja.coinkeeper.service.client.model;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.util.Hasher;
 
 import java.util.Objects;

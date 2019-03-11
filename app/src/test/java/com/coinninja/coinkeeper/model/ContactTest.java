@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.model;
 
 import android.os.Parcel;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 

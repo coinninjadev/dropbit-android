@@ -5,14 +5,15 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.List;
 
@@ -21,18 +22,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class ContactResolverUtilTest {
 
-    public static final String PHONE_STRING = "+13305551111";
-    @Mock
-    PermissionsUtil permissionsUtil;
+    private static final String PHONE_STRING = "+13305551111";
 
     @Mock
-    ContentResolver contentResolver;
+    private PermissionsUtil permissionsUtil;
 
     @Mock
-    Cursor cursor;
+    private ContentResolver contentResolver;
+
+    @Mock
+    private Cursor cursor;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void returns_list_of_contacts() {
@@ -43,7 +50,7 @@ public class ContactResolverUtilTest {
         List<Contact> contacts = util.getContacts();
 
         assertThat(contacts.size(), equalTo(1));
-        assertThat(contacts.get(0).getPhoneNumber(), equalTo(new PhoneNumber(PHONE_STRING)));
+        assertThat(contacts.get(0).getPhoneNumber().toString(), equalTo(PHONE_STRING));
         assertThat(contacts.get(0).getDisplayName(), equalTo("John Doe"));
     }
 

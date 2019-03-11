@@ -7,6 +7,8 @@ import android.os.Parcelable;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
+import java.io.Serializable;
+
 public class IntentMatcher extends BaseMatcher {
 
     private final Intent intent;
@@ -95,6 +97,12 @@ public class IntentMatcher extends BaseMatcher {
                     } else if (obj instanceof Parcelable) {
                         if (!extras.getParcelable(key).equals(actual.getParcelableExtra(key))) {
                             expected = "Parcelables Do not Match";
+                            describeReason = String.format("Consider overriding %s.equals(obj)", obj.getClass().getSimpleName());
+                            return false;
+                        }
+                    } else if (obj instanceof Serializable) {
+                        if (!extras.getSerializable(key).equals(actual.getSerializableExtra(key))) {
+                            expected = "Serializables Do not Match";
                             describeReason = String.format("Consider overriding %s.equals(obj)", obj.getClass().getSimpleName());
                             return false;
                         }

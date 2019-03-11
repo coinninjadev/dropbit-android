@@ -27,6 +27,8 @@ import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 
+import java.util.Locale;
+
 import dagger.BindsInstance;
 import dagger.Component;
 import dagger.android.AndroidInjectionModule;
@@ -53,6 +55,8 @@ public interface AppComponent {
     SaveRecoveryWordsRunner getSaveRecoveryWordsRunner();
 
     Analytics getAnalytics();
+
+    Locale getLocale();
 
     @Deprecated
     ClipboardUtil getClipboardUtil();

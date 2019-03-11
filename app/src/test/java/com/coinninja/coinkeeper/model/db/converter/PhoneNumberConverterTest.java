@@ -1,17 +1,17 @@
 package com.coinninja.coinkeeper.model.db.converter;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.robolectric.RobolectricTestRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNull;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class PhoneNumberConverterTest {
 
     static final String I18N_PHONE = "+12345678901";
@@ -39,6 +39,11 @@ public class PhoneNumberConverterTest {
     @Test
     public void convertToEntityProperty_withNull() {
         assertNull(converter.convertToEntityProperty(null));
+    }
+
+    @Test
+    public void convertToDatabaseValue_invalid_phone() {
+        assertNull(converter.convertToDatabaseValue(new PhoneNumber("")));
     }
 
     @Test

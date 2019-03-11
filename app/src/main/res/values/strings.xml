@@ -172,7 +172,7 @@
 
     <!-- Verify Phone Number Activity -->
     <string name="activity_verify_phone_number_header">Phone Number</string>
-    <string name="verify_phone_number_example">Example: (555) 012-3456</string>
+    <string name="verify_phone_number_example">Example: %s</string>
     <string name="activity_verify_phone_headline">
         Please enter your phone number below to use the DropBit&#8482; feature.
         DropBit allows you to send Bitcoin directly to your contacts by using their mobile number.
@@ -383,5 +383,6 @@
     <string name="transaction_details_share_transaction_id">Share transaction id</string>
     <string name="transaction_details_see_transaction_details">transaction details</string>
     <string name="done">done</string>
+    <string name="phone_number_input_widget_country_selection_title">Select Country</string>
 
 </resources>

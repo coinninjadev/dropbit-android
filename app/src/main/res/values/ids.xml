@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="id" name="id_navigation_tabs" />
-    <item type="id" name="id_sync_service" />
-    <item type="id" name="id_no_internet_message" />
-    <item type="id" name="actionbar_gone" />
-    <item type="id" name="actionbar_light_up_off" />
-    <item type="id" name="actionbar_light_up_on" />
-    <item type="id" name="actionbar_light_up_on_skip_on" />
-    <item type="id" name="actionbar_light_up_off_skip_on" />
-    <item type="id" name="actionbar_dark_up_on" />
-    <item type="id" name="actionbar_dark_up_off_close_on" />
-    <item type="id" name="actionbar_dark_up_on_with_nav_bar" />
+    <item name="id_navigation_tabs" type="id" />
+    <item name="id_sync_service" type="id" />
+    <item name="id_no_internet_message" type="id" />
+    <item name="actionbar_gone" type="id" />
+    <item name="actionbar_light_up_off" type="id" />
+    <item name="actionbar_light_up_on" type="id" />
+    <item name="actionbar_light_up_on_skip_on" type="id" />
+    <item name="actionbar_light_up_off_skip_on" type="id" />
+    <item name="actionbar_dark_up_on" type="id" />
+    <item name="actionbar_dark_up_off_close_on" type="id" />
+    <item name="actionbar_dark_up_on_with_nav_bar" type="id" />
 
 
-    <!-- TODO DELETE BEFORE MERGING -->
-    <item type="id" name="shared_transaction_memo" />
+    <item name="shared_transaction_memo" type="id" />
+
+    <!-- Phone Number Input Ids -->
+    <item name="phone_number_view_country_codes" type="id" />
+    <item name="phone_number_view_number_input" type="id" />
+    <item name="phone_number_view_flag" type="id" />
+    <item name="phone_number_view_country_list" type="id" />
+    <item name="phone_number_widget_country_selector_flag" type="id" />
+    <item name="phone_number_widget_country_selector_country_name" type="id" />
+    <item name="phone_number_widget_country_selector_country_code" type="id" />
 </resources>

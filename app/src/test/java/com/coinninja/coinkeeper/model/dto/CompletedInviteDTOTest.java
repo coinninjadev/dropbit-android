@@ -1,19 +1,20 @@
 package com.coinninja.coinkeeper.model.dto;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
+@RunWith(RobolectricTestRunner.class)
 public class CompletedInviteDTOTest {
-
 
     private CompletedInviteDTO createDto() {
         Contact contact = new Contact(new PhoneNumber("+13305552222"), "Joe Blow", false);

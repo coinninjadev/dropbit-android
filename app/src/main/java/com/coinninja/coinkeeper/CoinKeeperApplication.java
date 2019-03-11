@@ -74,7 +74,7 @@ public class CoinKeeperApplication extends Application implements HasServiceInje
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
 
-    private AppComponent appComponent;
+    public static AppComponent appComponent;
 
     @Override
     public void onCreate() {

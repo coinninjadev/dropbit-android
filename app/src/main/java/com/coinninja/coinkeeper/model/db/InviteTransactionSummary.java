@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.model.db;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.converter.BTCStateConverter;
 import com.coinninja.coinkeeper.model.db.converter.PhoneNumberConverter;
 import com.coinninja.coinkeeper.model.db.converter.TypeConverter;
@@ -85,8 +86,8 @@ public class InviteTransactionSummary {
 
     @Generated(hash = 960547814)
     public InviteTransactionSummary(Long walletId, Long transactionsInvitesSummaryID, Type type, BTCState btcState, Long id, String serverId, String inviteName,
-            String btcTransactionId, Long sentDate, PhoneNumber SenderPhoneNumber, PhoneNumber ReceiverPhoneNumber, String address, String pubkey,
-            Long valueSatoshis, Long valueFeesSatoshis, long historicValue, String historicUSDValue, Long transactionNotificationId) {
+                                    String btcTransactionId, Long sentDate, PhoneNumber SenderPhoneNumber, PhoneNumber ReceiverPhoneNumber, String address, String pubkey,
+                                    Long valueSatoshis, Long valueFeesSatoshis, long historicValue, String historicUSDValue, Long transactionNotificationId) {
         this.walletId = walletId;
         this.transactionsInvitesSummaryID = transactionsInvitesSummaryID;
         this.type = type;
@@ -272,7 +273,9 @@ public class InviteTransactionSummary {
         return wallet;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 112459860)
     public void setWallet(Wallet wallet) {
         synchronized (this) {
@@ -301,7 +304,9 @@ public class InviteTransactionSummary {
         return transactionsInvitesSummary;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 386011818)
     public void setTransactionsInvitesSummary(TransactionsInvitesSummary transactionsInvitesSummary) {
         synchronized (this) {
@@ -330,7 +335,9 @@ public class InviteTransactionSummary {
         return transactionNotification;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 144706267)
     public void setTransactionNotification(TransactionNotification transactionNotification) {
         synchronized (this) {
@@ -385,7 +392,7 @@ public class InviteTransactionSummary {
     }
 
     public PhoneNumber getSenderPhoneNumber() {
-        return this.SenderPhoneNumber;
+        return SenderPhoneNumber;
     }
 
 
@@ -398,7 +405,7 @@ public class InviteTransactionSummary {
     }
 
     public PhoneNumber getReceiverPhoneNumber() {
-        return this.ReceiverPhoneNumber;
+        return ReceiverPhoneNumber;
     }
 
     /** called by internal mechanisms, do not call yourself. */

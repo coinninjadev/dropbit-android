@@ -1,20 +1,36 @@
 package com.coinninja.coinkeeper.util;
 
-import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
+import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.Phonenumber;
+
+import java.util.Locale;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class PhoneNumberUtil {
 
-    @Inject
+
+    private final com.google.i18n.phonenumbers.PhoneNumberUtil _util;
+
     public PhoneNumberUtil() {
+        this(com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance());
+    }
+
+    @Inject
+    public PhoneNumberUtil(com.google.i18n.phonenumbers.PhoneNumberUtil _util) {
+        this._util = _util;
     }
 
     public String i18Formatted(Phonenumber.PhoneNumber phoneNumber) {
         if (phoneNumber == null) return null;
-        return "+" + phoneNumber.getCountryCode() + String.valueOf(phoneNumber.getNationalNumber());
+        return _util.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164);
     }
 
     private Phonenumber.PhoneNumber attemptToConvertStringIntoPhoneNumber(int countryCode, String phoneNumber) {
@@ -34,9 +50,20 @@ public class PhoneNumberUtil {
         return attemptToConvertStringIntoPhoneNumber(phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber());
     }
 
-    public Phonenumber.PhoneNumber toPhoneNumber(String number) {
-        if (number == null || number.isEmpty()) return null;
-        return toPhoneNumber(1, number.replace("+1", ""));
+    @Nullable
+    public Phonenumber.PhoneNumber toPhoneNumber(@NonNull String number) {
+        if (number.isEmpty()) return null;
+
+        number = patchNumberWithCountryCode(number);
+        Phonenumber.PhoneNumber phoneNumber;
+
+        try {
+            phoneNumber = _util.parse(number, CoinKeeperApplication.appComponent.getLocale().getCountry());
+        } catch (NumberParseException e) {
+            e.printStackTrace();
+            phoneNumber = null;
+        }
+        return phoneNumber;
     }
 
     public Phonenumber.PhoneNumber toPhoneNumber(int countryCode, String number) {
@@ -44,15 +71,43 @@ public class PhoneNumberUtil {
         return attemptToConvertStringIntoPhoneNumber(countryCode, number);
     }
 
-    public String toNationalDisplayText(Phonenumber.PhoneNumber phoneNumber) {
-        if (phoneNumber == null) return null;
+    public String toNationalDisplayText(@NonNull Phonenumber.PhoneNumber phoneNumber) {
+        return _util.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
+    }
 
-        com.google.i18n.phonenumbers.PhoneNumberUtil instance = com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance();
-        return instance.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
+    public String toInternationalDisplayText(Phonenumber.PhoneNumber phoneNumber) {
+        return _util.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     }
 
     public String getContactOrNumber(Contact contact) {
         if (contact == null) return "";
         return (contact.getDisplayName() != null && !"".equals(contact.getDisplayName())) ? contact.getDisplayName() : contact.getPhoneNumber().toNationalDisplayText();
+    }
+
+    private String patchNumberWithCountryCode(String number) {
+        if (number.startsWith("+")) return number;
+        String temp;
+
+        Set<Integer> supportedCallingCodes = _util.getSupportedCallingCodes();
+        for (Integer code : supportedCallingCodes) {
+            if (number.startsWith(String.valueOf(code))) {
+                temp = String.format("+%s", number);
+                if (isValidNumber(temp)) {
+                    return temp;
+                }
+            }
+        }
+
+        if (!number.startsWith("+")) {
+            Locale locale = CoinKeeperApplication.appComponent.getLocale();
+            int countryCode = _util.getCountryCodeForRegion(locale.getCountry());
+            return String.format("+%s%s", countryCode, number);
+        }
+
+        return number;
+    }
+
+    public boolean isValidNumber(String number) {
+        return _util.isValidNumber(toPhoneNumber(number));
     }
 }

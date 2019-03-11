@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper;
 
 import android.app.Activity;
 import android.content.ClipboardManager;
-import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.util.TypedValue;
@@ -18,8 +17,8 @@ import com.coinninja.coinkeeper.di.component.DaggerTestAppComponent;
 import com.coinninja.coinkeeper.di.component.TestAppComponent;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
@@ -45,7 +44,6 @@ import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.messaging.MessageCryptor;
-import com.google.i18n.phonenumbers.Phonenumber;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import org.robolectric.TestLifecycleApplication;
@@ -166,6 +164,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     protected void createComponent() {
         injector = DaggerTestAppComponent.builder().application(this).build();
         injector.inject(this);
+        appComponent = injector;
     }
 
     @Override

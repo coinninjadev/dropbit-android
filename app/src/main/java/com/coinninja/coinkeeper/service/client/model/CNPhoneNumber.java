@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.service.client.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.coinninja.coinkeeper.model.db.PhoneNumber;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.google.gson.annotations.SerializedName;
 
 public class CNPhoneNumber implements Parcelable {
@@ -73,5 +73,9 @@ public class CNPhoneNumber implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(countryCode);
         dest.writeString(phoneNumber);
+    }
+
+    public PhoneNumber toPhoneNumber() {
+        return new PhoneNumber(this);
     }
 }
