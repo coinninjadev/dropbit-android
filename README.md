@@ -1,6 +1,6 @@
 # DropBit
 
-iOS Bitcoin client app
+Bitcoin client app
 
 Currently, Coin Ninja does not support any non-Coin-Ninja build process. We are providing this software as open source for transparency purposes, but not to be externally buildable.
 
