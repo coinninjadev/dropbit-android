@@ -66,16 +66,26 @@ public class PhoneNumberUtil {
         return phoneNumber;
     }
 
+    public int getCountryCodeForRegion() {
+        //TODO get local from provider
+        Locale locale = new Locale("en", "US");
+        com.google.i18n.phonenumbers.PhoneNumberUtil instance = com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance();
+        return instance.getCountryCodeForRegion(locale.getCountry());
+    }
+
+
     public Phonenumber.PhoneNumber toPhoneNumber(int countryCode, String number) {
         if (number == null) return null;
         return attemptToConvertStringIntoPhoneNumber(countryCode, number);
     }
 
-    public String toNationalDisplayText(@NonNull Phonenumber.PhoneNumber phoneNumber) {
+    public String toNationalDisplayText(Phonenumber.PhoneNumber phoneNumber) {
+        if (phoneNumber == null) return "";
         return _util.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
     }
 
     public String toInternationalDisplayText(Phonenumber.PhoneNumber phoneNumber) {
+        if (phoneNumber == null) return "";
         return _util.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     }
 

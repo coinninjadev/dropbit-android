@@ -239,7 +239,7 @@ public class TransactionAdapterUtil {
 
         PhoneNumber toPhoneNumber = transactionSummary.getTransactionsInvitesSummary().getToPhoneNumber();
         if (null != toPhoneNumber) {
-            bindableTransaction.setContactPhoneNumber(toPhoneNumber.toNationalDisplayText());
+            bindableTransaction.setContactPhoneNumber(toPhoneNumber.displayTextForLocale());
         }
     }
 
@@ -294,12 +294,12 @@ public class TransactionAdapterUtil {
 
         switch (type) {
             case SENT:
-                bindableTransaction.setContactPhoneNumber(invite.getReceiverPhoneNumber().toNationalDisplayText());
+                bindableTransaction.setContactPhoneNumber(invite.getReceiverPhoneNumber().displayTextForLocale());
 
                 bindableTransaction.setSendState(SendState.SEND);
                 break;
             case RECEIVED:
-                bindableTransaction.setContactPhoneNumber(invite.getSenderPhoneNumber().toNationalDisplayText());
+                bindableTransaction.setContactPhoneNumber(invite.getSenderPhoneNumber().displayTextForLocale());
                 bindableTransaction.setSendState(SendState.RECEIVE);
                 break;
         }

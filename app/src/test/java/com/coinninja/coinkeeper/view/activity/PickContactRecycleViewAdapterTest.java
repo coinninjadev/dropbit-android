@@ -81,7 +81,7 @@ public class PickContactRecycleViewAdapterTest {
 
     @Test
     public void create_view_holder() {
-        String expectedPhoneDisplay = "(330) 555-1111";
+        String expectedPhoneDisplay = "+1 330-555-1111";
         adapter.setContacts(verifiedContacts, unVerifiedContacts);
         PickContactRecycleViewAdapter.ViewHolder holder = adapter.onCreateViewHolder(parent, 0);
 

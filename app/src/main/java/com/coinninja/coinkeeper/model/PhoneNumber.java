@@ -1,14 +1,18 @@
 package com.coinninja.coinkeeper.model;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.telephony.TelephonyManager;
 
+import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -64,9 +68,15 @@ public class PhoneNumber implements Parcelable {
         return phoneNumberUtil.i18Formatted(_phoneNumber);
     }
 
-    @NonNull
-    public String toNationalDisplayText() {
-        if (_phoneNumber == null) return "";
+    public String displayTextForLocale() {
+        if(phoneNumberUtil.getCountryCodeForRegion() == getCountryCode()) {
+            return toNationalDisplayText();
+        } else {
+            return toInternationalDisplayText();
+        }
+    }
+
+    public String toNationalDisplayText(){
         return phoneNumberUtil.toNationalDisplayText(_phoneNumber);
     }
 

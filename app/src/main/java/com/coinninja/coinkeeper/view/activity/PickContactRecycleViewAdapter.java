@@ -177,7 +177,7 @@ class PickContactRecycleViewAdapter extends Adapter<PickContactRecycleViewAdapte
         public void bindTo(Contact contact, int position) {
             this.position = position;
             ((TextView) view.findViewById(R.id.contact_name)).setText(contact.getDisplayName());
-            ((TextView) view.findViewById(R.id.contact_phone)).setText(contact.getPhoneNumber().toNationalDisplayText());
+            ((TextView) view.findViewById(R.id.contact_phone)).setText(contact.getPhoneNumber().toInternationalDisplayText());
             View sendButton = view.findViewById(R.id.contact_action_send);
             View inviteButton = view.findViewById(R.id.contact_action_invite);
 
