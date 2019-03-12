@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class PhoneNumberTest {
 
     public static final String I18N = "+12345678901";
+    public static final String I18N_INTERNATIONAL = "+5491123456789";
 
     @Test
     public void wraps_android_phoneNumber() {
@@ -41,6 +42,18 @@ public class PhoneNumberTest {
     public void isValid() {
         assertTrue(new PhoneNumber("+5491123456789").isValid());
         assertFalse(new PhoneNumber("+54123456789").isValid());
+    }
+
+    @Test
+    public void returns_national_format_when_country_matches(){
+        PhoneNumber phoneNumber = new PhoneNumber(I18N);
+        assertTrue(phoneNumber.displayTextForLocale().equals(phoneNumber.toNationalDisplayText()));
+    }
+
+    @Test
+    public void returns_international_format_when_country_matches(){
+        PhoneNumber phoneNumber = new PhoneNumber(I18N_INTERNATIONAL);
+        assertTrue(phoneNumber.displayTextForLocale().equals(phoneNumber.toInternationalDisplayText()));
     }
 
     @Test
