@@ -733,7 +733,6 @@ public class TransactionAdapterUtilTest {
         when(transactionWrapper.getInviteTransactionSummary()).thenReturn(invite);
         when(invite.getBtcState()).thenReturn(BTCState.FULFILLED);
 
-
         BindableTransaction bindableTransaction = utility.translateTransaction(transactionWrapper);
 
         assertThat(bindableTransaction.getTargetAddress(), equalTo("1CTgy2Xjk6S7fHvyqd9beXf5fMSM4Cm613"));
@@ -788,7 +787,8 @@ public class TransactionAdapterUtilTest {
         when(tx.getTxid()).thenReturn(some_tx_id);
         when(tx.getTxTime()).thenReturn(time);
         when(tx.getTransactionsInvitesSummary()).thenReturn(summary);
-        when(tx.getTransactionsInvitesSummary().getToPhoneNumber()).thenReturn(new PhoneNumber());
+        PhoneNumber senderPhoneNumber = new PhoneNumber("+13305550000");
+        when(transactionWrapper.getToPhoneNumber()).thenReturn(senderPhoneNumber);
         when(tx.getTransactionsInvitesSummary().getToName()).thenReturn("Carl Simmens");
         when(tx.getFunder()).thenReturn(funders);
         when(tx.getReceiver()).thenReturn(receivers);

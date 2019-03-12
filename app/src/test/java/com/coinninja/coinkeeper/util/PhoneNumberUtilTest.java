@@ -1,8 +1,6 @@
 package com.coinninja.coinkeeper.util;
 
 
-import android.os.Parcel;
-
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 

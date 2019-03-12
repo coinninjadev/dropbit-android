@@ -50,6 +50,10 @@ public class PhoneNumberUtil {
         return attemptToConvertStringIntoPhoneNumber(phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber());
     }
 
+    public int getCountryCodeForRegion() {
+        return _util.getCountryCodeForRegion(CoinKeeperApplication.appComponent.getLocale().getCountry());
+    }
+
     @Nullable
     public Phonenumber.PhoneNumber toPhoneNumber(@NonNull String number) {
         if (number.isEmpty()) return null;
@@ -65,14 +69,6 @@ public class PhoneNumberUtil {
         }
         return phoneNumber;
     }
-
-    public int getCountryCodeForRegion() {
-        //TODO get local from provider
-        Locale locale = new Locale("en", "US");
-        com.google.i18n.phonenumbers.PhoneNumberUtil instance = com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance();
-        return instance.getCountryCodeForRegion(locale.getCountry());
-    }
-
 
     public Phonenumber.PhoneNumber toPhoneNumber(int countryCode, String number) {
         if (number == null) return null;
