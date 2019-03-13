@@ -4,7 +4,9 @@ import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
+import android.util.Log;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.google.i18n.phonenumbers.AsYouTypeFormatter;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -89,10 +91,14 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
     }
 
     private void validateNumber(String text) {
-        if (formattedTemplateNumber.length() != text.length()) {
-            return;
-        }
+        com.coinninja.coinkeeper.util.PhoneNumberUtil myUtil = new com.coinninja.coinkeeper.util.PhoneNumberUtil();
+        Phonenumber.PhoneNumber testPhoneNumber = myUtil.toPhoneNumber(text);
+        if (testPhoneNumber == null || !phoneNumberUtil.isPossibleNumber(testPhoneNumber)) { return; }
 
+        attemptToParsePhoneNumber(text);
+    }
+
+    public void attemptToParsePhoneNumber(String text){
         try {
             phoneNumber = phoneNumberUtil.parse(text, locale.getCountry());
             if (phoneNumberUtil.isValidNumber(phoneNumber)) {

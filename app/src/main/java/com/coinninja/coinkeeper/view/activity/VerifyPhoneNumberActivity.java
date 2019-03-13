@@ -90,7 +90,6 @@ public class VerifyPhoneNumberActivity extends SecuredActivity {
     }
 
     private void onPhoneNumberInValid(String text) {
-        clearPhoneNumber();
         showError();
     }
 
