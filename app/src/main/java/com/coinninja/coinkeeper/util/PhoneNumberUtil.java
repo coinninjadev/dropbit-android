@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 
 public class PhoneNumberUtil {
 
-
+    private final VariableLengthPhoneNumberUtil varianceUtil = new VariableLengthPhoneNumberUtil();
     private final com.google.i18n.phonenumbers.PhoneNumberUtil _util;
 
     public PhoneNumberUtil() {
@@ -40,6 +40,7 @@ public class PhoneNumberUtil {
         if (phoneNumber.contains("+1")) {
             throw new RuntimeException("this shouldn't happen");
         }
+
         return number.setNationalNumber(Long.parseLong(phoneNumber));
     }
 
