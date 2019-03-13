@@ -4,7 +4,9 @@ import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
+import android.util.Log;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.google.i18n.phonenumbers.AsYouTypeFormatter;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -20,6 +22,7 @@ import java.util.Map;
 
 public class PhoneNumberFormattingTextWatcher implements TextWatcher {
 
+    public static final int MIN_PHONE_NUMBER_LENGTH = 6;
     private final Map<String, String> discardableValues;
     private Locale locale;
     private Callback callback;
@@ -89,15 +92,13 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
     }
 
     private void validateNumber(String text) {
-        if (formattedTemplateNumber.length() != text.length()) {
-            return;
-        }
+        if (text.length() < MIN_PHONE_NUMBER_LENGTH) { return; }
 
         try {
             phoneNumber = phoneNumberUtil.parse(text, locale.getCountry());
             if (phoneNumberUtil.isValidNumber(phoneNumber)) {
                 callback.onPhoneNumberValid(phoneNumber);
-            } else {
+            } else if (formattedTemplateNumber.length() == text.length()) {
                 callback.onPhoneNumberInValid(text);
             }
         } catch (NumberParseException e) {

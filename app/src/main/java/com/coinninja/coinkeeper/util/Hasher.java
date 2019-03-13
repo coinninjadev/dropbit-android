@@ -1,12 +1,14 @@
 package com.coinninja.coinkeeper.util;
 
 import com.coinninja.coinkeeper.BuildConfig;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.spongycastle.crypto.PBEParametersGenerator;
 import org.spongycastle.crypto.digests.SHA256Digest;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.params.KeyParameter;
 import org.spongycastle.util.encoders.Hex;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -28,6 +30,10 @@ public class Hasher {
     @Inject
     public Hasher() {
         generator = new PKCS5S2ParametersGenerator(new SHA256Digest());
+    }
+
+    public String hash(PhoneNumber phoneNumber) {
+        return hash(String.format("%s%s", phoneNumber.getCountryCode(), phoneNumber.getHashReadyPhoneNumber()));
     }
 
     public String hash(String phoneNumber) {

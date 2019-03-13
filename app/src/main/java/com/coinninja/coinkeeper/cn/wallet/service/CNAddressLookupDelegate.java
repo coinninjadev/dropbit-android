@@ -54,7 +54,7 @@ public class CNAddressLookupDelegate extends BroadcastReceiver {
 
     public void fetchAddressFor(PhoneNumber phoneNumber, CNAddressLookupCompleteCallback callback) {
         this.callback = callback;
-        String phoneNumberHash = hasher.hash(String.format("%s%s", phoneNumber.getCountryCode(), phoneNumber.getNationalNumber()));
+        String phoneNumberHash = hasher.hash(phoneNumber);
         localBroadCastUtil.registerReceiver(this, intentFilter);
         serviceWorkUtil.lookupAddressForPhoneNumberHash(phoneNumberHash);
     }

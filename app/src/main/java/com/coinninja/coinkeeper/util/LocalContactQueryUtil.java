@@ -35,25 +35,21 @@ public class LocalContactQueryUtil {
                         ContactsContract.CommonDataKinds.Phone.TYPE,
                         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                         ContactsContract.CommonDataKinds.Phone.NUMBER,
-                        ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER,
                 }, null, null,
                 ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
         );
 
-        String normalized_number;
         String number;
 
         if (managedCursor.moveToFirst()) {
             do {
                 number = managedCursor.getString(
                         managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                normalized_number = managedCursor.getString(
-                        managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER));
-                if (null != number && null != normalized_number) {
+                if (null != number) {
                     Contact contact = new Contact();
                     contact.setDisplayName(managedCursor.getString(
                             managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
-                    contact.setPhoneNumber(normalized_number);
+                    contact.setPhoneNumber(number);
                     contacts.add(contact);
                 }
             } while (managedCursor.moveToNext());
