@@ -137,7 +137,7 @@ public class IncomingInviteResponderTest {
         when(sampleInvite.getServerId()).thenReturn(sampleInviteServerID);
         when(sampleInvite.getValueSatoshis()).thenReturn(sampleValueSatoshis);
         when(sampleInvite.getSenderPhoneNumber()).thenReturn(phoneNumber);
-        when(phoneNumber.toNationalDisplayText()).thenReturn(FORMATTED_PHONE);
+        when(phoneNumber.displayTextForLocale()).thenReturn(FORMATTED_PHONE);
         sampleInvites.add(sampleInvite);
         return sampleInvites;
     }

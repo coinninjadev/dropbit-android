@@ -150,17 +150,6 @@ public class PhoneNumberInputViewTest {
     }
 
     @Test
-    public void forwards_clicks_to_input() {
-        View.OnClickListener onClickListener = mock(View.OnClickListener.class);
-        EditText phoneInput = withId(activity, R.id.phone_number_view_number_input);
-        phoneInput.setOnClickListener(onClickListener);
-
-        withId(activity, R.id.phone_number_input).performClick();
-
-        verify(onClickListener).onClick(any());
-    }
-
-    @Test
     public void sets_selection_to_end_when_clicked() {
         EditText phoneInput = withId(activity, R.id.phone_number_view_number_input);
 

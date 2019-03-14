@@ -106,8 +106,8 @@
     <color name="background_bead_inactive">#ffdadada</color>
 
     <!-- PhoneNumberInputWidget -->
-    <color name="phone_number_input_widget_flag_selector_background">#D8D8D8</color>
-    <color name="phone_number_input_widget_flag_selector_background_active">#BFBFBF</color>
+    <color name="phone_number_input_widget_flag_selector_background">#F7F7F7</color>
+    <color name="phone_number_input_widget_flag_selector_background_active">#D8D8D8</color>
     <color name="phone_number_input_widget_border_color">#50000000</color>
     <color name="phone_number_input_widget_background_color">#FFFFFF</color>
 

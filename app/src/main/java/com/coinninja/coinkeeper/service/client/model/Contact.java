@@ -9,6 +9,17 @@ import com.coinninja.coinkeeper.util.Hasher;
 import java.util.Objects;
 
 public class Contact implements Parcelable {
+    public static final Creator<Contact> CREATOR = new Creator<Contact>() {
+        @Override
+        public Contact createFromParcel(Parcel in) {
+            return new Contact(in);
+        }
+
+        @Override
+        public Contact[] newArray(int size) {
+            return new Contact[size];
+        }
+    };
     String displayName;
     PhoneNumber phoneNumber;
     boolean isVerified;
@@ -31,18 +42,6 @@ public class Contact implements Parcelable {
         hash = in.readString();
     }
 
-    public static final Creator<Contact> CREATOR = new Creator<Contact>() {
-        @Override
-        public Contact createFromParcel(Parcel in) {
-            return new Contact(in);
-        }
-
-        @Override
-        public Contact[] newArray(int size) {
-            return new Contact[size];
-        }
-    };
-
     public String getHash() {
         return hash;
     }
@@ -56,28 +55,28 @@ public class Contact implements Parcelable {
         hash = new Hasher().hash(getNumberWithCountryCode());
     }
 
-    public void setPhoneNumber(String phoneNumberString) {
-        setPhoneNumber(new PhoneNumber(phoneNumberString));
-    }
-
     public PhoneNumber getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setPhoneNumber(String phoneNumberString) {
+        setPhoneNumber(new PhoneNumber(phoneNumberString));
     }
 
     public String getDisplayName() {
         return displayName;
     }
 
-    public void setVerified(boolean verified) {
-        isVerified = verified;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public boolean isVerified() {
         return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
     }
 
     public String getNumberWithCountryCode() {
@@ -113,4 +112,11 @@ public class Contact implements Parcelable {
         return Objects.hash(displayName, phoneNumber, isVerified, hash);
     }
 
+    public String toDisplayNameOrInternationalPhoneNumber() {
+        if (displayName != null && !displayName.isEmpty()) {
+            return displayName;
+        } else {
+            return phoneNumber.toInternationalDisplayText();
+        }
+    }
 }

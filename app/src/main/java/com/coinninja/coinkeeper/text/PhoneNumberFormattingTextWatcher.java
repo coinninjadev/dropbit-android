@@ -71,7 +71,7 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
             return;
         }
 
-        stopWatching = containsNonDialableDidget(s.toString().toCharArray());
+        stopWatching = containsNonDialableDiget(s.toString().toCharArray());
     }
 
     @Override
@@ -121,7 +121,7 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
         }
     }
 
-    private boolean containsNonDialableDidget(char[] chars) {
+    private boolean containsNonDialableDiget(char[] chars) {
         for (char c : chars) {
             if (!PhoneNumberUtils.isNonSeparator(c) &&
                     !discardableValues.containsKey(String.valueOf(c))) {

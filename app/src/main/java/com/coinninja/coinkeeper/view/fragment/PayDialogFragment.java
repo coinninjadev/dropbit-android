@@ -8,12 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +18,7 @@ import android.widget.Toast;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
+import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
 import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
 import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
@@ -30,7 +28,6 @@ import com.coinninja.coinkeeper.presenter.activity.CalculatorActivityPresenter;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.text.CurrencyFormattingTextWatcher;
-import com.coinninja.coinkeeper.text.PhoneNumberFormattingTextWatcher;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
@@ -49,54 +46,53 @@ import com.coinninja.coinkeeper.view.activity.QrScanActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
+import com.coinninja.coinkeeper.view.widget.PaymentReceiverView;
+import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.google.i18n.phonenumbers.Phonenumber;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 
 import static android.app.Activity.RESULT_OK;
+import static com.coinninja.android.helpers.Views.shakeInError;
+import static com.coinninja.android.helpers.Views.withId;
 
-public class PayDialogFragment extends BaseDialogFragment implements PhoneNumberFormattingTextWatcher.Callback, CurrencyFormattingTextWatcher.Callback {
+public class PayDialogFragment extends BaseDialogFragment implements CurrencyFormattingTextWatcher.Callback {
     public static final int PICK_CONTACT_REQUEST = 100001;
 
     @Inject
     CNAddressLookupDelegate cnAddressLookupDelegate;
-
     @Inject
     Analytics analytics;
-
     @Inject
     WalletHelper walletHelper;
-
     @Inject
     BitcoinUriBuilder bitcoinUriBuilder;
-
     @Inject
     ClipboardUtil clipboardUtil;
-
     @Inject
     PreferenceInteractor preferenceInteractor;
-
     @Inject
     CurrencyFormattingTextWatcher currencyFormattingTextWatcher;
-
     @Inject
     CoinKeeperApplication application;
-
     @Inject
     SharedMemoToggleView memoToggleView;
+    @Inject
+    PhoneNumberUtil phoneNumberUtil;
+    @Inject
+    @CountryCodeLocales
+    List<CountryCodeLocale> countryCodeLocales;
 
     CalculatorActivityPresenter.View calculatorView;
     PaymentUtil paymentUtil;
     PaymentHolder paymentHolder;
-
-    private EditText sendToInput;
     private TextView secondaryCurrency;
     private EditText primaryCurrency;
-
-    @Inject
-    PhoneNumberUtil phoneNumberUtil;
+    private PaymentReceiverView paymentReceiverView;
 
     public static PayDialogFragment newInstance(PaymentUtil paymentUtil, CalculatorActivityPresenter.View view) {
         PayDialogFragment payFragment = new PayDialogFragment();
@@ -116,6 +112,7 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
     @Override
     public void onResume() {
         super.onResume();
+        USDCurrency.SET_MAX_LIMIT((USDCurrency) paymentHolder.getEvaluationCurrency());
         currencyFormattingTextWatcher.setCurrency(paymentHolder.getPrimaryCurrency());
         currencyFormattingTextWatcher.setCallback(this);
         setupView();
@@ -154,6 +151,12 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
         paymentUtil.reset();
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        cnAddressLookupDelegate.teardown();
+        super.onDismiss(dialog);
+    }
+
     // Currency Text Watcher Callbacks
     @Override
     public void onValid(Currency currency) {
@@ -164,12 +167,7 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
     // Currency Text Watcher Callbacks
     @Override
     public void onInvalid(String text) {
-        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake_view);
-        Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-        primaryCurrency.startAnimation(animation);
-        primaryCurrency.postDelayed(() -> vibrator.cancel(), 250);
-        long[] pattern = {25, 100, 25, 100};
-        vibrator.vibrate(pattern, 0);
+        shakeInError(primaryCurrency);
     }
 
     private void onPickContactResult(Intent data) {
@@ -179,39 +177,42 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
 
     private void setupView() {
         View base = getView();
-        secondaryCurrency = base.findViewById(R.id.secondary_currency);
-        primaryCurrency = base.findViewById(R.id.primary_currency);
+        secondaryCurrency = withId(base, R.id.secondary_currency);
+        primaryCurrency = withId(base, R.id.primary_currency);
         primaryCurrency.setRawInputType(Configuration.KEYBOARD_12KEY);
         primaryCurrency.addTextChangedListener(currencyFormattingTextWatcher);
-        base.findViewById(R.id.pay_footer_send_btn).setOnClickListener(v -> onSendBtnClicked());
-        base.findViewById(R.id.scan_btc_address_btn).setOnClickListener(v -> onScanClicked());
-        base.findViewById(R.id.pay_header_close_btn).setOnClickListener(v -> onCloseClicked());
-        base.findViewById(R.id.paste_address_btn).setOnClickListener(v -> onPasteClicked());
-        base.findViewById(R.id.contacts_btn).setOnClickListener(v -> onContactsClicked());
-        setupFragment();
-        setupSendToInput();
+        configureButtons(base);
+        configureSharedMemo();
+        configurePaymentReceiver();
         showPrice();
 
-        USDCurrency.SET_MAX_LIMIT((USDCurrency) paymentHolder.getEvaluationCurrency());
 
         if (paymentHolder.getPrimaryCurrency().isZero()) {
             primaryCurrency.setText("");
         }
     }
 
-    private void setupFragment() {
+    private void configureButtons(View base) {
+        withId(base, R.id.pay_footer_send_btn).setOnClickListener(v -> onSendBtnClicked());
+        withId(base, R.id.scan_btc_address_btn).setOnClickListener(v -> onScanClicked());
+        withId(base, R.id.pay_header_close_btn).setOnClickListener(v -> onCloseClicked());
+        withId(base, R.id.paste_address_btn).setOnClickListener(v -> onPasteClicked());
+        withId(base, R.id.contacts_btn).setOnClickListener(v -> onContactsClicked());
+    }
+
+    private void configureSharedMemo() {
         if (!walletHelper.hasVerifiedAccount()) {
             paymentHolder.setIsSharingMemo(false);
         }
     }
 
-    private void setupSendToInput() {
+    private void configurePaymentReceiver() {
         String initialSendTo = paymentUtil.getAddress() == null ? "" : paymentUtil.getAddress();
-        PhoneNumberFormattingTextWatcher phoneWatcher = new PhoneNumberFormattingTextWatcher(getResources().getConfiguration().locale, this);
-        sendToInput = getView().findViewById(R.id.send_to_input);
-        sendToInput.setText(initialSendTo);
-        sendToInput.setOnFocusChangeListener(this::onSendToFocusChanged);
-        sendToInput.addTextChangedListener(phoneWatcher);
+        paymentReceiverView = withId(getView(), R.id.payment_receiver);
+        paymentReceiverView.setOnValidPhoneNumberObserver(this::onPhoneNumberValid);
+        paymentReceiverView.setOnInvalidPhoneNumberObserver(this::onPhoneNumberInvalid);
+        paymentReceiverView.setCountryCodeLocales(countryCodeLocales);
+        paymentReceiverView.setPaymentAddress(initialSendTo);
     }
 
     private void onPaymentChange(Currency currency) {
@@ -224,7 +225,7 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
         paymentHolder.clearPayment();
         secondaryCurrency.clearFocus();
         paymentUtil.setAddress(text);
-        sendToInput.setText(text);
+        paymentReceiverView.setPaymentAddress(text);
         showSendToInput();
         primaryCurrency.requestFocus();
         showKeyboard(primaryCurrency);
@@ -243,31 +244,16 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
     public void onPhoneNumberValid(Phonenumber.PhoneNumber phoneNumber) {
-        forceDropKeyboard(sendToInput);
         cnAddressLookupDelegate.fetchAddressFor(new PhoneNumber(phoneNumber), this::onFetchContactComplete);
         paymentUtil.setContact(new Contact(new PhoneNumber(phoneNumber), "", false));
-
         updateSharedMemosUI();
     }
 
-    @Override
-    public void onPhoneNumberInValid(String text) {
+    public void onPhoneNumberInvalid(String text) {
+        paymentReceiverView.clear();
         paymentUtil.setContact(null);
-    }
-
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        cnAddressLookupDelegate.teardown();
-        super.onDismiss(dialog);
-    }
-
-    private void onSendToFocusChanged(View view, boolean b) {
-        if (view.isFocused()) {
-            ((EditText) view).setText("");
-            paymentUtil.setAddress("");
-        }
+        shakeInError(paymentReceiverView);
     }
 
     private void onSendBtnClicked() {
@@ -276,11 +262,6 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
         } else {
             invalidPayment();
         }
-    }
-
-    @Deprecated
-    public void setCalculatorView(CalculatorActivityPresenter.View calculatorView) {
-        this.calculatorView = calculatorView;
     }
 
     private void invalidPayment() {
@@ -330,7 +311,6 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
 
         inviteContact(pickedContact);
     }
-
 
     public void onFetchContactComplete(AddressLookupResult addressLookupResult) {
         paymentHolder.setPublicKey(addressLookupResult.getAddressPubKey());
@@ -428,14 +408,15 @@ public class PayDialogFragment extends BaseDialogFragment implements PhoneNumber
     }
 
     private void hideSendToInput() {
-        sendToInput.setVisibility(View.GONE);
+        paymentReceiverView.setVisibility(View.GONE);
+        paymentReceiverView.clear();
         getView().findViewById(R.id.contact_name).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.contact_number).setVisibility(View.VISIBLE);
 
     }
 
     private void showSendToInput() {
-        sendToInput.setVisibility(View.VISIBLE);
+        paymentReceiverView.setVisibility(View.VISIBLE);
         getView().findViewById(R.id.contact_name).setVisibility(View.GONE);
         getView().findViewById(R.id.contact_number).setVisibility(View.GONE);
     }

@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.view.adapter.util;
 
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.google.i18n.phonenumbers.NumberParseException;
@@ -194,13 +195,7 @@ public class BindableTransaction {
         if (contactName != null && !contactName.isEmpty())
             return contactName;
         if (contactPhoneNumber != null && !contactPhoneNumber.isEmpty()) {
-            try {
-                PhoneNumberUtil util = PhoneNumberUtil.getInstance();
-                Phonenumber.PhoneNumber number = util.parse(contactPhoneNumber, "US");
-                return util.format(number, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
-            } catch (NumberParseException e) {
-                return contactPhoneNumber;
-            }
+            return new PhoneNumber(contactPhoneNumber).displayTextForLocale();
         }
         return targetAddress;
     }

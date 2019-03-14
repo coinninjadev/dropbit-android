@@ -269,7 +269,7 @@ public class TransactionAdapterUtil {
 
         PhoneNumber sendersNumber = transactionNotification.getPhoneNumber();
         if (sendersNumber != null) {
-            bindableTransaction.setContactPhoneNumber(sendersNumber.toNationalDisplayText());
+            bindableTransaction.setContactPhoneNumber(sendersNumber.displayTextForLocale());
         }
     }
 

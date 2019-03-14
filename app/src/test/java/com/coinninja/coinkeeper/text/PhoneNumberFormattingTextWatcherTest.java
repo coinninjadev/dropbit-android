@@ -218,6 +218,18 @@ public class PhoneNumberFormattingTextWatcherTest {
     }
 
     @Test
+    @Config(qualifiers = "en-rNZ")
+    public void validates_multiple_length_countries__New_Zealand() {
+        Phonenumber.PhoneNumber number = new Phonenumber.PhoneNumber();
+        number.setCountryCode(64);
+        number.setNationalNumber(21345687L);
+        editText.setText("21345687");
+        assertThat(editText, hasText("+64 21 345 687"));
+        verify(callback).onPhoneNumberValid(number);
+    }
+
+
+    @Test
     public void plays_nice_with_other_watchers___passive___we_aint_got_time_for_that() {
         CompetitiveWatcher competitiveWatcher = new CompetitiveWatcher();
 

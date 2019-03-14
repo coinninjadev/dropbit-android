@@ -31,8 +31,8 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import static com.coinninja.android.helpers.Resources.getDrawable;
 import static com.coinninja.android.helpers.Resources.getString;
-import static com.coinninja.android.helpers.Views.makeViewInvisibile;
-import static com.coinninja.android.helpers.Views.makeViewVisibile;
+import static com.coinninja.android.helpers.Views.makeViewInvisible;
+import static com.coinninja.android.helpers.Views.makeViewVisible;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class TransactionDetailPageAdapter extends PagerAdapter {
@@ -117,7 +117,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
     }
 
     void bindTo(View page, BindableTransaction bindableTransaction) {
-        makeViewInvisibile(page, R.id.call_to_action);
+        makeViewInvisible(page, R.id.call_to_action);
         withId(page, R.id.ic_close).setOnClickListener(this::close);
         renderIcon(page, bindableTransaction);
         renderConfirmations(page, bindableTransaction);
@@ -237,7 +237,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         Button button = withId(page, R.id.button_cancel_dropbit);
         button.setOnClickListener(this::onCancelDropbit);
         button.setTag(bindableTransaction.getServerInviteId());
-        makeViewVisibile(page, R.id.button_cancel_dropbit);
+        makeViewVisible(page, R.id.button_cancel_dropbit);
     }
 
     private void onCancelDropbit(View view) {

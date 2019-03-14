@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.util.currency;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -12,6 +11,14 @@ import static org.junit.Assert.assertTrue;
 
 public class USDCurrencyTest {
 
+    @Test
+    public void sets_max_value_statically() {
+        USDCurrency.SET_MAX_LIMIT(new USDCurrency(0));
+        assertThat(USDCurrency.MAX_DOLLAR_AMOUNT, equalTo(Long.MAX_VALUE));
+
+        USDCurrency.SET_MAX_LIMIT(new USDCurrency(10000));
+        assertThat(USDCurrency.MAX_DOLLAR_AMOUNT, equalTo(209999999769L));
+    }
 
     @Test
     public void instantiated_from_long() {
@@ -38,7 +45,7 @@ public class USDCurrencyTest {
     }
 
     @Test
-    public void validate(){
+    public void validate() {
         USDCurrency currency = new USDCurrency(100L);
         assertTrue(currency.validate("$1,99$,,9.99"));
         assertTrue(currency.validate("$1,999.99"));
@@ -129,7 +136,7 @@ public class USDCurrencyTest {
     }
 
     @Test
-    public void toIncrementalFormat(){
+    public void toIncrementalFormat() {
         assertThat(new USDCurrency(1880L).toIncrementalFormat(), equalTo("$18.8"));
         assertThat(new USDCurrency("1").toIncrementalFormat(), equalTo("$1"));
         assertThat(new USDCurrency("1.1").toIncrementalFormat(), equalTo("$1.1"));
@@ -138,7 +145,7 @@ public class USDCurrencyTest {
     }
 
     @Test
-    public void toIncrementalFormat_TrailingZeros(){
+    public void toIncrementalFormat_TrailingZeros() {
         assertThat(new USDCurrency(1880L).toIncrementalFormat(2), equalTo("$18.80"));
         assertThat(new USDCurrency(1888L).toIncrementalFormat(9), equalTo("$18.88"));
         assertThat(new USDCurrency("1").toIncrementalFormat(0), equalTo("$1"));
