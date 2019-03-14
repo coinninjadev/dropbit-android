@@ -8,6 +8,7 @@ import android.telephony.TelephonyManager;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
+import com.coinninja.coinkeeper.util.VariableLengthPhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,7 @@ public class PhoneNumber implements Parcelable {
 
     private Phonenumber.PhoneNumber _phoneNumber;
     private PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
+    private VariableLengthPhoneNumberUtil variableLengthPhoneNumberUtil = new VariableLengthPhoneNumberUtil();
 
     public PhoneNumber() {
 
@@ -120,4 +122,7 @@ public class PhoneNumber implements Parcelable {
         return _phoneNumber != null && phoneNumberUtil.isValidNumber(toString());
     }
 
+    public String getHashReadyPhoneNumber() {
+        return String.valueOf(variableLengthPhoneNumberUtil.spliceNationalPrefixIntoPhoneNumberIfNecessary(_phoneNumber).getNationalNumber());
+    }
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class PhoneNumberFormattingTextWatcher implements TextWatcher {
 
+    public static final int MIN_PHONE_NUMBER_LENGTH = 6;
     private final Map<String, String> discardableValues;
     private Locale locale;
     private Callback callback;
@@ -91,19 +92,13 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
     }
 
     private void validateNumber(String text) {
-        com.coinninja.coinkeeper.util.PhoneNumberUtil myUtil = new com.coinninja.coinkeeper.util.PhoneNumberUtil();
-        Phonenumber.PhoneNumber testPhoneNumber = myUtil.toPhoneNumber(text);
-        if (testPhoneNumber == null || !phoneNumberUtil.isPossibleNumber(testPhoneNumber)) { return; }
+        if (text.length() < MIN_PHONE_NUMBER_LENGTH) { return; }
 
-        attemptToParsePhoneNumber(text);
-    }
-
-    public void attemptToParsePhoneNumber(String text){
         try {
             phoneNumber = phoneNumberUtil.parse(text, locale.getCountry());
             if (phoneNumberUtil.isValidNumber(phoneNumber)) {
                 callback.onPhoneNumberValid(phoneNumber);
-            } else {
+            } else if (formattedTemplateNumber.length() == text.length()) {
                 callback.onPhoneNumberInValid(text);
             }
         } catch (NumberParseException e) {

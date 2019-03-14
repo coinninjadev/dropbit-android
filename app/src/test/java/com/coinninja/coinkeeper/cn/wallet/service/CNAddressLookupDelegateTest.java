@@ -75,7 +75,7 @@ public class CNAddressLookupDelegateTest {
     @Test
     public void starts_observing_for_address_results_when_looking_up_by_phone_number() throws NumberParseException {
         PhoneNumber phoneNumber = new PhoneNumber("+13305551111");
-        when(hasher.hash("13305551111")).thenReturn(phoneNumberHash);
+        when(hasher.hash(phoneNumber)).thenReturn(phoneNumberHash);
 
         cnAddressLookupDelegate.fetchAddressFor(phoneNumber, callback);
 
