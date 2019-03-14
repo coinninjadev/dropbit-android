@@ -742,6 +742,7 @@ public class TransactionAdapterUtilTest {
         assertThat(bindableTransaction.getTxTime(), equalTo("April 24, 2018 01:24am"));
     }
 
+
     @Test
     public void supplies_memo_from_invite() {
         mockSentInvite();
@@ -779,6 +780,19 @@ public class TransactionAdapterUtilTest {
         assertThat(bindableTransaction.getTxTime(), equalTo("April 24, 2018 01:24am"));
     }
 
+    @Test
+    public void formats_international_number_from_transaction_notification() {
+        mockSentInvite();
+        String memo_from_invite = "memo from invite";
+        TransactionNotification transactionNotification = mock(TransactionNotification.class);
+        when(invite.getTransactionNotification()).thenReturn(transactionNotification);
+        when(transactionNotification.getMemo()).thenReturn(memo_from_invite);
+        when(transactionNotification.getPhoneNumber()).thenReturn(new PhoneNumber("+4407449517522"));
+
+        BindableTransaction bindableTransaction = utility.translateTransaction(transactionWrapper);
+
+        assertThat(bindableTransaction.getContactPhoneNumber(), equalTo("+44 7449 517522"));
+    }
 
     private TransactionSummary buildMockTx(String some_tx_id, long time, long fee, MemPoolState state) {
         TransactionSummary tx = mock(TransactionSummary.class);

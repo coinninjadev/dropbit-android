@@ -324,6 +324,18 @@ public class ConfirmPayDialogFragmentTest {
     }
 
     @Test
+    public void show_invite_phone_number() {
+        Contact contact = new Contact(phoneNumber, "", false);
+        show(contact, paymentHolder);
+
+        TextView btcContactNameDisplay = dialog.getView().findViewById(R.id.confirm_pay_name);
+        TextView btcSendAddressDisplay = dialog.getView().findViewById(R.id.confirm_pay_btc_address);
+
+        assertThat(btcContactNameDisplay.getText().toString(), equalTo("+1 330-555-1111"));
+        assertThat(btcSendAddressDisplay.getText().toString(), equalTo(""));
+    }
+
+    @Test
     public void show_invite_user() {
         Contact contact = new Contact(phoneNumber, "Joe Smoe", false);
         show(contact, paymentHolder);

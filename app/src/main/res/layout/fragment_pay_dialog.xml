@@ -48,16 +48,20 @@
                 android:paddingBottom="20dp"
                 android:src="@drawable/ic_close"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
 
             <EditText
                 android:id="@+id/primary_currency"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="8dp"
                 android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:gravity="center"
                 android:imeOptions="actionDone"
                 android:importantForAutofill="no"
@@ -67,8 +71,8 @@
                 android:textSize="@dimen/pay_dialog_large_text"
                 android:visibility="visible"
                 app:autoSizeTextType="uniform"
-                app:layout_constraintEnd_toEndOf="@+id/send_to_input"
-                app:layout_constraintStart_toStartOf="@+id/send_to_input"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/pay_header_label"
                 tools:ignore="LabelFor,TextFields"
                 tools:targetApi="o"
@@ -118,32 +122,20 @@
                 app:layout_constraintTop_toBottomOf="@+id/contact_name"
                 tools:text="(330) 555-1111" />
 
-            <EditText
-                android:id="@+id/send_to_input"
-                style="@style/PayDialog.EditText"
+
+            <com.coinninja.coinkeeper.view.widget.PaymentReceiverView
+                android:id="@+id/payment_receiver"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:digits="-0123456789"
-                android:ellipsize="end"
-                android:hint="@string/pay_address_hint"
-                android:imeOptions="actionDone"
-                android:importantForAutofill="no"
-                android:inputType="numberDecimal"
-                android:lines="1"
-                android:maxLines="1"
-                app:autoSizeTextType="uniform"
                 app:layout_constraintBottom_toTopOf="@+id/scan_btc_address_btn"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/contact_number"
-                app:layout_constraintVertical_bias="0.93"
-                tools:targetApi="o" />
-
+                app:layout_constraintVertical_bias="0.93" />
 
             <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
                 android:id="@+id/contacts_btn"
@@ -183,13 +175,13 @@
 
             <include
                 android:id="@+id/transaction_memo"
-                layout="@layout/memo_container"
                 style="@style/PayDialog.EditText"
+                layout="@layout/memo_container"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="10dp"
                 android:ellipsize="end"
                 android:hint="@string/payment_memo"

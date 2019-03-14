@@ -24,8 +24,8 @@ import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.service.runner.FundingRunnable;
 import com.coinninja.coinkeeper.service.runner.FundingTargetStatRunner;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
@@ -56,11 +56,10 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
     @Inject
     AccountManager accountManager;
     String sendAddress;
-    private FundingTargetStatRunner fundingAsync;
-    private Contact contact;
     @Inject
     PhoneNumberUtil phoneNumberUtil;
-
+    private FundingTargetStatRunner fundingAsync;
+    private Contact contact;
     private PaymentHolder paymentHolder;
     private SharedMemoView sharedMemoView;
 
@@ -146,16 +145,16 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
 
         switch (getDisplayState()) {
             case INVITE_CONTACT:
-                showInviteDisplay(contact);
+                showContact();
                 analytics.trackEvent(Analytics.EVENT_DROPBIT_SEND);
                 break;
             case CONTACT:
-                showContactName();
+                showContact();
                 showSendAddress();
                 analytics.trackEvent(Analytics.EVENT_CONTACT_SEND);
                 break;
             case PHONE_NUMBER_ONLY:
-                showPhoneNumber();
+                showContact();
                 showSendAddress();
                 analytics.trackEvent(Analytics.EVENT_CONTACT_SEND);
                 break;
@@ -178,7 +177,7 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
 
     private void setupSharedMemoFragment() {
         View sharedMemo = getView().findViewById(R.id.shared_transaction_subview);
-        String displayText = phoneNumberUtil.getContactOrNumber(contact);
+        String displayText = contact == null ? "" : contact.toDisplayNameOrInternationalPhoneNumber();
         sharedMemoView = new SharedMemoView(sharedMemo, paymentHolder.getIsSharingMemo(), paymentHolder.getMemo(), displayText);
 
         if (paymentHolder.getMemo() == null || "".equals(paymentHolder.getMemo())) {
@@ -236,21 +235,10 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
         }
     }
 
-    private void showPhoneNumber() {
+    private void showContact() {
         TextView view = getView().findViewById(R.id.confirm_pay_name);
 
-        view.setText(contact.getPhoneNumber().toNationalDisplayText());
-    }
-
-    private void showContactName() {
-        TextView view = getView().findViewById(R.id.confirm_pay_name);
-        view.setText(contact.getDisplayName());
-    }
-
-    private void showInviteDisplay(Contact phoneNumberSendTo) {
-        TextView btcContactNameDisplay = getView().findViewById(R.id.confirm_pay_name);
-
-        btcContactNameDisplay.setText(phoneNumberUtil.getContactOrNumber(phoneNumberSendTo));
+        view.setText(contact.toDisplayNameOrInternationalPhoneNumber());
     }
 
     private void gatherAsyncFunds() {

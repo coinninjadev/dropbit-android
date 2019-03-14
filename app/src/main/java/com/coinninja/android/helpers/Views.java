@@ -10,6 +10,8 @@ import android.view.animation.AnimationUtils;
 
 import com.coinninja.coinkeeper.R;
 
+import androidx.annotation.Nullable;
+
 public class Views {
 
 
@@ -32,12 +34,21 @@ public class Views {
         withId(view, resourceId).setVisibility(View.GONE);
     }
 
-    public static void makeViewInvisibile(View view, int resourceId) {
+    public static void makeViewInvisible(View view, int resourceId) {
         withId(view, resourceId).setVisibility(View.INVISIBLE);
     }
 
-    public static void makeViewVisibile(View view, int resourceId) {
+    public static void makeViewVisible(View view, int resourceId) {
         withId(view, resourceId).setVisibility(View.VISIBLE);
+    }
+
+    public static void clickOn(View view, int resourceId) {
+        clickOn(withId(view, resourceId));
+    }
+
+    public static void clickOn(@Nullable View view) {
+        if (view != null)
+            view.performClick();
     }
 
     public static void shakeInError(View view) {

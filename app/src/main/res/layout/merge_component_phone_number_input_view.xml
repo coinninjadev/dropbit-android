@@ -8,13 +8,13 @@
         android:id="@id/phone_number_view_country_codes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/phone_number_input_flag_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingTop="@dimen/vertical_margin_small"
-        android:paddingBottom="@dimen/vertical_margin_small"
         android:paddingStart="@dimen/vertical_margin_small"
+        android:paddingTop="@dimen/vertical_margin_small"
         android:paddingEnd="0dp"
-        android:background="@drawable/phone_number_input_flag_bg"
+        android:paddingBottom="@dimen/vertical_margin_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -44,6 +44,7 @@
         android:background="@null"
         android:digits="0123456789- +"
         android:gravity="center"
+        android:importantForAutofill="no"
         android:inputType="number"
         android:lines="1"
         android:textAppearance="@style/TextAppearance.Strong.PrimaryColor"
@@ -51,6 +52,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/phone_number_view_country_codes"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="TextFields"
+        tools:ignore="LabelFor,TextFields"
+        tools:targetApi="o"
         tools:text="(216) 555-1111" />
 </merge>

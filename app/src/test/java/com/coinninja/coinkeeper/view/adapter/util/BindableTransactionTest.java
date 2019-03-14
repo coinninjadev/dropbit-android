@@ -2,10 +2,14 @@ package com.coinninja.coinkeeper.view.adapter.util;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+@RunWith(RobolectricTestRunner.class)
 public class BindableTransactionTest {
 
     private BindableTransaction bindableTransaction;
@@ -38,11 +42,22 @@ public class BindableTransactionTest {
     @Test
     public void returns_number_when_name_not_available() {
         bindableTransaction.setContactName("");
-        bindableTransaction.setContactPhoneNumber("--number--");
+        bindableTransaction.setContactPhoneNumber("+13305551111");
         bindableTransaction.setTargetAddress("--address--");
 
         bindableTransaction.getIdentifiableTarget();
-        assertThat(bindableTransaction.getIdentifiableTarget(), equalTo("--number--"));
+        assertThat(bindableTransaction.getIdentifiableTarget(), equalTo("(330) 555-1111"));
+    }
+
+    @Test
+    @Config(qualifiers = "es-rAU")
+    public void returns_number_when_name_not_available_as_international_format() {
+        bindableTransaction.setContactName("");
+        bindableTransaction.setContactPhoneNumber("+13305551111");
+        bindableTransaction.setTargetAddress("--address--");
+
+        bindableTransaction.getIdentifiableTarget();
+        assertThat(bindableTransaction.getIdentifiableTarget(), equalTo("+1 330-555-1111"));
     }
 
     @Test
@@ -54,6 +69,4 @@ public class BindableTransactionTest {
         bindableTransaction.getIdentifiableTarget();
         assertThat(bindableTransaction.getIdentifiableTarget(), equalTo("--address--"));
     }
-
-
 }
