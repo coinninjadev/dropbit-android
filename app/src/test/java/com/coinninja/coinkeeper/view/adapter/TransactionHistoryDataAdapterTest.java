@@ -101,6 +101,21 @@ public class TransactionHistoryDataAdapterTest {
     }
 
     @Test
+    @Config(qualifiers = "es-rAU")
+    public void show_phone_number_if_contact_name_is_empty_test__international_format() {
+        TextView textView = new TextView(RuntimeEnvironment.application);
+        TransactionHistoryDataAdapter.ViewHolder adapterViewHolder = new TransactionHistoryDataAdapter.ViewHolder(mock(View.class), mock(TransactionHistoryDataAdapter.OnItemClickListener.class));
+
+        BindableTransaction bindable = new BindableTransaction();
+        bindable.setContactName("");
+        bindable.setContactPhoneNumber("+12223334444");
+
+        adapterViewHolder.bindIdentifyingTarget(textView, bindable);
+
+        assertThat(textView.getText(), equalTo("+1 222-333-4444"));
+    }
+
+    @Test
     public void show_phone_number_if_contact_name_is_empty_test() {
         TextView textView = new TextView(RuntimeEnvironment.application);
         TransactionHistoryDataAdapter.ViewHolder adapterViewHolder = new TransactionHistoryDataAdapter.ViewHolder(mock(View.class), mock(TransactionHistoryDataAdapter.OnItemClickListener.class));

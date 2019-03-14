@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.model;
 import android.os.Parcel;
 
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,10 +15,10 @@ import static org.junit.Assert.assertThat;
 @RunWith(RobolectricTestRunner.class)
 public class ContactTest {
 
+    private static final String PHONE_NUMBER_INTERNATIONAL_FORMATTED_STRING = "+1 330-555-1111";
     private static final String PHONE_NUMBER_STRING = "+13305551111";
-    private PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
     private PhoneNumber PHONE_NUMBER = new PhoneNumber(PHONE_NUMBER_STRING);
-    private static final String DISPLAY_NAME = "billy da kid";
+    private static final String DISPLAY_NAME = "Joe Smoe";
     private Contact contact;
 
     @Before
@@ -56,5 +55,13 @@ public class ContactTest {
         String nationalNumber = contact.getPhoneNumber().toNationalDisplayText();
 
         assertThat(nationalNumber, equalTo(expectedPhoneDisplay));
+    }
+
+    @Test
+    public void provides_displayable_international_string() {
+        assertThat(contact.toDisplayNameOrInternationalPhoneNumber(), equalTo(DISPLAY_NAME));
+
+        contact = new Contact(PHONE_NUMBER, "", false);
+        assertThat(contact.toDisplayNameOrInternationalPhoneNumber(), equalTo(PHONE_NUMBER_INTERNATIONAL_FORMATTED_STRING));
     }
 }

@@ -12,7 +12,6 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 
 import androidx.annotation.Nullable;
 
@@ -23,8 +22,6 @@ public class InviteHelpDialogFragment extends BaseDialogFragment {
     private PreferenceInteractor preferenceInteractor;
     private OnInviteHelpAcceptedCallback onInviteHelpAcceptedCallback;
     private Contact contact;
-    private CharSequence contactForMessage;
-    private final PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
 
     public static DialogFragment newInstance(PreferenceInteractor preferenceInteractor,
                                              Contact contact,
@@ -59,15 +56,15 @@ public class InviteHelpDialogFragment extends BaseDialogFragment {
             preferenceInteractor.skipInviteHelpScreen(() -> onSkipPreferenceComplete());
         }
 
-        acknowlegeMessage();
+        acknowledgeMessage();
     }
 
-    private void acknowlegeMessage() {
+    private void acknowledgeMessage() {
         onInviteHelpAcceptedCallback.onInviteHelpAccepted();
     }
 
     void onSkipPreferenceComplete() {
-        acknowlegeMessage();
+        acknowledgeMessage();
     }
 
     private void setupCheckbox() {
@@ -97,15 +94,7 @@ public class InviteHelpDialogFragment extends BaseDialogFragment {
     private String getMessage() {
         String mask = getView().getResources().getString(R.string.invite_help_message_mask);
         String message = getView().getResources().getString(R.string.invite_help_message);
-        return message.replace(mask, getContactForMessage());
-    }
-
-    private String getContactForMessage() {
-        if (contact.getDisplayName() != null && !contact.getDisplayName().isEmpty()) {
-            return contact.getDisplayName();
-        } else {
-            return contact.getPhoneNumber().toNationalDisplayText();
-        }
+        return message.replace(mask, contact.toDisplayNameOrInternationalPhoneNumber());
     }
 
     public interface OnInviteHelpAcceptedCallback {

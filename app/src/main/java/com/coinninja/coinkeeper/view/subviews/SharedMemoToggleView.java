@@ -12,7 +12,7 @@ import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import javax.inject.Inject;
 
 import static com.coinninja.android.helpers.Views.makeViewGone;
-import static com.coinninja.android.helpers.Views.makeViewVisibile;
+import static com.coinninja.android.helpers.Views.makeViewVisible;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class SharedMemoToggleView implements ActivityViewType {
@@ -78,7 +78,7 @@ public class SharedMemoToggleView implements ActivityViewType {
 
     public void showSharedMemoViews() {
         isSharing = true;
-        makeViewVisibile(view, R.id.shared_memo_group);
+        makeViewVisible(view, R.id.shared_memo_group);
         updateSharingViews();
     }
 

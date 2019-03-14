@@ -18,6 +18,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.FragmentController;
 import org.robolectric.annotation.Config;
 
+import static com.coinninja.android.helpers.Views.clickOn;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.verify;
 @Config(application = TestCoinKeeperApplication.class)
 public class InviteHelpDialogFragmentTest {
 
-    private static final String PHONE_NUMBER_NATIONAL = "(330) 555-1111";
+    private static final String PHONE_NUMBER_INTERNATIONAL = "+1 330-555-1111";
     private static final String PHONE_NUMBER = "+13305551111";
     private PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER);
     private static final String DISPLAY_NAME = "Joe Blow";
@@ -64,7 +65,7 @@ public class InviteHelpDialogFragmentTest {
     }
 
     @Test
-    public void notifies_caller_that_user_acknowleged_invite_message_when_skipping() {
+    public void notifies_caller_that_user_acknowledged_invite_message_when_skipping() {
         showDialog();
         ((CheckBox) dialog.getView().findViewById(R.id.permission)).setChecked(true);
 
@@ -74,10 +75,10 @@ public class InviteHelpDialogFragmentTest {
     }
 
     @Test
-    public void notifies_caller_that_user_acknowleged_invite_message_when_not_skipping() {
+    public void notifies_caller_that_user_acknowledged_invite_message_when_not_skipping() {
         showDialog();
 
-        dialog.getView().findViewById(R.id.done).performClick();
+        clickOn(dialog.getView(), R.id.done);
 
         verify(onInviteHelpAcceptedCallback).onInviteHelpAccepted();
     }
@@ -86,7 +87,7 @@ public class InviteHelpDialogFragmentTest {
     public void does_not_save_permission_when_permission_is_not_checked() {
         showDialog();
 
-        dialog.getView().findViewById(R.id.done).performClick();
+        clickOn(dialog.getView(), R.id.done);
 
         verify(preferenceInteractor, times(0)).skipInviteHelpScreen(any(PreferencesUtil.Callback.class));
     }
@@ -96,7 +97,7 @@ public class InviteHelpDialogFragmentTest {
         showDialog();
         ((CheckBox) dialog.getView().findViewById(R.id.permission)).setChecked(true);
 
-        dialog.getView().findViewById(R.id.done).performClick();
+        clickOn(dialog.getView(), R.id.done);
 
         verify(preferenceInteractor).skipInviteHelpScreen(any(PreferencesUtil.Callback.class));
     }
@@ -116,7 +117,7 @@ public class InviteHelpDialogFragmentTest {
 
         String message = ((TextView) dialog.getView().findViewById(R.id.message)).getText().toString();
 
-        assertThat(message, containsString(PHONE_NUMBER_NATIONAL));
+        assertThat(message, containsString(PHONE_NUMBER_INTERNATIONAL));
     }
 
     @Test

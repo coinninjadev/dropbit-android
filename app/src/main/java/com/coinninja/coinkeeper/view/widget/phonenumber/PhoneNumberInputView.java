@@ -7,6 +7,7 @@ import android.content.res.TypedArray;
 import android.os.LocaleList;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,6 +34,10 @@ public class PhoneNumberInputView extends ConstraintLayout {
     private TextView flagView;
     private EditText phoneNumberInput;
     private PhoneNumberUtil phoneNumberUtil;
+    private OnExamplePhoneNumberChangedObserver onExampleNumberChangeObserver;
+    private String exampleFormattedNumber;
+    private OnValidPhoneNumberObserver onValidPhoneNumberObserver;
+    private OnInvalidPhoneNumberObserver onInvalidPhoneNumberObserver;
     private PhoneNumberFormattingTextWatcher.Callback phoneInputCallback = new PhoneNumberFormattingTextWatcher.Callback() {
 
         @Override
@@ -47,10 +52,6 @@ public class PhoneNumberInputView extends ConstraintLayout {
                 onInvalidPhoneNumberObserver.onInvalidPhoneNumber(text);
         }
     };
-    private OnExamplePhoneNumberChangedObserver onExampleNumberChangeObserver;
-    private String exampleFormattedNumber;
-    private OnValidPhoneNumberObserver onValidPhoneNumberObserver;
-    private OnInvalidPhoneNumberObserver onInvalidPhoneNumberObserver;
 
     public PhoneNumberInputView(Context context) {
         super(context);
@@ -133,7 +134,6 @@ public class PhoneNumberInputView extends ConstraintLayout {
                 PhoneNumberUtil.PhoneNumberType.MOBILE);
         exampleFormattedNumber = phoneNumberUtil.format(exampleNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
         setOnClickListener(v -> onClick());
-        phoneNumberInput.setOnClickListener(v -> onInputClick());
         phoneNumberInput.setMinEms((exampleFormattedNumber.length() / 2));
         phoneNumberInput.setMaxEms((exampleFormattedNumber.length() / 2));
         countryCodesSelctor.setOnClickListener(v -> selectCountry());
@@ -159,12 +159,14 @@ public class PhoneNumberInputView extends ConstraintLayout {
     }
 
     private void onInputClick() {
+        phoneNumberInput.requestFocus();
         phoneNumberInput.setSelection(phoneNumberInput.getText().length());
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(phoneNumberInput, InputMethodManager.SHOW_IMPLICIT);
     }
 
     private void onClick() {
-        phoneNumberInput.requestFocus();
-        phoneNumberInput.performClick();
+        onInputClick();
     }
 
     private void invalidateCountryCode() {
@@ -177,7 +179,9 @@ public class PhoneNumberInputView extends ConstraintLayout {
         numberFormattingTextWatcher.updateLocale(currentCountryCodeLocale.getLocale());
         invalidateCountryCode();
         configurePhoneInput();
-        onClick();
+
+        if (getVisibility() == VISIBLE)
+            onClick();
     }
 
     public void setOnExampleNumberChangeObserver(OnExamplePhoneNumberChangedObserver onExampleNumberChangeObserver) {
@@ -194,12 +198,16 @@ public class PhoneNumberInputView extends ConstraintLayout {
         this.onInvalidPhoneNumberObserver = onInvalidPhoneNumberObserver;
     }
 
+    public String getText() {
+        return phoneNumberInput.getText().toString();
+    }
+
     public void setText(String text) {
         phoneNumberInput.setText(text);
     }
 
-    public String getText() {
-        return phoneNumberInput.getText().toString();
+    public List<CountryCodeLocale> getCountryCodeLocales() {
+        return countryCodeLocales;
     }
 
     public interface OnValidPhoneNumberObserver {

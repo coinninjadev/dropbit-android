@@ -86,11 +86,6 @@ public class PhoneNumberUtil {
         return _util.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     }
 
-    public String getContactOrNumber(Contact contact) {
-        if (contact == null) return "";
-        return (contact.getDisplayName() != null && !"".equals(contact.getDisplayName())) ? contact.getDisplayName() : contact.getPhoneNumber().toNationalDisplayText();
-    }
-
     private String patchNumberWithCountryCode(String number) {
         if (number.startsWith("+")) return number;
         String temp;

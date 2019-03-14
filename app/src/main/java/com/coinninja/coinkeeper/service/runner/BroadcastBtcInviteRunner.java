@@ -146,7 +146,7 @@ public class BroadcastBtcInviteRunner implements Runnable {
         BTCCurrency btcSpent = new BTCCurrency(spent);
 
         String messageAmount = btcSpent.toFormattedCurrency();
-        String messageReceiver = phoneNumber.toNationalDisplayText();
+        String messageReceiver = phoneNumber.displayTextForLocale();
         String message = context.getString(R.string.invite_broadcast_real_btc_message, messageAmount, messageReceiver);
         String txID = result.getTxId();
 
@@ -155,7 +155,7 @@ public class BroadcastBtcInviteRunner implements Runnable {
 
     private void saveInviteCanceledToExternalNotificationsDatabase(InviteTransactionSummary invite) {
 
-        String messageReceiver = invite.getReceiverPhoneNumber().toNationalDisplayText();
+        String messageReceiver = invite.getReceiverPhoneNumber().displayTextForLocale();
         String message = context.getString(R.string.invite_broadcast_canceled_message, messageReceiver);
         String inviteID = invite.getServerId();
 

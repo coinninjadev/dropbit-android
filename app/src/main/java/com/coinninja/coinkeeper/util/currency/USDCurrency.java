@@ -31,7 +31,15 @@ public class USDCurrency extends BaseCurrency implements Currency {
     }
 
     public static void SET_MAX_LIMIT(USDCurrency currency) {
-        MAX_DOLLAR_AMOUNT = new BTCCurrency(BTCCurrency.MAX_SATOSHI).toUSD(currency).toLong();
+        try {
+            MAX_DOLLAR_AMOUNT = new BTCCurrency(BTCCurrency.MAX_SATOSHI).toUSD(currency).toLong();
+        } catch (FormatNotValidException ex) {
+            MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
+        }
+
+        if (MAX_DOLLAR_AMOUNT == 0L) {
+            MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
+        }
     }
 
     @Override

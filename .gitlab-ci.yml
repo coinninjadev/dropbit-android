@@ -152,7 +152,7 @@ release-candidate:
   <<: *build_and_sign
   when: manual
   only:
-  - develop@cn/coin-keeper-android
+  - develop@cn/dropbit-android
   - build-variants
 
 production-debug:
@@ -160,7 +160,7 @@ production-debug:
   script:
   - ./gradlew uploadProductionDebugToHockeyApp
   only:
-  - develop@cn/coin-keeper-android
+  - develop@cn/dropbit-android
   - build-variants
   tags:
   - linux
@@ -178,7 +178,7 @@ staging-debug:
   script:
   - ./gradlew uploadStagingDebugToHockeyApp
   only:
-  - develop@cn/coin-keeper-android
+  - develop@cn/dropbit-android
   - build-variants
   tags:
   - linux
