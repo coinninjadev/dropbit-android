@@ -52,6 +52,7 @@ public class PhoneNumberInputView extends ConstraintLayout {
                 onInvalidPhoneNumberObserver.onInvalidPhoneNumber(text);
         }
     };
+    private OnCountryCodeLocaleChangedObserver onCountryCodeLocaleChangedObserver;
 
     public PhoneNumberInputView(Context context) {
         super(context);
@@ -182,6 +183,9 @@ public class PhoneNumberInputView extends ConstraintLayout {
 
         if (getVisibility() == VISIBLE)
             onClick();
+
+        if (onCountryCodeLocaleChangedObserver != null)
+            onCountryCodeLocaleChangedObserver.onCountryCodeLocaleChanged(countryCodeLocale);
     }
 
     public void setOnExampleNumberChangeObserver(OnExamplePhoneNumberChangedObserver onExampleNumberChangeObserver) {
@@ -210,6 +214,10 @@ public class PhoneNumberInputView extends ConstraintLayout {
         return countryCodeLocales;
     }
 
+    public void setOnCountryCodeChangeObserver(OnCountryCodeLocaleChangedObserver onCountryCodeLocaleChangedObserver) {
+        this.onCountryCodeLocaleChangedObserver = onCountryCodeLocaleChangedObserver;
+    }
+
     public interface OnValidPhoneNumberObserver {
         void onValidPhoneNumber(Phonenumber.PhoneNumber phoneNumber);
     }
@@ -220,6 +228,10 @@ public class PhoneNumberInputView extends ConstraintLayout {
 
     public interface OnExamplePhoneNumberChangedObserver {
         void onExamplePhoneNumberChanged(String exampleNumber);
+    }
+
+    public interface OnCountryCodeLocaleChangedObserver {
+        void onCountryCodeLocaleChanged(CountryCodeLocale countryCodeLocale);
     }
 
 }

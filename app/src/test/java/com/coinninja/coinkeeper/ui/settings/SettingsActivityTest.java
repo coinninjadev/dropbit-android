@@ -21,7 +21,7 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.LicensesActivity;
 import com.coinninja.coinkeeper.view.activity.SplashActivity;
-import com.coinninja.coinkeeper.view.activity.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 
 import org.junit.After;
 import org.junit.Before;

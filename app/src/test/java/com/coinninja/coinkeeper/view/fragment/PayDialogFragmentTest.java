@@ -31,7 +31,7 @@ import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.PickContactActivity;
-import com.coinninja.coinkeeper.view.activity.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;

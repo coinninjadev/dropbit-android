@@ -21,7 +21,7 @@ import com.coinninja.coinkeeper.view.activity.SplashActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TrainingActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
-import com.coinninja.coinkeeper.view.activity.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;

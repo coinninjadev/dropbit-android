@@ -12,6 +12,7 @@ import android.transition.TransitionInflater;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
 import com.coinninja.coinkeeper.ui.backup.SkipBackupPresenter;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
