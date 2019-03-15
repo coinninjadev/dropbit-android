@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.util;
 
-import android.content.Intent;
 import android.net.Uri;
 
 import com.coinninja.coinkeeper.BuildConfig;
@@ -31,30 +30,13 @@ public class Intents {
     /* PREFERENCES */
     public static final String PREFERENCES_LAST_CN_MESSAGES_TIME = "PREFERENCES_LAST_CN_MESSAGES_TIME";
     public static final long PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME = 0l;
-
-    static {
-        Map<String, String> aMap = new LinkedHashMap<>();
-        aMap.put("FAQs", "https://dropbit.app/faq");
-        aMap.put("Contact Us", "https://dropbit.app/faq#contact");
-        aMap.put("Terms of Use", "https://dropbit.app/termsofuse");
-        aMap.put("Privacy Policy", "https://dropbit.app/privacypolicy");
-        SUPPORT_LINKS = aMap;
-    }
-
     /* PATTERNS */
     public static final String BITCOIN_ADDRESS_PATTERN = "((?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
     public static final String BITCOIN_URI_PATTERN = BITCOIN_ADDRESS_PATTERN + "(\\?.*&?(?:amount=)((?:[0-9]{0,8})(?:\\.[0-9]{1,8})?))?";
-
-    /* REQUESTS */
-    public static int REQUEST_QR_ACTIVITY_SCAN = 221;
-    public static int REQUEST_QR_FRAGMENT_SCAN = 222;
     public static final int REQUEST_PERMISSIONS_CAMERA = 524;
-
-
     /* RESULTS */
     public static final int RESULT_SCAN_OK = 221;
     public static final int RESULT_SCAN_ERROR = 400;
-
     /* ACTIONS */
     public static final String ACTION_DEVERIFY_PHONE_NUMBER_FAILED = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_PHONE_NUMBER_FAILED";
     public static final String ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED";
@@ -84,8 +66,6 @@ public class Intents {
     public static final String ACTION_WALLET_CREATED = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_CREATED";
     public static final String ACTION_TRANSACTION_DATA_CHANGED = BuildConfig.APPLICATION_ID + ".ACTION_TRANSACTION_DATA_CHANGED";
     public static final String ACTION_WALLET_ADDRESS_RETRIEVED = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_ADDRESS_RETRIEVED";
-
-
     /* EXTRAS */
     public static final String EXTRA_TRANSACTION_ID = "EXTRA_TRANSACTION_ID";
     public static final String EXTRA_TRANSACTION_RECORD_ID = "EXTRA_TRANSACTION_RECORD_ID";
@@ -117,7 +97,6 @@ public class Intents {
     public static final String EXTRA_INVITE_DTO = "EXTRA_COMPLETED_BROADCAST_DTO";
     public static final String EXTRA_PHONE_NUMBER_HASH = "EXTRA_PHONE_NUMBER_HASH";
     public static final String EXTRA_ADDRESS_LOOKUP_RESULT = "EXTRA_ADDRESS_LOOKUP_RESULT";
-
     /* CN Rest API KEYS */
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ALL = "all";
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID = "android";
@@ -135,9 +114,20 @@ public class Intents {
     public static final String CN_API_CREATE_DEVICE_APPLICATION_KEY = "application";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_KEY = "platform";
     public static final String CN_API_CREATE_DEVICE_UUID_KEY = "uuid";
-
     /* CN Rest API VALUES */
     public static final String CN_API_CREATE_DEVICE_APPLICATION_NAME = "DropBit";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_ANDROID = "android";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_IOS = "ios";
+    /* REQUESTS */
+    public static int REQUEST_QR_ACTIVITY_SCAN = 221;
+    public static int REQUEST_QR_FRAGMENT_SCAN = 222;
+
+    static {
+        Map<String, String> aMap = new LinkedHashMap<>();
+        aMap.put("FAQs", "https://dropbit.app/faq");
+        aMap.put("Contact Us", "https://dropbit.app/faq#contact");
+        aMap.put("Terms of Use", "https://dropbit.app/termsofuse");
+        aMap.put("Privacy Policy", "https://dropbit.app/privacypolicy");
+        SUPPORT_LINKS = aMap;
+    }
 }

@@ -10,6 +10,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.text.PhoneNumberFormattingTextWatcher;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
+import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView.OnCountryCodeLocaleChangedObserver;
 import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView.OnInvalidPhoneNumberObserver;
 import com.google.i18n.phonenumbers.Phonenumber;
 
@@ -230,5 +231,30 @@ public class PhoneNumberInputViewTest {
         phoneNumberInputView.setText(text);
 
         assertThat(phoneNumberInputView.getText(), equalTo(text));
+    }
+
+    @Test(expected = Test.None.class) // no exception expected
+    public void only_notify_observer_of_country_selection_when_observer_exists() {
+        OnCountryCodeLocaleChangedObserver observer = mock(OnCountryCodeLocaleChangedObserver.class);
+        phoneNumberInputView.setOnCountryCodeChangeObserver(observer);
+
+        phoneNumberInputView.setCountryCodeLocals(countryCodeLocales);
+
+        // No NPE for observer interaction
+    }
+
+    @Test
+    public void notifies_observer_of_country_selection() {
+        OnCountryCodeLocaleChangedObserver observer = mock(OnCountryCodeLocaleChangedObserver.class);
+        phoneNumberInputView.setOnCountryCodeChangeObserver(observer);
+
+        phoneNumberInputView.setCountryCodeLocals(countryCodeLocales);
+        verify(observer).onCountryCodeLocaleChanged(countryCodeLocales.get(1));
+
+        withId(activity, R.id.phone_number_view_country_codes).performClick();
+        AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
+        shadowOf(latestDialog.getListView()).performItemClick(0);
+
+        verify(observer).onCountryCodeLocaleChanged(countryCodeLocales.get(0));
     }
 }

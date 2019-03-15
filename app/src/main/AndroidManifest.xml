@@ -98,7 +98,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
         <activity
-            android:name=".view.activity.VerifyPhoneNumberActivity"
+            android:name=".ui.phone.verification.VerifyPhoneNumberActivity"
             android:label="@string/activity_verify_phone_number_header"
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff.SkipOnAccent"

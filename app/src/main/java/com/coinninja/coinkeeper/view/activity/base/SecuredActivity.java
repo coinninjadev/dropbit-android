@@ -16,7 +16,7 @@ import com.coinninja.coinkeeper.view.activity.RecoverWalletActivity;
 import com.coinninja.coinkeeper.view.activity.RestoreWalletActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TrainingActivity;
-import com.coinninja.coinkeeper.view.activity.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 
 import java.util.Arrays;
 
