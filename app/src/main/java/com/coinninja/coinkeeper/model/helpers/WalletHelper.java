@@ -20,6 +20,7 @@ import com.coinninja.coinkeeper.model.db.WordDao;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
+import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
@@ -41,11 +42,13 @@ public class WalletHelper {
     private final DaoSessionManager daoSessionManager;
     private final WalletDao walletDao;
 
+    private final WalletQueryManager walletQueryManager;
     private WordHelper wordHelper;
 
-    public WalletHelper(DaoSessionManager daoSessionManager, WordHelper wordHelper) {
+    public WalletHelper(DaoSessionManager daoSessionManager, WalletQueryManager walletQueryManager, WordHelper wordHelper) {
         this.daoSessionManager = daoSessionManager;
         walletDao = daoSessionManager.getWalletDao();
+        this.walletQueryManager = walletQueryManager;
         this.wordHelper = wordHelper;
     }
 
@@ -89,10 +92,12 @@ public class WalletHelper {
     }
 
     public void setLatestPrice(USDCurrency price) {
-        getWallet().setLastUSDPrice(price.toLong());
-        getWallet().update();
+        Wallet wallet = getWallet();
+        if (wallet != null && price.toLong() > 0L) {
+            wallet.setLastUSDPrice(price.toLong());
+            wallet.update();
+        }
     }
-
 
     public TransactionFee getLatestFee() {
         double lastFee = 0D;
@@ -109,8 +114,7 @@ public class WalletHelper {
     }
 
     public Wallet getWallet() {
-
-        return walletDao.queryBuilder().orderAsc().limit(1).unique();
+        return walletQueryManager.getWallet();
     }
 
     public boolean containsAddress(String address) {
