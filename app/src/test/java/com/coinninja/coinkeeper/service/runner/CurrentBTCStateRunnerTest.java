@@ -56,15 +56,20 @@ public class CurrentBTCStateRunnerTest {
 
     @InjectMocks
     private CurrentBTCStateRunner runner;
+    private USDCurrency latestPrice;
+    private USDCurrency latestCachedPrice;
 
     @Before
     public void setUp() {
         transactionFee = new TransactionFee(10l, 20l, 30l);
         MockitoAnnotations.initMocks(this);
-        when(currentState.getLatestPrice()).thenReturn(new USDCurrency(25.00d));
+        latestPrice = new USDCurrency(25.00d);
+        latestCachedPrice = new USDCurrency(latestPrice.toLong());
+        when(currentState.getLatestPrice()).thenReturn(latestPrice);
         when(currentState.getFees()).thenReturn(transactionFee);
         when(currentState.getBlockheight()).thenReturn(525804);
         when(client.getCurrentState()).thenReturn(Response.success(currentState));
+        when(walletHelper.getLatestPrice()).thenReturn(latestCachedPrice);
     }
 
     @Test
@@ -131,7 +136,7 @@ public class CurrentBTCStateRunnerTest {
     }
 
     @Test
-    public void requests_currrent_state_from_CN() {
+    public void requests_current_state_from_CN() {
         runner.run();
 
         verify(client).getCurrentState();

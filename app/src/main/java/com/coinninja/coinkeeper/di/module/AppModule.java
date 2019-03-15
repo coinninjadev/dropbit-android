@@ -40,7 +40,7 @@ import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.model.helpers.WordHelper;
-import com.coinninja.coinkeeper.service.ContactLookupService;
+import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
@@ -158,8 +158,8 @@ public class AppModule {
 
     @Provides
     @CoinkeeperApplicationScope
-    WalletHelper walletHelper(DaoSessionManager daoSessionManager, WordHelper wordHelper) {
-        return new WalletHelper(daoSessionManager, wordHelper);
+    WalletHelper walletHelper(DaoSessionManager daoSessionManager, WordHelper wordHelper, WalletQueryManager walletQueryManager) {
+        return new WalletHelper(daoSessionManager, walletQueryManager, wordHelper);
     }
 
     @Provides

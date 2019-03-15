@@ -18,17 +18,20 @@ import com.coinninja.coinkeeper.model.db.Word;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
+import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.greenrobot.greendao.query.QueryBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -41,7 +44,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.noMoreInteractions;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 
@@ -49,41 +54,59 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 public class WalletHelperTest {
 
     @Mock
-    DaoSessionManager daoSessionManager;
+    private DaoSessionManager daoSessionManager;
 
     @Mock
-    WalletDao walletDao;
+    private WalletDao walletDao;
 
-    WalletHelper walletHelper;
-
-    @Mock
-    Wallet wallet;
 
     @Mock
-    WordHelper wordHelper;
+    private Wallet wallet;
 
     @Mock
-    PhoneNumberUtil phoneNumberUtil;
+    private WordHelper wordHelper;
 
-    List<Word> words = new ArrayList<>();
-    List<Address> addresses = new ArrayList<>();
+    @Mock
+    WalletQueryManager walletQueryManager;
+
+    private List<Word> words = new ArrayList<>();
+    private List<Address> addresses = new ArrayList<>();
     private PhoneNumber phoneNumber;
+
+    @InjectMocks
+    private WalletHelper walletHelper;
 
     @Before
     public void setUp() {
-        QueryBuilder<Wallet> qb = mock(QueryBuilder.class);
         when(daoSessionManager.getWalletDao()).thenReturn(walletDao);
-        when(walletDao.queryBuilder()).thenReturn(qb);
-        when(qb.orderAsc()).thenReturn(qb);
-        when(qb.limit(1)).thenReturn(qb);
-        when(qb.unique()).thenReturn(wallet);
-        Wallet wallet = walletDao.queryBuilder().orderAsc().limit(1).unique();
         when(wallet.getId()).thenReturn(1L);
         when(wallet.getWords()).thenReturn(words);
         when(wallet.getAddressses()).thenReturn(addresses);
+        when(walletQueryManager.getWallet()).thenReturn(wallet);
 
-        walletHelper = new WalletHelper(daoSessionManager, wordHelper);
         phoneNumber = new PhoneNumber();
+    }
+
+    @After
+    public void tearDown() {
+        daoSessionManager = null;
+        walletDao = null;
+        walletHelper = null;
+        wordHelper = null;
+        words = null;
+        addresses = null;
+        phoneNumber = null;
+        walletQueryManager = null;
+    }
+
+    @Test
+    public void caches_price() {
+        walletHelper.setLatestPrice(new USDCurrency(500.00d));
+        verify(wallet).setLastUSDPrice(50000L);
+        verify(wallet).update();
+
+        walletHelper.setLatestPrice(new USDCurrency(0L));
+        verifyNoMoreInteractions(wallet);
     }
 
     @Test

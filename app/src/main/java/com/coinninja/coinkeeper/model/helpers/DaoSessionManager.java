@@ -26,6 +26,7 @@ import com.coinninja.coinkeeper.model.db.WalletDao;
 import com.coinninja.coinkeeper.model.db.WordDao;
 
 import org.greenrobot.greendao.database.Database;
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import javax.inject.Singleton;
 
@@ -74,48 +75,22 @@ public class DaoSessionManager {
         session.getDatabase().execSQL(query);
     }
 
-    public WalletDao getWalletDao() {
-        return session.getWalletDao();
-    }
-
-    public WordDao getWordDao() {
-        return session.getWordDao();
-    }
-
-    public AddressDao getAddressDao() {
-        return session.getAddressDao();
-    }
-
-    public TargetStatDao getTargetStatDao() {
-        return session.getTargetStatDao();
-    }
-
-    public FundingStatDao getFundingStatDao() {
-        return session.getFundingStatDao();
-    }
-
-    public TransactionSummaryDao getTransactionSummaryDao() {
-        return session.getTransactionSummaryDao();
-    }
-
-    public TransactionsInvitesSummaryDao getTransactionsInvitesSummaryDao() {
-        return session.getTransactionsInvitesSummaryDao();
-    }
-
+    // USER
     public UserDao getUserDao() {
         return session.getUserDao();
     }
 
-    public InviteTransactionSummaryDao getInviteTransactionSummaryDao() {
-        return session.getInviteTransactionSummaryDao();
-    }
-
-    public AccountDao getAccountDao() {
-        return session.getAccountDao();
-    }
-
     public void attach(User user) {
         user.__setDaoSession(session);
+    }
+
+    // WALLET
+    public WalletDao getWalletDao() {
+        return session.getWalletDao();
+    }
+
+    public QueryBuilder<Wallet> qeuryForWallet() {
+        return getWalletDao().queryBuilder();
     }
 
     public void createWallet(User user) {
@@ -124,30 +99,19 @@ public class DaoSessionManager {
         getWalletDao().insert(wallet);
     }
 
-    public TransactionsInvitesSummary newTransactionInviteSummary() {
-        return new TransactionsInvitesSummary();
+    // WORD
+    public WordDao getWordDao() {
+        return session.getWordDao();
     }
 
-    public long insert(TransactionSummary transaction) {
-        long id = getTransactionSummaryDao().insert(transaction);
-        transaction.setId(id);
-        transaction.__setDaoSession(session);
-        return id;
+    // ADDRESS
+    public AddressDao getAddressDao() {
+        return session.getAddressDao();
     }
 
-    public long insert(TransactionsInvitesSummary summary) {
-        long id = getTransactionsInvitesSummaryDao().insert(summary);
-        summary.setId(id);
-        summary.__setDaoSession(session);
-        return id;
-    }
-
-    public long insert(TransactionNotification notification) {
-        return getTransactionNotificationDao().insert(notification);
-    }
-
-    public long insert(InviteTransactionSummary inviteTransactionSummary) {
-        return session.getInviteTransactionSummaryDao().insert(inviteTransactionSummary);
+    // TARGET STAT
+    public TargetStatDao getTargetStatDao() {
+        return session.getTargetStatDao();
     }
 
     public long insert(TargetStat targetStat) {
@@ -157,40 +121,14 @@ public class DaoSessionManager {
         return id;
     }
 
-    public TransactionSummary newTransactionSummary() {
-        return new TransactionSummary();
-    }
-
-    public TransactionNotification newTransactionNotification() {
-        return new TransactionNotification();
-    }
-
-    public InviteTransactionSummary newInviteTransactionSummary() {
-        return new InviteTransactionSummary();
-    }
-
-    public InternalNotificationDao getInternalNotificationDao() {
-        return session.getInternalNotificationDao();
-    }
-
-    public BroadcastBtcInviteDao getBroadcastBtcInviteDao() {
-        return session.getBroadcastBtcInviteDao();
-    }
-
-    public ExternalNotificationDao getExternalNotificationDao() {
-        return session.getExternalNotificationDao();
-    }
-
-    public TransactionNotificationDao getTransactionNotificationDao() {
-        return session.getTransactionNotificationDao();
-    }
-
     public TargetStat newTargetStat() {
         return new TargetStat();
     }
 
-    public void attach(TransactionSummary transactionSummary) {
-        transactionSummary.__setDaoSession(session);
+
+    // FUNDING STAT
+    public FundingStatDao getFundingStatDao() {
+        return session.getFundingStatDao();
     }
 
     public FundingStat newFundingStat() {
@@ -203,4 +141,87 @@ public class DaoSessionManager {
         fundingStat.__setDaoSession(session);
         return id;
     }
+
+    // TRANSACTION INVITE SUMMARY
+    public TransactionsInvitesSummaryDao getTransactionsInvitesSummaryDao() {
+        return session.getTransactionsInvitesSummaryDao();
+    }
+
+    public TransactionsInvitesSummary newTransactionInviteSummary() {
+        return new TransactionsInvitesSummary();
+    }
+
+    public long insert(TransactionsInvitesSummary summary) {
+        long id = getTransactionsInvitesSummaryDao().insert(summary);
+        summary.setId(id);
+        summary.__setDaoSession(session);
+        return id;
+    }
+
+    // TRANSACTION
+    public TransactionSummaryDao getTransactionSummaryDao() {
+        return session.getTransactionSummaryDao();
+    }
+
+    public long insert(TransactionSummary transaction) {
+        long id = getTransactionSummaryDao().insert(transaction);
+        transaction.setId(id);
+        transaction.__setDaoSession(session);
+        return id;
+    }
+
+    public void attach(TransactionSummary transactionSummary) {
+        transactionSummary.__setDaoSession(session);
+    }
+
+    // TRANSACTION
+
+    public TransactionSummary newTransactionSummary() {
+        return new TransactionSummary();
+    }
+
+    // TRANSACTION NOTIFICATION
+    public long insert(TransactionNotification notification) {
+        return getTransactionNotificationDao().insert(notification);
+    }
+
+    public TransactionNotification newTransactionNotification() {
+        return new TransactionNotification();
+    }
+
+    public TransactionNotificationDao getTransactionNotificationDao() {
+        return session.getTransactionNotificationDao();
+    }
+
+    // DROPBIT
+    public InviteTransactionSummaryDao getInviteTransactionSummaryDao() {
+        return session.getInviteTransactionSummaryDao();
+    }
+
+    public long insert(InviteTransactionSummary inviteTransactionSummary) {
+        return session.getInviteTransactionSummaryDao().insert(inviteTransactionSummary);
+    }
+
+    public InviteTransactionSummary newInviteTransactionSummary() {
+        return new InviteTransactionSummary();
+    }
+
+    // ACCOUNT
+    public AccountDao getAccountDao() {
+        return session.getAccountDao();
+    }
+
+    // INTERNAL NOTIFICATION
+    public InternalNotificationDao getInternalNotificationDao() {
+        return session.getInternalNotificationDao();
+    }
+
+    public ExternalNotificationDao getExternalNotificationDao() {
+        return session.getExternalNotificationDao();
+    }
+
+    public BroadcastBtcInviteDao getBroadcastBtcInviteDao() {
+        return session.getBroadcastBtcInviteDao();
+    }
+
 }

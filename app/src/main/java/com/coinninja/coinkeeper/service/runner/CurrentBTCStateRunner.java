@@ -8,6 +8,7 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import javax.inject.Inject;
 
@@ -61,10 +62,9 @@ public class CurrentBTCStateRunner implements Runnable {
     }
 
     private void notifyOfPrice(CurrentState currentState) {
-        Intent intent = new Intent(Intents.ACTION_BTC_PRICE_UPDATE);
-        intent.putExtra(Intents.EXTRA_BITCOIN_PRICE,
-                currentState.getLatestPrice().toLong());
         walletHelper.setLatestPrice(currentState.getLatestPrice());
+        Intent intent = new Intent(Intents.ACTION_BTC_PRICE_UPDATE);
+        intent.putExtra(Intents.EXTRA_BITCOIN_PRICE, walletHelper.getLatestPrice().toLong());
         localBroadCastUtil.sendBroadcast(intent);
     }
 
