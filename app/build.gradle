@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'jacoco'//used to generate unit test coverage reports
 apply plugin: 'com.github.ksoichiro.console.reporter'
 apply plugin: 'org.greenrobot.greendao'
 apply plugin: 'de.undercouch.download'
@@ -140,9 +139,7 @@ android {
             jvmArgs '-Xmx4096m'
         }
     }
-
 }
-
 
 android.applicationVariants.all { variant ->
     if (variant.buildType.name == "debug") {

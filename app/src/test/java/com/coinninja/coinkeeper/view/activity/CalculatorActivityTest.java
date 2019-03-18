@@ -131,7 +131,7 @@ public class CalculatorActivityTest {
         ((TabLayout) activity.findViewById(R.id.id_navigation_tabs)).getTabAt(1).select();
         activity.findViewById(R.id.one).performClick();
 
-        activity.findViewById(R.id.send_btn).performClick();
+        activity.onSendPressed();
 
         PayDialogFragment fragment = (PayDialogFragment)
                 activity.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
@@ -222,7 +222,7 @@ public class CalculatorActivityTest {
         PaymentHolder holder = mock(PaymentHolder.class);
         activity.paymentHolder = holder;
 
-        activity.findViewById(R.id.request_btn).performClick();
+        activity.onRequestButtonPressed();
 
         RequestDialogFragment fragment = (RequestDialogFragment)
                 activity.getFragmentManager().findFragmentByTag(RequestDialogFragment.class.getSimpleName());
@@ -236,7 +236,7 @@ public class CalculatorActivityTest {
         PaymentHolder holder = mock(PaymentHolder.class);
         activity.paymentHolder = holder;
 
-        activity.findViewById(R.id.request_btn).performClick();
+        activity.onRequestButtonPressed();
 
         verify(holder).loadPaymentFrom(any(Currency.class));
     }
@@ -247,7 +247,7 @@ public class CalculatorActivityTest {
         PaymentHolder holder = mock(PaymentHolder.class);
         activity.paymentHolder = holder;
 
-        activity.findViewById(R.id.send_btn).performClick();
+        activity.onSendPressed();
 
         PayDialogFragment fragment = (PayDialogFragment)
                 activity.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());

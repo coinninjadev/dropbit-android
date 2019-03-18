@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.view.widget.phonenumber;
 
 import android.app.AlertDialog;
 import android.os.Build;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -54,7 +53,7 @@ public class PhoneNumberInputViewTest {
     @Before
     public void setUp() {
         EXISTING_ACTIVITY_ID = TestableActivity.LAYOUT;
-        TestableActivity.LAYOUT = R.layout.__test_phone_number_input_view;
+        TestableActivity.LAYOUT = R.layout.test__phone_number_input_view;
         activity = Robolectric.setupActivity(TestableActivity.class);
         phoneNumberInputView = withId(activity, R.id.phone_number_input);
         countryCodeLocales = new ArrayList<>();
