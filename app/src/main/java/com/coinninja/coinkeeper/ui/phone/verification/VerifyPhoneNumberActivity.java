@@ -1,4 +1,4 @@
-package com.coinninja.coinkeeper.view.activity;
+package com.coinninja.coinkeeper.ui.phone.verification;
 
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +12,7 @@ import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
-import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView;
+import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneVerificationView;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
@@ -39,41 +39,35 @@ public class VerifyPhoneNumberActivity extends SecuredActivity {
     @Inject
     PhoneNumberUtil phoneNumberUtil;
 
-    private PhoneNumberInputView phoneNumberInputView;
+    PhoneVerificationView phoneVerificationView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_phone);
-        phoneNumberInputView = withId(this, R.id.phone_number_input);
+        phoneVerificationView = withId(this, R.id.phone_verification_view);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        phoneNumberInputView.setOnExampleNumberChangeObserver(this::onExampleNumberChanged);
-        phoneNumberInputView.setOnInvalidPhoneNumberObserver(this::onPhoneNumberInValid);
-        phoneNumberInputView.setOnValidPhoneNumberObserver(this::onPhoneNumberValid);
+        phoneVerificationView.setOnValidPhoneNumberObserver(this::onPhoneNumberValid);
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        phoneNumberInputView.setCountryCodeLocals(countryCodeLocales);
+        phoneVerificationView.setCountryCodeLocals(countryCodeLocales);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        hideError();
-        clearPhoneNumber();
+        phoneVerificationView.resetView();
     }
 
-    private void hideError() {
-        findViewById(R.id.error_message).setVisibility(View.INVISIBLE);
-    }
 
     @Override
     public void onSkipClicked() {
@@ -83,27 +77,10 @@ public class VerifyPhoneNumberActivity extends SecuredActivity {
         activityNavigationUtil.navigateToHome(this);
     }
 
-    private void onPhoneNumberValid(Phonenumber.PhoneNumber phoneNumber) {
+    void onPhoneNumberValid(Phonenumber.PhoneNumber phoneNumber) {
         PhoneNumber number = new PhoneNumber(phoneNumber);
         serviceWorkUtil.registerUsersPhone(number);
         activityNavigationUtil.navigateToVerifyPhoneNumber(this, number);
     }
 
-    private void onPhoneNumberInValid(String text) {
-        showError();
-    }
-
-    private void onExampleNumberChanged(String exampleNumber) {
-        TextView exampleView = withId(this, R.id.example_number);
-        exampleView.setText(getString(R.string.verify_phone_number_example, exampleNumber));
-    }
-
-    private void showError() {
-        findViewById(R.id.error_message).setVisibility(View.VISIBLE);
-        shakeInError(phoneNumberInputView);
-    }
-
-    private void clearPhoneNumber() {
-        phoneNumberInputView.setText("");
-    }
 }

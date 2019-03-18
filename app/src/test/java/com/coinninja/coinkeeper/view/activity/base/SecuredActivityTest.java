@@ -18,7 +18,7 @@ import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
 import com.coinninja.coinkeeper.view.activity.RecoverWalletActivity;
 import com.coinninja.coinkeeper.view.activity.RestoreWalletActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
-import com.coinninja.coinkeeper.view.activity.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.view.adapter.RestoreWalletPageAdapter;
 
 import org.junit.After;
@@ -41,7 +41,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;

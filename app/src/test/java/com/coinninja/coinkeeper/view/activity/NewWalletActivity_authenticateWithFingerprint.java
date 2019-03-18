@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.presenter.PreferencePresentor;
 import com.coinninja.coinkeeper.presenter.fragment.FingerprintAuthPresenter;
 import com.coinninja.coinkeeper.presenter.fragment.PinFragmentPresenter;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
 
