@@ -924,6 +924,7 @@ public class TransactionHelper {
         if (contact != null) {
             transactionInviteSummary.setToName(contact.getDisplayName());
             transactionInviteSummary.setToPhoneNumber(contact.getPhoneNumber());
+            transactionInviteSummary.update();
         }
 
         return transactionSummary;
