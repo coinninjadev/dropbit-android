@@ -4,9 +4,7 @@ import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
-import android.util.Log;
 
-import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.google.i18n.phonenumbers.AsYouTypeFormatter;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -71,7 +69,7 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
             return;
         }
 
-        stopWatching = containsNonDialableDiget(s.toString().toCharArray());
+        stopWatching = containsNonDialableDigit(s.toString().toCharArray());
     }
 
     @Override
@@ -121,7 +119,7 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
         }
     }
 
-    private boolean containsNonDialableDiget(char[] chars) {
+    private boolean containsNonDialableDigit(char[] chars) {
         for (char c : chars) {
             if (!PhoneNumberUtils.isNonSeparator(c) &&
                     !discardableValues.containsKey(String.valueOf(c))) {

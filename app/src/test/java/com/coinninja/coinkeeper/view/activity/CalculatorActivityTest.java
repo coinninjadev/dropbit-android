@@ -16,7 +16,6 @@ import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -70,7 +69,7 @@ public class CalculatorActivityTest {
     BitcoinUri bitcoinUri;
 
     @Mock
-    BitcoinUriBuilder bitcoinUriBuilder;
+    BitcoinUtil bitcoinUtil;
 
     @Mock
     PaymentUtil paymentUtil;
@@ -92,7 +91,7 @@ public class CalculatorActivityTest {
         activity.paymentHolder = new PaymentHolder();
         activity.paymentHolder.loadPaymentFrom(new USDCurrency(0));
         activity.paymentHolder.setEvaluationCurrency(new USDCurrency(0D));
-        activity.bitcoinUriBuilder = bitcoinUriBuilder;
+        activity.bitcoinUtil = bitcoinUtil;
         activity.notificationsInteractor = notificationsInteractor;
     }
 
@@ -101,7 +100,7 @@ public class CalculatorActivityTest {
         activity = null;
         activityController = null;
         bitcoinUri = null;
-        bitcoinUriBuilder = null;
+        bitcoinUtil = null;
         paymentUtil = null;
         walletHelper = null;
         notificationsInteractor = null;
@@ -421,7 +420,7 @@ public class CalculatorActivityTest {
     public void qrscan_good_Bitcoin_Address_and_amount() throws UriException {
         start();
         String scannedData = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=10.00000000";
-        when(bitcoinUriBuilder.parse(scannedData)).thenReturn(bitcoinUri);
+        when(bitcoinUtil.parse(scannedData)).thenReturn(bitcoinUri);
         when(bitcoinUri.getAddress()).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
         when(bitcoinUri.getSatoshiAmount()).thenReturn(1000000000L);
 
@@ -441,7 +440,7 @@ public class CalculatorActivityTest {
     public void qrscan_good_Bitcoin_Address() throws UriException {
         start();
         String scannedData = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa";
-        when(bitcoinUriBuilder.parse(scannedData)).thenReturn(bitcoinUri);
+        when(bitcoinUtil.parse(scannedData)).thenReturn(bitcoinUri);
         when(bitcoinUri.getAddress()).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
         Intent intent = new Intent();
         intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
@@ -460,7 +459,7 @@ public class CalculatorActivityTest {
         activity.paymentHolder = holder;
 
         String scannedData = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa";
-        when(bitcoinUriBuilder.parse(scannedData)).thenReturn(bitcoinUri);
+        when(bitcoinUtil.parse(scannedData)).thenReturn(bitcoinUri);
         when(bitcoinUri.getAddress()).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
         Intent intent = new Intent();
         intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
@@ -480,7 +479,7 @@ public class CalculatorActivityTest {
         start();
         String scannedData = "jibberish";
         String expectedMessage = activity.getResources().getString(R.string.invalid_bitcoin_address_description);
-        when(bitcoinUriBuilder.parse(scannedData)).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN));
+        when(bitcoinUtil.parse(scannedData)).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN));
         Intent intent = new Intent();
         intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
 

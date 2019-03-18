@@ -20,11 +20,12 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUriBuilder;
+import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
 import com.coinninja.coinkeeper.view.fragment.CalculatorConverstionFragment;
 import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment;
@@ -58,6 +59,9 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
 
     //TODO Inject this
     InternalNotificationsInteractor notificationsInteractor;
+
+    @Inject
+    BitcoinUtil bitcoinUtil;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -93,7 +97,7 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
     private void parseCryptoScan(Intent intent) {
         String scannedData = intent.getStringExtra(Intents.EXTRA_SCANNED_DATA);
         try {
-            BitcoinUri bitcoinUri = bitcoinUriBuilder.parse(scannedData);
+            BitcoinUri bitcoinUri = bitcoinUtil.parse(scannedData);
             paymentUtil.setAddress(bitcoinUri.getAddress());
             Long amount = bitcoinUri.getSatoshiAmount();
             if (amount != null && amount > 0) {
@@ -107,7 +111,7 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
 
     @Override
     protected void onResume() {
-        notificationsInteractor.startListeningForNotifications(true);//call before any supers
+        notificationsInteractor.startListeningForNotifications(true);
         super.onResume();
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
         initFooter();
@@ -124,7 +128,7 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
 
     @Override
     protected void onPause() {
-        notificationsInteractor.stopListeningForNotifications();//call before any supers
+        notificationsInteractor.stopListeningForNotifications();
         super.onPause();
     }
 

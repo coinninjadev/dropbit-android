@@ -15,10 +15,9 @@ import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUriBuilder;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -52,7 +51,7 @@ public class RequestDialogFragmentTest {
     @Mock
     AccountManager accountManager;
 
-    BitcoinUriBuilder bitcoinUriBuilder = new BitcoinUriBuilder(mock(BitcoinUtil.class));
+    BitcoinUriBuilder bitcoinUriBuilder = new BitcoinUriBuilder();
 
     @Mock
     LocalBroadCastUtil localBroadCastUtil;
