@@ -89,4 +89,10 @@ public class BTCCurrency extends BaseCurrency implements Currency {
 
         return mySatoshiValue.longValue();
     }
+
+    public String toUriFormattedString() {
+        BTCCurrency btc = new BTCCurrency(this.toSatoshis());
+        return String.valueOf(btc.value);
+    }
+
 }

@@ -50,6 +50,7 @@ import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.encryption.MessageEncryptor;
+import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.uuid.UuidFactory;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
@@ -83,6 +84,12 @@ public class AppModule {
     @CoinkeeperApplicationScope
     ContentResolver contentResolver(CoinKeeperApplication application) {
         return application.getContentResolver();
+    }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    BitcoinUriBuilder bitcoinUrlBuilder(){
+        return new BitcoinUriBuilder();
     }
 
     @Provides

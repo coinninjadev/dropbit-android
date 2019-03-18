@@ -25,7 +25,6 @@ import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -93,7 +92,7 @@ public class PayDialogFragmentTest {
     @Mock
     private ClipboardUtil clipboardUtil;
     @Mock
-    private BitcoinUriBuilder bitcoinUriBuilder;
+    private BitcoinUtil bitcoinUtil;
     @Mock
     private PreferenceInteractor preferenceInteractor;
     @Mock
@@ -124,7 +123,7 @@ public class PayDialogFragmentTest {
         dialog.paymentHolder = paymentHolder;
         dialog.preferenceInteractor = preferenceInteractor;
         dialog.clipboardUtil = clipboardUtil;
-        dialog.bitcoinUriBuilder = bitcoinUriBuilder;
+        dialog.bitcoinUtil = bitcoinUtil;
         dialog.walletHelper = walletHelper;
         dialog.memoToggleView = mock(SharedMemoToggleView.class);
         dialog.cnAddressLookupDelegate = cnAddressLookupDelegate;
@@ -144,7 +143,7 @@ public class PayDialogFragmentTest {
         walletHelper = null;
         clipboardUtil = null;
         paymentUtil = null;
-        bitcoinUriBuilder = null;
+        bitcoinUtil = null;
         preferenceInteractor = null;
         viewCallback = null;
     }
@@ -286,7 +285,7 @@ public class PayDialogFragmentTest {
         when(clipboardUtil.getRaw()).thenReturn(value);
         paymentHolder.loadPaymentFrom(new BTCCurrency("1.0"));
         BitcoinUri uri = mock(BitcoinUri.class);
-        when(bitcoinUriBuilder.parse(value)).thenReturn(uri);
+        when(bitcoinUtil.parse(value)).thenReturn(uri);
         when(uri.getAddress()).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R");
         when(uri.getSatoshiAmount()).thenReturn(0L);
         startFragment();
@@ -304,7 +303,7 @@ public class PayDialogFragmentTest {
         String value = "bitcoin:34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R?amount=100000000";
         when(clipboardUtil.getRaw()).thenReturn(value);
         BitcoinUri uri = mock(BitcoinUri.class);
-        when(bitcoinUriBuilder.parse(value)).thenReturn(uri);
+        when(bitcoinUtil.parse(value)).thenReturn(uri);
         when(uri.getAddress()).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R");
         when(uri.getSatoshiAmount()).thenReturn(100000000L);
         startFragment();
@@ -473,7 +472,7 @@ public class PayDialogFragmentTest {
         when(clipboardUtil.getRaw()).thenReturn(rawString);
         BitcoinUri bitcoinUri = mock(BitcoinUri.class);
         when(bitcoinUri.getAddress()).thenReturn(rawString);
-        when(bitcoinUriBuilder.parse(rawString)).thenReturn(bitcoinUri);
+        when(bitcoinUtil.parse(rawString)).thenReturn(bitcoinUri);
     }
 
     @Test
@@ -494,7 +493,7 @@ public class PayDialogFragmentTest {
     public void pasting_invalid_address_shows_error_and_does_not_set_address() throws UriException {
         String rawString = "3EqhexhZ2cuBCPMq9kPpqj9m3R6aFzCKooere";
         when(clipboardUtil.getRaw()).thenReturn(rawString);
-        when(bitcoinUriBuilder.parse(rawString)).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58));
+        when(bitcoinUtil.parse(rawString)).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58));
         startFragment();
 
         withId(dialog.getView(), R.id.paste_address_btn).performClick();
@@ -507,7 +506,7 @@ public class PayDialogFragmentTest {
     @Test
     public void pasting_with_empty_clipboard_does_nothing() throws UriException {
         when(clipboardUtil.getRaw()).thenReturn("");
-        when(bitcoinUriBuilder.parse("")).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS));
+        when(bitcoinUtil.parse("")).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS));
         startFragment();
 
         withId(dialog.getView(), R.id.paste_address_btn).performClick();
@@ -522,7 +521,7 @@ public class PayDialogFragmentTest {
         startFragment();
         paymentHolder.setPublicKey("--pub-key--");
         when(clipboardUtil.getRaw()).thenReturn("--bitcoin uri--");
-        when(bitcoinUriBuilder.parse(anyString())).thenReturn(mock(BitcoinUri.class));
+        when(bitcoinUtil.parse(anyString())).thenReturn(mock(BitcoinUri.class));
         when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.ADDRESS);
 
         dialog.onPasteClicked();
@@ -535,7 +534,7 @@ public class PayDialogFragmentTest {
         String value = "bitcoin:34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R?amount=0";
         when(clipboardUtil.getRaw()).thenReturn(value);
         BitcoinUri uri = mock(BitcoinUri.class);
-        when(bitcoinUriBuilder.parse(value)).thenReturn(uri);
+        when(bitcoinUtil.parse(value)).thenReturn(uri);
         when(uri.getAddress()).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R");
         when(uri.getSatoshiAmount()).thenReturn(0L);
         startFragment();
@@ -574,7 +573,7 @@ public class PayDialogFragmentTest {
         Intent data = new Intent();
         data.putExtra(Intents.EXTRA_SCANNED_DATA, cryptoString);
         BitcoinUri bitcoinUri = mock(BitcoinUri.class);
-        when(bitcoinUriBuilder.parse(cryptoString)).thenReturn(bitcoinUri);
+        when(bitcoinUtil.parse(cryptoString)).thenReturn(bitcoinUri);
         when(bitcoinUri.getAddress()).thenReturn("38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4");
         startFragment();
 
@@ -593,7 +592,7 @@ public class PayDialogFragmentTest {
         Intent data = new Intent();
         data.putExtra(Intents.EXTRA_SCANNED_DATA, cryptoString);
         BitcoinUri bitcoinUri = mock(BitcoinUri.class);
-        when(bitcoinUriBuilder.parse(cryptoString)).thenReturn(bitcoinUri);
+        when(bitcoinUtil.parse(cryptoString)).thenReturn(bitcoinUri);
         when(bitcoinUri.getSatoshiAmount()).thenReturn(1542869L);
         when(bitcoinUri.getAddress()).thenReturn("38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4");
 
@@ -613,15 +612,13 @@ public class PayDialogFragmentTest {
         startFragment();
         Intent data = new Intent();
         data.putExtra(Intents.EXTRA_SCANNED_DATA, "--scanned data--");
-        when(bitcoinUriBuilder.parse(anyString())).thenReturn(mock(BitcoinUri.class));
+        when(bitcoinUtil.parse(anyString())).thenReturn(mock(BitcoinUri.class));
         when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.ADDRESS);
 
         dialog.onActivityResult(Intents.REQUEST_QR_FRAGMENT_SCAN, Intents.RESULT_SCAN_OK, data);
 
         assertThat(paymentHolder.getPublicKey(), equalTo(""));
     }
-
-    // SEND TO PHONE NUMBER
 
     @Test
     public void fetches_address_for_phone_number_when_number_is_valid() {
@@ -661,8 +658,6 @@ public class PayDialogFragmentTest {
         Contact contact = argumentCaptor.getValue();
         assertThat(contact.getPhoneNumber(), equalTo(phoneNumber));
     }
-
-    // SEND TO CONTACT
 
     @Test
     public void picks_contact_to_send() {
@@ -750,8 +745,6 @@ public class PayDialogFragmentTest {
         Intent intent = shadowActivity.peekNextStartedActivity();
         assertThat(intent.getComponent().getClassName(), equalTo(VerifyPhoneNumberActivity.class.getName()));
     }
-
-    // CLEAN UP
 
     @Test
     public void can_cancel_payment_request() {

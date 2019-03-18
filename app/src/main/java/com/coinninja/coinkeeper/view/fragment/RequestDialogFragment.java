@@ -25,14 +25,20 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
+import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
+import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
+
+import java.util.HashMap;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import dagger.android.AndroidInjection;
+
+import static com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter.AMOUNT;
+import static com.coinninja.coinkeeper.util.uri.routes.BitcoinRoute.DEFAULT;
 
 public class RequestDialogFragment extends BaseDialogFragment {
     private static final String TAG = RequestDialogFragment.class.getSimpleName();
@@ -137,13 +143,14 @@ public class RequestDialogFragment extends BaseDialogFragment {
 
     private void setupShareUri() {
         receiveAddress = accountManager.getNextReceiveAddress();
-        bitcoinUriBuilder.setAddress(receiveAddress);
+
+        HashMap<BitcoinParameter, String> parameters = new HashMap();
 
         Currency currency = paymentHolder.getCryptoCurrency();
         if (!currency.isZero())
-            bitcoinUriBuilder.setAmount((BTCCurrency) currency);
+            parameters.put(AMOUNT, ((BTCCurrency) currency).toUriFormattedString());
 
-        address = bitcoinUriBuilder.build();
+        address = bitcoinUriBuilder.build(DEFAULT.setAddress(receiveAddress), parameters);
     }
 
     private void setupCloseButton() {

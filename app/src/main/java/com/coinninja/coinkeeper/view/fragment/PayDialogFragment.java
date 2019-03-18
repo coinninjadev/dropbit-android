@@ -31,11 +31,9 @@ import com.coinninja.coinkeeper.text.CurrencyFormattingTextWatcher;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -70,7 +68,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     @Inject
     WalletHelper walletHelper;
     @Inject
-    BitcoinUriBuilder bitcoinUriBuilder;
+    BitcoinUtil bitcoinUtil;
     @Inject
     ClipboardUtil clipboardUtil;
     @Inject
@@ -81,8 +79,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     CoinKeeperApplication application;
     @Inject
     SharedMemoToggleView memoToggleView;
-    @Inject
-    PhoneNumberUtil phoneNumberUtil;
     @Inject
     @CountryCodeLocales
     List<CountryCodeLocale> countryCodeLocales;
@@ -448,7 +444,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
 
     private void onCryptoStringReceived(String cryptoUriString) {
         try {
-            BitcoinUri bitcoinUri = bitcoinUriBuilder.parse(cryptoUriString);
+            BitcoinUri bitcoinUri = bitcoinUtil.parse(cryptoUriString);
             onReceiveBitcoinUri(bitcoinUri);
         } catch (UriException e) {
             onInvalidBitcoinUri(e.getReason());

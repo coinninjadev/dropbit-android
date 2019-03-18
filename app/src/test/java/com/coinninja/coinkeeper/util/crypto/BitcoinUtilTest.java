@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,10 +15,15 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.IS_BC1;
+import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58;
+import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN;
+import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
@@ -171,5 +177,92 @@ public class BitcoinUtilTest {
         String address = bitcoinUtil.parseBTCAddressFromText(sampleText);
 
         assertTrue(address.isEmpty());
+    }
+
+
+    @Test
+    public void throw_exception_when_parsing_empty_data_test() {
+        String sampleURI = "";
+
+        BitcoinUtil.ADDRESS_INVALID_REASON reason = null;
+        try {
+            bitcoinUtil.parse(sampleURI);
+        } catch (UriException e) {
+            reason = e.getReason();
+        }
+
+        assertThat(reason, equalTo(NULL_ADDRESS));
+    }
+
+    @Test
+    public void throw_exception_when_parsing_null_data_test() {
+        String sampleURI = null;
+
+        BitcoinUtil.ADDRESS_INVALID_REASON reason = null;
+        try {
+            bitcoinUtil.parse(sampleURI);
+        } catch (UriException e) {
+            reason = e.getReason();
+        }
+
+        assertThat(reason, equalTo(NULL_ADDRESS));
+    }
+
+    @Test
+    public void throw_exception_when_parsing_a_string_with_no_btc_data_test() {
+        String sampleURI = "Hello, how are you today?";
+
+        BitcoinUtil.ADDRESS_INVALID_REASON reason = null;
+        try {
+            bitcoinUtil.parse(sampleURI);
+        } catch (UriException e) {
+            reason = e.getReason();
+        }
+
+        assertThat(reason, equalTo(NOT_STANDARD_BTC_PATTERN));
+    }
+
+    @Test
+    public void throw_exception_when_parsing_NOT_STANDARD_BTC_PATTERN_address_test() {
+        String sampleURI = "555t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa";
+
+        BitcoinUtil.ADDRESS_INVALID_REASON reason = null;
+        try {
+            bitcoinUtil.parse(sampleURI);
+        } catch (UriException e) {
+            reason = e.getReason();
+        }
+
+        assertThat(reason, equalTo(NOT_STANDARD_BTC_PATTERN));
+    }
+
+    @Test
+    public void throw_exception_when_parsing_NOT_BASE58_address_test() throws Exception {
+        String sampleURI = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xaaaa";
+        when(hdWallet.isBase58CheckEncoded(anyString())).thenReturn(false);
+
+        BitcoinUtil.ADDRESS_INVALID_REASON reason = null;
+        try {
+            bitcoinUtil.parse(sampleURI);
+        } catch (UriException e) {
+            reason = e.getReason();
+        }
+
+        assertThat(reason, equalTo(NOT_BASE58));
+    }
+
+    @Test
+    public void throw_exception_when_parsing_a_BC1_address_test() {
+        String sampleURI = "bc135t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa";
+        when(hdWallet.isBase58CheckEncoded(anyString())).thenReturn(true);
+
+        BitcoinUtil.ADDRESS_INVALID_REASON reason = null;
+        try {
+            bitcoinUtil.parse(sampleURI);
+        } catch (UriException e) {
+            reason = e.getReason();
+        }
+
+        assertThat(reason, equalTo(IS_BC1));
     }
 }
