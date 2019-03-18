@@ -701,13 +701,15 @@ public class PayDialogFragmentTest {
 
     @Test
     public void fetches_address_for_verified_contact_when_user_picks_one() {
-        Contact contact = new Contact(phoneNumber, "Joe Dirt", true);
+        Contact contact = new Contact(phoneNumber, "Joe Blow", true);
         Intent intent = new Intent();
         intent.putExtra(Intents.EXTRA_CONTACT, contact);
         startFragment();
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, Activity.RESULT_OK, intent);
 
+        assertThat(withId(dialog.getView(), R.id.contact_name), hasText("Joe Blow"));
+        assertThat(withId(dialog.getView(), R.id.contact_number), hasText(phoneNumber.toInternationalDisplayText()));
         verify(cnAddressLookupDelegate).fetchAddressFor(eq(contact),
                 any(CNAddressLookupDelegate.CNAddressLookupCompleteCallback.class));
     }
