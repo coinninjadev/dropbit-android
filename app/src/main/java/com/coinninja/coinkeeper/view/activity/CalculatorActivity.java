@@ -6,7 +6,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
@@ -33,6 +32,7 @@ import com.coinninja.coinkeeper.view.fragment.KeyboardFragment;
 import com.coinninja.coinkeeper.view.fragment.PayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.RequestDialogFragment;
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
+import com.coinninja.coinkeeper.view.widget.PaymentBarView;
 import com.google.android.material.tabs.TabLayout;
 
 import javax.inject.Inject;
@@ -207,23 +207,21 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
     }
 
     private void initFooter() {
-        Button requestBtn = findViewById(R.id.request_btn);
-        Button scanBtn = findViewById(R.id.scan_btn);
-        Button payBtn = findViewById(R.id.send_btn);
+        PaymentBarView paymentBarView = findViewById(R.id.payment_bar);
 
-        requestBtn.setOnClickListener(v -> onRequestButtonPressed());
-        scanBtn.setOnClickListener(v -> onQrScanPressed());
-        payBtn.setOnClickListener(v -> onPayPressed());
+        paymentBarView.setOnRequestPressedObserver(this::onRequestButtonPressed);
+        paymentBarView.setOnSendPressedObserver(this::onSendPressed);
+        paymentBarView.setOnScanPressedObserver(this::onQrScanPressed);
     }
 
-    private void onRequestButtonPressed() {
+    void onRequestButtonPressed() {
         paymentHolder.loadPaymentFrom(getCurrentCurrencyState());
         RequestDialogFragment requestDialog = new RequestDialogFragment();
         requestDialog.setPaymentHolder(paymentHolder);
         requestDialog.show(getFragmentManager(), RequestDialogFragment.class.getSimpleName());
     }
 
-    private void onPayPressed() {
+    void onSendPressed() {
         paymentHolder.loadPaymentFrom(getCurrentCurrencyState());
         showPayDialog();
     }

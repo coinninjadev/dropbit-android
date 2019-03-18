@@ -59,7 +59,6 @@ public class WalletHelperTest {
     @Mock
     private WalletDao walletDao;
 
-
     @Mock
     private Wallet wallet;
 
