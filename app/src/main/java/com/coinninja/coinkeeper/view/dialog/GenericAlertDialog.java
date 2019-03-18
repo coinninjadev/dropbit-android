@@ -26,6 +26,10 @@ public class GenericAlertDialog extends DialogFragment {
     private View view;
     private boolean showAsWide = false;
 
+    public static GenericAlertDialog newInstance(String message) {
+        return newInstance(null, message, null, null, null, true, true);
+    }
+
     public static GenericAlertDialog newInstance(String title, String message, String positiveLabel, String negativeLabel, DialogInterface.OnClickListener clickListener, boolean isCancelable, boolean isCancelableOnTouchOutside) {
 
         GenericAlertDialog dialog = new GenericAlertDialog();

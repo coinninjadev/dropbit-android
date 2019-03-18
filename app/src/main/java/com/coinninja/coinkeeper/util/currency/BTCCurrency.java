@@ -94,5 +94,4 @@ public class BTCCurrency extends BaseCurrency implements Currency {
         BTCCurrency btc = new BTCCurrency(this.toSatoshis());
         return String.valueOf(btc.value);
     }
-
 }

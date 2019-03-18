@@ -476,4 +476,8 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
                 break;
         }
     }
+
+    public PaymentUtil getPaymentUtil() {
+        return paymentUtil;
+    }
 }

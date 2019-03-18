@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -12,26 +10,18 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.presenter.activity.CalculatorActivityPresenter;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
-import com.coinninja.coinkeeper.util.crypto.uri.UriException;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
 import com.coinninja.coinkeeper.view.fragment.CalculatorConverstionFragment;
-import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.KeyboardFragment;
 import com.coinninja.coinkeeper.view.fragment.PayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.RequestDialogFragment;
-import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 import com.coinninja.coinkeeper.view.widget.PaymentBarView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -39,14 +29,11 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 
-public class CalculatorActivity extends BalanceBarActivity implements TabLayout.OnTabSelectedListener, CalculatorActivityPresenter.View {
+public class CalculatorActivity extends BalanceBarActivity implements TabLayout.OnTabSelectedListener {
 
     static final String CONVERSION_FRAGMENT_TAG = "TAG_CONVERSION_FRAGMENT";
     public TabLayout.Tab currentTab;
     CalculatorConverstionFragment calculatorConverstionFragment;
-
-    @Inject
-    BitcoinUriBuilder bitcoinUriBuilder;
 
     @Inject
     WalletHelper walletHelper;
@@ -80,41 +67,12 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
     public void onTabReselected(TabLayout.Tab tab) {
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        if (requestCode == Intents.REQUEST_QR_ACTIVITY_SCAN) {
-            if (resultCode == Intents.RESULT_SCAN_OK) {
-                parseCryptoScan(intent);
-            } else if (resultCode == Intents.RESULT_SCAN_ERROR) {
-                onScanError();
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, intent);
-        }
-    }
-
-    private void parseCryptoScan(Intent intent) {
-        String scannedData = intent.getStringExtra(Intents.EXTRA_SCANNED_DATA);
-        try {
-            BitcoinUri bitcoinUri = bitcoinUtil.parse(scannedData);
-            paymentUtil.setAddress(bitcoinUri.getAddress());
-            Long amount = bitcoinUri.getSatoshiAmount();
-            if (amount != null && amount > 0) {
-                paymentHolder.loadPaymentFrom(new BTCCurrency(amount));
-            }
-            showPayDialog();
-        } catch (UriException e) {
-            onScanError();
-        }
-    }
 
     @Override
     protected void onResume() {
         notificationsInteractor.startListeningForNotifications(true);
         super.onResume();
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
-        initFooter();
         showTxIfPresent();
         initConversionFactoryWith(paymentHolder.getPrimaryCurrency());
     }
@@ -147,45 +105,6 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
     }
 
-    @Override
-    public void onQrScanPressed() {
-        paymentHolder.loadPaymentFrom(getCurrentCurrencyState());
-        Intent qrScanIntent = new Intent(this, QrScanActivity.class);
-        startActivityForResult(qrScanIntent, Intents.REQUEST_QR_ACTIVITY_SCAN);
-    }
-
-
-    @Override
-    public void confirmPaymentFor(String btcAddress) {
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(btcAddress, paymentHolder, this);
-        confirmPayDialogFragment.setCancelable(false);
-        confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
-    }
-
-
-    @Override
-    public void confirmPaymentFor(String btcAddress, Contact phoneNumber) {
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(btcAddress, phoneNumber, paymentHolder, this);
-        confirmPayDialogFragment.setCancelable(false);
-        confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
-    }
-
-
-    @Override
-    public void confirmInvite(Contact phoneNumber) {
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(phoneNumber, paymentHolder, this);
-        confirmPayDialogFragment.setCancelable(false);
-        confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
-    }
-
-    @Override
-    public void cancelPayment(DialogFragment dialogFragment) {
-        dialogFragment.dismiss();
-        selectDefaultTab();
-        paymentHolder.loadPaymentFrom(new USDCurrency(0d));
-        paymentUtil.setAddress(null);
-        initConversionFactoryWith(paymentHolder.getPrimaryCurrency());
-    }
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
@@ -204,33 +123,6 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
     protected void onTransactionFeeUpdated(TransactionFee transactionFee) {
         super.onTransactionFeeUpdated(transactionFee);
         paymentHolder.setTransactionFee(transactionFee);
-    }
-
-    private void initFooter() {
-        PaymentBarView paymentBarView = findViewById(R.id.payment_bar);
-
-        paymentBarView.setOnRequestPressedObserver(this::onRequestButtonPressed);
-        paymentBarView.setOnSendPressedObserver(this::onSendPressed);
-        paymentBarView.setOnScanPressedObserver(this::onQrScanPressed);
-    }
-
-    void onRequestButtonPressed() {
-        paymentHolder.loadPaymentFrom(getCurrentCurrencyState());
-        RequestDialogFragment requestDialog = new RequestDialogFragment();
-        requestDialog.setPaymentHolder(paymentHolder);
-        requestDialog.show(getFragmentManager(), RequestDialogFragment.class.getSimpleName());
-    }
-
-    void onSendPressed() {
-        paymentHolder.loadPaymentFrom(getCurrentCurrencyState());
-        showPayDialog();
-    }
-
-    private void showPayDialog() {
-        paymentUtil.setPaymentHolder(paymentHolder);
-        PayDialogFragment payDialog = PayDialogFragment.newInstance(paymentUtil, this);
-        payDialog.setCancelable(false);
-        payDialog.show(getFragmentManager(), PayDialogFragment.class.getSimpleName());
     }
 
     Currency getCurrentCurrencyState() {
@@ -258,11 +150,6 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
         keyboardFragment.setOnKeyListener(fragment);
     }
 
-    private void onScanError() {
-        String msg = getResources().getString(R.string.invalid_bitcoin_address_description);
-        AlertDialog.Builder alertDialogBuilder = AlertDialogBuilder.build(this, msg);
-        alertDialogBuilder.show();
-    }
 
     private void selectDefaultTab() {
         TabLayout tabLayout = findViewById(R.id.id_navigation_tabs);

@@ -16,10 +16,12 @@
         android:name="com.coinninja.coinkeeper.view.fragment.KeyboardFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/payment_bar" />
+        android:layout_above="@+id/payment_bar_fragment" />
 
-    <com.coinninja.coinkeeper.view.widget.PaymentBarView
-        android:id="@+id/payment_bar"
+
+    <fragment
+        android:id="@+id/payment_bar_fragment"
+        android:name="com.coinninja.coinkeeper.ui.payment.PaymentBarFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
