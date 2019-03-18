@@ -86,7 +86,7 @@
             android:name=".view.activity.TransactionHistoryActivity"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.Dark.Toolbar" />
+            android:theme="@style/CoinKeeperTheme.Drawer" />
         <activity
             android:name=".ui.transaction.details.TransactionDetailsActivity"
             android:label=""
@@ -338,8 +338,7 @@
         <service
             android:name=".service.ContactLookupService"
             android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            />
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

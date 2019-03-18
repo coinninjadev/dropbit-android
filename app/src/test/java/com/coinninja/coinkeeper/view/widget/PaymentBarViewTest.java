@@ -50,6 +50,7 @@ public class PaymentBarViewTest {
 
         paymentBarView.setOnScanPressedObserver(null);
         clickOn(scanButton);
+        verifyNoMoreInteractions(scanPressedObserver);
         verifyNoMoreInteractions(scanPressedObserver); // No Null Pointer Exception
     }
 
