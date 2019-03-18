@@ -12,10 +12,17 @@ import javax.inject.Inject;
 
 public class DropbitUriBuilder extends UrlBuilderInterface<DropbitRoute, DropbitParameter, Uri> {
 
+    @Inject
+    public DropbitUriBuilder() {
+    }
+
     @Override
     public Uri build(DropbitRoute route) {
-        Uri.Builder builder = getBuilder()
-                .appendPath(route.getRoute());
+        Uri.Builder builder = getBuilder();
+
+        for (String path : route.getPath()) {
+            builder.appendPath(path);
+        }
 
         return builder.build();
     }
@@ -33,6 +40,11 @@ public class DropbitUriBuilder extends UrlBuilderInterface<DropbitRoute, Dropbit
     @Override
     public String getBaseAuthority() {
         return "dropbit.com";
+    }
+
+    @Override
+    public String getBaseScheme(){
+        return "https";
     }
 
     @Override

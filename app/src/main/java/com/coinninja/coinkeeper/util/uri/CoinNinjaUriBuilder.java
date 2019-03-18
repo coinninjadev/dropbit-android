@@ -2,14 +2,15 @@ package com.coinninja.coinkeeper.util.uri;
 
 import android.net.Uri;
 
+import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
 import com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 
-public class CoinNinjaUriBuilder extends CustomUriBuilder<CoinNinjaRoute> {
-
-    private static final String TRANSACTION_ROUTE = "tx";
-    private static final String ADDRESS_ROUTE = "address";
+public class CoinNinjaUriBuilder extends UrlBuilderInterface<CoinNinjaRoute, CoinNinjaParameter, Uri> {
 
     @Inject
     public CoinNinjaUriBuilder() {
@@ -17,29 +18,17 @@ public class CoinNinjaUriBuilder extends CustomUriBuilder<CoinNinjaRoute> {
 
     @Override
     public Uri build(CoinNinjaRoute route) {
-        Uri.Builder builder = getBuilder();
+        return build(route, new HashMap<>());
+    }
 
-        switch (route) {
-            case ADDRESS:
-            case TRANSACTION:
-                break;
-        }
-
-        return builder.build();
+    @Override
+    public Uri build(CoinNinjaRoute route, Map<CoinNinjaParameter, String> parameters, String... breadcrumbs) {
+        return build(route, breadcrumbs);
     }
 
     @Override
     public Uri build(CoinNinjaRoute route, String... breadcrumbs) {
-        Uri.Builder builder = getBuilder();
-
-        switch (route) {
-            case TRANSACTION:
-                builder.appendPath(TRANSACTION_ROUTE);
-                break;
-            case ADDRESS:
-                builder.appendPath(ADDRESS_ROUTE);
-                break;
-        }
+        Uri.Builder builder = getBuilder().appendPath(route.getPath());
 
         for (String breadcrumb : breadcrumbs) {
             builder.appendPath(breadcrumb);
@@ -51,5 +40,15 @@ public class CoinNinjaUriBuilder extends CustomUriBuilder<CoinNinjaRoute> {
     @Override
     public String getBaseAuthority() {
         return "coinninja.com";
+    }
+
+    @Override
+    public String getBaseScheme(){
+        return "https";
+    }
+
+    @Override
+    public Uri build(CoinNinjaRoute route, Map<CoinNinjaParameter, String> parameters) {
+        return build(route, new HashMap<>());
     }
 }
