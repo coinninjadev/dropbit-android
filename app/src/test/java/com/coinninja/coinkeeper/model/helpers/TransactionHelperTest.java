@@ -1019,6 +1019,8 @@ public class TransactionHelperTest {
         verify(transaction.getTransactionsInvitesSummary()).setToPhoneNumber(receiverPhoneNumber);
         verify(transaction.getTransactionsInvitesSummary()).setToName(toName);
         verify(daoSessionManager).insert(transaction);
+        verify(transactionsInvitesSummary).update();
+        verify(transactionsInvitesSummary).setToPhoneNumber(contact.getPhoneNumber());
 
         assertThat(summary, equalTo(transaction));
 

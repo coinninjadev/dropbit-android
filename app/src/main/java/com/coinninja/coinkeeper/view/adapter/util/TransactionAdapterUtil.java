@@ -57,7 +57,7 @@ public class TransactionAdapterUtil {
         translateConfirmations(bindableTransaction, transaction.getNumConfirmations());
         bindableTransaction.setTxID(transaction.getTxid());
         bindableTransaction.setFee(transaction.getFee());
-        setupContact(transaction, bindableTransaction);
+        setupContact(transaction.getTransactionsInvitesSummary(), bindableTransaction);
         bindableTransaction.setHistoricalTransactionUSDValue(transaction.getHistoricPrice());
         setSendState(transaction, bindableTransaction);
         translateSendState(bindableTransaction);
@@ -231,14 +231,14 @@ public class TransactionAdapterUtil {
         }
     }
 
-    public void setupContact(TransactionSummary transactionSummary, BindableTransaction bindableTransaction) {
-        if (null != transactionSummary.getTransactionsInvitesSummary().getToName() &&
-                !transactionSummary.getTransactionsInvitesSummary().getToName().isEmpty()) {
-            bindableTransaction.setContactName(transactionSummary.getTransactionsInvitesSummary().getToName());
-        }
+    public void setupContact(TransactionsInvitesSummary transactionsInvitesSummary, BindableTransaction bindableTransaction) {
+        if (null == transactionsInvitesSummary) { return; }
+        PhoneNumber toPhoneNumber = transactionsInvitesSummary.getToPhoneNumber();
 
-        PhoneNumber toPhoneNumber = transactionSummary.getTransactionsInvitesSummary().getToPhoneNumber();
-        if (null != toPhoneNumber) {
+        if (null != transactionsInvitesSummary.getToName() &&
+                !transactionsInvitesSummary.getToName().isEmpty()) {
+            bindableTransaction.setContactName(transactionsInvitesSummary.getToName());
+        } else if (null != toPhoneNumber) {
             bindableTransaction.setContactPhoneNumber(toPhoneNumber.displayTextForLocale());
         }
     }
@@ -255,6 +255,7 @@ public class TransactionAdapterUtil {
         translateInviteDisplayName(bindableTransaction);
         translateInviteFee(bindableTransaction);
         translateInviteType(bindableTransaction);
+        setupContact(invite.getTransactionsInvitesSummary(), bindableTransaction);
         TransactionNotification transactionNotification = invite.getTransactionNotification();
         setupTransactionNotification(transactionNotification, bindableTransaction);
     }

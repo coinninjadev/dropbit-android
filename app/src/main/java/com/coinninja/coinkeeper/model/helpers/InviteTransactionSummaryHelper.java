@@ -57,6 +57,7 @@ public class InviteTransactionSummaryHelper {
     public InviteTransactionSummary saveCompletedSentInvite(CompletedInviteDTO completedInviteDTO) {
         TransactionsInvitesSummary transactionsInvitesSummary = getOrCreateInviteSummaryWithServerId(completedInviteDTO.getCnId());
         transactionsInvitesSummary.setInviteTime(completedInviteDTO.getInvitedContact().getCreatedAt());
+        transactionsInvitesSummary.setToPhoneNumber(completedInviteDTO.getContact().getPhoneNumber());
         transactionsInvitesSummary.update();
         InviteTransactionSummary invite = transactionsInvitesSummary.getInviteTransactionSummary();
         USDCurrency conversionCurrency = new USDCurrency(completedInviteDTO.getBitcoinPrice());
