@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.di.module;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.ClipboardManager;
-import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -48,6 +47,7 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
+import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
@@ -73,6 +73,12 @@ public class TestAppModule {
     @Provides
     TestCoinKeeperApplication testCoinKeeperApplication(Application application) {
         return (TestCoinKeeperApplication) application;
+    }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    BitcoinUriBuilder bitcoinUrlBuilder() {
+        return new BitcoinUriBuilder();
     }
 
     @Provides
