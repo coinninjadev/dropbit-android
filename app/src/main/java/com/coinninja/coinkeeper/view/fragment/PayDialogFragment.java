@@ -394,7 +394,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         paymentUtil.setContact(contact);
         hideSendToInput();
         ((TextView) getView().findViewById(R.id.contact_name)).setText(contact.getDisplayName());
-        ((TextView) getView().findViewById(R.id.contact_number)).setText(contact.getPhoneNumber().toNationalDisplayText());
+        ((TextView) getView().findViewById(R.id.contact_number)).setText(contact.getPhoneNumber().toInternationalDisplayText());
 
         if (contact.isVerified()) {
             cnAddressLookupDelegate.fetchAddressFor(contact, this::onFetchContactComplete);
