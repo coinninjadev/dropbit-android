@@ -33,7 +33,7 @@ public class PaymentBarViewTest {
     public void setUp() {
         TestableActivity.LAYOUT = R.layout.test__root_layout;
         activity = Robolectric.setupActivity(TestableActivity.class);
-        activity.appendLayout(R.layout.test__payment_bar);
+        activity.appendLayout(R.layout.fragment_payment_bar);
         paymentBarView = withId(activity, R.id.payment_bar);
         scanButton = withId(activity, R.id.scan_btn);
         sendButton = withId(activity, R.id.send_btn);
