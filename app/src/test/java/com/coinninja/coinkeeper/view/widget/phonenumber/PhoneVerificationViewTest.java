@@ -35,7 +35,6 @@ import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 public class PhoneVerificationViewTest {
-    private int EXISTING_ACTIVITY_ID;
     private TestableActivity activity;
     private PhoneNumberInputView phoneNumberInputView;
 
@@ -47,9 +46,8 @@ public class PhoneVerificationViewTest {
 
     @Before
     public void setUp() {
-        EXISTING_ACTIVITY_ID = TestableActivity.LAYOUT;
-        TestableActivity.LAYOUT = R.layout.activity_verify_phone;
         activity = Robolectric.setupActivity(TestableActivity.class);
+        activity.appendLayout(R.layout.activity_verify_phone);
         phoneVerificationView = withId(activity, R.id.phone_verification_view);
         phoneNumberInputView = withId(activity, R.id.phone_number_input);
         errorMessage = withId(activity, R.id.error_message);
@@ -62,7 +60,6 @@ public class PhoneVerificationViewTest {
 
     @After
     public void tearDown() {
-        TestableActivity.LAYOUT = EXISTING_ACTIVITY_ID;
         phoneNumberInputView = null;
         exampleNumber = null;
         errorMessage = null;

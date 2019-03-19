@@ -36,9 +36,6 @@ public class VerifyPhoneNumberActivity extends SecuredActivity {
     @Inject
     ServiceWorkUtil serviceWorkUtil;
 
-    @Inject
-    PhoneNumberUtil phoneNumberUtil;
-
     PhoneVerificationView phoneVerificationView;
 
     @Override

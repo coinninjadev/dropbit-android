@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.view.widget.phonenumber;
 
 import android.app.AlertDialog;
 import android.os.Build;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -45,7 +44,6 @@ import static org.robolectric.Shadows.shadowOf;
 @Config(application = TestCoinKeeperApplication.class, qualifiers = "en-rUS")
 public class PhoneNumberInputViewTest {
 
-    private int EXISTING_ACTIVITY_ID;
     private TestableActivity activity;
     private PhoneNumberInputView phoneNumberInputView;
 
@@ -53,9 +51,8 @@ public class PhoneNumberInputViewTest {
 
     @Before
     public void setUp() {
-        EXISTING_ACTIVITY_ID = TestableActivity.LAYOUT;
-        TestableActivity.LAYOUT = R.layout.__test_phone_number_input_view;
         activity = Robolectric.setupActivity(TestableActivity.class);
+        activity.appendLayout(R.layout.test__phone_number_input_view);
         phoneNumberInputView = withId(activity, R.id.phone_number_input);
         countryCodeLocales = new ArrayList<>();
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "GB"), 44));
@@ -65,7 +62,6 @@ public class PhoneNumberInputViewTest {
 
     @After
     public void tearDown() {
-        TestableActivity.LAYOUT = EXISTING_ACTIVITY_ID;
         phoneNumberInputView = null;
         activity = null;
     }

@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.util.TypedValue;
 
 import com.coinninja.bindings.TransactionBuilder;
+import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
@@ -114,9 +115,11 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public MessageCryptor messageCryptor;
     public PhoneNumberUtil phoneNumberUtil;
     public CoinKeeperLifecycleListener coinKeeperLifecycleListener;
+    public AccountManager accountManager;
 
     @Override
     public void afterTest(Method method) {
+        accountManager = null;
         internalNotificationHelper = null;
         messageCryptor = null;
         phoneNumberUtil = null;
