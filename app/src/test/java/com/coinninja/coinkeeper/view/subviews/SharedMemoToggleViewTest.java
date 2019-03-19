@@ -41,8 +41,8 @@ public class SharedMemoToggleViewTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        TestableActivity.LAYOUT = R.layout.memo_container;
         activity = Robolectric.setupActivity(TestableActivity.class);
+        activity.appendLayout(R.layout.memo_container);
         sharedMemoToggleView = new SharedMemoToggleView(activityNavigationUtil, memoCreator);
         sharedMemoToggleView.render(activity, withId(activity, R.id.memo_container));
     }

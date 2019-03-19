@@ -10,12 +10,11 @@ import com.coinninja.coinkeeper.R;
 import androidx.annotation.Nullable;
 
 public class TestableActivity extends Activity {
-    public static int LAYOUT = R.layout.test__root_layout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(LAYOUT);
+        setContentView(R.layout.test__root_layout);
     }
 
     public void appendLayout(int layoutId) {
