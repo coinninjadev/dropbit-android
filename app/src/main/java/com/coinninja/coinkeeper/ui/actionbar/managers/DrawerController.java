@@ -6,6 +6,7 @@ import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
+import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.google.android.material.navigation.NavigationView;
 
 import javax.inject.Inject;
@@ -151,7 +153,7 @@ public class DrawerController {
     private void onWhereToBuyClicked(View view) {
         Context context = view.getContext();
 
-        navigationUtil.openWebsite(context, Intents.URI_WHERE_TO_BUY);
+        UriUtil.openUrl(Intents.URI_WHERE_TO_BUY, (Activity) context);
     }
 
     private void onBackupNowClicked(View view) {

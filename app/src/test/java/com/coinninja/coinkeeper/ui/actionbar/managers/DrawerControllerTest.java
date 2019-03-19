@@ -124,15 +124,6 @@ public class DrawerControllerTest {
     }
 
     @Test
-    public void when_inflating_drawer_set_on_click_listener_for_drawer_where_to_buy() {
-        drawerController.inflateDrawer(activity, actionbarType);
-
-        withId(activity, R.id.drawer_where_to_buy).performClick();
-
-        verify(navigationUtil).openWebsite(eq(activity), eq(Intents.URI_WHERE_TO_BUY));
-    }
-
-    @Test
     public void when_inflating_drawer_set_on_click_listener_for_drawer_history() {
         drawerController.inflateDrawer(activity, actionbarType);
 
