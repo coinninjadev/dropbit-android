@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.ui.base;
 
+import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.view.fragment.AuthenticateFragment;
 import com.coinninja.coinkeeper.view.fragment.CalculatorConverstionFragment;
 import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment;
@@ -60,5 +61,9 @@ public abstract class AndroidFragmentBuilder {
     @ActivityScope
     @ContributesAndroidInjector
     abstract PinCreateFragment pinCreateFragment();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract PaymentBarFragment paymentBarFragment();
 
 }

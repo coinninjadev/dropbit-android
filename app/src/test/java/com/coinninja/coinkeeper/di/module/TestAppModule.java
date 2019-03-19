@@ -13,6 +13,7 @@ import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
@@ -52,6 +53,8 @@ import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -374,6 +377,15 @@ public class TestAppModule {
 
 
     @Provides
+    AccountManager accountManager(TestCoinKeeperApplication app) {
+        if (app.accountManager == null) {
+            app.accountManager = mock(AccountManager.class);
+        }
+        return app.accountManager;
+    }
+
+
+    @Provides
     TypedValue typedValue(TestCoinKeeperApplication app) {
         if (app.typedValue == null) {
             app.typedValue = mock(TypedValue.class);
@@ -384,7 +396,7 @@ public class TestAppModule {
     @CountryCodeLocales
     @Provides
     List<CountryCodeLocale> provideCountryCodeLocales(CountryCodeLocaleGenerator countryCodeLocaleGenerator) {
-        return mock(List.class);
+        return new ArrayList<>();
     }
 
     @CoinkeeperApplicationScope
@@ -392,4 +404,5 @@ public class TestAppModule {
     Locale locale(@ApplicationContext Context context) {
         return ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
     }
+
 }

@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.view.widget;
 
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
@@ -33,15 +32,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(RobolectricTestRunner.class)
 public class PaymentReceiverViewTest {
-    private int EXISTING_ACTIVITY_ID;
     private TestableActivity activity;
     private PaymentReceiverView paymentReceiverView;
     private List<CountryCodeLocale> countryCodeLocales;
@@ -50,9 +45,8 @@ public class PaymentReceiverViewTest {
 
     @Before
     public void setUp() {
-        EXISTING_ACTIVITY_ID = TestableActivity.LAYOUT;
-        TestableActivity.LAYOUT = R.layout.fragment_pay_dialog;
         activity = Robolectric.setupActivity(TestableActivity.class);
+        activity.appendLayout(R.layout.fragment_pay_dialog);
         phoneNumberInputView = withId(activity, R.id.phone_number_input);
         showPhoneInput = withId(activity, R.id.show_phone_input);
         paymentReceiverView = (PaymentReceiverView) showPhoneInput.getParent();
@@ -63,7 +57,6 @@ public class PaymentReceiverViewTest {
 
     @After
     public void tearDown() {
-        TestableActivity.LAYOUT = EXISTING_ACTIVITY_ID;
         activity = null;
         paymentReceiverView = null;
         countryCodeLocales = null;

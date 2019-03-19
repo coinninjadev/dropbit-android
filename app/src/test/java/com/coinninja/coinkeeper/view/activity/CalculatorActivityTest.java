@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
@@ -17,7 +16,6 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
-import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -39,7 +37,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowAlertDialog;
 
 import static com.coinninja.matchers.ActivityMatchers.activityWithIntentStarted;
 import static junit.framework.Assert.assertNotNull;
@@ -53,7 +50,6 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 
 @RunWith(RobolectricTestRunner.class)
@@ -63,17 +59,13 @@ public class CalculatorActivityTest {
     public static final String PHONE_NUMBER_STRING = "+13305555555";
     PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER_STRING);
     CalculatorActivity activity;
-    private ActivityController<CalculatorActivity> activityController;
-
     @Mock
     BitcoinUri bitcoinUri;
-
     @Mock
     BitcoinUtil bitcoinUtil;
-
     @Mock
     PaymentUtil paymentUtil;
-
+    private ActivityController<CalculatorActivity> activityController;
     @Mock
     private WalletHelper walletHelper;
 
@@ -121,140 +113,6 @@ public class CalculatorActivityTest {
         intent.putExtra(Intents.EXTRA_TRANSACTION_ID, "--txid--");
         assertThat(activity, activityWithIntentStarted(intent));
         assertFalse(activity.getIntent().hasExtra(Intents.EXTRA_TRANSACTION_ID));
-    }
-
-    @Test
-    public void pay_dialog_is_not_cancelable() {
-        String address = "---- btc address";
-        when(paymentUtil.getAddress()).thenReturn(address);
-        start();
-        ((TabLayout) activity.findViewById(R.id.id_navigation_tabs)).getTabAt(1).select();
-        activity.findViewById(R.id.one).performClick();
-
-        activity.findViewById(R.id.send_btn).performClick();
-
-        PayDialogFragment fragment = (PayDialogFragment)
-                activity.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
-        assertNotNull(fragment);
-        assertFalse(fragment.isCancelable());
-    }
-
-    @Ignore // TODO move this to instrumentation
-    @Test
-    public void dismiss_confirm_when_started_with_address() {
-        start();
-        String address = "--- btc address";
-
-        activity.confirmPaymentFor(address);
-
-        Fragment fragment = activity.getFragmentManager().findFragmentByTag(ConfirmPayDialogFragment.class.getSimpleName());
-        assertNotNull(fragment);
-
-        fragment.getView().findViewById(R.id.confirm_pay_header_close_btn).performClick();
-
-        assertNull(activity.getFragmentManager().findFragmentByTag(ConfirmPayDialogFragment.class.getSimpleName()));
-    }
-
-    @Test
-    public void dismisses_pay_dialog_when_user_request_close() {
-        String address = "---- btc address";
-        when(paymentUtil.getAddress()).thenReturn(address);
-        start();
-        ((TabLayout) activity.findViewById(R.id.id_navigation_tabs)).getTabAt(1).select();
-        activity.findViewById(R.id.one);
-        DialogFragment fragment = mock(DialogFragment.class);
-        activity.cancelPayment(fragment);
-
-        verify(paymentUtil).setAddress(null);
-        verify(fragment).dismiss();
-        assertThat(activity.paymentHolder.getPrimaryCurrency().toFormattedCurrency(),
-                equalTo(new USDCurrency(0d).toFormattedCurrency()));
-        assertThat(activity.currentTab.getText(), equalTo(activity.getText(R.string.tab_calculator_usd)));
-    }
-
-    @Test
-    public void confirms_invite_for_contact() {
-        Contact contact = new Contact(phoneNumber, "Joe Blow", false);
-        activity.paymentHolder.loadPaymentFrom(new BTCCurrency(1d));
-
-        activity.confirmInvite(contact);
-
-        ConfirmPayDialogFragment fragment = (ConfirmPayDialogFragment) activity.getFragmentManager().findFragmentByTag(ConfirmPayDialogFragment.class.getSimpleName());
-        assertNotNull(fragment);
-        assertThat(fragment.getContact(), equalTo(contact));
-        assertThat(fragment.getPriceHolder(), equalTo(activity.paymentHolder));
-        assertFalse(fragment.isCancelable());
-    }
-
-    @Test
-    public void confirms_payment_for_given_address() {
-        String address = "--addr--";
-        activity.paymentHolder.loadPaymentFrom(new BTCCurrency(1d));
-
-        activity.confirmPaymentFor(address);
-
-        ConfirmPayDialogFragment fragment = (ConfirmPayDialogFragment) activity.getFragmentManager().findFragmentByTag(ConfirmPayDialogFragment.class.getSimpleName());
-        assertNotNull(fragment);
-        assertThat(fragment.getPriceHolder(), equalTo(activity.paymentHolder));
-        assertThat(fragment.getSendAddress(), equalTo(address));
-        assertFalse(fragment.isCancelable());
-    }
-
-    @Test
-    public void confirms_payment_for_given_address_and_contact() {
-        Contact contact = new Contact(phoneNumber, "Joe Blow", true);
-        String address = "--addr--";
-        activity.paymentHolder.loadPaymentFrom(new BTCCurrency(1d));
-
-        activity.confirmPaymentFor(address, contact);
-
-        ConfirmPayDialogFragment fragment = (ConfirmPayDialogFragment) activity.getFragmentManager().findFragmentByTag(ConfirmPayDialogFragment.class.getSimpleName());
-        assertNotNull(fragment);
-        assertThat(fragment.getContact(), equalTo(contact));
-        assertThat(fragment.getPriceHolder(), equalTo(activity.paymentHolder));
-        assertThat(fragment.getSendAddress(), equalTo(address));
-        assertFalse(fragment.isCancelable());
-    }
-
-    @Test
-    public void sets_payment_on_request_dialog() {
-        start();
-        PaymentHolder holder = mock(PaymentHolder.class);
-        activity.paymentHolder = holder;
-
-        activity.findViewById(R.id.request_btn).performClick();
-
-        RequestDialogFragment fragment = (RequestDialogFragment)
-                activity.getFragmentManager().findFragmentByTag(RequestDialogFragment.class.getSimpleName());
-
-        assertThat(fragment.getPaymentHolder(), equalTo(holder));
-    }
-
-    @Test
-    public void sets_currently_inputted_price_when_requesting() {
-        start();
-        PaymentHolder holder = mock(PaymentHolder.class);
-        activity.paymentHolder = holder;
-
-        activity.findViewById(R.id.request_btn).performClick();
-
-        verify(holder).loadPaymentFrom(any(Currency.class));
-    }
-
-    @Test
-    public void sets_currently_inputted_price_when_sending() {
-        start();
-        PaymentHolder holder = mock(PaymentHolder.class);
-        activity.paymentHolder = holder;
-
-        activity.findViewById(R.id.send_btn).performClick();
-
-        PayDialogFragment fragment = (PayDialogFragment)
-                activity.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
-
-        verify(holder).loadPaymentFrom(any(Currency.class));
-        verify(paymentUtil).setPaymentHolder(activity.paymentHolder);
-        assertNotNull(fragment);
     }
 
     @Test
@@ -333,36 +191,6 @@ public class CalculatorActivityTest {
     }
 
     @Test
-    public void initializes_with_available_balance() {
-        when(walletHelper.getSpendableBalance()).thenReturn(new BTCCurrency(10L));
-        start();
-        assertThat(activity.paymentHolder.getSpendableBalance().toSatoshis(), equalTo(10L));
-    }
-
-    @Test
-    public void updates_spendable_balance_when_wallet_sync_completes() {
-        long balance = 1000000L;
-        when(walletHelper.getSpendableBalance()).thenReturn(new BTCCurrency(0)).
-                thenReturn(new BTCCurrency(balance));
-        start();
-
-        activity.onWalletSyncComplete();
-
-        assertThat(activity.paymentHolder.getSpendableBalance().toSatoshis(), equalTo(balance));
-    }
-
-    @Test
-    public void updates_holder_with_value_of_crypto_changes() {
-        start();
-        activity.paymentHolder.setEvaluationCurrency(new USDCurrency(500d));
-
-        activity.onPriceReceived(new USDCurrency(6500d));
-
-        assertThat(activity.paymentHolder.getEvaluationCurrency().toFormattedCurrency(),
-                equalTo("$6,500.00"));
-    }
-
-    @Test
     public void updates_payment_holder_when_fees_update() {
         start();
         activity.paymentHolder.setTransactionFee(new TransactionFee(0, 0, 0));
@@ -416,97 +244,6 @@ public class CalculatorActivityTest {
 
     }
 
-    @Test
-    public void qrscan_good_Bitcoin_Address_and_amount() throws UriException {
-        start();
-        String scannedData = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=10.00000000";
-        when(bitcoinUtil.parse(scannedData)).thenReturn(bitcoinUri);
-        when(bitcoinUri.getAddress()).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        when(bitcoinUri.getSatoshiAmount()).thenReturn(1000000000L);
-
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-
-        activity.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_OK, intent);
-        PayDialogFragment payDialogFragment = (PayDialogFragment) activity.getFragmentManager().findFragmentByTag("PayDialogFragment");
-
-        assertNotNull(payDialogFragment);
-        verify(paymentUtil).setAddress("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        assertThat(activity.paymentHolder.getPrimaryCurrency().toFormattedCurrency(),
-                equalTo("\u20BF 10"));
-    }
-
-    @Test
-    public void qrscan_good_Bitcoin_Address() throws UriException {
-        start();
-        String scannedData = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa";
-        when(bitcoinUtil.parse(scannedData)).thenReturn(bitcoinUri);
-        when(bitcoinUri.getAddress()).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-
-        activity.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_OK, intent);
-
-        PayDialogFragment payDialogFragment = (PayDialogFragment) activity.getFragmentManager().findFragmentByTag("PayDialogFragment");
-        assertNotNull(payDialogFragment);
-        verify(paymentUtil).setAddress("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-    }
-
-    @Test
-    public void qrscan_good_Bitcoin_Address_amount_from_calculator_page() throws UriException {
-        start();
-        PaymentHolder holder = mock(PaymentHolder.class);
-        activity.paymentHolder = holder;
-
-        String scannedData = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa";
-        when(bitcoinUtil.parse(scannedData)).thenReturn(bitcoinUri);
-        when(bitcoinUri.getAddress()).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-
-        activity.onQrScanPressed();
-        activity.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_OK, intent);
-
-        PayDialogFragment payDialogFragment = (PayDialogFragment) activity.getFragmentManager().findFragmentByTag("PayDialogFragment");
-        assertNotNull(payDialogFragment);
-        verify(paymentUtil).setAddress("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-
-        verify(holder).loadPaymentFrom(any(Currency.class));
-    }
-
-    @Test
-    public void shows_error_when_failing_to_parse_btc_uri() throws UriException {
-        start();
-        String scannedData = "jibberish";
-        String expectedMessage = activity.getResources().getString(R.string.invalid_bitcoin_address_description);
-        when(bitcoinUtil.parse(scannedData)).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN));
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-
-        activity.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_OK, intent);
-
-        AlertDialog alert = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(alert);
-
-        assertThat(shadowAlertDialog.getMessage(), equalTo(expectedMessage));
-    }
-
-    @Test
-    public void qrscan_RESULT_SCAN_ERROR_test() {
-        start();
-        String scannedData = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa";
-        String expectedMessage = activity.getResources().getString(R.string.invalid_bitcoin_address_description);
-
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-
-        activity.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_ERROR, intent);
-
-        AlertDialog alert = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(alert);
-
-        assertThat(shadowAlertDialog.getMessage(), equalTo(expectedMessage));
-    }
 
     @Test
     public void check_for_notifications_on_start() {

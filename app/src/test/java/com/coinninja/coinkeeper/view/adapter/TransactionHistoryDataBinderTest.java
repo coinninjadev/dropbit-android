@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.CoinKeeperApplication;
@@ -25,6 +26,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -61,7 +64,7 @@ public class TransactionHistoryDataBinderTest {
         when(transactions.get(0)).thenReturn(transaction);
 
         Context applicationContext = RuntimeEnvironment.application.getApplicationContext();
-        ViewGroup parent = (ViewGroup) LayoutInflater.from(applicationContext).inflate(R.layout.activity_transaction_history, null, false);
+        ViewGroup parent = new LinearLayout(applicationContext);
         TransactionHistoryDataAdapter.OnItemClickListener onClickListener = mock(TransactionHistoryDataAdapter.OnItemClickListener.class);
         transactionAdapterUtil = mock(TransactionAdapterUtil.class);
         when(transactionAdapterUtil.translateTransaction(any(TransactionsInvitesSummary.class))).thenReturn(bindableTransaction);
