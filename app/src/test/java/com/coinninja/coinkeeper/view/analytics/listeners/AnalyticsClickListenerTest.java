@@ -77,17 +77,6 @@ public class AnalyticsClickListenerTest {
     }
 
     @Test
-    public void track_EVENT_BUTTON_HISTORY_event_test() {
-        String expectedAnalyticsEvent = Analytics.EVENT_BUTTON_HISTORY;
-        int sampleEventID = R.id.drawer_history;
-        setId(sampleEventID);
-
-        analyticsClickListener.onClick(view);
-
-        verify(analytics).trackButtonEvent(expectedAnalyticsEvent);
-    }
-
-    @Test
     public void track_EVENT_BUTTON_SETTINGS_event_test() {
         String expectedAnalyticsEvent = Analytics.EVENT_BUTTON_SETTINGS;
         int sampleEventID = R.id.drawer_setting;

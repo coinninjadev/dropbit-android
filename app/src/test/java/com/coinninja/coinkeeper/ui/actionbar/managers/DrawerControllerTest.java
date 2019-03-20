@@ -124,15 +124,6 @@ public class DrawerControllerTest {
     }
 
     @Test
-    public void when_inflating_drawer_set_on_click_listener_for_drawer_history() {
-        drawerController.inflateDrawer(activity, actionbarType);
-
-        withId(activity, R.id.drawer_history).performClick();
-
-        verify(navigationUtil).navigateToTransactionHistory(activity);
-    }
-
-    @Test
     public void open_drawer() {
         drawerController.drawerLayout = mock(DrawerLayout.class);
 

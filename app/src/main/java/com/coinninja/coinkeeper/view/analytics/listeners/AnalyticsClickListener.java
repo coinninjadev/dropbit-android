@@ -16,7 +16,6 @@ public class AnalyticsClickListener implements View.OnClickListener {
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.request_btn, Analytics.EVENT_BUTTON_REQUEST);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.scan_btn, Analytics.EVENT_BUTTON_SCAN_QR);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.send_btn, Analytics.EVENT_BUTTON_PAY);
-        BUTTON_ANALYTICS_EVENT_MAP.put(R.id.drawer_history, Analytics.EVENT_BUTTON_HISTORY);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.drawer_setting, Analytics.EVENT_BUTTON_SETTINGS);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.drawer_where_to_buy, Analytics.EVENT_BUTTON_SPEND);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.drawer_support, Analytics.EVENT_BUTTON_SUPPORT);
@@ -37,11 +36,11 @@ public class AnalyticsClickListener implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (analytics == null) return;// analytics have yet to initialize
+        if (analytics == null) return;
 
         int rID = view.getId();
         String event = getButtonEvent(rID);
-        if (event == null) return;//there is no assigned event for this key
+        if (event == null) return;
 
         analytics.trackButtonEvent(event);
     }

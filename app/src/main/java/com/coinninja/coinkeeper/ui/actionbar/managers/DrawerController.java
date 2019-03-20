@@ -104,18 +104,14 @@ public class DrawerController {
         drawerLayout.findViewById(R.id.drawer_setting).setOnClickListener(this::onSettingsClicked);
         drawerLayout.findViewById(R.id.drawer_support).setOnClickListener(this::onSupportClicked);
         drawerLayout.findViewById(R.id.drawer_where_to_buy).setOnClickListener(this::onWhereToBuyClicked);
-        drawerLayout.findViewById(R.id.drawer_history).setOnClickListener(this::onHistoryClicked);
     }
-
 
     private void setupNavigationView() {
         navigationView = drawerLayout.findViewById(R.id.drawer_action_view);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(
                 menuItem -> {
-                    // set item as selected to persist highlight
                     menuItem.setChecked(true);
-                    // close drawer when item is tapped
                     closeDrawer();
                     return true;
                 });
