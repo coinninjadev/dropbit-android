@@ -19,6 +19,9 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
+import com.coinninja.coinkeeper.util.uri.UriUtil;
+import com.coinninja.coinkeeper.util.uri.routes.DropbitRoute;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
@@ -42,8 +45,12 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
     LazyList<TransactionsInvitesSummary> transactions;
     private TransactionDetailObserver transactionDetailObserver;
     private SharedMemoView sharedMemoView;
+    private DropbitUriBuilder dropbitUriBuilder;
+    private DropbitRoute tooltipId;
+    private ImageView tooltipImageView;
 
     TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil) {
+        this.dropbitUriBuilder = new DropbitUriBuilder();
         this.walletHelper = walletHelper;
         this.transactionAdapterUtil = transactionAdapterUtil;
     }
@@ -129,6 +136,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         renderDropBitState(page, bindableTransaction);
         renderShowDetails(page, bindableTransaction);
         renderMemo(page, bindableTransaction);
+        renderTooltip(page, bindableTransaction);
     }
 
     private void renderMemo(View page, BindableTransaction bindableTransaction) {
@@ -140,6 +148,20 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
             memoView.setVisibility(View.VISIBLE);
             sharedMemoView = new SharedMemoView(memoView, bindableTransaction.getIsSharedMemo(), bindableTransaction.getMemo(), bindableTransaction.getContactOrPhoneNumber());
         }
+    }
+
+    private void renderTooltip(View page, BindableTransaction bindableTransaction) {
+        if (bindableTransaction.getServerInviteId() == null || bindableTransaction.getServerInviteId().equals("")) {
+            tooltipId = DropbitRoute.REGULAR_TRANSACTION;
+        } else {
+            tooltipId = DropbitRoute.DROPBIT_TRANSACTION;
+        }
+
+        withId(page, R.id.tooltip).setOnClickListener(this::showTooltipInfo);
+    }
+
+    private void showTooltipInfo(View view) {
+        UriUtil.openUrl(dropbitUriBuilder.build(tooltipId), (Activity) view.getContext());
     }
 
     private void close(View view) {

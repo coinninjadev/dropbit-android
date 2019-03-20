@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.view.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,6 +22,8 @@ import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
+import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
+import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
@@ -29,6 +32,7 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 
 import static com.coinninja.coinkeeper.util.analytics.Analytics.EVENT_TRANSACTION_RETRY;
+import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
 public class BroadcastActivity extends SecuredActivity implements BroadcastTransactionPresenter.View {
     private static final String TAG = BroadcastActivity.class.getSimpleName();
@@ -37,6 +41,9 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
 
     public static final String TRANSACTION_ROUTE = "tx";
     public static final String COIN_NINJA_COM = "coinninja.com";
+
+    @Inject
+    CoinNinjaUriBuilder coinNinjaUriBuilder;
 
     private BroadcastTransactionDTO broadcastDTO;
     private TextView sendingProgressLabel;
@@ -209,14 +216,7 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     }
 
     private void exploreBlock(Context context, String record) {
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme("https").
-                authority(COIN_NINJA_COM).
-                appendPath(TRANSACTION_ROUTE).appendPath(record);
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(builder.build());
-        context.startActivity(intent);
+        UriUtil.openUrl(coinNinjaUriBuilder.build(TRANSACTION, record), (Activity) context);
     }
 
     enum SendState {

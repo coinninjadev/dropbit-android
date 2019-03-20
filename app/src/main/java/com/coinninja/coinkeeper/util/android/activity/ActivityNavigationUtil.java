@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.util.android.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +10,9 @@ import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
+import com.coinninja.coinkeeper.util.uri.UriUtil;
+import com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute;
 import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
@@ -17,14 +21,16 @@ import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivit
 import javax.inject.Inject;
 
 import static com.coinninja.android.helpers.Resources.getString;
+import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.ADDRESS;
+import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
 public class ActivityNavigationUtil {
-    public static final String TRANSACTION_ROUTE = "tx";
-    public static final String ADDRESS_ROUTE = "address";
-    public static final String COINNINJA_COM = "coinninja.com";
+
+    private CoinNinjaUriBuilder coinNinjaUriBuilder;
 
     @Inject
-    public ActivityNavigationUtil() {
+    public ActivityNavigationUtil(CoinNinjaUriBuilder coinNinjaUriBuilder) {
+        this.coinNinjaUriBuilder = coinNinjaUriBuilder;
     }
 
     public void navigateToSettings(Context context) {
@@ -35,10 +41,6 @@ public class ActivityNavigationUtil {
     public void navigateToSupport(Context context) {
         Intent intent = new Intent(context, CoinKeeperSupportActivity.class);
         context.startActivity(intent);
-    }
-
-    public void openWebsite(Context context, Uri uri) {
-        context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
     }
 
     public void navigateToBackupRecoveryWords(Context context) {
@@ -59,7 +61,7 @@ public class ActivityNavigationUtil {
     }
 
     public void shareTransaction(Context context, String txid) {
-        Uri uri = getBlockExplorerUriForTransactionWithId(txid);
+        Uri uri = coinNinjaUriBuilder.build(TRANSACTION, txid);
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, uri.toString());
@@ -68,33 +70,15 @@ public class ActivityNavigationUtil {
     }
 
     public void showAddressOnBlock(Context context, String address) {
-        openWebsite(context, getBlockExplorerUriForAddressWithId(address));
-    }
-
-    private Uri getBlockExplorerUriForAddressWithId(String address) {
-        return new Uri.Builder().
-                scheme("https").
-                authority(COINNINJA_COM).
-                appendPath(ADDRESS_ROUTE).
-                appendPath(address).
-                build();
+        UriUtil.openUrl(coinNinjaUriBuilder.build(ADDRESS, address), (Activity) context);
     }
 
     public void showTxidOnBlock(Context context, String txid) {
-        openWebsite(context, getBlockExplorerUriForTransactionWithId(txid));
-    }
-
-    private Uri getBlockExplorerUriForTransactionWithId(String txid) {
-        return new Uri.Builder().
-                scheme("https").
-                authority(COINNINJA_COM).
-                appendPath(TRANSACTION_ROUTE).
-                appendPath(txid).
-                build();
+        UriUtil.openUrl(coinNinjaUriBuilder.build(TRANSACTION, txid), (Activity) context);
     }
 
     public void explainSharedMemos(Context context) {
-        openWebsite(context, Intents.URI_SHARED_MEMOS);
+        UriUtil.openUrl(Intents.URI_SHARED_MEMOS, (Activity) context);
     }
 
     public void navigateToVerifyPhoneNumber(Context context, PhoneNumber phoneNumber) {

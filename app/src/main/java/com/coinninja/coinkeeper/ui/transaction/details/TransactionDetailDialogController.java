@@ -15,6 +15,8 @@ import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
+import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
@@ -23,6 +25,7 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 
 import static com.coinninja.android.helpers.Views.withId;
+import static com.coinninja.coinkeeper.util.uri.routes.DropbitRoute.TRANSACTION_DETAILS;
 
 
 public class TransactionDetailDialogController {
@@ -30,9 +33,13 @@ public class TransactionDetailDialogController {
 
     private final WalletHelper walletHelper;
     private final ActivityNavigationUtil activityNavigationUtil;
+    private DropbitUriBuilder dropbitUriBuilder;
 
     @Inject
-    TransactionDetailDialogController(WalletHelper walletHelper, ActivityNavigationUtil activityNavigationUtil) {
+    TransactionDetailDialogController(WalletHelper walletHelper,
+                                      ActivityNavigationUtil activityNavigationUtil,
+                                      DropbitUriBuilder dropbitUriBuilder) {
+        this.dropbitUriBuilder = dropbitUriBuilder;
         this.walletHelper = walletHelper;
         this.activityNavigationUtil = activityNavigationUtil;
     }
@@ -53,8 +60,17 @@ public class TransactionDetailDialogController {
         bindFee(withId(view, R.id.value_network_fee), transaction.getFeeCurrency());
         bindAddress(withId(view, R.id.receive_address), transaction.getTargetAddress());
         bindShareTX(withId(view, R.id.share_transaction), transaction.getTxID());
+        bindTooltip(withId(view, R.id.tooltip));
         bindShowTX(withId(view, R.id.see_on_block), transaction.getTxID());
         bindClose(withId(view, R.id.ic_close));
+    }
+
+    private void bindTooltip(View view) {
+        view.setOnClickListener(this::showTooltipUrl);
+    }
+
+    private void showTooltipUrl(View view) {
+        UriUtil.openUrl(dropbitUriBuilder.build(TRANSACTION_DETAILS), (Activity) view.getContext());
     }
 
     private void bindClose(View closeBtn) {

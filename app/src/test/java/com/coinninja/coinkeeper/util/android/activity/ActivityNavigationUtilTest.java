@@ -8,6 +8,7 @@ import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
@@ -38,8 +39,8 @@ public class ActivityNavigationUtilTest {
     @Mock
     StartActivity activity;
 
-    @InjectMocks
-    ActivityNavigationUtil activityNavigationUtil;
+    CoinNinjaUriBuilder coinNinjaUriBuilder = new CoinNinjaUriBuilder();
+    ActivityNavigationUtil activityNavigationUtil = new ActivityNavigationUtil(coinNinjaUriBuilder);
 
     @Before
     public void setUp() {
@@ -55,6 +56,7 @@ public class ActivityNavigationUtilTest {
         activityController = null;
         activity = null;
         activityNavigationUtil = null;
+        coinNinjaUriBuilder = null;
     }
 
     @Test
@@ -87,16 +89,6 @@ public class ActivityNavigationUtilTest {
         activityNavigationUtil.navigateToSupport(activity);
 
         Intent intent = new Intent(activity, CoinKeeperSupportActivity.class);
-        assertThat(activity, activityWithIntentStarted(intent));
-    }
-
-    @Test
-    public void navigate_to_website() {
-        String sampleWebsite = "https://coinninja.com";
-
-        activityNavigationUtil.openWebsite(activity, Uri.parse(sampleWebsite));
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sampleWebsite));
         assertThat(activity, activityWithIntentStarted(intent));
     }
 
