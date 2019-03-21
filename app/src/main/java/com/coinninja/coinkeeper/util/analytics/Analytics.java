@@ -42,11 +42,11 @@ public interface Analytics {
     String EVENT_TRANSACTION_RETRY = "RetryFailedPayment";
     // -- Button Pressed --
     String EVENT_BUTTON_SUFFIX = "Btn";
-    // -- Button Pressed -- Calculator
+    // -- Button Pressed -- Payment Bar
     String EVENT_BUTTON_BALANCE_HISTORY = "BalanceHistory"; // - User taps History button
-    String EVENT_BUTTON_REQUEST = "Request"; // - User taps request button on calculator screen
-    String EVENT_BUTTON_SCAN_QR = "ScanQR"; //- User taps Scan QR button on calculator screen
-    String EVENT_BUTTON_PAY = "Pay"; //- User taps pay button on calculator screen
+    String EVENT_BUTTON_REQUEST = "Request"; // - User taps request button on payment bar
+    String EVENT_BUTTON_SCAN_QR = "ScanQR"; //- User taps Scan QR button on payment bar
+    String EVENT_BUTTON_PAY = "Pay"; //- User taps pay button on payment bar
     // -- Button Pressed -- DrawerBar
     String EVENT_BUTTON_HISTORY = "History"; // - User taps History button
     String EVENT_BUTTON_SETTINGS = "Settings"; // - User taps settings button

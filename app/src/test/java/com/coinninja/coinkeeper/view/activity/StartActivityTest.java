@@ -39,7 +39,7 @@ public class StartActivityTest {
         activity = activityController.get();
         activityController.create();
         activity.setStartScreenAnimation(animation);
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
         shadowActivity = shadowOf(activity);
     }
 

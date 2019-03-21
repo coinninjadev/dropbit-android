@@ -59,7 +59,7 @@ public class RestoreWalletActivityTest {
         shadowActivity = shadowOf(activity);
         activityController.create();
         ((ViewPager) activity.findViewById(R.id.recovery_words_pager)).setAdapter(mock(RestoreWalletPageAdapter.class));
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
         mockAnalytics = activity.analytics;
     }
 

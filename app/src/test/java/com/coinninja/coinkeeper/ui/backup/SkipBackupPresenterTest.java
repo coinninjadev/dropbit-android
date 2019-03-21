@@ -10,7 +10,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,21 +36,20 @@ import static org.robolectric.Shadows.shadowOf;
 @RunWith(RobolectricTestRunner.class)
 public class SkipBackupPresenterTest {
 
-    private String[] words = new String[]{"word", "word", "word", "word", "word", "word", "word", "word", "word", "word", "word", "word"};
-
-    private Activity activity;
-
     @Mock
     CNWalletManager cnWalletManager;
-
     @Mock
     Analytics analytics;
-
     @Mock
     NotificationUtil notificationUtil;
+    @Mock
+    ActivityNavigationUtil activityNavigationUtil;
 
     @InjectMocks
     SkipBackupPresenter skipBackupPresenter;
+
+    private String[] words = new String[]{"word", "word", "word", "word", "word", "word", "word", "word", "word", "word", "word", "word"};
+    private Activity activity;
 
     @Before
     public void setUp() {
@@ -109,18 +108,14 @@ public class SkipBackupPresenterTest {
     }
 
     @Test
-    public void navigate_to_calculator_screen_on_positive_clicked() {
+    public void navigate_to_home_screen_on_positive_clicked() {
         skipBackupPresenter.presentSkip(activity, words);
         AlertDialog latestAlertDialog = ShadowAlertDialog.getLatestAlertDialog();
 
         latestAlertDialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick();
 
+        verify(activityNavigationUtil).navigateToHome(activity);
 
-        ShadowActivity shadowActivity = shadowOf(activity);
-        Intent intent = shadowActivity.getNextStartedActivity();
-
-        assertThat(intent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
-        assertThat(intent.getFlags(), equalTo(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
         assertFalse(latestAlertDialog.isShowing());
     }
 

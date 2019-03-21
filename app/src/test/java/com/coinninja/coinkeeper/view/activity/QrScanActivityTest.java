@@ -54,7 +54,7 @@ public class QrScanActivityTest {
         activityController = Robolectric.buildActivity(QrScanActivity.class);
 
         activity = activityController.get();
-        activityController.create().resume().start();
+        activityController.create().start().resume();
     }
 
     @Test

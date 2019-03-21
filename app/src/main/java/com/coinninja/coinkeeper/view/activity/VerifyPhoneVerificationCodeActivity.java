@@ -21,9 +21,12 @@ import com.coinninja.coinkeeper.text.TextInputNotifierWatcher;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
+
+import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 
@@ -34,6 +37,10 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     public static final String TOO_FAST_SERVER_ATTEMPTS_FRAGMENT_TAG = "TOO_FAST_SERVER_ATTEMPTS_FRAGMENT_TAG";
     public static final String SERVER_ERROR_FRAGMENT_TAG = "SERVER_ERROR_FRAGMENT_TAG";
 
+    @Inject
+    ActivityNavigationUtil activityNavigationUtil;
+    @Inject
+    LocalBroadCastUtil localBroadCastUtil;
 
     private TextInputNotifierWatcher watcher;
     private ViewGroup parent;
@@ -44,7 +51,6 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     private GenericAlertDialog tooManyDialog;
     private PhoneNumber phoneNumber;
     BroadcastReceiver receiver;
-    LocalBroadCastUtil localBroadCastUtil;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,7 +69,6 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         resend_link = findViewById(R.id.resend_link);
         resend_link.setOnClickListener(V -> onResendClick());
         resend_link.setPaintFlags(resend_link.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        localBroadCastUtil = new LocalBroadCastUtil(this);
         receiver = new InvalidPhoneCodeReceiver();
         setup();
     }
@@ -299,18 +304,13 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
             analytics.trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SUCCESSFUL);
         }
         startBTCInvitesService();
-        startCalculatorActivity();
+        activityNavigationUtil.navigateToHome(this);
     }
 
     private void startBTCInvitesService() {
         startService(new Intent(this, SyncDropBitService.class));
     }
 
-    private void startCalculatorActivity() {
-        Intent intent = new Intent(this, CalculatorActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-    }
 
     private void hideErrors() {
         error_message.setVisibility(View.GONE);

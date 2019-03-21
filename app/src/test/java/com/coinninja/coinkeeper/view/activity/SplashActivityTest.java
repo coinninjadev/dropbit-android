@@ -9,6 +9,7 @@ import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.receiver.StartupCompleteReceiver;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,6 +53,9 @@ public class SplashActivityTest {
     @Mock
     CNWalletManager cnWalletManager;
 
+    @Mock
+    ActivityNavigationUtil activityNavigationUtil;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -63,6 +67,7 @@ public class SplashActivityTest {
         activity.localBroadCastUtil = localBroadCastUtil;
         activity.userHelper = userHelper;
         activity.cnWalletManager = cnWalletManager;
+        activity.activityNavigationUtil = activityNavigationUtil;
         PrivateAccessor.setField(activity, "delayMillis", 0);
     }
 
@@ -123,14 +128,11 @@ public class SplashActivityTest {
     }
 
     @Test
-    public void starts_calculator_activity_when_recovery_words_are_saved() {
+    public void starts_home_activity_when_recovery_words_are_saved() {
         when(cnWalletManager.hasWallet()).thenReturn(true);
         start();
 
-        ShadowActivity shadowActivity = shadowOf(activity);
-        Intent intent = shadowActivity.getNextStartedActivity();
-
-        assertThat(intent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
+        verify(activityNavigationUtil).navigateToHome(activity);
     }
 
     @Test

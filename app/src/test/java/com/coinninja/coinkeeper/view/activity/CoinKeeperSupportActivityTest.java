@@ -35,7 +35,7 @@ public class CoinKeeperSupportActivityTest {
         activityController = Robolectric.buildActivity(CoinKeeperSupportActivity.class);
         activity = activityController.get();
         shadowActivity = shadowOf(activity);
-        activityController.create().resume().start().visible();
+        activityController.create().start().resume().visible();
     }
 
     @Test

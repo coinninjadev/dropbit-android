@@ -249,10 +249,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         return pinEntry;
     }
 
-    @Override
-    public InternalNotificationHelper getInternalNotificationHelper() {
-        return internalNotificationHelper;
-    }
 }
 
 

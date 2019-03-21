@@ -9,6 +9,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BackupActivity;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;

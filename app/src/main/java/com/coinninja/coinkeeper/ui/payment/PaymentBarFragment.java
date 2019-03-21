@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.presenter.activity.CalculatorActivityPresenter;
+import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.base.BaseFragment;
 import com.coinninja.coinkeeper.util.Intents;
@@ -38,7 +38,7 @@ import androidx.annotation.Nullable;
 
 import static com.coinninja.android.helpers.Views.withId;
 
-public class PaymentBarFragment extends BaseFragment implements CalculatorActivityPresenter.View {
+public class PaymentBarFragment extends BaseFragment implements PaymentBarCallbacks {
 
     @Inject
     LocalBroadCastUtil localBroadcastUtil;

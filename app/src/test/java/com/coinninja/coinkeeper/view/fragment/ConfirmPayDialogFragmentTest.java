@@ -17,7 +17,7 @@ import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
-import com.coinninja.coinkeeper.presenter.activity.CalculatorActivityPresenter;
+import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.service.runner.FundingRunnable;
@@ -65,7 +65,7 @@ public class ConfirmPayDialogFragmentTest {
     private HDWallet hdWallet;
 
     @Mock
-    private CalculatorActivityPresenter.View viewCallback;
+    private PaymentBarCallbacks paymentBarCallbacks;
 
     @Mock
     private AccountManager accountManager;
@@ -118,7 +118,7 @@ public class ConfirmPayDialogFragmentTest {
         dialog.onAttach(dialog.getActivity());
         dialog.accountManager = accountManager;
         dialog.hdWallet = hdWallet;
-        dialog.calculatorView = viewCallback;
+        dialog.paymentBarCallbacks = paymentBarCallbacks;
         dialog.fundingRunnable = fundingRunnable;
         dialog.phoneNumberUtil = phoneNumberUtil;
 
@@ -280,7 +280,7 @@ public class ConfirmPayDialogFragmentTest {
 
         dialog.getView().findViewById(R.id.confirm_pay_header_close_btn).performClick();
 
-        verify(viewCallback).cancelPayment(dialog);
+        verify(paymentBarCallbacks).cancelPayment(dialog);
     }
 
     @Test

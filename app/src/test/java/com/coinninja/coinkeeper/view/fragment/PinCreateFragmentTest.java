@@ -35,7 +35,7 @@ public class PinCreateFragmentTest {
         fragmentController = Robolectric.buildFragment(PinCreateFragment.class);
         fragment = fragmentController.get();
         fragment.setPresenter(pinFragmentPresenter);
-        fragmentController.create().resume().start().visible();
+        fragmentController.create().start().resume().visible();
     }
 
 

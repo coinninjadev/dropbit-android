@@ -12,10 +12,10 @@ import android.transition.TransitionInflater;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
 import com.coinninja.coinkeeper.ui.backup.SkipBackupPresenter;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.fragment.VerifyRecoverywordsFragment;
 
@@ -28,6 +28,9 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
     public static final String DATA_RECOVERY_WORDS = "DATA_RECOVERY_WORDS";
     public static final String TAG_FRAGMENT = "CHALLENGE";
     private static final int NUM_CHALLENGES = 2;
+
+    @Inject
+    ActivityNavigationUtil activityNavigationUtil;
 
     @Inject
     NotificationUtil notificationUtil;
@@ -105,19 +108,12 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
     @Override
     public void onChallengeCompleted() {
         reportAnalytics();
-        Intent intent;
-
         if (viewState == Intents.EXTRA_BACKUP) {
             notificationUtil.dispatchInternal(getString(R.string.message_successful_wallet_backup));
-            intent = new Intent(this, CalculatorActivity.class);
+            activityNavigationUtil.navigateToHome(this);
         } else {
-            intent = new Intent(this, VerifyPhoneNumberActivity.class);
+            activityNavigationUtil.navigateToRegisterPhone(this);
         }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        startActivity(intent);
     }
 
 

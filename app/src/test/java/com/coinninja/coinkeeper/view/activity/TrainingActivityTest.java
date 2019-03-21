@@ -10,14 +10,17 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.adapter.TrainingPagerAdapter;
 import com.coinninja.coinkeeper.model.TrainingModel;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.google.android.material.tabs.TabLayout;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
@@ -32,22 +35,35 @@ import static org.robolectric.Shadows.shadowOf;
 @Config(application = TestCoinKeeperApplication.class)
 public class TrainingActivityTest {
 
-    private TestCoinKeeperApplication application;
-    private UserHelper mockUserHelper;
-    private ActivityController<TrainingActivity> trainingActivityController;
+    @Mock
+    UserHelper userHelper;
+
+    @Mock
+    ActivityNavigationUtil activityNavigationUtil;
+
+    private ActivityController<TrainingActivity> activityActivityController;
     private TrainingActivity activity;
 
     @Before
     public void setUp() throws Exception {
-        application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
-        mockUserHelper = application.getUser();
-        trainingActivityController = Robolectric.buildActivity(TrainingActivity.class);
-        activity = trainingActivityController.get();
+        MockitoAnnotations.initMocks(this);
+        activityActivityController = Robolectric.buildActivity(TrainingActivity.class);
+        activity = activityActivityController.get();
+        activity.userHelper = userHelper;
+        activity.activityNavigationUtil = activityNavigationUtil;
+    }
+
+    @After
+    public void tearDown() {
+        userHelper = null;
+        activityActivityController = null;
+        activityNavigationUtil = null;
+        activity = null;
     }
 
     @Test
     public void init_pager() {
-        trainingActivityController.create().resume().start();
+        start();
         TrainingPagerAdapter mockAdapter = mock(TrainingPagerAdapter.class);
 
         activity.initPager(mockAdapter);
@@ -55,9 +71,13 @@ public class TrainingActivityTest {
         assertThat(activity.viewPager.getAdapter(), equalTo(mockAdapter));
     }
 
+    private void start() {
+        activityActivityController.create().start().resume();
+    }
+
     @Test
     public void init_first_page() {
-        trainingActivityController.create().resume().start();
+        start();
 
         activity.initFirstPage();
         TextView learnLink = activity.findViewById(R.id.training_footer_learn_link);
@@ -72,7 +92,7 @@ public class TrainingActivityTest {
 
     @Test
     public void click_learn_link_WHATS_BITCOIN_test() {
-        trainingActivityController.create().resume().start();
+        start();
         ShadowActivity shadowActivity = shadowOf(activity);
         TrainingModel trainingModel = TrainingModel.WHATS_BITCOIN;
 
@@ -87,7 +107,7 @@ public class TrainingActivityTest {
 
     @Test
     public void click_learn_link_DROPBIT_test() {
-        trainingActivityController.create().resume().start();
+        start();
         ShadowActivity shadowActivity = shadowOf(activity);
         TrainingModel trainingModel = TrainingModel.DROPBIT;
 
@@ -102,7 +122,7 @@ public class TrainingActivityTest {
 
     @Test
     public void click_learn_link_RECOVERY_WORDS_test() {
-        trainingActivityController.create().resume().start();
+        start();
         ShadowActivity shadowActivity = shadowOf(activity);
         TrainingModel trainingModel = TrainingModel.RECOVERY_WORDS;
 
@@ -117,7 +137,7 @@ public class TrainingActivityTest {
 
     @Test
     public void click_learn_link_SYSTEM_BROKEN_test() {
-        trainingActivityController.create().resume().start();
+        start();
         ShadowActivity shadowActivity = shadowOf(activity);
         TrainingModel trainingModel = TrainingModel.SYSTEM_BROKEN;
 
@@ -133,10 +153,10 @@ public class TrainingActivityTest {
     @Test
     public void restart_all_videos_on_resume_test() {
         TrainingPagerAdapter mockAdapter = mock(TrainingPagerAdapter.class);
-        trainingActivityController.create();
+        activityActivityController.create();
         activity.trainingAdapter = mockAdapter;
 
-        trainingActivityController.resume();
+        activityActivityController.resume();
 
         verify(mockAdapter).restartAllVideos();
     }

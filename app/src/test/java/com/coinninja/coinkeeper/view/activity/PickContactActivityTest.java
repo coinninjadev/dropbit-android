@@ -165,7 +165,7 @@ public class PickContactActivityTest {
 
         assertNull(activity.searchView);
 
-        activityController.create().resume().start();
+        activityController.create().start().resume();
         assertNotNull(activity.searchView);
     }
 

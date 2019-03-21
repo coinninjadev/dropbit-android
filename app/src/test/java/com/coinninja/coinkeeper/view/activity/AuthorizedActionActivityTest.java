@@ -59,7 +59,7 @@ public class AuthorizedActionActivityTest {
         // set mock interactor
         activity.pinInteractor = pinInteractor;
 
-        controller.resume().start().visible();
+        controller.start().resume().visible();
     }
 
 
@@ -143,7 +143,7 @@ public class AuthorizedActionActivityTest {
     public void display_auth_message() {
         String expectedAuthMessage = "This is some message";
 
-        controller.create().resume().start().visible();
+        controller.create().start().resume().visible();
         TextView authMessageTextView = activity.findViewById(R.id.authenticate_message_textview);
 
         assertThat(authMessageTextView.getText().toString(), equalTo(expectedAuthMessage));

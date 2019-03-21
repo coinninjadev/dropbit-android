@@ -11,7 +11,9 @@ import com.coinninja.coinkeeper.adapter.SeedWordsPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.ui.backup.SkipBackupPresenter;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,16 +37,15 @@ import static org.robolectric.Shadows.shadowOf;
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestCoinKeeperApplication.class)
 public class BackupActivityTest {
-    private BackupActivity activity;
     String[] words = new String[]{"WORD1", "WORD2", "WORD3", "WORD4", "WORD5",
             "WORD6", "WORD7", "WORD8", "WORD9", "WORD10", "WORD11", "WORD12"};
-
     @Mock
     SkipBackupPresenter skipBackupPresenter;
-
     @Mock
     CNWalletManager cnWalletManager;
-    private ShadowActivity shadowActivity;
+    @Mock
+    ActivityNavigationUtil activityNavigationUtil;
+    private BackupActivity activity;
 
     @Before
     public void setUp() throws Exception {
@@ -52,48 +53,12 @@ public class BackupActivityTest {
         when(cnWalletManager.generateRecoveryWords()).thenReturn(words);
     }
 
-    private void start() {
-        start(false, false);
-    }
-
-    private void start(boolean hasWallet, boolean didSkip) {
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_RECOVERY_WORDS, words);
-        if (hasWallet && didSkip) {
-            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_BACKUP);
-        } else if (hasWallet) {
-            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_VIEW);
-        } else {
-            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_CREATE);
-        }
-        ActivityController<BackupActivity> backupActivityActivityController = Robolectric.buildActivity(BackupActivity.class, intent).newIntent(intent).create();
-
-        activity = backupActivityActivityController.get();
-        activity.seedWordsPagerAdapter = mock(SeedWordsPagerAdapter.class);
-        activity.cnWalletManager = cnWalletManager;
-        activity.skipBackupPresenter = skipBackupPresenter;
-        shadowActivity = shadowOf(activity);
-
-        backupActivityActivityController.start().resume().visible();
-    }
-
-    @Test
-    public void has_close_button_enabled_when_backing_up_recovery_words() {
-        start(true, true);
-        shadowActivity.resetIsFinishing();
-
-        shadowActivity.resetIsFinishing();
-        MenuItem closeMenuItem = mock(MenuItem.class);
-        when(closeMenuItem.getItemId()).thenReturn(R.id.action_close_btn);
-
-        activity.onCloseClicked();
-
-        Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
-        assertThat(intent.getFlags(), equalTo(
-                Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                        Intent.FLAG_ACTIVITY_NEW_TASK));
+    @After
+    public void tearDown() {
+        skipBackupPresenter = null;
+        cnWalletManager = null;
+        activityNavigationUtil = null;
+        activity = null;
     }
 
     @Test
@@ -102,11 +67,7 @@ public class BackupActivityTest {
 
         activity.showNextActivity();
 
-        Intent intent = shadowActivity.getNextStartedActivity();
-        String[] recoveryWords = intent.getExtras().getStringArray(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS);
-
-        assertThat(recoveryWords, equalTo(words));
-        assertThat(intent.getIntExtra(Intents.EXTRA_VIEW_STATE, -1), equalTo(Intents.EXTRA_CREATE));
+        verify(activityNavigationUtil).navigateToVerifyRecoveryWords(activity, words, Intents.EXTRA_CREATE);
     }
 
     @Test
@@ -115,11 +76,7 @@ public class BackupActivityTest {
 
         activity.showNextActivity();
 
-        Intent intent = shadowActivity.getNextStartedActivity();
-        String[] recoveryWords = intent.getExtras().getStringArray(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS);
-
-        assertThat(recoveryWords, equalTo(words));
-        assertThat(intent.getIntExtra(Intents.EXTRA_VIEW_STATE, -1), equalTo(Intents.EXTRA_BACKUP));
+        verify(activityNavigationUtil).navigateToVerifyRecoveryWords(activity, words, Intents.EXTRA_BACKUP);
     }
 
     @Test
@@ -148,55 +105,12 @@ public class BackupActivityTest {
         verify(activity.seedWordsPagerAdapter).setSeedWords(words);
     }
 
-
-    @Test
-    public void has_close_button_enabled_when_viewing_recovery_words() {
-        start(true, false);
-        shadowActivity.resetIsFinishing();
-
-        shadowActivity.resetIsFinishing();
-        MenuItem closeMenuItem = mock(MenuItem.class);
-        when(closeMenuItem.getItemId()).thenReturn(R.id.action_close_btn);
-
-        activity.onCloseClicked();
-
-        Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
-        assertThat(intent.getFlags(), equalTo(
-                Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                        Intent.FLAG_ACTIVITY_NEW_TASK));
-    }
-
     @Test
     public void shows_recovery_words_when_created() {
         start();
         SeedWordsPagerAdapter adapter = (SeedWordsPagerAdapter) ((ViewPager)
                 activity.findViewById(R.id.seed_words_pager)).getAdapter();
         assertThat(adapter, equalTo(activity.seedWordsPagerAdapter));
-    }
-
-    @Test
-    public void provides_recovery_words_to_verifiy_activity() {
-        start();
-        activity.showNextActivity();
-
-        Intent intent = shadowActivity.getNextStartedActivity();
-        String[] recoveryWords = intent.getExtras().getStringArray(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS);
-
-        assertThat(recoveryWords, equalTo(words));
-
-    }
-
-    @Test
-    public void verifies_recovery_words_when_finished() {
-        start();
-        activity.showNextActivity();
-
-        ShadowActivity shadowActivity = shadowOf(activity);
-        Intent intent = shadowActivity.getNextStartedActivity();
-
-        assertThat(intent.getComponent().getClassName(), equalTo(VerifyRecoverywordsActivity.class.getName()));
     }
 
     @Test
@@ -227,7 +141,6 @@ public class BackupActivityTest {
 
         assertThat(nextButton.getText().toString(), equalTo("NEXT"));
     }
-
 
     @Test
     public void shows_last_button_with_verify() {
@@ -263,17 +176,36 @@ public class BackupActivityTest {
     }
 
     @Test
-    public void showing_next_activity_navigates_to_calculator() {
+    public void showing_next_activity_navigates_to_home() {
         start(true, false);
 
         activity.showNextActivity();
 
-        ShadowActivity shadowActivity = shadowOf(activity);
-        Intent nextActivityIntent = shadowActivity.getNextStartedActivity();
-        assertThat(nextActivityIntent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
-        assertThat(nextActivityIntent.getFlags(), equalTo(
-                Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                        Intent.FLAG_ACTIVITY_NEW_TASK));
+        verify(activityNavigationUtil).navigateToHome(activity);
+    }
+
+    private void start() {
+        start(false, false);
+    }
+
+    private void start(boolean hasWallet, boolean didSkip) {
+        Intent intent = new Intent();
+        intent.putExtra(Intents.EXTRA_RECOVERY_WORDS, words);
+        if (hasWallet && didSkip) {
+            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_BACKUP);
+        } else if (hasWallet) {
+            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_VIEW);
+        } else {
+            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_CREATE);
+        }
+        ActivityController<BackupActivity> backupActivityActivityController = Robolectric.buildActivity(BackupActivity.class, intent).newIntent(intent).create();
+
+        activity = backupActivityActivityController.get();
+        activity.seedWordsPagerAdapter = mock(SeedWordsPagerAdapter.class);
+        activity.cnWalletManager = cnWalletManager;
+        activity.skipBackupPresenter = skipBackupPresenter;
+        activity.activityNavigationUtil = activityNavigationUtil;
+
+        backupActivityActivityController.start().resume().visible();
     }
 }

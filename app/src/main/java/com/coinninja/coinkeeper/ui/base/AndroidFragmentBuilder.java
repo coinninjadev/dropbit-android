@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.ui.base;
 
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.view.fragment.AuthenticateFragment;
-import com.coinninja.coinkeeper.view.fragment.CalculatorConverstionFragment;
 import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
 import com.coinninja.coinkeeper.view.fragment.InviteHelpDialogFragment;
@@ -25,10 +24,6 @@ public abstract class AndroidFragmentBuilder {
     @ActivityScope
     @ContributesAndroidInjector
     abstract BaseDialogFragment baseDialogFragment();
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    abstract CalculatorConverstionFragment calculatorConverstionFragment();
 
     @ActivityScope
     @ContributesAndroidInjector
