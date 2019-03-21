@@ -6,6 +6,7 @@ import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
+import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.google.android.material.navigation.NavigationView;
 
 import javax.inject.Inject;
@@ -102,18 +104,14 @@ public class DrawerController {
         drawerLayout.findViewById(R.id.drawer_setting).setOnClickListener(this::onSettingsClicked);
         drawerLayout.findViewById(R.id.drawer_support).setOnClickListener(this::onSupportClicked);
         drawerLayout.findViewById(R.id.drawer_where_to_buy).setOnClickListener(this::onWhereToBuyClicked);
-        drawerLayout.findViewById(R.id.drawer_history).setOnClickListener(this::onHistoryClicked);
     }
-
 
     private void setupNavigationView() {
         navigationView = drawerLayout.findViewById(R.id.drawer_action_view);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(
                 menuItem -> {
-                    // set item as selected to persist highlight
                     menuItem.setChecked(true);
-                    // close drawer when item is tapped
                     closeDrawer();
                     return true;
                 });
@@ -151,7 +149,7 @@ public class DrawerController {
     private void onWhereToBuyClicked(View view) {
         Context context = view.getContext();
 
-        navigationUtil.openWebsite(context, Intents.URI_WHERE_TO_BUY);
+        UriUtil.openUrl(Intents.URI_WHERE_TO_BUY, (Activity) context);
     }
 
     private void onBackupNowClicked(View view) {

@@ -57,39 +57,10 @@
             </com.coinninja.coinkeeper.view.analytics.AnalyticsLinearLayout>
 
             <com.coinninja.coinkeeper.view.analytics.AnalyticsLinearLayout
-                android:id="@+id/drawer_history"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/drawer_backup_now_CTA"
-                android:layout_marginTop="@dimen/vertical_margin_large"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center_horizontal"
-                    android:contentDescription="@string/drawer_history_label"
-                    android:focusable="true"
-                    android:scaleType="fitXY"
-                    android:tint="@color/flat_white_base"
-                    app:srcCompat="@drawable/ic_history" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/vertical_margin_xsmall"
-                    android:focusable="true"
-                    android:gravity="center_horizontal"
-                    android:text="@string/drawer_history_label"
-                    android:textAppearance="@style/TextAppearance.Drawer" />
-            </com.coinninja.coinkeeper.view.analytics.AnalyticsLinearLayout>
-
-            <com.coinninja.coinkeeper.view.analytics.AnalyticsLinearLayout
                 android:id="@+id/drawer_setting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/drawer_history"
+                android:layout_below="@+id/drawer_backup_now_CTA"
                 android:layout_marginTop="@dimen/vertical_margin_large"
                 android:orientation="vertical">
 

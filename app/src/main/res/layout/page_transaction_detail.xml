@@ -34,6 +34,20 @@
         tools:ignore="HardcodedText"
         tools:src="@drawable/ic_transaction_send" />
 
+    <TextView
+        android:id="@+id/tooltip"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginVertical="25dp"
+        android:layout_marginStart="25dp"
+        android:background="@drawable/question_mark_circle"
+        android:text="?"
+        android:textSize="16dp"
+        android:textAlignment="center"
+        app:layout_constraintStart_toStartOf="parent"
+        cn:layout_constraintTop_toTopOf="parent" />
+
+
     <com.coinninja.coinkeeper.view.ConfirmationsView
         android:id="@+id/confirmation_beads"
         style="?attr/confirmations"
