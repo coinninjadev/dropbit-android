@@ -5,7 +5,7 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
@@ -42,13 +42,13 @@ public class InviteHelpDialogFragmentTest {
 
     private Contact contact = new Contact(phoneNumber, DISPLAY_NAME, false);
 
-    private PreferenceInteractor preferenceInteractor;
+    private UserPreferences preferenceInteractor;
 
     private InviteHelpDialogFragment.OnInviteHelpAcceptedCallback onInviteHelpAcceptedCallback;
 
     @Before
     public void setUp() {
-        preferenceInteractor = mock(PreferenceInteractor.class);
+        preferenceInteractor = mock(UserPreferences.class);
         onInviteHelpAcceptedCallback = mock(InviteHelpDialogFragment.OnInviteHelpAcceptedCallback.class);
         fragmentController = Robolectric.buildFragment(InviteHelpDialogFragment.class);
 

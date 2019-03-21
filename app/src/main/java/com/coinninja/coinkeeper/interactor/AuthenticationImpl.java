@@ -66,7 +66,7 @@ public class AuthenticationImpl implements Authentication, ForegroundStatusChang
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             FingerprintManager fingerprintManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
             if (fingerprintManager != null && fingerprintManager.isHardwareDetected() &&
-                    fingerprintManager.hasEnrolledFingerprints() && preferencesUtil.getBoolean(PreferenceInteractor.PREFERENCE_FINGERPRINT)) {
+                    fingerprintManager.hasEnrolledFingerprints() && preferencesUtil.getBoolean(UserPreferences.PREFERENCE_FINGERPRINT)) {
                 return true;
             }
         }

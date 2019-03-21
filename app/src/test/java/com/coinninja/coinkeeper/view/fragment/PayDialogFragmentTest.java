@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
-import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.model.FundedCallback;
 import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
@@ -94,7 +94,7 @@ public class PayDialogFragmentTest {
     @Mock
     private BitcoinUtil bitcoinUtil;
     @Mock
-    private PreferenceInteractor preferenceInteractor;
+    private UserPreferences preferenceInteractor;
     @Mock
     private CalculatorActivityPresenter.View viewCallback;
     @Mock

@@ -425,4 +425,7 @@ public class WalletHelper {
         return new BTCCurrency(getWallet().getSpendableBalance());
     }
 
+    public long getBalance() {
+        return getWallet().getBalance();
+    }
 }

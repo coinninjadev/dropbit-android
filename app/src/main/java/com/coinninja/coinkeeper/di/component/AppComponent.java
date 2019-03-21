@@ -12,7 +12,7 @@ import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.module.ApiClientModule;
 import com.coinninja.coinkeeper.di.module.AppModule;
 import com.coinninja.coinkeeper.di.module.DaoSessionManagerModule;
-import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
@@ -74,7 +74,7 @@ public interface AppComponent {
     HDWallet getHDWallet();
 
     @Deprecated
-    PreferenceInteractor getPreferenceInteractor();
+    UserPreferences getPreferenceInteractor();
 
     @Deprecated
     UserHelper getUserHelper();

@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.presenter;
 
-import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class PreferencePresentorTest {
 
         presentor.usersFingerprintAuthPreferenceCaptured(true);
 
-        verify(preferencesUtil, times(1)).savePreference(PreferenceInteractor.PREFERENCE_FINGERPRINT, true);
+        verify(preferencesUtil, times(1)).savePreference(UserPreferences.PREFERENCE_FINGERPRINT, true);
     }
 
 

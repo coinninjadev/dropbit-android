@@ -19,25 +19,8 @@ abstract class BaseCurrency implements Currency {
             throw new FormatNotValidException();
     }
 
-    protected BigDecimal fromFormattedDecimalString(String initialValue) {
-        BigDecimal scrubbed = scrubInput(initialValue);
-        return scale(scrubbed);
-    }
-
-    protected BigDecimal scrubInput(String initialValue) {
-        //todo: regex instead of 3 replacements?
-        initialValue = initialValue.replace(",", "")
-                .replace(" ", "")
-                .replace(getSymbol(), "");
-        return new BigDecimal(initialValue);
-    }
-
     BaseCurrency(long initialValue) {
         value = scale(new BigDecimal(initialValue).movePointLeft(getMaxNumSubValues()));
-    }
-
-    private BigDecimal scale(BigDecimal initial) {
-        return initial.stripTrailingZeros().setScale(getMaxNumSubValues(), RoundingMode.HALF_DOWN);
     }
 
     BaseCurrency(double initialValue) {
@@ -52,6 +35,23 @@ abstract class BaseCurrency implements Currency {
                 setScale(getMaxNumSubValues(), RoundingMode.HALF_UP);
         if (!isValid())
             throw new FormatNotValidException();
+    }
+
+    protected BigDecimal fromFormattedDecimalString(String initialValue) {
+        BigDecimal scrubbed = scrubInput(initialValue);
+        return scale(scrubbed);
+    }
+
+    protected BigDecimal scrubInput(String initialValue) {
+        //todo: regex instead of 3 replacements?
+        initialValue = initialValue.replace(",", "")
+                .replace(" ", "")
+                .replace(getSymbol(), "");
+        return new BigDecimal(initialValue);
+    }
+
+    private BigDecimal scale(BigDecimal initial) {
+        return initial.stripTrailingZeros().setScale(getMaxNumSubValues(), RoundingMode.HALF_DOWN);
     }
 
     @Override
@@ -203,5 +203,15 @@ abstract class BaseCurrency implements Currency {
             result = value.movePointRight(getMaxNumSubValues()).stripTrailingZeros().setScale(getMaxNumSubValues(), RoundingMode.HALF_UP).longValue();
 
         return result;
+    }
+
+    @Override
+    public boolean isCrypto() {
+        return this instanceof CryptoCurrency;
+    }
+
+    @Override
+    public boolean isFiat() {
+        return this instanceof FiatCurrency;
     }
 }
