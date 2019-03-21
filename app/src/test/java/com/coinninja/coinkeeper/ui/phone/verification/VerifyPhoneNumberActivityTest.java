@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.coinninja.matchers.ViewMatcher.isInvisible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -104,7 +103,7 @@ public class VerifyPhoneNumberActivityTest {
 
         activity.onPhoneNumberValid(phoneNumber);
 
-        verify(activityNavigationUtil).navigateToVerifyPhoneNumber(activity, number);
+        verify(activityNavigationUtil).navigateToVerifyPhoneNumberCode(activity, number);
     }
 
     @Test

@@ -359,39 +359,10 @@
         <item name="android:textSize">15sp</item>
     </style>
 
-    <style name="TextAppearance.Calc.Large" parent="TextAppearance">
-        <item name="android:fontFamily">@font/montserrat_semibold</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="android:textSize">80sp</item>
-    </style>
-
-    <style name="TextAppearance.Calc.Small" parent="TextAppearance">
-        <item name="android:fontFamily">@font/montserrat_semibold</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="android:textSize">50sp</item>
-    </style>
-
-
-    <style name="TextAppearance.Calc.Small.Light" parent="TextAppearance.Calc.Small">
-        <item name="android:textColor">@color/colorAccent</item>
-        <item name="android:fontFamily">@font/montserrat_regular</item>
-        <item name="android:textSize">30sp</item>
-    </style>
-
-    <style name="TextAppearance.Calc.AltCurrency" parent="TextAppearance.Calc.Small">
-        <item name="android:textColor">@color/colorDisabled</item>
-        <item name="android:textSize">18sp</item>
-    </style>
-
-
-    <style name="TextAppearance.Contact.Name" parent="TextAppearance.Calc.Small">
+    <style name="TextAppearance.Contact.Name" parent="TextAppearance">
         <item name="android:fontFamily">@font/montserrat_regular</item>
         <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:textSize">14sp</item>
-    </style>
-
-    <style name="TextAppearance.Calc.AltCurrency.Light" parent="TextAppearance.Calc.AltCurrency">
-        <item name="android:textColor">@color/font_light_gray</item>
     </style>
 
     <style name="TextAppearance.Large" parent="TextAppearance.AppCompat.Large">

@@ -18,6 +18,7 @@ import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import org.junit.After;
@@ -25,6 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
@@ -56,13 +59,17 @@ public class VerifyPhoneVerificationCodeActivityTest {
     private ShadowActivity shadowActivity;
     private TextView error_message;
     private PhoneNumber phoneNumber;
-    private LocalBroadCastUtil localBroadCastUtil;
     private BroadcastReceiver receiver;
     private Analytics mockAnalytics;
 
+    @Mock
+    private ActivityNavigationUtil activityNavigationUtil;
+    @Mock
+    private LocalBroadCastUtil localBroadCastUtil;
+
     @Before
     public void setUp() {
-        localBroadCastUtil = mock(LocalBroadCastUtil.class);
+        MockitoAnnotations.initMocks(this);
         phoneNumber = new PhoneNumber(1, "3305555555");
         Intent startingIntent = new Intent();
         startingIntent.putExtra(Intents.EXTRA_PHONE_NUMBER, phoneNumber);
@@ -73,7 +80,8 @@ public class VerifyPhoneVerificationCodeActivityTest {
         activityController.create();
         receiver = activity.receiver;
         activity.localBroadCastUtil = localBroadCastUtil;
-        activityController.resume().start().visible();
+        activity.activityNavigationUtil = activityNavigationUtil;
+        activityController.start().resume().visible();
         one = activity.findViewById(R.id.v_one);
         two = activity.findViewById(R.id.v_two);
         three = activity.findViewById(R.id.v_three);
@@ -100,18 +108,14 @@ public class VerifyPhoneVerificationCodeActivityTest {
         localBroadCastUtil = null;
         receiver = null;
         mockAnalytics = null;
+        activityNavigationUtil = null;
     }
 
     @Test
-    public void navigate_to_calculator_on_success() {
+    public void navigate_to_home_on_success() {
         receiver.onReceive(activity, new Intent(Intents.ACTION_PHONE_VERIFICATION__SUCCESS));
 
-        Intent intent = shadowActivity.getNextStartedActivity();
-
-        assertThat(intent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
-        assertThat(intent.getFlags(), equalTo(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
-
+        verify(activityNavigationUtil).navigateToHome(activity);
     }
 
     @Test

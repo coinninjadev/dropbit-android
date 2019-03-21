@@ -139,23 +139,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasFragm
         navigationUtil.navigateToHome(this);
     }
 
-
-    protected void addTabbar(int layoutId) {
-        if (findViewById(R.id.id_navigation_tabs) == null) {
-            TabLayout tabs = (TabLayout) getLayoutInflater().inflate(layoutId, findViewById(R.id.appbar), false);
-            tabs.setId(R.id.id_navigation_tabs);
-
-            TabLayout.Tab tab = tabs.getTabAt(1);
-            View v = getLayoutInflater().inflate(R.layout.tabbar_activity_calculator_tab_btc, null);
-
-            tab.setCustomView(v);
-
-
-            ((ViewGroup) findViewById(R.id.appbar)).addView(tabs);
-        }
-    }
-
-
     public void showKeyboard(View view) {
         view.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

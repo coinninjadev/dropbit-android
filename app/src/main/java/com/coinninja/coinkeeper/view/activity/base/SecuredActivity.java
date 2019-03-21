@@ -24,7 +24,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 
-public abstract class SecuredActivity extends MessagegerActivity {
+public abstract class SecuredActivity extends MessengerActivity {
 
     static final int AUTHENTICATION_REQUEST_CODE = 9999;
 

@@ -17,7 +17,6 @@ import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.model.db.DaoSession;
 import com.coinninja.coinkeeper.model.helpers.AddressHelper;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
-import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.qrscanner.QRScanManager;
 import com.coinninja.coinkeeper.receiver.ApplicationStartedReceiver;
@@ -25,7 +24,6 @@ import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
-import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -46,7 +44,7 @@ import static com.coinninja.coinkeeper.R.string;
 
 public class CoinKeeperApplication extends Application implements HasServiceInjector, HasActivityInjector, HasFragmentInjector, HasBroadcastReceiverInjector {
     public static final String INVITES_SERVICE_CHANNEL_ID = "com.coinninja.coinkeeper.service.INVITES";
-
+    public static AppComponent appComponent;
     @Inject
     DispatchingAndroidInjector<Activity> dispatchingAndroidActivityInjector;
     @Inject
@@ -55,26 +53,18 @@ public class CoinKeeperApplication extends Application implements HasServiceInje
     DispatchingAndroidInjector<Fragment> dispatchingAndroidFragmentInjector;
     @Inject
     DispatchingAndroidInjector<BroadcastReceiver> dispatchingAndroidBroadcastReceiverInjector;
-
     @Inject
     AddressHelper addressHelper;
-
     @Inject
     CoinKeeperLifecycleListener coinKeeperLifecycleListener;
-
     @Inject
     Authentication authentication;
-
     @Inject
     Analytics analytics;
-
     @Inject
     DaoSessionManager daoSessionManager;
-
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
-
-    public static AppComponent appComponent;
 
     @Override
     public void onCreate() {
@@ -87,15 +77,6 @@ public class CoinKeeperApplication extends Application implements HasServiceInje
 
     public AppComponent getAppComponent() {
         return appComponent;
-    }
-
-    protected void createComponent() {
-        appComponent = DaggerAppComponent.builder().application(this).build();
-        appComponent.inject(this);
-    }
-
-    protected void notifiyStart() {
-        localBroadCastUtil.sendGlobalBroadcast(ApplicationStartedReceiver.class, Intents.ACTION_ON_APPLICATION_START);
     }
 
     @Deprecated
@@ -128,7 +109,6 @@ public class CoinKeeperApplication extends Application implements HasServiceInje
         return daoSessionManager.getDaoSession();
     }
 
-
     @Deprecated
     public PinEntry getPinEntry() {
         return appComponent.getPinEntry();
@@ -152,6 +132,39 @@ public class CoinKeeperApplication extends Application implements HasServiceInje
         return appComponent.getUserHelper();
     }
 
+    @Deprecated
+    public SignedCoinKeeperApiClient getSecuredClient() {
+        return appComponent.getSignedApiClient();
+    }
+
+    @Deprecated
+    public LocalBroadCastUtil getLocalBroadCastUtil() {
+        return new LocalBroadCastUtil(this);
+    }
+
+    @Deprecated
+    public CNHealthCheckTask getHealthCheckTask(CNHealthCheckTask.HealthCheckCallback callback) {
+        return new CNHealthCheckTask(this, callback);
+    }
+
+    @Deprecated
+    public CoinNinjaUserQueryTask getCoinNinjaUserQueryTask(SignedCoinKeeperApiClient client, LocalContactQueryUtil localContactQueryUtil, CoinNinjaUserQueryTask.OnCompleteListener onCompleteListener) {
+        return new CoinNinjaUserQueryTask(client, localContactQueryUtil, onCompleteListener);
+    }
+
+    @Deprecated
+    public QRScanManager getScanManager(Activity activity, DecoratedBarcodeView barcodeScannerView, QRScanManager.OnScanListener onScanListener) {
+        return new QRScanManager(activity, barcodeScannerView, onScanListener);
+    }
+
+    protected void createComponent() {
+        appComponent = DaggerAppComponent.builder().application(this).build();
+        appComponent.inject(this);
+    }
+
+    protected void notifiyStart() {
+        localBroadCastUtil.sendGlobalBroadcast(ApplicationStartedReceiver.class, Intents.ACTION_ON_APPLICATION_START);
+    }
 
     @Deprecated
     protected void registerNotificationChannels() {
@@ -178,36 +191,6 @@ public class CoinKeeperApplication extends Application implements HasServiceInje
         if (null != notificationManager) {
             notificationManager.createNotificationChannel(mChannel);
         }
-    }
-
-    @Deprecated
-    public SignedCoinKeeperApiClient getSecuredClient() {
-        return appComponent.getSignedApiClient();
-    }
-
-    @Deprecated
-    public LocalBroadCastUtil getLocalBroadCastUtil() {
-        return new LocalBroadCastUtil(this);
-    }
-
-    @Deprecated
-    public InternalNotificationHelper getInternalNotificationHelper() {
-        return new InternalNotificationHelper(daoSessionManager, appComponent.getWalletHelper());
-    }
-
-    @Deprecated
-    public CNHealthCheckTask getHealthCheckTask(CNHealthCheckTask.HealthCheckCallback callback) {
-        return new CNHealthCheckTask(this, callback);
-    }
-
-    @Deprecated
-    public CoinNinjaUserQueryTask getCoinNinjaUserQueryTask(SignedCoinKeeperApiClient client, LocalContactQueryUtil localContactQueryUtil, CoinNinjaUserQueryTask.OnCompleteListener onCompleteListener) {
-        return new CoinNinjaUserQueryTask(client, localContactQueryUtil, onCompleteListener);
-    }
-
-    @Deprecated
-    public QRScanManager getScanManager(Activity activity, DecoratedBarcodeView barcodeScannerView, QRScanManager.OnScanListener onScanListener) {
-        return new QRScanManager(activity, barcodeScannerView, onScanListener);
     }
 
 }

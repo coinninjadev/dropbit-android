@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.ui.base;
 
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailModule;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
@@ -8,7 +9,6 @@ import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BackupActivity;
 import com.coinninja.coinkeeper.view.activity.BroadcastActivity;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
 import com.coinninja.coinkeeper.view.activity.InviteSendActivity;
@@ -21,11 +21,10 @@ import com.coinninja.coinkeeper.view.activity.SplashActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TrainingActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
-import com.coinninja.coinkeeper.view.activity.base.MessagegerActivity;
+import com.coinninja.coinkeeper.view.activity.base.MessengerActivity;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 
 import dagger.Module;
@@ -64,10 +63,6 @@ public abstract class AndroidActivityBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector
-    abstract CalculatorActivity calculatorActivity();
-
-    @ActivityScope
-    @ContributesAndroidInjector
     abstract CoinKeeperSupportActivity coinKeeperSupportActivity();
 
     @ActivityScope
@@ -88,7 +83,7 @@ public abstract class AndroidActivityBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector
-    abstract MessagegerActivity messagegerActivity();
+    abstract MessengerActivity messagegerActivity();
 
     @ActivityScope
     @ContributesAndroidInjector

@@ -78,11 +78,6 @@
             android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn.SkipOn"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <activity
-            android:name=".view.activity.CalculatorActivity"
-            android:label=""
-            android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.Drawer" />
-        <activity
             android:name=".view.activity.TransactionHistoryActivity"
             android:label=""
             android:screenOrientation="portrait"

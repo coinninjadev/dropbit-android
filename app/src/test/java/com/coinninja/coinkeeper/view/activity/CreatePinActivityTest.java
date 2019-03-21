@@ -15,6 +15,8 @@ import com.coinninja.coinkeeper.view.fragment.PinCreateFragment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
@@ -38,16 +40,18 @@ public class CreatePinActivityTest {
 
     private ActivityController<CreatePinActivity> activityController;
     private CreatePinActivity activity;
-    private Authentication authentication;
     private PinFragmentPresenter pinFragmentPresenter;
     private ShadowActivity shadowActivity;
     private TestCoinKeeperApplication application;
+
+    @Mock
     PinEntry pinEntry;
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
-        pinEntry = application.getPinEntry();
+        application.pinEntry = pinEntry;
         pinFragmentPresenter = mock(PinFragmentPresenter.class);
     }
 
@@ -56,7 +60,7 @@ public class CreatePinActivityTest {
         activity = activityController.get();
         activityController.newIntent(intent).create();
         activity.setPinFragmentPresenter(pinFragmentPresenter);
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
         shadowActivity = shadowOf(activity);
     }
 

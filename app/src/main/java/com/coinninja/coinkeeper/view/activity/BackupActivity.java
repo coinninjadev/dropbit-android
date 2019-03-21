@@ -23,6 +23,9 @@ import androidx.viewpager.widget.ViewPager;
 public class BackupActivity extends SecuredActivity implements ViewPager.OnPageChangeListener, RecoveryWordsPresenter.View {
 
     @Inject
+    ActivityNavigationUtil activityNavigationUtil;
+
+    @Inject
     SkipBackupPresenter skipBackupPresenter;
 
     @Inject
@@ -34,9 +37,6 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
     @Inject
     SeedWordsPagerAdapter seedWordsPagerAdapter;
 
-    @Inject
-    ActivityNavigationUtil navigationUtil;
-
     private ViewPager seedWordsPager;
     private TextView wordPositionCount;
     private Button nextBTN;
@@ -44,81 +44,6 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
     private String[] seedWords;
     private int currentPagePosition;
     private int viewState;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        viewState = getIntent().getIntExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_CREATE);
-        if (Intents.EXTRA_VIEW == viewState || Intents.EXTRA_BACKUP == viewState) {
-            setTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff_CloseOn);
-        } else {
-            setTheme(R.style.CoinKeeperTheme_LightActionBar_UpOn_SkipOn);
-        }
-
-        setContentView(R.layout.activity_backup);
-        seedWords = getIntent().getStringArrayExtra(Intents.EXTRA_RECOVERY_WORDS);
-        seedWordsPager = findViewById(R.id.seed_words_pager);
-        nextBTN = findViewById(R.id.seed_word_next_btn);
-        backBTN = findViewById(R.id.seed_word_back_btn);
-        wordPositionCount = findViewById(R.id.seed_word_position_count);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        seedWordsPagerAdapter.setSeedWords(seedWords);
-        nextBTN.setOnClickListener(v -> presenter.onNextClicked());
-        backBTN.setOnClickListener(v -> presenter.onBackClicked());
-        presenter.attach(this);
-        initSeedWordsPager();
-    }
-
-    @Override
-    public void scrollToPage(int pagePosition) {
-        seedWordsPager.setCurrentItem(pagePosition);
-    }
-
-    @Override
-    public void setPageCounterText(String pageMsg) {
-        wordPositionCount.setText(pageMsg);
-    }
-
-
-    @Override
-    public void showNextActivity() {
-        if (Intents.EXTRA_VIEW == viewState) {
-            navigationUtil.navigateToHome(this);
-        } else {
-            showVerifyScreen();
-        }
-    }
-
-    @Override
-    public void hideFirst() {
-        backBTN.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showNext() {
-        nextBTN.setBackgroundResource(R.drawable.primary_button);
-        nextBTN.setText(R.string.next);
-    }
-
-    @Override
-    public void showFirst() {
-        backBTN.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void showLast() {
-        nextBTN.setBackgroundResource(R.drawable.cta_button);
-
-        if (Intents.EXTRA_VIEW == viewState) {
-            nextBTN.setText(R.string.finish);
-        } else {
-            nextBTN.setText(R.string.verify);
-        }
-    }
 
     @Override
     public void onSkipClicked() {
@@ -150,11 +75,82 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
         currentPagePosition = pagePosition;
     }
 
+    @Override
+    public void scrollToPage(int pagePosition) {
+        seedWordsPager.setCurrentItem(pagePosition);
+    }
+
+    @Override
+    public void setPageCounterText(String pageMsg) {
+        wordPositionCount.setText(pageMsg);
+    }
+
+    @Override
+    public void showNextActivity() {
+        if (Intents.EXTRA_VIEW == viewState) {
+            activityNavigationUtil.navigateToHome(this);
+        } else {
+            showVerifyScreen();
+        }
+    }
+
+    @Override
+    public void hideFirst() {
+        backBTN.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showFirst() {
+        backBTN.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showLast() {
+        nextBTN.setBackgroundResource(R.drawable.cta_button);
+
+        if (Intents.EXTRA_VIEW == viewState) {
+            nextBTN.setText(R.string.finish);
+        } else {
+            nextBTN.setText(R.string.verify);
+        }
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewState = getIntent().getIntExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_CREATE);
+        if (Intents.EXTRA_VIEW == viewState || Intents.EXTRA_BACKUP == viewState) {
+            setTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff_CloseOn);
+        } else {
+            setTheme(R.style.CoinKeeperTheme_LightActionBar_UpOn_SkipOn);
+        }
+
+        setContentView(R.layout.activity_backup);
+        seedWords = getIntent().getStringArrayExtra(Intents.EXTRA_RECOVERY_WORDS);
+        seedWordsPager = findViewById(R.id.seed_words_pager);
+        nextBTN = findViewById(R.id.seed_word_next_btn);
+        backBTN = findViewById(R.id.seed_word_back_btn);
+        wordPositionCount = findViewById(R.id.seed_word_position_count);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        seedWordsPagerAdapter.setSeedWords(seedWords);
+        nextBTN.setOnClickListener(v -> presenter.onNextClicked());
+        backBTN.setOnClickListener(v -> presenter.onBackClicked());
+        presenter.attach(this);
+        initSeedWordsPager();
+    }
+
+    @Override
+    public void showNext() {
+        nextBTN.setBackgroundResource(R.drawable.primary_button);
+        nextBTN.setText(R.string.next);
+    }
+
     private void showVerifyScreen() {
-        Intent intent = new Intent(this, VerifyRecoverywordsActivity.class);
-        intent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, seedWords);
-        intent.putExtra(Intents.EXTRA_VIEW_STATE, viewState);
-        startActivity(intent);
+        activityNavigationUtil.navigateToVerifyRecoveryWords(this, seedWords, viewState);
     }
 
     private void initSeedWordsPager() {

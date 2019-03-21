@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.base;
 
-import android.content.Intent;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,8 +10,8 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +27,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,16 +40,13 @@ import static org.robolectric.Shadows.shadowOf;
 public class BaseActivityTest {
 
     @Mock
+    private CNWalletManager cnWalletManager;
+    @Mock
     private ActionBarController actionBarController;
-
     @Mock
     private DrawerController drawerController;
-
-
     @Mock
-    CNWalletManager cnWalletManager;
-
-
+    private ActivityNavigationUtil activityNavigationUtil;
     private BaseActivity activity;
 
     private ActivityController<SettingsActivity> activityController;
@@ -66,29 +61,21 @@ public class BaseActivityTest {
     @After
     public void tearDown() {
         actionBarController = null;
-    }
-
-    private void setupWithTheme(int theme) {
-        activityController = Robolectric.buildActivity(SettingsActivity.class);
-        activity = activityController.get();
-        TestCoinKeeperApplication application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
-        application.typedValue = mock(TypedValue.class);
-        activity.setTheme(theme);
-        activityController.create().resume().start().visible();
-        activity.drawerController = drawerController;
-        activity.cnWalletManager = cnWalletManager;
-        activity.actionBarController = actionBarController;
+        cnWalletManager = null;
+        actionBarController = null;
+        activityNavigationUtil = null;
+        activity = null;
+        activityController = null;
     }
 
     @Test
     public void during_setContentView_configure_action_bar_controller() {
         setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
 
-        activity.setContentView(R.layout.activty_calculator);
+        activity.setContentView(R.layout.activity_transaction_history);
 
         verify(actionBarController).setTheme(activity, activity.actionBarType);
     }
-
 
     @Test
     public void during_setContentView_set_the_resolveAttribute_on_injected_TypedValue() {
@@ -197,7 +184,6 @@ public class BaseActivityTest {
         verify(drawerController).updatePriceOfBtcDisplay(price);
     }
 
-
     @Test
     public void if_onOptionsItemSelected_returns_false_then_call_super() {
         MenuItem item = mock(MenuItem.class);
@@ -222,39 +208,25 @@ public class BaseActivityTest {
         verify(actionBarController).setMenuItemClickListener(activity);
     }
 
-
     @Test
-    public void on_close_action_clicked_start_calculator_activity() throws Exception {
+    public void on_close_action_clicked_start_home_activity() throws Exception {
         setupWithTheme(R.style.CoinKeeperTheme_LightActionBar);
 
         activity.onCloseClicked();
 
-        ShadowActivity shadowActivity = shadowOf(activity);
-        Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
+        verify(activityNavigationUtil).navigateToHome(activity);
     }
 
     @Test
-    public void navigate_to_calculator_activity_when_close_button_is_clicked() {
+    public void navigate_to_home_activity_when_close_button_is_clicked() {
         setupWithTheme(R.style.CoinKeeperTheme_LightActionBar);
         ShadowActivity shadowActivity = shadowOf(activity);
         shadowActivity.resetIsFinishing();
 
         activity.onCloseClicked();
 
-        Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
-        assertThat(intent.getFlags(), equalTo(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
+        verify(activityNavigationUtil).navigateToHome(activity);
     }
-
-
-    @Test
-    public void addsTabsWhenRequested() throws Exception {
-        setupWithTheme(R.style.CoinKeeperTheme_LightActionBar);
-        activity.addTabbar(R.layout.tabbar_activity_calculator);
-        assertNotNull(activity.findViewById(R.id.id_navigation_tabs));
-    }
-
 
     @Test
     public void updateActivityLabel() {
@@ -264,5 +236,18 @@ public class BaseActivityTest {
         activity.updateActivityLabel("-- some text");
 
         verify(actionBarController).updateTitle("-- some text");
+    }
+
+    private void setupWithTheme(int theme) {
+        activityController = Robolectric.buildActivity(SettingsActivity.class);
+        activity = activityController.get();
+        TestCoinKeeperApplication application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
+        application.typedValue = mock(TypedValue.class);
+        activity.setTheme(theme);
+        activityController.create().start().resume().visible();
+        activity.drawerController = drawerController;
+        activity.cnWalletManager = cnWalletManager;
+        activity.actionBarController = actionBarController;
+        activity.navigationUtil = activityNavigationUtil;
     }
 }

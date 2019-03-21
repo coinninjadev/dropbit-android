@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
@@ -28,7 +29,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 
-public class MessagegerActivity extends BaseActivity implements CNHealthCheckTask.HealthCheckCallback {
+public class MessengerActivity extends BaseActivity implements CNHealthCheckTask.HealthCheckCallback {
 
     InternetUtil internetUtil;
 
@@ -40,6 +41,9 @@ public class MessagegerActivity extends BaseActivity implements CNHealthCheckTas
     HealthCheckTimerRunner healthCheckRunner;
     ViewGroup queue;
     boolean hasForeGround;
+
+    @Inject
+    InternalNotificationsInteractor notificationsInteractor;
 
     @Override
     public void onAttachFragment(Fragment fragment) {
@@ -72,6 +76,7 @@ public class MessagegerActivity extends BaseActivity implements CNHealthCheckTas
     @Override
     protected void onResume() {
         super.onResume();
+        notificationsInteractor.startListeningForNotifications(this, true);
         checkForInternalNotifications();
         checkInternet();
         healthCheckRunner.run();
@@ -81,6 +86,7 @@ public class MessagegerActivity extends BaseActivity implements CNHealthCheckTas
     @Override
     protected void onPause() {
         super.onPause();
+        notificationsInteractor.stopListeningForNotifications();
         queue.removeCallbacks(healthCheckRunner);
         hasForeGround = false;
     }

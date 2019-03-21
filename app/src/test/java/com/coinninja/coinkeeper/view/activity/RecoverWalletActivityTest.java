@@ -70,7 +70,7 @@ public class RecoverWalletActivityTest {
         activityController = Robolectric.buildActivity(RecoverWalletActivity.class, intent);
         activityController.newIntent(intent).create();
         activity = activityController.get();
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
         shadowActivity = shadowOf(activity);
         when(activity.cnServiceConnection.isBounded()).thenReturn(true);
     }

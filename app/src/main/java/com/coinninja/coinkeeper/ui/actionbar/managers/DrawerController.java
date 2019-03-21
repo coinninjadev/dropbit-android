@@ -158,12 +158,6 @@ public class DrawerController {
         navigationUtil.navigateToBackupRecoveryWords(context);
     }
 
-    private void onHistoryClicked(View view) {
-        Context context = view.getContext();
-
-        navigationUtil.navigateToTransactionHistory(context);
-    }
-
     public boolean onMenuItemClicked(MenuItem item) {
         if (drawerLayout == null) return false;
 

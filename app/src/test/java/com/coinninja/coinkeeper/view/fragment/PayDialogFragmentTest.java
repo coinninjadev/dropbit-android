@@ -16,7 +16,7 @@ import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.presenter.activity.CalculatorActivityPresenter;
+import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
@@ -96,7 +96,7 @@ public class PayDialogFragmentTest {
     @Mock
     private UserPreferences preferenceInteractor;
     @Mock
-    private CalculatorActivityPresenter.View viewCallback;
+    private PaymentBarCallbacks paymentBarCallbacks;
     @Mock
     private CNAddressLookupDelegate cnAddressLookupDelegate;
 
@@ -118,7 +118,7 @@ public class PayDialogFragmentTest {
         dialog = fragmentController.get();
         fragmentController.create();
         dialog.onAttach(dialog.getActivity());
-        dialog.calculatorView = viewCallback;
+        dialog.paymentBarCallbacks = paymentBarCallbacks;
         dialog.paymentUtil = paymentUtil;
         dialog.paymentHolder = paymentHolder;
         dialog.preferenceInteractor = preferenceInteractor;
@@ -145,11 +145,11 @@ public class PayDialogFragmentTest {
         paymentUtil = null;
         bitcoinUtil = null;
         preferenceInteractor = null;
-        viewCallback = null;
+        paymentBarCallbacks = null;
     }
 
     private void startFragment() {
-        fragmentController.resume().start().visible();
+        fragmentController.start().resume().visible();
         shadowActivity = shadowOf(dialog.getActivity());
     }
 
@@ -201,7 +201,7 @@ public class PayDialogFragmentTest {
 
         verify(paymentUtil).checkFunding(callbackCaptor.capture());
         callbackCaptor.getValue().onComplete(mock(FundingUTXOs.class));
-        verify(viewCallback).confirmPaymentFor(address);
+        verify(paymentBarCallbacks).confirmPaymentFor(address);
     }
 
     @Test
@@ -221,7 +221,7 @@ public class PayDialogFragmentTest {
 
         verify(paymentUtil).checkFunding(fundedCallbackCaptor.capture());
         fundedCallbackCaptor.getValue().onComplete(mock(FundingUTXOs.class));
-        verify(viewCallback).confirmPaymentFor("-pay-address-", contact);
+        verify(paymentBarCallbacks).confirmPaymentFor("-pay-address-", contact);
     }
 
     @Test
@@ -241,7 +241,7 @@ public class PayDialogFragmentTest {
 
         verify(paymentUtil).checkFunding(fundedCallbackCaptor.capture());
         fundedCallbackCaptor.getValue().onComplete(mock(FundingUTXOs.class));
-        verify(viewCallback).confirmInvite(contact);
+        verify(paymentBarCallbacks).confirmInvite(contact);
     }
 
     // PRIMARY / SECONDARY CURRENCIES
@@ -696,7 +696,7 @@ public class PayDialogFragmentTest {
 
         dialog.startContactInviteFlow(contact);
 
-        verify(viewCallback).confirmInvite(contact);
+        verify(paymentBarCallbacks).confirmInvite(contact);
     }
 
     @Test
@@ -734,7 +734,7 @@ public class PayDialogFragmentTest {
 
         dialog.onInviteHelpAccepted(contact);
 
-        verify(viewCallback).confirmInvite(contact);
+        verify(paymentBarCallbacks).confirmInvite(contact);
     }
 
 
@@ -756,7 +756,7 @@ public class PayDialogFragmentTest {
 
         dialog.getView().findViewById(R.id.pay_header_close_btn).performClick();
 
-        verify(viewCallback).cancelPayment(dialog);
+        verify(paymentBarCallbacks).cancelPayment(dialog);
         assertThat(paymentHolder.getPublicKey(), equalTo(""));
         assertThat(paymentHolder.getPaymentAddress(), equalTo(""));
     }

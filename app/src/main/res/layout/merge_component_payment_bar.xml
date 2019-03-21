@@ -2,8 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
-    tools:showIn="@layout/activty_calculator">
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout" >
 
 
     <com.coinninja.coinkeeper.view.analytics.AnalyticsButton

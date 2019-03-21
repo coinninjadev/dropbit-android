@@ -17,7 +17,6 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
 import com.coinninja.matchers.IntentFilterMatchers;
 
@@ -183,7 +182,7 @@ public class BalanceBarActivityTest {
 
         start();
 
-        ActivityController<CalculatorActivity> activityCreate = Robolectric.buildActivity(CalculatorActivity.class).create();
+        ActivityController<TransactionHistoryActivity> activityCreate = Robolectric.buildActivity(TransactionHistoryActivity.class).create();
         BalanceBarActivity activity = activityCreate.get();
         activity.serviceBinder = binder;
 

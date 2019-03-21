@@ -7,50 +7,51 @@ import android.content.IntentFilter;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.InternalNotification;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.view.activity.base.MessagegerActivity;
+import com.coinninja.coinkeeper.view.activity.base.MessengerActivity;
 import com.coinninja.coinkeeper.view.notifications.InternalNotificationView;
+
+import javax.inject.Inject;
+
+import androidx.annotation.NonNull;
 
 import static com.coinninja.coinkeeper.util.Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE;
 
 
 public class InternalNotificationsInteractor {
-    private final MessagegerActivity activity;
-    private final CoinKeeperApplication application;
     private final LocalBroadCastUtil localBroadCastUtil;
-    private Receiver receiver;
-
+    private final InternalNotificationHelper internalNotificationHelper;
+    IntentFilter filter = new IntentFilter(ACTION_INTERNAL_NOTIFICATION_UPDATE);
+    private MessengerActivity activity;
     private ViewGroup baseLayout;
-
     private InternalNotificationView notificationView;
     private boolean notificationsMuteBackground;
-    private InternalNotificationHelper notificationHelper;
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ACTION_INTERNAL_NOTIFICATION_UPDATE.equals(intent.getAction())) {
+                showPendingInternalNotifications();
+            }
+        }
+    };
 
-    public InternalNotificationsInteractor(MessagegerActivity activity, CoinKeeperApplication application, LocalBroadCastUtil localBroadCastUtil) {
-        this.activity = activity;
-        this.application = application;
+    @Inject
+    public InternalNotificationsInteractor(@NonNull InternalNotificationHelper internalNotificationHelper, @NonNull LocalBroadCastUtil localBroadCastUtil) {
+        this.internalNotificationHelper = internalNotificationHelper;
         this.localBroadCastUtil = localBroadCastUtil;
     }
 
     /**
      * call before any super.()
      */
-    public void startListeningForNotifications(boolean notificationsMuteBackground) {
+    public void startListeningForNotifications(MessengerActivity activity, boolean notificationsMuteBackground) {
+        this.activity = activity;
         setMute(notificationsMuteBackground);
-        setReceiver(new Receiver());
-
-        buildDependencies();
-        registerNotificationReceiver();
-    }
-
-    private void buildDependencies() {
-        ViewGroup queue = activity.findViewById(R.id.message_queue);
-        setBaseLayout(queue);
-        setDaoHelper(application.getInternalNotificationHelper());
+        baseLayout = activity.findViewById(R.id.message_queue);
+        localBroadCastUtil.registerReceiver(receiver, filter);
         setNotificationView(new InternalNotificationView(baseLayout));
     }
 
@@ -60,35 +61,34 @@ public class InternalNotificationsInteractor {
     public void stopListeningForNotifications() {
         notificationsMuteBackground = false;
         unregisterNotificationReceiver();
-        receiver = null;
+        activity = null;
         clean();
     }
 
-    public void registerNotificationReceiver() {
-        if (receiver == null) return;
+    void onUserDismissed(InternalNotification notificationDbObject) {
+        removeNotificationFromDatabase(notificationDbObject);
+        InternalNotification nextNotification = getNextNotification();
+        if (nextNotification == null || notificationView == null) {
+            notificationsDone();
+            notificationView = null;
+            return;
+        }
 
-        IntentFilter filter = new IntentFilter(ACTION_INTERNAL_NOTIFICATION_UPDATE);
-        localBroadCastUtil.registerReceiver(receiver, filter);
+        notificationView.show(nextNotification);
     }
 
-    private void unregisterNotificationReceiver() {
-        if (receiver == null) return;
-
-        localBroadCastUtil.unregisterReceiver(receiver);
+    void setNotificationView(InternalNotificationView notificationView) {
+        this.notificationView = notificationView;
     }
 
-    public void clean() {
+    private void clean() {
         if (notificationView != null) {
             notificationView.unNaturallyDismiss();
             notificationView = null;
         }
-
-        if (notificationHelper != null) {
-            notificationHelper = null;
-        }
     }
 
-    public void showPendingInternalNotifications() {
+    private void showPendingInternalNotifications() {
         if (!isRegistered()) {
             notificationsDone();
             return;
@@ -104,6 +104,38 @@ public class InternalNotificationsInteractor {
         }
     }
 
+    private InternalNotification getNextNotification() {
+        return getNotificationsByPriority();
+    }
+
+    private InternalNotification getNotificationsByPriority() {
+        return internalNotificationHelper.getNextUnseenNotification();
+    }
+
+    private boolean isRegistered() {
+        return baseLayout != null && notificationView != null;
+    }
+
+    private void notificationsDone() {
+        if (notificationsMuteBackground) {
+            activity.teardownMute();
+        }
+    }
+
+    private void removeAnyShowingNotifications() {
+        View currentShowing = notificationView.getCurrentNotificationView();
+        if (currentShowing != null) {
+            notificationView.removeView(currentShowing);
+        }
+    }
+
+    private void removeNotificationFromDatabase(InternalNotification notificationDbObject) {
+        internalNotificationHelper.setHasBeenSeen(notificationDbObject);
+    }
+
+    private void setMute(boolean notificationsMuteBackground) {
+        this.notificationsMuteBackground = notificationsMuteBackground;
+    }
 
     private void show(InternalNotification nextNotification) {
         if (notificationsMuteBackground) {
@@ -114,89 +146,8 @@ public class InternalNotificationsInteractor {
         notificationView.show(nextNotification);
     }
 
-    private void removeAnyShowingNotifications() {
-        View currentShowing = notificationView.getCurrentNotificationView();
-        if (currentShowing != null) {
-            notificationView.removeView(currentShowing);
-        }
+    private void unregisterNotificationReceiver() {
+        localBroadCastUtil.unregisterReceiver(receiver);
     }
 
-    private void notificationsDone() {
-        if (notificationsMuteBackground) {
-            activity.teardownMute();
-        }
-    }
-
-    public void onUserDismissed(InternalNotification notificationDbObject) {
-        removeNotificationFromDatabase(notificationDbObject);
-        InternalNotification nextNotification = getNextNotification();
-        if (nextNotification == null || notificationView == null) {
-            notificationsDone();
-            notificationView = null;
-            return;
-        }
-
-        notificationView.show(nextNotification);
-    }
-
-    private InternalNotification getNextNotification() {
-        if (notificationHelper == null) {
-            return null;
-        }
-
-        return getNotificationsByPriority();
-    }
-
-    private void removeNotificationFromDatabase(InternalNotification notificationDbObject) {
-        notificationHelper.setHasBeenSeen(notificationDbObject);
-    }
-
-    public void setBaseLayout(ViewGroup baseLayout) {
-        this.baseLayout = baseLayout;
-    }
-
-    public void setDaoHelper(InternalNotificationHelper notificationHelper) {
-        this.notificationHelper = notificationHelper;
-    }
-
-    private InternalNotification getNotificationsByPriority() {
-        return notificationHelper.getNextUnseenNotification();
-    }
-
-    public void setReceiver(Receiver receiver) {
-        this.receiver = receiver;
-    }
-
-    public void setNotificationView(InternalNotificationView notificationView) {
-        this.notificationView = notificationView;
-    }
-
-    public void setMute(boolean notificationsMuteBackground) {
-        this.notificationsMuteBackground = notificationsMuteBackground;
-    }
-
-    public boolean isRegistered() {
-        if (baseLayout == null) {
-            return false;
-        }
-
-        if (notificationHelper == null) {
-            return false;
-        }
-
-        if (notificationView == null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    protected class Receiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (ACTION_INTERNAL_NOTIFICATION_UPDATE.equals(intent.getAction())) {
-                showPendingInternalNotifications();
-            }
-        }
-    }
 }

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -19,6 +20,8 @@ import com.coinninja.coinkeeper.util.android.InternetUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
@@ -42,36 +45,40 @@ import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
-public class MessagegerActivityTest {
+public class MessengerActivityTest {
 
-    private MessagegerActivity activity;
-    private InternetUtil internetUtil;
-    private ActivityController<MessagegerActivity> activityController;
-    private ShadowActivity shadowActivity;
-    private Analytics analytics;
+    @Mock
+    private InternalNotificationsInteractor notificationsInteractor;
+    @Mock
     private HealthCheckTimerRunner runner;
+    @Mock
+    private Analytics analytics;
+    @Mock
+    private InternetUtil internetUtil;
+
+    private MessengerActivity activity;
+    private ActivityController<MessengerActivity> activityController;
+    private ShadowActivity shadowActivity;
 
     @Before
     public void setUp() {
-        analytics = mock(Analytics.class);
-        activityController = Robolectric.buildActivity(MessagegerActivity.class);
+        MockitoAnnotations.initMocks(this);
+        when(internetUtil.hasInternet()).thenReturn(true);
+        activityController = Robolectric.buildActivity(MessengerActivity.class);
         activity = activityController.get();
+        shadowActivity = shadowOf(activity);
         activityController.create();
-        activity.setContentView(R.layout.activty_calculator);
-        runner = mock(HealthCheckTimerRunner.class);
+        activity.setContentView(R.layout.cn_base_layout);
         activity.healthCheckRunner = runner;
         activity.analytics = analytics;
-        internetUtil = mock(InternetUtil.class);
-        when(internetUtil.hasInternet()).thenReturn(true);
+        activity.notificationsInteractor = notificationsInteractor;
         activityController.start();
     }
 
     private void setupActivity() {
         activity.internetUtil = internetUtil;
-        activityController.resume().visible();
-        shadowActivity = shadowOf(activity);
+        activityController.start().resume().visible();
     }
-
 
     @Test
     public void settings_screen_sets_content_view() {
@@ -277,4 +284,16 @@ public class MessagegerActivityTest {
     }
 
 
+    @Test
+    public void check_for_notifications_on_start() {
+        setupActivity();
+        verify(notificationsInteractor).startListeningForNotifications(activity, true);
+    }
+
+    @Test
+    public void check_for_removing_notifications_on_pause() {
+        setupActivity();
+        activityController.pause();
+        verify(notificationsInteractor).stopListeningForNotifications();
+    }
 }

@@ -63,7 +63,7 @@ public class AuthenticateFragmentTest {
         fragment.setAuthentication(mock(AuthenticationImpl.class));
         fragmentController.create();
         fragment.authPresenter = authPresenter;
-        fragmentController.resume().start().visible();
+        fragmentController.start().resume().visible();
         authPresenter = mock(AuthenticateFragmentPresenter.class);
     }
 

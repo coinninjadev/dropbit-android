@@ -7,10 +7,10 @@ import android.widget.TextView;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.ui.backup.SkipBackupPresenter;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
 import org.junit.After;
 import org.junit.Before;
@@ -62,6 +62,9 @@ public class VerifyRecoverywordsActivityTest {
     @Mock
     NotificationUtil notificationUtil;
 
+    @Mock
+    ActivityNavigationUtil activityNavigationUtil;
+
     private Intent initIntent;
 
     @Before
@@ -79,6 +82,7 @@ public class VerifyRecoverywordsActivityTest {
         skipBackupPresenter = null;
         notificationUtil = null;
         initIntent = null;
+        activityNavigationUtil = null;
     }
 
     private void start() {
@@ -92,7 +96,8 @@ public class VerifyRecoverywordsActivityTest {
         activityController.create();
         activity.skipBackupPresenter = skipBackupPresenter;
         activity.notificationUtil = notificationUtil;
-        activityController.resume().start();
+        activity.activityNavigationUtil = activityNavigationUtil;
+        activityController.start().resume();
         resources = activity.getResources();
         activity.analytics = analytics;
     }
@@ -117,14 +122,12 @@ public class VerifyRecoverywordsActivityTest {
     }
 
     @Test
-    public void backing_up_wallet_navigates_to_calculator_screen() {
+    public void backing_up_wallet_navigates_to_home_screen() {
         start(Intents.EXTRA_BACKUP);
 
         activity.onChallengeCompleted();
 
-        ShadowActivity shadowActivity = shadowOf(activity);
-        Intent nextStartedActivity = shadowActivity.getNextStartedActivity();
-        assertThat(nextStartedActivity.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
+        verify(activityNavigationUtil).navigateToHome(activity);
         verify(analytics).trackEvent(Analytics.EVENT_WALLET_BACKUP_SUCCESSFUL);
         verify(analytics).trackEvent(Analytics.EVENT_WALLET_CREATE);
     }
@@ -164,9 +167,7 @@ public class VerifyRecoverywordsActivityTest {
 
         activity.onChallengeCompleted();
 
-        ShadowActivity shadowActivity = shadowOf(activity);
-        Intent nextStartedActivity = shadowActivity.getNextStartedActivity();
-        assertThat(nextStartedActivity.getComponent().getClassName(), equalTo(VerifyPhoneNumberActivity.class.getName()));
+        verify(activityNavigationUtil).navigateToRegisterPhone(activity);
         verify(analytics).trackEvent(Analytics.EVENT_WALLET_BACKUP_SUCCESSFUL);
         verify(analytics).trackEvent(Analytics.EVENT_WALLET_CREATE);
     }

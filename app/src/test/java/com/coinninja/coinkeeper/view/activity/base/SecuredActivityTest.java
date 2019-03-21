@@ -119,7 +119,7 @@ public class SecuredActivityTest {
         SecuredActivity activity = activityController.get();
         activityController.create();
         ((ViewPager) activity.findViewById(R.id.recovery_words_pager)).setAdapter(mock(RestoreWalletPageAdapter.class));
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
         shadowActivity = shadowOf(activity);
         assertNull(shadowActivity.getNextStartedActivity());
     }
@@ -272,7 +272,7 @@ public class SecuredActivityTest {
                 Robolectric.buildActivity(CreatePinActivity.class, intent);
         CreatePinActivity activity = activityController.get();
         activityController.newIntent(intent).create();
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
         ShadowActivity shadowActivity = shadowOf(activity);
 
 
@@ -292,7 +292,7 @@ public class SecuredActivityTest {
                 Robolectric.buildActivity(CreatePinActivity.class, intent);
         CreatePinActivity activity = activityController.get();
         activityController.newIntent(intent).create();
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
         ShadowActivity shadowActivity = shadowOf(activity);
 
 

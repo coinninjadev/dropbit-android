@@ -83,17 +83,15 @@
     <string name="backup_up_wallet_cta_drawer_button">Back Up Wallet</string>
     <string name="default_price">N/A</string>
     <string name="app_version_label">Version %s</string>
-    <string name="tab_calculator_usd">$ USD</string>
-    <string name="tab_calculator_btc">₿ bitcoin</string>
     <string name="btc_symbol">₿</string>
     <string name="cents">00</string>
 
-    <!-- Calculator Footer Buttons -->
+    <!-- PaymentBar Buttons -->
     <string name="bc1_error_message">Bech 32 addresses are not supported at this time. Support is coming soon</string>
     <string name="pay_label">Send</string>
     <string name="request_label">Receive</string>
 
-    <!-- Calculator Pay Dialog -->
+    <!-- Pay Dialog -->
     <string name="pay_header">Send</string>
     <string name="pay_address_hint">To: BTC address or phone #</string>
     <string name="memo_hint">Add a memo</string>
