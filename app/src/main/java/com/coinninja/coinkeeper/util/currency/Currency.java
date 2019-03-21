@@ -41,4 +41,8 @@ public interface Currency {
     boolean validate(String candidate);
 
     boolean isZero();
+
+    boolean isCrypto();
+
+    boolean isFiat();
 }

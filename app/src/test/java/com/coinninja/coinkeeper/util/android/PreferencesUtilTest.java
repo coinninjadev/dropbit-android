@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.util.android;
 import android.content.SharedPreferences;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -96,9 +96,9 @@ public class PreferencesUtilTest {
 
     @Test
     public void can_save_boolean_to_shared_prefereneces() {
-        preferencesUtil.savePreference(PreferenceInteractor.PREFERENCE_FINGERPRINT, true);
+        preferencesUtil.savePreference(UserPreferences.PREFERENCE_FINGERPRINT, true);
 
-        verify(editor).putBoolean(PreferenceInteractor.PREFERENCE_FINGERPRINT, true);
+        verify(editor).putBoolean(UserPreferences.PREFERENCE_FINGERPRINT, true);
         verify(editor).apply();
     }
 
@@ -114,9 +114,9 @@ public class PreferencesUtilTest {
 
     @Test
     public void can_retrieve_boolean_from_preferences() {
-        when(sharedPreferences.getBoolean(PreferenceInteractor.PREFERENCE_FINGERPRINT, false)).thenReturn(true);
+        when(sharedPreferences.getBoolean(UserPreferences.PREFERENCE_FINGERPRINT, false)).thenReturn(true);
 
-        assertTrue(preferencesUtil.getBoolean(PreferenceInteractor.PREFERENCE_FINGERPRINT));
+        assertTrue(preferencesUtil.getBoolean(UserPreferences.PREFERENCE_FINGERPRINT));
 
     }
 

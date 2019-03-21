@@ -99,7 +99,7 @@ public class CalculatorActivityTest {
     }
 
     void start() {
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
     }
 
     @Test
@@ -188,16 +188,6 @@ public class CalculatorActivityTest {
         assertTrue(activity.getCurrentCurrencyState() instanceof USDCurrency);
         assertThat(activity.paymentHolder.getPrimaryCurrency().toFormattedCurrency(),
                 equalTo("$0.00"));
-    }
-
-    @Test
-    public void updates_payment_holder_when_fees_update() {
-        start();
-        activity.paymentHolder.setTransactionFee(new TransactionFee(0, 0, 0));
-
-        activity.onTransactionFeeUpdated(new TransactionFee(5, 10, 15));
-
-        assertThat(activity.paymentHolder.getTransactionFee().getMin(), equalTo(5d));
     }
 
     @Test

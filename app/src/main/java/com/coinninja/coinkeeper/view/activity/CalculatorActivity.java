@@ -119,12 +119,6 @@ public class CalculatorActivity extends BalanceBarActivity implements TabLayout.
         initConversionFactoryWith(paymentHolder.getPrimaryCurrency());
     }
 
-    @Override
-    protected void onTransactionFeeUpdated(TransactionFee transactionFee) {
-        super.onTransactionFeeUpdated(transactionFee);
-        paymentHolder.setTransactionFee(transactionFee);
-    }
-
     Currency getCurrentCurrencyState() {
         return calculatorConverstionFragment.getCurrentCurrencyState();
     }

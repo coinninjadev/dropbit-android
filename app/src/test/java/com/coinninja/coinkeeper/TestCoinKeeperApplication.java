@@ -37,6 +37,7 @@ import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -44,9 +45,12 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
+import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.messaging.MessageCryptor;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
+import org.mockito.Mock;
 import org.robolectric.TestLifecycleApplication;
 
 import java.lang.reflect.Method;
@@ -116,9 +120,14 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public PhoneNumberUtil phoneNumberUtil;
     public CoinKeeperLifecycleListener coinKeeperLifecycleListener;
     public AccountManager accountManager;
+    @Inject
+    public CurrencyPreference currencyPreference;
+    public CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency());
 
     @Override
     public void afterTest(Method method) {
+        defaultCurrencies = null;
+        currencyPreference = null;
         accountManager = null;
         internalNotificationHelper = null;
         messageCryptor = null;
@@ -188,6 +197,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         PhoneNumber phoneNumber = new PhoneNumber();
         when(account.getPhoneNumber()).thenReturn(phoneNumber);
         when(authentication.isAuthenticated()).thenReturn(true);
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
 
         //for BaseActivity to have an actionBarController
         actionBarController = mock(ActionBarController.class);

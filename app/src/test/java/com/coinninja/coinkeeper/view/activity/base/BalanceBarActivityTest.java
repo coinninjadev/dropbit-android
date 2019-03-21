@@ -2,23 +2,26 @@ package com.coinninja.coinkeeper.view.activity.base;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.drawable.Drawable;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
-import com.coinninja.coinkeeper.model.db.Wallet;
-import com.coinninja.coinkeeper.model.helpers.UserHelper;
+import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
-import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
+import com.coinninja.matchers.IntentFilterMatchers;
 
+import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +38,15 @@ import org.robolectric.shadows.ShadowApplication;
 
 import java.util.List;
 
+import static com.coinninja.android.helpers.Views.clickOn;
+import static com.coinninja.android.helpers.Views.withId;
+import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,24 +57,27 @@ import static org.robolectric.Shadows.shadowOf;
 public class BalanceBarActivityTest {
 
     private BalanceBarActivity activity;
-    private Wallet wallet;
-    private InternalNotificationsInteractor interactor;
     private ShadowActivity shadowActivity;
-    private TransactionFee cachedLatestFee;
-    private ActivityController<CalculatorActivity> activityController;
+    private ActivityController<TransactionHistoryActivity> activityController;
     private BlockChainService.BlockChainBinder binder;
     private ShadowApplication shadowApplication;
 
     @Mock
     private LocalBroadCastUtil localBroadCastUtil;
 
+    @Mock
+    private CurrencyPreference currencyPreference;
+
+    @Mock
+    private WalletHelper walletHelper;
+
+    @Mock
+    private LazyList<TransactionsInvitesSummary> transactions;
+
     @After
     public void tearDown() throws Exception {
         activity = null;
-        wallet = null;
-        interactor = null;
         shadowActivity = null;
-        cachedLatestFee = null;
         activityController = null;
         binder = null;
         shadowApplication = null;
@@ -74,31 +87,34 @@ public class BalanceBarActivityTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         TestCoinKeeperApplication application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
+        application.walletHelper = walletHelper;
         binder = mock(BlockChainService.BlockChainBinder.class);
-        UserHelper mockUser = application.getUser();
-        WalletHelper mockWalletHelper = mockUser.getWalletHelper();
         shadowApplication = shadowOf(application);
-        wallet = mock(Wallet.class);
-        interactor = mock(InternalNotificationsInteractor.class);
-        when(wallet.getBalance()).thenReturn(78237L);
-        when(mockUser.getPrimaryWallet()).thenReturn(wallet);
 
-        cachedLatestFee = new TransactionFee(1.1, 2.2, 3.3);
-        when(mockWalletHelper.getLatestFee()).thenReturn(cachedLatestFee);
         USDCurrency cachedPrice = new USDCurrency(650000L);
-        when(mockWalletHelper.getLatestPrice()).thenReturn(cachedPrice);
+        when(walletHelper.getLatestPrice()).thenReturn(cachedPrice);
+        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        when(transactions.isEmpty()).thenReturn(true);
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
 
-        activityController = Robolectric.buildActivity(CalculatorActivity.class).create();
+        activityController = Robolectric.buildActivity(TransactionHistoryActivity.class).create();
         activity = activityController.get();
         activity.serviceBinder = binder;
         activity.localBroadCastUtil = localBroadCastUtil;
+        activity.currencyPreference = currencyPreference;
+        activity.walletHelper = walletHelper;
         shadowActivity = shadowOf(activity);
-        ((CalculatorActivity) activity).setNotifications(interactor);
-        activityController.resume().start();
+        start();
+    }
+
+    private void start() {
+        activityController.start().resume();
     }
 
     @Test
     public void unbinds_service_when_stopped() {
+        start();
         activityController.destroy();
 
         List<ServiceConnection> unboundServiceConnections = shadowApplication.getUnboundServiceConnections();
@@ -107,22 +123,31 @@ public class BalanceBarActivityTest {
     }
 
     @Test
-    public void clicking_balance_launches_transaction_history_with_single_top() {
+    public void clicking_balance_bar_toggles_default_currency_preference() {
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        when(currencyPreference.toggleDefault()).thenReturn(
+                new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency()));
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        start();
 
-        activity.findViewById(R.id.balance).performClick();
+        clickOn(withId(activity, R.id.balance));
 
-        Intent nextStartedActivity = shadowActivity.getNextStartedActivity();
-        assertThat(nextStartedActivity.getComponent().getClassName(), equalTo(TransactionHistoryActivity.class.getName()));
-        assertThat(nextStartedActivity.getFlags(), equalTo(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+        verify(currencyPreference).toggleDefault();
     }
 
     @Test
     public void observes_price_change_when_resumed() {
-        verify(localBroadCastUtil).registerReceiver(activity.receiver, activity.filter);
+        start();
+
+        verify(localBroadCastUtil, atLeast(1)).registerReceiver(eq(activity.receiver), any(IntentFilter.class));
+        assertThat(activity.filter, IntentFilterMatchers.containsAction(Intents.ACTION_WALLET_SYNC_COMPLETE));
+        assertThat(activity.filter, IntentFilterMatchers.containsAction(Intents.ACTION_BTC_PRICE_UPDATE));
     }
 
     @Test
     public void stops_observing_price_change_when_stopped() {
+        start();
+
         activityController.pause().stop();
 
         verify(localBroadCastUtil).unregisterReceiver(activity.receiver);
@@ -130,9 +155,10 @@ public class BalanceBarActivityTest {
 
     @Test
     public void itUpdatesBTCPriceOnChange() {
+        start();
+
         Intent intent = new Intent().setAction(Intents.ACTION_BTC_PRICE_UPDATE).
                 putExtra(Intents.EXTRA_BITCOIN_PRICE, 1200L);
-
         activity.receiver.onReceive(activity, intent);
 
         assertThat(((TextView) activity.findViewById(R.id.drawer_action_price_text)).
@@ -140,14 +166,9 @@ public class BalanceBarActivityTest {
     }
 
     @Test
-    public void ShowsCachedPriceAndFeesOnCreate() {
-        assertThat(activity.getTransactionFee(), equalTo(cachedLatestFee));
-        assertThat(((TextView) activity.findViewById(R.id.drawer_action_price_text)).
-                getText().toString(), equalTo("$6,500.00"));
-    }
+    public void binds_to_block_chain_service_on_create() {
+        start();
 
-    @Test
-    public void binds_to_blockchain_service_on_create() {
         Intent nextStartedService = shadowActivity.getNextStartedService();
 
         assertThat(nextStartedService.getComponent().getClassName(),
@@ -160,6 +181,8 @@ public class BalanceBarActivityTest {
         BlockChainService service = mock(BlockChainService.class);
         when(binder.getService()).thenReturn(service);
 
+        start();
+
         ActivityController<CalculatorActivity> activityCreate = Robolectric.buildActivity(CalculatorActivity.class).create();
         BalanceBarActivity activity = activityCreate.get();
         activity.serviceBinder = binder;
@@ -170,72 +193,129 @@ public class BalanceBarActivityTest {
     }
 
     @Test
-    public void sets_balance_of_BTC_from_DB() {
-        ActivityController<CalculatorActivity> activityCreate = Robolectric.buildActivity(CalculatorActivity.class).create();
-        CalculatorActivity activity = activityCreate.get();
+    public void sets_balances_of_BTC_from_DB__btc_primary() {
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        when(walletHelper.getBalance()).thenReturn(78237L);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
 
-        activity.setNotifications(interactor);
+        start();
 
-        activityCreate.resume().start();
-
-        assertThat(((TextView) activity.findViewById(R.id.primary_balance)).getText().toString(),
-                equalTo("0.00078237 BTC"));
+        assertThat(withId(activity, R.id.primary_balance), hasText("0.00078237"));
+        assertThat(withId(activity, R.id.alt_balance), hasText("$0.78"));
     }
 
     @Test
-    public void sets_usd_balance_when_price_recieved() {
-        ActivityController<CalculatorActivity> activityCreate = Robolectric.buildActivity(CalculatorActivity.class).create();
-        CalculatorActivity activity = activityCreate.get();
-        activity.setNotifications(interactor);
+    public void sets_balances_of_BTC_from_DB__usd_primary() {
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        when(walletHelper.getBalance()).thenReturn(78237L);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
 
-        activityCreate.resume().start();
-        activity.onPriceReceived(new USDCurrency(8910.2d));
+        start();
 
-        assertThat(((TextView) activity.findViewById(R.id.alt_balance)).getText().toString(),
-                equalTo("$6.97"));
-    }
-
-
-    @Test
-    public void updates_btc_balance_when_notified() {
-        assertThat(((TextView) activity.findViewById(R.id.primary_balance)).getText().toString(),
-                equalTo("0.00078237 BTC"));
-        when(wallet.getBalance()).thenReturn(178237L);
-
-        activity.sendBroadcast(new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
-
-        assertThat(((TextView) activity.findViewById(R.id.primary_balance)).getText().toString(),
-                equalTo("0.00178237 BTC"));
-
+        assertThat(withId(activity, R.id.primary_balance), hasText("$0.78"));
+        assertThat(withId(activity, R.id.alt_balance), hasText("0.00078237"));
     }
 
     @Test
-    public void converts_btc_to_usd_on_balance_change() {
-        assertThat(((TextView) activity.findViewById(R.id.primary_balance)).getText().toString(),
-                equalTo("0.00078237 BTC"));
-        activity.onPriceReceived(new USDCurrency(8910.2d));
-        when(wallet.getBalance()).thenReturn(178237L);
+    public void invalidates_balances_when_price_changes() {
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        when(walletHelper.getBalance()).thenReturn(78237L);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D)).thenReturn(new USDCurrency(1100.00D));
+        start();
 
-        activity.sendBroadcast(new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
+        activity.onPriceReceived(new USDCurrency(1100.00d));
 
-
-        assertThat(((TextView) activity.findViewById(R.id.alt_balance)).getText().toString(),
-                equalTo("$15.88"));
+        assertThat(withId(activity, R.id.primary_balance), hasText("$0.86"));
+        assertThat(withId(activity, R.id.alt_balance), hasText("0.00078237"));
     }
 
     @Test
-    public void unsubscribes_from_wallet_sync_bradcast_when_paused() {
-        assertThat(((TextView) activity.findViewById(R.id.primary_balance)).getText().toString(),
-                equalTo("0.00078237 BTC"));
+    public void invalidates_balances_when_wallet_syncs() {
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        when(walletHelper.getBalance()).thenReturn(78237L).thenReturn(80000L);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
+        start();
 
-        activity.onPriceReceived(new USDCurrency(8910.2d));
-        when(wallet.getBalance()).thenReturn(178237L);
+        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
+
+        assertThat(withId(activity, R.id.primary_balance), hasText("$0.80"));
+        assertThat(withId(activity, R.id.alt_balance), hasText("0.0008"));
+    }
+
+    @Test
+    public void toggling_default_currency_invalidates_display() {
+        when(walletHelper.getBalance()).thenReturn(78237L);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        when(currencyPreference.toggleDefault()).thenReturn(
+                new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency()));
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        start();
+
+        assertThat(withId(activity, R.id.primary_balance), hasText("$0.78"));
+        assertThat(withId(activity, R.id.alt_balance), hasText("0.00078237"));
+
+        clickOn(withId(activity, R.id.balance));
+
+        assertThat(withId(activity, R.id.primary_balance), hasText("0.00078237"));
+        assertThat(withId(activity, R.id.alt_balance), hasText("$0.78"));
+    }
+
+    @Test
+    public void shows_btc_icon_when_primary() {
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        start();
+
+        TextView primary = withId(activity, R.id.primary_balance);
+        TextView alt = withId(activity, R.id.alt_balance);
+
+        Drawable[] primaryCompoundDrawables = primary.getCompoundDrawables();
+        assertThat(shadowOf(primaryCompoundDrawables[0]).getCreatedFromResId(), equalTo(R.drawable.ic_btc_icon));
+        assertNull(primaryCompoundDrawables[1]);
+        assertNull(primaryCompoundDrawables[2]);
+        assertNull(primaryCompoundDrawables[3]);
+
+        Drawable[] altCompoundDrawables = alt.getCompoundDrawables();
+        assertNull(altCompoundDrawables[0]);
+        assertNull(altCompoundDrawables[1]);
+        assertNull(altCompoundDrawables[2]);
+        assertNull(altCompoundDrawables[3]);
+    }
+
+    @Test
+    public void shows_btc_icon_when_secondary() {
+        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        start();
+
+        TextView primary = withId(activity, R.id.primary_balance);
+        TextView alt = withId(activity, R.id.alt_balance);
+
+        Drawable[] primaryCompoundDrawables = primary.getCompoundDrawables();
+        assertNull(primaryCompoundDrawables[0]);
+        assertNull(primaryCompoundDrawables[1]);
+        assertNull(primaryCompoundDrawables[2]);
+        assertNull(primaryCompoundDrawables[3]);
+
+        Drawable[] altCompoundDrawables = alt.getCompoundDrawables();
+        assertThat(shadowOf(altCompoundDrawables[0]).getCreatedFromResId(), equalTo(R.drawable.ic_btc_icon));
+        assertNull(altCompoundDrawables[1]);
+        assertNull(altCompoundDrawables[2]);
+        assertNull(altCompoundDrawables[3]);
+    }
+
+    @Test
+    public void unsubscribe_from_wallet_sync_broadcast_when_paused() {
+        start();
 
         activity.onPause();
-        activity.sendBroadcast(new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
 
-
-        assertThat(((TextView) activity.findViewById(R.id.alt_balance)).getText().toString(),
-                equalTo("$6.97"));
+        verify(localBroadCastUtil).unregisterReceiver(activity.receiver);
     }
+
 }

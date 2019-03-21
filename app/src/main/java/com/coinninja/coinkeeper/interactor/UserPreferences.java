@@ -5,14 +5,14 @@ import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 
 import javax.inject.Inject;
 
-public class PreferenceInteractor {
+public class UserPreferences {
     public static final String PREFERENCE_FINGERPRINT = "useFingerprintForAuth";
     public static final String PREFERENCE_SKIP_INVITE_HELP = "skipInviteHelp";
 
     private PreferencesUtil preferencesUtil;
 
     @Inject
-    public PreferenceInteractor(PreferencesUtil preferencesUtil) {
+    public UserPreferences(PreferencesUtil preferencesUtil) {
         this.preferencesUtil = preferencesUtil;
     }
 

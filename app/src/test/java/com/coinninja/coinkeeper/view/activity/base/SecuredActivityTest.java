@@ -7,20 +7,22 @@ import android.os.Bundle;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
+import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
 import com.coinninja.coinkeeper.view.activity.RecoverWalletActivity;
 import com.coinninja.coinkeeper.view.activity.RestoreWalletActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.view.adapter.RestoreWalletPageAdapter;
 
+import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,13 +62,22 @@ public class SecuredActivityTest {
     @Mock
     private Authentication authentication;
 
+    @Mock
+    WalletHelper walletHelper;
+
+    @Mock
+    LazyList<TransactionsInvitesSummary> transactions;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        when(transactions.isEmpty()).thenReturn(true);
+        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
         application.authentication = authentication;
         application.pinEntry = pinEntry;
         application.cnWalletManager = cnWalletManager;
+        application.walletHelper = walletHelper;
         when(application.authentication.isAuthenticated()).thenReturn(false);
     }
 
@@ -84,11 +95,8 @@ public class SecuredActivityTest {
         ActivityController activityController = Robolectric.buildActivity(activityClass);
         activity = (SecuredActivity) activityController.get();
         activityController.create();
-        if (activityClass == CalculatorActivity.class) {
-            ((CalculatorActivity) activity).setNotifications(mock(InternalNotificationsInteractor.class));
-        }
         shadowActivity = shadowOf(activity);
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
     }
 
     @Test
@@ -126,7 +134,7 @@ public class SecuredActivityTest {
     @Test
     public void on_auth_successful_send_ON_USER_AUTH_SUCCESSFUL_broadcast() {
         when(authentication.isAuthenticated()).thenReturn(true);
-        setupActivity(CalculatorActivity.class);
+        setupActivity(TransactionHistoryActivity.class);
 
         activity.onAuthenticationResult(Activity.RESULT_OK);
 
@@ -139,7 +147,7 @@ public class SecuredActivityTest {
         when(application.cnWalletManager.hasWallet()).thenReturn(true);
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
 
-        setupActivity(CalculatorActivity.class);
+        setupActivity(TransactionHistoryActivity.class);
 
         ShadowActivity.IntentForResult intent = shadowActivity.getNextStartedActivityForResult();
 
@@ -154,7 +162,7 @@ public class SecuredActivityTest {
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
         when(application.cnWalletManager.hasWallet()).thenReturn(true);
 
-        setupActivity(CalculatorActivity.class);
+        setupActivity(TransactionHistoryActivity.class);
 
         ShadowActivity.IntentForResult intent = shadowActivity.getNextStartedActivityForResult();
         assertThat(intent.requestCode, equalTo(SecuredActivity.AUTHENTICATION_REQUEST_CODE));
@@ -174,7 +182,7 @@ public class SecuredActivityTest {
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
         when(application.cnWalletManager.hasWallet()).thenReturn(true);
 
-        setupActivity(CalculatorActivity.class);
+        setupActivity(TransactionHistoryActivity.class);
 
         ShadowActivity.IntentForResult intent = shadowActivity.getNextStartedActivityForResult();
         assertThat(intent.requestCode, equalTo(SecuredActivity.AUTHENTICATION_REQUEST_CODE));
@@ -196,7 +204,7 @@ public class SecuredActivityTest {
         when(authentication.isAuthenticated()).thenReturn(false);
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
         when(application.cnWalletManager.hasWallet()).thenReturn(true);
-        setupActivity(CalculatorActivity.class);
+        setupActivity(TransactionHistoryActivity.class);
 
         activity.onActivityResult(SecuredActivity.AUTHENTICATION_REQUEST_CODE, Activity.RESULT_CANCELED, null);
 
@@ -208,7 +216,7 @@ public class SecuredActivityTest {
         when(authentication.isAuthenticated()).thenReturn(true);
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
 
-        setupActivity(CalculatorActivity.class);
+        setupActivity(TransactionHistoryActivity.class);
 
         assertNull(shadowActivity.getNextStartedActivity());
     }
@@ -229,7 +237,7 @@ public class SecuredActivityTest {
         when(application.pinEntry.hasExistingPin()).thenReturn(false);
         when(application.cnWalletManager.hasWallet()).thenReturn(true);
 
-        setupActivity(CalculatorActivity.class);
+        setupActivity(TransactionHistoryActivity.class);
 
         Intent intent = shadowActivity.getNextStartedActivity();
         assertThat(intent.getComponent().getClassName(),
@@ -243,7 +251,7 @@ public class SecuredActivityTest {
         when(application.pinEntry.hasExistingPin()).thenReturn(false);
         when(application.cnWalletManager.hasWallet()).thenReturn(false);
 
-        setupActivity(CalculatorActivity.class);
+        setupActivity(TransactionHistoryActivity.class);
 
         assertThat(shadowActivity.getNextStartedActivity().getComponent().getClassName(),
                 equalTo(StartActivity.class.getName()));
@@ -253,7 +261,7 @@ public class SecuredActivityTest {
     public void forwards_bundle_to_next_activity() {
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_NEXT, CalculatorActivity.class.getName());
+        intent.putExtra(Intents.EXTRA_NEXT, TransactionHistoryActivity.class.getName());
         Bundle bundle_to_forward = new Bundle();
         String[] recovery_words = {"foo", "bar"};
         bundle_to_forward.putStringArray(Intents.EXTRA_RECOVERY_WORDS, recovery_words);
@@ -269,7 +277,7 @@ public class SecuredActivityTest {
 
 
         Intent startedIntent = shadowActivity.getNextStartedActivity();
-        assertThat(startedIntent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
+        assertThat(startedIntent.getComponent().getClassName(), equalTo(TransactionHistoryActivity.class.getName()));
         assertThat(startedIntent.getExtras().getStringArray(Intents.EXTRA_RECOVERY_WORDS),
                 equalTo(recovery_words));
         assertTrue(shadowActivity.isFinishing());
@@ -279,7 +287,7 @@ public class SecuredActivityTest {
     public void shows_next_activity_from_creation_intent() {
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_NEXT, CalculatorActivity.class.getName());
+        intent.putExtra(Intents.EXTRA_NEXT, TransactionHistoryActivity.class.getName());
         ActivityController<CreatePinActivity> activityController =
                 Robolectric.buildActivity(CreatePinActivity.class, intent);
         CreatePinActivity activity = activityController.get();
@@ -289,10 +297,9 @@ public class SecuredActivityTest {
 
 
         Intent startedIntent = shadowActivity.getNextStartedActivity();
-        assertThat(startedIntent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
+        assertThat(startedIntent.getComponent().getClassName(), equalTo(TransactionHistoryActivity.class.getName()));
         assertTrue(shadowActivity.isFinishing());
     }
-
 
     @Test
     public void pull_data_out_of_Bundle_using_key_then_add_to_root_intent() {
@@ -302,10 +309,9 @@ public class SecuredActivityTest {
         extraData.putString("random key", "random arbitrary data");
         intent.putExtra(Intents.EXTRA_NEXT_BUNDLE, extraData);
 
-        ActivityController<CalculatorActivity> activityController =
-                Robolectric.buildActivity(CalculatorActivity.class, intent).create();
-        CalculatorActivity activity = activityController.get();
-        activity.setNotifications(mock(InternalNotificationsInteractor.class));
+        ActivityController<TransactionHistoryActivity> activityController =
+                Robolectric.buildActivity(TransactionHistoryActivity.class, intent).create();
+        TransactionHistoryActivity activity = activityController.get();
 
         activity.showNext();
         ShadowActivity shadowActivity = shadowOf(activity);
