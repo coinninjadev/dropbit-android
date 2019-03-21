@@ -1,13 +1,21 @@
 package com.coinninja.coinkeeper.util.currency;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+
+import com.coinninja.coinkeeper.R;
+
 import java.math.BigDecimal;
 
-public class BTCCurrency extends BaseCurrency implements Currency {
+import androidx.appcompat.content.res.AppCompatResources;
+
+public class BTCCurrency extends BaseCurrency implements Currency, CryptoCurrency {
     public static final String ALT_CURRENCY_FORMAT = "#,##0.00000000 BTC";
+    public static final String NO_SYMBOL_FORMAT = "#,##0.########";
+    public static final long MAX_SATOSHI = 2099999997690000L;
+    public static final String SYMBOL = "\u20BF";
     static final int WHOLE_NUM_MAX = 8;
     static final int SUB_NUM_MAX = 8;
-    public static final long MAX_SATOSHI = 2099999997690000L;
-    static final String SYMBOL = "\u20BF";
     static final String DEFAULT_CURRENCY_FORMAT = String.format("%s #,##0.########", SYMBOL);
     static final String INCREMENTAL_FORMAT = String.format("%s #,##0.########", SYMBOL);
     static final String STRING_FORMAT = "#,##0.########";
@@ -93,5 +101,10 @@ public class BTCCurrency extends BaseCurrency implements Currency {
     public String toUriFormattedString() {
         BTCCurrency btc = new BTCCurrency(this.toSatoshis());
         return String.valueOf(btc.value);
+    }
+
+    @Override
+    public Drawable getSymbolDrawable(Context context) {
+        return AppCompatResources.getDrawable(context, R.drawable.ic_btc_icon);
     }
 }

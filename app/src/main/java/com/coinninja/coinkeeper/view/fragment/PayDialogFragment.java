@@ -19,7 +19,7 @@ import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
-import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
@@ -72,7 +72,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     @Inject
     ClipboardUtil clipboardUtil;
     @Inject
-    PreferenceInteractor preferenceInteractor;
+    UserPreferences preferenceInteractor;
     @Inject
     CurrencyFormattingTextWatcher currencyFormattingTextWatcher;
     @Inject

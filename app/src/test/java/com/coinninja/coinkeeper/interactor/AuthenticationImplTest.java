@@ -57,7 +57,7 @@ public class AuthenticationImplTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(preferencesUtil.getBoolean(PreferenceInteractor.PREFERENCE_FINGERPRINT)).thenReturn(false);
+        when(preferencesUtil.getBoolean(UserPreferences.PREFERENCE_FINGERPRINT)).thenReturn(false);
     }
 
     @After
@@ -184,7 +184,7 @@ public class AuthenticationImplTest {
         shadowFingerprintManager.setIsHardwareDetected(isHardwareDetected);
         shadowFingerprintManager.setHasEnrolledFingerprints(hasEnrolledFingerprints);
         when(context.getSystemService(Context.FINGERPRINT_SERVICE)).thenReturn(fingerprintManager);
-        when(preferencesUtil.getBoolean(PreferenceInteractor.PREFERENCE_FINGERPRINT)).thenReturn(hasOptedIn);
+        when(preferencesUtil.getBoolean(UserPreferences.PREFERENCE_FINGERPRINT)).thenReturn(hasOptedIn);
     }
 
     @Test

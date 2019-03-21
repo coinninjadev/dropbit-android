@@ -42,6 +42,7 @@ import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -403,6 +404,14 @@ public class TestAppModule {
     @Provides
     Locale locale(@ApplicationContext Context context) {
         return ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
+    }
+
+    @Provides
+    CurrencyPreference currencyPreference(TestCoinKeeperApplication app) {
+        if (app.currencyPreference == null) {
+            app.currencyPreference = mock(CurrencyPreference.class);
+        }
+        return app.currencyPreference;
     }
 
 }

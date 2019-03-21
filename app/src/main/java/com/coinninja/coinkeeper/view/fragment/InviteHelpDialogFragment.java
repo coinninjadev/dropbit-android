@@ -9,7 +9,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.interactor.PreferenceInteractor;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
 
@@ -19,11 +19,11 @@ public class InviteHelpDialogFragment extends BaseDialogFragment {
 
     public static final String TAG = InviteHelpDialogFragment.class.getSimpleName();
 
-    private PreferenceInteractor preferenceInteractor;
+    private UserPreferences preferenceInteractor;
     private OnInviteHelpAcceptedCallback onInviteHelpAcceptedCallback;
     private Contact contact;
 
-    public static DialogFragment newInstance(PreferenceInteractor preferenceInteractor,
+    public static DialogFragment newInstance(UserPreferences preferenceInteractor,
                                              Contact contact,
                                              OnInviteHelpAcceptedCallback onInviteHelpAcceptedCallback) {
         InviteHelpDialogFragment fragment = new InviteHelpDialogFragment();
@@ -79,7 +79,7 @@ public class InviteHelpDialogFragment extends BaseDialogFragment {
         return ((CheckBox) getView().findViewById(R.id.permission)).isChecked();
     }
 
-    public void setPreferenceInteractor(PreferenceInteractor preferenceInteractor) {
+    public void setPreferenceInteractor(UserPreferences preferenceInteractor) {
         this.preferenceInteractor = preferenceInteractor;
     }
 

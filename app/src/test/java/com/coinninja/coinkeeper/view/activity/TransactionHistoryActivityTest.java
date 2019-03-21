@@ -100,7 +100,7 @@ public class TransactionHistoryActivityTest {
     }
 
     private void startActivity() {
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
     }
 
     @Test
