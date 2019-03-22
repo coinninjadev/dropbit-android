@@ -175,7 +175,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         View base = getView();
         secondaryCurrency = withId(base, R.id.secondary_currency);
         primaryCurrency = withId(base, R.id.primary_currency);
-        primaryCurrency.setRawInputType(Configuration.KEYBOARD_12KEY);
         primaryCurrency.addTextChangedListener(currencyFormattingTextWatcher);
         configureButtons(base);
         configureSharedMemo();

@@ -14,11 +14,11 @@ public class BTCCurrency extends BaseCurrency implements Currency, CryptoCurrenc
     public static final String NO_SYMBOL_FORMAT = "#,##0.########";
     public static final long MAX_SATOSHI = 2099999997690000L;
     public static final String SYMBOL = "\u20BF";
-    static final int WHOLE_NUM_MAX = 8;
+    private static final int WHOLE_NUM_MAX = 8;
     static final int SUB_NUM_MAX = 8;
-    static final String DEFAULT_CURRENCY_FORMAT = String.format("%s #,##0.########", SYMBOL);
-    static final String INCREMENTAL_FORMAT = String.format("%s #,##0.########", SYMBOL);
-    static final String STRING_FORMAT = "#,##0.########";
+    private static final String DEFAULT_CURRENCY_FORMAT = String.format("%s #,##0.########", SYMBOL);
+    private static final String INCREMENTAL_FORMAT = NO_SYMBOL_FORMAT;
+    private static final String STRING_FORMAT = "#,##0.########";
 
     private String currencyFormat = DEFAULT_CURRENCY_FORMAT;
 

@@ -4,12 +4,12 @@ package com.coinninja.coinkeeper.util.currency;
 import java.math.BigDecimal;
 
 public class USDCurrency extends BaseCurrency implements Currency, FiatCurrency {
-    public static final int WHOLE_NUM_MAX = 10;
-    public static final int SUB_NUM_MAX = 2;
+    private static final int WHOLE_NUM_MAX = 10;
+    private static final int SUB_NUM_MAX = 2;
     public static final String SYMBOL = "$";
-    public static long MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
+    protected static long MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
     private String currencyFormat = "$#,##0.00";
-    private String incrementalFormat = "$#,##0.##";
+    private static final String incrementalFormat = "$#,##0.##";
 
     public USDCurrency() {
         super();
@@ -69,7 +69,7 @@ public class USDCurrency extends BaseCurrency implements Currency, FiatCurrency 
     }
 
     @Override
-    protected String getIncrementalFormat() {
+    public String getIncrementalFormat() {
         return incrementalFormat;
     }
 

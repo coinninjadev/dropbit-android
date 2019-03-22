@@ -1,9 +1,11 @@
 package com.coinninja.coinkeeper.util.currency;
 
 import org.junit.Test;
+import org.robolectric.annotation.Config;
 
 import java.math.BigDecimal;
 
+import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -133,26 +135,5 @@ public class USDCurrencyTest {
     @Test
     public void initFromBigDecimal() {
         assertThat(new USDCurrency(new BigDecimal(100d)).toFormattedCurrency(), equalTo("$100.00"));
-    }
-
-    @Test
-    public void toIncrementalFormat() {
-        assertThat(new USDCurrency(1880L).toIncrementalFormat(), equalTo("$18.8"));
-        assertThat(new USDCurrency("1").toIncrementalFormat(), equalTo("$1"));
-        assertThat(new USDCurrency("1.1").toIncrementalFormat(), equalTo("$1.1"));
-        assertThat(new USDCurrency("1111.1").toIncrementalFormat(), equalTo("$1,111.1"));
-        assertThat(new USDCurrency(0.199).toIncrementalFormat(), equalTo("$0.2"));
-    }
-
-    @Test
-    public void toIncrementalFormat_TrailingZeros() {
-        assertThat(new USDCurrency(1880L).toIncrementalFormat(2), equalTo("$18.80"));
-        assertThat(new USDCurrency(1888L).toIncrementalFormat(9), equalTo("$18.88"));
-        assertThat(new USDCurrency("1").toIncrementalFormat(0), equalTo("$1"));
-        assertThat(new USDCurrency("1").toIncrementalFormat(false), equalTo("$1"));
-        assertThat(new USDCurrency("1").toIncrementalFormat(true), equalTo("$1."));
-        assertThat(new USDCurrency("1").toIncrementalFormat(1), equalTo("$1.0"));
-        assertThat(new USDCurrency("1").toIncrementalFormat(2), equalTo("$1.00"));
-        assertThat(new USDCurrency("1").toIncrementalFormat(3), equalTo("$1.00"));
     }
 }
