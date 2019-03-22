@@ -5,8 +5,6 @@ import android.widget.EditText;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +15,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,7 +25,6 @@ import static org.mockito.Mockito.verify;
 public class CurrencyFormattingTextWatcherTest {
 
     private EditText editText;
-    private Currency currency = new USDCurrency();
 
     @Mock
     private CurrencyFormattingTextWatcher.Callback callback;
@@ -40,113 +37,143 @@ public class CurrencyFormattingTextWatcherTest {
         editText = new EditText(context);
         watcher = new CurrencyFormattingTextWatcher();
         watcher.setCallback(callback);
-        watcher.setCurrency(currency);
 
         editText.addTextChangedListener(watcher);
     }
 
     @Test
-    public void formats_BTC_with_symbol() {
-        BTCCurrency currency = new BTCCurrency("1.0");
-        watcher.setCurrency(currency);
-        editText.setText("1");
+    public void formats_BTC() {
+        watcher.setCurrency(new BTCCurrency());
 
-        assertThat(editText.getText().toString(), equalTo(currency.toFormattedCurrency()));
-    }
-
-    @Test
-    public void allows_ending_in_dot() {
         editText.setText("1");
+        assertThat(editText, hasText("1"));
+
         editText.setText("1.");
+        assertThat(editText, hasText("1."));
 
-        assertThat(editText.getText().toString(), equalTo("$1."));
+        editText.setText("1.0");
+        assertThat(editText, hasText("1.0"));
+
+        editText.setText("1.00");
+        assertThat(editText, hasText("1.00"));
+
+        editText.setText("1.000");
+        assertThat(editText, hasText("1.000"));
+
+        editText.setText("1.0000");
+        assertThat(editText, hasText("1.0000"));
+
+        editText.setText("1.00000");
+        assertThat(editText, hasText("1.00000"));
+
+        editText.setText("1.12345678");
+        assertThat(editText, hasText("1.12345678"));
+
+        editText.setText("1.123456789");
+        assertThat(editText, hasText("1.12345678"));
+        verify(callback).onInvalid("1.123456789");
     }
 
     @Test
-    public void allows_zero() {
-        editText.setText("1");
+    public void allows_empty() {
         editText.setText("");
-
-        assertThat(editText.getText().toString(), equalTo("$0"));
+        assertThat(editText, hasText("$0"));
     }
 
     @Test
     public void handles_paste_of_number() {
         String value = "2222.1";
         editText.setText(value);
-        assertThat(editText.getText().toString(), equalTo(currency.toIncrementalFormat()));
-
-        verify(callback).onValid(currency);
+        assertThat(editText, hasText("$2,222.1"));
+        verify(callback).onValid(watcher.getCurrency());
     }
 
     @Test
-    public void keeps_zeros() {
+    public void allow_entry_for_precision() {
+        String value = "$2,222.";
+        editText.setText(value);
+        assertThat(editText, hasText(value));
+        verify(callback).onValid(watcher.getCurrency());
+    }
+
+    @Test
+    public void keeps_precise_zeros() {
         String value = "1.0";
         editText.setText(value);
-        assertThat(editText.getText().toString(), equalTo("$1.0"));
+        assertThat(editText, hasText("$1.0"));
 
-        verify(callback).onValid(currency);
-    }
-
-    @Test
-    public void keeps_zeros_2() {
-        String value = "1.00";
+        value = "1.00";
         editText.setText(value);
-        assertThat(editText.getText().toString(), equalTo("$1.00"));
+        assertThat(editText, hasText("$1.00"));
 
-        verify(callback).onValid(currency);
+
+        verify(callback, times(2)).onValid(watcher.getCurrency());
     }
 
     @Test
-    public void keeps_zeros_3() {
+    public void does_not_add_unnecessary_padding() {
+        String value = "1.10";
+        editText.setText(value);
+        assertThat(editText, hasText("$1.10"));
+    }
+
+    @Test
+    public void keeps_precise_zeros_within_limits_of_currency() {
         String value = "1.000";
         editText.setText(value);
-        assertThat(editText.getText().toString(), equalTo("$1.00"));
+        assertThat(editText, hasText("$1.00"));
+        verify(callback).onValid(watcher.getCurrency());
+    }
 
+    @Test
+    public void does_not_allow_double_decimals() {
+        String value = "$2,222..";
+        editText.setText(value);
+        assertThat(editText, hasText("$2,222."));
         verify(callback).onInvalid(value);
     }
 
     @Test
-    public void pauses_for_invalid() {
-        String value = "$2,222.1";
+    public void does_not_allow_multiple_fractions() {
+        String value = "$2,222,222.01.";
         editText.setText(value);
-        assertThat(editText.getText().toString(), equalTo(value));
-
-        verify(callback).onValid(currency);
-
-        String invalidValue = value + "r";
-        editText.setText(invalidValue);
-        assertThat(editText.getText().toString(), equalTo(value));
-
-        verify(callback).onInvalid(invalidValue);
+        verify(callback).onInvalid(value);
+        assertThat(editText, hasText("$2,222,222.01"));
     }
 
     @Test
-    public void pauses_for_invalid_double_decimal() {
-        String value = "$2,222.";
+    public void does_not_allow_grouping_separator_after_precision_separator() {
+        String value = "$2,222,222.1,";
         editText.setText(value);
-        assertThat(editText.getText().toString(), equalTo(value));
+        verify(callback).onInvalid(value);
+        assertThat(editText, hasText("$2,222,222.1"));
 
-        verify(callback).onValid(currency);
-
-        String invalidValue = value + ".";
-        editText.setText(invalidValue);
-        assertThat(editText.getText().toString(), equalTo(value));
-
-        verify(callback).onInvalid(invalidValue);
+        value = "$2,2222";
+        editText.setText(value);
+        assertThat(editText, hasText("$22,222"));
+        verify(callback).onValid(watcher.getCurrency());
     }
 
     @Test
-    public void endingDecimal() {
-        String value = "$2,222";
+    public void US_formatting() {
+        String value = "$2,222.01";
         editText.setText(value);
-        assertThat(editText.getText().toString(), equalTo(value));
+        assertThat(editText, hasText(value));
 
-        String endingWithDecimal = value + ".";
-        editText.setText(endingWithDecimal);
-        assertThat(editText.getText().toString(), equalTo(endingWithDecimal));
-
-        verify(callback, times(2)).onValid(currency);
+        value = "$2,222,222.01";
+        editText.setText(value);
+        assertThat(editText, hasText(value));
     }
 
+    @Test
+    @Config(qualifiers = "de-rDE")
+    public void German_formatting() {
+        String value = "$2.222,01";
+        editText.setText(value);
+        assertThat(editText, hasText(value));
+
+        value = "$2.222.222,01";
+        editText.setText(value);
+        assertThat(editText, hasText(value));
+    }
 }

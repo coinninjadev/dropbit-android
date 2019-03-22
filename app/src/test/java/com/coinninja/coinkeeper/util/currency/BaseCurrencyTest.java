@@ -56,13 +56,8 @@ public class BaseCurrencyTest {
         }
 
         @Override
-        protected String getIncrementalFormat() {
+        public String getIncrementalFormat() {
             return currencyFormat;
-        }
-
-        @Override
-        public String toIncrementalFormat() {
-            return null;
         }
 
         @Override

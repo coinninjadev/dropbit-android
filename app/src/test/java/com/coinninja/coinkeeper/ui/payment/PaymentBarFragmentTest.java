@@ -252,7 +252,7 @@ public class PaymentBarFragmentTest {
 
         assertNotNull(payDialog);
         verify(paymentUtil).setAddress("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        assertThat(paymentHolder.getPrimaryCurrency().toFormattedCurrency(), equalTo("\u20BF 10"));
+        assertThat(paymentHolder.getPrimaryCurrency().toLong(), equalTo(1000000000L));
     }
 
 }

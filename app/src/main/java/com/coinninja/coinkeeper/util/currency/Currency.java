@@ -16,17 +16,13 @@ public interface Currency {
 
     int getMaxNumWholeValues();
 
+    String getIncrementalFormat();
+
     long toLong();
 
     String toFormattedString();
 
     String toFormattedCurrency();
-
-    String toIncrementalFormat();
-
-    String toIncrementalFormat(int trailingZeros);
-
-    String toIncrementalFormat(boolean endingDecimal);
 
     BigDecimal toBigDecimal();
 

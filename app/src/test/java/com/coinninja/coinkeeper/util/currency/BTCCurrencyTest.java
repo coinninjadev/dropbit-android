@@ -112,33 +112,6 @@ public class BTCCurrencyTest {
     }
 
     @Test
-    public void toIncrementalFormat() {
-        assertThat(new BTCCurrency(1880L).toIncrementalFormat(), equalTo("\u20BF 0.0000188"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(), equalTo("\u20BF 1"));
-        assertThat(new BTCCurrency("1.1").toIncrementalFormat(), equalTo("\u20BF 1.1"));
-        assertThat(new BTCCurrency("1111.1").toIncrementalFormat(), equalTo("\u20BF 1,111.1"));
-        assertThat(new BTCCurrency(0.111111189).toIncrementalFormat(), equalTo("\u20BF 0.11111119"));
-    }
-
-    @Test
-    public void toIncrementalFormat_TrailingZeros() {
-        assertThat(new BTCCurrency(1880L).toIncrementalFormat(8), equalTo("\u20BF 0.00001880"));
-        assertThat(new BTCCurrency(1880L).toIncrementalFormat(9), equalTo("\u20BF 0.00001880"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(0), equalTo("\u20BF 1"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(false), equalTo("\u20BF 1"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(true), equalTo("\u20BF 1."));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(1), equalTo("\u20BF 1.0"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(2), equalTo("\u20BF 1.00"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(3), equalTo("\u20BF 1.000"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(4), equalTo("\u20BF 1.0000"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(5), equalTo("\u20BF 1.00000"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(6), equalTo("\u20BF 1.000000"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(7), equalTo("\u20BF 1.0000000"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(8), equalTo("\u20BF 1.00000000"));
-        assertThat(new BTCCurrency("1").toIncrementalFormat(9), equalTo("\u20BF 1.00000000"));
-    }
-
-    @Test
     public void usdHasASymbol() {
         assertThat(new BTCCurrency().getSymbol(), equalTo("\u20BF"));
     }

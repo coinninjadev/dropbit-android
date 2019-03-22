@@ -20,6 +20,7 @@ import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -30,7 +31,6 @@ import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.PickContactActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
@@ -148,13 +148,6 @@ public class PayDialogFragmentTest {
         paymentBarCallbacks = null;
     }
 
-    private void startFragment() {
-        fragmentController.start().resume().visible();
-        shadowActivity = shadowOf(dialog.getActivity());
-    }
-
-    // INITIALIZATION WITH VALUES
-
     @Test
     public void tracks_payment_screen_view() {
         startFragment();
@@ -163,15 +156,17 @@ public class PayDialogFragmentTest {
         verify(dialog.analytics).flush();
     }
 
+    // INITIALIZATION WITH VALUES
+
     @Test
     public void shows_price_on_launch() {
         startFragment();
 
-        EditText usdView = dialog.getView().findViewById(R.id.primary_currency);
-        TextView btcView = dialog.getView().findViewById(R.id.secondary_currency);
+        TextView primaryCurrency = withId(dialog.getView(), R.id.primary_currency);
+        TextView secondaryCurrency = withId(dialog.getView(), R.id.secondary_currency);
 
-        assertThat(usdView.getText().toString(), equalTo(paymentHolder.getPrimaryCurrency().toFormattedCurrency()));
-        assertThat(btcView.getText().toString(), equalTo(paymentHolder.getSecondaryCurrency().toFormattedCurrency()));
+        assertThat(primaryCurrency, hasText("$5,000.00"));
+        assertThat(secondaryCurrency, hasText("\u20BF 1"));
     }
 
     @Test
@@ -184,8 +179,6 @@ public class PayDialogFragmentTest {
 
         assertThat(receiverView.getPaymentAddress(), equalTo(address));
     }
-
-    // CHECK FUNDED
 
     @Test
     public void funded_payments_get_confirmed() {
@@ -203,6 +196,8 @@ public class PayDialogFragmentTest {
         callbackCaptor.getValue().onComplete(mock(FundingUTXOs.class));
         verify(paymentBarCallbacks).confirmPaymentFor(address);
     }
+
+    // CHECK FUNDED
 
     @Test
     public void contact_sends_get_confirmed() {
@@ -244,8 +239,6 @@ public class PayDialogFragmentTest {
         verify(paymentBarCallbacks).confirmInvite(contact);
     }
 
-    // PRIMARY / SECONDARY CURRENCIES
-
     @Test
     public void on_primary_text_clicked_clears_text_when_currency_is_zero() {
         paymentHolder.loadPaymentFrom(new USDCurrency(0d));
@@ -257,6 +250,7 @@ public class PayDialogFragmentTest {
         assertThat(view.getText().toString(), equalTo("$0"));
     }
 
+    // PRIMARY / SECONDARY CURRENCIES
 
     @Test
     public void provides_currency_watcher_on_primary_input() {
@@ -292,10 +286,11 @@ public class PayDialogFragmentTest {
 
         dialog.getView().findViewById(R.id.paste_address_btn).performClick();
 
-        TextView primaryCurrency = dialog.getView().findViewById(R.id.primary_currency);
-        TextView secondaryCurrency = dialog.getView().findViewById(R.id.secondary_currency);
-        assertThat(primaryCurrency.getText().toString(), equalTo(new BTCCurrency("1.0").toFormattedCurrency()));
-        assertThat(secondaryCurrency.getText().toString(), equalTo(new USDCurrency(5000d).toFormattedCurrency()));
+        TextView primaryCurrency = withId(dialog.getView(), R.id.primary_currency);
+        TextView secondaryCurrency = withId(dialog.getView(), R.id.secondary_currency);
+
+        assertThat(primaryCurrency, hasText("1"));
+        assertThat(secondaryCurrency, hasText("$5,000.00"));
     }
 
     @Test
@@ -310,10 +305,11 @@ public class PayDialogFragmentTest {
 
         dialog.getView().findViewById(R.id.paste_address_btn).performClick();
 
-        TextView primaryCurrency = dialog.getView().findViewById(R.id.primary_currency);
-        TextView secondaryCurrency = dialog.getView().findViewById(R.id.secondary_currency);
-        assertThat(primaryCurrency.getText().toString(), equalTo(new BTCCurrency("1.0").toFormattedCurrency()));
-        assertThat(secondaryCurrency.getText().toString(), equalTo(new USDCurrency(5000d).toFormattedCurrency()));
+        TextView primaryCurrency = withId(dialog.getView(), R.id.primary_currency);
+        TextView secondaryCurrency = withId(dialog.getView(), R.id.secondary_currency);
+
+        assertThat(primaryCurrency, hasText("1"));
+        assertThat(secondaryCurrency, hasText("$5,000.00"));
     }
 
     @Test
@@ -321,13 +317,13 @@ public class PayDialogFragmentTest {
         USDCurrency usd = new USDCurrency(5000.00D);
         BTCCurrency btc = new BTCCurrency(1.0D);
         paymentHolder.loadPaymentFrom(btc);
-
         startFragment();
 
-        TextView primaryCurrency = dialog.getView().findViewById(R.id.primary_currency);
-        TextView secondaryCurrency = dialog.getView().findViewById(R.id.secondary_currency);
-        assertThat(primaryCurrency.getText().toString(), equalTo(btc.toFormattedCurrency()));
-        assertThat(secondaryCurrency.getText().toString(), equalTo(usd.toFormattedCurrency()));
+        TextView primaryCurrency = withId(dialog.getView(), R.id.primary_currency);
+        TextView secondaryCurrency = withId(dialog.getView(), R.id.secondary_currency);
+
+        assertThat(primaryCurrency, hasText("1"));
+        assertThat(secondaryCurrency, hasText("$5,000.00"));
     }
 
     @Test
@@ -342,8 +338,6 @@ public class PayDialogFragmentTest {
         assertThat(primaryCurrency.getText().toString(), equalTo(usd.toFormattedCurrency()));
         assertThat(secondaryCurrency.getText().toString(), equalTo(btc.toFormattedCurrency()));
     }
-
-    // VALIDATION
 
     @Test
     public void shows_error_when_address_not_valid() {
@@ -361,8 +355,7 @@ public class PayDialogFragmentTest {
         verify(paymentUtil).clearErrors();
     }
 
-
-    // SHARED MEMOS
+    // VALIDATION
 
     @Test
     public void sending_adds_memo_and_sharing_to_payment_holder() {
@@ -388,6 +381,9 @@ public class PayDialogFragmentTest {
         assertThat(paymentHolder.getMemo(), equalTo("--memo--"));
         assertThat(paymentHolder.getIsSharingMemo(), equalTo(false));
     }
+
+
+    // SHARED MEMOS
 
     @Test
     public void canceling_transaction_clears_memo() {
@@ -420,7 +416,6 @@ public class PayDialogFragmentTest {
 
         verify(dialog.memoToggleView).showSharedMemoViews();
     }
-
 
     @Test
     public void shows_shared_memos_when_valid_number_returns_with_pub_key() {
@@ -466,15 +461,6 @@ public class PayDialogFragmentTest {
         assertThat(paymentReceiverView.getCountryCodeLocales(), equalTo(countryCodeLocales));
     }
 
-    // PASTING ADDRESS
-
-    private void mockClipboardWithData(String rawString) throws UriException {
-        when(clipboardUtil.getRaw()).thenReturn(rawString);
-        BitcoinUri bitcoinUri = mock(BitcoinUri.class);
-        when(bitcoinUri.getAddress()).thenReturn(rawString);
-        when(bitcoinUtil.parse(rawString)).thenReturn(bitcoinUri);
-    }
-
     @Test
     public void pasting_address_with_valid_address_sets_address_on_payment_receiver_view() throws UriException {
         String rawString = "3EqhexhZ2cuBCPMq9kPpqj9m3R6aFzCKoo";
@@ -488,6 +474,7 @@ public class PayDialogFragmentTest {
         verify(paymentUtil).setAddress(rawString);
     }
 
+    // PASTING ADDRESS
 
     @Test
     public void pasting_invalid_address_shows_error_and_does_not_set_address() throws UriException {
@@ -565,8 +552,6 @@ public class PayDialogFragmentTest {
         assertThat(paymentReceiverView.getPhoneNumber(), equalTo("+1"));
     }
 
-    // SCAN PAYMENT ADDRESS
-
     @Test
     public void scanning_address__valid_address__no_amount() throws UriException {
         String cryptoString = "bitcoin:38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4";
@@ -602,9 +587,11 @@ public class PayDialogFragmentTest {
 
         EditText primaryCurrency = withId(dialog.getView(), R.id.primary_currency);
         PaymentReceiverView paymentReceiverView = withId(dialog.getView(), R.id.payment_receiver);
-        assertThat(primaryCurrency, hasText("\u20BF 0.01542869"));
+        assertThat(primaryCurrency, hasText("0.01542869"));
         assertThat(paymentReceiverView.getPaymentAddress(), equalTo("38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4"));
     }
+
+    // SCAN PAYMENT ADDRESS
 
     @Test
     public void clears_pub_key_when_scanning() throws UriException {
@@ -737,7 +724,6 @@ public class PayDialogFragmentTest {
         verify(paymentBarCallbacks).confirmInvite(contact);
     }
 
-
     @Test
     public void directs_user_to_verify_phone_when_selecting_contacts() {
         startFragment();
@@ -787,6 +773,18 @@ public class PayDialogFragmentTest {
         dialog.onDismiss(mock(DialogInterface.class));
 
         verify(cnAddressLookupDelegate).teardown();
+    }
+
+    private void startFragment() {
+        fragmentController.start().resume().visible();
+        shadowActivity = shadowOf(dialog.getActivity());
+    }
+
+    private void mockClipboardWithData(String rawString) throws UriException {
+        when(clipboardUtil.getRaw()).thenReturn(rawString);
+        BitcoinUri bitcoinUri = mock(BitcoinUri.class);
+        when(bitcoinUri.getAddress()).thenReturn(rawString);
+        when(bitcoinUtil.parse(rawString)).thenReturn(bitcoinUri);
     }
 
 }
