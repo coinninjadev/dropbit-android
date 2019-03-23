@@ -29,6 +29,7 @@ public class AuthenticateFragment extends BaseFragment implements AuthenticateFr
         FingerprintAuthPresenter.View {
 
     public static final String IS_AUTHENTICATING_WITH_FINGERPRINT = "isAuthenticatingWithFingers";
+    public static final String DIALOG_PREF_FINGERPRINT = "DIALOG_PREF_FINGERPRINT";
     private PinEditText pinInput;
     private View fingerPrintBTN;
 
@@ -191,8 +192,10 @@ public class AuthenticateFragment extends BaseFragment implements AuthenticateFr
 
     @Override
     public void showAuthenticateWithFingerprint() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_PREF_FINGERPRINT) != null) return;
+
         fingerprintAuthDialog = FingerprintAuthDialog.newInstance(fingerprintAuthPresenter, R.layout.dialog_fingerprint);
-        fingerprintAuthDialog.show(getFragmentManager(), "DIALOG_PREF_FINGERPRINT");
+        fingerprintAuthDialog.show(getFragmentManager(), DIALOG_PREF_FINGERPRINT);
     }
 
     @Override
@@ -221,10 +224,6 @@ public class AuthenticateFragment extends BaseFragment implements AuthenticateFr
     public void teardownMute() {
         isMuted = false;
         onResume();
-    }
-
-    public void forceReAuth() {
-        forceAuth = true;
     }
 
     //TODO REMOVE HACK
