@@ -20,6 +20,8 @@ import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
@@ -102,12 +104,22 @@ public class PayDialogFragmentTest {
 
     private List<CountryCodeLocale> countryCodeLocales = new ArrayList<>();
 
+    @Mock
+    CurrencyPreference currencyPreference;
+
+    @Mock
+    DefaultCurrencies defaultCurrencies;
+
     @Before
     public void setUp() throws Exception {
 
         MockitoAnnotations.initMocks(this);
+        when(defaultCurrencies.getPrimaryCurrency()).thenReturn(new USDCurrency());
+        when(defaultCurrencies.getSecondaryCurrency()).thenReturn(new BTCCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         paymentHolder = new PaymentHolder(new USDCurrency(5000d), new TransactionFee(5, 10, 15));
-        paymentHolder.loadPaymentFrom(new USDCurrency(5000d));
+        paymentHolder.setDefaultCurrencies(defaultCurrencies);
+        paymentHolder.updateValue(new USDCurrency(5000d));
         when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
         when(preferenceInteractor.getShouldShowInviteHelp()).thenReturn(true);
         addressLookupResult = new AddressLookupResult();
@@ -241,7 +253,7 @@ public class PayDialogFragmentTest {
 
     @Test
     public void on_primary_text_clicked_clears_text_when_currency_is_zero() {
-        paymentHolder.loadPaymentFrom(new USDCurrency(0d));
+        paymentHolder.updateValue(new USDCurrency(0d));
         startFragment();
 
         TextView view = dialog.getView().findViewById(R.id.primary_currency);
@@ -264,7 +276,7 @@ public class PayDialogFragmentTest {
 
     @Test
     public void on_primary_text_clicked_does_not_clear_text_when_there_is_a_value() {
-        paymentHolder.loadPaymentFrom(new USDCurrency(10d));
+        paymentHolder.updateValue(new USDCurrency(10d));
         startFragment();
 
         TextView view = dialog.getView().findViewById(R.id.primary_currency);
@@ -275,9 +287,10 @@ public class PayDialogFragmentTest {
 
     @Test
     public void given_btc_as_primary_pasting_address_with_out_amount_keeps_btc() throws UriException {
+        paymentHolder.toggleCurrencies();
         String value = "bitcoin:34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R?amount=0";
         when(clipboardUtil.getRaw()).thenReturn(value);
-        paymentHolder.loadPaymentFrom(new BTCCurrency("1.0"));
+        paymentHolder.updateValue(new BTCCurrency("1.0"));
         BitcoinUri uri = mock(BitcoinUri.class);
         when(bitcoinUtil.parse(value)).thenReturn(uri);
         when(uri.getAddress()).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R");
@@ -295,6 +308,7 @@ public class PayDialogFragmentTest {
 
     @Test
     public void given_usd_as_primary_pasting_address_with_amount_toggles_primary_to_btc() throws UriException {
+        paymentHolder.toggleCurrencies();
         String value = "bitcoin:34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R?amount=100000000";
         when(clipboardUtil.getRaw()).thenReturn(value);
         BitcoinUri uri = mock(BitcoinUri.class);
@@ -314,9 +328,11 @@ public class PayDialogFragmentTest {
 
     @Test
     public void shows_price_when_BTC_primary() {
+        paymentHolder.toggleCurrencies();
         USDCurrency usd = new USDCurrency(5000.00D);
         BTCCurrency btc = new BTCCurrency(1.0D);
-        paymentHolder.loadPaymentFrom(btc);
+        paymentHolder.updateValue(btc);
+
         startFragment();
 
         TextView primaryCurrency = withId(dialog.getView(), R.id.primary_currency);

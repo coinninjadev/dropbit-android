@@ -56,7 +56,7 @@ public class CurrencyPreferenceTest {
         when(currencyFactory.fromSymbol(BTCCurrency.SYMBOL)).thenReturn(new BTCCurrency());
         when(currencyFactory.fromSymbol(USDCurrency.SYMBOL)).thenReturn(new USDCurrency());
 
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = currencyPreference.getCurrenciesPreference();
+        DefaultCurrencies defaultCurrencies = currencyPreference.getCurrenciesPreference();
 
         assertThat(defaultCurrencies.getPrimaryCurrency().getSymbol(), equalTo(BTCCurrency.SYMBOL));
         assertThat(defaultCurrencies.getSecondaryCurrency().getSymbol(), equalTo(USDCurrency.SYMBOL));
@@ -72,7 +72,7 @@ public class CurrencyPreferenceTest {
         when(currencyFactory.fromSymbol(BTCCurrency.SYMBOL)).thenReturn(new BTCCurrency());
         when(currencyFactory.fromSymbol(USDCurrency.SYMBOL)).thenReturn(new USDCurrency());
 
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = currencyPreference.toggleDefault();
+        DefaultCurrencies defaultCurrencies = currencyPreference.toggleDefault();
 
         verify(preferencesUtil).savePreference(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.SYMBOL);
         verify(preferencesUtil).savePreference(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.SYMBOL);

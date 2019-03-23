@@ -127,11 +127,6 @@ public class PaymentUtil implements FundedCallback {
         return paymentHolder;
     }
 
-    public BTCCurrency setUSDPayment(double paymentAmmount) {
-        fundingUTXOs = null;
-        return (BTCCurrency) paymentHolder.loadPaymentFrom(new USDCurrency(paymentAmmount));
-    }
-
     public boolean isValid() {
         return isValidPaymentMethod() && isValidPaymentAmount() && isFunded();
     }
@@ -143,7 +138,7 @@ public class PaymentUtil implements FundedCallback {
 
     private boolean isValidPaymentAmount() {
         BTCCurrency btcCurrency = paymentHolder.getBtcCurrency();
-        USDCurrency usdCurrency = paymentHolder.getUsdCurrency();
+        USDCurrency usdCurrency = (USDCurrency) paymentHolder.getFiat();
 
         boolean isValid = btcCurrency.isValid() && btcCurrency.toSatoshis() > 0;
 
@@ -159,7 +154,7 @@ public class PaymentUtil implements FundedCallback {
         }
 
         isValid = !((paymentMethod == PaymentMethod.INVITE) &&
-                paymentHolder.getUsdCurrency().toLong() > Intents.MAX_DOLLARS_SENT_THROUGH_CONTACTS);
+                paymentHolder.getFiat().toLong() > Intents.MAX_DOLLARS_SENT_THROUGH_CONTACTS);
 
         if (!isValid) {
             errorMessage = getString(R.string.payment_error_too_much_sent_to_contact);

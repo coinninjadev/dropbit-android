@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.model;
 
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -10,15 +11,13 @@ import javax.inject.Inject;
 public class PaymentHolder {
     private Currency evaluationCurrency;
     private TransactionFee transactionFee;
-    private PaymentMode paymentMode;
-
-    private USDCurrency usdCurrency;
-    private BTCCurrency btcCurrency;
     private BTCCurrency spendableBalance;
     private boolean isSharingMemo = true;
     private String publicKey = "";
     private String memo = "";
     private String paymentAddress = "";
+
+    private DefaultCurrencies defaultCurrencies;
 
     @Inject
     public PaymentHolder() {
@@ -31,27 +30,37 @@ public class PaymentHolder {
         spendableBalance = new BTCCurrency(0L);
     }
 
-    public Currency loadPaymentFrom(Currency currency) {
-        if (currency instanceof BTCCurrency) {
-            btcCurrency = (BTCCurrency) currency;
-            paymentMode = PaymentMode.CRYPTO;
-            usdCurrency = btcCurrency.toUSD(evaluationCurrency);
-            return usdCurrency;
-        } else {
-            usdCurrency = (USDCurrency) currency;
-            paymentMode = PaymentMode.FIAT;
-            btcCurrency = usdCurrency.toBTC(evaluationCurrency);
-            return btcCurrency;
-        }
+    public void setDefaultCurrencies(DefaultCurrencies defaultCurrencies) {
+        this.defaultCurrencies = defaultCurrencies;
     }
 
-    @Deprecated
-    public USDCurrency getUsdCurrency() {
-        return usdCurrency;
+    public Currency updateValue(Currency currency) {
+        if (currency.isCrypto() != getPrimaryCurrency().isCrypto()) {
+            toggleCurrencies();
+        }
+
+        String formattedAmount = currency.toFormattedString();
+        Currency primaryCurrency = defaultCurrencies.getPrimaryCurrency();
+        primaryCurrency.update(formattedAmount);
+        Currency secondaryCurrency;
+
+        if (primaryCurrency.isCrypto()) {
+            secondaryCurrency = primaryCurrency.toUSD(evaluationCurrency);
+        } else {
+            secondaryCurrency = primaryCurrency.toBTC(evaluationCurrency);
+        }
+
+        defaultCurrencies.getSecondaryCurrency().update(secondaryCurrency.toFormattedString());
+        return secondaryCurrency;
     }
 
     public BTCCurrency getBtcCurrency() {
-        return btcCurrency;
+        return (BTCCurrency) getCryptoCurrency();
+    }
+
+    public void toggleCurrencies() {
+        DefaultCurrencies newDefaults = new DefaultCurrencies(defaultCurrencies.getSecondaryCurrency(), defaultCurrencies.getPrimaryCurrency());
+        defaultCurrencies = newDefaults;
     }
 
     public Currency getEvaluationCurrency() {
@@ -102,34 +111,20 @@ public class PaymentHolder {
         this.spendableBalance = spendableBalance;
     }
 
-    public PaymentMode getPaymentMode() {
-        return paymentMode;
-    }
-
     public Currency getPrimaryCurrency() {
-        Currency currency;
-
-        if (paymentMode == PaymentMode.CRYPTO) {
-            currency = btcCurrency;
-        } else {
-            currency = usdCurrency;
-        }
-
-        return currency;
+        return defaultCurrencies.getPrimaryCurrency();
     }
 
     public Currency getSecondaryCurrency() {
-        Currency currency;
-        if (paymentMode == PaymentMode.CRYPTO) {
-            currency = usdCurrency;
-        } else {
-            currency = btcCurrency;
-        }
-        return currency;
+        return defaultCurrencies.getSecondaryCurrency();
+    }
+
+    public Currency getFiat() {
+        return defaultCurrencies.getFiat();
     }
 
     public Currency getCryptoCurrency() {
-        return btcCurrency;
+        return defaultCurrencies.getCrypto();
     }
 
     public void setPaymentAddress(String paymentAddress) {
@@ -151,9 +146,5 @@ public class PaymentHolder {
     public void clearPayment() {
         publicKey = "";
         paymentAddress = "";
-    }
-
-    public enum PaymentMode {
-        CRYPTO, FIAT
     }
 }

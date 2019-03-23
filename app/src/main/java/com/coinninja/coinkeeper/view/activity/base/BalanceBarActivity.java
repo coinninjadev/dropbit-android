@@ -17,6 +17,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
@@ -50,7 +51,7 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     private BTCCurrency btcBalance;
     private TextView primaryBalance;
     private TextView secondaryBalance;
-    private CurrencyPreference.DefaultCurrencies defaultCurrencies;
+    private DefaultCurrencies defaultCurrencies;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,7 +103,6 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
         super.onDestroy();
     }
 
-
     @Override
     public void onServiceConnected(ComponentName name, IBinder binder) {
         serviceBinder = (BlockChainService.BlockChainBinder) binder;
@@ -125,7 +125,6 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
             serviceBinder.getService().fetchCurrentState();
     }
 
-
     @CallSuper
     protected void onWalletSyncComplete() {
         invalidateBalance();
@@ -143,7 +142,6 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
         invalidateSecondary();
         invalidateSymbol();
     }
-
 
     private void invalidatePrimary() {
         String value = "";
@@ -190,7 +188,6 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     private Drawable getDrawableFor(CryptoCurrency currency) {
         return currency.getSymbolDrawable(this);
     }
-
 
     private String getHoldingsOfCrypto() {
         btcBalance = new BTCCurrency(walletHelper.getBalance());
