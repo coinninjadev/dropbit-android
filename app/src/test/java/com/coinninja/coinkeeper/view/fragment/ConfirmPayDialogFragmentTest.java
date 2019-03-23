@@ -21,6 +21,8 @@ import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.service.runner.FundingRunnable;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -89,6 +91,12 @@ public class ConfirmPayDialogFragmentTest {
     private PaymentHolder paymentHolder = new PaymentHolder(eval, transactionFee);
     private ShadowActivity shadowActivity;
 
+    @Mock
+    CurrencyPreference currencyPreference;
+
+    @Mock
+    DefaultCurrencies defaultCurrencies;
+
     @Before
     public void setUp() throws Exception {
         transactionHolder = new UnspentTransactionHolder(1100L,
@@ -100,6 +108,12 @@ public class ConfirmPayDialogFragmentTest {
                 "--pay to address"
         );
         MockitoAnnotations.initMocks(this);
+        when(defaultCurrencies.getPrimaryCurrency()).thenReturn(new USDCurrency());
+        when(defaultCurrencies.getSecondaryCurrency()).thenReturn(new BTCCurrency());
+        when(defaultCurrencies.getFiat()).thenReturn(new USDCurrency());
+        when(defaultCurrencies.getCrypto()).thenReturn(new BTCCurrency());
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        paymentHolder.setDefaultCurrencies(defaultCurrencies);
         fragmentController = Robolectric.buildFragment(ConfirmPayDialogFragment.class);
         dialog = fragmentController.get();
 
@@ -112,7 +126,7 @@ public class ConfirmPayDialogFragmentTest {
         parcel.writeDouble(maxFee);
         parcel.setDataPosition(0);
         transactionFee = new TransactionFee(parcel);
-        paymentHolder.loadPaymentFrom(new USDCurrency("50"));
+        paymentHolder.updateValue(new USDCurrency("50"));
         when(hdWallet.getFeeForTransaction(any(), eq(3))).thenReturn(new BTCCurrency("0.5"));
         fragmentController.create();
         dialog.onAttach(dialog.getActivity());
@@ -126,6 +140,12 @@ public class ConfirmPayDialogFragmentTest {
         FundingRunnable.FundedHolder fundholder = mock(FundingRunnable.FundedHolder.class);
         when(fundingRunnable.evaluateFundingUTXOs(any(FundingUTXOs.class))).thenReturn(fundholder);
         when(fundholder.getUnspentTransactionHolder()).thenReturn(transactionHolder);
+
+        paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
+
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        when(defaultCurrencies.getPrimaryCurrency()).thenReturn(new BTCCurrency());
+        when(defaultCurrencies.getSecondaryCurrency()).thenReturn(new USDCurrency());
     }
 
     private void show() {

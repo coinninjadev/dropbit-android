@@ -11,15 +11,24 @@ import java.util.Map;
 import javax.inject.Inject;
 
 public class CurrencyFactory {
-    @Inject
-    CurrencyFactory() {}
 
-    private static final Map<String, Currency> currencyMap;
-    static {
+    private Map<String, Currency> currencyMap = new HashMap();
+
+    @Inject
+    CurrencyFactory() {
+        reset();
+    }
+
+    private void setupDataSource() {
         Map<String, Currency> aMap = new HashMap<>();
         aMap.put(BTCCurrency.SYMBOL, new BTCCurrency());
         aMap.put(USDCurrency.SYMBOL, new USDCurrency());
         currencyMap = Collections.unmodifiableMap(aMap);
+    }
+
+    public void reset(){
+        currencyMap = new HashMap();
+        setupDataSource();
     }
 
     public Currency fromSymbol(String symbol) {

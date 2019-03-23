@@ -29,6 +29,7 @@ import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.text.CurrencyFormattingTextWatcher;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -104,7 +105,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_Dialog);
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -156,7 +156,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     // Currency Text Watcher Callbacks
     @Override
     public void onValid(Currency currency) {
-        paymentHolder.loadPaymentFrom(currency);
+        paymentHolder.updateValue(currency);
         updateSecondary();
     }
 
@@ -211,7 +211,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     }
 
     private void onPaymentChange(Currency currency) {
-        paymentUtil.getPaymentHolder().loadPaymentFrom(currency);
+        paymentUtil.getPaymentHolder().updateValue(currency);
         currencyFormattingTextWatcher.setCurrency(currency);
         showPrice();
     }
@@ -285,7 +285,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     }
 
     private void showPrice() {
-        PaymentHolder paymentHolder = paymentUtil.getPaymentHolder();
         primaryCurrency.setText(paymentHolder.getPrimaryCurrency().toFormattedCurrency());
         secondaryCurrency.setText(paymentHolder.getSecondaryCurrency().toFormattedCurrency());
     }

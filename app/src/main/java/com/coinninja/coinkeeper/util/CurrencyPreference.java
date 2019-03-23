@@ -20,6 +20,10 @@ public class CurrencyPreference {
         this.currencyFactory = currencyFactory;
     }
 
+    public void reset(){
+        currencyFactory.reset();
+    }
+
     public void setCurrencies(Currency primary, Currency secondary) {
         preferencesUtil.savePreference(PREFERENCE_PRIMARY_CURRENCY, primary.getSymbol());
         preferencesUtil.savePreference(PREFERENCE_SECONDARY_CURRENCY, secondary.getSymbol());
@@ -35,27 +39,11 @@ public class CurrencyPreference {
 
     public DefaultCurrencies toggleDefault() {
         DefaultCurrencies defaultCurrencies = getCurrenciesPreference();
-        setCurrencies(defaultCurrencies.secondaryCurrency, defaultCurrencies.primaryCurrency);
-        return new DefaultCurrencies(defaultCurrencies.secondaryCurrency, defaultCurrencies.primaryCurrency);
+        setCurrencies(defaultCurrencies.getSecondaryCurrency(), defaultCurrencies.getPrimaryCurrency());
+        return new DefaultCurrencies(defaultCurrencies.getSecondaryCurrency(), defaultCurrencies.getPrimaryCurrency());
     }
 
-    public static class DefaultCurrencies {
-        private final Currency primaryCurrency;
-        private final Currency secondaryCurrency;
-
-        public DefaultCurrencies(Currency primaryCurrency, Currency secondaryCurrency) {
-            this.primaryCurrency = primaryCurrency;
-            this.secondaryCurrency = secondaryCurrency;
-        }
-
-        public Currency getPrimaryCurrency() {
-            return primaryCurrency;
-        }
-
-        public Currency getSecondaryCurrency() {
-            return secondaryCurrency;
-        }
-
+    public Currency getFiat() {
+        return getCurrenciesPreference().getFiat();
     }
-
 }

@@ -16,6 +16,8 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.base.BaseFragment;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -23,7 +25,6 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.QrScanActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment;
@@ -54,6 +55,9 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
 
     @Inject
     WalletHelper walletHelper;
+
+    @Inject
+    CurrencyPreference currencyPreference;
 
     private PaymentBarView paymentBarView;
 
@@ -100,15 +104,18 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         super.onStart();
         localBroadcastUtil.registerReceiver(receiver, intentFilter);
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
-        paymentHolder.loadPaymentFrom(new BTCCurrency());
     }
 
     @Override
     public void onResume() {
         super.onResume();
         paymentBarView.setOnRequestPressedObserver(this::onRequestButtonPressed);
-        paymentBarView.setOnSendPressedObserver(this::showPayDialog);
+        paymentBarView.setOnSendPressedObserver(this::showPayDialogWithDefault);
         paymentBarView.setOnScanPressedObserver(this::onQrScanPressed);
+    }
+
+    private void showPayDialogWithDefault() {
+        showPayDialog(currencyPreference.getCurrenciesPreference());
     }
 
     @Override
@@ -150,7 +157,8 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     @Override
     public void cancelPayment(DialogFragment dialogFragment) {
         dialogFragment.dismiss();
-        paymentHolder.loadPaymentFrom(new USDCurrency(0d));
+        currencyPreference.reset();
+        paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
         paymentUtil.setAddress(null);
     }
 
@@ -160,7 +168,8 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         requestDialog.show(getFragmentManager(), RequestDialogFragment.class.getSimpleName());
     }
 
-    private void showPayDialog() {
+    private void showPayDialog(DefaultCurrencies currencyPreference) {
+        paymentHolder.setDefaultCurrencies(currencyPreference);
         paymentHolder.setEvaluationCurrency(walletHelper.getLatestPrice());
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
         paymentHolder.setTransactionFee(walletHelper.getLatestFee());
@@ -180,10 +189,14 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
             BitcoinUri bitcoinUri = bitcoinUtil.parse(scannedData);
             paymentUtil.setAddress(bitcoinUri.getAddress());
             Long amount = bitcoinUri.getSatoshiAmount();
+            DefaultCurrencies defaultCurrencies;
             if (amount != null && amount > 0) {
-                paymentHolder.loadPaymentFrom(new BTCCurrency(amount));
+                defaultCurrencies = new DefaultCurrencies(new BTCCurrency(amount), currencyPreference.getFiat());
+            } else {
+                defaultCurrencies = currencyPreference.getCurrenciesPreference();
             }
-            showPayDialog();
+
+            showPayDialog(defaultCurrencies);
         } catch (UriException e) {
             onScanError();
         }
