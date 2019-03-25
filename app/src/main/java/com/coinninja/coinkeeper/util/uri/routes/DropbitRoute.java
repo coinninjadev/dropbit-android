@@ -8,7 +8,7 @@ public enum DropbitRoute {
     REGULAR_TRANSACTION,
     TRANSACTION_DETAILS;
 
-    private final String TOOLTIP_ROUTE = "tooltip";
+    private final String TOOLTIP_ROUTE = "tooltips";
 
     DropbitRoute() {}
 
