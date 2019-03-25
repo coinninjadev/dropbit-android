@@ -16,17 +16,17 @@ public class DropbitUriBuilderTest {
 
     @Test
     public void test_dropbit_transaction_url() {
-        assertEquals(builder.build(DROPBIT_TRANSACTION).toString(), "https://dropbit.com/tooltip/dropbittransaction");
+        assertEquals(builder.build(DROPBIT_TRANSACTION).toString(), "https://dropbit.com/tooltips/dropbittransaction");
     }
 
     @Test
     public void test_regular_transaction_url() {
-        assertEquals(builder.build(REGULAR_TRANSACTION).toString(), "https://dropbit.com/tooltip/regulartransaction");
+        assertEquals(builder.build(REGULAR_TRANSACTION).toString(), "https://dropbit.com/tooltips/regulartransaction");
     }
 
     @Test
     public void test_transaction_details_url() {
-        assertEquals(builder.build(TRANSACTION_DETAILS).toString(), "https://dropbit.com/tooltip/transactiondetails");
+        assertEquals(builder.build(TRANSACTION_DETAILS).toString(), "https://dropbit.com/tooltips/transactiondetails");
     }
 
 }
