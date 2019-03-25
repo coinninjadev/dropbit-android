@@ -87,20 +87,20 @@ public class PaymentHolder {
         this.memo = memo;
     }
 
-    public void setIsSharingMemo(boolean sharingMemo) {
-        isSharingMemo = sharingMemo;
+    public String getPublicKey() {
+        return publicKey;
     }
 
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
     }
 
-    public String getPublicKey() {
-        return publicKey;
-    }
-
     public boolean getIsSharingMemo() {
         return isSharingMemo;
+    }
+
+    public void setIsSharingMemo(boolean sharingMemo) {
+        isSharingMemo = sharingMemo;
     }
 
     public BTCCurrency getSpendableBalance() {
@@ -127,12 +127,12 @@ public class PaymentHolder {
         return defaultCurrencies.getCrypto();
     }
 
-    public void setPaymentAddress(String paymentAddress) {
-        this.paymentAddress = paymentAddress;
-    }
-
     public String getPaymentAddress() {
         return paymentAddress;
+    }
+
+    public void setPaymentAddress(String paymentAddress) {
+        this.paymentAddress = paymentAddress;
     }
 
     public boolean hasPaymentAddress() {
@@ -146,5 +146,10 @@ public class PaymentHolder {
     public void clearPayment() {
         publicKey = "";
         paymentAddress = "";
+    }
+
+    public void setMaxLimitForFiat() {
+        if (evaluationCurrency != null)
+            USDCurrency.SET_MAX_LIMIT((USDCurrency) evaluationCurrency);
     }
 }

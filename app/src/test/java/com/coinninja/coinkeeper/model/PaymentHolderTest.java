@@ -10,16 +10,15 @@ import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.mockito.Mockito.when;
-
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.robolectric.annotation.Config;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Config(application = TestCoinKeeperApplication.class)
@@ -137,5 +136,14 @@ public class PaymentHolderTest {
 
         assertThat(holder.getPaymentAddress(), equalTo(""));
         assertThat(holder.getPublicKey(), equalTo(""));
+    }
+
+    @Test
+    public void sets_max_limit_for_fiat() {
+        holder.setEvaluationCurrency(new USDCurrency(1D));
+
+        holder.setMaxLimitForFiat();
+
+        assertThat(((USDCurrency) holder.getEvaluationCurrency()).getMaxLongValue(), equalTo(2099999998L));
     }
 }
