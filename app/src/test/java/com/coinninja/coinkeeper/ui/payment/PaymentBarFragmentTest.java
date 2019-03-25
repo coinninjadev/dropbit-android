@@ -162,9 +162,11 @@ public class PaymentBarFragmentTest {
         assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
         assertThat(paymentHolder.getTransactionFee(), equalTo(initialFee));
         verify(fragment.paymentUtil).setPaymentHolder(fragment.paymentHolder);
+        when(paymentUtil.getPaymentHolder()).thenReturn(fragment.paymentHolder);
         PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
         assertNotNull(payDialog);
         assertThat(payDialog.getPaymentUtil(), equalTo(fragment.paymentUtil));
+        assertThat(payDialog.getPaymentUtil().getPaymentHolder(), equalTo(fragment.paymentHolder));
     }
 
     @Test
@@ -175,7 +177,6 @@ public class PaymentBarFragmentTest {
 
         RequestDialogFragment requestDialogFragment = (RequestDialogFragment) fragment.getFragmentManager().findFragmentByTag(RequestDialogFragment.class.getSimpleName());
         assertNotNull(requestDialogFragment);
-        assertThat(requestDialogFragment.getPaymentHolder(), equalTo(paymentHolder));
 
         PaymentHolder paymentHolder = requestDialogFragment.getPaymentHolder();
         assertThat(paymentHolder.getCryptoCurrency().toLong(), equalTo(0L));
@@ -266,4 +267,26 @@ public class PaymentBarFragmentTest {
         assertThat(paymentHolder.getPrimaryCurrency().toLong(), equalTo(1000000000L));
     }
 
+    @Test
+    public void clears_payment_info_when_payment_canceled() {
+        start();
+
+        clickOn(sendButton);
+        paymentHolder.setPaymentAddress("--address--");
+
+        PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
+        fragment.cancelPayment(payDialog);
+
+        assertThat(fragment.paymentHolder.getPaymentAddress(), equalTo(""));
+    }
+
+    @Test
+    public void clears_payment_info_when_processing_new_payment() {
+        start();
+        paymentHolder.setPaymentAddress("--address--");
+
+        clickOn(requestButton);
+
+        assertThat(fragment.paymentHolder.getPaymentAddress(), equalTo(""));
+    }
 }
