@@ -163,6 +163,10 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     }
 
     void onRequestButtonPressed() {
+        paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
+        paymentHolder.setEvaluationCurrency(walletHelper.getLatestPrice());
+        paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
+        paymentHolder.setTransactionFee(walletHelper.getLatestFee());
         RequestDialogFragment requestDialog = new RequestDialogFragment();
         requestDialog.setPaymentHolder(paymentHolder);
         requestDialog.show(getFragmentManager(), RequestDialogFragment.class.getSimpleName());

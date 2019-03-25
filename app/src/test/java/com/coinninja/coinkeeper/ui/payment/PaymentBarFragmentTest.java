@@ -76,7 +76,7 @@ public class PaymentBarFragmentTest {
     private View scanButton;
 
     private USDCurrency usdCurrency = new USDCurrency();
-    private BTCCurrency btcCurrency = new BTCCurrency(10.d);
+    private BTCCurrency btcCurrency = new BTCCurrency();
 
     private DefaultCurrencies defaultCurrencies;
 
@@ -102,7 +102,6 @@ public class PaymentBarFragmentTest {
         when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         when(currencyPreference.getFiat()).thenReturn(usdCurrency);
-        paymentHolder.setDefaultCurrencies(defaultCurrencies);
     }
 
     @After
@@ -123,13 +122,6 @@ public class PaymentBarFragmentTest {
 
     private void start() {
         fragmentController.start().resume().visible();
-    }
-
-    @Test
-    public void initializes_with_primary_currency() {
-        start();
-
-        assertThat(paymentHolder.getPrimaryCurrency().toFormattedCurrency(), equalTo(btcCurrency.toFormattedCurrency()));
     }
 
     @Test
@@ -184,6 +176,11 @@ public class PaymentBarFragmentTest {
         RequestDialogFragment requestDialogFragment = (RequestDialogFragment) fragment.getFragmentManager().findFragmentByTag(RequestDialogFragment.class.getSimpleName());
         assertNotNull(requestDialogFragment);
         assertThat(requestDialogFragment.getPaymentHolder(), equalTo(paymentHolder));
+
+        PaymentHolder paymentHolder = requestDialogFragment.getPaymentHolder();
+        assertThat(paymentHolder.getCryptoCurrency().toLong(), equalTo(0L));
+        assertThat(paymentHolder.getFiat().toLong(), equalTo(0L));
+        assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
     }
 
     @Test
