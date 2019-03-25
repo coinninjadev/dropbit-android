@@ -38,6 +38,7 @@ import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -122,7 +123,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public AccountManager accountManager;
     @Inject
     public CurrencyPreference currencyPreference;
-    public CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+    public DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
 
     @Override
     public void afterTest(Method method) {
@@ -249,10 +250,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         return pinEntry;
     }
 
-    @Override
-    public InternalNotificationHelper getInternalNotificationHelper() {
-        return internalNotificationHelper;
-    }
 }
 
 

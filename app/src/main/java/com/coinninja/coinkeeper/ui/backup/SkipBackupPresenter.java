@@ -2,19 +2,19 @@ package com.coinninja.coinkeeper.ui.backup;
 
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.Intent;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import javax.inject.Inject;
 
 public class SkipBackupPresenter implements DialogInterface.OnClickListener {
 
+    private final ActivityNavigationUtil activityNavigationUtil;
     private Activity activity;
     private String[] words;
     private Analytics analytics;
@@ -22,10 +22,11 @@ public class SkipBackupPresenter implements DialogInterface.OnClickListener {
     private NotificationUtil notificationUtil;
 
     @Inject
-    SkipBackupPresenter(Analytics analytics, CNWalletManager cnWalletManager, NotificationUtil notificationUtil) {
+    SkipBackupPresenter(Analytics analytics, CNWalletManager cnWalletManager, NotificationUtil notificationUtil, ActivityNavigationUtil activityNavigationUtil) {
         this.analytics = analytics;
         this.cnWalletManager = cnWalletManager;
         this.notificationUtil = notificationUtil;
+        this.activityNavigationUtil = activityNavigationUtil;
     }
 
     public void presentSkip(Activity activity, String[] words) {
@@ -45,9 +46,7 @@ public class SkipBackupPresenter implements DialogInterface.OnClickListener {
             notificationUtil.dispatchInternalError(activity.getString(R.string.message_dont_forget_to_backup));
             analytics.trackEvent(Analytics.EVENT_WALLET_BACKUP_SKIPPED);
             cnWalletManager.skipBackup(words);
-            Intent intent = new Intent(activity, CalculatorActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            activity.startActivity(intent);
+            activityNavigationUtil.navigateToHome(activity);
         }
 
     }

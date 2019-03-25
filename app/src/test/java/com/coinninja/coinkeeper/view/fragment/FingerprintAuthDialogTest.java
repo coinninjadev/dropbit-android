@@ -46,7 +46,7 @@ public class FingerprintAuthDialogTest {
         dialog = fragmentController.get();
         dialog.setAuthUIPresentor(mockPresentor);
         dialog.setLayoutId(R.layout.dialog_fingerprint);
-        fragmentController.create().resume().start().visible();
+        fragmentController.create().start().resume().visible();
     }
 
     @After

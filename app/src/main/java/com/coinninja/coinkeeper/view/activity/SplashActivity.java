@@ -16,6 +16,7 @@ import com.coinninja.coinkeeper.receiver.StartupCompleteReceiver;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
 import javax.inject.Inject;
 
@@ -35,6 +36,8 @@ public class SplashActivity extends BaseActivity {
     UserHelper userHelper;
     @Inject
     Authentication authentication;
+    @Inject
+    ActivityNavigationUtil activityNavigationUtil;
 
     @SuppressLint("NewApi")
     @Override
@@ -92,7 +95,7 @@ public class SplashActivity extends BaseActivity {
         localBroadCastUtil.sendGlobalBroadcast(StartupCompleteReceiver.class,
                 Intents.ACTION_ON_APPLICATION_FOREGROUND_STARTUP);
         if (cnWalletManager.hasWallet()) {
-            navigateToCalculator();
+            activityNavigationUtil.navigateToHome(this);
         } else {
             newUserEvaluation();
         }
@@ -128,11 +131,6 @@ public class SplashActivity extends BaseActivity {
         overridePendingTransition(0, 0);
     }
 
-    private void navigateToCalculator() {
-        Intent intent = new Intent(this, CalculatorActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-    }
 
     public CreateUserTask getCreateUserTask() {
         return createUserTask;

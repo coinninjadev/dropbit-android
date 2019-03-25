@@ -6,10 +6,21 @@ import android.text.TextWatcher;
 
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.google.zxing.common.StringUtils;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 import javax.inject.Inject;
 
+import static java.lang.String.format;
+
 public class CurrencyFormattingTextWatcher implements TextWatcher {
+    private final String decimalSeparator;
+    private final String decimalPattern;
+    private final char groupingSeparator;
     private Callback callback;
     private Currency currency;
     private boolean selfChanged;
@@ -25,11 +36,21 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
             public void onInvalid(String text) {
             }
         };
-        currency = new USDCurrency();
+        DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance();
+        decimalSeparator = String.valueOf(decimalFormatSymbols.getDecimalSeparator());
+        groupingSeparator = decimalFormatSymbols.getGroupingSeparator();
+        decimalPattern = format("\\%1$s", decimalSeparator);
+        setCurrency(new USDCurrency());
     }
 
     public void setCurrency(Currency currency) {
-        this.currency = currency;
+        try {
+            this.currency = currency.getClass().newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.currency = currency;
+        }
+        this.currency.setCurrencyFormat(currency.getIncrementalFormat());
     }
 
     public void setCallback(Callback callback) {
@@ -51,47 +72,94 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
             return;
         }
 
-        String orig = editable.toString();
-        String value = orig;
-        boolean endsInDecimal = value.endsWith(".");
-        value = value.replace(currency.getSymbol(), "").trim();
-        if (value.isEmpty()) {
-            value = "0";
-        }
+        String value = editable.toString();
 
-        int trailingZeros = calculateTrailingZeros(value);
-
-        if (currency.update(value) && trailingZeros <= currency.getMaxNumSubValues()) {
-            updateText(editable, endsInDecimal, trailingZeros);
-            //TODO: I don't think we need a success callback
+        if (isValid(value) && currency.update(value)) {
+            updateText(editable, value);
             callback.onValid(currency);
         } else {
-            updateText(editable, endsInDecimal, trailingZeros - 1);
-            callback.onInvalid(orig);
+            updateText(editable, undoChange(value));
+            callback.onInvalid(value);
         }
+
     }
 
-    private void updateText(Editable editable, boolean endsInDecimal, int trailingZeros) {
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    @NotNull
+    private String undoChange(String value) {
+        value = value.substring(0, value.length() - 1);
+        if (!currency.update(value)) {
+            value = undoChange(value);
+        }
+        return value;
+    }
+
+    private boolean isValid(String value) {
+        return !containsMultipleDecimals(value) &&
+                !hasGroupingAfterPrecision(value);
+    }
+
+    private boolean hasGroupingAfterPrecision(String value) {
+        int locationOfDecimalSeparator = value.lastIndexOf(decimalSeparator);
+        return (locationOfDecimalSeparator!= -1) && (locationOfDecimalSeparator < value.lastIndexOf(groupingSeparator));
+    }
+
+    private boolean containsMultipleDecimals(String value) {
+        return value.indexOf(decimalSeparator) != value.lastIndexOf(decimalSeparator);
+    }
+
+    private void updateText(Editable editable, String value) {
         selfChanged = true;
         editable.clear();
 
-        if (endsInDecimal) {
-            editable.append(currency.toIncrementalFormat(true));
-        } else {
-            editable.append(currency.toIncrementalFormat(trailingZeros));
-        }
+        editable.append(formatIncrement(value));
 
         Selection.setSelection(editable, editable.length());
         selfChanged = false;
     }
 
+    private String formatIncrement(String value) {
+        String formatted = currency.toFormattedCurrency();
+
+        if (value.endsWith(decimalSeparator))
+            formatted += decimalSeparator;
+
+        formatted = addTrailingZeros(value, formatted);
+
+        return formatted;
+    }
+
+    private String addTrailingZeros(String value, String formatted) {
+        int trailingZeros = calculateTrailingZeros(value);
+
+        if (trailingZeros > 0 && !formatted.contains(decimalSeparator)) {
+            formatted += decimalSeparator;
+        }
+
+        for (int i = 0; i < trailingZeros; i++) {
+            formatted += "0";
+        }
+        return formatted;
+    }
 
     private int calculateTrailingZeros(String value) {
         int trailingZeros = 0;
+        char zero = '0';
 
-        String[] split = value.split("\\.");
+        String[] split = value.split(decimalPattern);
         if (split.length == 2) {
-            trailingZeros = split[1].length();
+            String d = split[1];
+            for (char c : d.toCharArray()) {
+                if (zero == c) {
+                    trailingZeros += 1;
+                } else {
+                    trailingZeros = 0;
+                }
+            }
+            trailingZeros = Math.min(trailingZeros, currency.getMaxNumSubValues());
         }
         return trailingZeros;
     }

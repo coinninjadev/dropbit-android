@@ -40,7 +40,7 @@ public class TrainingPagerAdapterTest {
         application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
         ActivityController<TrainingActivity> trainingActivityController = Robolectric.buildActivity(TrainingActivity.class);
         activity = trainingActivityController.get();
-        trainingActivityController.create().resume().start();
+        trainingActivityController.create().start().resume();
 
         trainingPagerAdapter = new TrainingPagerAdapter(activity, activity);
     }

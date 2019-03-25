@@ -11,9 +11,9 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BackupActivity;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -83,24 +83,6 @@ public class BackupRecoveryWordsStartActivityTest {
         shadowActivity = shadowOf(activity);
     }
 
-    private void start() {
-        start(true);
-    }
-
-    private void start(boolean hasWallet) {
-        when(cnWalletManager.hasWallet()).thenReturn(hasWallet);
-        if (hasWallet) {
-            when(application.walletHelper.getSeedWords()).thenReturn(words);
-        } else {
-            when(application.walletHelper.getSeedWords()).thenReturn(new String[0]);
-        }
-        activityController.create();
-        activity.analytics = analytics;
-        activity.cnWalletManager = cnWalletManager;
-        activity.skipBackupPresenter = skipBackupPresenter;
-        activityController.resume().start().visible();
-    }
-
     @Test
     public void shows_time_to_complete_when_wallet_does_not_exist() {
         start(false);
@@ -108,9 +90,6 @@ public class BackupRecoveryWordsStartActivityTest {
         assertThat(activity.findViewById(R.id.time_to_complete).getVisibility(),
                 equalTo(View.VISIBLE));
     }
-
-    // Does Not Have Wallet
-
 
     @Test
     public void show_write_down_words_as_primary_button_test_when_wallet_does_not_exist() {
@@ -127,6 +106,8 @@ public class BackupRecoveryWordsStartActivityTest {
         assertThat(activity.findViewById(R.id.skip_and_backup_later).getVisibility(),
                 equalTo(View.VISIBLE));
     }
+
+    // Does Not Have Wallet
 
     @Test
     public void does_not_enable_close() {
@@ -160,7 +141,6 @@ public class BackupRecoveryWordsStartActivityTest {
         assertThat(intent.getComponent().getClassName(), equalTo(BackupActivity.class.getName()));
         assertTrue(shadowActivity.isFinishing());
     }
-
 
     @Test
     public void navigate_to_backup_activity_with_extras_create_view_state_when_no_wallet() {
@@ -265,8 +245,6 @@ public class BackupRecoveryWordsStartActivityTest {
                 equalTo("Write down words + Back up"));
     }
 
-    // Has Backed Up Wallet
-
     @Test
     public void hides_time_to_complete_when_wallet_does_not_exist() {
         when(cnWalletManager.hasSkippedBackup()).thenReturn(false);
@@ -287,6 +265,8 @@ public class BackupRecoveryWordsStartActivityTest {
         Intent intent = shadowActivity.getNextStartedActivity();
         assertThat(intent.getExtras().getInt(Intents.EXTRA_VIEW_STATE), equalTo(Intents.EXTRA_VIEW));
     }
+
+    // Has Backed Up Wallet
 
     @Test
     public void forwards_recovery_words_to_backup_activity() {
@@ -330,21 +310,6 @@ public class BackupRecoveryWordsStartActivityTest {
     }
 
     @Test
-    public void has_close_button_enabled() {
-        when(cnWalletManager.hasSkippedBackup()).thenReturn(false);
-        start();
-        shadowActivity.resetIsFinishing();
-        MenuItem closeMenuItem = mock(MenuItem.class);
-        when(closeMenuItem.getItemId()).thenReturn(R.id.action_close_btn);
-
-        activity.onCloseClicked();
-
-        Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getComponent().getClassName(), equalTo(CalculatorActivity.class.getName()));
-        assertThat(intent.getFlags(), equalTo(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
-    }
-
-    @Test
     public void authorizes_request_before_showing_recovery_words() {
         when(cnWalletManager.hasSkippedBackup()).thenReturn(false);
         start();
@@ -365,5 +330,23 @@ public class BackupRecoveryWordsStartActivityTest {
                 null);
 
         verify(analytics).trackEvent(Analytics.EVENT_VIEW_RECOVERY_WORDS);
+    }
+
+    private void start() {
+        start(true);
+    }
+
+    private void start(boolean hasWallet) {
+        when(cnWalletManager.hasWallet()).thenReturn(hasWallet);
+        if (hasWallet) {
+            when(application.walletHelper.getSeedWords()).thenReturn(words);
+        } else {
+            when(application.walletHelper.getSeedWords()).thenReturn(new String[0]);
+        }
+        activityController.create();
+        activity.analytics = analytics;
+        activity.cnWalletManager = cnWalletManager;
+        activity.skipBackupPresenter = skipBackupPresenter;
+        activityController.start().resume().visible();
     }
 }

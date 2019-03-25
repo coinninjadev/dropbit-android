@@ -61,7 +61,7 @@ public class InviteHelpDialogFragmentTest {
     }
 
     private void showDialog() {
-        fragmentController.create().resume().start().visible();
+        fragmentController.create().start().resume().visible();
     }
 
     @Test

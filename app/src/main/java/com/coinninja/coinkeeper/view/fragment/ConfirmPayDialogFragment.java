@@ -18,7 +18,7 @@ import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
-import com.coinninja.coinkeeper.presenter.activity.CalculatorActivityPresenter;
+import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.service.runner.FundingRunnable;
@@ -43,7 +43,7 @@ import static com.coinninja.android.helpers.Views.withId;
 public class ConfirmPayDialogFragment extends BaseDialogFragment implements ConfirmHoldButton.OnConfirmHoldEndListener, FundingTargetStatRunner.FundingTargetStatListener {
 
     static final int AUTHORIZE_PAYMENT_REQUEST_CODE = 10;
-    CalculatorActivityPresenter.View calculatorView;
+    PaymentBarCallbacks paymentBarCallbacks;
     UnspentTransactionHolder unspentTransactionHolder;
     @Inject
     FundingRunnable fundingRunnable;
@@ -63,35 +63,35 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
     private PaymentHolder paymentHolder;
     private SharedMemoView sharedMemoView;
 
-    public static ConfirmPayDialogFragment newInstance(Contact contact, PaymentHolder paymentHolder, CalculatorActivityPresenter.View calculatorView) {
+    public static ConfirmPayDialogFragment newInstance(Contact contact, PaymentHolder paymentHolder, PaymentBarCallbacks paymentBarCallbacks) {
         ConfirmPayDialogFragment fragment = new ConfirmPayDialogFragment();
         fragment.setContact(contact);
-        fragment.commonInit(paymentHolder, calculatorView);
+        fragment.commonInit(paymentHolder, paymentBarCallbacks);
         return fragment;
     }
 
-    public static ConfirmPayDialogFragment newInstance(String sendAddress, Contact contact, PaymentHolder paymentHolder, CalculatorActivityPresenter.View calculatorView) {
+    public static ConfirmPayDialogFragment newInstance(String sendAddress, Contact contact, PaymentHolder paymentHolder, PaymentBarCallbacks paymentBarCallbacks) {
         ConfirmPayDialogFragment fragment = new ConfirmPayDialogFragment();
         fragment.setSendAddress(sendAddress);
         fragment.setContact(contact);
-        fragment.commonInit(paymentHolder, calculatorView);
+        fragment.commonInit(paymentHolder, paymentBarCallbacks);
         return fragment;
     }
 
-    public static ConfirmPayDialogFragment newInstance(String btcAddress, PaymentHolder paymentHolder, CalculatorActivityPresenter.View calculatorView) {
+    public static ConfirmPayDialogFragment newInstance(String btcAddress, PaymentHolder paymentHolder, PaymentBarCallbacks paymentBarCallbacks) {
         ConfirmPayDialogFragment fragment = new ConfirmPayDialogFragment();
-        fragment.commonInit(paymentHolder, calculatorView);
+        fragment.commonInit(paymentHolder, paymentBarCallbacks);
         fragment.setSendAddress(btcAddress);
         return fragment;
     }
 
-    public void commonInit(PaymentHolder paymentHolder, CalculatorActivityPresenter.View calculatorView) {
+    public void commonInit(PaymentHolder paymentHolder, PaymentBarCallbacks paymentBarCallbacks) {
         setPaymentHolder(paymentHolder);
-        setCalculatorView(calculatorView);
+        setPaymentBarCallbacks(paymentBarCallbacks);
     }
 
-    private void setCalculatorView(CalculatorActivityPresenter.View calculatorView) {
-        this.calculatorView = calculatorView;
+    private void setPaymentBarCallbacks(PaymentBarCallbacks paymentBarCallbacks) {
+        this.paymentBarCallbacks = paymentBarCallbacks;
     }
 
     public Contact getContact() {
@@ -102,16 +102,8 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
         contact = phoneNumberSendTo;
     }
 
-    public String getSendAddress() {
-        return sendAddress;
-    }
-
     public void setSendAddress(String btcSendAddress) {
         sendAddress = btcSendAddress;
-    }
-
-    public PaymentHolder getPriceHolder() {
-        return paymentHolder;
     }
 
     public void setPaymentHolder(PaymentHolder paymentHolder) {
@@ -283,7 +275,7 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
     }
 
     private void onCloseClicked() {
-        calculatorView.cancelPayment(this);
+        paymentBarCallbacks.cancelPayment(this);
     }
 
     private void startBroadcast() {

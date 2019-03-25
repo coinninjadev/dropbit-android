@@ -38,7 +38,7 @@ public class NewWalletActivity_authenticateWithFingerprint {
         activity = activityController.get();
         activityController.newIntent(intent).create();
         activity.setPinFragmentPresenter(pinFragmentPresenter);
-        activityController.resume().start().visible();
+        activityController.start().resume().visible();
     }
 
     private String initWithNextIntent() {

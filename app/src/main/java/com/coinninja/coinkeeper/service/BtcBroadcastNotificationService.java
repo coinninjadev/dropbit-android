@@ -9,15 +9,10 @@ import android.content.res.Resources;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.ExternalNotification;
-import com.coinninja.coinkeeper.model.db.TransactionSummary;
-import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.Intents;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
-
-import org.greenrobot.greendao.query.LazyList;
 
 import java.util.List;
 
@@ -47,30 +42,6 @@ public class BtcBroadcastNotificationService extends JobIntentService {
         onHandleIntent(intent);
     }
 
-    protected void onHandleIntent(@Nullable Intent intent) {
-        List<ExternalNotification> notifications = externalNotificationHelper.getNotifications();
-        for (ExternalNotification notification : notifications) {
-            showNotification(notification);
-        }
-    }
-
-    private void showNotification(ExternalNotification notification) {
-        if (notification == null) {
-            return;
-        }
-
-        String txID = notification.getExtraData();
-        if (txID == null || txID.isEmpty()) return;
-
-        Intent clickedIntent = new Intent(this, CalculatorActivity.class);
-        clickedIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        clickedIntent.putExtra(Intents.EXTRA_TRANSACTION_ID, txID);
-
-        show(clickedIntent, notification);
-        externalNotificationHelper.removeNotification(notification);
-    }
-
-
     public void show(Intent intent, ExternalNotification notificationDAO) {
 
         String notificationMessage = notificationDAO.getMessage();
@@ -92,6 +63,29 @@ public class BtcBroadcastNotificationService extends JobIntentService {
 
     public void setExternalNotificationHelper(ExternalNotificationHelper externalNotificationHelper) {
         this.externalNotificationHelper = externalNotificationHelper;
+    }
+
+    protected void onHandleIntent(@Nullable Intent intent) {
+        List<ExternalNotification> notifications = externalNotificationHelper.getNotifications();
+        for (ExternalNotification notification : notifications) {
+            showNotification(notification);
+        }
+    }
+
+    private void showNotification(ExternalNotification notification) {
+        if (notification == null) {
+            return;
+        }
+
+        String txID = notification.getExtraData();
+        if (txID == null || txID.isEmpty()) return;
+
+        Intent clickedIntent = new Intent(this, TransactionHistoryActivity.class);
+        clickedIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        clickedIntent.putExtra(Intents.EXTRA_TRANSACTION_ID, txID);
+
+        show(clickedIntent, notification);
+        externalNotificationHelper.removeNotification(notification);
     }
 
 }

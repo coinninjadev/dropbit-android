@@ -1,8 +1,6 @@
 package com.coinninja.coinkeeper.ui.phone.verification;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
@@ -13,7 +11,6 @@ import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneVerificationView;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.List;
@@ -23,7 +20,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import dagger.android.AndroidInjection;
 
-import static com.coinninja.android.helpers.Views.shakeInError;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class VerifyPhoneNumberActivity extends SecuredActivity {
@@ -77,7 +73,7 @@ public class VerifyPhoneNumberActivity extends SecuredActivity {
     void onPhoneNumberValid(Phonenumber.PhoneNumber phoneNumber) {
         PhoneNumber number = new PhoneNumber(phoneNumber);
         serviceWorkUtil.registerUsersPhone(number);
-        activityNavigationUtil.navigateToVerifyPhoneNumber(this, number);
+        activityNavigationUtil.navigateToVerifyPhoneNumberCode(this, number);
     }
 
 }

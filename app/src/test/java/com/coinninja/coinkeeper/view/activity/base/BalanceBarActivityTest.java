@@ -13,11 +13,11 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
 import com.coinninja.matchers.IntentFilterMatchers;
 
@@ -95,7 +95,7 @@ public class BalanceBarActivityTest {
         when(walletHelper.getLatestPrice()).thenReturn(cachedPrice);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.isEmpty()).thenReturn(true);
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
 
         activityController = Robolectric.buildActivity(TransactionHistoryActivity.class).create();
@@ -124,9 +124,9 @@ public class BalanceBarActivityTest {
 
     @Test
     public void clicking_balance_bar_toggles_default_currency_preference() {
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.toggleDefault()).thenReturn(
-                new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency()));
+                new DefaultCurrencies(new BTCCurrency(), new USDCurrency()));
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         start();
 
@@ -183,7 +183,7 @@ public class BalanceBarActivityTest {
 
         start();
 
-        ActivityController<CalculatorActivity> activityCreate = Robolectric.buildActivity(CalculatorActivity.class).create();
+        ActivityController<TransactionHistoryActivity> activityCreate = Robolectric.buildActivity(TransactionHistoryActivity.class).create();
         BalanceBarActivity activity = activityCreate.get();
         activity.serviceBinder = binder;
 
@@ -194,7 +194,7 @@ public class BalanceBarActivityTest {
 
     @Test
     public void sets_balances_of_BTC_from_DB__btc_primary() {
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         when(walletHelper.getBalance()).thenReturn(78237L);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
@@ -207,7 +207,7 @@ public class BalanceBarActivityTest {
 
     @Test
     public void sets_balances_of_BTC_from_DB__usd_primary() {
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         when(walletHelper.getBalance()).thenReturn(78237L);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
@@ -220,7 +220,7 @@ public class BalanceBarActivityTest {
 
     @Test
     public void invalidates_balances_when_price_changes() {
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         when(walletHelper.getBalance()).thenReturn(78237L);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D)).thenReturn(new USDCurrency(1100.00D));
@@ -234,7 +234,7 @@ public class BalanceBarActivityTest {
 
     @Test
     public void invalidates_balances_when_wallet_syncs() {
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         when(walletHelper.getBalance()).thenReturn(78237L).thenReturn(80000L);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
@@ -250,9 +250,9 @@ public class BalanceBarActivityTest {
     public void toggling_default_currency_invalidates_display() {
         when(walletHelper.getBalance()).thenReturn(78237L);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.toggleDefault()).thenReturn(
-                new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency()));
+                new DefaultCurrencies(new BTCCurrency(), new USDCurrency()));
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         start();
 
@@ -267,7 +267,7 @@ public class BalanceBarActivityTest {
 
     @Test
     public void shows_btc_icon_when_primary() {
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         start();
 
@@ -289,7 +289,7 @@ public class BalanceBarActivityTest {
 
     @Test
     public void shows_btc_icon_when_secondary() {
-        CurrencyPreference.DefaultCurrencies defaultCurrencies = new CurrencyPreference.DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         start();
 

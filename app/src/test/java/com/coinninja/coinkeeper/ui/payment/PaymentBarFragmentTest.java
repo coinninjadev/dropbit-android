@@ -9,6 +9,8 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -24,7 +26,6 @@ import com.coinninja.matchers.IntentFilterMatchers;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -43,7 +44,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -59,6 +59,9 @@ public class PaymentBarFragmentTest {
     @Mock
     BitcoinUtil bitcoinUtil;
 
+    @Mock
+    CurrencyPreference currencyPreference;
+
     PaymentHolder paymentHolder = new PaymentHolder();
 
     @Mock
@@ -72,6 +75,11 @@ public class PaymentBarFragmentTest {
     private View sendButton;
     private View scanButton;
 
+    private USDCurrency usdCurrency = new USDCurrency();
+    private BTCCurrency btcCurrency = new BTCCurrency(10.d);
+
+    private DefaultCurrencies defaultCurrencies;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -81,7 +89,9 @@ public class PaymentBarFragmentTest {
         fragment.paymentUtil = paymentUtil;
         fragment.walletHelper = walletHelper;
         fragment.bitcoinUtil = bitcoinUtil;
+        fragment.currencyPreference = currencyPreference;
         fragment.localBroadcastUtil = localBroadCastUtil;
+        defaultCurrencies = new DefaultCurrencies(btcCurrency, usdCurrency);
 
         scanButton = withId(fragment.getView(), R.id.scan_btn);
         sendButton = withId(fragment.getView(), R.id.send_btn);
@@ -90,6 +100,9 @@ public class PaymentBarFragmentTest {
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(initialUSDValue));
         when(walletHelper.getLatestFee()).thenReturn(initialFee);
         when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        when(currencyPreference.getFiat()).thenReturn(usdCurrency);
+        paymentHolder.setDefaultCurrencies(defaultCurrencies);
     }
 
     @After
@@ -105,6 +118,7 @@ public class PaymentBarFragmentTest {
         fragmentController = null;
         fragment = null;
         bitcoinUtil = null;
+        defaultCurrencies = null;
     }
 
     private void start() {
@@ -115,7 +129,7 @@ public class PaymentBarFragmentTest {
     public void initializes_with_primary_currency() {
         start();
 
-        assertThat(paymentHolder.getPrimaryCurrency().toFormattedCurrency(), equalTo(new BTCCurrency().toFormattedCurrency()));
+        assertThat(paymentHolder.getPrimaryCurrency().toFormattedCurrency(), equalTo(btcCurrency.toFormattedCurrency()));
     }
 
     @Test
@@ -252,7 +266,7 @@ public class PaymentBarFragmentTest {
 
         assertNotNull(payDialog);
         verify(paymentUtil).setAddress("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        assertThat(paymentHolder.getPrimaryCurrency().toFormattedCurrency(), equalTo("\u20BF 10"));
+        assertThat(paymentHolder.getPrimaryCurrency().toLong(), equalTo(1000000000L));
     }
 
 }

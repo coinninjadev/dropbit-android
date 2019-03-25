@@ -13,6 +13,7 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.TrainingModel;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.google.android.material.tabs.TabLayout;
 
@@ -27,7 +28,13 @@ public class TrainingActivity extends SecuredActivity implements ViewPager.OnPag
 
 
     @Inject
+    ActivityNavigationUtil activityNavigationUtil;
+
+    @Inject
     CNWalletManager cnWalletManager;
+
+    @Inject
+    UserHelper userHelper;
 
     ViewPager viewPager;
     public TrainingPagerAdapter trainingAdapter;
@@ -136,19 +143,12 @@ public class TrainingActivity extends SecuredActivity implements ViewPager.OnPag
 
     @Override
     public void onEndActionButtonClicked(TrainingModel trainingModel) {
-        UserHelper user = ((CoinKeeperApplication) getApplication()).getUser();
-        user.setCompletedTraining(true);
+        userHelper.setCompletedTraining(true);
         if (cnWalletManager.hasWallet()) {
-            navigateToCalculator();
+            activityNavigationUtil.navigateToHome(this);
         } else {
             navigateToStartActivity();
         }
-    }
-
-    private void navigateToCalculator() {
-        Intent intent = new Intent(this, CalculatorActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
     }
 
     private void navigateToStartActivity() {

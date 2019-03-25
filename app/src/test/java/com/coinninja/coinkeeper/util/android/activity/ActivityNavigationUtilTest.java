@@ -6,6 +6,7 @@ import android.net.Uri;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
@@ -13,13 +14,13 @@ import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
+import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
@@ -60,6 +61,16 @@ public class ActivityNavigationUtilTest {
     }
 
     @Test
+    public void navigates_to_verify_phone_number() {
+        activityNavigationUtil.navigateToRegisterPhone(activity);
+
+        Intent intent = new Intent(activity, VerifyPhoneNumberActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        assertThat(activity, activityWithIntentStarted(intent));
+    }
+
+    @Test
     public void navigate_to_BackupRecoveryWordsStartActivity() {
         activityNavigationUtil.navigateToBackupRecoveryWords(activity);
 
@@ -68,11 +79,11 @@ public class ActivityNavigationUtilTest {
     }
 
     @Test
-    public void navigate_to_TransactionHistoryActivity() {
-        activityNavigationUtil.navigateToTransactionHistory(activity);
+    public void navigate_to_home___TransactionHistoryActivity() {
+        activityNavigationUtil.navigateToHome(activity);
 
         Intent intent = new Intent(activity, TransactionHistoryActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         assertThat(activity, activityWithIntentStarted(intent));
     }
 
@@ -89,6 +100,19 @@ public class ActivityNavigationUtilTest {
         activityNavigationUtil.navigateToSupport(activity);
 
         Intent intent = new Intent(activity, CoinKeeperSupportActivity.class);
+        assertThat(activity, activityWithIntentStarted(intent));
+    }
+
+    @Test
+    public void navigate_to_verify_recovery_words_with_view_state() {
+        String[] words = new String[]{"WORD1", "WORD2", "WORD3", "WORD4", "WORD5",
+                "WORD6", "WORD7", "WORD8", "WORD9", "WORD10", "WORD11", "WORD12"};
+
+        activityNavigationUtil.navigateToVerifyRecoveryWords(activity, words, Intents.EXTRA_BACKUP);
+
+        Intent intent = new Intent(activity, VerifyRecoverywordsActivity.class);
+        intent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, words);
+        intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_BACKUP);
         assertThat(activity, activityWithIntentStarted(intent));
     }
 
@@ -137,13 +161,13 @@ public class ActivityNavigationUtilTest {
     }
 
     @Test
-    public void navigates_to_verify_phone_number() {
+    public void navigates_to_verify_phone_number_code() {
         Phonenumber.PhoneNumber phoneNumber = new Phonenumber.PhoneNumber();
         phoneNumber.setNationalNumber(3305555555L);
         phoneNumber.setCountryCode(1);
         PhoneNumber number = new PhoneNumber(phoneNumber);
 
-        activityNavigationUtil.navigateToVerifyPhoneNumber(activity, number);
+        activityNavigationUtil.navigateToVerifyPhoneNumberCode(activity, number);
 
         Intent intent = new Intent(activity, VerifyPhoneVerificationCodeActivity.class);
         intent.putExtra(Intents.EXTRA_PHONE_NUMBER, number);

@@ -12,6 +12,8 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -38,7 +40,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
@@ -67,6 +68,11 @@ public class RequestDialogFragmentTest {
     private RequestDialogFragment fragment;
     private ShadowActivity shadowActivity;
 
+    DefaultCurrencies defaultCurrencies;
+
+    private USDCurrency usdCurrency = new USDCurrency(60000d);
+    private BTCCurrency btcCurrency = new BTCCurrency(1.d);
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -75,7 +81,8 @@ public class RequestDialogFragmentTest {
         fragmentController = Robolectric.buildFragment(RequestDialogFragment.class);
         fragment = fragmentController.get();
         fragmentController.create();
-        paymentHolder.loadPaymentFrom(new USDCurrency(0d));
+        defaultCurrencies = new DefaultCurrencies(usdCurrency, btcCurrency);
+        paymentHolder.setDefaultCurrencies(defaultCurrencies);
     }
 
     private void start() {
@@ -89,7 +96,7 @@ public class RequestDialogFragmentTest {
     }
 
     private void startWithAmount() {
-        paymentHolder.loadPaymentFrom(new BTCCurrency(1d));
+        paymentHolder.updateValue(new BTCCurrency(1d));
         start();
     }
 
@@ -116,6 +123,7 @@ public class RequestDialogFragmentTest {
 
     @Test
     public void price_not_visible_when_void() {
+        paymentHolder.updateValue(new USDCurrency(0d));
         start();
         TextView primary = fragment.getView().findViewById(R.id.primary_currency);
         TextView secondary = fragment.getView().findViewById(R.id.secondary_currency);
@@ -143,6 +151,7 @@ public class RequestDialogFragmentTest {
 
     @Test
     public void send_opens_chooser_to_share_address() {
+        paymentHolder.updateValue(new USDCurrency(0d));
         start();
         fragment.getView().findViewById(R.id.request_funds).performClick();
 
@@ -165,8 +174,8 @@ public class RequestDialogFragmentTest {
 
     @Test
     public void does_not_include_price_for_request_when_price_is_zero() {
+        paymentHolder.updateValue(new USDCurrency(0d));
         start();
-
         fragment.getView().findViewById(R.id.request_funds).performClick();
 
         Intent chooserIntent = shadowActivity.getNextStartedActivity();
@@ -186,6 +195,19 @@ public class RequestDialogFragmentTest {
 
     @Test
     public void includes_price_with_request() {
+        startWithAmount();
+
+        fragment.getView().findViewById(R.id.request_funds).performClick();
+
+        Intent chooserIntent = shadowActivity.getNextStartedActivity();
+        Intent intent = (Intent) chooserIntent.getExtras().get("android.intent.extra.INTENT");
+        assertThat(intent.getExtras().getString(Intent.EXTRA_TEXT),
+                equalTo("bitcoin:" + testAddress + "?amount=" + "1.00000000"));
+    }
+
+    @Test
+    public void includes_price_with_request_fiat_as_primary() {
+        paymentHolder.toggleCurrencies();
         startWithAmount();
 
         fragment.getView().findViewById(R.id.request_funds).performClick();

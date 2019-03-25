@@ -27,7 +27,7 @@ public class LicensesActivityTest {
     public void setUp() {
         activityController = Robolectric.buildActivity(LicensesActivity.class);
         activity = activityController.get();
-        activityController.create().resume().start().visible();
+        activityController.create().start().resume().visible();
     }
 
     @Test

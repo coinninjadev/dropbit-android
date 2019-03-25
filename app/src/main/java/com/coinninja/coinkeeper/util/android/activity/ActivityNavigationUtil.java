@@ -8,15 +8,15 @@ import android.net.Uri;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
-import com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
+import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 
 import javax.inject.Inject;
 
@@ -47,15 +47,14 @@ public class ActivityNavigationUtil {
         context.startActivity(new Intent(context, BackupRecoveryWordsStartActivity.class));
     }
 
-    public void navigateToTransactionHistory(Context context) {
-        Intent intent = new Intent(context, TransactionHistoryActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    public void navigateToRegisterPhone(Context context) {
+        Intent intent = new Intent(context, VerifyPhoneNumberActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
     public void navigateToHome(Context context) {
-        Intent intent = new Intent(context, CalculatorActivity.class);
+        Intent intent = new Intent(context, TransactionHistoryActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
@@ -81,9 +80,16 @@ public class ActivityNavigationUtil {
         UriUtil.openUrl(Intents.URI_SHARED_MEMOS, (Activity) context);
     }
 
-    public void navigateToVerifyPhoneNumber(Context context, PhoneNumber phoneNumber) {
+    public void navigateToVerifyPhoneNumberCode(Context context, PhoneNumber phoneNumber) {
         Intent intent = new Intent(context, VerifyPhoneVerificationCodeActivity.class);
         intent.putExtra(Intents.EXTRA_PHONE_NUMBER, phoneNumber);
+        context.startActivity(intent);
+    }
+
+    public void navigateToVerifyRecoveryWords(Context context, String[] seedWords, int viewState) {
+        Intent intent = new Intent(context, VerifyRecoverywordsActivity.class);
+        intent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, seedWords);
+        intent.putExtra(Intents.EXTRA_VIEW_STATE, viewState);
         context.startActivity(intent);
     }
 }

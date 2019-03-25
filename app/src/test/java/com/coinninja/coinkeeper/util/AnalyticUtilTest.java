@@ -1,7 +1,8 @@
 package com.coinninja.coinkeeper.util;
 
+import android.app.Activity;
+
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.view.activity.CalculatorActivity;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
 import org.json.JSONException;
@@ -89,7 +90,7 @@ public class AnalyticUtilTest {
 
     @Test
     public void flushes_when_activity_reports_done() {
-        util.onActivityStop(new CalculatorActivity());
+        util.onActivityStop(new Activity());
         verify(analytics).flush();
     }
 

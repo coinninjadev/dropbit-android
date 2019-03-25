@@ -24,11 +24,12 @@ import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.presenter.activity.CalculatorActivityPresenter;
+import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.text.CurrencyFormattingTextWatcher;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -83,16 +84,16 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     @CountryCodeLocales
     List<CountryCodeLocale> countryCodeLocales;
 
-    CalculatorActivityPresenter.View calculatorView;
+    PaymentBarCallbacks paymentBarCallbacks;
     PaymentUtil paymentUtil;
     PaymentHolder paymentHolder;
     private TextView secondaryCurrency;
     private EditText primaryCurrency;
     private PaymentReceiverView paymentReceiverView;
 
-    public static PayDialogFragment newInstance(PaymentUtil paymentUtil, CalculatorActivityPresenter.View view) {
+    public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks) {
         PayDialogFragment payFragment = new PayDialogFragment();
-        payFragment.calculatorView = view;
+        payFragment.paymentBarCallbacks = paymentBarCallbacks;
         payFragment.paymentUtil = paymentUtil;
         payFragment.paymentHolder = paymentUtil.getPaymentHolder();
         return payFragment;
@@ -103,7 +104,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_Dialog);
     }
-
 
     @Override
     public void onResume() {
@@ -156,7 +156,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     // Currency Text Watcher Callbacks
     @Override
     public void onValid(Currency currency) {
-        paymentHolder.loadPaymentFrom(currency);
+        paymentHolder.updateValue(currency);
         updateSecondary();
     }
 
@@ -175,7 +175,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         View base = getView();
         secondaryCurrency = withId(base, R.id.secondary_currency);
         primaryCurrency = withId(base, R.id.primary_currency);
-        primaryCurrency.setRawInputType(Configuration.KEYBOARD_12KEY);
         primaryCurrency.addTextChangedListener(currencyFormattingTextWatcher);
         configureButtons(base);
         configureSharedMemo();
@@ -212,7 +211,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     }
 
     private void onPaymentChange(Currency currency) {
-        paymentUtil.getPaymentHolder().loadPaymentFrom(currency);
+        paymentUtil.getPaymentHolder().updateValue(currency);
         currencyFormattingTextWatcher.setCurrency(currency);
         showPrice();
     }
@@ -286,7 +285,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     }
 
     private void showPrice() {
-        PaymentHolder paymentHolder = paymentUtil.getPaymentHolder();
         primaryCurrency.setText(paymentHolder.getPrimaryCurrency().toFormattedCurrency());
         secondaryCurrency.setText(paymentHolder.getSecondaryCurrency().toFormattedCurrency());
     }
@@ -316,20 +314,20 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
 
     void inviteContact(Contact pickedContact) {
         setMemoOnPayment();
-        calculatorView.confirmInvite(pickedContact);
+        paymentBarCallbacks.confirmInvite(pickedContact);
         dismiss();
     }
 
     void sendPaymentTo() {
         setMemoOnPayment();
-        calculatorView.confirmPaymentFor(paymentUtil.getAddress());
+        paymentBarCallbacks.confirmPaymentFor(paymentUtil.getAddress());
         dismiss();
     }
 
 
     void sendPaymentTo(String address, Contact phoneNumber) {
         setMemoOnPayment();
-        calculatorView.confirmPaymentFor(address, phoneNumber);
+        paymentBarCallbacks.confirmPaymentFor(address, phoneNumber);
         dismiss();
     }
 
@@ -387,7 +385,7 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     private void onCloseClicked() {
         paymentHolder.setMemo(null);
         paymentHolder.clearPayment();
-        calculatorView.cancelPayment(this);
+        paymentBarCallbacks.cancelPayment(this);
     }
 
     private void setContactResult(Contact contact) {
