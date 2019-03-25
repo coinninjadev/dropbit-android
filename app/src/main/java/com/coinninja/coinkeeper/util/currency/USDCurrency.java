@@ -7,7 +7,7 @@ public class USDCurrency extends BaseCurrency implements Currency, FiatCurrency 
     private static final int WHOLE_NUM_MAX = 10;
     private static final int SUB_NUM_MAX = 2;
     public static final String SYMBOL = "$";
-    protected static long MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
+    static long MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
     private String currencyFormat = "$#,##0.00";
     private static final String incrementalFormat = "$#,##0.##";
 
@@ -79,7 +79,7 @@ public class USDCurrency extends BaseCurrency implements Currency, FiatCurrency 
     }
 
     @Override
-    protected long getMaxLongValue() {
+    public long getMaxLongValue() {
         return MAX_DOLLAR_AMOUNT;
     }
 

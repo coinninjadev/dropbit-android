@@ -6,12 +6,10 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,9 +25,9 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.text.CurrencyFormattingTextWatcher;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
-import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -42,7 +40,6 @@ import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.PickContactActivity;
 import com.coinninja.coinkeeper.view.activity.QrScanActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView;
@@ -59,7 +56,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.coinninja.android.helpers.Views.shakeInError;
 import static com.coinninja.android.helpers.Views.withId;
 
-public class PayDialogFragment extends BaseDialogFragment implements CurrencyFormattingTextWatcher.Callback {
+public class PayDialogFragment extends BaseDialogFragment {
     public static final int PICK_CONTACT_REQUEST = 100001;
 
     @Inject
@@ -75,8 +72,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     @Inject
     UserPreferences preferenceInteractor;
     @Inject
-    CurrencyFormattingTextWatcher currencyFormattingTextWatcher;
-    @Inject
     CoinKeeperApplication application;
     @Inject
     SharedMemoToggleView memoToggleView;
@@ -87,9 +82,8 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     PaymentBarCallbacks paymentBarCallbacks;
     PaymentUtil paymentUtil;
     PaymentHolder paymentHolder;
-    private TextView secondaryCurrency;
-    private EditText primaryCurrency;
-    private PaymentReceiverView paymentReceiverView;
+    PaymentReceiverView paymentReceiverView;
+    PaymentInputView paymentInputView;
 
     public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks) {
         PayDialogFragment payFragment = new PayDialogFragment();
@@ -97,29 +91,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         payFragment.paymentUtil = paymentUtil;
         payFragment.paymentHolder = paymentUtil.getPaymentHolder();
         return payFragment;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_Dialog);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        USDCurrency.SET_MAX_LIMIT((USDCurrency) paymentHolder.getEvaluationCurrency());
-        currencyFormattingTextWatcher.setCurrency(paymentHolder.getPrimaryCurrency());
-        currencyFormattingTextWatcher.setCallback(this);
-        setupView();
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_pay_dialog, container, false);
-        memoToggleView.render(getActivity(), view);
-        return view;
     }
 
     @Override
@@ -131,6 +102,20 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_pay_dialog, container, false);
+        memoToggleView.render(getActivity(), view);
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        paymentInputView.requestFocus();
     }
 
     @Override
@@ -148,22 +133,116 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_Dialog);
+    }
+
+    @Override
     public void onDismiss(DialogInterface dialog) {
         cnAddressLookupDelegate.teardown();
         super.onDismiss(dialog);
     }
 
-    // Currency Text Watcher Callbacks
     @Override
-    public void onValid(Currency currency) {
-        paymentHolder.updateValue(currency);
-        updateSecondary();
+    public void onStart() {
+        super.onStart();
+        USDCurrency.SET_MAX_LIMIT((USDCurrency) paymentHolder.getEvaluationCurrency());
+        paymentHolder.setMaxLimitForFiat();
+        setupView();
     }
 
-    // Currency Text Watcher Callbacks
-    @Override
-    public void onInvalid(String text) {
-        shakeInError(primaryCurrency);
+    public void onPaymentAddressChange(String text) {
+        paymentHolder.clearPayment();
+        paymentUtil.setAddress(text);
+        paymentReceiverView.setPaymentAddress(text);
+        showSendToInput();
+        updateSharedMemosUI();
+        paymentInputView.requestFocus();
+    }
+
+    public void showPasteAttemptFail(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void onPhoneNumberValid(Phonenumber.PhoneNumber phoneNumber) {
+        cnAddressLookupDelegate.fetchAddressFor(new PhoneNumber(phoneNumber), this::onFetchContactComplete);
+        paymentUtil.setContact(new Contact(new PhoneNumber(phoneNumber), "", false));
+        updateSharedMemosUI();
+    }
+
+    public void onPhoneNumberInvalid(String text) {
+        paymentReceiverView.clear();
+        paymentUtil.setContact(null);
+        shakeInError(paymentReceiverView);
+    }
+
+    public void onFetchContactComplete(AddressLookupResult addressLookupResult) {
+        paymentHolder.setPublicKey(addressLookupResult.getAddressPubKey());
+        paymentHolder.setPaymentAddress(addressLookupResult.getAddress());
+        updateSharedMemosUI();
+    }
+
+    public PaymentUtil getPaymentUtil() {
+        return paymentUtil;
+    }
+
+    void startContactInviteFlow(Contact pickedContact) {
+        if (preferenceInteractor.getShouldShowInviteHelp()) {
+            showInviteHelpScreen(pickedContact);
+        } else {
+            inviteContact(pickedContact);
+        }
+    }
+
+    void onInviteHelpAccepted(Contact pickedContact) {
+        DialogFragment fragment = (DialogFragment) getFragmentManager().findFragmentByTag(InviteHelpDialogFragment.TAG);
+        if (fragment != null) {
+            fragment.dismiss();
+        }
+
+        inviteContact(pickedContact);
+    }
+
+    void inviteContact(Contact pickedContact) {
+        setMemoOnPayment();
+        paymentBarCallbacks.confirmInvite(pickedContact);
+        dismiss();
+    }
+
+    void sendPaymentTo() {
+        setMemoOnPayment();
+        paymentBarCallbacks.confirmPaymentFor(paymentUtil.getAddress());
+        dismiss();
+    }
+
+    void sendPaymentTo(String address, Contact phoneNumber) {
+        setMemoOnPayment();
+        paymentBarCallbacks.confirmPaymentFor(address, phoneNumber);
+        dismiss();
+    }
+
+    void onComplete(FundingUTXOs fundingUTXOs) {
+        if (paymentUtil.isFunded()) {
+            sendPayment();
+        } else {
+            invalidPayment();
+        }
+    }
+
+    protected void showError(String message) {
+        AlertDialogBuilder.build(getActivity(), message)
+                .show();
+    }
+
+    protected void onPasteClicked() {
+        String cryptoUriString = clipboardUtil.getRaw();
+        if (cryptoUriString == null || cryptoUriString.isEmpty()) {
+            String reason = getString(R.string.clipboard_empty_error_message);
+            showPasteAttemptFail(reason);
+        } else {
+            onCryptoStringReceived(cryptoUriString);
+        }
     }
 
     private void onPickContactResult(Intent data) {
@@ -173,18 +252,15 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
 
     private void setupView() {
         View base = getView();
-        secondaryCurrency = withId(base, R.id.secondary_currency);
-        primaryCurrency = withId(base, R.id.primary_currency);
-        primaryCurrency.addTextChangedListener(currencyFormattingTextWatcher);
         configureButtons(base);
         configureSharedMemo();
         configurePaymentReceiver();
-        showPrice();
+        configurePaymentInput(base);
+    }
 
-
-        if (paymentHolder.getPrimaryCurrency().isZero()) {
-            primaryCurrency.setText("");
-        }
+    private void configurePaymentInput(View base) {
+        paymentInputView = withId(base, R.id.payment_input_view);
+        paymentInputView.setPaymentHolder(paymentHolder);
     }
 
     private void configureButtons(View base) {
@@ -211,20 +287,8 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     }
 
     private void onPaymentChange(Currency currency) {
-        paymentUtil.getPaymentHolder().updateValue(currency);
-        currencyFormattingTextWatcher.setCurrency(currency);
-        showPrice();
-    }
-
-    public void onPaymentAddressChange(String text) {
-        paymentHolder.clearPayment();
-        secondaryCurrency.clearFocus();
-        paymentUtil.setAddress(text);
-        paymentReceiverView.setPaymentAddress(text);
-        showSendToInput();
-        primaryCurrency.requestFocus();
-        showKeyboard(primaryCurrency);
-        updateSharedMemosUI();
+        paymentHolder.updateValue(currency);
+        paymentInputView.setPaymentHolder(paymentHolder);
     }
 
     private void updateSharedMemosUI() {
@@ -233,22 +297,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         } else {
             memoToggleView.hideSharedMemoViews();
         }
-    }
-
-    public void showPasteAttemptFail(String message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void onPhoneNumberValid(Phonenumber.PhoneNumber phoneNumber) {
-        cnAddressLookupDelegate.fetchAddressFor(new PhoneNumber(phoneNumber), this::onFetchContactComplete);
-        paymentUtil.setContact(new Contact(new PhoneNumber(phoneNumber), "", false));
-        updateSharedMemosUI();
-    }
-
-    public void onPhoneNumberInvalid(String text) {
-        paymentReceiverView.clear();
-        paymentUtil.setContact(null);
-        shakeInError(paymentReceiverView);
     }
 
     private void onSendBtnClicked() {
@@ -278,57 +326,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
     private void onScanClicked() {
         Intent qrScanIntent = new Intent(getActivity(), QrScanActivity.class);
         startActivityForResult(qrScanIntent, Intents.REQUEST_QR_FRAGMENT_SCAN);
-    }
-
-    private void updateSecondary() {
-        secondaryCurrency.setText(paymentHolder.getSecondaryCurrency().toFormattedCurrency());
-    }
-
-    private void showPrice() {
-        primaryCurrency.setText(paymentHolder.getPrimaryCurrency().toFormattedCurrency());
-        secondaryCurrency.setText(paymentHolder.getSecondaryCurrency().toFormattedCurrency());
-    }
-
-    void startContactInviteFlow(Contact pickedContact) {
-        if (preferenceInteractor.getShouldShowInviteHelp()) {
-            showInviteHelpScreen(pickedContact);
-        } else {
-            inviteContact(pickedContact);
-        }
-    }
-
-    void onInviteHelpAccepted(Contact pickedContact) {
-        DialogFragment fragment = (DialogFragment) getFragmentManager().findFragmentByTag(InviteHelpDialogFragment.TAG);
-        if (fragment != null) {
-            fragment.dismiss();
-        }
-
-        inviteContact(pickedContact);
-    }
-
-    public void onFetchContactComplete(AddressLookupResult addressLookupResult) {
-        paymentHolder.setPublicKey(addressLookupResult.getAddressPubKey());
-        paymentHolder.setPaymentAddress(addressLookupResult.getAddress());
-        updateSharedMemosUI();
-    }
-
-    void inviteContact(Contact pickedContact) {
-        setMemoOnPayment();
-        paymentBarCallbacks.confirmInvite(pickedContact);
-        dismiss();
-    }
-
-    void sendPaymentTo() {
-        setMemoOnPayment();
-        paymentBarCallbacks.confirmPaymentFor(paymentUtil.getAddress());
-        dismiss();
-    }
-
-
-    void sendPaymentTo(String address, Contact phoneNumber) {
-        setMemoOnPayment();
-        paymentBarCallbacks.confirmPaymentFor(address, phoneNumber);
-        dismiss();
     }
 
     private void setMemoOnPayment() {
@@ -361,11 +358,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         } else {
             getActivity().startActivity(new Intent(getActivity(), VerifyPhoneNumberActivity.class));
         }
-    }
-
-    protected void showError(String message) {
-        AlertDialogBuilder.build(getActivity(), message)
-                .show();
     }
 
     private void showInviteHelpScreen(Contact contact) {
@@ -415,24 +407,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         getView().findViewById(R.id.contact_number).setVisibility(View.GONE);
     }
 
-    void onComplete(FundingUTXOs fundingUTXOs) {
-        if (paymentUtil.isFunded()) {
-            sendPayment();
-        } else {
-            invalidPayment();
-        }
-    }
-
-    protected void onPasteClicked() {
-        String cryptoUriString = clipboardUtil.getRaw();
-        if (cryptoUriString == null || cryptoUriString.isEmpty()) {
-            String reason = getString(R.string.clipboard_empty_error_message);
-            showPasteAttemptFail(reason);
-        } else {
-            onCryptoStringReceived(cryptoUriString);
-        }
-    }
-
     private void onQrScanResult(int resultCode, Intent data) {
         if (resultCode == Intents.RESULT_SCAN_OK) {
             String cryptoUriString = data.getStringExtra(Intents.EXTRA_SCANNED_DATA);
@@ -457,7 +431,6 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
         onPaymentAddressChange(bitcoinUri.getAddress());
     }
 
-
     private void onInvalidBitcoinUri(BitcoinUtil.ADDRESS_INVALID_REASON pasteError) {
         switch (pasteError) {
             case NULL_ADDRESS:
@@ -473,9 +446,5 @@ public class PayDialogFragment extends BaseDialogFragment implements CurrencyFor
                 showPasteAttemptFail(getString(R.string.invalid_bitcoin_address_error));
                 break;
         }
-    }
-
-    public PaymentUtil getPaymentUtil() {
-        return paymentUtil;
     }
 }
