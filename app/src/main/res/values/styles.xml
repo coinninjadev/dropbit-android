@@ -591,9 +591,11 @@
     <style name="PayDialog.EditText" parent="Base.Widget.MaterialComponents.TextInputEditText">
         <item name="android:background">@drawable/paste_box</item>
         <item name="android:longClickable">false</item>
-        <item name="android:textColor">@color/light_border</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:textSize">@dimen/pay_dialog_small_text</item>
     </style>
+
 
     <style name="PayDialog.Header" parent="">
         <item name="android:layout_marginTop">@dimen/vertical_margin</item>
