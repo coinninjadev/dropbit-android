@@ -39,7 +39,7 @@ public class DropbitUriBuilder extends UrlBuilderInterface<DropbitRoute, Dropbit
 
     @Override
     public String getBaseAuthority() {
-        return "dropbit.com";
+        return "dropbit.app";
     }
 
     @Override
