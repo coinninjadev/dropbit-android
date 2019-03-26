@@ -76,7 +76,7 @@ public class PaymentBarFragmentTest {
     private View scanButton;
 
     private USDCurrency usdCurrency = new USDCurrency();
-    private BTCCurrency btcCurrency = new BTCCurrency(10.d);
+    private BTCCurrency btcCurrency = new BTCCurrency();
 
     private DefaultCurrencies defaultCurrencies;
 
@@ -102,7 +102,6 @@ public class PaymentBarFragmentTest {
         when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         when(currencyPreference.getFiat()).thenReturn(usdCurrency);
-        paymentHolder.setDefaultCurrencies(defaultCurrencies);
     }
 
     @After
@@ -123,13 +122,6 @@ public class PaymentBarFragmentTest {
 
     private void start() {
         fragmentController.start().resume().visible();
-    }
-
-    @Test
-    public void initializes_with_primary_currency() {
-        start();
-
-        assertThat(paymentHolder.getPrimaryCurrency().toFormattedCurrency(), equalTo(btcCurrency.toFormattedCurrency()));
     }
 
     @Test
@@ -170,9 +162,11 @@ public class PaymentBarFragmentTest {
         assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
         assertThat(paymentHolder.getTransactionFee(), equalTo(initialFee));
         verify(fragment.paymentUtil).setPaymentHolder(fragment.paymentHolder);
+        when(paymentUtil.getPaymentHolder()).thenReturn(fragment.paymentHolder);
         PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
         assertNotNull(payDialog);
         assertThat(payDialog.getPaymentUtil(), equalTo(fragment.paymentUtil));
+        assertThat(payDialog.getPaymentUtil().getPaymentHolder(), equalTo(fragment.paymentHolder));
     }
 
     @Test
@@ -183,7 +177,11 @@ public class PaymentBarFragmentTest {
 
         RequestDialogFragment requestDialogFragment = (RequestDialogFragment) fragment.getFragmentManager().findFragmentByTag(RequestDialogFragment.class.getSimpleName());
         assertNotNull(requestDialogFragment);
-        assertThat(requestDialogFragment.getPaymentHolder(), equalTo(paymentHolder));
+
+        PaymentHolder paymentHolder = requestDialogFragment.getPaymentHolder();
+        assertThat(paymentHolder.getCryptoCurrency().toLong(), equalTo(0L));
+        assertThat(paymentHolder.getFiat().toLong(), equalTo(0L));
+        assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
     }
 
     @Test
@@ -269,4 +267,26 @@ public class PaymentBarFragmentTest {
         assertThat(paymentHolder.getPrimaryCurrency().toLong(), equalTo(1000000000L));
     }
 
+    @Test
+    public void clears_payment_info_when_payment_canceled() {
+        start();
+
+        clickOn(sendButton);
+        paymentHolder.setPaymentAddress("--address--");
+
+        PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
+        fragment.cancelPayment(payDialog);
+
+        assertThat(fragment.paymentHolder.getPaymentAddress(), equalTo(""));
+    }
+
+    @Test
+    public void clears_payment_info_when_processing_new_payment() {
+        start();
+        paymentHolder.setPaymentAddress("--address--");
+
+        clickOn(requestButton);
+
+        assertThat(fragment.paymentHolder.getPaymentAddress(), equalTo(""));
+    }
 }

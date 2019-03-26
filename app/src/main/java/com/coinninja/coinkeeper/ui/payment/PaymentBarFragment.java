@@ -47,8 +47,6 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     @Inject
     PaymentUtil paymentUtil;
 
-    @Inject
-    PaymentHolder paymentHolder;
 
     @Inject
     BitcoinUtil bitcoinUtil;
@@ -60,6 +58,7 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     CurrencyPreference currencyPreference;
 
     private PaymentBarView paymentBarView;
+    PaymentHolder paymentHolder;
 
     IntentFilter intentFilter = new IntentFilter(Intents.ACTION_WALLET_SYNC_COMPLETE);
 
@@ -89,6 +88,7 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        paymentHolder = new PaymentHolder();
     }
 
     @Nullable
@@ -160,16 +160,24 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         currencyPreference.reset();
         paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
         paymentUtil.setAddress(null);
+        paymentHolder.clearPayment();
     }
 
     void onRequestButtonPressed() {
+        paymentHolder = new PaymentHolder();
+        paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
+        paymentHolder.setEvaluationCurrency(walletHelper.getLatestPrice());
+        paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
+        paymentHolder.setTransactionFee(walletHelper.getLatestFee());
         RequestDialogFragment requestDialog = new RequestDialogFragment();
         requestDialog.setPaymentHolder(paymentHolder);
         requestDialog.show(getFragmentManager(), RequestDialogFragment.class.getSimpleName());
     }
 
-    private void showPayDialog(DefaultCurrencies currencyPreference) {
-        paymentHolder.setDefaultCurrencies(currencyPreference);
+    private void showPayDialog(DefaultCurrencies defaultCurrencies) {
+        currencyPreference.reset();
+        paymentHolder.clearPayment();
+        paymentHolder.setDefaultCurrencies(defaultCurrencies);
         paymentHolder.setEvaluationCurrency(walletHelper.getLatestPrice());
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
         paymentHolder.setTransactionFee(walletHelper.getLatestFee());
