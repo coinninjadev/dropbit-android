@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.util;
 
+import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 
 public class DefaultCurrencies {
@@ -17,10 +18,10 @@ public class DefaultCurrencies {
                 getSecondaryCurrency();
     }
 
-    public Currency getCrypto(){
+    public CryptoCurrency getCrypto(){
         return getPrimaryCurrency().isCrypto() ?
-                getPrimaryCurrency() :
-                getSecondaryCurrency();
+                (CryptoCurrency) getPrimaryCurrency() :
+                (CryptoCurrency) getSecondaryCurrency();
     }
 
     public Currency getPrimaryCurrency() {
