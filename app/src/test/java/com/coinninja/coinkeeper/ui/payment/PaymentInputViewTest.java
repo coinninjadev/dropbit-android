@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.ui.payment;
 
 import android.graphics.drawable.Drawable;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -30,7 +31,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
@@ -162,9 +162,11 @@ public class PaymentInputViewTest {
         paymentHolder.updateValue(usd);
         paymentInputView.setPaymentHolder(paymentHolder);
 
-        clickOn(paymentInputView, R.id.primary_currency_toggle);
+        View toggleView = withId(paymentInputView, R.id.primary_currency_toggle);
+        clickOn(toggleView);
 
         assertThat(primaryCurrency, hasText("5"));
+        assertThat(toggleView, isVisible());
     }
 
     @Test
@@ -178,6 +180,15 @@ public class PaymentInputViewTest {
         paymentInputView.setPaymentHolder(paymentHolder);
         clickOn(paymentInputView, R.id.primary_currency_toggle);
         assertThat(primaryCurrency, hasText("$0"));
+    }
+
+    @Test
+    public void no_toggle_button_when_evaluation_currency_is_null() {
+        paymentHolder.setEvaluationCurrency(null);
+
+        paymentInputView.setPaymentHolder(paymentHolder);
+
+        assertThat(withId(paymentInputView, R.id.primary_currency_toggle), isGone());
     }
 
     @Test

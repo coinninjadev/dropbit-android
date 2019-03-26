@@ -58,6 +58,7 @@
         android:layout_marginBottom="8dp"
         android:background="@color/background_color_white"
         android:src="@drawable/ic_toggle_payment"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/secondary_currency"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

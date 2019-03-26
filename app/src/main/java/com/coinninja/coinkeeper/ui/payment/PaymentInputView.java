@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -19,12 +18,15 @@ import com.coinninja.coinkeeper.util.currency.Currency;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import static com.coinninja.android.helpers.Resources.scaleValue;
+import static com.coinninja.android.helpers.Views.clearCompoundDrawablesOn;
+import static com.coinninja.android.helpers.Views.renderBTCIconOnCurrencyViewPair;
 import static com.coinninja.android.helpers.Views.shakeInError;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class PaymentInputView extends ConstraintLayout implements CurrencyFormattingTextWatcher.Callback {
 
+    public static final double SECONDARY_SCALE = .8;
+    public static final double PRIMARY_SCALE = 1d;
     private TextView secondaryCurrency;
     private EditText primaryCurrency;
     private PaymentHolder paymentHolder;
@@ -54,7 +56,9 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
         if (paymentHolder == null) return;
 
         paymentHolder.updateValue(currency);
-        updateSecondaryCurrencyWith(paymentHolder.getSecondaryCurrency());
+
+        if (hasEvaluationCurrency())
+            updateSecondaryCurrencyWith(paymentHolder.getSecondaryCurrency());
     }
 
     @Override
@@ -89,7 +93,6 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
         watcher.setCallback(this);
         primaryCurrency.addTextChangedListener(watcher);
         setOnClickListener(v -> focusOnPrimary());
-        withId(this, R.id.primary_currency_toggle).setOnClickListener(v -> togglePrimaryCurrencies());
     }
 
     private void togglePrimaryCurrencies() {
@@ -113,6 +116,7 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
 
         if (hasEvaluationCurrency()) {
             updateSecondaryCurrencyWith(paymentHolder.getSecondaryCurrency());
+            configureToggleCurrencyButton();
         }
 
         invalidateSymbol();
@@ -139,23 +143,18 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
         secondaryCurrency.setText(value.toFormattedCurrency());
     }
 
+    private void configureToggleCurrencyButton() {
+        View toggleView = withId(this, R.id.primary_currency_toggle);
+        toggleView.setOnClickListener(v -> togglePrimaryCurrencies());
+        toggleView.setVisibility(VISIBLE);
+    }
+
     private void invalidateSymbol() {
-        if (paymentHolder.getPrimaryCurrency().isCrypto()) {
-            Drawable drawable = getDrawableFor((CryptoCurrency) paymentHolder.getPrimaryCurrency());
-            drawable.setBounds(0, 0,
-                    (int) scaleValue(getContext(), TypedValue.COMPLEX_UNIT_DIP, 20F),
-                    (int) scaleValue(getContext(), TypedValue.COMPLEX_UNIT_DIP, 21F));
-            primaryCurrency.setCompoundDrawables(drawable, null, null, null);
-            secondaryCurrency.setCompoundDrawables(null, null, null, null);
-        } else if (hasEvaluationCurrency()) {
-            Drawable drawable = getDrawableFor((CryptoCurrency) paymentHolder.getSecondaryCurrency());
-            drawable.setBounds(0, 0,
-                    (int) (scaleValue(getContext(), TypedValue.COMPLEX_UNIT_DIP, 20F) * .8),
-                    (int) (scaleValue(getContext(), TypedValue.COMPLEX_UNIT_DIP, 21F) * .8));
-            secondaryCurrency.setCompoundDrawables(drawable, null, null, null);
-            primaryCurrency.setCompoundDrawables(null, null, null, null);
-        } else {
-            primaryCurrency.setCompoundDrawables(null, null, null, null);
+        renderBTCIconOnCurrencyViewPair(getContext(), paymentHolder.getDefaultCurrencies(),
+                primaryCurrency, PRIMARY_SCALE, secondaryCurrency, SECONDARY_SCALE);
+
+        if (!paymentHolder.getPrimaryCurrency().isCrypto() && !hasEvaluationCurrency()) {
+            clearCompoundDrawablesOn(secondaryCurrency);
         }
     }
 

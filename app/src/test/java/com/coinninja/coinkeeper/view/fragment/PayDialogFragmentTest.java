@@ -84,7 +84,6 @@ public class PayDialogFragmentTest {
     private static final String PHONE_NUMBER_STRING = "+13305551111";
     @Mock
     CurrencyPreference currencyPreference;
-    @Mock
     DefaultCurrencies defaultCurrencies;
     private PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER_STRING);
     private PayDialogFragment dialog = mock(PayDialogFragment.class);
@@ -112,8 +111,7 @@ public class PayDialogFragmentTest {
     public void setUp() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        when(defaultCurrencies.getPrimaryCurrency()).thenReturn(new USDCurrency());
-        when(defaultCurrencies.getSecondaryCurrency()).thenReturn(new BTCCurrency());
+        defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         paymentHolder = new PaymentHolder(new USDCurrency(5000.00d), new TransactionFee(5, 10, 15));
         paymentHolder.setDefaultCurrencies(defaultCurrencies);

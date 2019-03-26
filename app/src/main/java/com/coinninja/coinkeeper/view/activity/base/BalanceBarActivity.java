@@ -9,7 +9,6 @@ import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
@@ -29,7 +28,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import dagger.android.AndroidInjection;
 
-import static com.coinninja.android.helpers.Resources.scaleValue;
+import static com.coinninja.android.helpers.Views.renderBTCIconOnCurrencyViewPair;
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.Intents.ACTION_BTC_PRICE_UPDATE;
 import static com.coinninja.coinkeeper.util.Intents.ACTION_WALLET_SYNC_COMPLETE;
@@ -37,6 +36,8 @@ import static com.coinninja.coinkeeper.util.Intents.EXTRA_BITCOIN_PRICE;
 
 public abstract class BalanceBarActivity extends SecuredActivity implements ServiceConnection {
 
+    public static final double SECONDARY_SCALE = .8;
+    public static final double PRIMARY_SCALE = 1;
     @Inject
     CurrencyPreference currencyPreference;
     @Inject
@@ -54,6 +55,12 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     private DefaultCurrencies defaultCurrencies;
 
     @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        findViewById(R.id.balance).setVisibility(View.VISIBLE);
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
@@ -61,12 +68,6 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
         filter = new IntentFilter(ACTION_WALLET_SYNC_COMPLETE);
         filter.addAction(ACTION_BTC_PRICE_UPDATE);
         bindService(new Intent(this, BlockChainService.class), this, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public void setContentView(int layoutResID) {
-        super.setContentView(layoutResID);
-        findViewById(R.id.balance).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -81,26 +82,10 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        localBroadCastUtil.registerReceiver(receiver, filter);
-        registerReceiver(receiver, filter);
-        invalidateBalance();
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         localBroadCastUtil.unregisterReceiver(receiver);
         unregisterReceiver(receiver);
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (null != serviceBinder) {
-            unbindService(this);
-        }
-        super.onDestroy();
     }
 
     @Override
@@ -112,6 +97,22 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     @Override
     public void onServiceDisconnected(ComponentName name) {
         serviceBinder = null;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        localBroadCastUtil.registerReceiver(receiver, filter);
+        registerReceiver(receiver, filter);
+        invalidateBalance();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (null != serviceBinder) {
+            unbindService(this);
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -168,21 +169,7 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     }
 
     private void invalidateSymbol() {
-        if (defaultCurrencies.getPrimaryCurrency().isCrypto()) {
-            Drawable drawable = getDrawableFor((CryptoCurrency) defaultCurrencies.getPrimaryCurrency());
-            drawable.setBounds(0, 0,
-                    (int) scaleValue(this, TypedValue.COMPLEX_UNIT_DIP, 20F),
-                    (int) scaleValue(this, TypedValue.COMPLEX_UNIT_DIP, 21F));
-            primaryBalance.setCompoundDrawables(drawable, null, null, null);
-            secondaryBalance.setCompoundDrawables(null, null, null, null);
-        } else {
-            Drawable drawable = getDrawableFor((CryptoCurrency) defaultCurrencies.getSecondaryCurrency());
-            drawable.setBounds(0, 0,
-                    (int) (scaleValue(this, TypedValue.COMPLEX_UNIT_DIP, 20F) * .8),
-                    (int) (scaleValue(this, TypedValue.COMPLEX_UNIT_DIP, 21F) * .8));
-            secondaryBalance.setCompoundDrawables(drawable, null, null, null);
-            primaryBalance.setCompoundDrawables(null, null, null, null);
-        }
+        renderBTCIconOnCurrencyViewPair(this, defaultCurrencies, primaryBalance, PRIMARY_SCALE, secondaryBalance, SECONDARY_SCALE);
     }
 
     private Drawable getDrawableFor(CryptoCurrency currency) {

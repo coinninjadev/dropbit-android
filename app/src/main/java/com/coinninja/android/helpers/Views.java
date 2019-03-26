@@ -3,14 +3,20 @@ package com.coinninja.android.helpers;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Vibrator;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 
 import androidx.annotation.Nullable;
+
+import static com.coinninja.android.helpers.Resources.scaleValue;
 
 public class Views {
 
@@ -63,5 +69,27 @@ public class Views {
         }, 250);
         long[] pattern = {25, 100, 25, 100};
         vibrator.vibrate(pattern, 0);
+    }
+
+    public static void renderBTCIconOnCurrencyViewPair(Context context, DefaultCurrencies defaultCurrencies, TextView primaryCurrencyView,
+                                                       double primaryScale, TextView secondaryCurrencyView, double secondaryScale) {
+        Drawable drawable = defaultCurrencies.getCrypto().getSymbolDrawable(context);
+        if (defaultCurrencies.getPrimaryCurrency().isCrypto()) {
+            drawSymbol(context, primaryCurrencyView, secondaryCurrencyView, primaryScale, drawable);
+        } else {
+            drawSymbol(context, secondaryCurrencyView, primaryCurrencyView, secondaryScale, drawable);
+        }
+    }
+
+    private static void drawSymbol(Context context, TextView viewToDraw, TextView viewToClear, double scale, Drawable drawable) {
+        drawable.setBounds(0, 0,
+                (int) (drawable.getIntrinsicWidth() * scale),
+                (int) (drawable.getIntrinsicHeight() * scale));
+        viewToDraw.setCompoundDrawables(drawable, null, null, null);
+        viewToClear.setCompoundDrawables(null, null, null, null);
+    }
+
+    public static void clearCompoundDrawablesOn(TextView view) {
+        view.setCompoundDrawables(null, null, null, null);
     }
 }
