@@ -45,13 +45,13 @@ public class PhoneNumberTest {
     }
 
     @Test
-    public void returns_national_format_when_country_matches(){
+    public void returns_national_format_when_country_matches() {
         PhoneNumber phoneNumber = new PhoneNumber(I18N);
         assertTrue(phoneNumber.displayTextForLocale().equals(phoneNumber.toNationalDisplayText()));
     }
 
     @Test
-    public void returns_international_format_when_country_matches(){
+    public void returns_international_format_when_country_matches() {
         PhoneNumber phoneNumber = new PhoneNumber(I18N_INTERNATIONAL);
         assertTrue(phoneNumber.displayTextForLocale().equals(phoneNumber.toInternationalDisplayText()));
     }
@@ -89,7 +89,11 @@ public class PhoneNumberTest {
     }
 
     @Test
-    public void getNationalNumber_defaults_to_0(){
-        assertThat(0L, equalTo(new PhoneNumber("").getNationalNumber()));
+    public void null_phone_number_results_empty() {
+        PhoneNumber phoneNumber = new PhoneNumber();
+        assertThat(phoneNumber.getCountryCode(), equalTo(0));
+        assertThat(phoneNumber.toNationalDisplayText(), equalTo(""));
+        assertThat(phoneNumber.toInternationalDisplayText(), equalTo(""));
     }
+
 }

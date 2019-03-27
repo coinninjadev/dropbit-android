@@ -195,7 +195,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         when(userHelper.getWalletHelper()).thenReturn(walletHelper);
         when(userHelper.getPrimaryWallet()).thenReturn(wallet);
         when(walletHelper.getUserAccount()).thenReturn(account);
-        PhoneNumber phoneNumber = new PhoneNumber();
+        PhoneNumber phoneNumber = new PhoneNumber("+15550123456");
         when(account.getPhoneNumber()).thenReturn(phoneNumber);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);

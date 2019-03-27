@@ -46,7 +46,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.noMoreInteractions;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 
@@ -68,9 +67,11 @@ public class WalletHelperTest {
     @Mock
     WalletQueryManager walletQueryManager;
 
+    @Mock
+    private PhoneNumber phoneNumber;
+
     private List<Word> words = new ArrayList<>();
     private List<Address> addresses = new ArrayList<>();
-    private PhoneNumber phoneNumber;
 
     @InjectMocks
     private WalletHelper walletHelper;
@@ -82,8 +83,6 @@ public class WalletHelperTest {
         when(wallet.getWords()).thenReturn(words);
         when(wallet.getAddressses()).thenReturn(addresses);
         when(walletQueryManager.getWallet()).thenReturn(wallet);
-
-        phoneNumber = new PhoneNumber();
     }
 
     @After
