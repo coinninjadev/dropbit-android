@@ -29,8 +29,7 @@ public class PhoneNumber implements Parcelable {
     private PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
     private VariableLengthPhoneNumberUtil variableLengthPhoneNumberUtil = new VariableLengthPhoneNumberUtil();
 
-    public PhoneNumber() {
-
+    PhoneNumber() {
     }
 
     public PhoneNumber(String i18n) {
@@ -80,7 +79,7 @@ public class PhoneNumber implements Parcelable {
     }
 
     public int getCountryCode() {
-        return _phoneNumber.getCountryCode();
+        return _phoneNumber == null ? 0 : _phoneNumber.getCountryCode();
     }
 
     @Deprecated

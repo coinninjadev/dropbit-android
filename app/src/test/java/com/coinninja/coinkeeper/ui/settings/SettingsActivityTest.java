@@ -105,7 +105,7 @@ public class SettingsActivityTest {
         activity.localBroadCastUtil = localBroadCastUtil;
         activity.phoneNumberUtil = phoneNumberUtil;
         shadowActivity = shadowOf(activity);
-        phoneNumber = new PhoneNumber();
+        phoneNumber = new PhoneNumber("+15550123456");
     }
 
     private void start() {
