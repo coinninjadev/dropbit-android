@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.service.DropbitServicePatchService;
 import com.coinninja.coinkeeper.service.PushNotificationEndpointRegistrationService;
@@ -21,9 +22,13 @@ public class ApplicationStartedReceiver extends BroadcastReceiver {
     @Inject
     SyncWalletManager syncWalletManager;
 
+    @Inject
+    CNWalletManager cnWalletManager;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         AndroidInjection.inject(this, context);
+        if(!cnWalletManager.hasWallet()) return;
         jobServiceScheduler.enqueueWork(
                 context,
                 PushNotificationEndpointRegistrationService.class,
