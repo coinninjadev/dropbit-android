@@ -25,8 +25,12 @@ import com.coinninja.coinkeeper.db.migrations.Migrate_V29_to_V30;
 
 import org.greenrobot.greendao.database.Database;
 
+import javax.inject.Inject;
+
 public class MigrationExecutor {
-    public MigrationExecutor() {
+    @Inject
+    MigrationExecutor() {
+
     }
 
     public void performUpgrade(Database db, int oldVersion, int newVersion) {

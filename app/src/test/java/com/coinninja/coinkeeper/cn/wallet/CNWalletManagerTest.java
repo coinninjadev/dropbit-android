@@ -127,10 +127,8 @@ public class CNWalletManagerTest {
 
     @Test
     public void knows_no_wallet_exists_when_no_wallet_no_words() {
-        when((walletHelper.getWallet())).thenReturn(null).thenReturn(wallet);
+        when((walletHelper.getSeedWords())).thenReturn(null).thenReturn(new String[0]);
         assertFalse(cnWalletManager.hasWallet());
-
-        when(walletHelper.getSeedWords()).thenReturn(new String[0]);
         assertFalse(cnWalletManager.hasWallet());
     }
 
