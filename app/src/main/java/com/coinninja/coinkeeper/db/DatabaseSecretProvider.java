@@ -21,10 +21,10 @@ public class DatabaseSecretProvider {
     }
 
     public String getSecret() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
-            return hasher.hash(appSecret);
-        else
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
             return defaultSecret;
+        else
+            return hasher.hash(appSecret);
     }
 
     public String getDefault() {
