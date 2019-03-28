@@ -43,7 +43,7 @@ public class DatabaseSecretProviderTest {
     }
 
     @Test
-    @Config(sdk = Build.VERSION_CODES.P)
+    @Config(sdk = Build.VERSION_CODES.O)
     public void hashes_app_secret() {
         String hashedSecret = "--hashed-secret--";
         when(hasher.hash(appSecret)).thenReturn(hashedSecret);
@@ -52,7 +52,7 @@ public class DatabaseSecretProviderTest {
     }
 
     @Test
-    @Config(sdk = Build.VERSION_CODES.O)
+    @Config(sdk = Build.VERSION_CODES.N)
     public void uses_default_on_lower_apis() {
         assertThat(databaseSecretProvider.getSecret(), equalTo(defaultSecret));
     }
