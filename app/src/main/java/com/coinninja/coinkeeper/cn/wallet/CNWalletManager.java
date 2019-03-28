@@ -95,7 +95,7 @@ public class CNWalletManager {
     }
 
     public boolean hasWallet() {
-        return walletHelper.getSeedWords().length == 12;
+        return walletHelper.getWallet() != null && walletHelper.getSeedWords().length == 12;
     }
 
     private boolean isAlreadySaved(String[] recoveryWords) {
