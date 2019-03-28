@@ -1,37 +1,41 @@
 package com.coinninja.coinkeeper.db;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-
-import com.coinninja.coinkeeper.db.schema.V27_Schema;
-import com.coinninja.coinkeeper.model.db.DaoMaster;
+import com.coinninja.coinkeeper.di.interfaces.DBEncryption;
 
 import org.greenrobot.greendao.database.Database;
 
-public class CoinKeeperOpenHelper extends DaoMaster.OpenHelper {
+import javax.inject.Inject;
 
+public class CoinKeeperOpenHelper {
     public static final String TAG = CoinKeeperOpenHelper.class.getSimpleName();
-    private MigrationExecutor migrationExecutor;
+    private final DatabaseOpenHelper databaseOpenHelper;
+    private final DatabaseSecretProvider databaseSecretProvider;
+    private final boolean withEncryption;
 
-    public CoinKeeperOpenHelper(Context context, String name, MigrationExecutor migrationExecutor) {
-        super(context, name);
-        this.migrationExecutor = migrationExecutor;
+
+    @Inject
+    CoinKeeperOpenHelper(DatabaseOpenHelper databaseOpenHelper, DatabaseSecretProvider databaseSecretProvider,
+                         @DBEncryption boolean withEncryption) {
+        this.databaseOpenHelper = databaseOpenHelper;
+        this.databaseSecretProvider = databaseSecretProvider;
+        this.withEncryption = withEncryption;
     }
 
-    public CoinKeeperOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory) {
-        super(context, name, factory);
+    public Database getWritableDatabase() {
+        if (withEncryption) {
+            return getEncryptedWritableDb();
+        } else {
+            return databaseOpenHelper.getWritableDb();
+        }
     }
 
-    @Override
-    public void onCreate(Database db) {
-        new V27_Schema().create(db);
-        onUpgrade(db, 27, DaoMaster.SCHEMA_VERSION);
+    private Database getEncryptedWritableDb() {
+        try {
+            return databaseOpenHelper.getEncryptedWritableDb(databaseSecretProvider.getSecret());
+        } catch (net.sqlcipher.database.SQLiteException ex) {
+            return databaseOpenHelper.getEncryptedWritableDb(databaseSecretProvider.getDefault());
+        }
     }
 
-    @Override
-    public void onUpgrade(Database db, int oldVersion, int newVersion) {
-        if (oldVersion != newVersion)
-            migrationExecutor.performUpgrade(db, oldVersion, newVersion);
-    }
 
 }

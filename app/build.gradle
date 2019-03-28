@@ -165,7 +165,6 @@ dependencies {
     // if you use the support libraries
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.17'
 
-    // Libbitcoin
     implementation 'com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.38898'
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
 
@@ -202,11 +201,10 @@ dependencies {
     testImplementation group: 'org.json', name: 'json', version: '20180130'
 
     // Robolectric
-    testImplementation "org.robolectric:robolectric:3.8"
-    //testImplementation "org.robolectric:robolectric:4.0.2"
+    //testImplementation "org.robolectric:robolectric:3.8"
+    testImplementation "org.robolectric:robolectric:4.0.2"
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
 
-    //androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'androidx.annotation:annotation:1.0.1'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test:rules:1.1.1'

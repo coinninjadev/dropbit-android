@@ -10,7 +10,6 @@ import java.util.Map;
 public class Intents {
 
     /* CONSTS */
-    public static final String DB_NAME = "coin-ninja-db";
     public static final int QR_WIDTH = 300;
     public static final int QR_HEIGHT = 300;
     public static final long PENDING_TRANSITION_LIFE_LIMIT_SECONDS = 180;//180 secs = 3minuets
