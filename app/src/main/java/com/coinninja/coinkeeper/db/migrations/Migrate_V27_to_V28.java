@@ -78,6 +78,7 @@ public class Migrate_V27_to_V28 extends AbstractMigration {
             Long id = inviteCursor.getLong(inviteCursor.getColumnIndex("TRANSACTIONS_INVITES_SUMMARY_ID"));
             db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = %s AND TO_PHONE_NUMBER = %s WHERE _id = %s", inviteName, toPhoneNumber, id));
         }
+        inviteCursor.close();
     }
 
     private void populateJoinTableFromTransactionIfNecessary(@NonNull Database db) {
@@ -98,6 +99,7 @@ public class Migrate_V27_to_V28 extends AbstractMigration {
                 db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = %s WHERE _id = %s", toName, id));
             }
         }
+        cursor.close();
     }
 
     @Nullable
