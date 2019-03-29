@@ -36,6 +36,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import static com.coinninja.android.helpers.Views.withId;
 
@@ -72,20 +73,6 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     };
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        if (requestCode == Intents.REQUEST_QR_ACTIVITY_SCAN) {
-            if (resultCode == Intents.RESULT_SCAN_OK) {
-                parseCryptoScan(intent);
-            } else if (resultCode == Intents.RESULT_SCAN_ERROR) {
-                onScanError();
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, intent);
-        }
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         paymentHolder = new PaymentHolder();
@@ -114,8 +101,8 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         paymentBarView.setOnScanPressedObserver(this::onQrScanPressed);
     }
 
-    private void showPayDialogWithDefault() {
-        showPayDialog(currencyPreference.getCurrenciesPreference());
+    private PayDialogFragment showPayDialogWithDefault() {
+        return showPayDialog(currencyPreference.getCurrenciesPreference(), false);
     }
 
     @Override
@@ -130,7 +117,6 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         confirmPayDialogFragment.setCancelable(false);
         confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
     }
-
 
     @Override
     public void confirmPaymentFor(String btcAddress, Contact phoneNumber) {
@@ -147,11 +133,9 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
     }
 
-
     @Override
     public void onQrScanPressed() {
-        Intent qrScanIntent = new Intent(getActivity(), QrScanActivity.class);
-        startActivityForResult(qrScanIntent, Intents.REQUEST_QR_ACTIVITY_SCAN);
+        PayDialogFragment fragment = showPayDialog(currencyPreference.getCurrenciesPreference(), true);
     }
 
     @Override
@@ -174,7 +158,7 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         requestDialog.show(getFragmentManager(), RequestDialogFragment.class.getSimpleName());
     }
 
-    private void showPayDialog(DefaultCurrencies defaultCurrencies) {
+    private PayDialogFragment showPayDialog(DefaultCurrencies defaultCurrencies, boolean shouldShowScan) {
         currencyPreference.reset();
         paymentHolder.clearPayment();
         paymentHolder.setDefaultCurrencies(defaultCurrencies);
@@ -182,31 +166,8 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
         paymentHolder.setTransactionFee(walletHelper.getLatestFee());
         paymentUtil.setPaymentHolder(paymentHolder);
-        PayDialogFragment payDialog = PayDialogFragment.newInstance(paymentUtil, this);
+        PayDialogFragment payDialog = PayDialogFragment.newInstance(paymentUtil, this, shouldShowScan);
         payDialog.show(getFragmentManager(), PayDialogFragment.class.getSimpleName());
-    }
-
-    private void onScanError() {
-        String message = getString(R.string.invalid_bitcoin_address_description);
-        GenericAlertDialog.newInstance(message).show(getFragmentManager(), "");
-    }
-
-    private void parseCryptoScan(Intent intent) {
-        String scannedData = intent.getStringExtra(Intents.EXTRA_SCANNED_DATA);
-        try {
-            BitcoinUri bitcoinUri = bitcoinUtil.parse(scannedData);
-            paymentUtil.setAddress(bitcoinUri.getAddress());
-            Long amount = bitcoinUri.getSatoshiAmount();
-            DefaultCurrencies defaultCurrencies;
-            if (amount != null && amount > 0) {
-                defaultCurrencies = new DefaultCurrencies(new BTCCurrency(amount), currencyPreference.getFiat());
-            } else {
-                defaultCurrencies = currencyPreference.getCurrenciesPreference();
-            }
-
-            showPayDialog(defaultCurrencies);
-        } catch (UriException e) {
-            onScanError();
-        }
+        return payDialog;
     }
 }

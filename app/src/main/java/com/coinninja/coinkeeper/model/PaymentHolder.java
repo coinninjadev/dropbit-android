@@ -17,6 +17,7 @@ public class PaymentHolder {
     private String publicKey = "";
     private String memo = "";
     private String paymentAddress = "";
+    private TransactionFee requiredTransactionFee;
 
     private DefaultCurrencies defaultCurrencies;
 
@@ -69,7 +70,7 @@ public class PaymentHolder {
     }
 
     public TransactionFee getTransactionFee() {
-        return transactionFee;
+        return requiredTransactionFee != null ? requiredTransactionFee : transactionFee;
     }
 
     public void setTransactionFee(TransactionFee transactionFee) {
@@ -148,6 +149,10 @@ public class PaymentHolder {
     public void setMaxLimitForFiat() {
         if (evaluationCurrency != null)
             USDCurrency.SET_MAX_LIMIT((USDCurrency) evaluationCurrency);
+    }
+
+    public void setRequiredTransactionFee(TransactionFee requiredTransactionFee) {
+        this.requiredTransactionFee = requiredTransactionFee;
     }
 
     public DefaultCurrencies getDefaultCurrencies() {

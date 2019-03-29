@@ -13,7 +13,6 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public abstract class NetworkingApiClient {
-    public static final int OK_CODE = 200;
     public static final int ERROR_CODE = 418;
 
     protected Response executeCall(Call call) {

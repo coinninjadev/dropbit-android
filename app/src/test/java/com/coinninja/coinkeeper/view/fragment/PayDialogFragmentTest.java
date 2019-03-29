@@ -284,6 +284,7 @@ public class PayDialogFragmentTest {
         verify(dialog.paymentInputView).setPaymentHolder(paymentHolder);
     }
 
+
     @Test
     public void shows_error_when_address_not_valid() {
         startFragment();

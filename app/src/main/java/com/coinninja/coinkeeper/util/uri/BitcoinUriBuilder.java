@@ -1,11 +1,14 @@
 package com.coinninja.coinkeeper.util.uri;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
 import com.coinninja.coinkeeper.util.uri.routes.BitcoinRoute;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 public class BitcoinUriBuilder extends UriParameterInterface<BitcoinRoute, BitcoinParameter, BitcoinUri> {
