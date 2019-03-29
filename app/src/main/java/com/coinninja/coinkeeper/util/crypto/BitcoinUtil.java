@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.util.crypto;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
@@ -11,6 +12,8 @@ import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +25,9 @@ import javax.inject.Inject;
 import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN;
 import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS;
 import static com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter.AMOUNT;
+import static com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter.BIP70URL;
+import static com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter.BIP70URLLONG;
+import static com.coinninja.coinkeeper.util.uri.routes.BitcoinRoute.BIP70;
 import static com.coinninja.coinkeeper.util.uri.routes.BitcoinRoute.DEFAULT;
 
 public class BitcoinUtil {
@@ -111,12 +117,16 @@ public class BitcoinUtil {
         Pattern pattern = Pattern.compile(Intents.BITCOIN_URI_PATTERN);
         Matcher matcher = pattern.matcher(textData);
 
+        if (!matcher.find()) {
+            return parseBip70Uri(textData);
+        } else {
+            return parseBitcoinUri(textData, matcher);
+        }
+    }
+
+    private BitcoinUri parseBitcoinUri(String textData, Matcher matcher) throws UriException {
         String btcAddress;
         String amount;
-
-        if (!matcher.find()) {
-            throw new UriException(NOT_STANDARD_BTC_PATTERN);
-        }
 
         btcAddress = matcher.group(1);
         amount = matcher.group(3);
@@ -137,6 +147,33 @@ public class BitcoinUtil {
         parameters.put(AMOUNT, btcCurrency.toFormattedString());
 
         return bitcoinUrlBuilder.build(DEFAULT.setAddress(btcAddress), parameters);
+    }
+
+    private BitcoinUri parseBip70Uri(String textData) throws UriException {
+        String patchedData = patchBip70UriIfNecessary(textData);
+
+        HashMap<BitcoinParameter, String> parameters = new HashMap<>();
+        String[] patchedDataSplitList = patchedData.split(":?r=");
+        String[] patchedRequestDataSplitList = patchedData.split(":?request=");
+        if (patchedDataSplitList.length == 2) {
+            parameters.put(BIP70URL, patchedDataSplitList[1]);
+        } else if (patchedRequestDataSplitList.length == 2) {
+            parameters.put(BIP70URLLONG, patchedRequestDataSplitList[1]);
+        } else {
+            throw new UriException(NOT_STANDARD_BTC_PATTERN);
+        }
+
+        return bitcoinUrlBuilder.build(BIP70, parameters);
+    }
+
+    private String patchBip70UriIfNecessary(String textData) {
+        Uri possibleUri = Uri.parse(textData);
+
+        if (possibleUri != null && possibleUri.getScheme() != null && possibleUri.getScheme().equals("https")) {
+            return String.format("%s:?r=%s", bitcoinUrlBuilder.getBaseScheme(), textData);
+        } else {
+            return textData;
+        }
     }
 
     private boolean isValidBC1Address(String address) {

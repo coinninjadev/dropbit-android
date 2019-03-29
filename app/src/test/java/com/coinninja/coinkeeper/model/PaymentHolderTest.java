@@ -80,6 +80,15 @@ public class PaymentHolderTest {
     }
 
     @Test
+    public void return_required_fee_rate_if_set() {
+       TransactionFee regularTransactionFee = new TransactionFee(10.0, 10.0, 10.0);
+       TransactionFee requiredTransactionFee = new TransactionFee(20.0, 20.0, 20.0);
+       holder.setTransactionFee(regularTransactionFee);
+       holder.setRequiredTransactionFee(requiredTransactionFee);
+       assertThat(holder.getTransactionFee(), equalTo(requiredTransactionFee));
+    }
+
+    @Test
     public void provides_primary_currency__CRYPTO() {
         holder.toggleCurrencies();
         BTCCurrency btcCurrency = new BTCCurrency(1.0d);

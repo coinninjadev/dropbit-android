@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.util.crypto;
 
 import android.app.Application;
+import android.net.Uri;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
@@ -24,7 +25,9 @@ import javax.inject.Inject;
 import static com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter.AMOUNT;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.anyString;
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,6 +82,45 @@ public class BitcoinUriTest {
 
         assertThat(bitcoinUri.getAddress(), equalTo("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa"));
         assertThat(bitcoinUri.getSatoshiAmount(), equalTo(325000l));
+    }
+
+    @Test
+    public void parse_a_valid_bip70_with_identifier() throws Exception {
+        String sampleBip70URI = "bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe";
+        BitcoinUri bitcoinBip70 = bitcoinUtil.parse(sampleBip70URI);
+
+        String sampleURI = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=1.00000000";
+        BitcoinUri bitcoinNotBip70 = bitcoinUtil.parse(sampleURI);
+
+        assertFalse(bitcoinNotBip70.getIsBip70());
+        assertTrue(bitcoinBip70.getIsBip70());
+    }
+
+    @Test
+    public void parse_a_valid_bip70_btc_uri_with_r_parameter() throws Exception {
+        String sampleURI = "bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe";
+
+        BitcoinUri bitcoinUri = bitcoinUtil.parse(sampleURI);
+
+        assertThat(bitcoinUri.getBip70UrlIfApplicable(), equalTo(Uri.parse("https://merchant.com/pay.php?h%3D2a8628fc2fbe")));
+    }
+
+    @Test
+    public void parse_a_valid_bip70_url_without_bitcoin_scheme() throws Exception {
+        String sampleURI = "https://merchant.com/pay.php?h%3D2a8628fc2fbe";
+
+        BitcoinUri bitcoinUri = bitcoinUtil.parse(sampleURI);
+
+        assertThat(bitcoinUri.getBip70UrlIfApplicable(), equalTo(Uri.parse("https://merchant.com/pay.php?h%3D2a8628fc2fbe")));
+    }
+
+    @Test
+    public void parse_a_valid_bip70_btc_uri_with_request_parameter() throws Exception {
+        String sampleURI = "bitcoin:?request=https://merchant.com/pay.php?h%3D2a8628fc2fbe";
+
+        BitcoinUri bitcoinUri = bitcoinUtil.parse(sampleURI);
+
+        assertThat(bitcoinUri.getBip70UrlIfApplicable(), equalTo(Uri.parse("https://merchant.com/pay.php?h%3D2a8628fc2fbe")));
     }
 
     @Test
