@@ -82,6 +82,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__SUCCESS);
         intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
         intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
+        intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
         intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
         localBroadCastUtil.registerReceiver(receiver, intentFilter);
     }
@@ -287,6 +288,20 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         alertDialog.show(getFragmentManager(), SERVER_ERROR_FRAGMENT_TAG);
     }
 
+    private void onServerBlacklistErrorCode() {
+        alertDialog = GenericAlertDialog.newInstance(
+                null,
+                getString(R.string.activity_verify_phonecode_error_server_blacklist),
+                "ok",
+                null,
+                null,
+                false,
+                false
+        );
+
+        alertDialog.show(getFragmentManager(), SERVER_ERROR_FRAGMENT_TAG);
+    }
+
     public void onInvalidCode() {
         clearAll();
 
@@ -355,6 +370,8 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
                 onRateLimitErrorCode();
             } else if (Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR.equals(intent.getAction())) {
                 onServerErrorCode();
+            } else if (Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR.equals(intent.getAction())) {
+                onServerBlacklistErrorCode();
             } else if (Intents.ACTION_PHONE_VERIFICATION__CODE_SENT.equals(intent.getAction())) {
                 onVerificationCodeSent();
             } else if (Intents.ACTION_PHONE_VERIFICATION__SUCCESS.equals(intent.getAction())) {

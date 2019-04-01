@@ -116,7 +116,7 @@
             android:name=".view.activity.VerifyPhoneVerificationCodeActivity"
             android:label="@string/activity_verify_phone_code_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff.SkipOnAccent"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
         <activity
             android:name=".ui.settings.SettingsActivity"
