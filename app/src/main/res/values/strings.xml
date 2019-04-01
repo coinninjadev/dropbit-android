@@ -175,7 +175,7 @@
         Please enter your phone number below to use the DropBit&#8482; feature.
         DropBit allows you to send Bitcoin directly to your contacts by using their mobile number.
     </string>
-    <string name="activity_verify_phone_error_message">Invalid phone number. Please try again.</string>
+    <string name="activity_verify_phone_error_message">Invalid phone number. Please make sure you have entered the correct number.</string>
     <string name="preference_display_phone_number_key">preference_display_phone_number_key</string>
     <string name="preference_display_phone_number_label">Verified Number: </string>
     <string name="default_401_user_deverifcation_message">
@@ -195,7 +195,8 @@
     <string name="phone_mask">{{XXX-XXX-XXXX}}</string>
     <string name="activity_verify_phonecode_error_basic">Incorrect Code.  Please try again</string>
     <string name="activity_verify_phonecode_error_message_reset">Resend Text Message</string>
-    <string name="activity_verify_phonecode_error_server">Please try again.</string>
+    <string name="activity_verify_phonecode_error_server">The verification code could not be sent. Please try again later.</string>
+    <string name="activity_verify_phonecode_error_server_blacklist">DropBit does not currently support phone numbers in your country. You can still use DropBit as a Bitcoin wallet, but some features will be limited. Please skip the phone verification process above to continue.</string>
     <string name="activity_verify_code_sent">You will receive a verification code SMS shortly.</string>
     <string name="activity_verify_phonecode_expired">Your 6 digit code has expired please try again.</string>
     <string name="activity_verify_phonecode_ratelimit">Verification codes can only be requested every 30 seconds.</string>

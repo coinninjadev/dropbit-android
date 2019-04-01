@@ -46,13 +46,14 @@ public class RegisterPhoneNumberRunnable implements Runnable {
         if (!hasAccount()) return;
 
         Response response = apiClient.registerUserAccount(CNPhoneNumber);
-
         if (response.code() == 201) {
             getWalletHelper().saveAccountRegistration((CNUserAccount) response.body(), CNPhoneNumber);
             localBroadcast.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
         } else if (response.code() == 200) {
             getWalletHelper().updateUserID((CNUserAccount) response.body());
             resendRunner.run();
+        } else if (response.code() == 424) {
+            localBroadcast.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
         } else {
             Log.d(TAG, "|---- create user account failed");
             Log.d(TAG, "|------ statusCode: " + String.valueOf(response.code()));

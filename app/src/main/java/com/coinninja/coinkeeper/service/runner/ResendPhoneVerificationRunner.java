@@ -53,6 +53,8 @@ public class ResendPhoneVerificationRunner implements Runnable {
             localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
         } else if (response.code() == 429) {
             localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
+        }  else if (response.code() == 424) {
+            localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
         } else {
             localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
             logError(response);

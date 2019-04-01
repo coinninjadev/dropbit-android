@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RegisterCNPhoneNumberRunnableTest {
+public class RegisterPhoneNumberRunnableTest {
 
     private static final String SIGN_VERIFICATION_KEY = "---pub-sign-key---";
 
@@ -159,6 +159,20 @@ public class RegisterCNPhoneNumberRunnableTest {
         verify(walletHelper).saveAccountRegistration(cnUserAccount, null);
 
         verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
+
+    }
+
+    @Test
+    public void degrades_when_country_not_supported() {
+        ResponseBody body = ResponseBody.create(MediaType.parse("text"), "blacklist");
+        Response response = Response.error(424, body);
+        when(apiClient.registerUserAccount(any(CNPhoneNumber.class))).thenReturn(response);
+
+        runner.run();
+
+        verify(walletHelper, times(0)).saveAccountRegistration(any(), eq(CNPhoneNumber));
+
+        verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
 
     }
 

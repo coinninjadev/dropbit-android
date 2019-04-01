@@ -372,7 +372,17 @@ public class VerifyPhoneVerificationCodeActivityTest {
         DialogFragment dialog = (DialogFragment) activity.getFragmentManager().findFragmentByTag(VerifyPhoneVerificationCodeActivity.SERVER_ERROR_FRAGMENT_TAG);
         TextView messageDisplay = dialog.getDialog().findViewById(android.R.id.message);
 
-        assertThat(messageDisplay.getText().toString(), equalTo("Please try again."));
+        assertThat(messageDisplay.getText().toString(), equalTo("The verification code could not be sent. Please try again later."));
+    }
+
+    @Test
+    public void observes_broadcasts_of_blacklist_error_test() {
+
+        receiver.onReceive(activity, new Intent(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR));
+        DialogFragment dialog = (DialogFragment) activity.getFragmentManager().findFragmentByTag(VerifyPhoneVerificationCodeActivity.SERVER_ERROR_FRAGMENT_TAG);
+        TextView messageDisplay = dialog.getDialog().findViewById(android.R.id.message);
+
+        assertThat(messageDisplay.getText().toString(), equalTo("DropBit does not currently support phone numbers in your country. You can still use DropBit as a Bitcoin wallet, but some features will be limited. Please skip the phone verification process above to continue."));
     }
 
     @Test
@@ -415,7 +425,8 @@ public class VerifyPhoneVerificationCodeActivityTest {
         assertThat(filter.getAction(2), equalTo(Intents.ACTION_PHONE_VERIFICATION__SUCCESS));
         assertThat(filter.getAction(3), equalTo(Intents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR));
         assertThat(filter.getAction(4), equalTo(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR));
-        assertThat(filter.getAction(5), equalTo(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT));
+        assertThat(filter.getAction(5), equalTo(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR));
+        assertThat(filter.getAction(6), equalTo(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT));
     }
 
     @Test
