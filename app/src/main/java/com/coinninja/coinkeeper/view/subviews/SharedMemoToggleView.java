@@ -41,7 +41,7 @@ public class SharedMemoToggleView implements ActivityViewType {
         unShareToggleButton = view.findViewById(R.id.unshare_memo_toggle_button);
 
         withId(view, R.id.shared_memo_tooltip_button)
-                .setOnClickListener(v -> activityNavigationUtil.explainSharedMemos(v.getContext()));
+                .setOnClickListener(v -> activityNavigationUtil.explainSharedMemos(activity));
         withId(view, R.id.memo_text_view)
                 .setOnClickListener(v -> onAddMemoClicked((TextView) v));
         withId(view, R.id.memo_background_view).setOnClickListener(v -> toggleSharingMemo());
