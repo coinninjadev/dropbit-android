@@ -432,20 +432,8 @@ public class PaymentUtilTest {
         assertFalse(paymentUtil.isValid());
     }
 
-
     @Test
-    public void invalid_when_satoshisFundedTotal_MaxValue() {
-        paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
-        paymentUtil.setAddress(BTC_ADDRESS);
-        when(fundingUTXOs.getSatoshisFundedTotal()).thenReturn(BTCCurrency.MAX_SATOSHI);
-        paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.setFundingUTXOs(fundingUTXOs);
-
-        assertFalse(paymentUtil.isValid());
-    }
-
-    @Test
-    public void invalid_when_satoshisFeesSpending_MaxValue() {
+    public void invalid_when_attempting_to_send_with_fee_pushing_spendable_balance_beyond_what_is_available() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
         paymentUtil.setAddress(BTC_ADDRESS);
         when(fundingUTXOs.getSatoshisFeesSpending()).thenReturn(BTCCurrency.MAX_SATOSHI);
@@ -456,7 +444,7 @@ public class PaymentUtilTest {
     }
 
     @Test
-    public void invalid_when_satoshisSpending_MaxValue() {
+    public void invalid_when_spendable_balance_is_less_than_amount_trying_to_send() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
         paymentUtil.setAddress(BTC_ADDRESS);
         when(fundingUTXOs.getSatoshisSpending()).thenReturn(BTCCurrency.MAX_SATOSHI);
@@ -467,7 +455,7 @@ public class PaymentUtilTest {
     }
 
     @Test
-    public void invalid_when_satoshisTotalSpending_MaxValue() {
+    public void invalid_when_satoshi_total_spendable_amount_is_beyond_spendable_balance() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
         paymentUtil.setAddress(BTC_ADDRESS);
         when(fundingUTXOs.getSatoshisTotalSpending()).thenReturn(BTCCurrency.MAX_SATOSHI);

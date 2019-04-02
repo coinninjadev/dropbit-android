@@ -97,14 +97,27 @@ public class PayDialogFragment extends BaseDialogFragment {
     PaymentInputView paymentInputView;
     AlertDialog progressSpinner;
     Bip70Callback bip70Callback;
+
     boolean shouldShowScanOnAttach = false;
+    BitcoinUri injectedBitcoinUri = null;
 
     public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks, boolean shouldShowScanOnAttach) {
+        PayDialogFragment payFragment = commonInit(paymentUtil, paymentBarCallbacks);
+        payFragment.shouldShowScanOnAttach = shouldShowScanOnAttach;
+        return payFragment;
+    }
+
+    public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks, BitcoinUri injectedBitcoinUri) {
+        PayDialogFragment payFragment = commonInit(paymentUtil, paymentBarCallbacks);
+        payFragment.injectedBitcoinUri = injectedBitcoinUri;
+        return payFragment;
+    }
+
+    private static PayDialogFragment commonInit(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks) {
         PayDialogFragment payFragment = new PayDialogFragment();
         payFragment.paymentBarCallbacks = paymentBarCallbacks;
         payFragment.paymentUtil = paymentUtil;
         payFragment.paymentHolder = paymentUtil.getPaymentHolder();
-        payFragment.shouldShowScanOnAttach = shouldShowScanOnAttach;
         return payFragment;
     }
 
@@ -173,6 +186,7 @@ public class PayDialogFragment extends BaseDialogFragment {
         paymentHolder.setMaxLimitForFiat();
         setupView();
         setupBip70Callback();
+        processBitcoinUriIfNecessary(injectedBitcoinUri);
     }
 
     public void onPaymentAddressChange(String text) {
@@ -450,7 +464,6 @@ public class PayDialogFragment extends BaseDialogFragment {
         paymentReceiverView.clear();
         getView().findViewById(R.id.contact_name).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.contact_number).setVisibility(View.VISIBLE);
-
     }
 
     private void showSendToInput() {
@@ -470,11 +483,16 @@ public class PayDialogFragment extends BaseDialogFragment {
         resetPaymentHolderIfNecessary();
         try {
             BitcoinUri bitcoinUri = bitcoinUtil.parse(cryptoUriString);
-            onReceiveBitcoinUri(bitcoinUri);
-            checkForBip70Url(bitcoinUri);
+            processBitcoinUriIfNecessary(bitcoinUri);
         } catch (UriException e) {
             onInvalidBitcoinUri(e.getReason());
         }
+    }
+
+    private void processBitcoinUriIfNecessary(BitcoinUri bitcoinUri) {
+        if (bitcoinUri == null) { return; }
+        onReceiveBitcoinUri(bitcoinUri);
+        checkForBip70Url(bitcoinUri);
     }
 
     private void resetPaymentHolderIfNecessary() {
@@ -484,6 +502,7 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void checkForBip70Url(BitcoinUri bitcoinUri) {
+        if (bitcoinUri == null) { return; }
         Uri bip70Uri = bitcoinUri.getBip70UrlIfApplicable();
         if (bip70Uri == null) { return; }
 
@@ -518,6 +537,7 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void onReceiveBitcoinUri(BitcoinUri bitcoinUri) {
+        if (bitcoinUri == null || bitcoinUri.getAddress() == null) { return; }
         onPaymentAddressChange(bitcoinUri.getAddress());
         setAmount(bitcoinUri.getSatoshiAmount());
     }

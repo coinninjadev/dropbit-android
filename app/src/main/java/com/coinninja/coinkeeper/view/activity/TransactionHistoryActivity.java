@@ -10,13 +10,18 @@ import android.view.View;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
+import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
+import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
 import com.coinninja.coinkeeper.view.adapter.TransactionHistoryDataAdapter;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
+import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 
 import org.greenrobot.greendao.query.LazyList;
 
@@ -32,6 +37,8 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
     @Inject
+    BitcoinUtil bitcoinUtil;
+    @Inject
     WalletHelper walletHelper;
     @Inject
     TransactionAdapterUtil transactionAdapterUtil;
@@ -40,6 +47,8 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     private LazyList<TransactionsInvitesSummary> transactions;
     private TransactionHistoryDataAdapter adapter;
     private USDCurrency valueCurrency;
+    private String bitcoinUriString;
+    PaymentBarFragment fragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +63,13 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         transactionHistory.addItemDecoration(dividerItemDecoration);
         transactionHistory.setHasFixedSize(true);
         adapter = new TransactionHistoryDataAdapter(transactions, this, transactionAdapterUtil);
+        fragment = (PaymentBarFragment) getFragmentManager().findFragmentById(R.id.payment_bar_fragment);
+        clearTitle();
 
+        if (getIntent() != null && getIntent().getData() != null) {
+            bitcoinUriString = getIntent().getData().toString();
+            launchPayScreenWithBitcoinUriIfNecessary();
+        }
     }
 
     @Override
@@ -103,6 +118,17 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     protected void onWalletSyncComplete() {
         super.onWalletSyncComplete();
         refreshTransactions();
+    }
+
+    private void launchPayScreenWithBitcoinUriIfNecessary() {
+        if (bitcoinUriString == null) { return; }
+
+        try {
+            BitcoinUri bitcoinUri = bitcoinUtil.parse(bitcoinUriString);
+            fragment.showPayDialogWithBitcoinUri(bitcoinUri);
+        } catch (UriException e) {
+            AlertDialogBuilder.build(getBaseContext(), "Invalid bitcoin request scanned. Please try again").show();
+        }
     }
 
     private void refreshTransactions() {

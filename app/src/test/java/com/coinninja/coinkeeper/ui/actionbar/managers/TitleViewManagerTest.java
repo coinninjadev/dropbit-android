@@ -45,7 +45,6 @@ public class TitleViewManagerTest {
         actionBar = null;
     }
 
-
     @Test
     public void set_title_to_app_bar() {
         String title = " --- TITLE --";
@@ -127,5 +126,17 @@ public class TitleViewManagerTest {
         boolean isTitleValid = titleViewManager.isTitleValid(someTitle);
 
         assertTrue(isTitleValid);
+    }
+
+    @Test
+    public void hide_title_view_on_empty_string() {
+        titleViewManager.renderTitleView("");
+        verify(titleView).setVisibility(View.GONE);
+    }
+
+    @Test
+    public void hide_title_view_on_null() {
+        titleViewManager.renderTitleView(null);
+        verify(titleView).setVisibility(View.GONE);
     }
 }

@@ -47,6 +47,11 @@ public class TitleViewManager {
 
 
     private void setTitle(String title) {
+        if ((title != null && title.equals("")) || title == null) {
+            titleView.setVisibility(View.GONE);
+            return;
+        }
+
         titleView.setVisibility(View.VISIBLE);
         titleView.setText(title);
     }

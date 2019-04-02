@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.actionbar.managers.TitleViewManager;
 import com.coinninja.coinkeeper.ui.base.MenuItemClickListener;

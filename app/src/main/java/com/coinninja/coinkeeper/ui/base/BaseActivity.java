@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
 import com.coinninja.coinkeeper.R;
@@ -17,7 +16,6 @@ import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.google.android.material.tabs.TabLayout;
 
 import javax.inject.Inject;
 
@@ -143,6 +141,10 @@ public abstract class BaseActivity extends AppCompatActivity implements HasFragm
         view.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    public void clearTitle() {
+        actionBarController.updateTitle("");
     }
 
     public void updateActivityLabel(String string) {
