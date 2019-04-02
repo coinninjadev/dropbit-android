@@ -37,7 +37,10 @@ public class PhoneNumber implements Parcelable {
     }
 
     public PhoneNumber(Phonenumber.PhoneNumber phoneNumber) {
-        _phoneNumber = phoneNumber;
+        if (phoneNumber == null) { return; }
+        _phoneNumber = new Phonenumber.PhoneNumber();
+        _phoneNumber.setNationalNumber(phoneNumber.getNationalNumber());
+        _phoneNumber.setCountryCode(phoneNumber.getCountryCode());
     }
 
     public PhoneNumber(int countryCode, String phoneNumber) {
@@ -54,12 +57,6 @@ public class PhoneNumber implements Parcelable {
 
     public long getNationalNumber() {
         return _phoneNumber == null ? 0L : _phoneNumber.getNationalNumber();
-    }
-
-    @Override
-    @NotNull
-    public String toString() {
-        return phoneNumberUtil.i18Formatted(_phoneNumber);
     }
 
     public String displayTextForLocale() {
@@ -98,6 +95,11 @@ public class PhoneNumber implements Parcelable {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(_phoneNumber);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -106,8 +108,9 @@ public class PhoneNumber implements Parcelable {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(_phoneNumber);
+    @NotNull
+    public String toString() {
+        return phoneNumberUtil.i18Formatted(_phoneNumber);
     }
 
     public boolean isValid() {
