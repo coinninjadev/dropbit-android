@@ -157,6 +157,19 @@ public class ResendPhoneVerificationRunnerTest {
     }
 
     @Test
+    public void send_code_via_sms_server_response_with_blacklist_error_test() {
+        runner.setCNPhoneNumber(CNPhoneNumber);
+        ResponseBody responseBody = ResponseBody.create(MediaType.parse("application/json"), "");
+        Response response = Response.error(424, responseBody);
+        when(apiClient.resendVerification(CNPhoneNumber)).thenReturn(response);
+
+
+        runner.run();
+
+        verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
+    }
+
+    @Test
     public void send_code_via_sms_server_response_ok_test() {
         runner.setCNPhoneNumber(CNPhoneNumber);
         when(apiClient.resendVerification(CNPhoneNumber)).thenReturn(getResponse(200));

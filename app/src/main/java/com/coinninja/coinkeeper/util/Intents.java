@@ -10,7 +10,6 @@ import java.util.Map;
 public class Intents {
 
     /* CONSTS */
-    public static final String DB_NAME = "coin-ninja-db";
     public static final int QR_WIDTH = 300;
     public static final int QR_HEIGHT = 300;
     public static final long PENDING_TRANSITION_LIFE_LIMIT_SECONDS = 180;//180 secs = 3minuets
@@ -48,6 +47,8 @@ public class Intents {
     public static final String ACTION_PHONE_VERIFICATION__EXPIRED_CODE = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__EXPIRED_CODE";
     public static final String ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION_RATE_LIMIT_ERROR";
     public static final String ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR";
+    public static final String ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR";
+
     public static final String ACTION_PHONE_VERIFICATION__SUCCESS = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__SUCCESS";
     public static final String ACTION_ON_WALLET_DELETED = BuildConfig.APPLICATION_ID + ".ACTION_ON_WALLET_DELETED";
     public static final String ACTION_INTERNAL_NOTIFICATION_UPDATE = BuildConfig.APPLICATION_ID + ".ACTION_INTERNAL_NOTIFICATION_UPDATE";

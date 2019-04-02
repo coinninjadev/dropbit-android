@@ -17,16 +17,11 @@ import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.base.BaseFragment;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
-import com.coinninja.coinkeeper.util.crypto.uri.UriException;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.view.activity.QrScanActivity;
-import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.PayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.RequestDialogFragment;
@@ -36,6 +31,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import static com.coinninja.android.helpers.Views.withId;
 
@@ -46,7 +42,6 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
 
     @Inject
     PaymentUtil paymentUtil;
-
 
     @Inject
     BitcoinUtil bitcoinUtil;
@@ -70,20 +65,6 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
             }
         }
     };
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        if (requestCode == Intents.REQUEST_QR_ACTIVITY_SCAN) {
-            if (resultCode == Intents.RESULT_SCAN_OK) {
-                parseCryptoScan(intent);
-            } else if (resultCode == Intents.RESULT_SCAN_ERROR) {
-                onScanError();
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, intent);
-        }
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -115,7 +96,7 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     }
 
     private void showPayDialogWithDefault() {
-        showPayDialog(currencyPreference.getCurrenciesPreference());
+        showPayDialog(false);
     }
 
     @Override
@@ -130,7 +111,6 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         confirmPayDialogFragment.setCancelable(false);
         confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
     }
-
 
     @Override
     public void confirmPaymentFor(String btcAddress, Contact phoneNumber) {
@@ -147,11 +127,9 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
     }
 
-
     @Override
     public void onQrScanPressed() {
-        Intent qrScanIntent = new Intent(getActivity(), QrScanActivity.class);
-        startActivityForResult(qrScanIntent, Intents.REQUEST_QR_ACTIVITY_SCAN);
+        showPayDialog(true);
     }
 
     @Override
@@ -174,39 +152,29 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         requestDialog.show(getFragmentManager(), RequestDialogFragment.class.getSimpleName());
     }
 
-    private void showPayDialog(DefaultCurrencies defaultCurrencies) {
+    private void showPayDialog(boolean shouldShowScan) {
+        resetPaymentUtilForPayDialogFragment();
+        PayDialogFragment payDialog = PayDialogFragment.newInstance(paymentUtil, this, shouldShowScan);
+        payDialog.show(getFragmentManager(), PayDialogFragment.class.getSimpleName());
+    }
+
+    private void showPayDialog(BitcoinUri injectedBitcoinUri) {
+        resetPaymentUtilForPayDialogFragment();
+        PayDialogFragment payDialog = PayDialogFragment.newInstance(paymentUtil, this, injectedBitcoinUri);
+        payDialog.show(getFragmentManager(), PayDialogFragment.class.getSimpleName());
+    }
+
+    private void resetPaymentUtilForPayDialogFragment() {
         currencyPreference.reset();
         paymentHolder.clearPayment();
-        paymentHolder.setDefaultCurrencies(defaultCurrencies);
+        paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
         paymentHolder.setEvaluationCurrency(walletHelper.getLatestPrice());
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
         paymentHolder.setTransactionFee(walletHelper.getLatestFee());
         paymentUtil.setPaymentHolder(paymentHolder);
-        PayDialogFragment payDialog = PayDialogFragment.newInstance(paymentUtil, this);
-        payDialog.show(getFragmentManager(), PayDialogFragment.class.getSimpleName());
     }
 
-    private void onScanError() {
-        String message = getString(R.string.invalid_bitcoin_address_description);
-        GenericAlertDialog.newInstance(message).show(getFragmentManager(), "");
-    }
-
-    private void parseCryptoScan(Intent intent) {
-        String scannedData = intent.getStringExtra(Intents.EXTRA_SCANNED_DATA);
-        try {
-            BitcoinUri bitcoinUri = bitcoinUtil.parse(scannedData);
-            paymentUtil.setAddress(bitcoinUri.getAddress());
-            Long amount = bitcoinUri.getSatoshiAmount();
-            DefaultCurrencies defaultCurrencies;
-            if (amount != null && amount > 0) {
-                defaultCurrencies = new DefaultCurrencies(new BTCCurrency(amount), currencyPreference.getFiat());
-            } else {
-                defaultCurrencies = currencyPreference.getCurrenciesPreference();
-            }
-
-            showPayDialog(defaultCurrencies);
-        } catch (UriException e) {
-            onScanError();
-        }
+    public void showPayDialogWithBitcoinUri(BitcoinUri uri) {
+        showPayDialog(uri);
     }
 }

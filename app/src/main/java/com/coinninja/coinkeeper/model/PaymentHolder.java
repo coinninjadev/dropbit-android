@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.model;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
@@ -16,6 +17,7 @@ public class PaymentHolder {
     private String publicKey = "";
     private String memo = "";
     private String paymentAddress = "";
+    private TransactionFee requiredTransactionFee;
 
     private DefaultCurrencies defaultCurrencies;
 
@@ -28,10 +30,6 @@ public class PaymentHolder {
         this.evaluationCurrency = evaluationCurrency;
         this.transactionFee = transactionFee;
         spendableBalance = new BTCCurrency(0L);
-    }
-
-    public void setDefaultCurrencies(DefaultCurrencies defaultCurrencies) {
-        this.defaultCurrencies = defaultCurrencies;
     }
 
     public Currency updateValue(Currency currency) {
@@ -72,7 +70,7 @@ public class PaymentHolder {
     }
 
     public TransactionFee getTransactionFee() {
-        return transactionFee;
+        return requiredTransactionFee != null ? requiredTransactionFee : transactionFee;
     }
 
     public void setTransactionFee(TransactionFee transactionFee) {
@@ -123,7 +121,7 @@ public class PaymentHolder {
         return defaultCurrencies.getFiat();
     }
 
-    public Currency getCryptoCurrency() {
+    public CryptoCurrency getCryptoCurrency() {
         return defaultCurrencies.getCrypto();
     }
 
@@ -151,5 +149,17 @@ public class PaymentHolder {
     public void setMaxLimitForFiat() {
         if (evaluationCurrency != null)
             USDCurrency.SET_MAX_LIMIT((USDCurrency) evaluationCurrency);
+    }
+
+    public void setRequiredTransactionFee(TransactionFee requiredTransactionFee) {
+        this.requiredTransactionFee = requiredTransactionFee;
+    }
+
+    public DefaultCurrencies getDefaultCurrencies() {
+        return defaultCurrencies;
+    }
+
+    public void setDefaultCurrencies(DefaultCurrencies defaultCurrencies) {
+        this.defaultCurrencies = defaultCurrencies;
     }
 }

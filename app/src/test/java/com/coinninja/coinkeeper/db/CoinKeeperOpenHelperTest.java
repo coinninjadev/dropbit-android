@@ -7,42 +7,53 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CoinKeeperOpenHelperTest {
 
     @Mock
-    MigrationExecutor migrationExecutor;
+    DatabaseOpenHelper databaseOpenHelper;
+
+    @Mock
+    DatabaseSecretProvider databaseSecretProvider;
 
     @Mock
     Database database;
 
-    private CoinKeeperOpenHelper coinKeeperOpenHelper;
+    private String appSecret = "--secret--";
+    private String defaultSecret = "--default-secret--";
 
     @Before
     public void setUp() {
-
-        coinKeeperOpenHelper = new CoinKeeperOpenHelper(null, "", migrationExecutor);
+        when(databaseSecretProvider.getSecret()).thenReturn(appSecret);
+        when(databaseSecretProvider.getDefault()).thenReturn(defaultSecret);
     }
 
     @Test
-    public void upgrading_to_same_version_is_NOOP() {
+    public void opens_non_encrypted_db() {
+        CoinKeeperOpenHelper coinKeeperOpenHelper = new CoinKeeperOpenHelper(databaseOpenHelper, databaseSecretProvider, false);
+        when(databaseOpenHelper.getWritableDb()).thenReturn(database);
 
-        coinKeeperOpenHelper.onUpgrade(database, 5, 5);
-
-        verifyZeroInteractions(migrationExecutor);
+        assertThat(coinKeeperOpenHelper.getWritableDatabase(), equalTo(database));
     }
 
+    @Test
+    public void opens_encrypted_db() {
+        CoinKeeperOpenHelper coinKeeperOpenHelper = new CoinKeeperOpenHelper(databaseOpenHelper, databaseSecretProvider, true);
+        when(databaseOpenHelper.getEncryptedWritableDb(appSecret)).thenReturn(database);
+
+        assertThat(coinKeeperOpenHelper.getWritableDatabase(), equalTo(database));
+    }
 
     @Test
-    public void delegates_to_executor() {
-        int newVersion = 5;
-        int oldVersion = 4;
-        coinKeeperOpenHelper.onUpgrade(database, oldVersion, newVersion);
+    public void uses_default_encryption_key_when_new_key_breaks() {
+        CoinKeeperOpenHelper coinKeeperOpenHelper = new CoinKeeperOpenHelper(databaseOpenHelper, databaseSecretProvider, true);
+        when(databaseOpenHelper.getEncryptedWritableDb(appSecret)).thenThrow(new net.sqlcipher.database.SQLiteException());
+        when(databaseOpenHelper.getEncryptedWritableDb(defaultSecret)).thenReturn(database);
 
-        verify(migrationExecutor).performUpgrade(database, oldVersion, newVersion);
-
+        assertThat(coinKeeperOpenHelper.getWritableDatabase(), equalTo(database));
     }
 }

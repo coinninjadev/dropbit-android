@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.util;
 
 import com.coinninja.coinkeeper.CoinKeeperApplication;
+import com.coinninja.coinkeeper.di.component.AppComponent;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.google.i18n.phonenumbers.NumberParseException;

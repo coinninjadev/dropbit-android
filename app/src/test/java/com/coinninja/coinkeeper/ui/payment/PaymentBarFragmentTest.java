@@ -73,7 +73,6 @@ public class PaymentBarFragmentTest {
     private PaymentBarFragment fragment;
     private View requestButton;
     private View sendButton;
-    private View scanButton;
 
     private USDCurrency usdCurrency = new USDCurrency();
     private BTCCurrency btcCurrency = new BTCCurrency();
@@ -93,7 +92,6 @@ public class PaymentBarFragmentTest {
         fragment.localBroadcastUtil = localBroadCastUtil;
         defaultCurrencies = new DefaultCurrencies(btcCurrency, usdCurrency);
 
-        scanButton = withId(fragment.getView(), R.id.scan_btn);
         sendButton = withId(fragment.getView(), R.id.send_btn);
         requestButton = withId(fragment.getView(), R.id.request_btn);
 
@@ -109,7 +107,6 @@ public class PaymentBarFragmentTest {
         requestButton = null;
         sendButton = null;
         localBroadCastUtil = null;
-        scanButton = null;
         walletHelper = null;
         paymentUtil = null;
         paymentHolder = null;
@@ -182,89 +179,6 @@ public class PaymentBarFragmentTest {
         assertThat(paymentHolder.getCryptoCurrency().toLong(), equalTo(0L));
         assertThat(paymentHolder.getFiat().toLong(), equalTo(0L));
         assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
-    }
-
-    @Test
-    public void shows_request_scan() {
-        start();
-
-        clickOn(scanButton);
-
-        ShadowActivity shadowActivity = shadowOf(fragment.getActivity());
-        ShadowActivity.IntentForResult forResult = shadowActivity.getNextStartedActivityForResult();
-
-        assertNotNull(forResult);
-        assertThat(forResult.requestCode, equalTo(Intents.REQUEST_QR_ACTIVITY_SCAN));
-        assertThat(forResult.intent.getComponent().getClassName(), equalTo(QrScanActivity.class.getName()));
-    }
-
-    @Test
-    public void handles_invalid_scan() {
-        String scannedData = "--- does not matter - mocking behavior ---";
-        String expectedMessage = fragment.getResources().getString(R.string.invalid_bitcoin_address_description);
-        start();
-
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-        fragment.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_ERROR, intent);
-
-        AlertDialog alert = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(alert);
-        assertThat(shadowAlertDialog.getMessage(), equalTo(expectedMessage));
-    }
-
-    @Test
-    public void handles_invalid_scan__fail_to_parse() throws UriException {
-        String scannedData = "--- does not matter - mocking behavior ---";
-        String expectedMessage = fragment.getResources().getString(R.string.invalid_bitcoin_address_description);
-        when(bitcoinUtil.parse(scannedData)).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN));
-        start();
-
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-        fragment.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_OK, intent);
-
-        AlertDialog alert = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(alert);
-        assertThat(shadowAlertDialog.getMessage(), equalTo(expectedMessage));
-    }
-
-    @Test
-    public void handles_good_scan___address_only() throws UriException {
-        start();
-        String scannedData = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa";
-        BitcoinUri bitcoinUri = mock(BitcoinUri.class);
-        when(bitcoinUtil.parse(scannedData)).thenReturn(bitcoinUri);
-        when(bitcoinUri.getAddress()).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-
-        fragment.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_OK, intent);
-
-        PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
-
-        assertNotNull(payDialog);
-        verify(paymentUtil).setAddress("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-    }
-
-    @Test
-    public void handles_good_scan___address_with_amount() throws UriException {
-        start();
-        BitcoinUri bitcoinUri = mock(BitcoinUri.class);
-        String scannedData = "bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=10.00000000";
-        when(bitcoinUtil.parse(scannedData)).thenReturn(bitcoinUri);
-        when(bitcoinUri.getAddress()).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        when(bitcoinUri.getSatoshiAmount()).thenReturn(1000000000L);
-
-        Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_SCANNED_DATA, scannedData);
-
-        fragment.onActivityResult(Intents.REQUEST_QR_ACTIVITY_SCAN, Intents.RESULT_SCAN_OK, intent);
-        PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
-
-        assertNotNull(payDialog);
-        verify(paymentUtil).setAddress("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa");
-        assertThat(paymentHolder.getPrimaryCurrency().toLong(), equalTo(1000000000L));
     }
 
     @Test

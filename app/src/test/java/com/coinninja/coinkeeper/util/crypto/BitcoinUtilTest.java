@@ -50,6 +50,13 @@ public class BitcoinUtilTest {
     }
 
     @Test
+    public void matches_bip70_when_merchant_on_query_string() throws UriException {
+        String uri = "bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3D2a8628fc2fbe";
+        BitcoinUri parse = bitcoinUtil.parse(uri);
+        assertTrue(parse.getIsBip70());
+    }
+
+    @Test
     public void test_valid_bip39_seed_words() {
         String[] sampleWords = valid_words;
 

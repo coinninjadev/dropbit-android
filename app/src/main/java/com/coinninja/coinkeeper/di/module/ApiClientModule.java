@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.di.module;
 import com.coinninja.coinkeeper.BuildConfig;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.interfaces.FCMAppID;
+import com.coinninja.coinkeeper.service.client.Bip70Client;
 import com.coinninja.coinkeeper.service.client.BlockchainClient;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.CoinKeeperClient;
@@ -12,6 +13,7 @@ import com.coinninja.coinkeeper.service.interceptors.SignedRequestInterceptor;
 import dagger.Module;
 import dagger.Provides;
 import okhttp3.OkHttpClient;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -58,6 +60,15 @@ public class ApiClientModule {
     @FCMAppID
     String fcmAppID() {
         return BuildConfig.FCM_APPLICATION_KEY;
+    }
+
+    @Provides
+    Bip70Client.Bip70Service bip70Service() {
+        return new Retrofit.Builder()
+                .baseUrl("https://localhost/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(Bip70Client.Bip70Service.class);
     }
 
 }

@@ -2,20 +2,18 @@ package com.coinninja.coinkeeper.di.module;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.provider.Settings;
 
 import com.coinninja.coinkeeper.BuildConfig;
 import com.coinninja.coinkeeper.db.CoinKeeperOpenHelper;
-import com.coinninja.coinkeeper.db.MigrationExecutor;
 import com.coinninja.coinkeeper.di.interfaces.AppSecret;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.interfaces.DBEncryption;
+import com.coinninja.coinkeeper.di.interfaces.DefaultSecret;
 import com.coinninja.coinkeeper.model.db.DaoMaster;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.util.Hasher;
-import com.coinninja.coinkeeper.util.Intents;
 
 import org.greenrobot.greendao.database.Database;
 
@@ -32,17 +30,8 @@ public class DaoSessionManagerModule {
     }
 
     @Provides
-    Database database(CoinKeeperOpenHelper coinKeeperOpenHelper, @AppSecret char[] secret, @DBEncryption boolean withEncryption) {
-        if (withEncryption) {
-            return coinKeeperOpenHelper.getEncryptedWritableDb(secret);
-        } else {
-            return coinKeeperOpenHelper.getWritableDb();
-        }
-    }
-
-    @Provides
-    CoinKeeperOpenHelper coinKeeperOpenHelper(@ApplicationContext Context context) {
-        return new CoinKeeperOpenHelper(context, Intents.DB_NAME, new MigrationExecutor());
+    Database database(CoinKeeperOpenHelper coinKeeperOpenHelper) {
+        return coinKeeperOpenHelper.getWritableDatabase();
     }
 
     @Provides
@@ -59,14 +48,13 @@ public class DaoSessionManagerModule {
     @SuppressLint("HardwareIds")
     @Provides
     @AppSecret
-    char[] secret(@ApplicationContext Context context, Hasher hasher) {
-        String secret;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            secret = BuildConfig.DEFAULT_SALT;
-        } else {
-            secret = hasher.hash(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID));
-        }
-        return secret.toCharArray();
+    String secret(@ApplicationContext Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    @Provides
+    @DefaultSecret
+    String defaultSecret() {
+        return BuildConfig.DEFAULT_SALT;
+    }
 }

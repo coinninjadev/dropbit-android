@@ -9,7 +9,6 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver;
 import com.coinninja.coinkeeper.util.DateUtil;
 import com.coinninja.coinkeeper.util.Intents;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
@@ -74,6 +73,9 @@ public class CNWalletManagerTest {
     @Mock
     private PhoneNumber phoneNumber;
 
+    @Mock
+    private Wallet wallet;
+
     @InjectMocks
     private CNWalletManager cnWalletManager;
 
@@ -82,6 +84,7 @@ public class CNWalletManagerTest {
         when(bitcoinUtil.isValidBIP39Words(valid_words)).thenReturn(true);
         when(bitcoinUtil.isValidBIP39Words(invalid_words)).thenReturn(false);
         when(walletHelper.getSeedWords()).thenReturn(valid_words);
+        when((walletHelper.getWallet())).thenReturn(wallet);
     }
 
     @After
@@ -102,7 +105,6 @@ public class CNWalletManagerTest {
     @Test
     public void returns_false_if_wallet_last_sync_greater_than_0() {
         long time = System.currentTimeMillis();
-        Wallet wallet = mock(Wallet.class);
         when(walletHelper.getWallet()).thenReturn(wallet);
         when(wallet.getLastSync()).thenReturn(0L).thenReturn(time);
 
@@ -123,19 +125,18 @@ public class CNWalletManagerTest {
         verify(wallet).update();
     }
 
+    @Test
+    public void knows_no_wallet_exists_when_no_wallet_no_words() {
+        when((walletHelper.getSeedWords())).thenReturn(null).thenReturn(new String[0]);
+        assertFalse(cnWalletManager.hasWallet());
+        assertFalse(cnWalletManager.hasWallet());
+    }
 
     @Test
     public void knows_that_wallet_exists() {
         when(walletHelper.getSeedWords()).thenReturn(valid_words);
 
         assertTrue(cnWalletManager.hasWallet());
-    }
-
-    @Test
-    public void knows_that_wallet_does_not_exists() {
-        when(walletHelper.getSeedWords()).thenReturn(new String[0]);
-
-        assertFalse(cnWalletManager.hasWallet());
     }
 
     @Test

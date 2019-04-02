@@ -84,7 +84,6 @@ public class PayDialogFragmentTest {
     private static final String PHONE_NUMBER_STRING = "+13305551111";
     @Mock
     CurrencyPreference currencyPreference;
-    @Mock
     DefaultCurrencies defaultCurrencies;
     private PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER_STRING);
     private PayDialogFragment dialog = mock(PayDialogFragment.class);
@@ -112,8 +111,7 @@ public class PayDialogFragmentTest {
     public void setUp() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        when(defaultCurrencies.getPrimaryCurrency()).thenReturn(new USDCurrency());
-        when(defaultCurrencies.getSecondaryCurrency()).thenReturn(new BTCCurrency());
+        defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         paymentHolder = new PaymentHolder(new USDCurrency(5000.00d), new TransactionFee(5, 10, 15));
         paymentHolder.setDefaultCurrencies(defaultCurrencies);
@@ -286,6 +284,7 @@ public class PayDialogFragmentTest {
         verify(dialog.paymentInputView).setPaymentHolder(paymentHolder);
     }
 
+
     @Test
     public void shows_error_when_address_not_valid() {
         startFragment();
@@ -455,7 +454,10 @@ public class PayDialogFragmentTest {
         startFragment();
         paymentHolder.setPublicKey("--pub-key--");
         when(clipboardUtil.getRaw()).thenReturn("--bitcoin uri--");
-        when(bitcoinUtil.parse(anyString())).thenReturn(mock(BitcoinUri.class));
+        BitcoinUri uri = mock(BitcoinUri.class);
+        when(uri.getAddress()).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R");
+        when(uri.getSatoshiAmount()).thenReturn(0L);
+        when(bitcoinUtil.parse(anyString())).thenReturn(uri);
         when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.ADDRESS);
 
         dialog.onPasteClicked();
@@ -546,8 +548,10 @@ public class PayDialogFragmentTest {
         paymentHolder.setPublicKey("--pub-key--");
         startFragment();
         Intent data = new Intent();
-        data.putExtra(Intents.EXTRA_SCANNED_DATA, "--scanned data--");
-        when(bitcoinUtil.parse(anyString())).thenReturn(mock(BitcoinUri.class));
+        BitcoinUri bitcoinUri = mock(BitcoinUri.class);
+        when(bitcoinUri.getAddress()).thenReturn("xfdkjvhbw43hfbwkehvbw43jhkf");
+        data.putExtra(Intents.EXTRA_SCANNED_DATA, "bitcoin:xfdkjvhbw43hfbwkehvbw43jhkf");
+        when(bitcoinUtil.parse(anyString())).thenReturn(bitcoinUri);
         when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.ADDRESS);
 
         dialog.onActivityResult(Intents.REQUEST_QR_FRAGMENT_SCAN, Intents.RESULT_SCAN_OK, data);
