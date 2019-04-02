@@ -76,7 +76,7 @@ public class Migrate_V27_to_V28 extends AbstractMigration {
             String toPhoneNumber = inviteCursor.getString(inviteCursor.getColumnIndex("RECEIVER_PHONE_NUMBER"));
 
             Long id = inviteCursor.getLong(inviteCursor.getColumnIndex("TRANSACTIONS_INVITES_SUMMARY_ID"));
-            db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = %s AND TO_PHONE_NUMBER = %s WHERE _id = %s", inviteName, toPhoneNumber, id));
+            db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = \"%s\" AND TO_PHONE_NUMBER = \"%s\" WHERE _id = %s", inviteName, toPhoneNumber, id));
         }
         inviteCursor.close();
     }
@@ -92,11 +92,11 @@ public class Migrate_V27_to_V28 extends AbstractMigration {
             Long id = cursor.getLong(cursor.getColumnIndex("TRANSACTIONS_INVITES_SUMMARY_ID"));
 
             if (phoneNumber != null && !phoneNumber.equals("")) {
-                db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_PHONE_NUMBER = %s WHERE _id = %s", phoneNumber, id));
+                db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_PHONE_NUMBER = \"%s\" WHERE _id = %s", phoneNumber, id));
             }
 
             if (toName != null && !toName.equals("")) {
-                db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = %s WHERE _id = %s", toName, id));
+                db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = \"%s\" WHERE _id = %s", toName, id));
             }
         }
         cursor.close();
