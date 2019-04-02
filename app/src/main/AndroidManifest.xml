@@ -42,6 +42,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".view.activity.StartActivity"
             android:label=""
@@ -79,9 +80,16 @@
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <activity
             android:name=".view.activity.TransactionHistoryActivity"
-            android:label=""
+            android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.Drawer" />
+            android:theme="@style/CoinKeeperTheme.Drawer" >
+            <intent-filter>
+                <data android:scheme="bitcoin" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.transaction.details.TransactionDetailsActivity"
             android:label=""

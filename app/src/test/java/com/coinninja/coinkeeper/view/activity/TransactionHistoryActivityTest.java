@@ -1,23 +1,31 @@
 package com.coinninja.coinkeeper.view.activity;
 
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.view.View;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
+import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
+import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
@@ -61,9 +70,17 @@ public class TransactionHistoryActivityTest {
     @Mock
     private LazyList<TransactionsInvitesSummary> transactions;
 
+    private BitcoinUtil bitcoinUtil;
+    private Application application;
+
+    @Mock
+    private HDWallet hdWallet;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        application = RuntimeEnvironment.application;
+        bitcoinUtil = new BitcoinUtil(application, hdWallet);
         bindableTransaction = new BindableTransaction();
         when(transactions.size()).thenReturn(12);
         when(transactions.get(anyInt())).thenReturn(transaction);
@@ -260,6 +277,29 @@ public class TransactionHistoryActivityTest {
     }
 
     @Test
+    @Ignore
+    public void handles_bitcoin_url_intent_correctly() throws UriException {
+        ArgumentCaptor<BitcoinUri> argumentCaptor = ArgumentCaptor.forClass(BitcoinUri.class);
+
+        Intent intent = new Intent();
+        Uri uri = bitcoinUtil.parse("bitcoin:r=https://www.google.com").toUri();
+
+        activityController = Robolectric.buildActivity(TransactionHistoryActivity.class, intent).create();
+        intent.setData(uri);
+        activity = activityController.get();
+        activityController.create();
+        activity.transactionAdapterUtil = util;
+        activity.walletHelper = walletHelper;
+        activity.fragment = mock(PaymentBarFragment.class);
+        startActivity();
+
+        verify(activity.fragment).showPayDialogWithBitcoinUri(argumentCaptor.capture());
+
+        BitcoinUri bitcoinUri = argumentCaptor.getValue();
+        assertThat(bitcoinUri.toUri().toString(), equalTo(uri.toString()));
+    }
+
+    @Test
     public void unsubscribes_from_transaction_data_changed_when_paused() {
         startActivity();
         LocalBroadCastUtil broadCastUtil = mock(LocalBroadCastUtil.class);
@@ -269,4 +309,5 @@ public class TransactionHistoryActivityTest {
 
         verify(broadCastUtil).unregisterReceiver(any(BroadcastReceiver.class));
     }
+
 }
