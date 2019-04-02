@@ -69,35 +69,44 @@ public class Migrate_V27_to_V28 extends AbstractMigration {
 
     private void populateJoinTableFromInvite(@NonNull Database db) {
         Cursor inviteCursor = db.rawQuery("SELECT * FROM INVITE_TRANSACTION_SUMMARY WHERE TYPE = 0", null);
+        if (inviteCursor.moveToFirst()) {
+            do {
+                String inviteName = inviteCursor.getString(inviteCursor.getColumnIndex("INVITE_NAME"));
+                String toPhoneNumber = inviteCursor.getString(inviteCursor.getColumnIndex("RECEIVER_PHONE_NUMBER"));
 
-        inviteCursor.moveToFirst();
-        while (inviteCursor.moveToNext()) {
-            String inviteName = inviteCursor.getString(inviteCursor.getColumnIndex("INVITE_NAME"));
-            String toPhoneNumber = inviteCursor.getString(inviteCursor.getColumnIndex("RECEIVER_PHONE_NUMBER"));
+                Long id = inviteCursor.getLong(inviteCursor.getColumnIndex("TRANSACTIONS_INVITES_SUMMARY_ID"));
 
-            Long id = inviteCursor.getLong(inviteCursor.getColumnIndex("TRANSACTIONS_INVITES_SUMMARY_ID"));
-            db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = \"%s\" AND TO_PHONE_NUMBER = \"%s\" WHERE _id = %s", inviteName, toPhoneNumber, id));
+                if (inviteName != null && !inviteName.isEmpty()) {
+                    db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = \"%s\" WHERE _id = %s", inviteName, id));
+                }
+
+                if (toPhoneNumber != null && !toPhoneNumber.isEmpty()) {
+                    db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_PHONE_NUMBER = \"%s\" WHERE _id = %s", toPhoneNumber, id));
+                }
+
+            } while (inviteCursor.moveToNext());
         }
         inviteCursor.close();
     }
 
     private void populateJoinTableFromTransactionIfNecessary(@NonNull Database db) {
         Cursor cursor = db.rawQuery("SELECT * FROM TRANSACTION_SUMMARY", null);
+        if (cursor.moveToFirst()) {
+            do {
+                String phoneNumber = cursor.getString(cursor.getColumnIndex("TO_PHONE_NUMBER"));
+                String toName = cursor.getString(cursor.getColumnIndex("TO_NAME"));
 
-        cursor.moveToFirst();
-        while (cursor.moveToNext()) {
-            String phoneNumber = cursor.getString(cursor.getColumnIndex("TO_PHONE_NUMBER"));
-            String toName = cursor.getString(cursor.getColumnIndex("TO_NAME"));
+                Long id = cursor.getLong(cursor.getColumnIndex("TRANSACTIONS_INVITES_SUMMARY_ID"));
 
-            Long id = cursor.getLong(cursor.getColumnIndex("TRANSACTIONS_INVITES_SUMMARY_ID"));
+                if (phoneNumber != null && !phoneNumber.equals("")) {
+                    db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_PHONE_NUMBER = \"%s\" WHERE _id = %s", phoneNumber, id));
+                }
 
-            if (phoneNumber != null && !phoneNumber.equals("")) {
-                db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_PHONE_NUMBER = \"%s\" WHERE _id = %s", phoneNumber, id));
-            }
+                if (toName != null && !toName.equals("")) {
+                    db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = \"%s\" WHERE _id = %s", toName, id));
+                }
 
-            if (toName != null && !toName.equals("")) {
-                db.execSQL(String.format("UPDATE TRANSACTIONS_INVITES_SUMMARY SET TO_NAME = \"%s\" WHERE _id = %s", toName, id));
-            }
+            } while (cursor.moveToNext());
         }
         cursor.close();
     }
