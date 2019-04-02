@@ -16,7 +16,7 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 def versionMajor = 1
 def versionMinor = 4
 def versionPatch = System.getenv("VERSION_PATCH") ? System.getenv("VERSION_PATCH") : 0
-def APP_VERSION = System.getenv("APP_VERSION") ? Integer.parseInt(System.getenv("APP_VERSION")) : 12279
+def APP_VERSION = System.getenv("APP_VERSION") ? Integer.parseInt(System.getenv("APP_VERSION")) : 10472
 def hockeyAppApiToken = System.getenv("HOCKEY_APP_API_TOKEN") ? System.getenv("HOCKEY_APP_API_TOKEN") : HOCKEY_APP_API_TOKEN
 def ANALYTICS_TOKEN = System.getenv("ANALYTICS_TOKEN") ? System.getenv("ANALYTICS_TOKEN") : ANALYTICS_TOKEN
 def COIN_NINJA_API_BASE__STAGING = System.getenv("COIN_NINJA_API_BASE__STAGING") ? System.getenv("COIN_NINJA_API_BASE__STAGING") : COIN_NINJA_API_BASE__STAGING
@@ -83,7 +83,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testCoverageEnabled true
             buildConfigField "String", "ANALYTICS_TOKEN", "\"${ANALYTICS_TOKEN_DEBUG}\""
-            buildConfigField "boolean", "CN_DB_ENCRYPTION_ENABLED", "true"
+            buildConfigField "boolean", "CN_DB_ENCRYPTION_ENABLED", "false"
             applicationIdSuffix ".debug"
             manifestPlaceholders = ["APP_LINKING_HOST": "dev.coinninja.net"]
             resValue "string", "app_version", "${defaultConfig.versionName}${versionNameSuffix}"
