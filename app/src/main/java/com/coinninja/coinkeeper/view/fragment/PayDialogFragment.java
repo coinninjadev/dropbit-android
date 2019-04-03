@@ -496,7 +496,7 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void resetPaymentHolderIfNecessary() {
-        paymentHolder.setTransactionFee(null);
+        paymentHolder.setTransactionFee(walletHelper.getLatestFee());
         memoToggleView.setText("");
         paymentHolder.setMemo(null);
     }

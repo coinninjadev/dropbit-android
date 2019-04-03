@@ -45,8 +45,7 @@ public class HDWallet {
     }
 
     public BTCCurrency getFeeForTransaction(TransactionFee transactionFee, int numInsOuts) {
-        //final int currentTransactionByteSize = 300;//for now, hardcoded at 300bytes- request from product owners
-        int currentTransactionByteSize = numInsOuts * 100;//for now, hardcoded at 300bytes- request from product owners
+        int currentTransactionByteSize = numInsOuts * 100;
 
         double satoshiMinFee = calcMinMinerFee(transactionFee);
         long feeInSatoshis = (long) (satoshiMinFee * currentTransactionByteSize);
