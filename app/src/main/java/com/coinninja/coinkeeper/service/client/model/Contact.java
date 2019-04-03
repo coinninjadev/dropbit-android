@@ -80,6 +80,7 @@ public class Contact implements Parcelable {
     }
 
     public String getNumberWithCountryCode() {
+        if (phoneNumber == null || phoneNumber.toString() == null || phoneNumber.toString().isEmpty()) { return ""; }
         return phoneNumber.toString().replace("+", "");
     }
 
