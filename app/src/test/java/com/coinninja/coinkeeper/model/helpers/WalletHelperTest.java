@@ -44,6 +44,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -710,7 +711,15 @@ public class WalletHelperTest {
 
         verifyZeroInteractions(wallet);
     }
-    
+
+    @Test
+    public void assert_that_setting_a_positive_fee_sets_the_fee_correctly() {
+        walletHelper.setLatestFee(new TransactionFee(10.0, 10.0, 10.0));
+
+        verify(wallet).setLastFee("10.0");
+        verify(wallet).update();
+    }
+
     @Test
     public void assert_that_setting_0_to_tx_fees_does_not_overwrite() {
         walletHelper.setLatestFee(new TransactionFee(0.0, 0.0, 0.0));
