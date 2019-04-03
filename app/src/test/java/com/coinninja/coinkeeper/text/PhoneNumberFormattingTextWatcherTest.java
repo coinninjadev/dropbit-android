@@ -20,8 +20,10 @@ import java.util.Locale;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
@@ -215,6 +217,7 @@ public class PhoneNumberFormattingTextWatcherTest {
 
         editText.setText("");
         assertThat(editText, hasText("+81 "));
+        verify(callback, times(0)).onPhoneNumberInValid(anyString());
     }
 
     @Test
@@ -226,6 +229,35 @@ public class PhoneNumberFormattingTextWatcherTest {
         editText.setText("21345687");
         assertThat(editText, hasText("+64 21 345 687"));
         verify(callback).onPhoneNumberValid(number);
+    }
+
+    @Test
+    @Config(qualifiers = "zh-rTW")
+    public void validates_multiple_length_countries__Tw() {
+        Phonenumber.PhoneNumber number = new Phonenumber.PhoneNumber();
+        number.setCountryCode(886);
+        number.setNationalNumber(912345678);
+        editText.setText("9");
+        assertThat(editText, hasText("+886 9"));
+        editText.setText("91");
+        assertThat(editText, hasText("+886 91"));
+        editText.setText("912");
+        assertThat(editText, hasText("+886 912"));
+        editText.setText("9123");
+        assertThat(editText, hasText("+886 912 3"));
+        editText.setText("91234");
+        assertThat(editText, hasText("+886 912 34"));
+        editText.setText("912345");
+        assertThat(editText, hasText("+886 912 345"));
+        editText.setText("9123456");
+        assertThat(editText, hasText("+886 912 345 6"));
+        editText.setText("91234567");
+        assertThat(editText, hasText("+886 912 345 67"));
+        editText.setText("912345678");
+        assertThat(editText, hasText("+886 912 345 678"));
+
+        verify(callback).onPhoneNumberValid(number);
+        verify(callback, times(0)).onPhoneNumberInValid(anyString());
     }
 
 
