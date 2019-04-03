@@ -90,7 +90,9 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
     }
 
     private void validateNumber(String text) {
-        if (text.length() < MIN_PHONE_NUMBER_LENGTH) { return; }
+        if (stripSeparators(text).length() < MIN_PHONE_NUMBER_LENGTH) {
+            return;
+        }
 
         try {
             phoneNumber = phoneNumberUtil.parse(text, locale.getCountry());
