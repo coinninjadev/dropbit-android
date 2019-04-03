@@ -110,7 +110,7 @@ public class WalletHelper {
     }
 
     public void setLatestFee(TransactionFee transactionFee) {
-        if (getWallet() == null || transactionFee == null || transactionFee.getMin() == 0.0D) { return; }
+        if (getWallet() == null || transactionFee == null || transactionFee.getMin() <= 0.0D) { return; }
         Wallet wallet = getWallet();
         wallet.setLastFee(String.valueOf(transactionFee.getMin()));
         wallet.update();

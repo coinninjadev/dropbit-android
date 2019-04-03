@@ -705,6 +705,13 @@ public class WalletHelperTest {
     }
 
     @Test
+    public void assert_that_setting_negative_to_tx_fees_does_not_overwrite() {
+        walletHelper.setLatestFee(new TransactionFee(-1.0, -1.0, -1.0));
+
+        verifyZeroInteractions(wallet);
+    }
+    
+    @Test
     public void assert_that_setting_0_to_tx_fees_does_not_overwrite() {
         walletHelper.setLatestFee(new TransactionFee(0.0, 0.0, 0.0));
 
