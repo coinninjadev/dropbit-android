@@ -8,6 +8,7 @@ import com.coinninja.coinkeeper.model.db.DaoSession;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.TargetStat;
+import com.coinninja.coinkeeper.model.db.TransactionNotification;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
@@ -22,6 +23,7 @@ import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
+import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.greenrobot.greendao.query.LazyList;
@@ -45,9 +47,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class WalletHelperTest {
@@ -694,6 +696,26 @@ public class WalletHelperTest {
         verify(account).setPhoneNumberHash(phoneNumberHash);
         verify(account).setCnUserId(cnUserId);
         verify(account).populateStatus(verificationStatus);
+    }
+
+    @Test
+    public void assert_that_getting_null_wallet_does_not_cause_null_pointer_exception() {
+        when(walletQueryManager.getWallet()).thenReturn(null);
+        walletHelper.setLatestFee(new TransactionFee(20.0, 20.0, 20.0));
+    }
+
+    @Test
+    public void assert_that_setting_0_to_tx_fees_does_not_overwrite() {
+        walletHelper.setLatestFee(new TransactionFee(0.0, 0.0, 0.0));
+
+        verifyZeroInteractions(wallet);
+    }
+
+    @Test
+    public void assert_that_setting_null_to_tx_fees_does_not_overwrite() {
+        walletHelper.setLatestFee(null);
+
+        verifyZeroInteractions(wallet);
     }
 
     @Test
