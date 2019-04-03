@@ -98,7 +98,7 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
             phoneNumber = phoneNumberUtil.parse(text, locale.getCountry());
             if (phoneNumberUtil.isValidNumber(phoneNumber)) {
                 callback.onPhoneNumberValid(phoneNumber);
-            } else if (formattedTemplateNumber.length() == text.length()) {
+            } else if (formattedTemplateNumber.length() <= text.length()) {
                 callback.onPhoneNumberInValid(text);
             }
         } catch (NumberParseException e) {
@@ -136,16 +136,10 @@ public class PhoneNumberFormattingTextWatcher implements TextWatcher {
     }
 
     private String formatInput(String s) {
-        s = prependCountryCode(s);
-        formatter.clear();
         String text = "";
-        String current = s;
+        String current = prependCountryCode(s);
+        formatter.clear();
         current = stripSeparators(current);
-        int maxLen = formattedTemplateNumber != null ? PhoneNumberUtils.stripSeparators(formattedTemplateNumber).length() : 0;
-
-        if (maxLen <= current.length()) {
-            current = current.substring(0, maxLen);
-        }
 
         for (char c : current.toCharArray()) {
             text = formatter.inputDigit(c);
