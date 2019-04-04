@@ -7,17 +7,20 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.google.gson.Gson;
 
 import javax.inject.Inject;
 
+import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
+public class InviteContactRunner extends AsyncTask<Contact, Integer, InvitationResult> {
     private static final String TAG = InviteContactRunner.class.getSimpleName();
 
     private final SignedCoinKeeperApiClient client;
@@ -50,8 +53,16 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
         return new InviteContactRunner(client, cnWalletManager, phoneNumberUtil, onInviteListener);
     }
 
+    public void setSatoshisSending(Long satoshisSending) {
+        this.satoshisSending = satoshisSending;
+    }
+
+    public void setUSAExchangeCurrency(USDCurrency usdExchangeCurrency) {
+        this.usdExchangeCurrency = usdExchangeCurrency;
+    }
+
     @Override
-    protected Response doInBackground(Contact... contacts) {
+    protected InvitationResult doInBackground(Contact... contacts) {
         publishProgress(50);
 
         Contact receiverContact = contacts[0];
@@ -70,18 +81,34 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
                 senderPhoneNumber,
                 receiverPhoneNumber);
 
-
-        if (response.isSuccessful()) {
-            return response;
-        } else {
+        String errorMessage = getErrorMessage(response);
+        if (response == null) {
+            return new InvitationResult(InvitationResult.Status.UNKNOWN_ERROR, errorMessage);
+        } else if (response.code() == 501) {
+            DropBitInvitation dropBitInvitation = new Gson().fromJson(errorMessage, DropBitInvitation.class);
+            return new InvitationResult(dropBitInvitation, response.code(), InvitationResult.Status.DEGRADED_SMS);
+        } else if (!response.isSuccessful()) {
             Log.d(TAG, "|---- Invite Contact failed");
             Log.d(TAG, "|------ statusCode: " + String.valueOf(response.code()));
-            Log.d(TAG, "|--------- message: " + response.body());
+            Log.d(TAG, "|--------- errorMessage: " + errorMessage);
+            return new InvitationResult(response.code(), InvitationResult.Status.ERROR, errorMessage);
+        } else {
+            DropBitInvitation inviteContact = (DropBitInvitation) response.body();
+            return new InvitationResult(inviteContact, response.code(), InvitationResult.Status.SUCCESS);
         }
+    }
 
-        sleep(1000);
-
-        return response;
+    @Override
+    protected void onPostExecute(InvitationResult invitationResult) {
+        if (invitationResult.getStatus() == InvitationResult.Status.UNKNOWN_ERROR) {
+            onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, invitationResult.getErrorMessage());
+        } else if (invitationResult.getStatus() == InvitationResult.Status.DEGRADED_SMS) {
+            onInviteListener.onInviteSuccessfulDegradedSms(invitationResult.getInvitedResult());
+        } else if (invitationResult.getStatus() == InvitationResult.Status.SUCCESS) {
+            onInviteListener.onInviteSuccessful(invitationResult.getInvitedResult());
+        } else {
+            onResponseError(invitationResult.getStatusCode(), invitationResult.getErrorMessage());
+        }
     }
 
     @Override
@@ -89,61 +116,34 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
         onInviteListener.onInviteProgress(values[0]);
     }
 
-    @Override
-    protected void onPostExecute(Response response) {
-        if (response == null) {
-            onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, getErrorMessage(response));
-            return;
-        }
-
-        if (response.isSuccessful()) {
-            InvitedContact inviteContact = (InvitedContact) response.body();
-            onInviteListener.onInviteSuccessful(inviteContact);
-        } else {
-            onResponseError(response);
-        }
-    }
-
-    private void onResponseError(Response errorResponse) {
-        switch (errorResponse.code()) {
+    private void onResponseError(int code, String errorMessage) {
+        switch (code) {
             case 429:
-                onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_RATE_LIMIT, getErrorMessage(errorResponse));
+                onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_RATE_LIMIT, errorMessage);
                 break;
             default:
-                onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, getErrorMessage(errorResponse));
+                onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, errorMessage);
         }
-    }
-
-    public void setSatoshisSending(Long satoshisSending) {
-        this.satoshisSending = satoshisSending;
-    }
-
-    public void setUSAExchangeCurrency(USDCurrency usdExchangeCurrency) {
-        this.usdExchangeCurrency = usdExchangeCurrency;
     }
 
     private String getErrorMessage(Response response) {
-        if (response == null) return "unknown";
-
-
         try {
-            return response.errorBody().string();
+            if (response != null) {
+                ResponseBody responseBody = response.errorBody();
+                if (responseBody != null) {
+                    return responseBody.string();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return "unknown";
         }
-    }
-
-    private void sleep(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        return "unknown";
     }
 
     public interface OnInviteListener {
-        void onInviteSuccessful(InvitedContact contact);
+        void onInviteSuccessful(DropBitInvitation contact);
+
+        void onInviteSuccessfulDegradedSms(DropBitInvitation contact);
 
         void onInviteProgress(int progress);
 

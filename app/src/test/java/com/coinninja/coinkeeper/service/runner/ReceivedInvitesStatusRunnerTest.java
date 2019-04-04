@@ -4,7 +4,7 @@ import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
-import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.google.gson.Gson;
@@ -165,7 +165,7 @@ public class ReceivedInvitesStatusRunnerTest {
         String sampleTxID = "sample tx id";
         String sampleStatus = "completed";
 
-        ReceivedInvite invite = mock(ReceivedInvite.class);
+        DropBitInvitation invite = mock(DropBitInvitation.class);
         when(invite.getStatus()).thenReturn(sampleStatus);
         when(invite.getTxid()).thenReturn(sampleTxID);
 
@@ -180,7 +180,7 @@ public class ReceivedInvitesStatusRunnerTest {
         String sampleTxID = "sample tx id";
         String sampleStatus = "waiting";
 
-        ReceivedInvite invite = mock(ReceivedInvite.class);
+        DropBitInvitation invite = mock(DropBitInvitation.class);
         when(invite.getStatus()).thenReturn(sampleStatus);
         when(invite.getTxid()).thenReturn(sampleTxID);
 
@@ -194,7 +194,7 @@ public class ReceivedInvitesStatusRunnerTest {
     public void received_invite_is_null_return_null_without_crashing_test() {
         String sampleTxID = "sample tx id";
 
-        ReceivedInvite invite = mock(ReceivedInvite.class);
+        DropBitInvitation invite = mock(DropBitInvitation.class);
         when(invite.getStatus()).thenReturn(null);
         when(invite.getTxid()).thenReturn(sampleTxID);
 
@@ -205,7 +205,7 @@ public class ReceivedInvitesStatusRunnerTest {
     }
 
     private Response getResponse(String jsonArray) {
-        return Response.success(new Gson().fromJson(jsonArray, new TypeToken<List<ReceivedInvite>>() {
+        return Response.success(new Gson().fromJson(jsonArray, new TypeToken<List<DropBitInvitation>>() {
         }.getType()), new okhttp3.Response.Builder()
                 .code(200)
                 .message("OK")

@@ -12,10 +12,9 @@ import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
 import com.coinninja.coinkeeper.service.SaveInviteService;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.ui.dropbit.ManualInvitePresenter;
 import com.coinninja.coinkeeper.util.Intents;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
-import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 import com.coinninja.matchers.ActivityMatchers;
@@ -51,6 +50,8 @@ public class InviteSendActivityTest {
     private SendingProgressView sendingProgressView;
     @Mock
     private ActivityNavigationUtil activityNavigationUtil;
+    @Mock
+    private ManualInvitePresenter manualInvitePresenter;
 
     private long satoshisSpending = 23147L;
     private long satoshisFee = 10108L;
@@ -60,7 +61,6 @@ public class InviteSendActivityTest {
     private ActivityController<InviteSendActivity> activityController;
     private InviteSendActivity activity;
     private PendingInviteDTO pendingInviteDTO;
-    private final PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
 
     @Before
     public void setUp() throws Exception {
@@ -82,6 +82,7 @@ public class InviteSendActivityTest {
         activity.invitePresenter = invitePresenter;
         activity.sendingProgressView = sendingProgressView;
         activity.activityNavigationUtil = activityNavigationUtil;
+        activity.manualInvitePresenter = manualInvitePresenter;
     }
 
     @Test
@@ -126,7 +127,7 @@ public class InviteSendActivityTest {
     @Test
     public void clicking_action_confirming_transaction_navigates_home() {
         activityController.start().resume();
-        activity.showInviteSuccessful(mock(InvitedContact.class));
+        activity.showInviteSuccessful(mock(DropBitInvitation.class));
 
         withId(activity, R.id.transaction_complete_action_button).performClick();
 
@@ -135,7 +136,7 @@ public class InviteSendActivityTest {
 
     @Test
     public void transactionSuccessful() {
-        InvitedContact invitedContact = new InvitedContact(
+        DropBitInvitation invitedContact = new DropBitInvitation(
                 "--cn-id--",
                 System.currentTimeMillis(),
                 System.currentTimeMillis(),
@@ -149,11 +150,33 @@ public class InviteSendActivityTest {
 
         verify(sendingProgressView).setProgress(100);
         verify(sendingProgressView).completeSuccess();
-        verify(activity.analytics).trackEvent(Analytics.EVENT_DROPBIT_INITIATED);
 
         Intent intent = new Intent(activity, SaveInviteService.class);
         intent.putExtra(Intents.EXTRA_COMPLETED_INVITE_DTO, new CompletedInviteDTO(pendingInviteDTO, invitedContact));
         assertThat(activity, ActivityMatchers.serviceWithIntentStarted(intent));
+    }
+
+    @Test
+    public void transactionSuccessful_Notification_fallback() {
+        DropBitInvitation invitedContact = new DropBitInvitation(
+                "--cn-id--",
+                System.currentTimeMillis(),
+                System.currentTimeMillis(),
+                "",
+                contact.getHash(),
+                "",
+                ""
+        );
+        activityController.start().resume();
+        activity.showInviteSuccessfulDegradedSms(invitedContact);
+
+        verify(sendingProgressView).setProgress(100);
+        verify(sendingProgressView).completeSuccess();
+
+        Intent intent = new Intent(activity, SaveInviteService.class);
+        intent.putExtra(Intents.EXTRA_COMPLETED_INVITE_DTO, new CompletedInviteDTO(pendingInviteDTO, invitedContact));
+        assertThat(activity, ActivityMatchers.serviceWithIntentStarted(intent));
+        verify(manualInvitePresenter).presentManualSend(activity, invitedContact);
     }
 
     @Test
@@ -166,6 +189,5 @@ public class InviteSendActivityTest {
         TextView messageDisplay = dialog.getDialog().findViewById(android.R.id.message);
 
         Assert.assertThat(messageDisplay.getText().toString(), equalTo("For security reasons we must limit the number of DropBits sent within 30 seconds. Please wait 30 seconds and try sending again."));
-        verify(activity.analytics).trackEvent(Analytics.EVENT_DROPBIT_INITIATION_FAILED);
     }
 }
