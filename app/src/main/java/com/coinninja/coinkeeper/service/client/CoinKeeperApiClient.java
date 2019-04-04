@@ -43,8 +43,7 @@ public class CoinKeeperApiClient extends NetworkingApiClient {
     }
 
     public Response getCurrentState() {
-        Response response = executeCall(client.checkIn());
-        return response;
+        return executeCall(client.checkIn());
     }
 
     public Response checkHealth() {
