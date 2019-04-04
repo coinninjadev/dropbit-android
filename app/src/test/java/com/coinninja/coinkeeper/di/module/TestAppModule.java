@@ -43,6 +43,7 @@ import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -413,4 +414,11 @@ public class TestAppModule {
         return app.currencyPreference;
     }
 
+    @Provides
+    DefaultCurrencies defaultCurrencies(TestCoinKeeperApplication app) {
+        if (app.defaultCurrencies == null) {
+            app.defaultCurrencies = mock(DefaultCurrencies.class);
+        }
+        return app.defaultCurrencies;
+    }
 }

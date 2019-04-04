@@ -1,33 +1,34 @@
-package com.coinninja.coinkeeper.view.adapter;
+package com.coinninja.coinkeeper.ui.transaction.history;
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.base.TestableActivity;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.SendState;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
+import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
 
 import org.greenrobot.greendao.query.LazyList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -36,42 +37,55 @@ import static com.coinninja.matchers.ViewMatcher.isVisible;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestCoinKeeperApplication.class, qualifiers = "en-rUS")
 public class TransactionHistoryDataBinderTest {
-    LazyList transactions;
-    TransactionsInvitesSummary transaction;
-
-    View view;
-    TransactionHistoryDataAdapter.ViewHolder viewHolder;
-    private TransactionHistoryDataAdapter adapter;
-    private BindableTransaction bindableTransaction;
+    @Mock
+    WalletHelper walletHelper;
+    @Mock
+    private LazyList transactions;
+    @Mock
+    private TransactionsInvitesSummary transaction;
+    @Mock
+    private TransactionHistoryDataAdapter.OnItemClickListener onClickListener;
+    @Mock
     private TransactionAdapterUtil transactionAdapterUtil;
+
+    private View view;
+    private TransactionHistoryDataAdapter.ViewHolder viewHolder;
+    private TransactionHistoryDataAdapter adapter;
+    private DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+    private BindableTransaction bindableTransaction;
 
     @Before
     public void setUp() {
-
-        bindableTransaction = new BindableTransaction();
-        transaction = mock(TransactionsInvitesSummary.class);
-        CoinKeeperApplication application = (CoinKeeperApplication) RuntimeEnvironment.application;
-        transactions = mock(LazyList.class);
-        WalletHelper walletHelper = application.getUser().getWalletHelper();
-        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        MockitoAnnotations.initMocks(this);
         when(transactions.isEmpty()).thenReturn(false);
+        when(transactions.isClosed()).thenReturn(false);
         when(transactions.get(0)).thenReturn(transaction);
-
-        Context applicationContext = RuntimeEnvironment.application.getApplicationContext();
-        ViewGroup parent = new LinearLayout(applicationContext);
-        TransactionHistoryDataAdapter.OnItemClickListener onClickListener = mock(TransactionHistoryDataAdapter.OnItemClickListener.class);
-        transactionAdapterUtil = mock(TransactionAdapterUtil.class);
+        TestableActivity activity = Robolectric.setupActivity(TestableActivity.class);
+        ViewGroup parent = activity.findViewById(R.id.test_root);
+        bindableTransaction = new BindableTransaction(walletHelper);
         when(transactionAdapterUtil.translateTransaction(any(TransactionsInvitesSummary.class))).thenReturn(bindableTransaction);
-        adapter = new TransactionHistoryDataAdapter(transactions, onClickListener, transactionAdapterUtil);
-        adapter.setConversionCurrency(new USDCurrency(10000.00D));
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
+        adapter = new TransactionHistoryDataAdapter(transactionAdapterUtil, defaultCurrencies);
+        adapter.setOnItemClickListener(onClickListener);
+        adapter.setTransactions(transactions);
+        bindableTransaction.setSendState(SendState.SEND);
         viewHolder = adapter.onCreateViewHolder(parent, 0);
         view = viewHolder.getItemView();
+    }
+
+    @After
+    public void tearDown() {
+        view = null;
+        transactions = null;
+        transaction = null;
+        bindableTransaction = null;
+        transactionAdapterUtil = null;
+        defaultCurrencies = null;
     }
 
     // Transfer
@@ -83,7 +97,6 @@ public class TransactionHistoryDataBinderTest {
     // Invite
     public void setupInviteSend() {
         String contactName = "Joe Blow";
-        bindableTransaction = new BindableTransaction();
         when(transactionAdapterUtil.translateTransaction(any(TransactionsInvitesSummary.class))).thenReturn(bindableTransaction);
         bindableTransaction.setSendState(SendState.SEND);
         bindableTransaction.setContactName(contactName);
@@ -186,39 +199,20 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.btc_value);
-        assertThat(value.getText().toString(), equalTo("0.00449893"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
-    public void sets_converted_price_of_sent_canceled_invites() {
-        setupInviteSend();
-        bindableTransaction.setSendState(SendState.RECEIVE_CANCELED);
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView value = view.findViewById(R.id.usd_value);
-        assertThat(value.getText().toString(), equalTo("+ $44.99"));
-    }
-
-    @Test
-    public void sets_value_of_currency_received_invites() {
+    public void sets_prices_on_display_view() {
         setupInviteSend();
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.btc_value);
-        assertThat(value.getText().toString(), equalTo("0.00449893"));
-    }
-
-    @Test
-    public void sets_converted_price_of_sent_invites() {
-        setupInviteSend();
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView value = view.findViewById(R.id.usd_value);
-        assertThat(value.getText().toString(), equalTo("- $45.01"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -405,23 +399,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.btc_value);
-        assertThat(value.getText().toString(), equalTo("0.00000167"));
-
-        value = view.findViewById(R.id.usd_value);
-        assertThat(value.getText().toString(), equalTo("- $0.02"));
-    }
-
-    @Test
-    public void receives_from_self_shows_fee_value() {
-        setupTransfer();
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView value = view.findViewById(R.id.btc_value);
-        assertThat(value.getText().toString(), equalTo("0.00000167"));
-
-        value = view.findViewById(R.id.usd_value);
-        assertThat(value.getText().toString(), equalTo("- $0.02"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -431,8 +411,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.btc_value);
-        assertThat(value.getText().toString(), equalTo("0.00449893"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -442,8 +423,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.btc_value);
-        assertThat(value.getText().toString(), equalTo("0.00449893"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -452,8 +434,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.btc_value);
-        assertThat(value.getText().toString(), equalTo("0.00449893"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -462,8 +445,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.btc_value);
-        assertThat(value.getText().toString(), equalTo("0.00449893"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -473,8 +457,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.usd_value);
-        assertThat(value.getText().toString(), equalTo("- $45.01"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -484,8 +469,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.usd_value);
-        assertThat(value.getText().toString(), equalTo("+ $44.99"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -494,8 +480,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.usd_value);
-        assertThat(value.getText().toString(), equalTo("- $45.01"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -504,8 +491,9 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView value = view.findViewById(R.id.usd_value);
-        assertThat(value.getText().toString(), equalTo("+ $44.99"));
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
     }
 
     @Test
@@ -583,4 +571,44 @@ public class TransactionHistoryDataBinderTest {
                 equalTo(view.getResources().getString(R.string.history_failed_to_broadcast)));
     }
 
+    @Test
+    public void show_phone_number_if_contact_name_is_null_test() {
+        bindableTransaction.setContactName(null);
+        bindableTransaction.setContactPhoneNumber("(222) 333-4444");
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        assertThat(withId(view, R.id.address), hasText("(222) 333-4444"));
+    }
+
+    @Test
+    @Config(qualifiers = "es-rAU")
+    public void show_phone_number_if_contact_name_is_empty_test__international_format() {
+        bindableTransaction.setContactName("");
+        bindableTransaction.setContactPhoneNumber("+12223334444");
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        assertThat(withId(view, R.id.address), hasText("+1 222-333-4444"));
+    }
+
+    @Test
+    public void show_phone_number_if_contact_name_is_empty_test() {
+        bindableTransaction.setContactName("");
+        bindableTransaction.setContactPhoneNumber("+12223334444");
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        assertThat(withId(view, R.id.address), hasText("(222) 333-4444"));
+    }
+
+    @Test
+    public void show_contact_name_if_available_test() {
+        bindableTransaction.setContactName("Jeff");
+        bindableTransaction.setContactPhoneNumber("(222) 333-4444");
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        assertThat(withId(view, R.id.address), hasText("Jeff"));
+    }
 }

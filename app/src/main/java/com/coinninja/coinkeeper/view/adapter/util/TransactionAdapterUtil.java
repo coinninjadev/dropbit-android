@@ -29,21 +29,21 @@ public class TransactionAdapterUtil {
     private InviteTransactionSummary invite;
     private TransactionSummary transaction;
     private PhoneNumberUtil phoneNumberUtil;
+    private final BindableTransaction bindableTransaction;
 
     @Inject
     public TransactionAdapterUtil(DateFormatUtil dateFormatter, @ApplicationContext Context context,
-                                  PhoneNumberUtil phoneNumberUtil) {
+                                  PhoneNumberUtil phoneNumberUtil, BindableTransaction bindableTransaction) {
         this.dateFormatter = dateFormatter;
         this.context = context;
         this.phoneNumberUtil = phoneNumberUtil;
+        this.bindableTransaction = bindableTransaction;
     }
 
     public BindableTransaction translateTransaction(TransactionsInvitesSummary summary) {
-        BindableTransaction bindableTransaction = new BindableTransaction();
-
+        bindableTransaction.reset();
         invite = summary.getInviteTransactionSummary();
         transaction = summary.getTransactionSummary();
-
         translateInvite(bindableTransaction);
         translateTransaction(bindableTransaction);
 
@@ -232,7 +232,9 @@ public class TransactionAdapterUtil {
     }
 
     public void setupContact(TransactionsInvitesSummary transactionsInvitesSummary, BindableTransaction bindableTransaction) {
-        if (null == transactionsInvitesSummary) { return; }
+        if (null == transactionsInvitesSummary) {
+            return;
+        }
         PhoneNumber toPhoneNumber = transactionsInvitesSummary.getToPhoneNumber();
 
         if (null != transactionsInvitesSummary.getToName() &&

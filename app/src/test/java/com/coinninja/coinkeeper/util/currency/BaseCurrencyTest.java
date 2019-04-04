@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.util.currency;
 
-import org.junit.Before;
+import android.os.Parcel;
+
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -27,7 +28,6 @@ public class BaseCurrencyTest {
 
         assertThat(isZero, equalTo(false));
     }
-
 
     class AnyCurrency extends BaseCurrency {
         String currencyFormat = "#,##0.00";
@@ -73,6 +73,16 @@ public class BaseCurrencyTest {
         @Override
         public boolean validate(String amount) {
             return false;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+
         }
 
         @Override

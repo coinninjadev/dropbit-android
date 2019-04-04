@@ -9,4 +9,6 @@ public interface CryptoCurrency extends Currency{
     String NO_SYMBOL_FORMAT = "#,##0.########";
 
     Drawable getSymbolDrawable(Context context);
+
+    FiatCurrency toFiat(FiatCurrency conversionFiat);
 }

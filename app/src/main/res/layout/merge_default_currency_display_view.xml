@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <TextView
+        android:id="@+id/primary_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end" />
+
+    <TextView
+        android:id="@+id/secondary_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textAppearance="@style/TextAppearance.History.Currency" />
+</merge>

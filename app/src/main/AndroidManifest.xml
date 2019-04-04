@@ -79,13 +79,14 @@
             android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn.SkipOn"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <activity
-            android:name=".view.activity.TransactionHistoryActivity"
+            android:name=".ui.transaction.history.TransactionHistoryActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.Drawer" >
+            android:theme="@style/CoinKeeperTheme.Drawer">
             <intent-filter>
                 <data android:scheme="bitcoin" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>

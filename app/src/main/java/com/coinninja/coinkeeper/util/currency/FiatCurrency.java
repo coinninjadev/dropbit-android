@@ -1,4 +1,4 @@
 package com.coinninja.coinkeeper.util.currency;
 
-interface FiatCurrency {
+public interface FiatCurrency extends Currency{
 }

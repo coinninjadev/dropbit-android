@@ -13,13 +13,13 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
 import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
 import com.coinninja.coinkeeper.view.activity.RecoverWalletActivity;
 import com.coinninja.coinkeeper.view.activity.RestoreWalletActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
-import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.view.adapter.RestoreWalletPageAdapter;
 
 import org.greenrobot.greendao.query.LazyList;

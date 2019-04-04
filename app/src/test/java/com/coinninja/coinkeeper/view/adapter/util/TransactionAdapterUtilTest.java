@@ -12,15 +12,18 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.DateFormatUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.SendState;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -42,23 +45,40 @@ public class TransactionAdapterUtilTest {
     private TransactionAdapterUtil utility;
     private List<FundingStat> funders;
     private List<TargetStat> receivers;
-    private USDCurrency btcValue;
+    @Mock
     private TransactionsInvitesSummary transactionWrapper;
+    @Mock
     private TransactionSummary transactionTx;
+    @Mock
     private TransactionsInvitesSummary transactionsInvitesSummary;
+    @Mock
     private DateFormatUtil dateFormatter;
+    @Mock
+    private WalletHelper walletHelper;
     private InviteTransactionSummary invite;
+    private BindableTransaction bindableTransaction;
+
+    @After
+    public void tearDown() {
+        utility = null;
+        funders = null;
+        receivers = null;
+        transactionWrapper = null;
+        transactionTx = null;
+        transactionsInvitesSummary = null;
+        dateFormatter = null;
+        walletHelper = null;
+        invite = null;
+        bindableTransaction = null;
+    }
 
     @Before
     public void setUp() {
-        dateFormatter = mock(DateFormatUtil.class);
-        transactionWrapper = mock(TransactionsInvitesSummary.class);
-        transactionTx = mock(TransactionSummary.class);
-        transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        utility = new TransactionAdapterUtil(dateFormatter, RuntimeEnvironment.application, new PhoneNumberUtil());
+        MockitoAnnotations.initMocks(this);
+        bindableTransaction = new BindableTransaction(walletHelper);
+        utility = new TransactionAdapterUtil(dateFormatter, RuntimeEnvironment.application, new PhoneNumberUtil(), bindableTransaction);
         receivers = new ArrayList<>();
         funders = new ArrayList<>();
-        btcValue = new USDCurrency(1000.00D);
         when(dateFormatter.formatTime(1524547473000L)).thenReturn("April 24, 2018 01:24am");
 
         //DEFAULT TRANSACTION
