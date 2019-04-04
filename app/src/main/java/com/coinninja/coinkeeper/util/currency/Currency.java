@@ -1,8 +1,10 @@
 package com.coinninja.coinkeeper.util.currency;
 
+import android.os.Parcelable;
+
 import java.math.BigDecimal;
 
-public interface Currency {
+public interface Currency extends Parcelable {
 
     String getSymbol();
 

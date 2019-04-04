@@ -1,23 +1,31 @@
 package com.coinninja.coinkeeper.util;
 
+import android.content.Intent;
+
 import com.coinninja.coinkeeper.factory.CurrencyFactory;
+import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.matchers.IntentMatcher;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 
+import static com.coinninja.matchers.IntentMatcher.equalTo;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class CurrencyPreferenceTest {
 
     @InjectMocks
@@ -26,9 +34,17 @@ public class CurrencyPreferenceTest {
     private CurrencyFactory currencyFactory;
     @Mock
     private PreferencesUtil preferencesUtil;
+    @Mock
+    private LocalBroadCastUtil localBroadCastUtil;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @After
     public void tearDown() {
+        localBroadCastUtil = null;
         currencyFactory = null;
         preferencesUtil = null;
         currencyPreference = null;
@@ -79,4 +95,23 @@ public class CurrencyPreferenceTest {
         assertThat(defaultCurrencies.getPrimaryCurrency().getSymbol(), equalTo(USDCurrency.SYMBOL));
         assertThat(defaultCurrencies.getSecondaryCurrency().getSymbol(), equalTo(BTCCurrency.SYMBOL));
     }
+
+    @Test
+    public void dispatches_local_notification_that_preference_changed() {
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        Intent expected = new Intent(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        expected.putExtra(Intents.EXTRA_PREFERENCE, defaultCurrencies);
+        when(preferencesUtil.getString(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, BTCCurrency.SYMBOL)).thenReturn(USDCurrency.SYMBOL);
+        when(preferencesUtil.getString(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, USDCurrency.SYMBOL)).thenReturn(BTCCurrency.SYMBOL);
+        when(currencyFactory.fromSymbol(BTCCurrency.SYMBOL)).thenReturn(new BTCCurrency());
+        when(currencyFactory.fromSymbol(USDCurrency.SYMBOL)).thenReturn(new USDCurrency());
+
+        currencyPreference.setCurrencies(defaultCurrencies.getPrimaryCurrency(), defaultCurrencies.getSecondaryCurrency());
+
+        verify(localBroadCastUtil).sendBroadcast(argumentCaptor.capture());
+        Intent intent = argumentCaptor.getValue();
+        assertThat(intent, equalTo(expected));
+    }
+
 }

@@ -1,6 +1,5 @@
-package com.coinninja.coinkeeper.view.activity;
+package com.coinninja.coinkeeper.ui.transaction.history;
 
-import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,14 +12,19 @@ import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
+import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
+import com.coinninja.matchers.IntentFilterMatchers;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
@@ -33,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
@@ -56,11 +59,13 @@ import static org.mockito.Mockito.when;
 @Config(application = TestCoinKeeperApplication.class)
 public class TransactionHistoryActivityTest {
 
+    @Mock
+    TransactionHistoryDataAdapter adapter;
+    @Mock
+    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
     private TransactionHistoryActivity activity;
-
     private ActivityController<TransactionHistoryActivity> activityController;
     private BindableTransaction bindableTransaction;
-
     @Mock
     private TransactionAdapterUtil util;
     @Mock
@@ -69,29 +74,30 @@ public class TransactionHistoryActivityTest {
     private TransactionsInvitesSummary transaction;
     @Mock
     private LazyList<TransactionsInvitesSummary> transactions;
-
+    @Mock
+    private LocalBroadCastUtil localBroadCastUtil;
     private BitcoinUtil bitcoinUtil;
-    private Application application;
-
     @Mock
     private HDWallet hdWallet;
+    private USDCurrency conversionCurrency = new USDCurrency(1000.D);
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        application = RuntimeEnvironment.application;
-        bitcoinUtil = new BitcoinUtil(application, hdWallet);
-        bindableTransaction = new BindableTransaction();
+        bindableTransaction = new BindableTransaction(walletHelper);
         when(transactions.size()).thenReturn(12);
         when(transactions.get(anyInt())).thenReturn(transaction);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        when(walletHelper.getLatestPrice()).thenReturn(conversionCurrency);
         when(transactions.isEmpty()).thenReturn(false);
         when(util.translateTransaction(any(TransactionsInvitesSummary.class))).thenReturn(bindableTransaction);
         activityController = Robolectric.buildActivity(TransactionHistoryActivity.class).create();
         activity = activityController.get();
-        activity.transactionAdapterUtil = util;
         activity.walletHelper = walletHelper;
-
+        activity.localBroadCastUtil = localBroadCastUtil;
+        activity.adapter = adapter;
+        activity.defaultCurrencyChangeViewNotifier = defaultCurrencyChangeViewNotifier;
+        bitcoinUtil = new BitcoinUtil(activity.getApplicationContext(), hdWallet);
         setupReceive();
     }
 
@@ -116,8 +122,48 @@ public class TransactionHistoryActivityTest {
         bindableTransaction.setFee(30465);
     }
 
-    private void startActivity() {
-        activityController.start().resume().visible();
+
+    @Test
+    public void adds_default_currency_change_notifier_to_adapter() {
+        startActivity();
+        verify(adapter).setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+    }
+
+    @Test
+    public void observes_item_selection() {
+        startActivity();
+
+        verify(adapter).setOnItemClickListener(activity);
+    }
+
+    @Test
+    public void notifies_of_currency_preference_change() {
+        startActivity();
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        Intent intent = new Intent(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        intent.putExtra(Intents.EXTRA_PREFERENCE, defaultCurrencies);
+
+        activity.receiver.onReceive(activity, intent);
+
+        verify(defaultCurrencyChangeViewNotifier).onDefaultCurrencyChanged(any(DefaultCurrencies.class));
+    }
+
+    @Test
+    public void observes_local_events() {
+        startActivity();
+
+        verify(localBroadCastUtil).registerReceiver(activity.receiver, activity.intentFilter);
+        assertThat(activity.intentFilter, IntentFilterMatchers.containsAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED));
+        assertThat(activity.intentFilter, IntentFilterMatchers.containsAction(Intents.ACTION_TRANSACTION_DATA_CHANGED));
+    }
+
+    @Test
+    public void stops_observing_actions_when_stopped() {
+        startActivity();
+
+        activityController.pause().stop();
+
+        verify(localBroadCastUtil).unregisterReceiver(activity.receiver);
     }
 
     @Test
@@ -173,12 +219,6 @@ public class TransactionHistoryActivityTest {
     @Test
     public void refreshes_transactions_when_sync_completed() {
         startActivity();
-        RecyclerView list = activity.findViewById(R.id.transaction_history);
-
-        verify(walletHelper, times(1)).getTransactionsLazily();
-        assertThat(list.getAdapter().getItemCount(), equalTo(12));
-
-
         LazyList<TransactionsInvitesSummary> updatedTransactions = mock(LazyList.class);
         when(updatedTransactions.size()).thenReturn(13);
         when(updatedTransactions.get(anyInt())).thenReturn(transaction);
@@ -186,12 +226,13 @@ public class TransactionHistoryActivityTest {
 
         activity.onWalletSyncComplete();
 
-        assertThat(list.getAdapter().getItemCount(), equalTo(13));
+        verify(adapter).setTransactions(transactions);
+        verify(adapter).setTransactions(updatedTransactions);
         verify(walletHelper, times(2)).getTransactionsLazily();
     }
 
     @Test
-    public void sets_has_fixed_size_for_efficency() {
+    public void sets_has_fixed_size_for_efficiency() {
         startActivity();
         assertTrue(((RecyclerView) activity.findViewById(R.id.transaction_history)).hasFixedSize());
     }
@@ -227,7 +268,6 @@ public class TransactionHistoryActivityTest {
         assertThat(list.getVisibility(), equalTo(View.GONE));
     }
 
-
     @Test
     public void has_list_view_for_transactions() {
         startActivity();
@@ -240,17 +280,9 @@ public class TransactionHistoryActivityTest {
         assertThat(empty.getVisibility(), equalTo(View.GONE));
     }
 
-
-    //TODO: this is a terrible way to assert we refresh transactions
     @Test
     public void refreshes_transactions_on_transaction_data_change() {
         startActivity();
-
-        RecyclerView list = activity.findViewById(R.id.transaction_history);
-
-        verify(walletHelper, times(1)).getTransactionsLazily();
-        assertThat(list.getAdapter().getItemCount(), equalTo(12));
-
         LazyList<TransactionsInvitesSummary> updatedTransactions = mock(LazyList.class);
         when(updatedTransactions.size()).thenReturn(13);
         when(updatedTransactions.get(anyInt())).thenReturn(transaction);
@@ -258,7 +290,8 @@ public class TransactionHistoryActivityTest {
 
         activity.receiver.onReceive(activity, new Intent(Intents.ACTION_TRANSACTION_DATA_CHANGED));
 
-        assertThat(list.getAdapter().getItemCount(), equalTo(13));
+        verify(adapter).setTransactions(transactions);
+        verify(adapter).setTransactions(updatedTransactions);
         verify(walletHelper, times(2)).getTransactionsLazily();
     }
 
@@ -288,7 +321,6 @@ public class TransactionHistoryActivityTest {
         intent.setData(uri);
         activity = activityController.get();
         activityController.create();
-        activity.transactionAdapterUtil = util;
         activity.walletHelper = walletHelper;
         activity.fragment = mock(PaymentBarFragment.class);
         startActivity();
@@ -310,4 +342,7 @@ public class TransactionHistoryActivityTest {
         verify(broadCastUtil).unregisterReceiver(any(BroadcastReceiver.class));
     }
 
+    private void startActivity() {
+        activityController.start().resume().visible();
+    }
 }

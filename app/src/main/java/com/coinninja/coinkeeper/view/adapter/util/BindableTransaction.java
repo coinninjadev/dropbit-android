@@ -1,13 +1,16 @@
 package com.coinninja.coinkeeper.view.adapter.util;
 
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
+import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
+import com.coinninja.coinkeeper.util.currency.FiatCurrency;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
+
+import javax.inject.Inject;
 
 public class BindableTransaction {
+    private final WalletHelper walletHelper;
     private String txTime;
     private ConfirmationState confirmationState;
     private InviteState inviteState;
@@ -21,18 +24,35 @@ public class BindableTransaction {
     private String contactPhoneNumber;
     private Long historicalInviteUSDValue;
     private String serverInviteId;
-    private int numConfirmations = 0;
-    private long historicalTransactionUSDValue = 0L;
-    private boolean isSharedMemo = false;
+    private int numConfirmations;
+    private long historicalTransactionUSDValue;
+    private boolean isSharedMemo;
     private String memo;
 
-    public BindableTransaction() {
-        memo = "";
+    @Inject
+    public BindableTransaction(WalletHelper walletHelper) {
+        this.walletHelper = walletHelper;
+        reset();
+    }
+
+    public void reset() {
+        txTime = "";
+        confirmationState = null;
+        inviteState = null;
+        sendState = null;
+        value = 0L;
+        fee = 0L;
         fundingAddress = "";
         targetAddress = "";
+        txID = "";
         contactName = "";
         contactPhoneNumber = "";
+        historicalInviteUSDValue = 0L;
         serverInviteId = "";
+        numConfirmations = 0;
+        historicalTransactionUSDValue = 0L;
+        isSharedMemo = false;
+        memo = "";
     }
 
     public String getMemo() {
@@ -71,31 +91,31 @@ public class BindableTransaction {
         return value;
     }
 
-    public Currency getValueCurrency() {
-        return new BTCCurrency(getValue());
-    }
-
     public void setValue(long value) {
         this.value = value;
+    }
+
+    public CryptoCurrency getValueCurrency() {
+        return new BTCCurrency(getValue());
     }
 
     public long getFee() {
         return fee;
     }
 
-    public Currency getFeeCurrency() {
-        return new BTCCurrency(getFee());
-    }
-
     public void setFee(long fee) {
         this.fee = fee;
+    }
+
+    public CryptoCurrency getFeeCurrency() {
+        return new BTCCurrency(getFee());
     }
 
     public long getTotalTransactionCost() {
         return getFee() + getValue();
     }
 
-    public Currency getTotalTransactionCostCurrency() {
+    public CryptoCurrency getTotalTransactionCostCurrency() {
         return new BTCCurrency(getTotalTransactionCost());
     }
 
@@ -147,12 +167,12 @@ public class BindableTransaction {
         this.inviteState = inviteState;
     }
 
-    public void setHistoricalInviteUSDValue(Long historicalUSDValue) {
-        historicalInviteUSDValue = historicalUSDValue;
-    }
-
     public Long getHistoricalInviteUSDValue() {
         return historicalInviteUSDValue;
+    }
+
+    public void setHistoricalInviteUSDValue(Long historicalUSDValue) {
+        historicalInviteUSDValue = historicalUSDValue;
     }
 
     public long getHistoricalTransactionUSDValue() {
@@ -171,12 +191,12 @@ public class BindableTransaction {
         this.serverInviteId = serverInviteId;
     }
 
-    public void setConfirmationCount(int numConfirmations) {
-        this.numConfirmations = numConfirmations;
-    }
-
     public int getConfirmationCount() {
         return numConfirmations;
+    }
+
+    public void setConfirmationCount(int numConfirmations) {
+        this.numConfirmations = numConfirmations;
     }
 
     public boolean getIsSharedMemo() {
@@ -200,6 +220,40 @@ public class BindableTransaction {
         return targetAddress;
     }
 
+    public SendState getBasicDirection() {
+        switch (sendState) {
+            case FAILED_TO_BROADCAST_SEND:
+            case SEND_CANCELED:
+            case SEND:
+                return SendState.SEND;
+            case FAILED_TO_BROADCAST_TRANSFER:
+            case TRANSFER:
+                return SendState.TRANSFER;
+            case FAILED_TO_BROADCAST_RECEIVE:
+            case RECEIVE_CANCELED:
+            case RECEIVE:
+            default:
+                return SendState.RECEIVE;
+        }
+
+    }
+
+    public CryptoCurrency totalCryptoForSendState() {
+        switch (getBasicDirection()) {
+            case SEND:
+                return getTotalTransactionCostCurrency();
+            case TRANSFER:
+                return getFeeCurrency();
+            case RECEIVE:
+            default:
+                return getValueCurrency();
+        }
+    }
+
+    public FiatCurrency totalFiatForSendState() {
+        CryptoCurrency total = totalCryptoForSendState();
+        return total.toFiat(walletHelper.getLatestPrice());
+    }
 
     public enum SendState {
         RECEIVE, TRANSFER, SEND, SEND_CANCELED, RECEIVE_CANCELED, FAILED_TO_BROADCAST_TRANSFER, FAILED_TO_BROADCAST_SEND, FAILED_TO_BROADCAST_RECEIVE, DOUBLESPEND_SEND,

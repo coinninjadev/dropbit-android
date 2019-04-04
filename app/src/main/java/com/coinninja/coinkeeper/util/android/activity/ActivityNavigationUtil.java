@@ -10,11 +10,11 @@ import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
+import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
-import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 

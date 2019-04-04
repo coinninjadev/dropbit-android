@@ -322,12 +322,13 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="TextAppearance.History.Send.Value" parent="TextAppearance.History.Address">
-        <item name="android:textColor">@color/color_error</item>
+
+    <style name="TextAppearance.History.Receive.Value" parent="TextAppearance.History.Address">
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="TextAppearance.History.Receive.Value" parent="TextAppearance.History.Address">
+    <style name="TextAppearance.History.Send.Value" parent="TextAppearance.History.Address">
+        <item name="android:textColor">@color/color_error</item>
         <item name="android:textSize">16sp</item>
     </style>
 

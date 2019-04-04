@@ -46,6 +46,8 @@ import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
@@ -88,7 +90,7 @@ public class AppModule {
 
     @Provides
     @CoinkeeperApplicationScope
-    BitcoinUriBuilder bitcoinUrlBuilder(){
+    BitcoinUriBuilder bitcoinUrlBuilder() {
         return new BitcoinUriBuilder();
     }
 
@@ -251,4 +253,10 @@ public class AppModule {
     Locale locale(@ApplicationContext Context context) {
         return ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
     }
+
+    @Provides
+    DefaultCurrencies provideDefaultCurrency(CurrencyPreference currencyPreference) {
+        return currencyPreference.getCurrenciesPreference();
+    }
+
 }

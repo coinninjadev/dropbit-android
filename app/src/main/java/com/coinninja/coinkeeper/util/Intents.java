@@ -66,7 +66,10 @@ public class Intents {
     public static final String ACTION_ON_APPLICATION_START = BuildConfig.APPLICATION_ID + ".ACTION_ON_APPLICATION_START";
     public static final String ACTION_WALLET_CREATED = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_CREATED";
     public static final String ACTION_TRANSACTION_DATA_CHANGED = BuildConfig.APPLICATION_ID + ".ACTION_TRANSACTION_DATA_CHANGED";
-    public static final String ACTION_WALLET_ADDRESS_RETRIEVED = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_ADDRESS_RETRIEVED";
+    public static final String ACTION_WALLET_ADDRESS_RETRIEVED =
+            BuildConfig.APPLICATION_ID + ".ACTION_WALLET_ADDRESS_RETRIEVED";
+    public static final String ACTION_CURRENCY_PREFERENCE_CHANGED = BuildConfig.APPLICATION_ID + ".ACTION_CURRENCY_PREFERENCE_CHANGED";
+
     /* EXTRAS */
     public static final String EXTRA_TRANSACTION_ID = "EXTRA_TRANSACTION_ID";
     public static final String EXTRA_TRANSACTION_RECORD_ID = "EXTRA_TRANSACTION_RECORD_ID";
@@ -76,10 +79,6 @@ public class Intents {
     public static final String EXTRA_PHONE_NUMBER = "EXTRA_PHONE_NUMBER";
     public static final String EXTRA_PHONE_NUMBER_CODE = "EXTRA_PHONE_NUMBER_CODE";
     public static final String EXTRA_AUTHORIZED_ACTION_MESSAGE = "EXTRA_AUTHORIZED_ACTION_MESSAGE";
-    public static final String EXTRA_CONTACT_INVITE = "EXTRA_CONTACT_INVITE";
-    public static final String EXTRA_CONTACT_INVITE_VALUE = "EXTRA_CONTACT_INVITE_VALUE";
-    public static final String EXTRA_CONTACT_INVITE_FEE = "EXTRA_CONTACT_INVITE_FEE";
-    public static final String EXTRA_CONTACT_INVITE_USD_VALUE = "EXTRA_CONTACT_INVITE_USD_VALUE";
     public static final String EXTRA_RECOVERY_WORDS = "EXTRA_RECOVERY_WORDS";
     public static final String EXTRA_NEXT = "EXTRA_NEXT";
     public static final String EXTRA_NEXT_BUNDLE = "EXTRA_NEXT_BUNDLE";
@@ -92,12 +91,12 @@ public class Intents {
     public static final int EXTRA_CREATE = 0;
     public static final String EXTRA_INVITATION_ID = "EXTRA_INVITATION_ID";
     public static final String EXTRA_COMPLETED_INVITE_DTO = "EXTRA_COMPLETED_INVITE_DTO";
-    public static final String EXTRA_MEMO = "EXTRA_MEMO";
     public static final String EXTRA_BROADCAST_DTO = "EXTRA_BROADCAST_DTO";
     public static final String EXTRA_COMPLETED_BROADCAST_DTO = "EXTRA_COMPLETED_BROADCAST_DTO";
     public static final String EXTRA_INVITE_DTO = "EXTRA_COMPLETED_BROADCAST_DTO";
     public static final String EXTRA_PHONE_NUMBER_HASH = "EXTRA_PHONE_NUMBER_HASH";
     public static final String EXTRA_ADDRESS_LOOKUP_RESULT = "EXTRA_ADDRESS_LOOKUP_RESULT";
+    public static final String EXTRA_PREFERENCE = "EXTRA_PREFERENCE";
     /* CN Rest API KEYS */
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ALL = "all";
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID = "android";
@@ -120,7 +119,6 @@ public class Intents {
     public static final String CN_API_CREATE_DEVICE_PLATFORM_ANDROID = "android";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_IOS = "ios";
     /* REQUESTS */
-    public static int REQUEST_QR_ACTIVITY_SCAN = 221;
     public static int REQUEST_QR_FRAGMENT_SCAN = 222;
 
     static {

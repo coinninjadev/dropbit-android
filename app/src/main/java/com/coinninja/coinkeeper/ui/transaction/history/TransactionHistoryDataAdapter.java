@@ -1,4 +1,4 @@
-package com.coinninja.coinkeeper.view.adapter;
+package com.coinninja.coinkeeper.ui.transaction.history;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -9,55 +9,54 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.currency.FiatCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.InviteState;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
+import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
 
 import org.greenrobot.greendao.query.LazyList;
+
+import javax.inject.Inject;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import static androidx.recyclerview.widget.RecyclerView.Adapter;
 import static com.coinninja.android.helpers.Views.withId;
 
-public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDataAdapter.ViewHolder> {
+public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDataAdapter.ViewHolder> implements DefaultCurrencyChangeObserver {
 
 
     private LazyList<TransactionsInvitesSummary> transactions;
     private OnItemClickListener onItemClickListener;
     private TransactionAdapterUtil transactionAdapterUtil;
-    private Currency conversionCurrency;
+    private DefaultCurrencies defaultCurrencies;
+    private DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
 
-    public TransactionHistoryDataAdapter(LazyList<TransactionsInvitesSummary> transactions,
-                                         TransactionHistoryDataAdapter.OnItemClickListener onItemClickListener,
-                                         TransactionAdapterUtil transactionAdapterUtil) {
-        this.transactions = transactions;
-        this.onItemClickListener = onItemClickListener;
+    @Inject
+    public TransactionHistoryDataAdapter(TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies) {
         this.transactionAdapterUtil = transactionAdapterUtil;
+        this.defaultCurrencies = defaultCurrencies;
     }
 
     @Override
     public TransactionHistoryDataAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_item_transaction_record, parent, false);
-        return new ViewHolder(view, onItemClickListener);
+        return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.setCurrency(conversionCurrency);
         if (!transactions.isClosed()) {
             BindableTransaction transaction =
                     transactionAdapterUtil.translateTransaction(transactions.get(position));
-            holder.bindToTransaction(transaction, position);
+            holder.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+            holder.bindToTransaction(transaction, defaultCurrencies);
+            holder.getItemView().setOnClickListener(v -> onClick(holder.getItemView(), position));
         }
-    }
-
-    public void setTransactions(LazyList<TransactionsInvitesSummary> transactions) {
-        this.transactions = transactions;
-        notifyDataSetChanged();
     }
 
     @Override
@@ -65,12 +64,8 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
         return transactions.size();
     }
 
-    public Currency getConversionCurrency() {
-        return conversionCurrency;
-    }
-
-    public void setConversionCurrency(Currency conversionCurrency) {
-        this.conversionCurrency = conversionCurrency;
+    public void setTransactions(LazyList<TransactionsInvitesSummary> transactions) {
+        this.transactions = transactions;
         notifyDataSetChanged();
     }
 
@@ -78,43 +73,72 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
         this.onItemClickListener = onItemClickListener;
     }
 
+    public void setDefaultCurrencyChangeViewNotifier(DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier) {
+        this.defaultCurrencyChangeViewNotifier = defaultCurrencyChangeViewNotifier;
+        defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(this);
+    }
+
+    @Override
+    public void onDefaultCurrencyChanged(DefaultCurrencies defaultCurrencies) {
+        this.defaultCurrencies = defaultCurrencies;
+    }
+
+    public DefaultCurrencies getDefaultCurrencies() {
+        return defaultCurrencies;
+    }
+
+    public void setDefaultCurrencies(DefaultCurrencies defaultCurrencies) {
+        this.defaultCurrencies = defaultCurrencies;
+    }
+
+    void onClick(View view, int position) {
+        if (onItemClickListener != null)
+            onItemClickListener.onItemClick(view, position);
+    }
+
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final OnItemClickListener onItemClickListener;
-        private View itemView;
-        private Currency currency;
-        private int position;
+        View itemView;
+        private DefaultCurrencies defaultCurrencies;
+        private DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
 
-        public ViewHolder(View itemView, OnItemClickListener onItemClickListener) {
+        public ViewHolder(View itemView) {
             super(itemView);
             this.itemView = itemView;
-            itemView.setOnClickListener(V -> onClick(this));
-            this.onItemClickListener = onItemClickListener;
         }
 
-
-        private void onClick(ViewHolder viewHolder) {
-            if (onItemClickListener != null)
-                onItemClickListener.onItemClick(itemView, getItemPosition());
-        }
 
         public View getItemView() {
             return itemView;
         }
 
-        protected void bindToTransaction(BindableTransaction transaction, int position) {
-            this.position = position;
+        public void setDefaultCurrencyChangeViewNotifier(DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier) {
+            this.defaultCurrencyChangeViewNotifier = defaultCurrencyChangeViewNotifier;
+        }
+
+        public void bindIdentifyingTarget(TextView view, BindableTransaction transaction) {
+            view.setText(transaction.getIdentifiableTarget());
+        }
+
+        protected void bindToTransaction(BindableTransaction transaction, DefaultCurrencies defaultCurrencies) {
+            this.defaultCurrencies = defaultCurrencies;
             bindIcon(itemView.findViewById(R.id.icon), transaction);
             bindConfirmations(itemView.findViewById(R.id.confirmations), transaction);
             bindAddress(itemView.findViewById(R.id.address), transaction);
-            bindBTCValue(itemView.findViewById(R.id.btc_value), transaction);
             bindTransactionTime(itemView.findViewById(R.id.blocktime), transaction);
-            calculateValue(itemView.findViewById(R.id.usd_value), transaction);
+            bindValue(transaction);
             bindSendState(itemView, transaction);
             bindMemo(itemView, transaction);
+        }
+
+        private void bindValue(BindableTransaction transaction) {
+            DefaultCurrencyDisplayView view = withId(itemView, R.id.default_currency_view);
+            view.renderValues(defaultCurrencies, transaction.getBasicDirection(), transaction.totalCryptoForSendState(), transaction.totalFiatForSendState());
+            if (defaultCurrencyChangeViewNotifier != null)
+                defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(view);
         }
 
         private void bindMemo(View itemView, BindableTransaction transaction) {
@@ -127,39 +151,8 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             memoView.setVisibility(View.VISIBLE);
         }
 
-        private void calculateValue(TextView view, BindableTransaction transaction) {
-            String text = "";
-            int color = 0;
-            switch (transaction.getSendState()) {
-                case FAILED_TO_BROADCAST_RECEIVE:
-                case RECEIVE_CANCELED:
-                case RECEIVE:
-                    text += "+ " + new BTCCurrency(transaction.getValue()).toUSD(currency).toFormattedCurrency();
-                    color = view.getResources().getColor(R.color.colorPrimaryDark);
-                    break;
-                case FAILED_TO_BROADCAST_SEND:
-                case FAILED_TO_BROADCAST_TRANSFER:
-                case SEND_CANCELED:
-                case SEND:
-                    text += "- " + new BTCCurrency(transaction.getTotalTransactionCost()).toUSD(currency).toFormattedCurrency();
-                    color = view.getResources().getColor(R.color.color_error);
-                    break;
-                case TRANSFER:
-                    text += "- " + new BTCCurrency(transaction.getFee()).toUSD(currency).toFormattedCurrency();
-                    color = view.getResources().getColor(R.color.color_error);
-                    break;
-            }
-
-            view.setText(text);
-            view.setTextColor(color);
-        }
-
         private void bindTransactionTime(TextView view, BindableTransaction transaction) {
             view.setText(transaction.getTxTime());
-        }
-
-        public void bindIdentifyingTarget(TextView view, BindableTransaction transaction) {
-            view.setText(transaction.getIdentifiableTarget());
         }
 
         private void bindAddress(TextView view, BindableTransaction transaction) {
@@ -171,20 +164,6 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
                 default:
                     bindIdentifyingTarget(view, transaction);
             }
-        }
-
-        private void bindBTCValue(TextView view, BindableTransaction transaction) {
-            String text = "";
-            switch (transaction.getSendState()) {
-                case TRANSFER:
-                    text = new BTCCurrency(transaction.getFee()).toFormattedString();
-                    break;
-                default:
-                    text = new BTCCurrency(transaction.getValue()).toFormattedString();
-                    break;
-            }
-
-            view.setText(text);
         }
 
         private void bindIcon(ImageView icon, BindableTransaction transaction) {
@@ -233,8 +212,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
                     text = view.getResources().getString(R.string.confirmations_view_stage_3);
             }
 
-            if (text != null)
-                view.setText(text);
+            view.setText(text);
         }
 
         private void bindSendState(View view, BindableTransaction transaction) {
@@ -280,14 +258,5 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             if (text != null)
                 view.setText(text);
         }
-
-        public void setCurrency(Currency currency) {
-            this.currency = currency;
-        }
-
-        public int getItemPosition() {
-            return position;
-        }
-
     }
 }

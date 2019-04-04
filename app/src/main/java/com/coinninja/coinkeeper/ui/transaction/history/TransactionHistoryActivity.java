@@ -1,4 +1,4 @@
-package com.coinninja.coinkeeper.view.activity;
+package com.coinninja.coinkeeper.ui.transaction.history;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,6 +11,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -19,8 +20,6 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
-import com.coinninja.coinkeeper.view.adapter.TransactionHistoryDataAdapter;
-import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 
 import org.greenrobot.greendao.query.LazyList;
@@ -41,69 +40,26 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     @Inject
     WalletHelper walletHelper;
     @Inject
-    TransactionAdapterUtil transactionAdapterUtil;
-    BroadcastReceiver receiver;
+    TransactionHistoryDataAdapter adapter;
+    @Inject
+    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
+
+    PaymentBarFragment fragment;
     private RecyclerView transactionHistory;
     private LazyList<TransactionsInvitesSummary> transactions;
-    private TransactionHistoryDataAdapter adapter;
-    private USDCurrency valueCurrency;
-    private String bitcoinUriString;
-    PaymentBarFragment fragment;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_transaction_history);
-        receiver = new Receiver();
-        valueCurrency = new USDCurrency();
-        transactionHistory = findViewById(R.id.transaction_history);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        transactionHistory.setLayoutManager(layoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, layoutManager.getOrientation());
-        transactionHistory.addItemDecoration(dividerItemDecoration);
-        transactionHistory.setHasFixedSize(true);
-        adapter = new TransactionHistoryDataAdapter(transactions, this, transactionAdapterUtil);
-        fragment = (PaymentBarFragment) getFragmentManager().findFragmentById(R.id.payment_bar_fragment);
-        clearTitle();
-
-        if (getIntent() != null && getIntent().getData() != null) {
-            bitcoinUriString = getIntent().getData().toString();
-            launchPayScreenWithBitcoinUriIfNecessary();
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intents.ACTION_TRANSACTION_DATA_CHANGED.equals(intent.getAction())) {
+                refreshTransactions();
+            } else if (Intents.ACTION_CURRENCY_PREFERENCE_CHANGED.equals(intent.getAction())
+                    && intent.hasExtra(Intents.EXTRA_PREFERENCE)) {
+                defaultCurrencyChangeViewNotifier.onDefaultCurrencyChanged(intent.getParcelableExtra(Intents.EXTRA_PREFERENCE));
+            }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        transactions = walletHelper.getTransactionsLazily();
-        adapter = new TransactionHistoryDataAdapter(transactions, this, transactionAdapterUtil);
-        adapter.setConversionCurrency(valueCurrency);
-        transactionHistory.setAdapter(adapter);
-        presentTransactions();
-        showDetailWithInitialIntent();
-        IntentFilter filter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
-        localBroadCastUtil.registerReceiver(receiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        adapter.setOnItemClickListener(null);
-        localBroadCastUtil.unregisterReceiver(receiver);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        transactions.close();
-    }
-
-    @Override
-    public void onPriceReceived(USDCurrency price) {
-        super.onPriceReceived(price);
-        valueCurrency = price;
-        adapter.setConversionCurrency(valueCurrency);
-    }
+    };
+    private String bitcoinUriString;
+    IntentFilter intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
 
     @Override
     public void onItemClick(View view, int position) {
@@ -115,13 +71,66 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     }
 
     @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_transaction_history);
+        intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
+        intentFilter.addAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        fragment = (PaymentBarFragment) getFragmentManager().findFragmentById(R.id.payment_bar_fragment);
+        clearTitle();
+        if (getIntent() != null && getIntent().getData() != null) {
+            bitcoinUriString = getIntent().getData().toString();
+            launchPayScreenWithBitcoinUriIfNecessary();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        adapter.setOnItemClickListener(null);
+        localBroadCastUtil.unregisterReceiver(receiver);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        transactions = walletHelper.getTransactionsLazily();
+        adapter.setOnItemClickListener(this);
+        adapter.setTransactions(transactions);
+        adapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+        setupHistoryList();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presentTransactions();
+        showDetailWithInitialIntent();
+        localBroadCastUtil.registerReceiver(receiver, intentFilter);
+    }
+
+    @Override
+    public void onPriceReceived(USDCurrency price) {
+        super.onPriceReceived(price);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
     protected void onWalletSyncComplete() {
         super.onWalletSyncComplete();
         refreshTransactions();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        transactions.close();
+    }
+
     private void launchPayScreenWithBitcoinUriIfNecessary() {
-        if (bitcoinUriString == null) { return; }
+        if (bitcoinUriString == null) {
+            return;
+        }
 
         try {
             BitcoinUri bitcoinUri = bitcoinUtil.parse(bitcoinUriString);
@@ -134,7 +143,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     private void refreshTransactions() {
         transactions.close();
         transactions = walletHelper.getTransactionsLazily();
-        ((TransactionHistoryDataAdapter) transactionHistory.getAdapter()).setTransactions(transactions);
+        adapter.setTransactions(transactions);
         presentTransactions();
     }
 
@@ -167,12 +176,13 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         getIntent().removeExtra(Intents.EXTRA_TRANSACTION_ID);
     }
 
-    class Receiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Intents.ACTION_TRANSACTION_DATA_CHANGED.equals(intent.getAction())) {
-                refreshTransactions();
-            }
-        }
+    private void setupHistoryList() {
+        transactionHistory = findViewById(R.id.transaction_history);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        transactionHistory.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, layoutManager.getOrientation());
+        transactionHistory.addItemDecoration(dividerItemDecoration);
+        transactionHistory.setHasFixedSize(true);
+        transactionHistory.setAdapter(adapter);
     }
 }

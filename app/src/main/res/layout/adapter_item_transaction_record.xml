@@ -62,29 +62,15 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/values"
+    <com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView
+        android:id="@+id/default_currency_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
+        app:receivedTextAppearance="@style/TextAppearance.History.Receive.Value"
+        app:sentTextAppearance="@style/TextAppearance.History.Send.Value"
         android:layout_toEndOf="@id/icon"
-        android:gravity="end"
-        android:orientation="vertical">
+        android:gravity="end" />
 
-        <TextView
-            android:id="@+id/usd_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:textAppearance="@style/TextAppearance.History.Receive.Value" />
-
-        <TextView
-            android:id="@+id/btc_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:textAppearance="@style/TextAppearance.History.Currency" />
-    </LinearLayout>
 </RelativeLayout>

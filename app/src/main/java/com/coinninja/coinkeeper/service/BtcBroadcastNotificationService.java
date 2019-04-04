@@ -11,8 +11,8 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.ExternalNotification;
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.Intents;
-import com.coinninja.coinkeeper.view.activity.TransactionHistoryActivity;
 
 import java.util.List;
 

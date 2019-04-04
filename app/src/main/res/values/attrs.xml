@@ -28,4 +28,9 @@
     <declare-styleable name="PhoneNumberInputView">
         <attr name="textAppearance" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="DefaultCurrencyDisplayView">
+        <attr name="sentTextAppearance" format="reference" />
+        <attr name="receivedTextAppearance" format="reference" />
+    </declare-styleable>
 </resources>

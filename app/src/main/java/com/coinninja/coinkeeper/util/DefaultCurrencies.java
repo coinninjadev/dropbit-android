@@ -1,9 +1,25 @@
 package com.coinninja.coinkeeper.util;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 
-public class DefaultCurrencies {
+import java.util.Objects;
+
+public class DefaultCurrencies implements Parcelable {
+    public static final Creator<DefaultCurrencies> CREATOR = new Creator<DefaultCurrencies>() {
+        @Override
+        public DefaultCurrencies createFromParcel(Parcel in) {
+            return new DefaultCurrencies(in);
+        }
+
+        @Override
+        public DefaultCurrencies[] newArray(int size) {
+            return new DefaultCurrencies[size];
+        }
+    };
     private final Currency primaryCurrency;
     private final Currency secondaryCurrency;
 
@@ -12,13 +28,29 @@ public class DefaultCurrencies {
         this.secondaryCurrency = secondaryCurrency;
     }
 
-    public Currency getFiat(){
+    protected DefaultCurrencies(Parcel in) {
+        primaryCurrency = in.readParcelable(Currency.class.getClassLoader());
+        secondaryCurrency = in.readParcelable(Currency.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(primaryCurrency, flags);
+        dest.writeParcelable(secondaryCurrency, flags);
+    }
+
+    public Currency getFiat() {
         return getPrimaryCurrency().isFiat() ?
                 getPrimaryCurrency() :
                 getSecondaryCurrency();
     }
 
-    public CryptoCurrency getCrypto(){
+    public CryptoCurrency getCrypto() {
         return getPrimaryCurrency().isCrypto() ?
                 (CryptoCurrency) getPrimaryCurrency() :
                 (CryptoCurrency) getSecondaryCurrency();
@@ -32,4 +64,17 @@ public class DefaultCurrencies {
         return secondaryCurrency;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(primaryCurrency, secondaryCurrency);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DefaultCurrencies that = (DefaultCurrencies) o;
+        return primaryCurrency.toLong() == that.primaryCurrency.toLong() &&
+                secondaryCurrency.toLong() == that.secondaryCurrency.toLong();
+    }
 }

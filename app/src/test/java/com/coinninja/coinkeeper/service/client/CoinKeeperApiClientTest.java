@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.service.client;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.service.client.model.CNPricing;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
+import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.TransactionStats;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -68,6 +69,29 @@ public class CoinKeeperApiClientTest {
         } catch (Exception e) {
 
         }
+
+    }
+
+
+    @Test
+    public void order_of_tx_resposne() {
+        String json = "[{\"hash\":\"82a2d283543af94a31ba835bc95c2049e2bb4fb75a91b79a94c137c5e40ae2ee\",\"txid\":\"82a2d283543af94a31ba835bc95c2049e2bb4fb75a91b79a94c137c5e40ae2ee\"," +
+                "\"size\":247,\"vsize\":166,\"weight\":661,\"version\":1,\"locktime\":0,\"coinbase\":false,\"blockhash\":\"0000000000000000002b47fa958ff8cd3d7e865ef08cb2230b1805fbddadd300\"" +
+                ",\"blockheight\":562165,\"height\":103,\"time\":1549642028," +
+                "\"received_time\":1549642028,\"blocktime\":1549642028,\"vin\":" +
+                "[{\"txid\":\"11fb6b149f6952d2ec2c643ebddd0a08cade890e2818c85e6ae1db43b43f714a\",\"vout\":1,\"scriptSig\":" +
+                "{\"asm\":\"00144a95b3c08579531f841a8aee18d2d5c31c1bb6a6\",\"hex\":\"1600144a95b3c08579531f841a8aee18d2d5c31c1bb6a6\"}," +
+                "\"txinwitness\":[\"304402201149422cd5906f69daf3bd8f78fc06ae9bf8c8bf2fc3b56ca641d79ca044e4fe022001dbe82065943ea0dc75b5e956a0f5f2fe060993803c51ccb5e71637b46c4a4701\",\"03befc7e3f868f4cd123badabb8df0ae49b1d45e221c39d8cd9f56fdaadc035d5a\"],\"sequence\":4294967295,\"previousoutput\":{\"value\":1020110,\"n\":1,\"scriptPubKey\":{\"asm\":\"OP_HASH160 8f98f8a5e5110306c89fd04d8fd877bdcb135406 OP_EQUAL\",\"hex\":\"a9148f98f8a5e5110306c89fd04d8fd877bdcb13540687\",\"reqsigs\":1,\"type\":\"scripthash\",\"addresses\":[\"3EnHoc8QCGSCgiPoAjAEewKsu2fpuw7qh2\"]}}}],\"vout\":[{\"value\":725308,\"n\":0,\"scriptPubKey\":{\"asm\":\"OP_HASH160 082578c0addb14c6782bd41bdc3ad1b5fe34e106 OP_EQUAL\",\"hex\":\"a914082578c0addb14c6782bd41bdc3ad1b5fe34e10687\",\"reqsigs\":1,\"type\":\"scripthash\",\"addresses\":" +
+                "[\"32S6Df4d3skdaR8oPNYLY1A73qrRo4jpgT\"]}},{\"value\":286094,\"n\":1,\"scriptPubKey\":{\"asm\":\"OP_HASH160 770929bd1d7ca5d7d014b535ac17227fe3a8f412 OP_EQUAL\",\"hex\":\"a914770929bd1d7ca5d7d014b535ac17227fe3a8f41287\",\"reqsigs\":1,\"type\":\"scripthash\",\"addresses\":[\"3CYRK2kACzepjdnx2nmN2XnCYhRP2DbCYS\"]}}],\"blocks\":[\"0000000000000000002b47fa958ff8cd3d7e865ef08cb2230b1805fbddadd300\"]}]";
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(json));
+
+        String[] txids = new String[1];
+        txids[0] = "txid";
+        Response response = apiClient.getTransactions(txids);
+
+        List<TransactionDetail> details = (List<TransactionDetail>) response.body();
+        TransactionDetail transactionDetail = details.get(0);
+        assertThat(transactionDetail.getHash(), equalTo("82a2d283543af94a31ba835bc95c2049e2bb4fb75a91b79a94c137c5e40ae2ee"));
     }
 
     @Test
