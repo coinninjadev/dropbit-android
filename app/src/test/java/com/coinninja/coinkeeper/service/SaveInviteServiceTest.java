@@ -11,7 +11,7 @@ import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 import com.coinninja.coinkeeper.util.Intents;
 
 import org.junit.After;
@@ -60,7 +60,7 @@ public class SaveInviteServiceTest {
                 "--memo--",
                 true
         );
-        InvitedContact invitedContact = new InvitedContact(
+        DropBitInvitation invitedContact = new DropBitInvitation(
                 "--cn-id--",
                 System.currentTimeMillis(),
                 System.currentTimeMillis(),

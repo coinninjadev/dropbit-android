@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.service.runner;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
-import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 
 import org.junit.After;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class GetIncomingInviteRunnerTest {
 
-    private List<ReceivedInvite> testData;
+    private List<DropBitInvitation> testData;
     @Mock
     private SignedCoinKeeperApiClient apiClient;
     @Mock
@@ -52,8 +52,8 @@ public class GetIncomingInviteRunnerTest {
     @Test
     public void writes_two_invites_to_database_test() {
         testData = new ArrayList<>();
-        testData.add(new ReceivedInvite());
-        testData.add(new ReceivedInvite());
+        testData.add(new DropBitInvitation());
+        testData.add(new DropBitInvitation());
         Response response = getResponse(testData);
         when(apiClient.getReceivedInvites()).thenReturn(response);
 
