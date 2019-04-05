@@ -75,6 +75,10 @@
         <item name="android:actionMenuTextColor">@color/colorAccent</item>
     </style>
 
+    <style name="CoinKeeperTheme.LightActionBar.UpOff.CloseOn" parent="CoinKeeperTheme.LightActionBar.UpOff">
+        <item name="actionBarMenuType">@id/actionbar_light_up_off_close_on</item>
+    </style>
+
     <style name="CoinKeeperTheme.DarkActionBar.UpOff" parent="CoinKeeperTheme.DarkActionBar">
         <item name="actionBarMenuType">@id/actionbar_gone</item>
     </style>
@@ -114,20 +118,7 @@
         <item name="cn_background">@style/BlockChain</item>
     </style>
 
-    <style name="CoinKeeperTheme.NoActionBar.Transparent" parent="CoinKeeperTheme.Dark.Toolbar">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="actionBarMenuType">@id/actionbar_gone</item>
-        <item name="cn_background">@style/Transparent</item>
-    </style>
     <!-- Main Background -->
-    <style name="Transparent">
-        <item name="android:background">@android:color/transparent</item>
-    </style>
 
     <style name="BackgroundNormal">
         <item name="android:background">@color/background_color</item>
@@ -204,18 +195,6 @@
         <item name="android:gravity">center_vertical|center_horizontal</item>
     </style>
 
-    <style name="Button.Small" parent="Button">
-        <item name="android:textAppearance">@style/TextAppearance.Button.Small</item>
-    </style>
-
-    <style name="Button.Error" parent="Button">
-        <item name="android:background">@drawable/error_button</item>
-    </style>
-
-    <style name="Button.Error.Small" parent="Button.Small">
-        <item name="android:background">@drawable/error_button</item>
-    </style>
-
     <style name="FlatButton" parent="Theme.AppCompat.Light">
         <item name="android:textAppearance">@style/TextAppearance</item>
         <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
@@ -274,13 +253,6 @@
         <item name="android:textSize">10sp</item>
     </style>
 
-    <style name="textAppearanceSecondaryButton" parent="TextAppearance.AppCompat.Widget.Button.Borderless.Colored">
-        <item name="android:textSize">@dimen/text_size_normal</item>
-        <item name="textAllCaps">true</item>
-        <item name="android:fontFamily">@font/montserrat_regular</item>
-        <item name="android:textColor">@color/button_flat_selector</item>
-    </style>
-
 
     <!-- Text Styles -->
 
@@ -321,7 +293,6 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:textSize">14sp</item>
     </style>
-
 
     <style name="TextAppearance.History.Receive.Value" parent="TextAppearance.History.Address">
         <item name="android:textSize">16sp</item>
@@ -399,10 +370,6 @@
         <item name="android:textColor">@color/color_error</item>
     </style>
 
-    <style name="TextAppearance.Small.Success" parent="TextAppearance.AppCompat.Small">
-        <item name="android:textColor">@color/colorSuccess</item>
-    </style>
-
     <style name="TextAppearance.History.Details.Contact" parent="TextAppearance">
         <item name="android:fontFamily">@font/montserrat_medium</item>
         <item name="android:textColor">@color/colorPrimaryDark</item>
@@ -446,42 +413,11 @@
     </style>
 
     <!-- Alert Dialog -->
-    <style name="DialogTheme" parent="Base.V7.ThemeOverlay.AppCompat.Dialog">
-        <item name="android:borderlessButtonStyle">@style/FlatButton</item>
-        <item name="android:windowCloseOnTouchOutside">false</item>
-    </style>
 
     <!-- Wide Alert Dialog -->
     <style name="WideDialogTheme" parent="Base.V7.ThemeOverlay.AppCompat.Dialog">
         <item name="android:windowMinWidthMajor">100%</item>
         <item name="android:windowMinWidthMinor">100%</item>
-    </style>
-
-    <style name="DialogTitle" parent="Base.DialogWindowTitle.AppCompat">
-        <item name="android:maxLines">1</item>
-        <item name="android:scrollHorizontally">true</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
-    </style>
-
-    <style name="DialogTitleBackgroundStyle" parent="Base.DialogWindowTitleBackground.AppCompat">
-        <!--
-        <item name="android:background">@null</item>
-        <item name="android:paddingLeft">?attr/dialogPreferredPadding</item>
-        <item name="android:paddingRight">?attr/dialogPreferredPadding</item>
-        <item name="android:paddingTop">@dimen/abc_dialog_padding_top_material</item>
-        -->
-    </style>
-
-    <style name="DialogMessage" parent="Base.TextAppearance.AppCompat.Subhead">
-        <!--
-        <item name="android:textSize">@dimen/abc_text_size_subhead_material</item>
-        <item name="android:textColor">?android:textColorPrimary</item>
-        -->
-    </style>
-
-    <style name="FlatButton.Accent2">
-        <item name="buttonStyle">@drawable/request_dialog_background</item>
-
     </style>
 
 
@@ -575,15 +511,6 @@
         <item name="android:src">@drawable/ic_close</item>
     </style>
 
-    <style name="Dialog.Exit.Pay" parent="">
-        <item name="android:layout_width">60dp</item>
-        <item name="android:layout_height">60dp</item>
-        <item name="android:scaleType">fitXY</item>
-        <item name="android:padding">@dimen/dialog_close_button_padding</item>
-        <item name="android:background">@color/light</item>
-        <item name="android:src">@drawable/ic_close</item>
-    </style>
-
     <style name="PayDialog" parent="">
         <item name="android:minHeight">565dp</item>
         <item name="android:background">@drawable/request_dialog_background</item>
@@ -603,21 +530,6 @@
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:textSize">@dimen/text_size_header_small</item>
-    </style>
-
-    <style name="QrScan.Exit" parent="">
-        <item name="android:layout_width">20dp</item>
-        <item name="android:layout_height">20dp</item>
-        <item name="android:background">@color/colorPrimaryDark</item>
-        <item name="android:src">@drawable/ic_close_light</item>
-    </style>
-
-
-    <style name="Preference.Exit" parent="">
-        <item name="android:layout_width">@dimen/preference_exit_x_size</item>
-        <item name="android:layout_height">@dimen/preference_exit_x_size</item>
-        <item name="android:background">@color/colorPrimaryDark</item>
-        <item name="android:src">@drawable/ic_close_light</item>
     </style>
 
 

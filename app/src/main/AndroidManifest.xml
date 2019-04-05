@@ -50,6 +50,12 @@
             android:theme="@style/CoinKeeperTheme.NoActionBar.BlockChain" />
 
         <activity
+            android:name=".ui.account.verify.UserAccountVerificationActivity"
+            android:label="@string/user_account_verification_title"
+            android:noHistory="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff.CloseOn" />
+        <activity
             android:name=".view.activity.TrainingActivity"
             android:label=""
             android:noHistory="false"

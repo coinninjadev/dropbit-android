@@ -6,7 +6,6 @@ import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -60,7 +59,6 @@ public class DrawerController {
     private void wrapBaseLayoutWithDrawer(Activity activity, View root) {
         drawerLayout = new DrawerLayout(activity);
         drawerLayout.setFitsSystemWindows(true);
-        drawerLayout.setId(R.id.drawer_layout);
         ViewGroup screen = (ViewGroup) root.getParent();
         screen.removeView(root);
         screen.addView(drawerLayout);
@@ -104,6 +102,13 @@ public class DrawerController {
         drawerLayout.findViewById(R.id.drawer_setting).setOnClickListener(this::onSettingsClicked);
         drawerLayout.findViewById(R.id.drawer_support).setOnClickListener(this::onSupportClicked);
         drawerLayout.findViewById(R.id.drawer_where_to_buy).setOnClickListener(this::onWhereToBuyClicked);
+        drawerLayout.findViewById(R.id.drawer_phone).setOnClickListener(this::onPhoneClicked);
+    }
+
+    private void onPhoneClicked(View view) {
+        Context context = view.getContext();
+
+        navigationUtil.navigateToUserVerification(context);
     }
 
     private void setupNavigationView() {

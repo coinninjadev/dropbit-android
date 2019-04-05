@@ -93,6 +93,10 @@
         <item name="buttonStyle">@style/FlatButton</item>
     </style>
 
+    <style name="CoinKeeperTheme.LightActionBar.UpOff.CloseOn" parent="CoinKeeperTheme.LightActionBar.UpOff">
+        <item name="actionBarMenuType">@id/actionbar_light_up_off_close_on</item>
+    </style>
+
     <style name="CoinKeeperTheme.NoActionBar.BlockChain" parent="CoinKeeperTheme.Dark.Toolbar">
         <item name="actionBarMenuType">@id/actionbar_gone</item>
         <item name="cn_background">@style/BlockChain</item>
@@ -107,32 +111,6 @@
     <style name="ActionbarStyle.Light" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@drawable/background_light_actionbar</item>
         <item name="background">@drawable/background_light_actionbar</item>
-    </style>
-
-
-    <style name="DialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
-        <!--
-        <item name="android:buttonBarStyle">@style/Widget.AppCompat.ButtonBar.AlertDialog</item>
-        <item name="android:windowTitleBackgroundStyle">@style/DialogTitleBackgroundStyle</item>
-        <item name="android:windowTitleStyle">@style/DialogTitle</item>
-        -->
-        <item name="android:borderlessButtonStyle">@style/FlatButton</item>
-        <item name="android:windowCloseOnTouchOutside">false</item>
-        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
-        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
-
-        <!-- Copy our color theme attributes to the framework -->
-        <item name="android:colorPrimary">@color/colorPrimary</item>
-        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
-        <!--
-        <item name="android:colorAccent">@color/colorAccent</item>
-        -->
-        <item name="android:colorAccent">@android:color/transparent</item>
-        <item name="android:colorControlNormal">@android:color/transparent</item>
-        <item name="android:colorControlActivated">@android:color/transparent</item>
-        <item name="android:colorControlHighlight">@android:color/transparent</item>
-        <item name="android:colorButtonNormal">@color/colorPrimary</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
 

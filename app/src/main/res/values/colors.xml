@@ -39,21 +39,16 @@
     <color name="cta_disabled">#99242536</color>
 
     <!-- Flat Buttons -->
-    <color name="flat">#2cd1ff</color>
     <color name="flat_pressed">#992cd1ff</color>
     <color name="flat_disabled">#40000000</color>
 
 
     <!-- Navigation Icon -->
-    <color name="dark">#4a4a4a</color>
 
 
     <!-- BTC Symbol Tint-->
-    <color name="btc_tx_history_tint">#F79E36</color>
 
-    <color name="orange">#ffa41c</color>
     <color name="colorBTNText">#242536</color>
-    <color name="colorRestoreBTN">#2cd1ff</color>
     <color name="colorTransparent">#00FFFFFF</color>
     <color name="color_error">#e76c6c</color>
     <color name="color_error_pressed">#E49E9E</color>
@@ -64,27 +59,14 @@
     <color name="light_border">#D8D8D8</color>
 
 
-    <color name="light_btn">#f4f4f4</color>
-    <color name="light_btn_pressed">#e3e3e3</color>
-    <color name="light_btn_border">#e3e3e3</color>
-
     <color name="lighter_btn">#b8ffffff</color>
     <color name="lighter_btn_border">#e3e3e3</color>
-
-    <color name="blue">#2cd1ff</color>
 
     <color name="fingerprint_standard">#242536</color>
     <color name="fingerprint_success">#2cd1ff</color>
     <color name="fingerprint_error">#e76c6c</color>
     <color name="fingerprint_instruction">#8a000000</color>
-    <color name="fingerprint_headline">#8a000000</color>
-    <color name="fingerprint_header">#de000000</color>
 
-    <color name="btn_blue_light">#2cd1ff</color>
-    <color name="border">#e3e3e3</color>
-    <color name="view_pager_background">#80000000</color>
-
-    <color name="background_transaction_detail_tax">#fafafa</color>
     <color name="border_transaction_detail_tax">#e0e0e0</color>
 
     <!-- Broadcast Activity -->
@@ -109,7 +91,6 @@
     <color name="phone_number_input_widget_flag_selector_background">#F7F7F7</color>
     <color name="phone_number_input_widget_flag_selector_background_active">#D8D8D8</color>
     <color name="phone_number_input_widget_border_color">#50000000</color>
-    <color name="phone_number_input_widget_background_color">#FFFFFF</color>
 
     <!-- Input Colors -->
     <color name="input_border_color">#50000000</color>

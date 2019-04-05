@@ -81,7 +81,6 @@ public class DrawerControllerTest {
     public void adds_drawer_as_root_view() {
         drawerController.inflateDrawer(activity, actionbarType);
 
-        assertNotNull(withId(activity, R.id.drawer_layout));
         assertNotNull(withId(activity, R.id.drawer_action_view));
     }
 
@@ -91,7 +90,6 @@ public class DrawerControllerTest {
 
         drawerController.inflateDrawer(activity, actionbarType);
 
-        assertNull(withId(activity, R.id.drawer_layout));
         assertNull(withId(activity, R.id.drawer_action_view));
     }
 
@@ -229,6 +227,16 @@ public class DrawerControllerTest {
         withId(activity, R.id.drawer_backup_now).performClick();
 
         verify(navigationUtil).navigateToBackupRecoveryWords(activity);
+    }
+
+    @Test
+    public void menu_item_clicked_for_user_verification() {
+        drawerController.inflateDrawer(activity, actionbarType);
+        drawerController.showBackupNowDrawerActions();
+
+        withId(activity, R.id.drawer_phone).performClick();
+
+        verify(navigationUtil).navigateToUserVerification(activity);
     }
 
     @Test

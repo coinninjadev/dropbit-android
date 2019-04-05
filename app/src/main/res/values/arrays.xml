@@ -1,25 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <array name="dialog_header_font_sizes">
-        <item>40f</item>
-        <item>40f</item>
-        <item>40f</item>
-        <item>40f</item>
-        <item>40f</item>
-        <item>35f</item>
-        <item>35f</item>
-        <item>35f</item>
-        <item>35f</item>
-        <item>30f</item>
-        <item>30f</item>
-        <item>30f</item>
-        <item>30f</item>
-        <item>26f</item>
-        <item>26f</item>
-        <item>26f</item>
-        <item>26f</item>
-        <item>26f</item>
-        <item>26f</item>
-    </array>
 
 </resources>

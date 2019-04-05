@@ -38,7 +38,6 @@ import static org.robolectric.Shadows.shadowOf;
 @Config(application = TestCoinKeeperApplication.class)
 public class RemoveCNPhoneNumberControllerTest {
 
-
     @Mock
     LocalBroadCastUtil localBroadCastUtil;
 
@@ -78,7 +77,7 @@ public class RemoveCNPhoneNumberControllerTest {
 
     @Test
     public void explains_that_pending_dropbits_will_be_canceled() {
-        controller.onRemovePhoneNumber(activity.findViewById(R.id.deverify_phone_number));
+        controller.onRemovePhoneNumber(activity.findViewById(R.id.change_remove_button));
 
         AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
         assertThat(((TextView) dialog.findViewById(R.id.warning)).getText().toString(),
@@ -87,12 +86,11 @@ public class RemoveCNPhoneNumberControllerTest {
                 equalTo(activity.getString(R.string.deverification_dialog_pending_dropbit_canceled_message)));
         assertThat(((TextView) dialog.findViewById(R.id.ok)).getText().toString(),
                 equalTo(activity.getString(R.string.ok)));
-
     }
 
     @Test
     public void acknowledging_message_confirms_request() {
-        controller.onRemovePhoneNumber(activity.findViewById(R.id.deverify_phone_number));
+        controller.onRemovePhoneNumber(activity.findViewById(R.id.change_remove_button));
         AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
 
         dialog.findViewById(R.id.ok).performClick();
@@ -206,7 +204,7 @@ public class RemoveCNPhoneNumberControllerTest {
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_settings);
+            setContentView(R.layout.user_account_verification);
         }
     }
 }

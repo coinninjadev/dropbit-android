@@ -2,7 +2,6 @@
 <resources>
 
     <!-- Actionbar -->
-    <dimen name="actionBarSize">55dp</dimen>
 
     <!-- Margins -->
     <dimen name="horizontal_margin_small">5dp</dimen>
@@ -22,10 +21,8 @@
 
 
     <!-- Padding -->
-    <dimen name="horizontal_padding">15dp</dimen>
     <dimen name="vertical_padding">15dp</dimen>
     <dimen name="dialog_padding">20dp</dimen>
-    <dimen name="dialog_close_button_padding">40dp</dimen>
     <dimen name="button_horizontal_padding">14dp</dimen>
     <dimen name="button_vertical_padding">10dp</dimen>
     <dimen name="message_vertical_padding">28dp</dimen>
@@ -35,14 +32,9 @@
     <dimen name="text_size_normal">14sp</dimen>
     <dimen name="text_size_small">10sp</dimen>
     <dimen name="text_size_header_small">16sp</dimen>
-    <dimen name="start_btn_text">14sp</dimen>
-    <dimen name="start_btn_marginTop">10dp</dimen>
 
 
     <!-- Refactor Out -->
-    <dimen name="start_footer_layout_marginBottom">15dp</dimen>
-    <dimen name="start_slogan_marginTop">20dp</dimen>
-    <dimen name="start_main_layout_marginTop">30dp</dimen>
 
     <!-- Navigation Drawer -->
     <dimen name="max_width">150dp</dimen>
@@ -52,10 +44,7 @@
     <dimen name="dialog_exit_icon_margin_small">15dp</dimen>
     <dimen name="qr_image_scale_min">146dp</dimen>
     <dimen name="qr_image_scale_max">205dp</dimen>
-    <dimen name="vertical_margin_tiny">3dp</dimen>
-    <dimen name="vertical_margin_mini">7dp</dimen>
     <dimen name="pay_dialog_large_text">32sp</dimen>
-    <dimen name="pay_dialog_normal_text">15sp</dimen>
     <dimen name="pay_dialog_small_text">12sp</dimen>
     <dimen name="paste_box_horizontal_padding">15dp</dimen>
     <dimen name="paste_box_vertical_padding">10dp</dimen>
@@ -68,14 +57,7 @@
 
     <!-- Setting -->
     <dimen name="preference_body_padding">16dp</dimen>
-    <dimen name="preference_horizontal_margin_small">16dp</dimen>
-    <dimen name="preference_horizontal_margin">36dp</dimen>
-    <dimen name="preference_horizontal_margin_large">66dp</dimen>
-    <dimen name="preference_vertical_margin">30dp</dimen>
-    <dimen name="preference_small_text">12sp</dimen>
     <dimen name="preference_icon_size">10dp</dimen>
-    <dimen name="preference_icon_margin">34dp</dimen>
-    <dimen name="preference_exit_x_size">15dp</dimen>
 
     <!-- ProgressBar Circle -->
     <dimen name="circle_thickness_small">4sp</dimen>
@@ -94,7 +76,6 @@
     <dimen name="broadcast_sending_progress_action_btn_height">53dp</dimen>
 
     <!-- Contacts Activity -->
-    <dimen name="oval_question_size">17dp</dimen>
     <dimen name="list_divider">39dp</dimen>
     <dimen name="tiny_font">10sp</dimen>
     <dimen name="training_footer_height">115dp</dimen>
@@ -112,7 +93,6 @@
     <dimen name="training_body_width">290dp</dimen>
     <dimen name="training_body_height">170dp</dimen>
     <dimen name="training_body_padding">16dp</dimen>
-    <dimen name="training_body_text_height">95dp</dimen>
     <dimen name="training_body_text_size">13sp</dimen>
     <dimen name="training_body_padding_small">8dp</dimen>
     <dimen name="training_body_text_small">10sp</dimen>
