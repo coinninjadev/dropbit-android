@@ -151,7 +151,7 @@ by using their mobile number</string>
         Please enter your phone number below to use the DropBit&#8482; feature.
         DropBit allows you to send Bitcoin directly to your contacts by using their mobile number.
     </string>
-    <string name="activity_verify_phone_error_message">Invalid phone number. Please try again.</string>
+    <string name="activity_verify_phone_error_message">Invalid phone number. Please make sure you have entered the correct number.</string>
     <string name="preference_display_phone_number_label">Verified Number: </string>
     <string name="default_401_user_deverifcation_message">
         The phone number associated with this device has been unregistered.
