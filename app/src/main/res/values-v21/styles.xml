@@ -6,6 +6,7 @@
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/colorPrimaryDark</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:listDivider">@drawable/vertical_list_divider</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/background_color</item>
         <item name="android:fontFamily">@font/montserat</item>

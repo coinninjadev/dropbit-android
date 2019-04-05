@@ -10,11 +10,13 @@ import android.widget.TextView;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
+import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
@@ -41,6 +43,7 @@ import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isInvisible;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
@@ -56,13 +59,12 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     LazyList<TransactionsInvitesSummary> transactions;
     @Mock
     TransactionsInvitesSummary transaction;
-    private View page;
     @Mock
+    TransactionDetailObserver observer;
+    private View page;
     private BindableTransaction bindableTransaction;
     @Mock
     private WalletHelper walletHelper;
-    @Mock
-    TransactionDetailObserver observer;
     @InjectMocks
     private TransactionDetailPageAdapter adapter;
     private A activity;
@@ -76,12 +78,16 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(0L));
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.get(anyInt())).thenReturn(transaction);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
+        bindableTransaction = new BindableTransaction(walletHelper);
         adapter.refreshData();
         adapter.setShowTransactionDetailRequestObserver(observer);
+        adapter.onDefaultCurrencyChanged(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
 
-        when(bindableTransaction.getSendState()).thenReturn(BindableTransaction.SendState.RECEIVE);
-        when(bindableTransaction.getTotalTransactionCostCurrency()).thenReturn(new BTCCurrency());
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency());
+        bindableTransaction.setSendState(BindableTransaction.SendState.RECEIVE);
+        bindableTransaction.setValue(0);
+        bindableTransaction.setFee(0);
+        bindableTransaction.setHistoricalInviteUSDValue(0L);
     }
 
     @After
@@ -108,8 +114,8 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void canceled_dropbits_show_as_canceled() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.CANCELED);
-        when(bindableTransaction.getSendState()).thenReturn(BindableTransaction.SendState.RECEIVE_CANCELED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.CANCELED);
+        bindableTransaction.setSendState(BindableTransaction.SendState.RECEIVE_CANCELED);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -121,8 +127,8 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void expired_dropbits_show_as_expired() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.EXPIRED);
-        when(bindableTransaction.getSendState()).thenReturn(BindableTransaction.SendState.RECEIVE_CANCELED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.EXPIRED);
+        bindableTransaction.setSendState(BindableTransaction.SendState.RECEIVE_CANCELED);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -143,7 +149,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void renders_confirmations__step_1() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.RECEIVED_PENDING);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_PENDING);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -157,7 +163,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void renders_confirmations__step_2() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -171,8 +177,8 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void renders_confirmations__step_4() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
-        when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.UNCONFIRMED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
+        bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -186,8 +192,8 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void renders_confirmations__step_5() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
-        when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.CONFIRMED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
+        bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -201,9 +207,9 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void transactions_that_have_been_added_to_block_offer_technical_details() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.SENT_ADDRESS_PROVIDED);
-        when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.UNCONFIRMED);
-        when(bindableTransaction.getTxID()).thenReturn("-- txid --");
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.SENT_ADDRESS_PROVIDED);
+        bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
+        bindableTransaction.setTxID("-- txid --");
 
         adapter.bindTo(page, bindableTransaction);
         Button seeDetails = withId(page, R.id.call_to_action);
@@ -211,7 +217,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         seeDetails.performClick();
         verify(observer).onTransactionDetailsRequested(bindableTransaction);
 
-        when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.CONFIRMED);
+        bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
         adapter.bindTo(page, bindableTransaction);
         seeDetails = withId(page, R.id.call_to_action);
         assertThat(seeDetails, isVisible());
@@ -222,8 +228,8 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     @Test
     public void renders_receivers_contact_when_sent__phone_when_no_name_available() {
         String phoneNumber = "(330) 555-1111";
-        when(bindableTransaction.getContactName()).thenReturn(null);
-        when(bindableTransaction.getContactPhoneNumber()).thenReturn(phoneNumber);
+        bindableTransaction.setContactName(null);
+        bindableTransaction.setContactPhoneNumber(phoneNumber);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -235,8 +241,8 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     public void renders_receivers_contact_when_sent__name_when_available() {
         String phoneNumber = "(330) 555-1111";
         String name = "Joe Blow";
-        when(bindableTransaction.getContactName()).thenReturn(name);
-        when(bindableTransaction.getContactPhoneNumber()).thenReturn(phoneNumber);
+        bindableTransaction.setContactName(name);
+        bindableTransaction.setContactPhoneNumber(phoneNumber);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -245,86 +251,48 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     }
 
     @Test
-    public void renders_crypto_value_of_dropbit_in_users_base_currency__receivers_do_not_see_fees_when_canceled() {
-        when(bindableTransaction.getSendState()).thenReturn(BindableTransaction.SendState.RECEIVE_CANCELED);
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.CANCELED);
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency("1000.00"));
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency(50000000L));
+    public void renders_crypto_value__receivers_do_not_see_fees_when_canceled() {
+        bindableTransaction.setSendState(BindableTransaction.SendState.RECEIVE_CANCELED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.CANCELED);
+        bindableTransaction.setValue(50000000L);
 
         adapter.bindTo(page, bindableTransaction);
 
-        TextView value = withId(page, R.id.secondary_value);
-        assertThat(value, hasText("0.5"));
+        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        assertThat(view.getFiatValue().toLong(), equalTo(50000L));
+        assertThat(view.getTotalCrypto().toLong(), equalTo(50000000L));
     }
 
     @Test
-    public void renders_crypto_value_of_dropbit_in_users_base_currency__receivers_do_not_see_fees_when_expired() {
-        when(bindableTransaction.getSendState()).thenReturn(BindableTransaction.SendState.RECEIVE_CANCELED);
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.EXPIRED);
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency("1000.00"));
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency(50000000L));
+    public void renders_crypto_value__receivers_do_not_see_fees_when_expired() {
+        bindableTransaction.setSendState(BindableTransaction.SendState.RECEIVE_CANCELED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.EXPIRED);
+        bindableTransaction.setValue(50000000L);
 
         adapter.bindTo(page, bindableTransaction);
 
-        TextView value = withId(page, R.id.secondary_value);
-        assertThat(value, hasText("0.5"));
+        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        assertThat(view.getFiatValue().toLong(), equalTo(50000L));
+        assertThat(view.getTotalCrypto().toLong(), equalTo(50000000L));
     }
+
 
     @Test
-    public void renders_value_of_dropbit_in_users_base_currency__receivers_do_not_see_fees_when_canceled() {
-        when(bindableTransaction.getSendState()).thenReturn(BindableTransaction.SendState.RECEIVE_CANCELED);
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.CANCELED);
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency("1000.00"));
-        when(bindableTransaction.getTotalTransactionCostCurrency()).thenReturn(new BTCCurrency(50010000L));
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency(50000000L));
+    public void renders_value___receivers_do_not_see_fees() {
+        bindableTransaction.setFee(10000L);
+        bindableTransaction.setValue(50000000L);
 
         adapter.bindTo(page, bindableTransaction);
 
-        TextView value = withId(page, R.id.primary_value);
-        assertThat(value, hasText("$500.00"));
+        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        assertThat(view.getFiatValue().toLong(), equalTo(50000L));
+        assertThat(view.getTotalCrypto().toLong(), equalTo(50000000L));
     }
 
-    @Test
-    public void renders_value_of_dropbit_in_users_base_currency__receivers_do_not_see_fees_when_expired() {
-        when(bindableTransaction.getSendState()).thenReturn(BindableTransaction.SendState.RECEIVE_CANCELED);
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.EXPIRED);
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency("1000.00"));
-        when(bindableTransaction.getTotalTransactionCostCurrency()).thenReturn(new BTCCurrency(50010000L));
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency(50000000L));
-
-        adapter.bindTo(page, bindableTransaction);
-
-        TextView value = withId(page, R.id.primary_value);
-        assertThat(value, hasText("$500.00"));
-    }
-
-    @Test
-    public void renders_value_of_dropbit_in_users_base_currency__receivers_do_not_see_fees() {
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency("1000.00"));
-        when(bindableTransaction.getTotalTransactionCostCurrency()).thenReturn(new BTCCurrency(50010000L));
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency(50000000L));
-
-        adapter.bindTo(page, bindableTransaction);
-
-        TextView value = withId(page, R.id.primary_value);
-        assertThat(value, hasText("$500.00"));
-    }
-
-    @Test
-    public void renders_value_of_dropbit_in_crypto__receivers_do_not_see_fees() {
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency("1000.00"));
-        when(bindableTransaction.getTotalTransactionCostCurrency()).thenReturn(new BTCCurrency(50010000L));
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency(50000000L));
-
-        adapter.bindTo(page, bindableTransaction);
-
-        TextView value = withId(page, R.id.secondary_value);
-        assertThat(value, hasText("0.5"));
-    }
 
     @Test
     public void renders_time_transaction_occurred() {
-        when(bindableTransaction.getTxTime()).thenReturn("April 24, 2018 01:24am");
+        bindableTransaction.setTxTime("April 24, 2018 01:24am");
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -334,27 +302,27 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void does_not_allow_user_to_cancel_dropbit_when_not_pending() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.RECEIVED_PENDING);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_PENDING);
         adapter.bindTo(page, bindableTransaction);
         TextView pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
         adapter.bindTo(page, bindableTransaction);
         pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.CANCELED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.CANCELED);
         adapter.bindTo(page, bindableTransaction);
         pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.EXPIRED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.EXPIRED);
         adapter.bindTo(page, bindableTransaction);
         pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.CONFIRMED);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.CONFIRMED);
         adapter.bindTo(page, bindableTransaction);
         pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
@@ -362,9 +330,9 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void does_not_allow_user_to_cancel_drop_bit_when_pending() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.RECEIVED_PENDING);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_PENDING);
         String inviteId = "--- server invite id ---";
-        when(bindableTransaction.getServerInviteId()).thenReturn(inviteId);
+        bindableTransaction.setServerInviteId(inviteId);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -373,9 +341,9 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void does_not_allow_receiver_to_cancel_dropbit() {
-        when(bindableTransaction.getInviteState()).thenReturn(BindableTransaction.InviteState.RECEIVED_PENDING);
+        bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_PENDING);
         String inviteId = "--- server invite id ---";
-        when(bindableTransaction.getServerInviteId()).thenReturn(inviteId);
+        bindableTransaction.setServerInviteId(inviteId);
         adapter.bindTo(page, bindableTransaction);
 
         withId(page, R.id.button_cancel_dropbit).performClick();

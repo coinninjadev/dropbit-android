@@ -32,5 +32,10 @@
     <declare-styleable name="DefaultCurrencyDisplayView">
         <attr name="sentTextAppearance" format="reference" />
         <attr name="receivedTextAppearance" format="reference" />
+        <attr name="secondaryTextAppearance" format="reference" />
+        <attr name="useCryptoIcon" format="boolean" />
+        <attr name="useCryptoSymbol" format="boolean" />
+        <attr name="primaryCryptoIconScale" format="float" />
+        <attr name="secondaryCryptoIconScale" format="float" />
     </declare-styleable>
 </resources>

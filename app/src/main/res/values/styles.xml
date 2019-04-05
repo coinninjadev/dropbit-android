@@ -14,6 +14,7 @@
         <item name="android:textAppearanceMedium">@style/TextAppearance.Medium</item>
         <item name="android:textAppearanceLarge">@style/TextAppearance.Large</item>
         <item name="android:borderlessButtonStyle">@style/FlatButton</item>
+        <item name="android:listDivider">@drawable/vertical_list_divider</item>
         <!--
         <item name="android:dialogTheme">@style/DialogTheme</item>
         <item name="android:alertDialogStyle">@style/AlertDialog.AppCompat</item>
@@ -284,7 +285,14 @@
         <item name="android:textSize">15sp</item>
     </style>
 
+    <style name="TextAppearance.History.BlockTime" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/font_gray</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
     <style name="TextAppearance.History.Currency" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_light</item>
         <item name="android:textSize">10sp</item>
     </style>
 
@@ -308,6 +316,17 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="TextAppearance.History.Confirmations" parent="TextAppearance">
+        <item name="android:textColor">@color/font_orange</item>
+        <item name="android:fontFamily">@font/montserrat_light</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Memo" parent="TextAppearance">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:fontFamily">@font/montserrat_light</item>
+        <item name="android:textSize">14.5sp</item>
+    </style>
 
     <style name="TextAppearance.Drawer" parent="TextAppearance.Inverse">
         <item name="android:fontFamily">@font/montserrat_light</item>
@@ -321,14 +340,16 @@
 
     <style name="TextAppearance.Balance.Primary" parent="TextAppearance">
         <item name="android:fontFamily">@font/montserrat_regular</item>
-        <item name="android:textColor">@color/light</item>
-        <item name="android:textSize">19sp</item>
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:textSize">18.2sp</item>
+        <item name="android:letterSpacing">.05</item>
     </style>
 
     <style name="TextAppearance.Balance.Secondary" parent="TextAppearance">
-        <item name="android:fontFamily">@font/montserrat_regular</item>
-        <item name="android:textColor">@color/font_lighter_gray</item>
-        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/font_gray</item>
+        <item name="android:textSize">14.4sp</item>
+        <item name="android:letterSpacing">.05</item>
     </style>
 
     <style name="TextAppearance.Contact.Name" parent="TextAppearance">
@@ -386,18 +407,29 @@
         <item name="android:textSize">13sp</item>
     </style>
 
-    <style name="TextAppearance.History.Details.BTC" parent="TextAppearance.History.Details.Date">
+    <style name="TextAppearance.History.Details.Address" parent="TextAppearance.History.Details.Date">
+        <item name="android:textColor">@color/colorSuccess</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
         <item name="android:textSize">13sp</item>
     </style>
 
-    <style name="TextAppearance.History.Details.Address" parent="TextAppearance.History.Details.BTC">
-        <item name="android:textColor">@color/colorSuccess</item>
+    <style name="TextAppearance.History.Details.Receive.Value" parent="TextAppearance.History.Receive.Value">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textSize">50sp</item>
     </style>
 
-    <style name="TextAppearance.History.Details.CashValue" parent="TextAppearance.History.Details.Address">
+    <style name="TextAppearance.History.Details.Send.Value" parent="TextAppearance.History.Send.Value">
         <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:letterSpacing">-0.01</item>
         <item name="android:textSize">50sp</item>
+    </style>
+
+    <style name="TextAppearance.History.Details.Value.Secondary" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_light</item>
+        <item name="android:textSize">15sp</item>
     </style>
 
     <style name="TextAppearance.Accent" parent="TextAppearance">

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.transaction.history.DefaultCurrencyChangeObserver;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -25,9 +26,13 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
     private BindableTransaction.SendState sendState;
     private CryptoCurrency totalCrypto;
     private FiatCurrency fiatValue;
-    private boolean showPositiveChange = true;
+    private boolean useCryptoIcon = false;
+    private boolean useCryptoSymbol = false;
     private int receivedTextAppearance = R.style.TextAppearance_History_Receive_Value;
     private int sentTextAppearance = R.style.TextAppearance_History_Send_Value;
+    private int secondaryTextAppearance = R.style.TextAppearance_History_Currency;
+    private float primaryIconScale = 1;
+    private float secondaryIconScale = .8F;
 
     public DefaultCurrencyDisplayView(Context context) {
         this(context, null);
@@ -47,18 +52,20 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         LayoutInflater.from(context).inflate(R.layout.merge_default_currency_display_view, this, true);
         primaryCurrencyView = findViewById(R.id.primary_currency);
         secondaryCurrencyView = findViewById(R.id.secondary_currency);
-        if (attrs != null) {
-            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.DefaultCurrencyDisplayView, defStyleAttr, 0);
-            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_receivedTextAppearance)) {
-                receivedTextAppearance = typedArray.getResourceId(R.styleable.DefaultCurrencyDisplayView_receivedTextAppearance, receivedTextAppearance);
-            }
+        parseAttributes(context, attrs, defStyleAttr);
+        styleTextView(secondaryCurrencyView, secondaryTextAppearance);
+    }
 
-            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_sentTextAppearance)) {
-                sentTextAppearance = typedArray.getResourceId(R.styleable.DefaultCurrencyDisplayView_sentTextAppearance, sentTextAppearance);
-            }
+    public void useCryptoIcon(boolean useCryptoIcon) {
+        this.useCryptoIcon = useCryptoIcon;
+    }
 
-            typedArray.recycle();
-        }
+    public void useCryptoSymbol(boolean useCryptoSymbol) {
+        this.useCryptoSymbol = useCryptoSymbol;
+    }
+
+    public void renderValues(DefaultCurrencies defaultCurrencies, CryptoCurrency totalCrypto, FiatCurrency fiatValue) {
+        renderValues(defaultCurrencies, BindableTransaction.SendState.RECEIVE, totalCrypto, fiatValue);
     }
 
     public CryptoCurrency getTotalCrypto() {
@@ -90,14 +97,45 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         invalidateValues();
     }
 
-    public void setShowPositiveChange(boolean showPositiveChange) {
-        this.showPositiveChange = showPositiveChange;
-        invalidateValues();
-    }
-
     @Override
     public void onDefaultCurrencyChanged(DefaultCurrencies defaultCurrencies) {
         setDefaultCurrencyPreference(defaultCurrencies);
+    }
+
+    private void parseAttributes(Context context, AttributeSet attrs, int defStyleAttr) {
+        if (attrs != null) {
+            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.DefaultCurrencyDisplayView, defStyleAttr, 0);
+            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_receivedTextAppearance)) {
+                receivedTextAppearance = typedArray.getResourceId(R.styleable.DefaultCurrencyDisplayView_receivedTextAppearance, receivedTextAppearance);
+            }
+
+            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_sentTextAppearance)) {
+                sentTextAppearance = typedArray.getResourceId(R.styleable.DefaultCurrencyDisplayView_sentTextAppearance, sentTextAppearance);
+            }
+
+            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_secondaryTextAppearance)) {
+                secondaryTextAppearance = typedArray.getResourceId(R.styleable.DefaultCurrencyDisplayView_secondaryTextAppearance, secondaryTextAppearance);
+            }
+
+            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_useCryptoIcon)) {
+                useCryptoIcon = typedArray.getBoolean(R.styleable.DefaultCurrencyDisplayView_useCryptoIcon, useCryptoIcon);
+            }
+
+            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_useCryptoSymbol)) {
+                useCryptoSymbol = typedArray.getBoolean(R.styleable.DefaultCurrencyDisplayView_useCryptoSymbol, useCryptoSymbol);
+            }
+
+
+            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_primaryCryptoIconScale)) {
+                primaryIconScale = typedArray.getFloat(R.styleable.DefaultCurrencyDisplayView_primaryCryptoIconScale, primaryIconScale);
+            }
+
+            if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_secondaryCryptoIconScale)) {
+                secondaryIconScale = typedArray.getFloat(R.styleable.DefaultCurrencyDisplayView_secondaryCryptoIconScale, secondaryIconScale);
+            }
+
+            typedArray.recycle();
+        }
     }
 
     private void invalidateValues() {
@@ -109,29 +147,34 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
     private void formatDirection() {
         switch (sendState) {
             case RECEIVE:
-                stylePrimary(receivedTextAppearance);
-                if (showPositiveChange)
-                    primaryCurrencyView.setText(String.format("+ %s", getPrimaryCurrencyText()));
+                styleTextView(primaryCurrencyView, receivedTextAppearance);
                 break;
             case SEND:
             case TRANSFER:
-                stylePrimary(sentTextAppearance);
-                primaryCurrencyView.setText(String.format("- %s", getPrimaryCurrencyText()));
+                styleTextView(primaryCurrencyView, sentTextAppearance);
                 break;
             default:
         }
     }
 
-    public void stylePrimary(int resId) {
+    private void styleTextView(TextView textView, int resId) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            primaryCurrencyView.setTextAppearance(getContext(), resId);
+            textView.setTextAppearance(getContext(), resId);
         } else {
-            primaryCurrencyView.setTextAppearance(resId);
+            textView.setTextAppearance(resId);
         }
     }
 
     private void invalidateCrypto() {
-        getCryptoView().setText(getFormattedCryptoValue());
+        TextView cryptoView = getCryptoView();
+        String formattedCryptoValue = getFormattedCryptoValue();
+        if (useCryptoIcon) {
+            Views.renderBTCIconOnCurrencyViewPair(getContext(), defaultCurrencies, primaryCurrencyView,
+                    primaryIconScale, secondaryCurrencyView, secondaryIconScale);
+        } else if (useCryptoSymbol) {
+            formattedCryptoValue = String.format("%s %s", defaultCurrencies.getCrypto().getSymbol(), formattedCryptoValue);
+        }
+        cryptoView.setText(formattedCryptoValue);
     }
 
     private void invalidateFiat() {

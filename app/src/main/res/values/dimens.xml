@@ -113,4 +113,6 @@
     <!-- TX Details Screen -->
     <dimen name="tx_detail_send_state_icon_size">40dp</dimen>
     <dimen name="input_radius">6dp</dimen>
+    <dimen name="divider_horizontal_space">23dp</dimen>
+    <dimen name="divider_vertical_space">5dp</dimen>
 </resources>

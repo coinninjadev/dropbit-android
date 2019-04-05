@@ -42,8 +42,8 @@
         android:layout_marginStart="25dp"
         android:background="@drawable/question_mark_circle"
         android:text="?"
-        android:textSize="16dp"
         android:textAlignment="center"
+        android:textSize="16dp"
         app:layout_constraintStart_toStartOf="parent"
         cn:layout_constraintTop_toTopOf="parent" />
 
@@ -78,38 +78,30 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:textAppearance="@style/TextAppearance.History.Details.Contact"
-        app:layout_constraintBottom_toTopOf="@+id/primary_value"
+        app:layout_constraintBottom_toTopOf="@+id/default_currency_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="Larry Harmon" />
+        tools:text="Larry H" />
 
-    <TextView
-        android:id="@+id/primary_value"
+    <com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView
+        android:id="@+id/default_currency_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.History.Details.CashValue"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@id/icon"
+        android:gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.45"
-        tools:text="$205.99" />
-
-
-    <TextView
-        android:id="@+id/secondary_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:drawableStart="@drawable/ic_btc_icon"
-        android:drawablePadding="4dp"
-        android:textAppearance="@style/TextAppearance.History.Details.BTC"
-        app:layout_constraintBottom_toTopOf="@+id/value_when_sent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/primary_value"
-        tools:text="0.108" />
+        cn:primaryCryptoIconScale="1.75"
+        cn:secondaryCryptoIconScale=".7"
+        cn:receivedTextAppearance="@style/TextAppearance.History.Details.Receive.Value"
+        cn:secondaryTextAppearance="@style/TextAppearance.History.Details.Value.Secondary"
+        cn:sentTextAppearance="@style/TextAppearance.History.Details.Send.Value"
+        cn:useCryptoIcon="true" />
 
     <TextView
         android:id="@+id/value_when_sent"
@@ -121,7 +113,7 @@
         android:textAppearance="@style/TextAppearance.History.Receive.Value"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/secondary_value"
+        app:layout_constraintTop_toBottomOf="@+id/default_currency_view"
         tools:text="$203 when received $200 at send" />
 
     <include

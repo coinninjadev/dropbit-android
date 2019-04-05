@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.ui.base;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
-import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailModule;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
@@ -139,7 +138,7 @@ public abstract class AndroidActivityBuilder {
     abstract VerifyRecoverywordsActivity verifyRecoverywordsActivity();
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = TransactionDetailModule.class)
+    @ContributesAndroidInjector
     abstract TransactionDetailsActivity transactionDetailsActivity();
 
 }

@@ -10,11 +10,13 @@ import android.widget.TextView;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
+import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
@@ -37,6 +39,7 @@ import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.hasTag;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
@@ -55,7 +58,6 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     @Mock
     TransactionDetailObserver observer;
     private View page;
-    @Mock
     private BindableTransaction bindableTransaction;
     @Mock
     private WalletHelper walletHelper;
@@ -68,20 +70,20 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
         MockitoAnnotations.initMocks(this);
         activity = Robolectric.setupActivity(A.class);
         page = withId(activity, R.id.page);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
+        bindableTransaction = new BindableTransaction(walletHelper);
         when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(0L));
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.get(anyInt())).thenReturn(transaction);
         adapter.refreshData();
         adapter.setShowTransactionDetailRequestObserver(observer);
+        adapter.onDefaultCurrencyChanged(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
 
-        when(bindableTransaction.getHistoricalInviteUSDValue()).thenReturn(0L);
-        when(bindableTransaction.getHistoricalTransactionUSDValue()).thenReturn(0L);
-
-        when(bindableTransaction.getSendState()).thenReturn(BindableTransaction.SendState.TRANSFER);
-        when(bindableTransaction.getFeeCurrency()).thenReturn(new BTCCurrency());
-        when(bindableTransaction.getTotalTransactionCostCurrency()).thenReturn(new BTCCurrency());
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency());
+        bindableTransaction.setHistoricalInviteUSDValue(0L);
+        bindableTransaction.setHistoricalTransactionUSDValue(0L);
+        bindableTransaction.setSendState(BindableTransaction.SendState.TRANSFER);
+        bindableTransaction.setFee(0);
+        bindableTransaction.setValue(0);
     }
 
     @After
@@ -105,7 +107,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
     @Test
     public void renders_confirmations__step_2() {
-        when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.UNCONFIRMED);
+        bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -119,7 +121,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
     @Test
     public void renders_confirmations__step_3() {
-        when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.CONFIRMED);
+        bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -133,8 +135,8 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
     @Test
     public void transactions_that_have_been_added_to_block_offer_technical_details() {
-        when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.UNCONFIRMED);
-        when(bindableTransaction.getTxID()).thenReturn("-- txid --");
+        bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
+        bindableTransaction.setTxID("-- txid --");
 
         adapter.bindTo(page, bindableTransaction);
         Button seeDetails = withId(page, R.id.call_to_action);
@@ -142,7 +144,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
         seeDetails.performClick();
         verify(observer).onTransactionDetailsRequested(bindableTransaction);
 
-        when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.CONFIRMED);
+        bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
         adapter.bindTo(page, bindableTransaction);
         seeDetails = withId(page, R.id.call_to_action);
         assertThat(seeDetails, isVisible());
@@ -154,8 +156,8 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     public void renders_receivers_contact_when_sent__name_when_available() {
         String phoneNumber = "(330) 555-1111";
         String name = "Joe Blow";
-        when(bindableTransaction.getContactName()).thenReturn(name);
-        when(bindableTransaction.getContactPhoneNumber()).thenReturn(phoneNumber);
+        bindableTransaction.setContactName(name);
+        bindableTransaction.setContactPhoneNumber(phoneNumber);
 
         adapter.bindTo(page, bindableTransaction);
 
@@ -164,28 +166,15 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     }
 
     @Test
-    public void renders_value_of_transaction_in_users_base_currency() {
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency("1000.00"));
-        when(bindableTransaction.getTotalTransactionCostCurrency()).thenReturn(new BTCCurrency(50010000L));
-        when(bindableTransaction.getFeeCurrency()).thenReturn(new BTCCurrency(10000L));
-        when(bindableTransaction.getValueCurrency()).thenReturn(new BTCCurrency(50000000L));
+    public void renders_value() {
+        bindableTransaction.setFee(10000L);
+        bindableTransaction.setValue(50000000L);
 
         adapter.bindTo(page, bindableTransaction);
 
-        TextView value = withId(page, R.id.primary_value);
-        assertThat(value, hasText("-$0.10"));
-    }
-
-    @Test
-    public void renders_value_of_transaction_in_crypto() {
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency("1000.00"));
-        when(bindableTransaction.getTotalTransactionCostCurrency()).thenReturn(new BTCCurrency(50010000L));
-        when(bindableTransaction.getFeeCurrency()).thenReturn(new BTCCurrency(10000L));
-
-        adapter.bindTo(page, bindableTransaction);
-
-        TextView value = withId(page, R.id.secondary_value);
-        assertThat(value, hasText("0.0001"));
+        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        assertThat(view.getFiatValue().toLong(), equalTo(10L));
+        assertThat(view.getTotalCrypto().toLong(), equalTo(10000L));
     }
 
     public static class A extends Activity {

@@ -3,7 +3,11 @@ package com.coinninja.coinkeeper.ui.transaction.details;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 
 import org.junit.After;
@@ -39,6 +43,9 @@ public class TransactionDetailsActivityTest {
     @Mock
     private TransactionDetailPageAdapter pageAdapter;
 
+    @Mock
+    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
+
     private ActivityController<TransactionDetailsActivity> activityController;
     private TransactionDetailsActivity activity;
 
@@ -48,6 +55,7 @@ public class TransactionDetailsActivityTest {
         activityController = Robolectric.buildActivity(TransactionDetailsActivity.class).create();
         activity = activityController.get();
         activity.pageAdapter = pageAdapter;
+        activity.defaultCurrencyChangeViewNotifier = defaultCurrencyChangeViewNotifier;
         activity.transactionDetailDialogController = transactionDetailDialogController;
     }
 
@@ -117,11 +125,12 @@ public class TransactionDetailsActivityTest {
     }
 
     @Test
-    public void observes_dropbit_canceled_event_and_wallet_sync() {
+    public void observes_local_events() {
         startUp();
 
         assertThat(activity.intentFilter, containsAction(Intents.ACTION_TRANSACTION_DATA_CHANGED));
         assertThat(activity.intentFilter, containsAction(Intents.ACTION_WALLET_SYNC_COMPLETE));
+        assertThat(activity.intentFilter, containsAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED));
         verify(activity.localBroadCastUtil).registerReceiver(activity.receiver, activity.intentFilter);
     }
 
@@ -213,5 +222,24 @@ public class TransactionDetailsActivityTest {
         activity.transactionDetailObserver.onTransactionDetailsRequested(transaction);
 
         verify(transactionDetailDialogController).showTransaction(activity, transaction);
+    }
+
+    @Test
+    public void sets_default_currency_notifier_on_page_adapter() {
+        startUp();
+
+        verify(pageAdapter).setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+    }
+
+    @Test
+    public void observes_currency_preference_change() {
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+        Intent intent = new Intent(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        intent.putExtra(Intents.EXTRA_PREFERENCE, defaultCurrencies);
+        startUp();
+
+        activity.receiver.onReceive(activity, intent);
+
+        verify(defaultCurrencyChangeViewNotifier).onDefaultCurrencyChanged(defaultCurrencies);
     }
 }

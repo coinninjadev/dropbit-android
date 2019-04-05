@@ -2,19 +2,29 @@ package com.coinninja.coinkeeper.ui.transaction.details;
 
 import android.database.DataSetObserver;
 
+import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.base.TestableActivity;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
 
 import org.greenrobot.greendao.query.LazyList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
+import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyInt;
@@ -26,24 +36,36 @@ import static org.mockito.Mockito.when;
 public class TransactionDetailPageAdapterTest {
 
     @Mock
-    LazyList<TransactionsInvitesSummary> transactions;
+    private LazyList<TransactionsInvitesSummary> transactions;
 
     @Mock
-    WalletHelper walletHelper;
+    private WalletHelper walletHelper;
 
     @Mock
-    TransactionAdapterUtil adapterUtil;
+    private TransactionAdapterUtil adapterUtil;
 
 
-    TransactionDetailPageAdapter pageAdapter;
+    private TransactionDetailPageAdapter pageAdapter;
+    private TestableActivity activity;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        activity = Robolectric.setupActivity(TestableActivity.class);
+        activity.appendLayout(R.layout.page_transaction_detail);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(100);
-        pageAdapter = new TransactionDetailPageAdapter(walletHelper, adapterUtil);
+        pageAdapter = new TransactionDetailPageAdapter(walletHelper, adapterUtil, new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
         pageAdapter.refreshData();
+    }
+
+    @After
+    public void tearDown() {
+        transactions = null;
+        walletHelper = null;
+        adapterUtil = null;
+        pageAdapter = null;
+        activity = null;
     }
 
     @Test
@@ -106,5 +128,29 @@ public class TransactionDetailPageAdapterTest {
         pageAdapter.tearDown();
 
         verify(transactions).close();
+    }
+
+    @Test
+    public void binds_value_of_transaction_to_currency_view() {
+        DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier = mock(DefaultCurrencyChangeViewNotifier.class);
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+        pageAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+        pageAdapter.onDefaultCurrencyChanged(defaultCurrencies);
+
+        verify(defaultCurrencyChangeViewNotifier).observeDefaultCurrencyChange(pageAdapter);
+        assertThat(pageAdapter.getDefaultCurrencies(), equalTo(defaultCurrencies));
+    }
+
+    @Test
+    public void sets_observer_on_view_when_rendering() {
+        DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier = mock(DefaultCurrencyChangeViewNotifier.class);
+        pageAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+        BindableTransaction bindableTransaction = new BindableTransaction(mock(WalletHelper.class));
+        bindableTransaction.setSendState(BindableTransaction.SendState.SEND);
+        bindableTransaction.setHistoricalInviteUSDValue(100L);
+
+        pageAdapter.bindTo(withId(activity, R.id.test_root), bindableTransaction);
+
+        verify(defaultCurrencyChangeViewNotifier).observeDefaultCurrencyChange(withId(activity, R.id.default_currency_view));
     }
 }

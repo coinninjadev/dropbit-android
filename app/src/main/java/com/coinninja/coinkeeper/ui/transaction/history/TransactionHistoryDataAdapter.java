@@ -197,13 +197,13 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             }
 
             String text;
-            Resources resources = view.getResources();
-            view.setTextColor(resources.getColor(R.color.font_default));
+            view.setVisibility(View.VISIBLE);
             switch (confirmationState) {
                 case CONFIRMED:
                 case TWO_CONFIRMS:
                 case ONE_CONFIRM:
                     text = view.getResources().getString(R.string.confirmations_view_stage_5);
+                    view.setVisibility(View.GONE);
                     break;
                 case UNCONFIRMED:
                     text = view.getResources().getString(R.string.confirmations_view_stage_4);
@@ -235,21 +235,22 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
 
             String text;
             Resources resources = view.getResources();
-            view.setTextColor(resources.getColor(R.color.font_default));
             switch (inviteState) {
                 case SENT_PENDING:
                     text = resources.getString(R.string.history_invite_sent_pending);
+                    view.setVisibility(View.VISIBLE);
                     break;
                 case RECEIVED_PENDING:
                     text = resources.getString(R.string.history_invite_received_pending);
+                    view.setVisibility(View.VISIBLE);
                     break;
                 case EXPIRED:
                     text = resources.getString(R.string.history_invite_expired);
-                    view.setTextColor(resources.getColor(R.color.color_error));
+                    view.setVisibility(View.VISIBLE);
                     break;
                 case CANCELED:
                     text = resources.getString(R.string.history_invite_canceled);
-                    view.setTextColor(resources.getColor(R.color.color_error));
+                    view.setVisibility(View.VISIBLE);
                     break;
                 default:
                     text = null;

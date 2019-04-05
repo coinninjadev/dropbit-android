@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.drawable.Drawable;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
@@ -19,6 +18,7 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
 import com.coinninja.matchers.IntentFilterMatchers;
 
 import org.greenrobot.greendao.query.LazyList;
@@ -40,10 +40,8 @@ import java.util.List;
 
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
-import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
@@ -106,10 +104,6 @@ public class BalanceBarActivityTest {
         activity.walletHelper = walletHelper;
         shadowActivity = shadowOf(activity);
         start();
-    }
-
-    private void start() {
-        activityController.start().resume();
     }
 
     @Test
@@ -201,8 +195,10 @@ public class BalanceBarActivityTest {
 
         start();
 
-        assertThat(withId(activity, R.id.primary_balance), hasText("0.00078237"));
-        assertThat(withId(activity, R.id.alt_balance), hasText("$0.78"));
+        DefaultCurrencyDisplayView view = withId(activity, R.id.balance);
+
+        assertThat(view.getTotalCrypto().toLong(), equalTo(78237L));
+        assertThat(view.getFiatValue().toLong(), equalTo(78L));
     }
 
     @Test
@@ -214,8 +210,9 @@ public class BalanceBarActivityTest {
 
         start();
 
-        assertThat(withId(activity, R.id.primary_balance), hasText("$0.78"));
-        assertThat(withId(activity, R.id.alt_balance), hasText("0.00078237"));
+        DefaultCurrencyDisplayView view = withId(activity, R.id.balance);
+        assertThat(view.getTotalCrypto().toLong(), equalTo(78237L));
+        assertThat(view.getFiatValue().toLong(), equalTo(78L));
     }
 
     @Test
@@ -228,8 +225,9 @@ public class BalanceBarActivityTest {
 
         activity.onPriceReceived(new USDCurrency(1100.00d));
 
-        assertThat(withId(activity, R.id.primary_balance), hasText("$0.86"));
-        assertThat(withId(activity, R.id.alt_balance), hasText("0.00078237"));
+        DefaultCurrencyDisplayView view = withId(activity, R.id.balance);
+        assertThat(view.getTotalCrypto().toLong(), equalTo(78237L));
+        assertThat(view.getFiatValue().toLong(), equalTo(86L));
     }
 
     @Test
@@ -242,8 +240,9 @@ public class BalanceBarActivityTest {
 
         activity.receiver.onReceive(activity, new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
 
-        assertThat(withId(activity, R.id.primary_balance), hasText("$0.80"));
-        assertThat(withId(activity, R.id.alt_balance), hasText("0.0008"));
+        DefaultCurrencyDisplayView view = withId(activity, R.id.balance);
+        assertThat(view.getTotalCrypto().toLong(), equalTo(80000L));
+        assertThat(view.getFiatValue().toLong(), equalTo(80L));
     }
 
     @Test
@@ -255,58 +254,15 @@ public class BalanceBarActivityTest {
                 new DefaultCurrencies(new BTCCurrency(), new USDCurrency()));
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         start();
+        DefaultCurrencyDisplayView view = withId(activity, R.id.balance);
 
-        assertThat(withId(activity, R.id.primary_balance), hasText("$0.78"));
-        assertThat(withId(activity, R.id.alt_balance), hasText("0.00078237"));
+        assertThat(view.getPrimaryCurrencyText(), equalTo("$0.78"));
+        assertThat(view.getSecondaryCurrencyText(), equalTo("0.00078237"));
 
         clickOn(withId(activity, R.id.balance));
 
-        assertThat(withId(activity, R.id.primary_balance), hasText("0.00078237"));
-        assertThat(withId(activity, R.id.alt_balance), hasText("$0.78"));
-    }
-
-    @Test
-    public void shows_btc_icon_when_primary() {
-        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
-        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
-        start();
-
-        TextView primary = withId(activity, R.id.primary_balance);
-        TextView alt = withId(activity, R.id.alt_balance);
-
-        Drawable[] primaryCompoundDrawables = primary.getCompoundDrawables();
-        assertThat(shadowOf(primaryCompoundDrawables[0]).getCreatedFromResId(), equalTo(R.drawable.ic_btc_icon));
-        assertNull(primaryCompoundDrawables[1]);
-        assertNull(primaryCompoundDrawables[2]);
-        assertNull(primaryCompoundDrawables[3]);
-
-        Drawable[] altCompoundDrawables = alt.getCompoundDrawables();
-        assertNull(altCompoundDrawables[0]);
-        assertNull(altCompoundDrawables[1]);
-        assertNull(altCompoundDrawables[2]);
-        assertNull(altCompoundDrawables[3]);
-    }
-
-    @Test
-    public void shows_btc_icon_when_secondary() {
-        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
-        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
-        start();
-
-        TextView primary = withId(activity, R.id.primary_balance);
-        TextView alt = withId(activity, R.id.alt_balance);
-
-        Drawable[] primaryCompoundDrawables = primary.getCompoundDrawables();
-        assertNull(primaryCompoundDrawables[0]);
-        assertNull(primaryCompoundDrawables[1]);
-        assertNull(primaryCompoundDrawables[2]);
-        assertNull(primaryCompoundDrawables[3]);
-
-        Drawable[] altCompoundDrawables = alt.getCompoundDrawables();
-        assertThat(shadowOf(altCompoundDrawables[0]).getCreatedFromResId(), equalTo(R.drawable.ic_btc_icon));
-        assertNull(altCompoundDrawables[1]);
-        assertNull(altCompoundDrawables[2]);
-        assertNull(altCompoundDrawables[3]);
+        assertThat(view.getPrimaryCurrencyText(), equalTo("0.00078237"));
+        assertThat(view.getSecondaryCurrencyText(), equalTo("$0.78"));
     }
 
     @Test
@@ -316,6 +272,10 @@ public class BalanceBarActivityTest {
         activity.onPause();
 
         verify(localBroadCastUtil).unregisterReceiver(activity.receiver);
+    }
+
+    private void start() {
+        activityController.start().resume();
     }
 
 }
