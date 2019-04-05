@@ -36,6 +36,7 @@ public interface Analytics {
     String EVENT_CONTACT_SEND_BTN = "ContactPressed"; //- user taps contact send    String EVENT_DROPBIT_SEND_BTN = "DropBitSend"; //- user taps dropbit send
     // TRANSACTION
     String EVENT_DROPBIT_INITIATED = "DropBitInitiated";
+    String EVENT_DROPBIT_INVITATION_SMS_FAILED = "DrobBitInviteSendSMSFailure";
     String EVENT_DROPBIT_INITIATION_FAILED = "DropBitInitiationFailed";
     String EVENT_DROPBIT_ADDRESS_PROVIDED = "DropBitAddressProvided";
     String EVENT_DROPBIT_COMPLETED = "DropBitCompleted";
@@ -93,6 +94,8 @@ public interface Analytics {
     String PROPERTY_HAS_SENT_ADDRESS = "Has Sent";
     String PROPERTY_HAS_RECEIVED_DROPBIT = "Has Received DropBit";
     String PROPERTY_HAS_RECEIVED_ADDRESS = "Has Received";
+
+    String JSON_KEY_COUNTRY_CODE = "CountryCode";
 
     Analytics start();
 

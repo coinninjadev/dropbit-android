@@ -9,7 +9,7 @@ import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
-import com.coinninja.coinkeeper.service.client.model.SentInvite;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.google.gson.Gson;
@@ -49,7 +49,7 @@ public class SentInvitesStatusGetterTest {
     private PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
 
     private TestCoinKeeperApplication application;
-    private SentInvite invite;
+    private DropBitInvitation invite;
 
     private InviteTransactionSummary newSummary;
     private InviteTransactionSummary oldSummary;
@@ -77,7 +77,7 @@ public class SentInvitesStatusGetterTest {
 
         runner.run();
 
-        verify(transactionHelper, never()).updateInviteAddressTransaction(any(SentInvite.class));
+        verify(transactionHelper, never()).updateInviteAddressTransaction(any(DropBitInvitation.class));
     }
 
     @Test
@@ -140,7 +140,7 @@ public class SentInvitesStatusGetterTest {
 
     private void mockSendForStatus(String status, Boolean simulateChange) {
         Response response = getResponse(status);
-        invite = (SentInvite) ((List) response.body()).get(0);
+        invite = (DropBitInvitation) ((List) response.body()).get(0);
         newSummary = getDao(invite);
         newSummary.setType(Type.SENT);
         newSummary.setValueSatoshis(1000L);
@@ -161,10 +161,10 @@ public class SentInvitesStatusGetterTest {
     }
 
     private Response getResponse(String status) {
-        List<SentInvite> invites = gson.fromJson(response, new TypeToken<List<SentInvite>>() {
+        List<DropBitInvitation> invites = gson.fromJson(response, new TypeToken<List<DropBitInvitation>>() {
         }.getType());
 
-        for (SentInvite invite : invites) {
+        for (DropBitInvitation invite : invites) {
             invite.setStatus(status);
         }
         return Response.success(invites);
@@ -176,15 +176,15 @@ public class SentInvitesStatusGetterTest {
                         MediaType.parse("application/json"), ""));
     }
 
-    private InviteTransactionSummary getDao(SentInvite sentInvite) {
+    private InviteTransactionSummary getDao(DropBitInvitation dropBitInvitation) {
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        if ("expired".equals(sentInvite.getStatus())) {
+        if ("expired".equals(dropBitInvitation.getStatus())) {
             invite.setBtcState(BTCState.EXPIRED);
-        } else if ("completed".equals(sentInvite.getStatus())) {
+        } else if ("completed".equals(dropBitInvitation.getStatus())) {
             invite.setBtcState(BTCState.FULFILLED);
-        } else if ("canceled".equals(sentInvite.getStatus())) {
+        } else if ("canceled".equals(dropBitInvitation.getStatus())) {
             invite.setBtcState(BTCState.CANCELED);
-        } else if ("new".equals(sentInvite.getStatus())) {
+        } else if ("new".equals(dropBitInvitation.getStatus())) {
             invite.setBtcState(BTCState.UNFULFILLED);
         }
 

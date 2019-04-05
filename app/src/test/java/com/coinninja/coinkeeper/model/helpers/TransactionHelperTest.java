@@ -23,9 +23,8 @@ import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
-import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey;
-import com.coinninja.coinkeeper.service.client.model.SentInvite;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.VIn;
 import com.coinninja.coinkeeper.service.client.model.VOut;
@@ -115,17 +114,17 @@ public class TransactionHelperTest {
     @Test
     public void updates_invite_summary_with_pubkey() {
         long time = 1542311567000L;
-        SentInvite sentInvite = mock(SentInvite.class);
-        when(sentInvite.getCreated_at()).thenReturn(time);
-        when(sentInvite.getId()).thenReturn("--server-id");
-        when(sentInvite.getStatus()).thenReturn("new");
-        when(sentInvite.getAddressPubKey()).thenReturn("--pub-key--");
+        DropBitInvitation dropBitInvitation = mock(DropBitInvitation.class);
+        when(dropBitInvitation.getCreatedAt()).thenReturn(time);
+        when(dropBitInvitation.getId()).thenReturn("--server-id");
+        when(dropBitInvitation.getStatus()).thenReturn("new");
+        when(dropBitInvitation.getAddressPubKey()).thenReturn("--pub-key--");
         InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
         when(inviteQuery.where(any())).thenReturn(inviteQuery);
         when(inviteQuery.limit(1)).thenReturn(inviteQuery);
         when(inviteQuery.unique()).thenReturn(invite);
 
-        helper.updateInviteAddressTransaction(sentInvite);
+        helper.updateInviteAddressTransaction(dropBitInvitation);
 
         verify(invite).setBtcState(BTCState.UNFULFILLED);
         verify(invite).setPubkey("--pub-key--");
@@ -135,10 +134,10 @@ public class TransactionHelperTest {
     @Test
     public void updates_tx_time_for_canceled_dropbits() {
         long time = 1542311567000L;
-        SentInvite sentInvite = mock(SentInvite.class);
-        when(sentInvite.getCreated_at()).thenReturn(time);
-        when(sentInvite.getId()).thenReturn("--server-id");
-        when(sentInvite.getStatus()).thenReturn("canceled");
+        DropBitInvitation dropBitInvitation = mock(DropBitInvitation.class);
+        when(dropBitInvitation.getCreatedAt() * 1000).thenReturn(time);
+        when(dropBitInvitation.getId()).thenReturn("--server-id");
+        when(dropBitInvitation.getStatus()).thenReturn("canceled");
         InviteTransactionSummary inviteTransactionSummary = mock(InviteTransactionSummary.class);
         when(inviteQuery.where(any())).thenReturn(inviteQuery);
         when(inviteQuery.limit(1)).thenReturn(inviteQuery);
@@ -149,7 +148,7 @@ public class TransactionHelperTest {
         when(tsInviteQuery.limit(1)).thenReturn(tsInviteQuery);
         when(tsInviteQuery.unique()).thenReturn(transactionsInvitesSummary);
 
-        helper.updateInviteAddressTransaction(sentInvite);
+        helper.updateInviteAddressTransaction(dropBitInvitation);
 
         verify(transactionsInvitesSummary).setInviteTime(0);
         verify(transactionsInvitesSummary).setBtcTxTime(time);
@@ -159,10 +158,10 @@ public class TransactionHelperTest {
     @Test
     public void updates_tx_time_for_expired_dropbits() {
         long time = 1542311567000L;
-        SentInvite sentInvite = mock(SentInvite.class);
-        when(sentInvite.getCreated_at()).thenReturn(time);
-        when(sentInvite.getId()).thenReturn("--server-id");
-        when(sentInvite.getStatus()).thenReturn("expired");
+        DropBitInvitation dropBitInvitation = mock(DropBitInvitation.class);
+        when(dropBitInvitation.getCreatedAt()).thenReturn(time);
+        when(dropBitInvitation.getId()).thenReturn("--server-id");
+        when(dropBitInvitation.getStatus()).thenReturn("expired");
         InviteTransactionSummary inviteTransactionSummary = mock(InviteTransactionSummary.class);
         when(inviteQuery.where(any())).thenReturn(inviteQuery);
         when(inviteQuery.limit(1)).thenReturn(inviteQuery);
@@ -173,7 +172,7 @@ public class TransactionHelperTest {
         when(tsInviteQuery.limit(1)).thenReturn(tsInviteQuery);
         when(tsInviteQuery.unique()).thenReturn(transactionsInvitesSummary);
 
-        helper.updateInviteAddressTransaction(sentInvite);
+        helper.updateInviteAddressTransaction(dropBitInvitation);
 
         verify(transactionsInvitesSummary).setInviteTime(0);
         verify(transactionsInvitesSummary).setBtcTxTime(time);
@@ -814,7 +813,7 @@ public class TransactionHelperTest {
     @Test
     public void saves_received_invite() {
         long when = System.currentTimeMillis() / 1000;
-        ReceivedInvite receivedInvite = new ReceivedInvite();
+        DropBitInvitation receivedInvite = new DropBitInvitation();
         receivedInvite.setId("--server-id--");
         receivedInvite.setCreated_at(when);
         receivedInvite.setUpdated_at(when);

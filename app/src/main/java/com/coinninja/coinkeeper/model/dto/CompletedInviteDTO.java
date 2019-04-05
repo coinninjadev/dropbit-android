@@ -3,14 +3,14 @@ package com.coinninja.coinkeeper.model.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 
 import java.util.Objects;
 
 public class CompletedInviteDTO extends PendingInviteDTO implements Parcelable {
-    private InvitedContact invitedContact;
+    private DropBitInvitation invitedContact;
 
-    public CompletedInviteDTO(PendingInviteDTO pendingInvite, InvitedContact invitedContact) {
+    public CompletedInviteDTO(PendingInviteDTO pendingInvite, DropBitInvitation invitedContact) {
         super(pendingInvite.getContact(), pendingInvite.getBitcoinPrice(),
                 pendingInvite.getInviteAmount(), pendingInvite.getInviteFee(),
                 pendingInvite.getMemo(), pendingInvite.isMemoIsShared());
@@ -20,13 +20,13 @@ public class CompletedInviteDTO extends PendingInviteDTO implements Parcelable {
 
     protected CompletedInviteDTO(Parcel in) {
         super(in);
-        invitedContact = in.readParcelable(InvitedContact.class.getClassLoader());
+        invitedContact = in.readParcelable(DropBitInvitation.class.getClassLoader());
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeParcelable(invitedContact, flags);
+        dest.writeParcelable((Parcelable) invitedContact, flags);
     }
 
     @Override
@@ -46,11 +46,11 @@ public class CompletedInviteDTO extends PendingInviteDTO implements Parcelable {
         }
     };
 
-    public InvitedContact getInvitedContact() {
+    public DropBitInvitation getInvitedContact() {
         return invitedContact;
     }
 
-    public void setInvitedContact(InvitedContact invitedContact) {
+    public void setInvitedContact(DropBitInvitation invitedContact) {
         this.invitedContact = invitedContact;
     }
 

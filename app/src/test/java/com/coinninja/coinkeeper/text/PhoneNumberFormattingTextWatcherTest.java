@@ -89,21 +89,7 @@ public class PhoneNumberFormattingTextWatcherTest {
     }
 
     @Test
-    public void prevents_digits_after_phone_number() {
-        editText.setText("+1 330-417-88888");
-        assertThat(editText.getText().toString(), equalTo("+1 330-417-8888"));
-
-        editText.setText("+1 330-417-888888");
-        assertThat(editText.getText().toString(), equalTo("+1 330-417-8888"));
-
-        editText.setText("+1 330-417-88888888");
-        assertThat(editText.getText().toString(), equalTo("+1 330-417-8888"));
-    }
-
-    @Test
     public void digit_incremental() {
-        editText.setText("33041788888");
-        assertThat(editText.getText().toString(), equalTo("+1 330-417-8888"));
         editText.setText("3");
         assertThat(editText.getText().toString(), equalTo("+1 3"));
         editText.setText("33");
@@ -128,9 +114,9 @@ public class PhoneNumberFormattingTextWatcherTest {
         assertThat(editText.getText().toString(), equalTo("+1 330-417-888"));
         editText.setText("3304178888");
         assertThat(editText.getText().toString(), equalTo("+1 330-417-8888"));
-
+        editText.setText("33041788888");
+        assertThat(editText.getText().toString(), equalTo("+133041788888"));
     }
-
 
     @Test
     public void formats_autofilled_textviews() {
@@ -158,10 +144,10 @@ public class PhoneNumberFormattingTextWatcherTest {
 
     @Test
     public void lets_callback_know_that_number_is_invalid() {
-        String text = "0000000000";
+        String text = "3333333333";
         editText.setText(text);
 
-        verify(callback).onPhoneNumberInValid("+1 000-000-0000");
+        verify(callback).onPhoneNumberInValid("+1 333-333-3333");
     }
 
     @Test
@@ -229,6 +215,37 @@ public class PhoneNumberFormattingTextWatcherTest {
         editText.setText("21345687");
         assertThat(editText, hasText("+64 21 345 687"));
         verify(callback).onPhoneNumberValid(number);
+    }
+
+    @Test
+    @Config(qualifiers = "zh-rTW")
+    public void validates_multiple_length_countries_leading_0__Tw() {
+        Phonenumber.PhoneNumber number = new Phonenumber.PhoneNumber();
+        number.setCountryCode(886);
+        number.setNationalNumber(912345678);
+        editText.setText("0");
+        assertThat(editText, hasText("+886 0"));
+        editText.setText("09");
+        assertThat(editText, hasText("+886 09"));
+        editText.setText("091");
+        assertThat(editText, hasText("+886091"));
+        editText.setText("0912");
+        assertThat(editText, hasText("+8860912"));
+        editText.setText("09123");
+        assertThat(editText, hasText("+88609123"));
+        editText.setText("091234");
+        assertThat(editText, hasText("+886091234"));
+        editText.setText("0912345");
+        assertThat(editText, hasText("+8860912345"));
+        editText.setText("09123456");
+        assertThat(editText, hasText("+88609123456"));
+        editText.setText("091234567");
+        assertThat(editText, hasText("+886091234567"));
+        editText.setText("0912345678");
+        assertThat(editText, hasText("+8860912345678"));
+
+        verify(callback).onPhoneNumberValid(number);
+        verify(callback, times(0)).onPhoneNumberInValid(anyString());
     }
 
     @Test
