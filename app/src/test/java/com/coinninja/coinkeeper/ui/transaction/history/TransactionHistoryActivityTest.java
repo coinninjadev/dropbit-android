@@ -14,6 +14,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -76,6 +77,9 @@ public class TransactionHistoryActivityTest {
     private LazyList<TransactionsInvitesSummary> transactions;
     @Mock
     private LocalBroadCastUtil localBroadCastUtil;
+    @Mock
+    private CurrencyPreference currencyPreference;
+
     private BitcoinUtil bitcoinUtil;
     @Mock
     private HDWallet hdWallet;
@@ -96,6 +100,7 @@ public class TransactionHistoryActivityTest {
         activity.walletHelper = walletHelper;
         activity.localBroadCastUtil = localBroadCastUtil;
         activity.adapter = adapter;
+        activity.currencyPreference = currencyPreference;
         activity.defaultCurrencyChangeViewNotifier = defaultCurrencyChangeViewNotifier;
         bitcoinUtil = new BitcoinUtil(activity.getApplicationContext(), hdWallet);
         setupReceive();
@@ -127,6 +132,17 @@ public class TransactionHistoryActivityTest {
     public void adds_default_currency_change_notifier_to_adapter() {
         startActivity();
         verify(adapter).setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+    }
+
+    @Test
+    public void provides_adapter_default_currency_when_restarted() {
+        DefaultCurrencies defaultCurrencies = mock(DefaultCurrencies.class);
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        startActivity();
+
+        activityController.pause().stop().restart().resume();
+
+        verify(adapter).setDefaultCurrencies(defaultCurrencies);
     }
 
     @Test
@@ -232,9 +248,9 @@ public class TransactionHistoryActivityTest {
     }
 
     @Test
-    public void sets_has_fixed_size_for_efficiency() {
+    public void does_not_have_fixed_size() {
         startActivity();
-        assertTrue(((RecyclerView) activity.findViewById(R.id.transaction_history)).hasFixedSize());
+        assertFalse(((RecyclerView) activity.findViewById(R.id.transaction_history)).hasFixedSize());
     }
 
     @Test

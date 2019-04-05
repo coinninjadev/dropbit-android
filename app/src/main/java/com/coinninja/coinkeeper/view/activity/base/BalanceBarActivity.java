@@ -6,11 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
-import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -20,7 +18,9 @@ import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
+import com.coinninja.coinkeeper.util.currency.FiatCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
 
 import javax.inject.Inject;
 
@@ -28,7 +28,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import dagger.android.AndroidInjection;
 
-import static com.coinninja.android.helpers.Views.renderBTCIconOnCurrencyViewPair;
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.Intents.ACTION_BTC_PRICE_UPDATE;
 import static com.coinninja.coinkeeper.util.Intents.ACTION_WALLET_SYNC_COMPLETE;
@@ -36,8 +35,6 @@ import static com.coinninja.coinkeeper.util.Intents.EXTRA_BITCOIN_PRICE;
 
 public abstract class BalanceBarActivity extends SecuredActivity implements ServiceConnection {
 
-    public static final double SECONDARY_SCALE = .8;
-    public static final double PRIMARY_SCALE = 1;
     @Inject
     CurrencyPreference currencyPreference;
     @Inject
@@ -48,11 +45,8 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     BlockChainService.BlockChainBinder serviceBinder;
     BroadcastReceiver receiver;
     IntentFilter filter;
-    private USDCurrency currentPrice;
-    private BTCCurrency btcBalance;
-    private TextView primaryBalance;
-    private TextView secondaryBalance;
     private DefaultCurrencies defaultCurrencies;
+    private DefaultCurrencyDisplayView balance;
 
     @Override
     public void setContentView(int layoutResID) {
@@ -73,12 +67,9 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     @Override
     protected void onStart() {
         super.onStart();
+        balance = withId(this, R.id.balance);
         defaultCurrencies = currencyPreference.getCurrenciesPreference();
-        withId(this, R.id.balance).setOnClickListener(v -> toggleDefaultCurrency());
-        primaryBalance = withId(this, R.id.primary_balance);
-        secondaryBalance = withId(this, R.id.alt_balance);
-        primaryBalance.setCompoundDrawablePadding(10);
-        secondaryBalance.setCompoundDrawablePadding(10);
+        balance.setOnClickListener(v -> toggleDefaultCurrency());
     }
 
     @Override
@@ -137,53 +128,15 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     }
 
     private void invalidateBalance() {
-        currentPrice = walletHelper.getLatestPrice();
-        btcBalance = new BTCCurrency(walletHelper.getBalance());
-        invalidatePrimary();
-        invalidateSecondary();
-        invalidateSymbol();
+        balance.renderValues(defaultCurrencies, getHoldingsOfCrypto(), getHoldingsOfFiat());
     }
 
-    private void invalidatePrimary() {
-        String value = "";
-
-        if (defaultCurrencies.getPrimaryCurrency().isCrypto()) {
-            value = getHoldingsOfCrypto();
-        } else {
-            value = getHoldingsOfFiat();
-        }
-
-        primaryBalance.setText(value);
+    private CryptoCurrency getHoldingsOfCrypto() {
+        return new BTCCurrency(walletHelper.getBalance());
     }
 
-    private void invalidateSecondary() {
-        String value = "";
-
-        if (defaultCurrencies.getPrimaryCurrency().isCrypto()) {
-            value = getHoldingsOfFiat();
-        } else {
-            value = getHoldingsOfCrypto();
-        }
-
-        secondaryBalance.setText(value);
-    }
-
-    private void invalidateSymbol() {
-        renderBTCIconOnCurrencyViewPair(this, defaultCurrencies, primaryBalance, PRIMARY_SCALE, secondaryBalance, SECONDARY_SCALE);
-    }
-
-    private Drawable getDrawableFor(CryptoCurrency currency) {
-        return currency.getSymbolDrawable(this);
-    }
-
-    private String getHoldingsOfCrypto() {
-        btcBalance = new BTCCurrency(walletHelper.getBalance());
-        btcBalance.setCurrencyFormat(BTCCurrency.NO_SYMBOL_FORMAT);
-        return btcBalance.toFormattedCurrency();
-    }
-
-    private String getHoldingsOfFiat() {
-        return btcBalance.toUSD(currentPrice).toFormattedCurrency();
+    private FiatCurrency getHoldingsOfFiat() {
+        return getHoldingsOfCrypto().toFiat(walletHelper.getLatestPrice());
     }
 
     private class Receiver extends BroadcastReceiver {

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:cn="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/back"
+    android:layout_margin="0dp"
     android:paddingLeft="@dimen/horizontal_margin_medium"
     android:paddingTop="@dimen/vertical_margin_medium"
     android:paddingRight="@dimen/horizontal_margin_medium"
@@ -13,7 +14,7 @@
         android:id="@+id/icon"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_centerVertical="true"
+        android:layout_alignParentTop="true"
         android:scaleType="fitXY"
         app:srcCompat="@drawable/ic_transaction_receive" />
 
@@ -34,22 +35,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:ems="12"
-            android:maxLines="1"
+            android:ems="9"
             android:scrollHorizontally="true"
-            android:textAppearance="@style/TextAppearance.History.Address" />
+            android:textAppearance="@style/TextAppearance.History.Address"
+            android:singleLine="true" />
 
         <TextView
             android:id="@+id/confirmations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.Small" />
+            android:textAppearance="@style/TextAppearance.History.Confirmations" />
 
         <TextView
             android:id="@+id/blocktime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.Small" />
+            android:textAppearance="@style/TextAppearance.History.BlockTime" />
 
         <TextView
             android:id="@+id/transaction_memo"
@@ -57,7 +58,8 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Small"
+            android:layout_marginTop="@dimen/vertical_margin_medium"
+            android:textAppearance="@style/TextAppearance.History.Memo"
             android:visibility="gone" />
 
     </LinearLayout>
@@ -67,10 +69,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        app:receivedTextAppearance="@style/TextAppearance.History.Receive.Value"
-        app:sentTextAppearance="@style/TextAppearance.History.Send.Value"
-        android:layout_toEndOf="@id/icon"
-        android:gravity="end" />
-
+        android:layout_alignTop="@+id/icon"
+        android:gravity="end"
+        cn:receivedTextAppearance="@style/TextAppearance.History.Receive.Value"
+        cn:sentTextAppearance="@style/TextAppearance.History.Send.Value"
+        cn:useCryptoSymbol="true" />
 </RelativeLayout>

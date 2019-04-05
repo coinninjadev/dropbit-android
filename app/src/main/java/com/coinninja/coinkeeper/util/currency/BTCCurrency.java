@@ -13,7 +13,6 @@ import androidx.appcompat.content.res.AppCompatResources;
 
 public class BTCCurrency extends BaseCurrency implements CryptoCurrency, Parcelable {
     public static final String ALT_CURRENCY_FORMAT = "#,##0.00000000 BTC";
-    public static final String NO_SYMBOL_FORMAT = "#,##0.########";
     public static final long MAX_SATOSHI = 2099999997690000L;
     public static final String SYMBOL = "\u20BF";
     static final int SUB_NUM_MAX = 8;

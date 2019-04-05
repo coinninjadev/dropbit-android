@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
@@ -20,6 +21,9 @@ import androidx.viewpager.widget.ViewPager;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class TransactionDetailsActivity extends BalanceBarActivity {
+
+    @Inject
+    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
 
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
@@ -43,10 +47,15 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
             if (Intents.ACTION_WALLET_SYNC_COMPLETE.equals(action) ||
                     Intents.ACTION_TRANSACTION_DATA_CHANGED.equals(action)) {
                 onTransactionDataChanged();
+            } else if (Intents.ACTION_CURRENCY_PREFERENCE_CHANGED.equals(action) && intent.hasExtra(Intents.EXTRA_PREFERENCE)) {
+                defaultCurrencyChangeViewNotifier.onDefaultCurrencyChanged(intent.getParcelableExtra(Intents.EXTRA_PREFERENCE));
             }
         }
     };
 
+    void onTransactionDetailRequested(BindableTransaction transaction) {
+        transactionDetailDialogController.showTransaction(this, transaction);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +64,7 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
         pager = withId(this, R.id.pager_transaction_details);
         intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
         intentFilter.addAction(Intents.ACTION_WALLET_SYNC_COMPLETE);
+        intentFilter.addAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
         pageAdapter.refreshData();
     }
 
@@ -78,10 +88,6 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
         super.onStop();
     }
 
-    void onTransactionDetailRequested(BindableTransaction transaction) {
-        transactionDetailDialogController.showTransaction(this, transaction);
-    }
-
     private void onTransactionDataChanged() {
         long recordId = pageAdapter.getTransactionIdForIndex(pager.getCurrentItem());
         refreshPageData();
@@ -94,6 +100,7 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
     }
 
     private void setUpPager() {
+        pageAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
         pager.setAdapter(pageAdapter);
         pager.setClipToPadding(false);
         int gap = (int) getResources().getDimension(R.dimen.horizontal_margin);

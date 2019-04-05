@@ -518,7 +518,7 @@ public class TransactionHistoryDataBinderTest {
         String expected = view.getResources().getString(R.string.confirmations_view_stage_5);
         TextView confirmations = view.findViewById(R.id.confirmations);
         assertThat(confirmations.getText().toString(), equalTo(expected));
-
+        assertThat(confirmations, isGone());
     }
 
     @Test
@@ -531,6 +531,7 @@ public class TransactionHistoryDataBinderTest {
         String expected = view.getResources().getString(R.string.confirmations_view_stage_5);
         TextView confirmations = view.findViewById(R.id.confirmations);
         assertThat(confirmations.getText().toString(), equalTo(expected));
+        assertThat(confirmations, isGone());
     }
 
     @Test
@@ -543,6 +544,7 @@ public class TransactionHistoryDataBinderTest {
         String expected = view.getResources().getString(R.string.confirmations_view_stage_5);
         TextView confirmations = view.findViewById(R.id.confirmations);
         assertThat(confirmations.getText().toString(), equalTo(expected));
+        assertThat(confirmations, isGone());
     }
 
     @Test

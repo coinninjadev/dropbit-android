@@ -47,7 +47,7 @@
 
 
     <!-- BTC Symbol Tint-->
-
+    <color name="font_orange">#F79E36</color>
     <color name="colorBTNText">#242536</color>
     <color name="colorTransparent">#00FFFFFF</color>
     <color name="color_error">#e76c6c</color>
@@ -96,4 +96,5 @@
     <color name="input_border_color">#50000000</color>
     <color name="input_border_disabled_color">#20000000</color>
     <color name="input_background_color">#ffffff</color>
+    <color name="list_divider_color">#ffffff</color>
 </resources>

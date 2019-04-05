@@ -15,6 +15,9 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.history.DefaultCurrencyChangeObserver;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
@@ -26,8 +29,11 @@ import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoView;
+import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
 
 import org.greenrobot.greendao.query.LazyList;
+
+import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
@@ -38,19 +44,22 @@ import static com.coinninja.android.helpers.Views.makeViewInvisible;
 import static com.coinninja.android.helpers.Views.makeViewVisible;
 import static com.coinninja.android.helpers.Views.withId;
 
-public class TransactionDetailPageAdapter extends PagerAdapter {
+public class TransactionDetailPageAdapter extends PagerAdapter implements DefaultCurrencyChangeObserver {
 
     final WalletHelper walletHelper;
     private final TransactionAdapterUtil transactionAdapterUtil;
     LazyList<TransactionsInvitesSummary> transactions;
+    private DefaultCurrencies defaultCurrencies;
     private TransactionDetailObserver transactionDetailObserver;
     private SharedMemoView sharedMemoView;
     private DropbitUriBuilder dropbitUriBuilder;
     private DropbitRoute tooltipId;
-    private ImageView tooltipImageView;
+    private DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
 
-    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil) {
-        this.dropbitUriBuilder = new DropbitUriBuilder();
+    @Inject
+    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies) {
+        this.defaultCurrencies = defaultCurrencies;
+        dropbitUriBuilder = new DropbitUriBuilder();
         this.walletHelper = walletHelper;
         this.transactionAdapterUtil = transactionAdapterUtil;
     }
@@ -100,16 +109,6 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         return transactions.size();
     }
 
-    @Override
-    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-        return view == object;
-    }
-
-    @Override
-    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        container.removeView((View) object);
-    }
-
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
@@ -123,6 +122,30 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         return page;
     }
 
+    @Override
+    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+        container.removeView((View) object);
+    }
+
+    @Override
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+        return view == object;
+    }
+
+    public void setDefaultCurrencyChangeViewNotifier(DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier) {
+        this.defaultCurrencyChangeViewNotifier = defaultCurrencyChangeViewNotifier;
+        defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(this);
+    }
+
+    @Override
+    public void onDefaultCurrencyChanged(DefaultCurrencies defaultCurrencies) {
+        this.defaultCurrencies = defaultCurrencies;
+    }
+
+    public DefaultCurrencies getDefaultCurrencies() {
+        return defaultCurrencies;
+    }
+
     void bindTo(View page, BindableTransaction bindableTransaction) {
         makeViewInvisible(page, R.id.call_to_action);
         withId(page, R.id.ic_close).setOnClickListener(this::close);
@@ -130,13 +153,19 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         renderConfirmations(page, bindableTransaction);
         renderContact(page, bindableTransaction);
         renderHistoricalPricing(page, bindableTransaction);
-        renderPrimaryCost(page, bindableTransaction);
-        renderCryptoCost(page, bindableTransaction);
+        bindTransactionValue(page, bindableTransaction);
         renderTransactionTime(page, bindableTransaction.getTxTime());
         renderDropBitState(page, bindableTransaction);
         renderShowDetails(page, bindableTransaction);
         renderMemo(page, bindableTransaction);
         renderTooltip(page, bindableTransaction);
+    }
+
+    private void bindTransactionValue(View page, BindableTransaction bindableTransaction) {
+        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        view.renderValues(defaultCurrencies, bindableTransaction.getBasicDirection(), bindableTransaction.totalCryptoForSendState(), bindableTransaction.totalFiatForSendState());
+        if (defaultCurrencyChangeViewNotifier != null)
+            defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(view);
     }
 
     private void renderMemo(View page, BindableTransaction bindableTransaction) {
@@ -207,11 +236,11 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
                 case TRANSFER:
                 case RECEIVE_CANCELED:
                 case RECEIVE:
-                    if(!value.isZero()) {
+                    if (!value.isZero()) {
                         atSendFinalString = value.toFormattedCurrency() + atSend;
                     }
 
-                    if(!inviteValue.isZero()) {
+                    if (!inviteValue.isZero()) {
                         whenReceivedFinalString = inviteValue.toFormattedCurrency() + whenReceived + " ";
                     }
                     break;
@@ -222,7 +251,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
                 whenReceivedFinalString = inviteValue.toFormattedCurrency() + whenReceived;
             }
         } else {
-            if(!value.isZero()) {
+            if (!value.isZero()) {
                 switch (bindableTransaction.getSendState()) {
                     case SEND_CANCELED:
                     case SEND:
@@ -273,52 +302,6 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         ((TextView) withId(page, R.id.transaction_date)).setText(txTime);
     }
 
-    private void renderCryptoCost(View page, BindableTransaction bindableTransaction) {
-        TextView primaryValue = withId(page, R.id.secondary_value);
-        String value = "";
-
-        switch (bindableTransaction.getSendState()) {
-            case SEND_CANCELED:
-            case SEND:
-                value = bindableTransaction.getTotalTransactionCostCurrency().toFormattedString();
-                break;
-            case TRANSFER:
-                value = bindableTransaction.getFeeCurrency().toFormattedString();
-                break;
-            case RECEIVE_CANCELED:
-            case RECEIVE:
-                value = bindableTransaction.getValueCurrency().toFormattedString();
-                break;
-        }
-
-        primaryValue.setText(value);
-    }
-
-    private void renderPrimaryCost(View page, BindableTransaction bindableTransaction) {
-        TextView primaryValue = withId(page, R.id.primary_value);
-        String value = "";
-        String format = "%s";
-
-        switch (bindableTransaction.getSendState()) {
-            case TRANSFER:
-                value = convertToUSD(bindableTransaction.getFeeCurrency()).toFormattedCurrency();
-                format = "-%s";
-                break;
-            case SEND_CANCELED:
-            case SEND:
-                value = convertToUSD(bindableTransaction.getTotalTransactionCostCurrency()).toFormattedCurrency();
-                format = "-%s";
-                break;
-            case RECEIVE_CANCELED:
-            case RECEIVE:
-                value = convertToUSD(bindableTransaction.getValueCurrency()).toFormattedCurrency();
-                break;
-            default:
-        }
-
-        primaryValue.setText(String.format(format, value));
-    }
-
     private USDCurrency calculateHistoricUSDInvitePrice(BindableTransaction bindableTransaction) {
         if (bindableTransaction.getValueCurrency() == null) {
             return null;
@@ -334,10 +317,6 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         BTCCurrency btc = (BTCCurrency) bindableTransaction.getValueCurrency();
 
         return convertToUSD(btc, usd);
-    }
-
-    private USDCurrency convertToUSD(Currency currency) {
-        return currency.toUSD(walletHelper.getLatestPrice());
     }
 
     private USDCurrency convertToUSD(Currency currency, USDCurrency historicPrice) {

@@ -13,6 +13,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
+import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
@@ -43,6 +44,8 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     TransactionHistoryDataAdapter adapter;
     @Inject
     DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
+    @Inject
+    CurrencyPreference currencyPreference;
 
     PaymentBarFragment fragment;
     private RecyclerView transactionHistory;
@@ -99,6 +102,12 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         adapter.setTransactions(transactions);
         adapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
         setupHistoryList();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        adapter.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
     }
 
     @Override
@@ -180,9 +189,8 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         transactionHistory = findViewById(R.id.transaction_history);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         transactionHistory.setLayoutManager(layoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, layoutManager.getOrientation());
-        transactionHistory.addItemDecoration(dividerItemDecoration);
-        transactionHistory.setHasFixedSize(true);
+        transactionHistory.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
+        transactionHistory.setHasFixedSize(false);
         transactionHistory.setAdapter(adapter);
     }
 }
