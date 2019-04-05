@@ -1,21 +1,15 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
-import com.coinninja.coinkeeper.service.client.model.CNGlobalMessage;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
-import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
+import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.runner.InviteContactRunner;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -26,7 +20,6 @@ import junitx.util.PrivateAccessor;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -80,60 +73,18 @@ public class InviteContactPresenterTest {
 
     @Test
     public void onBroadcastSuccessful() {
-        DropBitInvitation result = mock(DropBitInvitation.class);
+        InvitedContact result = mock(InvitedContact.class);
 
         inviteContactPresenter.onInviteSuccessful(result);
 
         verify(view).showInviteSuccessful(result);
-        verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_INITIATED);
     }
 
     @Test
     public void reports_that_user_has_sent_dropbit() {
-        inviteContactPresenter.onInviteSuccessful(mock(DropBitInvitation.class));
+        inviteContactPresenter.onInviteSuccessful(mock(InvitedContact.class));
 
         verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_SENT_DROPBIT, true);
-    }
-
-    @Test
-    public void degrades_when_failure_to_dispatch_sms() throws JSONException {
-        DropBitInvitation inviteContact = mock(DropBitInvitation.class);
-        InviteMetadata inviteMetadata = mock(InviteMetadata.class);
-        when(inviteContact.getMetadata()).thenReturn(inviteMetadata);
-        InviteMetadata.MetadataContact metadataContact = mock(InviteMetadata.MetadataContact.class);
-        when(inviteMetadata.getReceiver()).thenReturn(metadataContact);
-        int countryCode = 1;
-        when(metadataContact.getCountry_code()).thenReturn(countryCode);
-
-        inviteContactPresenter.onInviteSuccessfulDegradedSms(inviteContact);
-
-        verify(view).showInviteSuccessfulDegradedSms(inviteContact);
-        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_SENT_DROPBIT, true);
-        JSONObject jsonObject = new JSONObject("{" + Analytics.JSON_KEY_COUNTRY_CODE + ":" + countryCode + "}");
-
-        ArgumentCaptor<JSONObject> argumentCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        verify(analytics).trackEvent(eq(Analytics.EVENT_DROPBIT_INVITATION_SMS_FAILED), argumentCaptor.capture());
-
-        JSONObject properties = argumentCaptor.getValue();
-        Assert.assertThat(jsonObject.toString(), equalTo(properties.toString()));
-    }
-
-    @Test
-    public void degrades_when_failure_to_dispatch_sms_null_receiver() throws JSONException {
-        DropBitInvitation inviteContact = mock(DropBitInvitation.class);
-        InviteMetadata inviteMetadata = mock(InviteMetadata.class);
-        when(inviteContact.getMetadata()).thenReturn(inviteMetadata);
-
-        inviteContactPresenter.onInviteSuccessfulDegradedSms(inviteContact);
-
-        verify(view).showInviteSuccessfulDegradedSms(inviteContact);
-        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_SENT_DROPBIT, true);
-
-        ArgumentCaptor<JSONObject> argumentCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        verify(analytics).trackEvent(eq(Analytics.EVENT_DROPBIT_INVITATION_SMS_FAILED), argumentCaptor.capture());
-
-        JSONObject properties = argumentCaptor.getValue();
-        Assert.assertThat("{}", equalTo(properties.toString()));
     }
 
     @Test
@@ -142,7 +93,6 @@ public class InviteContactPresenterTest {
         inviteContactPresenter.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, "error");
 
         verify(view).showInviteFail(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, "error");
-        verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_INITIATION_FAILED);
     }
 
     @Test

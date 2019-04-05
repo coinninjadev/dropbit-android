@@ -5,12 +5,10 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
-import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
+import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.google.gson.Gson;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,9 +18,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.annotation.Implements;
-
-import java.util.Date;
 
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -83,7 +78,7 @@ public class InviteContactRunnerTest {
     @Test
     public void send_invite_to_contact_test() {
         Contact sendToPhoneNumber = new Contact(toPhoneNumber, "Bill Bob", false);
-        DropBitInvitation contact = mock(DropBitInvitation.class);
+        InvitedContact contact = mock(InvitedContact.class);
 
         Response mockResponse = Response.success(contact);
 
@@ -93,6 +88,7 @@ public class InviteContactRunnerTest {
         inviteContactRunner.setUSAExchangeCurrency(bitcoinUSDPrice);
 
         inviteContactRunner.execute(sendToPhoneNumber);
+
 
         PhoneNumber senderPhoneNumber = myContact.getPhoneNumber();
         PhoneNumber receiverPhoneNumber = sendToPhoneNumber.getPhoneNumber();
@@ -121,35 +117,6 @@ public class InviteContactRunnerTest {
                 senderPhoneNumber, receiverPhoneNumber);
 
         verify(onInviteListener).onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, "bad request");
-    }
-
-    @Test
-    public void send_invite_to_contact_sms_degradation() {
-        Contact sendToPhoneNumber = new Contact(toPhoneNumber, "Bill Bob", false);
-
-
-        long time = System.currentTimeMillis() / 1000;
-        DropBitInvitation contact = new DropBitInvitation("ID", time,  time, "address", "phone hash", "new", "walletID");
-
-        Gson gson = new Gson();
-
-        String contactJson = gson.toJson(contact);
-
-        Response response = Response.error(501, ResponseBody.create(MediaType.parse("application/json"), contactJson));
-
-        when(client.invitePhoneNumber(anyLong(), anyLong(), any(), any())).thenReturn(response);
-
-        inviteContactRunner.setOnInviteListener(onInviteListener);
-        inviteContactRunner.setSatoshisSending(satoshisSending);
-        inviteContactRunner.setUSAExchangeCurrency(bitcoinUSDPrice);
-
-        inviteContactRunner.execute(sendToPhoneNumber);
-
-        PhoneNumber senderPhoneNumber = myContact.getPhoneNumber();
-        PhoneNumber receiverPhoneNumber = sendToPhoneNumber.getPhoneNumber();
-        verify(client).invitePhoneNumber(36551596l, 4568949465l,
-                senderPhoneNumber, receiverPhoneNumber);
-        verify(onInviteListener).onInviteSuccessfulDegradedSms(contact);
     }
 
     @Test

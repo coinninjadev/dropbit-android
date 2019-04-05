@@ -24,7 +24,8 @@ import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
+import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.TransactionStats;
 import com.coinninja.coinkeeper.service.client.model.VIn;
@@ -305,7 +306,7 @@ public class TransactionHelper {
         }
     }
 
-    public void saveReceivedInviteTransaction(Wallet wallet, DropBitInvitation receivedInvite) {
+    public void saveReceivedInviteTransaction(Wallet wallet, ReceivedInvite receivedInvite) {
         InviteMetadata.MetadataContact sender = receivedInvite.getMetadata().getSender();
         InviteMetadata.MetadataContact receiver = receivedInvite.getMetadata().getReceiver();
         saveInviteTransaction(
@@ -508,7 +509,7 @@ public class TransactionHelper {
     }
 
 
-    public InviteTransactionSummary updateInviteAddressTransaction(DropBitInvitation sentInvite) {
+    public InviteTransactionSummary updateInviteAddressTransaction(SentInvite sentInvite) {
         InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite);
         if (invite == null) return null;
 
@@ -547,11 +548,11 @@ public class TransactionHelper {
     }
 
     @Nullable
-    public InviteTransactionSummary getInviteTransactionSummary(DropBitInvitation dropBitInvitation) {
-        InviteTransactionSummary invite = getInviteTransactionSummary(dropBitInvitation.getId());
+    public InviteTransactionSummary getInviteTransactionSummary(SentInvite sentInvite) {
+        InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite.getId());
 
         if (invite == null) {
-            Log.e(TAG, "unable to update invite: " + dropBitInvitation.getAddress());
+            Log.e(TAG, "unable to update invite: " + sentInvite.getAddress());
             return null;
         }
         return invite;

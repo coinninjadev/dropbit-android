@@ -12,9 +12,10 @@ import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class SentInvitesStatusGetter implements Runnable {
     public void run() {
         Response response = client.getSentInvites();
         if (response.isSuccessful()) {
-            updateSentInvitesDatabase((List<DropBitInvitation>) response.body());
+            updateSentInvitesDatabase((List<SentInvite>) response.body());
         } else {
             Log.d(TAG, "|---- Get Sent Invites failed");
             Log.d(TAG, "|------ statusCode: " + String.valueOf(response.code()));
@@ -54,16 +55,16 @@ public class SentInvitesStatusGetter implements Runnable {
         }
     }
 
-    private void updateSentInvitesDatabase(List<DropBitInvitation> dropBitInvitations) {
-        for (DropBitInvitation dropBitInvitation : dropBitInvitations) {
-            if ("new".equals(dropBitInvitation.getStatus())) {
-                transactionHelper.updateInviteAddressTransaction(dropBitInvitation);
+    private void updateSentInvitesDatabase(List<SentInvite> sentInvites) {
+        for (SentInvite sentInvite : sentInvites) {
+            if ("new".equals(sentInvite.getStatus())) {
+                transactionHelper.updateInviteAddressTransaction(sentInvite);
                 continue;
             }
-            InviteTransactionSummary oldInvite = transactionHelper.getInviteTransactionSummary(dropBitInvitation);
+            InviteTransactionSummary oldInvite = transactionHelper.getInviteTransactionSummary(sentInvite);
             if (null != oldInvite) {
                 BTCState oldInviteBtcState = oldInvite.getBtcState();
-                InviteTransactionSummary newInvite = transactionHelper.updateInviteAddressTransaction(dropBitInvitation);
+                InviteTransactionSummary newInvite = transactionHelper.updateInviteAddressTransaction(sentInvite);
                 if (hasStateChanged(oldInviteBtcState, newInvite)) {
                     notifyUser(newInvite);
                 }

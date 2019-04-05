@@ -12,9 +12,9 @@ import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
 import com.coinninja.coinkeeper.service.SaveInviteService;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
-import com.coinninja.coinkeeper.ui.dropbit.ManualInvitePresenter;
+import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
@@ -31,11 +31,23 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
     ActivityNavigationUtil activityNavigationUtil;
     @Inject
     InviteContactPresenter invitePresenter;
-    @Inject
-    ManualInvitePresenter manualInvitePresenter;
-
     SendingProgressView sendingProgressView;
     PendingInviteDTO pendingInviteDTO;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_broadcast);
+        sendingProgressView = findViewById(R.id.broadcast_sending_progress);
+        pendingInviteDTO = getIntent().getParcelableExtra(Intents.EXTRA_INVITE_DTO);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        showInitTransaction();
+        startInviteContact();
+    }
 
     public void showInitTransaction() {
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
@@ -61,6 +73,12 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         transactionIdIcon.setOnClickListener(null);
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
+
+    private void startInviteContact() {
+        invitePresenter.attachView(this);
+        invitePresenter.requestInvite(pendingInviteDTO.getContact(), pendingInviteDTO.getInviteAmount(), pendingInviteDTO.getBitcoinPrice());
+    }
+
 
     public void showDefaultInviteFail(String message) {
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
@@ -89,89 +107,13 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
     @Override
     public void showInviteFail(String dropBitActionError, String message) {
         showDefaultInviteFail(message);
+        reportFail();
 
         if (Intents.ACTION_DROPBIT__ERROR_RATE_LIMIT.equals(dropBitActionError)) {
             onRateLimitError();
         } else if (Intents.ACTION_DROPBIT__ERROR_UNKNOWN.equals(dropBitActionError)) {
             onUnknownError();
         }
-    }
-
-    @Override
-    public void showInviteSuccessful(DropBitInvitation inviteContact) {
-        saveInvite(inviteContact);
-
-        TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
-        TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
-        Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
-
-
-        sendingProgressView.setProgress(100);
-        sendingProgressView.completeSuccess();
-
-        transactionIdLabel.setVisibility(View.VISIBLE);
-        transactionActionBtn.setVisibility(View.VISIBLE);
-
-        sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_label));
-        transactionActionBtn.setText(getResources().getText(R.string.broadcast_sent_ok));
-        transactionIdLabel.setText(getResources().getText(R.string.invite_sent_successfully));
-        transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-
-        transactionActionBtn.setOnClickListener(view -> activityNavigationUtil.navigateToHome(view.getContext()));
-    }
-
-    @Override
-    public void showInviteSuccessfulDegradedSms(DropBitInvitation inviteContact) {
-        saveInvite(inviteContact);
-
-        TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
-        TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
-        Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
-
-
-        sendingProgressView.setProgress(100);
-        sendingProgressView.completeSuccess();
-
-        transactionIdLabel.setVisibility(View.VISIBLE);
-        transactionActionBtn.setVisibility(View.VISIBLE);
-
-        sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_label));
-        transactionActionBtn.setText(getResources().getText(R.string.broadcast_sent_ok));
-        transactionIdLabel.setText(getResources().getText(R.string.invite_sent_successfully));
-        transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-
-        transactionActionBtn.setOnClickListener(view -> activityNavigationUtil.navigateToHome(view.getContext()));
-        manualInvitePresenter.presentManualSend(this, inviteContact);
-    }
-
-    @Override
-    public void showProgress(int progress) {
-        sendingProgressView.setProgress(progress);
-    }
-
-    public void onRetryClicked() {
-        showInitTransaction();
-        startInviteContact();
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_broadcast);
-        sendingProgressView = findViewById(R.id.broadcast_sending_progress);
-        pendingInviteDTO = getIntent().getParcelableExtra(Intents.EXTRA_INVITE_DTO);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        showInitTransaction();
-        startInviteContact();
-    }
-
-    private void startInviteContact() {
-        invitePresenter.attachView(this);
-        invitePresenter.requestInvite(pendingInviteDTO.getContact(), pendingInviteDTO.getInviteAmount(), pendingInviteDTO.getBitcoinPrice());
     }
 
     private void onRateLimitError() {
@@ -205,9 +147,51 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         showErrorRetryButton();
     }
 
-    private void saveInvite(DropBitInvitation invitedContact) {
+    @Override
+    public void showInviteSuccessful(InvitedContact inviteContact) {
+        saveInvite(inviteContact);
+
+        TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
+        TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
+        Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
+
+
+        sendingProgressView.setProgress(100);
+        sendingProgressView.completeSuccess();
+
+        transactionIdLabel.setVisibility(View.VISIBLE);
+        transactionActionBtn.setVisibility(View.VISIBLE);
+
+        sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_label));
+        transactionActionBtn.setText(getResources().getText(R.string.broadcast_sent_ok));
+        transactionIdLabel.setText(getResources().getText(R.string.invite_sent_successfully));
+        transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
+        transactionActionBtn.setOnClickListener(view -> activityNavigationUtil.navigateToHome(view.getContext()));
+        reportSuccessful();
+    }
+
+    private void reportSuccessful() {
+        analytics.trackEvent(Analytics.EVENT_DROPBIT_INITIATED);
+    }
+
+    private void reportFail() {
+        analytics.trackEvent(Analytics.EVENT_DROPBIT_INITIATION_FAILED);
+    }
+
+    private void saveInvite(InvitedContact invitedContact) {
         Intent intent = new Intent(this, SaveInviteService.class);
         intent.putExtra(Intents.EXTRA_COMPLETED_INVITE_DTO, new CompletedInviteDTO(pendingInviteDTO, invitedContact));
         startService(intent);
+    }
+
+    public void onRetryClicked() {
+        showInitTransaction();
+        startInviteContact();
+    }
+
+    @Override
+    public void showProgress(int progress) {
+        sendingProgressView.setProgress(progress);
     }
 }

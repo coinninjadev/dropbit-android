@@ -17,7 +17,7 @@ import com.coinninja.coinkeeper.model.encryptedpayload.v1.TransactionNotificatio
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.encryption.MessageEncryptor;
 
@@ -277,7 +277,7 @@ public class TransactionNotificationManagerTest {
                 "--memo--",
                 true
         );
-        DropBitInvitation invitedContact = new DropBitInvitation(
+        InvitedContact invitedContact = new InvitedContact(
                 "--cn-id--",
                 System.currentTimeMillis(),
                 System.currentTimeMillis(),

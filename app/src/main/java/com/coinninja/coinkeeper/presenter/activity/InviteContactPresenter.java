@@ -1,13 +1,10 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.runner.InviteContactRunner;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.inject.Inject;
 
@@ -36,27 +33,9 @@ public class InviteContactPresenter implements InviteContactRunner.OnInviteListe
     }
 
     @Override
-    public void onInviteSuccessful(DropBitInvitation inviteContact) {
+    public void onInviteSuccessful(InvitedContact inviteContact) {
         view.showInviteSuccessful(inviteContact);
         analytics.setUserProperty(Analytics.PROPERTY_HAS_SENT_DROPBIT, true);
-        analytics.trackEvent(Analytics.EVENT_DROPBIT_INITIATED);
-    }
-
-    @Override
-    public void onInviteSuccessfulDegradedSms(DropBitInvitation inviteContact) {
-        view.showInviteSuccessfulDegradedSms(inviteContact);
-        analytics.setUserProperty(Analytics.PROPERTY_HAS_SENT_DROPBIT, true);
-
-
-        JSONObject jsonObject = new JSONObject();
-        try {
-            if (inviteContact != null && inviteContact.getMetadata() != null && inviteContact.getMetadata().getReceiver() != null) {
-                jsonObject.put(Analytics.JSON_KEY_COUNTRY_CODE, inviteContact.getMetadata().getReceiver().getCountry_code());
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        analytics.trackEvent(Analytics.EVENT_DROPBIT_INVITATION_SMS_FAILED, jsonObject);
     }
 
     @Override
@@ -67,17 +46,13 @@ public class InviteContactPresenter implements InviteContactRunner.OnInviteListe
     @Override
     public void onInviteError(String dropBitActionError, String errorMessage) {
         view.showInviteFail(dropBitActionError, errorMessage);
-        analytics.trackEvent(Analytics.EVENT_DROPBIT_INITIATION_FAILED);
     }
 
     public interface View {
         void showInviteFail(String dropBitActionError, String errorMessage);
 
-        void showInviteSuccessful(DropBitInvitation inviteContact);
-
-        void showInviteSuccessfulDegradedSms(DropBitInvitation inviteContact);
+        void showInviteSuccessful(InvitedContact inviteContact);
 
         void showProgress(int progress);
     }
-
 }

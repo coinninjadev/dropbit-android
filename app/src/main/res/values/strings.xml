@@ -382,11 +382,5 @@
     <string name="transaction_details_see_transaction_details">transaction details</string>
     <string name="done">done</string>
     <string name="phone_number_input_widget_country_selection_title">Select Country</string>
-    <string name="notify">Notify</string>
-
-    <!-- Manual Dropbit Send -->
-    <string name="manual_send_dialog_message">Success! Let %s know they have Bitcoin waiting for them</string>
-    <string name="manual_send_chooser_title">Pick an application to use to finish your dropbit</string>
-    <string name="manual_send_sms_message">I just sent you %s in Bitcoin. Download the DropBit app to claim it. https://dropbit.app/download</string>
 
 </resources>

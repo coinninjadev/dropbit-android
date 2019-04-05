@@ -2,7 +2,7 @@ package com.coinninja.coinkeeper.model.dto;
 
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class CompletedInviteDTOTest {
                 "--memo--",
                 true
         );
-        DropBitInvitation invitedContact = new DropBitInvitation(
+        InvitedContact invitedContact = new InvitedContact(
                 "--cn-id--",
                 System.currentTimeMillis(),
                 System.currentTimeMillis(),

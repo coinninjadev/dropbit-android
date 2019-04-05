@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.service.client.model;
 
-import com.coinninja.coinkeeper.model.PhoneNumber;
-
 public class InviteMetadata {
     MetadataAmount amount;
     MetadataContact sender;
@@ -49,10 +47,6 @@ public class InviteMetadata {
 
         public String getPhone_number() {
             return phone_number;
-        }
-
-        public PhoneNumber getPhoneNumber(){
-            return new PhoneNumber(country_code, phone_number);
         }
 
     }

@@ -5,7 +5,7 @@ import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
-import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
@@ -40,7 +40,7 @@ public class ReceivedInvitesStatusRunner implements Runnable {
     public void run() {
         Response response = client.getReceivedInvites();
         if (response.isSuccessful()) {
-            saveCompletedInvites((List<DropBitInvitation>) response.body());
+            saveCompletedInvites((List<ReceivedInvite>) response.body());
         } else {
             logger.logError(TAG, RECEIVED_INVITE_FAILED, response);
         }
@@ -48,8 +48,8 @@ public class ReceivedInvitesStatusRunner implements Runnable {
         cleanInviteJoinTable();
     }
 
-    private void saveCompletedInvites(List<DropBitInvitation> invites) {
-        for (DropBitInvitation invite : invites) {
+    private void saveCompletedInvites(List<ReceivedInvite> invites) {
+        for (ReceivedInvite invite : invites) {
             String completedTxID = getCompletedTxID(invite);
             if (completedTxID == null || completedTxID.isEmpty()) {
                 continue;
@@ -60,12 +60,12 @@ public class ReceivedInvitesStatusRunner implements Runnable {
 
     }
 
-    private void saveFulfilledInvite(DropBitInvitation invite) {
+    private void saveFulfilledInvite(ReceivedInvite invite) {
         transactionHelper.updateInviteTxIDTransaction(walletHelper.getWallet(), invite.getId(), invite.getTxid());
         analytics.setUserProperty(Analytics.PROPERTY_HAS_RECEIVED_DROPBIT, true);
     }
 
-    String getCompletedTxID(DropBitInvitation invite) {
+    String getCompletedTxID(ReceivedInvite invite) {
         String currentStatus = invite.getStatus();
         if (currentStatus == null) return null;
 

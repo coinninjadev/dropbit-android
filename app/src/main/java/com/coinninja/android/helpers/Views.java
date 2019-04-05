@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Vibrator;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -14,6 +15,8 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 
 import androidx.annotation.Nullable;
+
+import static com.coinninja.android.helpers.Resources.scaleValue;
 
 public class Views {
 
@@ -47,10 +50,6 @@ public class Views {
 
     public static void clickOn(View view, int resourceId) {
         clickOn(withId(view, resourceId));
-    }
-
-    public static void clickOn(AlertDialog dialog, int resourceId) {
-        clickOn(withId(dialog, resourceId));
     }
 
     public static void clickOn(@Nullable View view) {
