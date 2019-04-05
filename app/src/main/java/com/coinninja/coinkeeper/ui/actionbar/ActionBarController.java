@@ -47,6 +47,11 @@ public class ActionBarController {
                 isTitleUppercase = false;
                 optionMenuLayout = R.menu.actionbar_dark_close_menu;
                 break;
+            case R.id.actionbar_light_up_off_close_on:
+                isUpEnabled = false;
+                isTitleUppercase = true;
+                optionMenuLayout = R.menu.actionbar_light_close_menu;
+                break;
             case R.id.actionbar_light_up_off:
                 isUpEnabled = false;
                 isTitleUppercase = true;

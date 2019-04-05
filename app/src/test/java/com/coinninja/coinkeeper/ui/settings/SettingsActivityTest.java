@@ -5,23 +5,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
-import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.db.Account;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
-import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.LicensesActivity;
 import com.coinninja.coinkeeper.view.activity.SplashActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,8 +34,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
@@ -53,19 +45,11 @@ public class SettingsActivityTest {
     private CNWalletManager cnWalletManager;
 
     @Mock
-    private WalletHelper walletHelper;
-
-    @Mock
     private DeleteWalletPresenter deleteWalletPresenter;
 
     @Mock
     private SyncWalletManager syncWalletManager;
 
-    @Mock
-    private RemovePhoneNumberController removePhoneNumberController;
-
-    @Mock
-    private LocalBroadCastUtil localBroadCastUtil;
 
     @Mock
     PhoneNumberUtil phoneNumberUtil;
@@ -73,19 +57,15 @@ public class SettingsActivityTest {
     private ActivityController<SettingsActivity> activityController;
     private SettingsActivity activity;
     private ShadowActivity shadowActivity;
-    private PhoneNumber phoneNumber;
 
     @After
     public void tearDown() {
         cnWalletManager = null;
-        walletHelper = null;
         deleteWalletPresenter = null;
         syncWalletManager = null;
-        removePhoneNumberController = null;
         activity = null;
         activityController = null;
         shadowActivity = null;
-        localBroadCastUtil = null;
         phoneNumberUtil = null;
     }
 
@@ -99,13 +79,9 @@ public class SettingsActivityTest {
         activity = activityController.get();
         activity.deleteWalletPresenter = deleteWalletPresenter;
         activity.cnWalletManager = cnWalletManager;
-        activity.walletHelper = walletHelper;
         activity.syncWalletManager = syncWalletManager;
-        activity.removePhoneNumberController = removePhoneNumberController;
-        activity.localBroadCastUtil = localBroadCastUtil;
         activity.phoneNumberUtil = phoneNumberUtil;
         shadowActivity = shadowOf(activity);
-        phoneNumber = new PhoneNumber("+15550123456");
     }
 
     private void start() {
@@ -116,53 +92,6 @@ public class SettingsActivityTest {
         activity.isDebugBuild = isDebug;
         activityController.start().resume().visible();
     }
-
-    @Test
-    public void instructs_controller_to_start() {
-        start();
-
-        verify(removePhoneNumberController).onStart();
-    }
-
-    @Test
-    public void requests_controllers_to_clean_up_when_destroyed() {
-        activityController.stop();
-
-        verify(removePhoneNumberController).onStop();
-    }
-
-    @Test
-    public void observes_deverification_completed() {
-        start();
-
-        assertThat(activity.intentFilter.getAction(0), equalTo(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED));
-        verify(localBroadCastUtil).registerReceiver(activity.receiver, activity.intentFilter);
-    }
-
-    @Test
-    public void stops_observing_deverification_completed() {
-        start();
-
-        activityController.stop();
-
-        verify(localBroadCastUtil).unregisterReceiver(activity.receiver);
-    }
-
-    @Test
-    public void redraws_phone_verification_when_deverification_completed() {
-        Account account = mock(Account.class);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true).thenReturn(false);
-        when(walletHelper.getUserAccount()).thenReturn(account);
-        when(account.getPhoneNumber()).thenReturn(phoneNumber);
-        start();
-
-        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED));
-
-        verify(walletHelper, times(2)).hasVerifiedAccount();
-        TextView phoneNumberValue = activity.findViewById(R.id.verified_number_value);
-        assertThat(phoneNumberValue.getText().toString(), equalTo(activity.getString(R.string.not_verified)));
-    }
-
 
     @Test
     public void shows_not_backed_up_when_user_skipped_backup() {
@@ -227,61 +156,6 @@ public class SettingsActivityTest {
         start();
 
         assertThat(activity.findViewById(R.id.settings_sync).getVisibility(), equalTo(View.GONE));
-    }
-
-    @Test
-    public void selecting_verification_prompts_to_remove_phone_number() {
-        Account account = mock(Account.class);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
-        when(walletHelper.getUserAccount()).thenReturn(account);
-        when(account.getPhoneNumber()).thenReturn(phoneNumber);
-        start();
-
-        View view = activity.findViewById(R.id.verified_number);
-        view.performClick();
-
-        assertThat(activity.findViewById(R.id.verified_number_arrow).getVisibility(), equalTo(View.INVISIBLE));
-        verify(removePhoneNumberController).onRemovePhoneNumber(view);
-    }
-
-    @Test
-    public void phone_verification_preference_shows_deverify_message() {
-        Account account = mock(Account.class);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
-        when(walletHelper.getUserAccount()).thenReturn(account);
-
-        when(account.getPhoneNumber()).thenReturn(phoneNumber);
-        start();
-
-        TextView deverifyTextView = activity.findViewById(R.id.deverify_phone_number);
-        assertThat(deverifyTextView.getVisibility(), equalTo(View.VISIBLE));
-    }
-
-    @Test
-    public void phone_verification_preference_show_phone_number() {
-        Account account = mock(Account.class);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
-        when(walletHelper.getUserAccount()).thenReturn(account);
-        PhoneNumber phoneNumber = new PhoneNumber("+12223334444");
-        when(account.getPhoneNumber()).thenReturn(phoneNumber);
-        String national = "(222) 333-4444";
-        start();
-
-        TextView phoneNumberValue = activity.findViewById(R.id.verified_number_value);
-        assertThat(phoneNumberValue.getText().toString(), equalTo(national));
-    }
-
-    @Test
-    public void navigates_to_phone_verification_screen() {
-        start();
-
-        TextView deverifyTextView = activity.findViewById(R.id.deverify_phone_number);
-        assertThat(deverifyTextView.getVisibility(), equalTo(View.GONE));
-
-        activity.findViewById(R.id.verified_number).performClick();
-
-        Intent startedActivity = shadowActivity.getNextStartedActivity();
-        assertThat(startedActivity.getComponent().getClassName(), equalTo(VerifyPhoneNumberActivity.class.getName()));
     }
 
     @Test

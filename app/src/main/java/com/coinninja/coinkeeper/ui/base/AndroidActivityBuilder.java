@@ -21,6 +21,7 @@ import com.coinninja.coinkeeper.view.activity.RestoreWalletActivity;
 import com.coinninja.coinkeeper.view.activity.SplashActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TrainingActivity;
+import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
@@ -32,6 +33,10 @@ import dagger.android.ContributesAndroidInjector;
 
 @Module()
 public abstract class AndroidActivityBuilder {
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract UserAccountVerificationActivity userAccountVerificationActivity();
 
     @ActivityScope
     @ContributesAndroidInjector

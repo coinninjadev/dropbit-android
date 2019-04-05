@@ -33,31 +33,12 @@ import androidx.annotation.Nullable;
 public class SettingsActivity extends SecuredActivity implements DialogInterface.OnClickListener {
     public static final String TAG_CONFIRM_DELETE_WALLET = "tag_confirm_delete_wallet";
     public static final int DELETE_WALLET_REQUEST_CODE = 12;
-    public IntentFilter intentFilter;
-
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED.equals(intent.getAction())) {
-                setupPhoneVerification();
-            }
-        }
-    };
-
-    @Inject
-    LocalBroadCastUtil localBroadCastUtil;
-
-    @Inject
-    RemovePhoneNumberController removePhoneNumberController;
 
     @Inject
     SyncWalletManager syncWalletManager;
 
     @Inject
     CNWalletManager cnWalletManager;
-
-    @Inject
-    WalletHelper walletHelper;
 
     @Inject
     @DebugBuild
@@ -82,14 +63,6 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        intentFilter = new IntentFilter(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        localBroadCastUtil.registerReceiver(receiver, intentFilter);
-        removePhoneNumberController.onStart();
     }
 
     @Override
@@ -97,17 +70,8 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
         super.onResume();
         setupRecoverWallet();
         setupDeleteWallet();
-        setupPhoneVerification();
         setupSync();
         setupLicenses();
-    }
-
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        removePhoneNumberController.onStop();
-        localBroadCastUtil.unregisterReceiver(receiver);
     }
 
     @Override
@@ -151,36 +115,6 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
         startActivityForResult(authIntent, DELETE_WALLET_REQUEST_CODE);
     }
 
-    private void setupPhoneVerification() {
-        if (walletHelper.hasVerifiedAccount()) {
-            setupVerifiedAccount();
-        } else {
-            setupUnVerifiedAccount();
-        }
-    }
-
-    private void setupUnVerifiedAccount() {
-        findViewById(R.id.verified_number).setOnClickListener(V -> verifyPhoneNumber());
-        findViewById(R.id.verified_number_arrow).setVisibility(View.VISIBLE);
-        TextView phoneNumber = findViewById(R.id.verified_number_value);
-        phoneNumber.setText(R.string.not_verified);
-        phoneNumber.setTextColor(getResources().getColor(R.color.color_error));
-        findViewById(R.id.deverify_phone_number).setVisibility(View.GONE);
-    }
-
-    private void setupVerifiedAccount() {
-        TextView phoneNumber = findViewById(R.id.verified_number_value);
-        phoneNumber.setText(walletHelper.getUserAccount().getPhoneNumber().toNationalDisplayText());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            phoneNumber.setTextAppearance(R.style.TextAppearance_Small_PrimaryDark);
-        } else {
-            phoneNumber.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
-        }
-        findViewById(R.id.verified_number_arrow).setVisibility(View.INVISIBLE);
-        findViewById(R.id.deverify_phone_number).setVisibility(View.VISIBLE);
-        findViewById(R.id.verified_number).setOnClickListener(removePhoneNumberController::onRemovePhoneNumber);
-    }
-
     private void setupLicenses() {
         findViewById(R.id.open_source).setOnClickListener(v -> onLicenseClicked());
     }
@@ -201,10 +135,6 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
         syncWalletManager.syncNow();
         onBackPressed();
         return true;
-    }
-
-    private void verifyPhoneNumber() {
-        startActivity(new Intent(this, VerifyPhoneNumberActivity.class));
     }
 
     private void setupRecoverWallet() {

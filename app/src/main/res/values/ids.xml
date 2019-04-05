@@ -8,6 +8,7 @@
     <item name="actionbar_light_up_on" type="id" />
     <item name="actionbar_light_up_on_skip_on" type="id" />
     <item name="actionbar_light_up_off_skip_on" type="id" />
+    <item name="actionbar_light_up_off_close_on" type="id" />
     <item name="actionbar_dark_up_on" type="id" />
     <item name="actionbar_dark_up_off_close_on" type="id" />
     <item name="actionbar_dark_up_on_with_nav_bar" type="id" />

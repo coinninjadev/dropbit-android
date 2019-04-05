@@ -1,10 +1,8 @@
 <resources>
     <string name="hello_world">Hello %s</string>
     <string name="app_name">DropBit</string>
-    <string name="powered_by">Powered by</string>
     <string name="btn_new_wallet">New Wallet</string>
     <string name="btn_restore">Restore from backup</string>
-    <string name="image_logo_str">img_logo_view</string>
 
     <!-- Activity Titles -->
     <string name="settings_title">Settings</string>
@@ -23,8 +21,14 @@
     <string name="pin_header_confirm">Re-Enter PIN</string>
     <string name="pin_mismatch_error">Incorrect PIN. Please try again.</string>
     <string name="pin_mismatch_error_fatal">Incorrect PIN entered 3 times.  Please create a new pin.</string>
-    <string name="pin_mismatch_error_fatal_re_enter">Incorrect PIN entered 3 times.</string>
     <string name="pin_mismatch_error_toast_fatal_re_enter">Incorrect PIN entered 3 times.</string>
+
+    <!-- User Account Verification -->
+    <string name="privacy_disclaimer">Privacy is important to us. Your number is securely hashed and encrypted before it is stored</string>
+    <string name="account_verification_overview">Verify your phone number to use the DropBit feature. DropBit allows you to send Bitcoin directly to your contacts 
+by using their mobile number</string>
+    <string name="verify_phone_button_title">VERIFY PHONE NUMBER</string>
+    <string name="account_verification_title">PHONE NUMBER STATUS</string>
 
     <!-- Fingerprint Auth Related Strings -->
     <string name="fingerprint_negative_button">cancel</string>
@@ -49,7 +53,6 @@
     <string name="verify_recovery_words_select_word">Select word</string>
 
     <!-- Recovery Words -->
-    <string name="recovery_words">Recovery Words</string>
     <string name="recovery_words_body">Be sure to write your words \ndown on a piece of paper.</string>
     <string name="word_0_of_0">word 0 of 0</string>
     <string name="back">back</string>
@@ -75,7 +78,6 @@
     <string name="eight">8</string>
     <string name="nine">9</string>
     <string name="zero">0</string>
-    <string name="back_key">&lt;</string>
     <string name="dot">&#183;</string>
 
     <!-- Navigation Drawer -->
@@ -83,8 +85,6 @@
     <string name="backup_up_wallet_cta_drawer_button">Back Up Wallet</string>
     <string name="default_price">N/A</string>
     <string name="app_version_label">Version %s</string>
-    <string name="btc_symbol">₿</string>
-    <string name="cents">00</string>
 
     <!-- PaymentBar Buttons -->
     <string name="bc1_error_message">Bech 32 addresses are not supported at this time. Support is coming soon</string>
@@ -100,52 +100,31 @@
     <string name="pay_send_btn_label">SEND</string>
     <string name="pay_scan_btn_label">SCAN</string>
     <string name="pay_contacts_label">CONTACTS</string>
-    <string name="drawer_history_label">History</string>
     <string name="drawer_setting_label">Settings</string>
+    <string name="drawer_phone_label">Phone</string>
     <string name="drawer_support_label">Support</string>
     <string name="drawer_where_to_buy_label">Spend</string>
 
     <!-- Notification Channels -->
-    <string name="channel_sync">Automatic Wallet Synchronization</string>
-    <string name="channel_sync_description">Allow DropBit to check for new transactions for your bitcoin wallet</string>
     <string name="channel_invites">Contact/Phone Number DropBits</string>
     <string name="channel_invites_description">Allow DropBit to notify when DropBits have been sent and/or received</string>
-    <string name="push_notification_channel_label">DropBit Push Notifications</string>
     <string name="push_notification_channel_id">Allow DropBit Push Notifications</string>
 
     <!-- Notifications -->
-    <string name="notification_sync_title">DropBit Syncing Transactions</string>
-    <string name="notification_sync_description">Fetching your latest transactions.</string>
     <string name="notification_invite_fulfilled_title">BTC Sent</string>
-    <string name="notification_invite_fulfilled_description">BTC Sent to {{PHONE}}</string>
     <string name="notification_invite_fulfilled_ticker">BTC Sent</string>
     <string name="notification_transaction_failed_to_broadcast">Bitcoin network failed to broadcast transaction: %1$s. Please try sending again.</string>
 
     <!-- QR Scan -->
     <string name="scan_qr_label">SCAN QR CODE</string>
-    <string name="invalid_bitcoin_address_description">Invalid Bitcoin QR code</string>
 
     <!-- Transaction History Activity -->
-    <string name="transactions_header">History</string>
     <string name="empty_transactions_header">No Transactions Yet</string>
     <string name="empty_transactions_paragraph">All incoming and outgoing transactions will appear here.</string>
     <string name="empty_transactions_paragraph_2">Go ahead. Send some Bitcoin!</string>
-    <string name="history_pending">Pending</string>
-    <string name="history_unconfirmed">Unconfirmed</string>
-    <string name="history_confirmed">Confirmed</string>
-    <string name="not_history_confirmed">Confirmation</string>
-    <string name="not_history_confirmed_plural">Confirmations</string>
     <string name="send_to_self">Sent to myself</string>
-    <string name="amount">Amount</string>
-    <string name="network_fee">Network Fee</string>
-    <string name="network_fee_unknown">-Unavailable-</string>
-    <string name="share_transaction">SHARE TRANSACTION</string>
     <string name="share_transaction_intent_title">Share Transaction</string>
     <string name="history_failed_to_broadcast">Failed to Broadcast</string>
-    <string name="history_pending_dropbit_fee_area_message">
-        Your Bitcoin address has been sent to %1$s.
-        Once approved this transaction will be completed.
-    </string>
 
     <!-- Request -->
     <string name="request_copied_message">Bitcoin Request copied to clipboard</string>
@@ -158,13 +137,10 @@
     <string name="pay_not_attempting_to_send">Attempting to send </string>
     <string name="invalid_bitcoin_address_error">Invalid BTC address</string>
     <string name="clipboard_empty_error_message">Nothing to paste</string>
-    <string name="invalid_btc_uri">Invalid Bitcoin URI</string>
     <string name="invalid_btc_adddress__base58">Address Failed Base 58 check</string>
 
     <!-- Confirm Pay -->
     <string name="confirm_pay_hold_label_message_successful">TAP AND HOLD TO SEND</string>
-    <string name="confirm_pay_hold_label_message_loading">LOADING...</string>
-    <string name="confirm_pay_hold_label_message_error">ERROR</string>
     <string name="confirm_pay_fee">Network fee %s (%s)</string>
 
 
@@ -175,8 +151,7 @@
         Please enter your phone number below to use the DropBit&#8482; feature.
         DropBit allows you to send Bitcoin directly to your contacts by using their mobile number.
     </string>
-    <string name="activity_verify_phone_error_message">Invalid phone number. Please make sure you have entered the correct number.</string>
-    <string name="preference_display_phone_number_key">preference_display_phone_number_key</string>
+    <string name="activity_verify_phone_error_message">Invalid phone number. Please try again.</string>
     <string name="preference_display_phone_number_label">Verified Number: </string>
     <string name="default_401_user_deverifcation_message">
         The phone number associated with this device has been unregistered.
@@ -192,7 +167,6 @@
         to (%1$s). It may take up to 30 seconds to receive the text.
     </string>
     <string name="activity_verify_phone_code_header">Verification Code</string>
-    <string name="phone_mask">{{XXX-XXX-XXXX}}</string>
     <string name="activity_verify_phonecode_error_basic">Incorrect Code.  Please try again</string>
     <string name="activity_verify_phonecode_error_message_reset">Resend Text Message</string>
     <string name="activity_verify_phonecode_error_server">The verification code could not be sent. Please try again later.</string>
@@ -205,17 +179,11 @@
     <!-- Settings -->
     <string name="preference_wallet_label">Wallet</string>
     <string name="not_backedup">(Not Backed Up)</string>
-    <string name="preference_phone_number_label">Phone Number</string>
-    <string name="preference_exit_key">exitlink</string>
-    <string name="preference_settings_label">SETTINGS</string>
     <string name="preference_sync_now_label">Sync Now</string>
-    <string name="preference_licenses_label">Licenses</string>
     <string name="delete_wallet">DELETE WALLET</string>
-    <string name="preference_delete_key">pref_delete_key</string>
     <string name="delete_wallet_dialog_text">Are you sure you want to delete this wallet? Make sure you have your seed words before you delete.</string>
     <string name="delete_wallet_positive">DELETE</string>
     <string name="delete_wallet_negative">NOT NOW</string>
-    <string name="not_verified">(Not Verified)</string>
     <string name="support_title">SUPPORT</string>
     <string name="licenses">LICENSES</string>
     <string name="open_source">Open Source</string>
@@ -245,13 +213,10 @@
 
     <!-- Contacts -->
     <string name="search_contacts_hint">Contact name</string>
-    <string name="oval_question">?</string>
     <string name="transaction_checksum_error">transaction checksum failed</string>
     <string name="send_and_invite_to_keeper_app">Send DropBit&#8482;</string>
     <string name="what_is_dropbit">What is DropBit?</string>
-    <string name="confirm_to_send_invite">Confirm to send DropBit</string>
     <string name="contact_send">Send</string>
-    <string name="contact_invite">DropBit</string>
 
     <!-- invite help -->
     <string name="invite_help_message_mask">{{CONTACT}}</string>
@@ -263,23 +228,13 @@
     <string name="ok">OK</string>
 
     <!-- invite -->
-    <string name="history_error_meessage_failed_to_broadcast">Bitcoin network failed to broadcast this transaction. Please try sending again</string>
-    <string name="history_invite_confirmed">Confirmed</string>
     <string name="history_invite_sent_pending">DropBit Sent - Pending</string>
     <string name="history_invite_received_pending">DropBit Received - Pending</string>
     <string name="history_invite_expired">DropBit Expired</string>
     <string name="history_invite_canceled">DropBit Canceled</string>
-    <string name="history_invite_sent_reason">waiting on Bitcoin address</string>
-    <string name="history_invite_sent">DropBit Sent</string>
-    <string name="history_invite_usd_when_sent">%1$s when sent</string>
-    <string name="history_invite_usd_when_received">%1$s when received</string>
     <string name="invite_sent_error_rate_limit">For security reasons we must limit the number of DropBits sent within 30 seconds. Please wait 30 seconds and try sending again.</string>
     <string name="invite_sent_successfully">DropBit Sent Successfully</string>
     <string name="invite_failed">DropBit Failed</string>
-    <string name="sender_canceled_transaction_message">
-        The sender has canceled this transaction.
-    </string>
-    <string name="waiting_on_senders_approval">Waiting for sender approval</string>
 
     <!-- Restore Wallet-->
     <string name="restore_wallet_header">Restore from backup</string>
@@ -297,12 +252,10 @@
     <string name="recover_wallet_error_message">Failed to import your wallet. Please try again.</string>
     <string name="recover_wallet_success_message">Your wallet is being imported</string>
     <string name="recover_wallet_success_button_text">Go to my Wallet</string>
-    <string name="history_expired_error_reason">For security reasons we can only allow 24 hours to accept a DropBit.</string>
     <string name="invite_send_expired_message">For security purposes we can only allow 24 hours for a DropBit to be completed. Your DropBit sent to %1$s has expired. Please try sending again.</string>
     <string name="invite_send_canceled_message">%1$s has canceled the DropBit for %2$s.</string>
     <string name="invite_broadcast_real_btc_message">%1$s was send to %2$s</string>
     <string name="invite_broadcast_canceled_message">DropBit to %1$s has been canceled</string>
-    <string name="history_detail_invite_received_pending">Waiting for sender approval</string>
 
     <!-- Training Screens -->
     <string name="training_body_header_whats_bitcoin">What is Bitcoin?</string>
@@ -363,18 +316,9 @@
     <!-- Transaction Details View -->
     <string name="transaction_detail_cd_send_state__dropbit_sent">DropBit sent</string>
     <string name="transaction_detail_cd_send_state__dropbit_received">DropBit received</string>
-    <string name="transaction_detail_cd_send_state__dropbit_canceled">DropBit canceled</string>
-    <string name="transaction_detail_cd_send_state__dropbit_expired">DropBit expired</string>
-    <string name="transaction_detail_cd_send_state__transaction_failed">Transaction failed</string>
-    <string name="transaction_detail_cd_send_state__transaction_sent">Transaction sent</string>
-    <string name="transaction_detail_cd_send_state__transaction_transfer">Transfer sent</string>
     <string name="transaction_details_dropbit_expired">DropBit Expired</string>
     <string name="transaction_details_dropbit_canceled">DropBit Canceled</string>
     <string name="transaction_details_see_details">Details</string>
-    <string name="transaction_details_pending_dropbit_message">
-        Your Bitcoin address has been sent to %1$s.
-        Once approved this transaction will be completed.
-    </string>
     <string name="cancel_dropbit">Cancel Transaction</string>
     <string name="transaction_details_when_sent">When sent</string>
     <string name="transaction_details_network_fee">Network Fee</string>
@@ -383,5 +327,6 @@
     <string name="transaction_details_see_transaction_details">transaction details</string>
     <string name="done">done</string>
     <string name="phone_number_input_widget_country_selection_title">Select Country</string>
+    <string name="user_account_verification_title">PHONE NUMBER STATUS</string>
 
 </resources>

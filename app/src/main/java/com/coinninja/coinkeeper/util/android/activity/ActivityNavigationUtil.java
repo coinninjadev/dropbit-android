@@ -15,6 +15,7 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
+import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 
@@ -35,6 +36,11 @@ public class ActivityNavigationUtil {
 
     public void navigateToSettings(Context context) {
         Intent intent = new Intent(context, SettingsActivity.class);
+        context.startActivity(intent);
+    }
+
+    public void navigateToUserVerification(Context context) {
+        Intent intent = new Intent(context, UserAccountVerificationActivity.class);
         context.startActivity(intent);
     }
 
