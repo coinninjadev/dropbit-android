@@ -7,10 +7,12 @@ import android.net.Uri;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
@@ -91,5 +93,15 @@ public class ActivityNavigationUtil {
         intent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, seedWords);
         intent.putExtra(Intents.EXTRA_VIEW_STATE, viewState);
         context.startActivity(intent);
+    }
+
+    public void shareDropbitManually(Activity activity, DropBitInvitation dropBitInvitation) {
+        PhoneNumber phoneNumber = dropBitInvitation.getMetadata().getReceiver().getPhoneNumber();
+        USDCurrency fiatCurrency = new USDCurrency(dropBitInvitation.getMetadata().getAmount().getUsd());
+        String smsBody = activity.getString(R.string.manual_send_sms_message, fiatCurrency.toFormattedCurrency());
+        Uri uri = Uri.fromParts("sms", phoneNumber.toString(), null);
+        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+        intent.putExtra("sms_body", smsBody);
+        activity.startActivity(intent);
     }
 }

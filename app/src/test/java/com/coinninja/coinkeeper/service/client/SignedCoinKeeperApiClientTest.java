@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.service.client;
 
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
-import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNDeviceEndpoint;
@@ -13,8 +12,7 @@ import com.coinninja.coinkeeper.service.client.model.CNTopic;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
-import com.coinninja.coinkeeper.service.client.model.SentInvite;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -408,11 +406,11 @@ public class SignedCoinKeeperApiClientTest {
                 "]";
         webServer.enqueue(new MockResponse().setResponseCode(200).setBody(json));
         Response response = signedCoinKeeperApiClient.getReceivedInvites();
-        List<ReceivedInvite> invites = (List<ReceivedInvite>) response.body();
+        List<DropBitInvitation> invites = (List<DropBitInvitation>) response.body();
         assertThat(response.code(), equalTo(200));
         assertThat(invites.size(), equalTo(1));
 
-        ReceivedInvite invite = invites.get(0);
+        DropBitInvitation invite = invites.get(0);
         assertThat(invite.getAddress(), equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"));
         assertThat(invite.getCreated_at(), equalTo(1531921356000L));
         assertThat(invite.getId(), equalTo("a1bb1d88-bfc8-4085-8966-e0062278237c"));
@@ -473,13 +471,13 @@ public class SignedCoinKeeperApiClientTest {
         webServer.enqueue(new MockResponse().setResponseCode(200).setBody(json));
         Response response = signedCoinKeeperApiClient.updateInviteStatusCompleted("a1bb1d88-bfc8-4085-8966-e0062278237c", "7f3a2790d59853fdc620b8cd23c8f68158f8bbdcd337a5f2451620d6f76d4e03");
         assertThat(response.code(), equalTo(200));
-        SentInvite sentInvite = (SentInvite) response.body();
+        DropBitInvitation dropBitInvitation = (DropBitInvitation) response.body();
 
-        assertThat(sentInvite.getStatus(), equalTo("completed"));
-        assertThat(sentInvite.getId(), equalTo("a1bb1d88-bfc8-4085-8966-e0062278237c"));
-        assertThat(sentInvite.getTxid(), equalTo("7f3a2790d59853fdc620b8cd23c8f68158f8bbdcd337a5f2451620d6f76d4e03"));
-        assertThat(sentInvite.getMetadata().getReceiver().getPhone_number(), equalTo("5554441233"));
-        assertThat(sentInvite.getMetadata().getSender().getPhone_number(), equalTo("5554441234"));
+        assertThat(dropBitInvitation.getStatus(), equalTo("completed"));
+        assertThat(dropBitInvitation.getId(), equalTo("a1bb1d88-bfc8-4085-8966-e0062278237c"));
+        assertThat(dropBitInvitation.getTxid(), equalTo("7f3a2790d59853fdc620b8cd23c8f68158f8bbdcd337a5f2451620d6f76d4e03"));
+        assertThat(dropBitInvitation.getMetadata().getReceiver().getPhone_number(), equalTo("5554441233"));
+        assertThat(dropBitInvitation.getMetadata().getSender().getPhone_number(), equalTo("5554441234"));
     }
 
     @Test
@@ -513,9 +511,9 @@ public class SignedCoinKeeperApiClientTest {
         webServer.enqueue(new MockResponse().setResponseCode(200).setBody(json));
         Response response = signedCoinKeeperApiClient.updateInviteStatusCanceled("a1bb1d88-bfc8-4085-8966-e0062278237c");
         assertThat(response.code(), equalTo(200));
-        SentInvite sentInvite = (SentInvite) response.body();
+        DropBitInvitation dropBitInvitation = (DropBitInvitation) response.body();
 
-        assertThat(sentInvite.getStatus(), equalTo("canceled"));
+        assertThat(dropBitInvitation.getStatus(), equalTo("canceled"));
     }
 
     @Test
@@ -587,9 +585,9 @@ public class SignedCoinKeeperApiClientTest {
 
 
         assertThat(response.code(), equalTo(200));
-        List<SentInvite> sentInvites = (List<SentInvite>) response.body();
-        assertThat(sentInvites.size(), equalTo(1));
-        SentInvite invite = sentInvites.get(0);
+        List<DropBitInvitation> dropBitInvitations = (List<DropBitInvitation>) response.body();
+        assertThat(dropBitInvitations.size(), equalTo(1));
+        DropBitInvitation invite = dropBitInvitations.get(0);
         assertThat(invite.getId(), equalTo("a1bb1d88-bfc8-4085-8966-e0062278237c"));
         assertThat(invite.getStatus(), equalTo("completed"));
         assertThat(invite.getTxid(), equalTo("7f3a2790d59853fdc620b8cd23c8f68158f8bbdcd337a5f2451620d6f76d4e03"));
@@ -630,9 +628,9 @@ public class SignedCoinKeeperApiClientTest {
 
 
         assertThat(response.code(), equalTo(200));
-        List<ReceivedInvite> receivedInvites = (List<ReceivedInvite>) response.body();
+        List<DropBitInvitation> receivedInvites = (List<DropBitInvitation>) response.body();
         assertThat(receivedInvites.size(), equalTo(1));
-        ReceivedInvite invite = receivedInvites.get(0);
+        DropBitInvitation invite = receivedInvites.get(0);
         assertThat(invite.getId(), equalTo("a1bb1d88-bfc8-4085-8966-e0062278237c"));
         assertThat(invite.getSender(), equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"));
         assertThat(invite.getStatus(), equalTo("waiting-response"));

@@ -5,6 +5,8 @@ import android.net.Uri;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
+import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
@@ -171,6 +173,22 @@ public class ActivityNavigationUtilTest {
 
         Intent intent = new Intent(activity, VerifyPhoneVerificationCodeActivity.class);
         intent.putExtra(Intents.EXTRA_PHONE_NUMBER, number);
+        assertThat(activity, activityWithIntentStarted(intent));
+    }
+
+    @Test
+    public void shares_drop_bit_manually() {
+        DropBitInvitation dropBitInvitation = new DropBitInvitation();
+        InviteMetadata metadata = new InviteMetadata();
+        metadata.setAmount(new InviteMetadata.MetadataAmount(1000L, 1000L));
+        metadata.setReceiver(new InviteMetadata.MetadataContact(1, "3305551111"));
+        dropBitInvitation.setMetadata(metadata);
+
+        activityNavigationUtil.shareDropbitManually(activity, dropBitInvitation);
+
+        String receiver = dropBitInvitation.getMetadata().getReceiver().getPhoneNumber().toString();
+        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("sms", receiver, null));
+        intent.putExtra("sms_body",  activity.getString(R.string.manual_send_sms_message, "$10.00"));
         assertThat(activity, activityWithIntentStarted(intent));
     }
 }

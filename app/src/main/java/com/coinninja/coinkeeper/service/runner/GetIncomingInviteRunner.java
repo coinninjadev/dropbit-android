@@ -5,7 +5,7 @@ import android.util.Log;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
-import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,14 +33,14 @@ public class GetIncomingInviteRunner implements Runnable {
     public void run() {
         Response response = client.getReceivedInvites();
         if (response.isSuccessful()) {
-            writeInvitesToDatabase((List<ReceivedInvite>) response.body());
+            writeInvitesToDatabase((List<DropBitInvitation>) response.body());
         } else {
             logError(response);
         }
     }
 
-    private void writeInvitesToDatabase(List<ReceivedInvite> receivedInvites) {
-        for (ReceivedInvite invite : receivedInvites) {
+    private void writeInvitesToDatabase(List<DropBitInvitation> receivedInvites) {
+        for (DropBitInvitation invite : receivedInvites) {
             transactionHelper.saveReceivedInviteTransaction(walletHelper.getWallet(), invite);
         }
         updateWalletBalance();

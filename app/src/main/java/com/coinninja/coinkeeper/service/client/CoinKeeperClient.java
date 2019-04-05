@@ -12,10 +12,8 @@ import com.coinninja.coinkeeper.service.client.model.CNTransactionNotification;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
-import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
-import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
-import com.coinninja.coinkeeper.service.client.model.SentInvite;
+import com.coinninja.coinkeeper.service.client.model.DropBitInvitation;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.TransactionStats;
 import com.google.gson.JsonObject;
@@ -74,16 +72,16 @@ public interface CoinKeeperClient {
     // WALLET - BTC VIA PHONE NUMBER
 
     @POST("wallet/address_requests")
-    Call<InvitedContact> invitePhoneNumber(@Body JsonObject query);
+    Call<DropBitInvitation> invitePhoneNumber(@Body JsonObject query);
 
     @GET("wallet/address_requests/received")
-    Call<List<ReceivedInvite>> getAllIncomingInvites();
+    Call<List<DropBitInvitation>> getAllIncomingInvites();
 
     @GET("wallet/address_requests/sent")
-    Call<List<SentInvite>> getAllSentInvites();
+    Call<List<DropBitInvitation>> getAllSentInvites();
 
     @PATCH("wallet/address_requests/{id}")
-    Call<SentInvite> patchInvite(@Path("id") String id, @Body JsonObject query);
+    Call<DropBitInvitation> patchInvite(@Path("id") String id, @Body JsonObject query);
 
     @POST("wallet/addresses")
     Call<CNWalletAddress> sendAddress(@Body JsonObject query);
