@@ -327,6 +327,7 @@ by using their mobile number</string>
     <string name="transaction_details_see_transaction_details">transaction details</string>
     <string name="done">done</string>
     <string name="phone_number_input_widget_country_selection_title">Select Country</string>
+    <string name="logo_slide">logo_slide</string>
     <string name="user_account_verification_title">PHONE NUMBER STATUS</string>
 
 </resources>

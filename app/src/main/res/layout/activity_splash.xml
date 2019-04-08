@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.coinninja.coinkeeper.view.activity.SplashActivity">
-
     <ImageView
         android:id="@+id/img_logo"
         android:layout_width="@dimen/dropbit_logo_width"
@@ -14,7 +13,7 @@
         android:layout_centerInParent="true"
         android:layout_centerVertical="true"
         android:contentDescription="@string/app_name"
-        android:transitionName="ease_in"
+        android:transitionName="@string/logo_slide"
         android:scaleType="fitXY"
         app:srcCompat="@drawable/dropbit_logo_full"
         tools:targetApi="lollipop" />
