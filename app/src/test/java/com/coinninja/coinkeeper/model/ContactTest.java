@@ -58,6 +58,17 @@ public class ContactTest {
     }
 
     @Test
+    public void return_valid_number_when_set_correctly() {
+        assertThat(contact.getNumberWithCountryCode(), equalTo("13305551111"));
+    }
+
+    @Test
+    public void return_empty_string_with_bogus_phone_number() {
+        contact.setPhoneNumber("v9728bfw34e89vhwe8");
+        assertThat(contact.getNumberWithCountryCode(), equalTo(""));
+    }
+
+    @Test
     public void provides_displayable_international_string() {
         assertThat(contact.toDisplayNameOrInternationalPhoneNumber(), equalTo(DISPLAY_NAME));
 
