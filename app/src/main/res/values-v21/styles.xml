@@ -2,6 +2,7 @@
 <resources>
 
     <style name="CoinKeeperTheme.Dark.Toolbar" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowContentTransitions">true</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/colorPrimaryDark</item>

@@ -61,6 +61,7 @@
             android:noHistory="false"
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff" />
+
         <activity
             android:name=".view.activity.VerifyRecoverywordsActivity"
             android:label="@string/verify_recovery_words_header"

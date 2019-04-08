@@ -5,7 +5,6 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
@@ -23,7 +22,6 @@ import javax.inject.Inject;
 
 public class SplashActivity extends BaseActivity {
 
-    private int delayMillis = 1000;
     Runnable displayDelayRunnable;
 
     @Inject
@@ -55,7 +53,7 @@ public class SplashActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         createUserTask.execute();
-        findViewById(R.id.img_logo).postDelayed(displayDelayRunnable, delayMillis);
+        findViewById(R.id.img_logo).postDelayed(displayDelayRunnable, 500);
     }
 
     @Override
@@ -66,28 +64,20 @@ public class SplashActivity extends BaseActivity {
 
     void onUserCreated() {
         createUserTask = null;
-        boolean isAllTaskDone = asyncTasksEvaluation();
-        if (isAllTaskDone) {
+        if (asynctaskscompleted()) {
             showNextActivity();
         }
     }
 
     void onDelayComplete() {
         displayDelayRunnable = null;
-        boolean isAllTaskDone = asyncTasksEvaluation();
-
-        if (isAllTaskDone) {
+        if (asynctaskscompleted()) {
             showNextActivity();
         }
     }
 
-    synchronized boolean asyncTasksEvaluation() {
-
-        boolean isTimerRunning = displayDelayRunnable != null;
-
-        boolean isCreateUserRunning = createUserTask != null;
-
-        return !isTimerRunning && !isCreateUserRunning;
+    synchronized boolean asynctaskscompleted() {
+        return createUserTask == null && displayDelayRunnable == null;
     }
 
     @SuppressLint("NewApi")
@@ -97,38 +87,17 @@ public class SplashActivity extends BaseActivity {
         if (cnWalletManager.hasWallet()) {
             activityNavigationUtil.navigateToHome(this);
         } else {
-            newUserEvaluation();
-        }
-    }
-
-    private void newUserEvaluation() {
-        boolean hasSeenTrainingScreens = userHelper.hasCompletedTraining();
-
-        if (hasSeenTrainingScreens) {
             navigateToStartActivity();
-        } else {
-            navigateToTrainingActivity();
         }
-    }
-
-    private void navigateToTrainingActivity() {
-        Intent intent = new Intent(SplashActivity.this, TrainingActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
     }
 
     @SuppressLint("NewApi")
     private void navigateToStartActivity() {
         Intent intent = new Intent(this, StartActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         View imgLogo = findViewById(R.id.img_logo);
-        AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-        anim.setDuration(500);
-        imgLogo.startAnimation(anim);
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, imgLogo, imgLogo.getTransitionName());
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, imgLogo, getString(R.string.logo_slide));
         startActivity(intent, options.toBundle());
-        overridePendingTransition(0, 0);
     }
 
 

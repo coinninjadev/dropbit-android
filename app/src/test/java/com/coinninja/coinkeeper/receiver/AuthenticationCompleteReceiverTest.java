@@ -4,18 +4,21 @@ import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.service.CNGlobalMessagingService;
+import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowApplication;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static com.coinninja.matchers.IntentMatcher.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.robolectric.Shadows.shadowOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(RobolectricTestRunner.class)
@@ -24,20 +27,26 @@ public class AuthenticationCompleteReceiverTest {
 
     private TestCoinKeeperApplication application;
     private AuthenticationCompleteReceiver receiver;
+    private JobServiceScheduler jobServiceScheduler = mock(JobServiceScheduler.class);
 
     @Before
     public void setUp() throws Exception {
         application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
+        application.jobServiceScheduler = jobServiceScheduler;
         receiver = new AuthenticationCompleteReceiver();
     }
 
     @Test
     public void on_receive_start_cn_messaging_services_test() {
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         receiver.onReceive(application, null);
 
-        ShadowApplication shadowApp = shadowOf(application);
+        verify(jobServiceScheduler).enqueueWork(eq(application),
+                eq(CNGlobalMessagingService.class),
+                eq(JobServiceScheduler.GLOBAL_MESSAGING_SERVICE_JOB_ID),
+                argumentCaptor.capture());
 
-        Intent intent = shadowApp.getNextStartedService();
-        assertThat(intent.getComponent().getClassName(), equalTo(CNGlobalMessagingService.class.getName()));
+        Intent intent = new Intent(application, CNGlobalMessagingService.class);
+        assertThat(argumentCaptor.getValue(), equalTo(intent));
     }
 }

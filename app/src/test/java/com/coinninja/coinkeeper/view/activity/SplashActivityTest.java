@@ -68,7 +68,6 @@ public class SplashActivityTest {
         activity.userHelper = userHelper;
         activity.cnWalletManager = cnWalletManager;
         activity.activityNavigationUtil = activityNavigationUtil;
-        PrivateAccessor.setField(activity, "delayMillis", 0);
     }
 
     @After
@@ -84,6 +83,7 @@ public class SplashActivityTest {
 
     void start() {
         activityActivityController.start().resume().visible();
+        activity.displayDelayRunnable = null;
         //TODO abstract to startup Manager class?
         activity.onUserCreated();
     }
@@ -95,26 +95,13 @@ public class SplashActivityTest {
     }
 
     @Test
-    public void startsStartActivityWhenRecoveryWordsAreNotSaved_and_user_has_completed_training() {
-        when(userHelper.hasCompletedTraining()).thenReturn(true);
+    public void startsStartActivityWhenRecoveryWordsAreNotSaved() {
         start();
 
         ShadowActivity shadowActivity = shadowOf(activity);
         Intent intent = shadowActivity.getNextStartedActivity();
 
         assertThat(intent.getComponent().getClassName(), equalTo(StartActivity.class.getName()));
-    }
-
-    @Test
-    public void starts_TrainingActivity_when_recoveryWords_AreNot_Saved_and_user_has_not_completed_training() {
-        when(userHelper.hasCompletedTraining()).thenReturn(false);
-        start();
-
-        ShadowActivity shadowActivity = shadowOf(activity);
-        Intent intent = shadowActivity.getNextStartedActivity();
-
-        assertThat(intent.getComponent().getClassName(),
-                equalTo(TrainingActivity.class.getName()));
     }
 
     @Test

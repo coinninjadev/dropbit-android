@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.di.builder;
 
 import com.coinninja.coinkeeper.receiver.ApplicationStartedReceiver;
+import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
 import com.coinninja.coinkeeper.receiver.DeviceRebootBootCompletedReceiver;
 import com.coinninja.coinkeeper.receiver.StartupCompleteReceiver;
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver;
@@ -30,4 +31,7 @@ public abstract class AndroidBroadcastReceiverBuilder {
 
     @ContributesAndroidInjector
     abstract DeviceRebootBootCompletedReceiver deviceRebootBootCompletedReceiver();
+
+    @ContributesAndroidInjector
+    abstract AuthenticationCompleteReceiver authenticationCompleteReceiver();
 }

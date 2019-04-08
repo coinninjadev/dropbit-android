@@ -8,13 +8,13 @@
 
 
     <ImageView
-        android:id="@+id/img_logo"
+        android:id="@+id/img_logo_start"
         android:layout_width="@dimen/dropbit_logo_width"
         android:layout_height="@dimen/dropbit_logo_height"
         android:layout_above="@+id/start_txt_slogan"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/vertical_margin"
-        android:transitionName="ease_in"
+        android:transitionName="@string/logo_slide"
         android:scaleType="fitXY"
         app:srcCompat="@drawable/dropbit_logo_full"
         tools:ignore="UnusedAttribute"
