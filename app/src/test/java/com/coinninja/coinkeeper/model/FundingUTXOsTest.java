@@ -5,6 +5,7 @@ import android.content.res.Resources;
 
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.TargetStat;
 import com.coinninja.coinkeeper.model.db.TargetStatDao;
@@ -72,8 +73,6 @@ public class FundingUTXOsTest {
         when(mockBtcFee.toSatoshis()).thenReturn(satoshisFee);
 
         when(hdWallet.getFeeForTransaction(anyObject(), anyInt())).thenReturn(mockBtcFee);
-
-
     }
 
     @Test
@@ -207,7 +206,7 @@ public class FundingUTXOsTest {
         long expectedFee = 700;
         long expectedSpending = 1000;
         long expectedTotalSpending = expectedFee + expectedSpending;
-        long expectedChange = 3500;
+        long expectedChange = 3300;
 
         List<TargetStat> usableTargets = buildTargetStats();
 
@@ -226,6 +225,8 @@ public class FundingUTXOsTest {
 
         assertThat(fundingUTXOs.getSatoshisFundedTotal(), equalTo(expectedFundedTotal));
         assertThat(fundingUTXOs.getSatoshisFeesSpending(), equalTo(expectedFee));
+        assertThat(fundingUTXOs.getSatoshisTotalSpending(), equalTo(expectedTotalSpending));
+        assertThat(fundingUTXOs.getSatoshisFundedTotal() - fundingUTXOs.getSatoshisTotalSpending(), equalTo(expectedChange));
     }
 
     @Test

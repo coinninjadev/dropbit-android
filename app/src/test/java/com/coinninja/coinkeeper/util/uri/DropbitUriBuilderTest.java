@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import static com.coinninja.coinkeeper.util.uri.routes.DropbitRoute.DROPBIT_TRANSACTION;
+import static com.coinninja.coinkeeper.util.uri.routes.DropbitRoute.DUST_PROTECTION;
 import static com.coinninja.coinkeeper.util.uri.routes.DropbitRoute.REGULAR_TRANSACTION;
 import static com.coinninja.coinkeeper.util.uri.routes.DropbitRoute.TRANSACTION_DETAILS;
 import static junit.framework.TestCase.assertEquals;
@@ -29,4 +30,9 @@ public class DropbitUriBuilderTest {
         assertEquals(builder.build(TRANSACTION_DETAILS).toString(), "https://dropbit.app/tooltips/transactiondetails");
     }
 
+    @Test
+    public void explains_dust_protection() {
+        assertEquals(builder.build(DUST_PROTECTION).toString(), "https://dropbit.app/tooltips/dustprotection");
+
+    }
 }

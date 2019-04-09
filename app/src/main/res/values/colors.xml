@@ -3,7 +3,6 @@
     <color name="colorPrimary">#0c344b</color>
     <color name="colorPrimaryDark">#242536</color>
     <color name="colorAccent">#2cd1ff</color>
-    <color name="colorSuccess">#2cd1ff</color>
     <color name="colorDisabled">#40000000</color>
     <color name="colorFlatHover">#20000000</color>
 
@@ -54,7 +53,6 @@
     <color name="color_error_pressed">#E49E9E</color>
 
     <color name="fontColor">#9b9b9b</color>
-    <color name="back">#f4f4f4f4</color>
     <color name="light">#ffffffff</color>
     <color name="light_border">#D8D8D8</color>
 

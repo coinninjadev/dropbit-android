@@ -114,6 +114,4 @@
         <item name="android:background">@drawable/background_light_actionbar</item>
         <item name="background">@drawable/background_light_actionbar</item>
     </style>
-
-
 </resources>

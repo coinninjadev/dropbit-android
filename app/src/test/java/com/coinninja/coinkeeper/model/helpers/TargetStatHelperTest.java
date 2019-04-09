@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
 import com.coinninja.coinkeeper.model.db.TargetStat;
 import com.coinninja.coinkeeper.model.db.TargetStatDao;
 import com.coinninja.coinkeeper.model.db.Wallet;
@@ -35,6 +36,8 @@ public class TargetStatHelperTest {
 
     @Mock
     private Wallet wallet;
+    @Mock
+    private DustProtectionPreference dustProtectionPreference;
 
     @InjectMocks
     private TargetStatHelper targetStatHelper;
@@ -51,11 +54,12 @@ public class TargetStatHelperTest {
         wallet = null;
         targetStatHelper = null;
         daoSessionManager = null;
+        dustProtectionPreference = null;
     }
 
     //todo: this is a concrete test preventing accidental change. It is not a behavior test.
     @Test
-    public void inits_query_rightly() {
+    public void inits_query_rightly_with_dust_protection() {
         TargetStat mockTarget = mock(TargetStat.class);
         List<TargetStat> mockTargets = new ArrayList<>();
         mockTargets.add(mockTarget);
@@ -63,9 +67,10 @@ public class TargetStatHelperTest {
         QueryBuilder<TargetStat> qb = mock(QueryBuilder.class);
         TargetStatDao mockTargetStatDao = mock(TargetStatDao.class);
 
+        when(dustProtectionPreference.isDustProtectionEnabled()).thenReturn(true);
         when(daoSessionManager.getTargetStatDao()).thenReturn(mockTargetStatDao);
         when(mockTargetStatDao.queryBuilder()).thenReturn(qb);
-        when(qb.where(any(), any(), any(), any())).thenReturn(qb);
+        when(qb.where(any(), any(), any(), any(), any())).thenReturn(qb);
         when(qb.orderAsc(any())).thenReturn(qb);
         when(qb.list()).thenReturn(mockTargets);
 
@@ -75,7 +80,7 @@ public class TargetStatHelperTest {
 
         ArgumentCaptor<WhereCondition> argumentCaptor = ArgumentCaptor.forClass(WhereCondition.class);
 
-        verify(qb).where(argumentCaptor.capture(), argumentCaptor.capture(), argumentCaptor.capture(), argumentCaptor.capture());
+        verify(qb).where(argumentCaptor.capture(), argumentCaptor.capture(), argumentCaptor.capture(), argumentCaptor.capture(), argumentCaptor.capture());
 
         List<WhereCondition> values = argumentCaptor.getAllValues();
         assertThat(((WhereCondition.PropertyCondition) values.get(0)).op,
@@ -85,6 +90,45 @@ public class TargetStatHelperTest {
         assertThat(((WhereCondition.PropertyCondition) values.get(2)).op,
                 equalTo(((WhereCondition.PropertyCondition) TargetStatDao.Properties.AddressId.isNotNull()).op));
         assertThat(((WhereCondition.PropertyCondition) values.get(3)).op,
+                equalTo(((WhereCondition.PropertyCondition) TargetStatDao.Properties.Value.gt(9999L)).op));
+        assertThat(((WhereCondition.PropertyCondition) values.get(4)).op,
+                equalTo(((WhereCondition.PropertyCondition) TargetStatDao.Properties.FundingId.isNull()).op));
+    }
+
+    @Test
+    public void inits_query_rightly_without_dust_protection() {
+        TargetStat mockTarget = mock(TargetStat.class);
+        List<TargetStat> mockTargets = new ArrayList<>();
+        mockTargets.add(mockTarget);
+
+        QueryBuilder<TargetStat> qb = mock(QueryBuilder.class);
+        TargetStatDao mockTargetStatDao = mock(TargetStatDao.class);
+
+        when(dustProtectionPreference.isDustProtectionEnabled()).thenReturn(false);
+        when(daoSessionManager.getTargetStatDao()).thenReturn(mockTargetStatDao);
+        when(mockTargetStatDao.queryBuilder()).thenReturn(qb);
+        when(qb.where(any(), any(), any(), any(), any())).thenReturn(qb);
+        when(qb.orderAsc(any())).thenReturn(qb);
+        when(qb.list()).thenReturn(mockTargets);
+
+
+        targetStatHelper.getSpendableTargets();
+
+
+        ArgumentCaptor<WhereCondition> argumentCaptor = ArgumentCaptor.forClass(WhereCondition.class);
+
+        verify(qb).where(argumentCaptor.capture(), argumentCaptor.capture(), argumentCaptor.capture(), argumentCaptor.capture(), argumentCaptor.capture());
+
+        List<WhereCondition> values = argumentCaptor.getAllValues();
+        assertThat(((WhereCondition.PropertyCondition) values.get(0)).op,
+                equalTo(((WhereCondition.PropertyCondition) TargetStatDao.Properties.State.notEq(TargetStat.State.CANCELED.getId())).op));
+        assertThat(((WhereCondition.PropertyCondition) values.get(1)).op,
+                equalTo(((WhereCondition.PropertyCondition) TargetStatDao.Properties.WalletId.eq(1l)).op));
+        assertThat(((WhereCondition.PropertyCondition) values.get(2)).op,
+                equalTo(((WhereCondition.PropertyCondition) TargetStatDao.Properties.AddressId.isNotNull()).op));
+        assertThat(((WhereCondition.PropertyCondition) values.get(3)).op,
+                equalTo(((WhereCondition.PropertyCondition) TargetStatDao.Properties.Value.gt(0L)).op));
+        assertThat(((WhereCondition.PropertyCondition) values.get(4)).op,
                 equalTo(((WhereCondition.PropertyCondition) TargetStatDao.Properties.FundingId.isNull()).op));
     }
 
@@ -99,7 +143,7 @@ public class TargetStatHelperTest {
         TargetStatDao mockTargetStatDao = mock(TargetStatDao.class);
         when(daoSessionManager.getTargetStatDao()).thenReturn(mockTargetStatDao);
         when(mockTargetStatDao.queryBuilder()).thenReturn(qb);
-        when(qb.where(any(), any(), any(), any())).thenReturn(qb);
+        when(qb.where(any(), any(), any(), any(), any())).thenReturn(qb);
         when(qb.orderAsc(any())).thenReturn(qb);
         when(qb.list()).thenReturn(mockTargets);
 

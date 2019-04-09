@@ -21,174 +21,132 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <Button
         android:id="@+id/settings_sync"
+        style="@style/FlatButton.Settings"
         android:layout_width="match_parent"
-        android:layout_height="33dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
         android:layout_marginEnd="8dp"
+        android:drawableEnd="@drawable/preference_arrow"
+        android:gravity="start|center_vertical"
+        android:text="@string/preference_sync_now_label"
+        android:textAppearance="@style/TextAppearance.Small.PrimaryDark"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/wallet_category">
+        app:layout_constraintTop_toBottomOf="@+id/recover_wallet" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/preference_sync_now_label"
-            android:textAppearance="@style/TextAppearance.Small.PrimaryDark"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageView"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="@dimen/preference_icon_size"
-            android:layout_height="@dimen/preference_icon_size"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:scaleType="fitXY"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/preference_arrow"
-            tools:ignore="RtlHardcoded" />
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <Button
         android:id="@+id/recover_wallet"
+        style="@style/FlatButton.Settings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:background="@color/background_color"
+        android:drawableEnd="@drawable/preference_arrow"
+        android:gravity="start|center_vertical"
+        android:text="@string/recover_wallet_label"
+        android:textAppearance="@style/TextAppearance.Small.PrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_sync">
+        app:layout_constraintTop_toBottomOf="@+id/wallet_category" />
 
+    <Button
+        android:id="@+id/not_backed_up_message"
+        style="@style/FlatButton.Settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/not_backedup"
+        android:textAppearance="@style/TextAppearance.Small.Error"
+        android:textColor="@color/color_error"
+        app:layout_constraintBottom_toBottomOf="@+id/recover_wallet"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintStart_toStartOf="@+id/recover_wallet"
+        app:layout_constraintTop_toTopOf="@+id/recover_wallet"
+        tools:ignore="UnknownId" />
 
-        <TextView
-            android:id="@+id/recover_wallet_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/recover_wallet_label"
-            android:textAppearance="@style/TextAppearance.Small.PrimaryDark"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/dust_protection_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="@string/dust_protection"
+        android:textAppearance="@style/TextAppearance.Settings"
+        app:layout_constraintBottom_toBottomOf="@+id/dust_protection_toggle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/dust_protection_toggle" />
 
-        <TextView
-            android:id="@+id/not_backed_up_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@string/not_backedup"
-            android:textAppearance="@style/TextAppearance.Small.Error"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/recover_wallet_arrow"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/recover_wallet_title"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="UnknownId" />
+    <TextView
+        android:id="@+id/dust_protection_tooltip"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginVertical="25dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/question_mark_circle"
+        android:text="?"
+        android:textAlignment="center"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/dust_protection_toggle"
+        app:layout_constraintStart_toEndOf="@+id/dust_protection_label"
+        app:layout_constraintTop_toTopOf="@+id/dust_protection_toggle"
+        tools:targetApi="o" />
 
-
-        <ImageView
-            android:id="@+id/recover_wallet_arrow"
-            android:layout_width="@dimen/preference_icon_size"
-            android:layout_height="@dimen/preference_icon_size"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:scaleType="fitXY"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/preference_arrow" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <Switch
+        android:id="@+id/dust_protection_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_sync" />
 
     <TextView
         android:id="@+id/license_category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:text="@string/licenses"
         android:textAppearance="@style/TextAppearance.Strong.PrimaryColor.Caps"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recover_wallet" />
+        app:layout_constraintTop_toBottomOf="@+id/dust_protection_toggle" />
 
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <Button
         android:id="@+id/open_source"
+        style="@style/FlatButton.Settings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
+        android:drawableEnd="@drawable/preference_arrow"
+        android:gravity="start|center_vertical"
+        android:text="@string/open_source"
+        android:textAppearance="@style/TextAppearance.Small.PrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/license_category">
+        app:layout_constraintTop_toBottomOf="@+id/license_category" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/open_source"
-            android:textAppearance="@style/TextAppearance.Small.PrimaryDark"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="@dimen/preference_icon_size"
-            android:layout_height="@dimen/preference_icon_size"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:scaleType="fitXY"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/preference_arrow"
-            tools:ignore="RtlHardcoded" />
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <TextView
+    <Button
         android:id="@+id/delete_wallet"
-        android:layout_width="wrap_content"
+        style="@style/FlatButton.Settings"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/delete_wallet"
         android:textAppearance="@style/TextAppearance.Error"
+        android:textColor="@color/color_error"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/open_source"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

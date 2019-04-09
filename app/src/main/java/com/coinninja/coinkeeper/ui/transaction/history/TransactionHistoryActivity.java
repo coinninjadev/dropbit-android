@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
+import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
@@ -48,6 +49,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     CurrencyPreference currencyPreference;
 
     PaymentBarFragment fragment;
+    IntentFilter intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
     private RecyclerView transactionHistory;
     private LazyList<TransactionsInvitesSummary> transactions;
     BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -62,7 +64,6 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         }
     };
     private String bitcoinUriString;
-    IntentFilter intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
 
     @Override
     public void onItemClick(View view, int position) {
@@ -88,13 +89,6 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        adapter.setOnItemClickListener(null);
-        localBroadCastUtil.unregisterReceiver(receiver);
-    }
-
-    @Override
     protected void onStart() {
         super.onStart();
         transactions = walletHelper.getTransactionsLazily();
@@ -105,9 +99,10 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        adapter.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
+    protected void onPause() {
+        super.onPause();
+        adapter.setOnItemClickListener(null);
+        localBroadCastUtil.unregisterReceiver(receiver);
     }
 
     @Override
@@ -128,6 +123,12 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     protected void onWalletSyncComplete() {
         super.onWalletSyncComplete();
         refreshTransactions();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        adapter.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
     }
 
     @Override

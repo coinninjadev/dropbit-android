@@ -3,19 +3,24 @@ package com.coinninja.coinkeeper.ui.settings;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Switch;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
+import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.LicensesActivity;
 import com.coinninja.coinkeeper.view.activity.SplashActivity;
+import com.coinninja.matchers.IntentMatcher;
 
 import org.junit.After;
 import org.junit.Before;
@@ -29,10 +34,13 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.shadows.ShadowActivity;
 
+import static com.coinninja.android.helpers.Views.clickOn;
+import static com.coinninja.android.helpers.Views.withId;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,18 +50,16 @@ import static org.robolectric.Shadows.shadowOf;
 public class SettingsActivityTest {
 
     @Mock
-    private CNWalletManager cnWalletManager;
-
-    @Mock
-    private DeleteWalletPresenter deleteWalletPresenter;
-
-    @Mock
-    private SyncWalletManager syncWalletManager;
-
-
+    DustProtectionPreference dustProtectionPreference;
     @Mock
     PhoneNumberUtil phoneNumberUtil;
-
+    @Mock
+    private CNWalletManager cnWalletManager;
+    @Mock
+    private DeleteWalletPresenter deleteWalletPresenter;
+    @Mock
+    private SyncWalletManager syncWalletManager;
+    private DropbitUriBuilder dropbitUriBuilder = new DropbitUriBuilder();
     private ActivityController<SettingsActivity> activityController;
     private SettingsActivity activity;
     private ShadowActivity shadowActivity;
@@ -67,13 +73,16 @@ public class SettingsActivityTest {
         activityController = null;
         shadowActivity = null;
         phoneNumberUtil = null;
+        dropbitUriBuilder = null;
+        dustProtectionPreference = null;
     }
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         TestCoinKeeperApplication coinKeeperApplication = (TestCoinKeeperApplication) RuntimeEnvironment.application;
         when(coinKeeperApplication.authentication.isAuthenticated()).thenReturn(true);
-        MockitoAnnotations.initMocks(this);
+        when(dustProtectionPreference.isDustProtectionEnabled()).thenReturn(false);
         activityController = Robolectric.buildActivity(SettingsActivity.class);
         activityController.create();
         activity = activityController.get();
@@ -81,16 +90,9 @@ public class SettingsActivityTest {
         activity.cnWalletManager = cnWalletManager;
         activity.syncWalletManager = syncWalletManager;
         activity.phoneNumberUtil = phoneNumberUtil;
+        activity.dustProtectionPreference = dustProtectionPreference;
+        activity.dropbitUriBuilder = dropbitUriBuilder;
         shadowActivity = shadowOf(activity);
-    }
-
-    private void start() {
-        start(false);
-    }
-
-    private void start(boolean isDebug) {
-        activity.isDebugBuild = isDebug;
-        activityController.start().resume().visible();
     }
 
     @Test
@@ -134,7 +136,6 @@ public class SettingsActivityTest {
                 equalTo(LicensesActivity.class.getName()));
     }
 
-
     @Test
     public void clicking_sync_triggers_sync() {
         start(true);
@@ -168,7 +169,6 @@ public class SettingsActivityTest {
         assertThat(startedActivity.getComponent().getClassName(), equalTo(SplashActivity.class.getName()));
         assertThat(startedActivity.getFlags(), equalTo(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
     }
-
 
     @Test
     public void performs_authorization_for_deleting_wallet() {
@@ -225,5 +225,44 @@ public class SettingsActivityTest {
         String authorizedActionMessage = extras.getString(Intents.EXTRA_AUTHORIZED_ACTION_MESSAGE);
 
         assertThat(authorizedActionMessage, equalTo(expectedAuthMessage));
+    }
+
+    @Test
+    public void renders_state_of_dust_protection_preference() {
+        when(dustProtectionPreference.isDustProtectionEnabled()).thenReturn(true);
+        start();
+
+        Switch view = withId(activity, R.id.dust_protection_toggle);
+
+        assertTrue(view.isChecked());
+    }
+
+    @Test
+    public void observes_switch_toggle() {
+        when(dustProtectionPreference.isDustProtectionEnabled()).thenReturn(true);
+        start();
+        clickOn(withId(activity, R.id.dust_protection_toggle));
+
+        verify(dustProtectionPreference).setProtection(false);
+    }
+
+    @Test
+    public void clicking_on_tooltip_for_dust_protection_navigates_to_website() {
+        start();
+
+        clickOn(withId(activity, R.id.dust_protection_tooltip));
+
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        Intent expectedIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://dropbit.app/tooltips/dustprotection"));
+        assertThat(intent, IntentMatcher.equalTo(expectedIntent));
+    }
+
+    private void start() {
+        start(false);
+    }
+
+    private void start(boolean isDebug) {
+        activity.isDebugBuild = isDebug;
+        activityController.start().resume().visible();
     }
 }
