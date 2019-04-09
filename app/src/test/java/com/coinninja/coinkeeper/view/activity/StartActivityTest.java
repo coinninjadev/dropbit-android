@@ -4,7 +4,8 @@ import android.content.Intent;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
+import com.coinninja.coinkeeper.service.WalletCreationIntentService;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.view.animation.StartScreenAnimation;
 
@@ -52,12 +53,15 @@ public class StartActivityTest {
     }
 
     @Test
-    public void clicking_create_wallet_creates_wallet() {
+    public void clicking_create_wallet_creates_wallet_and_skips_backup() {
         activity.findViewById(R.id.start_btn_new_wallet).performClick();
 
         Intent intent = shadowActivity.getNextStartedActivity();
+
         assertThat(intent.getComponent().getClassName(), equalTo(CreatePinActivity.class.getName()));
-        assertThat(intent.getStringExtra(Intents.EXTRA_NEXT), equalTo(BackupRecoveryWordsStartActivity.class.getName()));
+        assertThat(intent.getStringExtra(Intents.EXTRA_NEXT), equalTo(VerifyPhoneNumberActivity.class.getName()));
+        Intent completionIntent = (Intent) intent.getExtras().get(Intents.EXTRA_ON_COMPLETION);
+        assertThat(completionIntent.getComponent().getClassName(), equalTo(WalletCreationIntentService.class.getName()));
     }
 
     @Test

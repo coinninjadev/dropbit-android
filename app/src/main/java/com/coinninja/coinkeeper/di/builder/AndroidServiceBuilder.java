@@ -17,6 +17,7 @@ import com.coinninja.coinkeeper.service.PushNotificationEndpointRegistrationServ
 import com.coinninja.coinkeeper.service.SaveInviteService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
 import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
+import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.service.WalletTransactionRetrieverService;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
 
@@ -25,6 +26,9 @@ import dagger.android.ContributesAndroidInjector;
 
 @Module
 public abstract class AndroidServiceBuilder {
+
+    @ContributesAndroidInjector
+    abstract WalletCreationIntentService walletCreationIntentService();
 
     @ContributesAndroidInjector
     abstract DeleteWalletService deleteWalletService();

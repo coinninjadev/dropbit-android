@@ -97,6 +97,7 @@ public class Intents {
     public static final String EXTRA_PHONE_NUMBER_HASH = "EXTRA_PHONE_NUMBER_HASH";
     public static final String EXTRA_ADDRESS_LOOKUP_RESULT = "EXTRA_ADDRESS_LOOKUP_RESULT";
     public static final String EXTRA_PREFERENCE = "EXTRA_PREFERENCE";
+    public static final String EXTRA_ON_COMPLETION = "EXTRA_ON_COMPLETION";
     /* CN Rest API KEYS */
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ALL = "all";
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID = "android";
@@ -118,6 +119,7 @@ public class Intents {
     public static final String CN_API_CREATE_DEVICE_APPLICATION_NAME = "DropBit";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_ANDROID = "android";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_IOS = "ios";
+
     /* REQUESTS */
     public static int REQUEST_QR_FRAGMENT_SCAN = 222;
 

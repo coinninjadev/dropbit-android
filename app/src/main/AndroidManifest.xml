@@ -280,6 +280,9 @@
             android:name=".service.BroadcastTransactionService"
             android:exported="false" />
         <service
+            android:name=".service.WalletCreationIntentService"
+            android:exported="false" />
+        <service
             android:name=".service.SaveInviteService"
             android:exported="false" />
         <service
