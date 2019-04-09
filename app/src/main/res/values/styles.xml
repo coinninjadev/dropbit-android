@@ -207,6 +207,13 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="FlatButton.Settings">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingLeft">0dp</item>
+    </style>
+
     <style name="FlatButton.Accent">
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">@color/colorAccent</item>
@@ -256,30 +263,18 @@
         <item name="android:textSize">10sp</item>
     </style>
 
-
     <!-- Text Styles -->
-
-    <style name="TextAppearance.Message.Error" parent="TextAppearance">
-        <item name="android:textSize">@dimen/text_size_normal</item>
-        <item name="android:fontFamily">@font/montserrat_regular</item>
-        <item name="android:textColor">@color/font_lightest_gray</item>
-    </style>
-
-    <style name="TextAppearance.Strong.PrimaryColor" parent="TextAppearance">
-        <item name="android:fontFamily">@font/montserrat_semibold</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="android:textSize">15sp</item>
-    </style>
-
-    <style name="TextAppearance.Strong.PrimaryColor.Caps" parent="TextAppearance.Strong.PrimaryColor">
-        <item name="android:textAllCaps">true</item>
-    </style>
 
     <style name="TextAppearance" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/montserrat_light</item>
         <item name="android:textColor">@color/font_default</item>
         <item name="android:lineSpacingExtra">5sp</item>
         <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Settings">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
     <style name="TextAppearance.Inverse" parent="TextAppearance.AppCompat">
@@ -296,6 +291,22 @@
     <style name="TextAppearance.History.Currency" parent="TextAppearance">
         <item name="android:fontFamily">@font/montserrat_light</item>
         <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="TextAppearance.Message.Error" parent="TextAppearance">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/font_lightest_gray</item>
+    </style>
+
+    <style name="TextAppearance.Strong.PrimaryColor" parent="TextAppearance">
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Strong.PrimaryColor.Caps" parent="TextAppearance.Strong.PrimaryColor">
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <style name="TextAppearance.History.Address" parent="TextAppearance.AppCompat">
@@ -413,12 +424,6 @@
     </style>
 
     <style name="TextAppearance.History.Details.Date" parent="TextAppearance.History.Details.Confirmations">
-        <item name="android:textSize">13sp</item>
-    </style>
-
-    <style name="TextAppearance.History.Details.Address" parent="TextAppearance.History.Details.Date">
-        <item name="android:textColor">@color/colorSuccess</item>
-        <item name="android:fontFamily">@font/montserrat_regular</item>
         <item name="android:textSize">13sp</item>
     </style>
 

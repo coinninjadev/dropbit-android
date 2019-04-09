@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum DropbitRoute {
+    DUST_PROTECTION,
     DROPBIT_TRANSACTION,
     REGULAR_TRANSACTION,
     SERVER_ADDRESSES,
@@ -17,6 +18,9 @@ public enum DropbitRoute {
         List<String> paths = new ArrayList<String>();
         paths.add(TOOLTIP_ROUTE);
         switch(this) {
+            case DUST_PROTECTION:
+                paths.add("dustprotection");
+                break;
             case DROPBIT_TRANSACTION:
                 paths.add("dropbittransaction");
                 break;

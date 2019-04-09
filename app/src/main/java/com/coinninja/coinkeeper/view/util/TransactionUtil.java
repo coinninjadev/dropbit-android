@@ -11,7 +11,6 @@ public class TransactionUtil {
 
 
     public static boolean IS_TARGETSTAT_NOT_SPENDABLE(TargetStat target) {
-        //TODO: isn't this a bug? Isn't a confirmation spendable as soon as it is mined? ( <= SPENDING_COUNT)
         int numConfirmations = target.getTransaction().getNumConfirmations();
         return tooFewConfirmations(target, numConfirmations) || FAILED_TO_BROADCAST(target.getTransaction());
     }

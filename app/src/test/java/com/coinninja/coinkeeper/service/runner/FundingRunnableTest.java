@@ -8,13 +8,12 @@ import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.TargetStat;
-import com.coinninja.coinkeeper.model.db.TargetStatDao;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
-import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
+import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 
-import org.greenrobot.greendao.query.QueryBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +25,6 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
@@ -40,13 +38,11 @@ public class FundingRunnableTest {
     @Mock
     private Resources resources;
     @Mock
-    private TargetStatDao targetStatDao;
-    @Mock
     private HDWallet hdWallet;
     @Mock
-    private DaoSessionManager daoSessionManager;
-    @Mock
     private TransactionFee transactionFee;
+    @Mock
+    private TargetStatHelper targetStatHelper;
 
     private String fundingError = "funding error";
 
@@ -55,26 +51,30 @@ public class FundingRunnableTest {
     @Before
     public void setUp() throws Exception {
         when(context.getResources()).thenReturn(resources);
-        when(daoSessionManager.getTargetStatDao()).thenReturn(targetStatDao);
         when(resources.getString(R.string.pay_not_enough_funds_error)).thenReturn(fundingError);
 
-        runner = new FundingRunnable(context, hdWallet, daoSessionManager);
+        runner = new FundingRunnable(context, hdWallet, targetStatHelper);
         runner.setTransactionFee(transactionFee);
 
         BTCCurrency mockBtcFee = mock(BTCCurrency.class);
         when(hdWallet.getFeeForTransaction(anyObject(), anyInt())).thenReturn(mockBtcFee);
     }
 
+    @After
+    public void tearDown() {
+        runner = null;
+        fundingError = null;
+        targetStatHelper = null;
+        transactionFee = null;
+        hdWallet = null;
+        resources = null;
+        context = null;
+    }
+
     @Test
     public void execute_runner() {
         List<TargetStat> usableTargets = buildTargetStats();
-
-
-        QueryBuilder<TargetStat> qb = mock(QueryBuilder.class);
-        when(targetStatDao.queryBuilder()).thenReturn(qb);
-        when(qb.where(any(), any())).thenReturn(qb);
-        when(qb.orderAsc(any())).thenReturn(qb);
-        when(qb.list()).thenReturn(usableTargets);
+        when(targetStatHelper.getSpendableTargets()).thenReturn(usableTargets);
 
         Long satoshisTotalSpend = 3982l;
         FundingUTXOs fundingUTXOs = runner.fundRun(satoshisTotalSpend, null);

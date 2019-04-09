@@ -28,7 +28,6 @@
     <string name="account_verification_overview">Verify your phone number to use the DropBit feature. DropBit allows you to send Bitcoin directly to your contacts 
 by using their mobile number</string>
     <string name="verify_phone_button_title">VERIFY PHONE NUMBER</string>
-    <string name="account_verification_title">PHONE NUMBER STATUS</string>
 
     <!-- Fingerprint Auth Related Strings -->
     <string name="fingerprint_negative_button">cancel</string>
@@ -188,6 +187,7 @@ by using their mobile number</string>
     <string name="licenses">LICENSES</string>
     <string name="open_source">Open Source</string>
     <string name="recover_wallet_label">Recovery Words</string>
+    <string name="dust_protection">Dust Protection</string>
 
     <!-- Message System -->
     <string name="message_system_no_internet">Not connected. Please refresh to try again</string>
@@ -294,7 +294,6 @@ by using their mobile number</string>
     <string name="action_close_title">X</string>
 
     <!-- Deverification Strings -->
-    <string name="deverification_settings_remove">remove</string>
     <string name="deverification_message_are_you_sure">Are you sure you want to remove your number? You will be able to add a new number after your current number is removed.</string>
     <string name="deverification_dialog_are_you_sure_positive">remove</string>
     <string name="deverification_dialog_are_you_sure_negative">cancel</string>
@@ -327,6 +326,8 @@ by using their mobile number</string>
     <string name="transaction_details_see_transaction_details">transaction details</string>
     <string name="done">done</string>
     <string name="phone_number_input_widget_country_selection_title">Select Country</string>
+
+    <!-- User Phone Verification -->
     <string name="user_account_verification_title">PHONE NUMBER STATUS</string>
     <string name="server_addresses_overview">These are the addresses from your wallet that we securely store on the server for DropBit requests</string>
     <string name="dropbit_addresses_title">DropBit Addresses</string>

@@ -63,6 +63,10 @@ public class FundingUTXOs {
         return satoshisFeesSpending;
     }
 
+    public interface ProgressListener {
+        void onProgressUpdate(int progress);
+    }
+
     public static class Builder {
         private static final String TAG = Builder.class.getSimpleName();
 
@@ -265,9 +269,5 @@ public class FundingUTXOs {
 
             Log.i(TAG, outFeeMessage.toString());
         }
-    }
-
-    public interface ProgressListener {
-        void onProgressUpdate(int progress);
     }
 }

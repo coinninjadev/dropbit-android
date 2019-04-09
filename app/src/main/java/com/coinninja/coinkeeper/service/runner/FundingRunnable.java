@@ -12,8 +12,7 @@ import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.TargetStat;
-import com.coinninja.coinkeeper.model.db.TargetStatDao;
-import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
+import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
@@ -25,7 +24,7 @@ import javax.inject.Inject;
 
 public class FundingRunnable {
     private final HDWallet hDWallet;
-    private final DaoSessionManager daoSessionManager;
+    private final TargetStatHelper targetStatHelper;
     private final Resources resources;
 
     private String paymentAddress;
@@ -35,10 +34,10 @@ public class FundingRunnable {
 
 
     @Inject
-    public FundingRunnable(@ApplicationContext Context context, HDWallet hDWallet, DaoSessionManager daoSessionManager) {
-        this.hDWallet = hDWallet;
-        this.daoSessionManager = daoSessionManager;
+    public FundingRunnable(@ApplicationContext Context context, HDWallet hDWallet, TargetStatHelper targetStatHelper) {
         resources = context.getResources();
+        this.hDWallet = hDWallet;
+        this.targetStatHelper = targetStatHelper;
     }
 
     public FundingUTXOs fundRun(long satoshisRequestingToSpend, FundingUTXOs.ProgressListener progressListener) {
@@ -46,15 +45,11 @@ public class FundingRunnable {
     }
 
     public FundingUTXOs fundRun(long satoshisRequestingToSpend, long desiredFee, FundingUTXOs.ProgressListener progressListener) {
-        List<TargetStat> usableTargets =
-                daoSessionManager.getTargetStatDao().queryBuilder().where(
-                        TargetStatDao.Properties.AddressId.isNotNull(),
-                        TargetStatDao.Properties.FundingId.isNull()).orderAsc(TargetStatDao.Properties.TxTime).list();
+        List<TargetStat> usableTargets = targetStatHelper.getSpendableTargets();
 
         if (usableTargets == null) {
             return null;
         }
-
 
         FundingUTXOs fundingUTXOs = new FundingUTXOs.Builder(hDWallet)
                 .setUsableTargets(usableTargets)
@@ -114,21 +109,6 @@ public class FundingRunnable {
         return new FundedHolder(spendableUTXOsUtxos, satoshisFeesSpend);
     }
 
-    private boolean hasNegativeValue(FundingUTXOs fundingUTXOs) {
-        return fundingUTXOs.getSatoshisFundedTotal() < 0 ||
-                fundingUTXOs.getSatoshisFeesSpending() < 0 ||
-                fundingUTXOs.getSatoshisSpending() < 0 ||
-                fundingUTXOs.getSatoshisTotalSpending() < 0;
-    }
-
-    private boolean hasTooLargeValue(FundingUTXOs fundingUTXOs) {
-        long max = BTCCurrency.MAX_SATOSHI;
-        return fundingUTXOs.getSatoshisFundedTotal() >= max ||
-                fundingUTXOs.getSatoshisFeesSpending() >= max ||
-                fundingUTXOs.getSatoshisSpending() >= max ||
-                fundingUTXOs.getSatoshisTotalSpending() >= max;
-    }
-
     public void setPaymentAddress(String paymentAddress) {
         this.paymentAddress = paymentAddress;
     }
@@ -143,6 +123,21 @@ public class FundingRunnable {
 
     public void setEvaluationCurrency(Currency evaluationCurrency) {
         this.evaluationCurrency = evaluationCurrency;
+    }
+
+    private boolean hasNegativeValue(FundingUTXOs fundingUTXOs) {
+        return fundingUTXOs.getSatoshisFundedTotal() < 0 ||
+                fundingUTXOs.getSatoshisFeesSpending() < 0 ||
+                fundingUTXOs.getSatoshisSpending() < 0 ||
+                fundingUTXOs.getSatoshisTotalSpending() < 0;
+    }
+
+    private boolean hasTooLargeValue(FundingUTXOs fundingUTXOs) {
+        long max = BTCCurrency.MAX_SATOSHI;
+        return fundingUTXOs.getSatoshisFundedTotal() >= max ||
+                fundingUTXOs.getSatoshisFeesSpending() >= max ||
+                fundingUTXOs.getSatoshisSpending() >= max ||
+                fundingUTXOs.getSatoshisTotalSpending() >= max;
     }
 
     public static class FundedHolder {

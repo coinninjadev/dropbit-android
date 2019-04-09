@@ -57,7 +57,6 @@
 
     <!-- Setting -->
     <dimen name="preference_body_padding">16dp</dimen>
-    <dimen name="preference_icon_size">10dp</dimen>
 
     <!-- ProgressBar Circle -->
     <dimen name="circle_thickness_small">4sp</dimen>
@@ -113,6 +112,7 @@
     <!-- TX Details Screen -->
     <dimen name="tx_detail_send_state_icon_size">40dp</dimen>
     <dimen name="input_radius">6dp</dimen>
+
     <dimen name="divider_horizontal_space">23dp</dimen>
     <dimen name="divider_vertical_space">5dp</dimen>
     <dimen name="list_rounded">6dp</dimen>
