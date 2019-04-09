@@ -41,6 +41,7 @@ import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.model.helpers.WordHelper;
 import com.coinninja.coinkeeper.model.query.WalletQueryManager;
+import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
@@ -69,6 +70,11 @@ import dagger.Provides;
 
 @Module(includes = {AndroidActivityBuilder.class, AndroidFragmentBuilder.class})
 public class AppModule {
+
+    @Provides
+    WalletCreationIntentService walletCreationIntentService() {
+        return new WalletCreationIntentService();
+    }
 
     @Provides
     CoinKeeperApplication coinKeeperApplication(Application application) {

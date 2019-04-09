@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.view.activity;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.interfaces.Authentication;
+import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.presenter.fragment.PinFragmentPresenter;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
@@ -73,6 +73,16 @@ public class CreatePinActivityTest {
         return nextActivity;
     }
 
+    private Intent initWithCompletionAndNextIntents() {
+        Intent intent = new Intent(application, CreatePinActivity.class);
+        String nextActivity = VerifyPhoneNumberActivity.class.getName();
+        intent.putExtra(Intents.EXTRA_NEXT, nextActivity);
+        intent.putExtra(Intents.EXTRA_ON_COMPLETION, new Intent(application, WalletCreationIntentService.class));
+
+        initWithIntent(intent);
+        return intent;
+    }
+
     @Test
     public void shows_next_activity_if_pin_exists() {
         when(pinEntry.hasExistingPin()).thenReturn(true);
@@ -81,6 +91,22 @@ public class CreatePinActivityTest {
 
         Intent startedIntent = shadowActivity.getNextStartedActivity();
         assertThat(startedIntent.getComponent().getClassName(), equalTo(nextActivity));
+        assertTrue(shadowActivity.isFinishing());
+    }
+
+    @Test
+    public void invokes_completion_service_activity_if_pin_exists() {
+        when(pinEntry.hasExistingPin()).thenReturn(true);
+
+        Intent invocationIntent = initWithCompletionAndNextIntents();
+
+        Intent startedActivity = shadowActivity.getNextStartedActivity();
+        assertThat(startedActivity.getComponent().getClassName(),
+                equalTo(invocationIntent.getStringExtra(Intents.EXTRA_NEXT)));
+        Intent startedService = shadowActivity.getNextStartedService();
+        Intent completionIntent  = (Intent)invocationIntent.getExtras().get(Intents.EXTRA_ON_COMPLETION);
+        assertThat(startedService.getComponent().getClassName(),
+                equalTo(completionIntent.getComponent().getClassName()));
         assertTrue(shadowActivity.isFinishing());
     }
 
@@ -168,6 +194,7 @@ public class CreatePinActivityTest {
         when(pinEntry.hasExistingPin()).thenReturn(true);
 
         Intent intent = new Intent();
+        intent.putExtra(Intent.ACTION_BATTERY_LOW, "dummy-extra-so-get-extra-is-not-null");
         initWithIntent(intent);
 
         Intent startedIntent = shadowActivity.getNextStartedActivity();

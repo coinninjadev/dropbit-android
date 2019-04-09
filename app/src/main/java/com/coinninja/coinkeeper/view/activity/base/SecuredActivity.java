@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
+import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
@@ -29,7 +30,7 @@ public abstract class SecuredActivity extends MessengerActivity {
     static final int AUTHENTICATION_REQUEST_CODE = 9999;
 
     @Inject
-    CNWalletManager cnWalletManager;
+    protected CNWalletManager cnWalletManager;
     @Inject
     PinEntry pinEntry;
     @Inject
@@ -87,7 +88,7 @@ public abstract class SecuredActivity extends MessengerActivity {
                 showStartActivity();
             } else if (!pinEntry.hasExistingPin() && hasWallet
                     && !(getClass().getName().equals(CreatePinActivity.class.getName()))) {
-                showCreatePinThenVerifyPhone();
+                showCreatePinCreateWalletThenVerifyPhone();
             } else if (pinEntry.hasExistingPin() && hasWallet) {
                 authenticate();
             }
@@ -109,9 +110,10 @@ public abstract class SecuredActivity extends MessengerActivity {
         finish();
     }
 
-    private void showCreatePinThenVerifyPhone() {
+    protected void showCreatePinCreateWalletThenVerifyPhone() {
         Intent intent = new Intent(this, CreatePinActivity.class);
         intent.putExtra(Intents.EXTRA_NEXT, VerifyPhoneNumberActivity.class.getName());
+        intent.putExtra(Intents.EXTRA_ON_COMPLETION, new Intent(this, WalletCreationIntentService.class));
         navigateTo(intent);
         finish();
     }
@@ -126,6 +128,7 @@ public abstract class SecuredActivity extends MessengerActivity {
     }
 
     protected void showNext() {
+        onCompletion();
         if (getIntent().hasExtra(Intents.EXTRA_NEXT)) {
             try {
                 Class<?> nextClass = Class.forName(getIntent().getStringExtra(Intents.EXTRA_NEXT));
@@ -136,6 +139,15 @@ public abstract class SecuredActivity extends MessengerActivity {
             }
         } else {
             showNext(StartActivity.class);
+        }
+    }
+
+
+    protected void onCompletion(){
+        if (getIntent() == null || getIntent().getExtras() == null) { return; }
+        Intent completionIntent = (Intent) getIntent().getExtras().get(Intents.EXTRA_ON_COMPLETION);
+        if(completionIntent != null){
+            startService(completionIntent);
         }
     }
 
