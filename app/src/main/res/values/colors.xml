@@ -69,6 +69,7 @@
 
     <color name="border_transaction_detail_tax">#e0e0e0</color>
 
+
     <!-- Broadcast Activity -->
     <color name="broadcast_sending_progress_label_text_color">#9b9b9b</color>
 
@@ -96,5 +97,8 @@
     <color name="input_border_color">#50000000</color>
     <color name="input_border_disabled_color">#20000000</color>
     <color name="input_background_color">#ffffff</color>
+
+    <color name="list_background">#fafafa</color>
+    <color name="list_boarder">#e0e0e0</color>
     <color name="list_divider_color">#ffffff</color>
 </resources>

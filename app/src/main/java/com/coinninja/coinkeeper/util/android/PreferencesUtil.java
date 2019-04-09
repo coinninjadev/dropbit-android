@@ -4,6 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
+import com.coinninja.coinkeeper.model.dto.AddressDTO;
+
+import java.util.List;
+
 import javax.inject.Inject;
 
 public class PreferencesUtil {
@@ -32,16 +36,19 @@ public class PreferencesUtil {
     }
 
     public void savePreference(String key, boolean value) {
+        if (editor == null) { return; }
         editor.putBoolean(key, value);
         editor.apply();
     }
 
     public void savePreference(String key, String value) {
+        if (editor == null) { return; }
         editor.putString(key, value);
         editor.apply();
     }
 
     public void removePreference(String key) {
+        if (editor == null) { return; }
         editor.remove(key);
         editor.apply();
     }

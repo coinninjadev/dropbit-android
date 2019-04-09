@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.cn.account;
 
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.db.Address;
+import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.AddressHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
@@ -180,32 +182,40 @@ public class AccountManagerTest {
     @Test
     public void returns_array_of_addresses_for_requested_chain_and_block_size() {
         List<Address> addresses = new ArrayList<>();
-        addresses.add(new Address(1L, "-- addr 1 --", 1L, 0, HDWallet.EXTERNAL));
-        addresses.add(new Address(4L, "-- addr 4 --", 1L, 4, HDWallet.EXTERNAL));
-        addresses.add(new Address(17L, "-- addr 7 --", 1L, 7, HDWallet.EXTERNAL));
-        addresses.add(new Address(18L, "-- addr 8 --", 1L, 8, HDWallet.EXTERNAL));
+        Address addressOne = new Address(1L, "-- addr 1 --", 1L, 0, HDWallet.EXTERNAL);
+        Address addressTwo = new Address(1L, "-- addr 4 --", 1L, 0, HDWallet.EXTERNAL);
+        Address addressThree = new Address(1L, "-- addr 7 --", 1L, 0, HDWallet.EXTERNAL);
+        Address addressFour = new Address(1L, "-- addr 8 --", 1L, 0, HDWallet.EXTERNAL);
+
+        addresses.add(addressOne);
+        addresses.add(addressTwo);
+        addresses.add(addressThree);
+        addresses.add(addressFour);
         when(addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses);
 
-        HashMap<String, String> block = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 3);
+        HashMap<String, AddressDTO> block = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 3);
 
         assertThat(block.keySet().size(), equalTo(3));
-        assertThat(block.get("-- addr 1 --"), equalTo(null));
-        assertThat(block.get("-- addr 4 --"), equalTo(null));
-        assertThat(block.get("-- addr 7 --"), equalTo(null));
+        assertEquals(block.get("-- addr 1 --").getWrappedAddress().getAddress(), addressOne.getAddress());
+        assertEquals(block.get("-- addr 4 --").getWrappedAddress().getAddress(), addressTwo.getAddress());
+        assertEquals(block.get("-- addr 7 --").getWrappedAddress().getAddress(), addressThree.getAddress());
     }
 
     @Test
     public void returns_smaller_array_of_addresses_for_requested_chain_and_block_size_when_unused_limited() {
+        Address addressOne = new Address(1L, "-- addr 1 --", 1L, 0, HDWallet.EXTERNAL);
+        Address addressTwo = new Address(1L, "-- addr 4 --", 1L, 0, HDWallet.EXTERNAL);
+
         List<Address> addresses = new ArrayList<>();
-        addresses.add(new Address(1L, "-- addr 1 --", 1L, 0, HDWallet.EXTERNAL));
-        addresses.add(new Address(4L, "-- addr 4 --", 1L, 4, HDWallet.EXTERNAL));
+        addresses.add(addressOne);
+        addresses.add(addressTwo);
         when(addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses);
 
-        HashMap<String, String> block = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 3);
+        HashMap<String, AddressDTO> block = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 3);
 
         assertThat(block.keySet().size(), equalTo(2));
-        assertThat(block.get("-- addr 1 --"), equalTo(null));
-        assertThat(block.get("-- addr 4 --"), equalTo(null));
+        assertEquals(block.get("-- addr 1 --").getWrappedAddress().getAddress(), addressOne.getAddress());
+        assertEquals(block.get("-- addr 4 --").getWrappedAddress().getAddress(), addressTwo.getAddress());
     }
 
 }

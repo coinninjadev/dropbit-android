@@ -115,4 +115,5 @@
     <dimen name="input_radius">6dp</dimen>
     <dimen name="divider_horizontal_space">23dp</dimen>
     <dimen name="divider_vertical_space">5dp</dimen>
+    <dimen name="list_rounded">6dp</dimen>
 </resources>

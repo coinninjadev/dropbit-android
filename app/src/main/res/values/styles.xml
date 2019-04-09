@@ -376,6 +376,10 @@
         <item name="android:textColor">@color/font_white</item>
     </style>
 
+    <style name="TextAppearance.Medium.Dark">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
     <style name="TextAppearance.Small" parent="TextAppearance.AppCompat.Small">
         <item name="android:textSize">12sp</item>
     </style>
@@ -384,6 +388,9 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="TextAppearance.Small.PrimaryColor" parent="TextAppearance.Small">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
 
     <style name="TextAppearance.Small.Accent" parent="TextAppearance.AppCompat.Small">
         <item name="android:textColor">@color/colorAccent</item>
@@ -444,6 +451,17 @@
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:fontFamily">@font/montserrat_regular</item>
         <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance.Address.Cache" parent="TextAppearance">
+        <item name="android:textColor">@color/font_gray</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.03</item>
+    </style>
+
+    <style name="TextAppearance.Address.Cache.DerivativePath">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
     <!-- Alert Dialog -->

@@ -16,6 +16,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
+import com.coinninja.coinkeeper.ui.util.OnItemClickListener;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -34,7 +35,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class PickContactActivity extends SecuredActivity implements CoinNinjaUserQueryTask.OnCompleteListener, PickContactRecycleViewAdapter.OnItemClickListener {
+public class PickContactActivity extends SecuredActivity implements CoinNinjaUserQueryTask.OnCompleteListener, OnItemClickListener {
 
     protected static int CONTACTS_PERMISSION_REQUEST_CODE = 1001;
     private RecyclerView list;

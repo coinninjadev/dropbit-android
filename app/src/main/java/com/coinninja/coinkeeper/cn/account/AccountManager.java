@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.cn.account;
 
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.db.Address;
+import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.AddressHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 
@@ -61,19 +62,19 @@ public class AccountManager {
         addressCache.cacheAddressesFor(HDWallet.INTERNAL);
     }
 
-    public HashMap<String, String> unusedAddressesToPubKey(int chainIndex, int blockSize) {
+    public HashMap<String, AddressDTO> unusedAddressesToPubKey(int chainIndex, int blockSize) {
         List<Address> unusedAddresses = addressHelper.getUnusedAddressesFor(chainIndex);
-        HashMap<String, String> addressToPubKey = new HashMap<String, String>();
+        HashMap<String, AddressDTO> addressToDTO = new HashMap<String, AddressDTO>();
 
         blockSize = blockSize <= unusedAddresses.size() ? blockSize : unusedAddresses.size();
 
         for (int i = 0; i < blockSize; i++) {
             Address address = unusedAddresses.get(i);
             String uncompressedPubKey = addressCache.getUncompressedPublicKey(address.getDerivationPath());
-            addressToPubKey.put(address.getAddress(), uncompressedPubKey);
+            addressToDTO.put(address.getAddress(), new AddressDTO(address, uncompressedPubKey));
         }
 
-        return addressToPubKey;
+        return addressToDTO;
     }
 
     public int getLargestReportedChangeAddress() {

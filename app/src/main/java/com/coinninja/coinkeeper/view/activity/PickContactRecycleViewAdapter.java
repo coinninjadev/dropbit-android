@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.ui.util.OnItemClickListener;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ class PickContactRecycleViewAdapter extends Adapter<PickContactRecycleViewAdapte
     private int unVerifiedHeaderIndex = -1;
     private View.OnClickListener dropbitClickHandler;
     private ContactFilter contactFilter;
-    private static final PhoneNumberUtil PHONE_NUMBER_UTIL = new PhoneNumberUtil();
 
     public PickContactRecycleViewAdapter(OnItemClickListener clickListener, View.OnClickListener dropbitClickHandler) {
         this.dropbitClickHandler = dropbitClickHandler;
@@ -72,10 +72,6 @@ class PickContactRecycleViewAdapter extends Adapter<PickContactRecycleViewAdapte
         } else {
             return CONTACT;
         }
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(View view, int position);
     }
 
     @Override

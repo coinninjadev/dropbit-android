@@ -3,7 +3,9 @@ package com.coinninja.coinkeeper.service.runner;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
+import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -68,13 +70,12 @@ public class IncomingInviteResponderTest {
     private String sampleInviteServerID = "6d1d7318-81b9-492c-b3f3-9d1b24f91d14";
 
     private String addressOne = "-- addr 1 --";
-    private String addressTwo = "-- addr 2 --";
-
     private String addressOnePubKey = "zw98gha3498ghezrgha98we4erghSDKJFGASKJHDA";
-    private String addressTwoPubKey = "zERG987hERRE23427839DKJGVSHDKJFsdfkjshdfjkswer";
+    private String addressTwo = "-- addr 2 --";
+    private String addressTwoPubKey = "sv8h243098fhwq398fh2398rdfhwasduvfnbw9834rth";
 
-    private ArrayList<String> unusedAddresses = new ArrayList(Arrays.asList(new String[]{addressOne, addressTwo}));
-    private HashMap<String, String> addressToPubKey = new HashMap<String, String>();
+    private ArrayList<String> unusedAddresses = new ArrayList(Arrays.asList(new String[]{ addressOne, addressTwo }));
+    private HashMap<String, AddressDTO> addresstoDTO = new HashMap<>();
     private List<InviteTransactionSummary> sampleInvites;
 
     @Mock
@@ -82,25 +83,31 @@ public class IncomingInviteResponderTest {
 
     public static final String FORMATTED_PHONE = "(222) 111-3333";
 
+    private AddressDTO setupAddress(String address, String pubKey) {
+        Address newAddress = new Address();
+        newAddress.setAddress(address);
+        return new AddressDTO(newAddress, pubKey);
+    }
+
     @Before
     public void setUp() {
-        addressToPubKey.put(addressOne, addressOnePubKey);
-        addressToPubKey.put(addressTwo, addressTwoPubKey);
+        addresstoDTO.put(addressOne, setupAddress(addressOne, addressOnePubKey));
+        addresstoDTO.put(addressTwo, setupAddress(addressTwo, addressTwoPubKey));
         sampleInvites = buildSampleInvites(sampleInviteServerID);
-        when(accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, sampleInvites.size())).thenReturn(addressToPubKey);
+        when(accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, sampleInvites.size())).thenReturn(addresstoDTO);
         when(walletHelper.getIncompleteReceivedInvites()).thenReturn(sampleInvites);
-        when(apiClient.sendAddressForInvite(sampleInviteServerID, unusedAddresses.get(1), addressToPubKey.get(addressTwo))).thenReturn(getResponse(response));
+        when(apiClient.sendAddressForInvite(sampleInviteServerID, unusedAddresses.get(1), addresstoDTO.get(addressTwo).getUncompressedPublicKey())).thenReturn(getResponse(response));
     }
 
     @Test
     public void send_address_to_server_show_internal_notification_test() {
+        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString())).thenReturn(getResponse(response));
         String expectedNotificationMessage =
                 "We have sent a Bitcoin address to "
                         + FORMATTED_PHONE
                         + " for "
                         + new BTCCurrency(0.04521568).toFormattedCurrency()
                         + " to be sent.";
-
 
         incomingInviteResponder.run();
 
@@ -110,6 +117,7 @@ public class IncomingInviteResponderTest {
 
     @Test
     public void reports_address_provided() {
+        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString())).thenReturn(getResponse(response));
         incomingInviteResponder.run();
 
         verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_ADDRESS_PROVIDED);
@@ -129,7 +137,6 @@ public class IncomingInviteResponderTest {
     private List<InviteTransactionSummary> buildSampleInvites(String sampleInviteServerID) {
 
         List<InviteTransactionSummary> sampleInvites = new ArrayList<>();
-
 
         InviteTransactionSummary sampleInvite = mock(InviteTransactionSummary.class);
         Long sampleValueSatoshis = 4521568l;
