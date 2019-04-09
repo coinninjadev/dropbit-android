@@ -1,4 +1,4 @@
-package com.coinninja.coinkeeper.view.activity;
+package com.coinninja.coinkeeper.ui.account.verify;
 
 import android.content.Intent;
 import android.view.View;
@@ -9,7 +9,6 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.RemovePhoneNumberController;
 import com.coinninja.coinkeeper.util.Intents;

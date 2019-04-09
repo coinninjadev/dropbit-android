@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.ui.util.OnItemClickListener;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 
 import org.junit.Before;
@@ -43,7 +44,7 @@ public class PickContactRecycleViewAdapterTest {
     PhoneNumber phoneNumber2 = new PhoneNumber("+2222222222");
     PhoneNumber contactPhoneNumber = new PhoneNumber(PHONE_NUMBER);
 
-    PickContactRecycleViewAdapter.OnItemClickListener onItemClickListener;
+    OnItemClickListener onItemClickListener;
 
     @Before
     public void setUp() {
@@ -52,7 +53,7 @@ public class PickContactRecycleViewAdapterTest {
         verifiedContacts = new ArrayList<>();
         Contact contact = new Contact(contactPhoneNumber, DISPLAY_NAME, true);
         verifiedContacts.add(contact);
-        onItemClickListener = mock(PickContactRecycleViewAdapter.OnItemClickListener.class);
+        onItemClickListener = mock(OnItemClickListener.class);
         adapter = new PickContactRecycleViewAdapter(onItemClickListener, whatIsDB);
     }
 

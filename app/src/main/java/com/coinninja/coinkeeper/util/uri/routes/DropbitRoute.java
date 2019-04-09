@@ -6,6 +6,7 @@ import java.util.List;
 public enum DropbitRoute {
     DROPBIT_TRANSACTION,
     REGULAR_TRANSACTION,
+    SERVER_ADDRESSES,
     TRANSACTION_DETAILS;
 
     private final String TOOLTIP_ROUTE = "tooltips";
@@ -24,6 +25,9 @@ public enum DropbitRoute {
                 break;
             case REGULAR_TRANSACTION:
                 paths.add("regulartransaction");
+                break;
+            case SERVER_ADDRESSES:
+                paths.add("myaddresses");
                 break;
         }
 

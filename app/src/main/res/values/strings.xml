@@ -327,7 +327,10 @@ by using their mobile number</string>
     <string name="transaction_details_see_transaction_details">transaction details</string>
     <string name="done">done</string>
     <string name="phone_number_input_widget_country_selection_title">Select Country</string>
-    <string name="logo_slide">logo_slide</string>
     <string name="user_account_verification_title">PHONE NUMBER STATUS</string>
+    <string name="server_addresses_overview">These are the addresses from your wallet that we securely store on the server for DropBit requests</string>
+    <string name="dropbit_addresses_title">DropBit Addresses</string>
+    <string name="view_dropbit_addresses">View DropBit Addresses</string>
+    <string name="logo_slide">logo_slide</string>
 
 </resources>

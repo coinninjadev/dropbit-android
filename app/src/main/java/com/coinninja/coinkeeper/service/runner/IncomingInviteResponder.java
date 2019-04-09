@@ -3,13 +3,13 @@ package com.coinninja.coinkeeper.service.runner;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
+import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 
@@ -49,7 +49,7 @@ public class IncomingInviteResponder implements Runnable {
     @Override
     public void run() {
         List<InviteTransactionSummary> invites = walletHelper.getIncompleteReceivedInvites();
-        HashMap<String, String> unusedAddressesToPubKey = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, invites.size());
+        HashMap<String, AddressDTO> unusedAddressesToPubKey = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, invites.size());
         ArrayList<String> addresses = new ArrayList(unusedAddressesToPubKey.keySet());
 
         InviteTransactionSummary invite;
@@ -59,7 +59,7 @@ public class IncomingInviteResponder implements Runnable {
             invite = invites.get(i);
             address = addresses.get(i % addresses.size());
 
-            CNWalletAddress cnAddress = postAddress(address, invite, unusedAddressesToPubKey.get(address));
+            CNWalletAddress cnAddress = postAddress(address, invite, unusedAddressesToPubKey.get(address).getWrappedAddress().getAddress());
 
             if (cnAddress != null) {
                 analytics.trackEvent(Analytics.EVENT_DROPBIT_ADDRESS_PROVIDED);

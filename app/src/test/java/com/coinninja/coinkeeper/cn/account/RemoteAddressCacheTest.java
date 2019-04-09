@@ -2,8 +2,10 @@ package com.coinninja.coinkeeper.cn.account;
 
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.db.Address;
+import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
+import com.coinninja.coinkeeper.util.RemoteAddressLocalCache;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,37 +40,51 @@ public class RemoteAddressCacheTest {
     @Mock
     private SignedCoinKeeperApiClient apiClient;
 
+    @Mock
+    RemoteAddressLocalCache remoteAddressLocalCache;
+
     @InjectMocks
     private RemoteAddressCache remoteAddressCache;
-    private HashMap<String, String> addressToPubKey = new HashMap<String, String>();
+    private HashMap<String, AddressDTO> addressToPubKey = new HashMap<>();
 
     private String addressPrefix = "-- addr ";
     private String addressPubKeyPrefix = "-- addr pub key ";
 
     private String addressOne = addressPrefix + "0";
-    private String addressOnePubKey = addressPubKeyPrefix + "0";
+    private AddressDTO addressDTOOne;
 
     private String addressTwo = addressPrefix + "1";
-    private String addressTwoPubKey = addressPubKeyPrefix + "1";
+    private AddressDTO addressDTOTwo;
 
     private String addressThree = addressPrefix + "2";
-    private String addressThreePubKey = addressPubKeyPrefix + "2";
+    private AddressDTO addressDTOThree;
 
     private String addressFour = addressPrefix + "3";
-    private String addressFourPubKey = addressPubKeyPrefix + "3";
+    private AddressDTO addressDTOFour;
 
     private String addressFive = addressPrefix + "4";
-    private String addressFivePubKey = addressPubKeyPrefix + "4";
+    private AddressDTO addressDTOFive;
 
     private List<CNWalletAddress> cachedAddresses = new ArrayList<>();
 
+    private AddressDTO setupAddress(String address, String pubKey) {
+        Address newAddress = new Address();
+        newAddress.setAddress(address);
+        return new AddressDTO(newAddress, pubKey);
+    }
+
     @Before
     public void setUp() {
-        addressToPubKey.put(addressOne, addressOnePubKey);
-        addressToPubKey.put(addressTwo, addressTwoPubKey);
-        addressToPubKey.put(addressThree, addressThreePubKey);
-        addressToPubKey.put(addressFour, addressFourPubKey);
-        addressToPubKey.put(addressFive, addressFivePubKey);
+        addressDTOOne = setupAddress(addressOne, addressPubKeyPrefix + "0");
+        addressDTOTwo = setupAddress(addressTwo, addressPubKeyPrefix + "1");
+        addressDTOThree = setupAddress(addressThree, addressPubKeyPrefix + "2");
+        addressDTOFour = setupAddress(addressFour, addressPubKeyPrefix + "3");
+        addressDTOFive = setupAddress(addressFive, addressPubKeyPrefix + "4");
+        addressToPubKey.put(addressOne, addressDTOOne);
+        addressToPubKey.put(addressTwo, addressDTOTwo);
+        addressToPubKey.put(addressThree, addressDTOThree);
+        addressToPubKey.put(addressFour, addressDTOFour);
+        addressToPubKey.put(addressFive, addressDTOFive);
 
         when(accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 5)).thenReturn(addressToPubKey);
 
@@ -112,11 +128,11 @@ public class RemoteAddressCacheTest {
 
         remoteAddressCache.cacheAddresses();
 
-        verify(apiClient).addAddress(addressOne, addressOnePubKey);
-        verify(apiClient).addAddress(addressTwo, addressTwoPubKey);
-        verify(apiClient).addAddress(addressThree, addressThreePubKey);
-        verify(apiClient).addAddress(addressFour, addressFourPubKey);
-        verify(apiClient).addAddress(addressFive, addressFivePubKey);
+        verify(apiClient).addAddress(addressOne, addressDTOOne.getUncompressedPublicKey());
+        verify(apiClient).addAddress(addressTwo, addressDTOTwo.getUncompressedPublicKey());
+        verify(apiClient).addAddress(addressThree, addressDTOThree.getUncompressedPublicKey());
+        verify(apiClient).addAddress(addressFour, addressDTOFour.getUncompressedPublicKey());
+        verify(apiClient).addAddress(addressFive, addressDTOFive.getUncompressedPublicKey());
     }
 
     @Test
@@ -138,7 +154,8 @@ public class RemoteAddressCacheTest {
         cachedAddresses.remove(3);
         remoteAddressCache.cacheAddresses();
 
-        verify(apiClient).addAddress(addressFour, addressFourPubKey);
+        verify(apiClient).addAddress(addressFour, addressDTOFour.getUncompressedPublicKey());
         verify(apiClient, times(1)).addAddress(anyString(), anyString());
     }
+
 }
