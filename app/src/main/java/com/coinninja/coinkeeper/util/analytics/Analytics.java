@@ -76,7 +76,6 @@ public interface Analytics {
 
     //BACKUP / Recovery Words
     String EVENT_VIEW_RECOVERY_WORDS = "ViewWords";
-    String EVENT_WALLET_BACKUP_SKIPPED = "SkipWordsBackedUp";
 
     //not implemented yet
     String EVENT_CANCEL_DROPBIT_PRESSED = "CancelDropBit";

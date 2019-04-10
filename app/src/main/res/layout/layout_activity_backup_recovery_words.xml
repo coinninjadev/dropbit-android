@@ -71,14 +71,5 @@
             android:layout_height="wrap_content"
             android:text="@string/view_recovery_words" />
 
-        <Button
-            android:id="@+id/skip_and_backup_later"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="@dimen/vertical_margin"
-            android:visibility="gone"
-            style="@style/FlatButton"
-            android:text="@string/skip_and_backup_later" />
     </LinearLayout>
 </RelativeLayout>

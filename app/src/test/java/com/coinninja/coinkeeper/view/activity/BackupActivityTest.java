@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.view.activity;
 
 import android.content.Intent;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,7 +8,6 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.adapter.SeedWordsPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.ui.backup.SkipBackupPresenter;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
@@ -23,7 +21,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowActivity;
 
 import androidx.viewpager.widget.ViewPager;
 
@@ -40,8 +37,6 @@ public class BackupActivityTest {
     String[] words = new String[]{"WORD1", "WORD2", "WORD3", "WORD4", "WORD5",
             "WORD6", "WORD7", "WORD8", "WORD9", "WORD10", "WORD11", "WORD12"};
     @Mock
-    SkipBackupPresenter skipBackupPresenter;
-    @Mock
     CNWalletManager cnWalletManager;
     @Mock
     ActivityNavigationUtil activityNavigationUtil;
@@ -55,7 +50,6 @@ public class BackupActivityTest {
 
     @After
     public void tearDown() {
-        skipBackupPresenter = null;
         cnWalletManager = null;
         activityNavigationUtil = null;
         activity = null;
@@ -87,15 +81,6 @@ public class BackupActivityTest {
         activity.showLast();
 
         assertThat(nextButton.getText().toString(), equalTo("VERIFY"));
-    }
-
-    @Test
-    public void allow_user_to_skip_backing_up_recovery_words() {
-        start();
-
-        activity.onSkipClicked();
-
-        verify(skipBackupPresenter).presentSkip(activity, words);
     }
 
     @Test
@@ -203,7 +188,6 @@ public class BackupActivityTest {
         activity = backupActivityActivityController.get();
         activity.seedWordsPagerAdapter = mock(SeedWordsPagerAdapter.class);
         activity.cnWalletManager = cnWalletManager;
-        activity.skipBackupPresenter = skipBackupPresenter;
         activity.activityNavigationUtil = activityNavigationUtil;
 
         backupActivityActivityController.start().resume().visible();

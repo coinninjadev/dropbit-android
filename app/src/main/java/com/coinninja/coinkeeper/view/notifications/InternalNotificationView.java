@@ -69,6 +69,7 @@ public class InternalNotificationView {
         Context application = baseLayout.getContext().getApplicationContext();
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setData(uri);
         application.startActivity(intent);
     }

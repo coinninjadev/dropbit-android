@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,7 +9,6 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.adapter.SeedWordsPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.presenter.activity.RecoveryWordsPresenter;
-import com.coinninja.coinkeeper.ui.backup.SkipBackupPresenter;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
@@ -24,9 +22,6 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
 
     @Inject
     ActivityNavigationUtil activityNavigationUtil;
-
-    @Inject
-    SkipBackupPresenter skipBackupPresenter;
 
     @Inject
     CNWalletManager cnWalletManager;
@@ -44,11 +39,6 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
     private String[] seedWords;
     private int currentPagePosition;
     private int viewState;
-
-    @Override
-    public void onSkipClicked() {
-        skipBackupPresenter.presentSkip(this, seedWords);
-    }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

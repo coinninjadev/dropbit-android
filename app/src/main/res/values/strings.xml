@@ -41,7 +41,7 @@ by using their mobile number</string>
 
     <!-- Verify Recovery Words -->
     <string name="message_successful_wallet_backup">Success! Be sure to keep your recovery words in a safe place.</string>
-    <string name="message_dont_forget_to_backup">Don’t forget to back up your wallet. You could lose your Bitcoin if you don’t.</string>
+    <string name="message_dont_forget_to_backup">Remember to backup your wallet to ensure your Bitcoin is secure in case your phone is ever lost or stolen. Click here to backup now.</string>
     <string name="verify_recovery_words_header">Verify Words</string>
     <string name="verify_recovery_words_instructions">Select the correct word.</string>
     <string name="verify_recovery_words_fail_message">Incorrect word. Are you sure you have your words?</string>

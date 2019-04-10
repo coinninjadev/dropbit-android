@@ -11,7 +11,6 @@ import android.transition.TransitionInflater;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
-import com.coinninja.coinkeeper.ui.backup.SkipBackupPresenter;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -34,9 +33,6 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
 
     @Inject
     NotificationUtil notificationUtil;
-
-    @Inject
-    SkipBackupPresenter skipBackupPresenter;
 
     @Inject
     VerifyRecoveryWordsPresenter presenter;
@@ -68,11 +64,6 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.wrapper, fragment, currentTag);
         fragmentTransaction.commit();
-    }
-
-    @Override
-    public void onSkipClicked() {
-        skipBackupPresenter.presentSkip(this, recoveryWords);
     }
 
     @Override
