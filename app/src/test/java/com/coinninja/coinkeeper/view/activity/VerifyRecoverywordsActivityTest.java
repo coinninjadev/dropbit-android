@@ -6,7 +6,6 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.ui.backup.SkipBackupPresenter;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -57,9 +56,6 @@ public class VerifyRecoverywordsActivityTest {
     Analytics analytics;
 
     @Mock
-    SkipBackupPresenter skipBackupPresenter;
-
-    @Mock
     NotificationUtil notificationUtil;
 
     @Mock
@@ -79,7 +75,6 @@ public class VerifyRecoverywordsActivityTest {
         activity = null;
         resources = null;
         analytics = null;
-        skipBackupPresenter = null;
         notificationUtil = null;
         initIntent = null;
         activityNavigationUtil = null;
@@ -94,7 +89,6 @@ public class VerifyRecoverywordsActivityTest {
         ActivityController<VerifyRecoverywordsActivity> activityController = Robolectric.buildActivity(VerifyRecoverywordsActivity.class, initIntent);
         activity = activityController.get();
         activityController.create();
-        activity.skipBackupPresenter = skipBackupPresenter;
         activity.notificationUtil = notificationUtil;
         activity.activityNavigationUtil = activityNavigationUtil;
         activityController.start().resume();
@@ -142,15 +136,6 @@ public class VerifyRecoverywordsActivityTest {
         Intent nextStartedActivity = shadowActivity.getNextStartedActivity();
         assertThat(nextStartedActivity.getComponent().getClassName(), equalTo(BackupActivity.class.getName()));
         assertThat(nextStartedActivity.getIntExtra(Intents.EXTRA_VIEW_STATE, -1), equalTo(Intents.EXTRA_BACKUP));
-    }
-
-    @Test
-    public void allows_user_to_skip_verification() {
-        start();
-
-        activity.onSkipClicked();
-
-        verify(skipBackupPresenter).presentSkip(activity, recoveryWords);
     }
 
     @Test

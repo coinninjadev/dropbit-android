@@ -26,10 +26,6 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
     @Inject
     CNWalletManager cnWalletManager;
 
-    @Inject
-    SkipBackupPresenter skipBackupPresenter;
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -78,8 +74,6 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
     private void setupCreateBackup() {
         findViewById(R.id.view_recovery_words).setOnClickListener(v -> backupRecoveryWords());
         setupBackup();
-        findViewById(R.id.skip_and_backup_later).setVisibility(View.VISIBLE);
-        findViewById(R.id.skip_and_backup_later).setOnClickListener(v -> onSkipBackupClicked());
     }
 
     private void setupBackup() {
@@ -88,9 +82,6 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
                 .setText(R.string.view_recovery_words_instructions_button__not_backedup);
     }
 
-    private void onSkipBackupClicked() {
-        skipBackupPresenter.presentSkip(this, cnWalletManager.generateRecoveryWords());
-    }
 
     private void backupRecoveryWords() {
         navigateToViewRecoveryWords(cnWalletManager.generateRecoveryWords(), Intents.EXTRA_CREATE);

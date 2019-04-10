@@ -13,13 +13,20 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
+import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.InternetUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
+import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
+import com.coinninja.coinkeeper.view.fragment.PinConfirmFragment;
+
+import org.spongycastle.util.Arrays;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -36,6 +43,16 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     @Inject
     public Analytics analytics;
 
+    private static final List<String> MESSAGE_IGNORE_LIST;
+
+    static {
+        List<String> aList = new ArrayList<>();
+        aList.add(VerifyPhoneVerificationCodeActivity.class.getName());
+        aList.add(VerifyPhoneNumberActivity.class.getName());
+        aList.add(AuthenticateActivity.class.getName());
+        MESSAGE_IGNORE_LIST = aList;
+    }
+
     List<WeakReference<Fragment>> fragList = new ArrayList<>();
     @Inject
     HealthCheckTimerRunner healthCheckRunner;
@@ -49,7 +66,6 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     public void onAttachFragment(Fragment fragment) {
         fragList.add(new WeakReference(fragment));
     }
-
 
     @Override
     public void setContentView(int layoutResID) {
@@ -76,7 +92,9 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     @Override
     protected void onResume() {
         super.onResume();
-        notificationsInteractor.startListeningForNotifications(this, true);
+        if (!MESSAGE_IGNORE_LIST.contains(this.getClass().getName())) {
+            notificationsInteractor.startListeningForNotifications(this, true);
+        }
         checkForInternalNotifications();
         checkInternet();
         healthCheckRunner.run();
@@ -86,7 +104,9 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     @Override
     protected void onPause() {
         super.onPause();
-        notificationsInteractor.stopListeningForNotifications();
+        if (!MESSAGE_IGNORE_LIST.contains(this.getClass().getName())) {
+            notificationsInteractor.stopListeningForNotifications();
+        }
         queue.removeCallbacks(healthCheckRunner);
         hasForeGround = false;
     }

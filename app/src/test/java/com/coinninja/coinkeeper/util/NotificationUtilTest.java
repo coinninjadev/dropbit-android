@@ -40,7 +40,7 @@ public class NotificationUtilTest {
         String message = "There is a snake in my boot";
         localNotificationUtil.dispatchInternalError(message);
 
-        verify(internalNotificationHelper).addNotifications(InternalNotificationPriority._0_HIGHEST, message, MessageLevel.ERROR);
+        verify(internalNotificationHelper).addNotifications(InternalNotificationPriority._0_HIGHEST, null, message, MessageLevel.ERROR);
         verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
     }
 

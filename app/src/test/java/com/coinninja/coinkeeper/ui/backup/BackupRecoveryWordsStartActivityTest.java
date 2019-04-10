@@ -58,9 +58,6 @@ public class BackupRecoveryWordsStartActivityTest {
     private Analytics analytics;
     private TestCoinKeeperApplication application;
 
-    @Mock
-    private SkipBackupPresenter skipBackupPresenter;
-
     @After
     public void tearDown() {
         activityController = null;
@@ -70,7 +67,6 @@ public class BackupRecoveryWordsStartActivityTest {
         cnWalletManager = null;
         analytics = null;
         application = null;
-        skipBackupPresenter = null;
     }
 
     @Before
@@ -97,14 +93,6 @@ public class BackupRecoveryWordsStartActivityTest {
 
         assertThat(((Button) activity.findViewById(R.id.view_recovery_words)).getText().toString(),
                 equalTo("Write down words + Back up"));
-    }
-
-    @Test
-    public void shows_user_skip_and_backup_button_when_wallet_does_not_exist() {
-        start(false);
-
-        assertThat(activity.findViewById(R.id.skip_and_backup_later).getVisibility(),
-                equalTo(View.VISIBLE));
     }
 
     // Does Not Have Wallet
@@ -153,16 +141,6 @@ public class BackupRecoveryWordsStartActivityTest {
 
         assertThat(intent.getIntExtra(Intents.EXTRA_VIEW_STATE, -1),
                 equalTo(Intents.EXTRA_CREATE));
-    }
-
-    @Test
-    public void allow_user_to_skip_backingup_recovery_words() {
-        when(cnWalletManager.generateRecoveryWords()).thenReturn(words);
-        start(false);
-
-        activity.findViewById(R.id.skip_and_backup_later).performClick();
-
-        verify(skipBackupPresenter).presentSkip(activity, words);
     }
 
     // Has Wallet but skipped Backup
@@ -346,7 +324,6 @@ public class BackupRecoveryWordsStartActivityTest {
         activityController.create();
         activity.analytics = analytics;
         activity.cnWalletManager = cnWalletManager;
-        activity.skipBackupPresenter = skipBackupPresenter;
         activityController.start().resume().visible();
     }
 }

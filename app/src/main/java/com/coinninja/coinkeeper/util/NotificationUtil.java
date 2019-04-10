@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.util;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.model.db.enums.InternalNotificationPriority;
@@ -33,7 +34,11 @@ public class NotificationUtil {
     }
 
     public void dispatchInternalError(String message) {
-        internalNotificationHelper.addNotifications(InternalNotificationPriority._0_HIGHEST, message, MessageLevel.ERROR);
+        dispatchInternalError(message, null);
+    }
+
+    public void dispatchInternalError(String message, Uri clickAction) {
+        internalNotificationHelper.addNotifications(InternalNotificationPriority._0_HIGHEST, clickAction, message, MessageLevel.ERROR);
         localBroadCastUtil.sendBroadcast(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
     }
 }

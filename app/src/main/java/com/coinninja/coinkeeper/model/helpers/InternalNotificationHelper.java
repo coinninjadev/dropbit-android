@@ -30,6 +30,10 @@ public class InternalNotificationHelper {
         addNotifications(null, null, priority, message, messageLevel);
     }
 
+    public void addNotifications(InternalNotificationPriority priority, Uri clickAction, String message, MessageLevel messageLevel) {
+        addNotifications(null, clickAction, priority, message, messageLevel);
+    }
+
     public void addNotifications(String UUID, Uri clickAction, InternalNotificationPriority priority, String message, MessageLevel level) {
         InternalNotificationDao notificationDao = daoSessionManager.getInternalNotificationDao();
 

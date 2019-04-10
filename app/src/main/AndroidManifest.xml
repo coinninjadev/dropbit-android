@@ -193,7 +193,16 @@
             android:name=".ui.backup.BackupRecoveryWordsStartActivity"
             android:label="@string/backup_recovery_words_title"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
+            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="cn"
+                    android:host="recovery-words"/>
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".receiver.DeviceRebootBootCompletedReceiver"
