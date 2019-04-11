@@ -12,6 +12,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -88,6 +89,17 @@ public class PhoneNumberUtilTest {
         number.setCountryCode(54);
 
         assertThat(util.toInternationalDisplayText(number), equalTo("+54 9 11 2345-6789"));
+    }
+
+    @Test
+    public void is_valid_number_returns_false_on_null_string(){
+        assertFalse(util.isValidNumber(null));
+
+    }
+
+    @Test
+    public void is_valid_number_returns_false_on_empty_string(){
+        assertFalse(util.isValidNumber(""));
     }
 
 }
