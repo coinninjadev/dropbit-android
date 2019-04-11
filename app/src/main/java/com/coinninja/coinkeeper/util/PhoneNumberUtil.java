@@ -111,6 +111,12 @@ public class PhoneNumberUtil {
     }
 
     public boolean isValidNumber(String number) {
-        return _util.isValidNumber(toPhoneNumber(number));
+        if (number == null || number.isEmpty() || _util == null) { return false; }
+
+        Phonenumber.PhoneNumber phoneNumber = toPhoneNumber(number);
+
+        if (phoneNumber == null) { return false; }
+
+        return _util.isValidNumber(phoneNumber);
     }
 }
