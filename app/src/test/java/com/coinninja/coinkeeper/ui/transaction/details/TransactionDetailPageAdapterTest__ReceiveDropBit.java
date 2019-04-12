@@ -105,7 +105,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void renders_receive_icon() {
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         ImageView icon = withId(page, R.id.ic_send_state);
 
@@ -117,7 +117,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.CANCELED);
         bindableTransaction.setSendState(BindableTransaction.SendState.RECEIVE_CANCELED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
@@ -130,7 +130,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.EXPIRED);
         bindableTransaction.setSendState(BindableTransaction.SendState.RECEIVE_CANCELED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
@@ -140,7 +140,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void sets_content_description_for_icon() {
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         ImageView icon = withId(page, R.id.ic_send_state);
         String contentDescription = getString(page.getContext(), R.string.transaction_detail_cd_send_state__dropbit_received);
@@ -151,7 +151,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     public void renders_confirmations__step_1() {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_PENDING);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = withId(page, R.id.confirmations);
         ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
@@ -165,7 +165,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     public void renders_confirmations__step_2() {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = withId(page, R.id.confirmations);
         ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
@@ -180,7 +180,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = withId(page, R.id.confirmations);
         ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
@@ -195,7 +195,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = withId(page, R.id.confirmations);
         ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
@@ -211,14 +211,16 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
         bindableTransaction.setTxID("-- txid --");
 
-        adapter.bindTo(page, bindableTransaction);
+        when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
+
+        adapter.bindTo(page, bindableTransaction, 0);
         Button seeDetails = withId(page, R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer).onTransactionDetailsRequested(bindableTransaction);
 
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         seeDetails = withId(page, R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
@@ -231,7 +233,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setContactName(null);
         bindableTransaction.setContactPhoneNumber(phoneNumber);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView contact = withId(page, R.id.contact);
         assertThat(contact, hasText(phoneNumber));
@@ -244,7 +246,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setContactName(name);
         bindableTransaction.setContactPhoneNumber(phoneNumber);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView contact = withId(page, R.id.contact);
         assertThat(contact, hasText(name));
@@ -256,7 +258,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.CANCELED);
         bindableTransaction.setValue(50000000L);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(50000L));
@@ -269,7 +271,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.EXPIRED);
         bindableTransaction.setValue(50000000L);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(50000L));
@@ -282,7 +284,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setFee(10000L);
         bindableTransaction.setValue(50000000L);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(50000L));
@@ -294,7 +296,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     public void renders_time_transaction_occurred() {
         bindableTransaction.setTxTime("April 24, 2018 01:24am");
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView value = withId(page, R.id.transaction_date);
         assertThat(value, hasText("April 24, 2018 01:24am"));
@@ -303,27 +305,27 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     @Test
     public void does_not_allow_user_to_cancel_dropbit_when_not_pending() {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_PENDING);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         TextView pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
         bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
         bindableTransaction.setInviteState(BindableTransaction.InviteState.CANCELED);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
         bindableTransaction.setInviteState(BindableTransaction.InviteState.EXPIRED);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
         bindableTransaction.setInviteState(BindableTransaction.InviteState.CONFIRMED);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         pendingDropbit = withId(page, R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
     }
@@ -334,7 +336,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         String inviteId = "--- server invite id ---";
         bindableTransaction.setServerInviteId(inviteId);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         assertThat(withId(page, R.id.button_cancel_dropbit), isInvisible());
     }
@@ -344,7 +346,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_PENDING);
         String inviteId = "--- server invite id ---";
         bindableTransaction.setServerInviteId(inviteId);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         withId(page, R.id.button_cancel_dropbit).performClick();
 
@@ -353,7 +355,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
     @Test
     public void bind_hides_call_show_details() {
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         assertThat(withId(page, R.id.call_to_action), isInvisible());
         assertThat(withId(page, R.id.button_cancel_dropbit), isInvisible());

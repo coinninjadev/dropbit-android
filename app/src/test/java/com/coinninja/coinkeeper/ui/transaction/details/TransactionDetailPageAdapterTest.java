@@ -149,7 +149,7 @@ public class TransactionDetailPageAdapterTest {
         bindableTransaction.setSendState(BindableTransaction.SendState.SEND);
         bindableTransaction.setHistoricalInviteUSDValue(100L);
 
-        pageAdapter.bindTo(withId(activity, R.id.test_root), bindableTransaction);
+        pageAdapter.bindTo(withId(activity, R.id.test_root), bindableTransaction, 0);
 
         verify(defaultCurrencyChangeViewNotifier).observeDefaultCurrencyChange(withId(activity, R.id.default_currency_view));
     }

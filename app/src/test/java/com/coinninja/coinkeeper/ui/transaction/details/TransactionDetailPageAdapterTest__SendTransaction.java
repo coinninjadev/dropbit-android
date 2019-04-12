@@ -103,17 +103,17 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     @Test
     public void renders_canceled_icon_for_transaction_issues() {
         bindableTransaction.setSendState(BindableTransaction.SendState.FAILED_TO_BROADCAST_SEND);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
 
         bindableTransaction.setSendState(BindableTransaction.SendState.FAILED_TO_BROADCAST_TRANSFER);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
 
         bindableTransaction.setSendState(BindableTransaction.SendState.DOUBLESPEND_SEND);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
 
@@ -121,7 +121,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
 
     @Test
     public void renders_send_icon() {
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_send));
@@ -131,7 +131,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     public void renders_confirmations__step_2() {
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = withId(page, R.id.confirmations);
         ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
@@ -145,7 +145,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     public void renders_confirmations__step_3() {
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = withId(page, R.id.confirmations);
         ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
@@ -160,14 +160,16 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
         bindableTransaction.setTxID("-- txid --");
 
-        adapter.bindTo(page, bindableTransaction);
+        when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
+
+        adapter.bindTo(page, bindableTransaction, 0);
         Button seeDetails = withId(page, R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer).onTransactionDetailsRequested(bindableTransaction);
 
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 1);
         seeDetails = withId(page, R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
@@ -180,7 +182,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
         bindableTransaction.setContactName(null);
         bindableTransaction.setContactPhoneNumber(phoneNumber);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView contact = withId(page, R.id.contact);
         assertThat(contact, hasText(phoneNumber));
@@ -193,7 +195,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
         bindableTransaction.setContactName(name);
         bindableTransaction.setContactPhoneNumber(phoneNumber);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView contact = withId(page, R.id.contact);
         assertThat(contact, hasText(name));
@@ -204,7 +206,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
         bindableTransaction.setValue(50000000L);
         bindableTransaction.setFee(10000L);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(50010L));
@@ -215,7 +217,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     public void renders_time_transaction_occurred() {
         bindableTransaction.setTxTime("April 24, 2018 01:24am");
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView value = withId(page, R.id.transaction_date);
         assertThat(value, hasText("April 24, 2018 01:24am"));
@@ -223,7 +225,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
 
     @Test
     public void bind_hides_call_show_details() {
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         assertThat(withId(page, R.id.call_to_action), isInvisible());
     }

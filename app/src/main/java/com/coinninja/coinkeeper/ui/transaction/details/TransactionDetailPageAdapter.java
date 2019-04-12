@@ -118,7 +118,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         BindableTransaction bindableTransaction = transactionAdapterUtil.translateTransaction(summary);
         View page = LayoutInflater.from(container.getContext()).inflate(R.layout.page_transaction_detail, container, false);
         container.addView(page);
-        bindTo(page, bindableTransaction);
+        bindTo(page, bindableTransaction, position);
         return page;
     }
 
@@ -146,7 +146,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         return defaultCurrencies;
     }
 
-    void bindTo(View page, BindableTransaction bindableTransaction) {
+    void bindTo(View page, BindableTransaction bindableTransaction, int position) {
         makeViewInvisible(page, R.id.call_to_action);
         withId(page, R.id.ic_close).setOnClickListener(this::close);
         renderIcon(page, bindableTransaction);
@@ -156,7 +156,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         bindTransactionValue(page, bindableTransaction);
         renderTransactionTime(page, bindableTransaction.getTxTime());
         renderDropBitState(page, bindableTransaction);
-        renderShowDetails(page, bindableTransaction);
+        renderShowDetails(page, bindableTransaction, position);
         renderMemo(page, bindableTransaction);
         renderTooltip(page, bindableTransaction);
     }
@@ -197,19 +197,22 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         ((Activity) view.getContext()).finish();
     }
 
-    private void renderShowDetails(View page, BindableTransaction bindableTransaction) {
+    private void renderShowDetails(View page, BindableTransaction bindableTransaction, int position) {
         String txID = bindableTransaction.getTxID();
         if (txID == null || txID.isEmpty())
             return;
 
         Button cta = withId(page, R.id.call_to_action);
         cta.setVisibility(View.VISIBLE);
-        cta.setTag(bindableTransaction);
+        cta.setTag(position);
         cta.setOnClickListener(this::onSeeDetailsClickListener);
     }
 
     private void onSeeDetailsClickListener(View view) {
-        BindableTransaction bindableTransaction = (BindableTransaction) view.getTag();
+        int position = (int) view.getTag();
+        TransactionsInvitesSummary summary = transactions.get(position);
+        BindableTransaction bindableTransaction = transactionAdapterUtil.translateTransaction(summary);
+
         if (transactionDetailObserver != null) {
             transactionDetailObserver.onTransactionDetailsRequested(bindableTransaction);
         }
@@ -280,7 +283,6 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
                 return;
         }
     }
-
 
     private void setupCancelDropbit(View page, BindableTransaction bindableTransaction) {
         if (bindableTransaction.getSendState() == BindableTransaction.SendState.RECEIVE) return;
