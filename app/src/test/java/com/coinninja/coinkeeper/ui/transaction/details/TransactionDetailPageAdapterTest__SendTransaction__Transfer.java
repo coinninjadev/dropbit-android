@@ -99,7 +99,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
     @Test
     public void renders_send_icon_for_transfer() {
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_send));
@@ -109,7 +109,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     public void renders_confirmations__step_2() {
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = withId(page, R.id.confirmations);
         ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
@@ -123,7 +123,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     public void renders_confirmations__step_3() {
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = withId(page, R.id.confirmations);
         ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
@@ -138,14 +138,14 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.UNCONFIRMED);
         bindableTransaction.setTxID("-- txid --");
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
         Button seeDetails = withId(page, R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer).onTransactionDetailsRequested(bindableTransaction);
 
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 1);
         seeDetails = withId(page, R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
@@ -159,7 +159,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
         bindableTransaction.setContactName(name);
         bindableTransaction.setContactPhoneNumber(phoneNumber);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         TextView contact = withId(page, R.id.contact);
         assertThat(contact, hasText(getString(activity, R.string.send_to_self)));
@@ -170,7 +170,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
         bindableTransaction.setFee(10000L);
         bindableTransaction.setValue(50000000L);
 
-        adapter.bindTo(page, bindableTransaction);
+        adapter.bindTo(page, bindableTransaction, 0);
 
         DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(10L));
