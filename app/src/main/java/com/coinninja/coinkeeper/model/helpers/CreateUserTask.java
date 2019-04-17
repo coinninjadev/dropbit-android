@@ -9,21 +9,18 @@ import javax.inject.Inject;
 
 public class CreateUserTask extends AsyncTask<Void, Void, UserHelper> {
 
-    private String uuid;
     private UserHelper user;
-
     private OnUserCreatedListener onUserCreatedListener;
 
     @Inject
-    public CreateUserTask(@UUID String uuid, UserHelper user) {
-        this.uuid = uuid;
+    public CreateUserTask(UserHelper user) {
         this.user = user;
     }
 
     @Override
     protected UserHelper doInBackground(Void... params) {
         if (user.getUser() == null) {
-            user.createFirstUser(uuid);
+            user.createFirstUser();
         }
         return user;
     }

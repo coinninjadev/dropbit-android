@@ -4,18 +4,20 @@ import android.os.AsyncTask;
 
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 
-public class SavePinTask extends AsyncTask<String, Void, Void> {
-    private CoinKeeperApplication application;
+import javax.inject.Inject;
 
-    public SavePinTask(CoinKeeperApplication application) {
-        this.application = application;
+public class SavePinTask extends AsyncTask<String, Void, Void> {
+    private final UserHelper userHelper;
+
+    @Inject
+    SavePinTask(UserHelper userHelper) {
+        this.userHelper = userHelper;
     }
 
     @Override
     protected Void doInBackground(String... args) {
         String pin = args[0];
-        application.getUser().savePin(pin);
-        application = null;
+        userHelper.savePin(pin);
         return null;
     }
 }

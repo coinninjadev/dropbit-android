@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
-import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
@@ -24,9 +23,6 @@ import com.coinninja.coinkeeper.util.android.InternetUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
-import com.coinninja.coinkeeper.view.fragment.PinConfirmFragment;
-
-import org.spongycastle.util.Arrays;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -92,7 +88,7 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     @Override
     protected void onResume() {
         super.onResume();
-        if (!MESSAGE_IGNORE_LIST.contains(this.getClass().getName())) {
+        if (!MESSAGE_IGNORE_LIST.contains(getClass().getName())) {
             notificationsInteractor.startListeningForNotifications(this, true);
         }
         checkForInternalNotifications();
@@ -104,7 +100,7 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     @Override
     protected void onPause() {
         super.onPause();
-        if (!MESSAGE_IGNORE_LIST.contains(this.getClass().getName())) {
+        if (!MESSAGE_IGNORE_LIST.contains(getClass().getName())) {
             notificationsInteractor.stopListeningForNotifications();
         }
         queue.removeCallbacks(healthCheckRunner);

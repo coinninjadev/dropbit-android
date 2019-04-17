@@ -93,14 +93,12 @@ public class UserHelperTest {
 
     @Test
     public void create_new_user_test() {
-        String uuid = "Some uuid";
         ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
 
-        userHelper.createFirstUser(uuid);
+        userHelper.createFirstUser();
 
         verify(userDao).insert(argumentCaptor.capture());
         User user = argumentCaptor.getValue();
-        assertThat(user.getUid(), equalTo(uuid));
         verify(daoSessionManager).createWallet(user);
     }
 

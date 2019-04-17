@@ -1,11 +1,11 @@
 package com.coinninja.coinkeeper.service.tasks;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -20,21 +20,17 @@ import static org.mockito.Mockito.when;
 public class CNHealthCheckTaskTest {
 
     @Mock
-    CNHealthCheckTask.HealthCheckCallback callback;
+    private CNHealthCheckTask.HealthCheckCallback callback;
 
     @Mock
-    CoinKeeperApplication application;
+    private CoinKeeperApiClient apiClient;
 
-    @Mock
-    CoinKeeperApiClient apiClient;
-
+    @InjectMocks
     private CNHealthCheckTask task;
 
     @Before
     public void setUp() {
-        when(application.getAPIClient()).thenReturn(apiClient);
         when(apiClient.checkHealth()).thenReturn(Response.success("OK"));
-        task = CNHealthCheckTask.newInstance(application, callback);
     }
 
     @Test

@@ -14,6 +14,8 @@ import com.coinninja.coinkeeper.service.DeviceRegistrationService;
 import com.coinninja.coinkeeper.service.DropbitServicePatchService;
 import com.coinninja.coinkeeper.service.FulfillSentInvitesService;
 import com.coinninja.coinkeeper.service.PushNotificationEndpointRegistrationService;
+import com.coinninja.coinkeeper.service.RegisterUsersPhoneService;
+import com.coinninja.coinkeeper.service.ResendPhoneVerificationService;
 import com.coinninja.coinkeeper.service.SaveInviteService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
 import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
@@ -26,6 +28,11 @@ import dagger.android.ContributesAndroidInjector;
 
 @Module
 public abstract class AndroidServiceBuilder {
+    @ContributesAndroidInjector
+    abstract ResendPhoneVerificationService resendPhoneVerificationService();
+
+    @ContributesAndroidInjector
+    abstract RegisterUsersPhoneService registerUsersPhoneService();
 
     @ContributesAndroidInjector
     abstract WalletCreationIntentService walletCreationIntentService();

@@ -1,32 +1,27 @@
 package com.coinninja.coinkeeper.model.helpers;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
-
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SavePinTaskTest {
-
     @Mock
-    CoinKeeperApplication application;
+    private UserHelper userHelper;
 
-    @Mock
-    UserHelper userHelper;
-
+    @InjectMocks
     private SavePinTask task;
 
-    @Before
-    public void setUp() {
-        task = new SavePinTask(application);
-        when(application.getUser()).thenReturn(userHelper);
+    @After
+    public void tearDown() {
+        task = null;
+        userHelper = null;
     }
 
     @Test

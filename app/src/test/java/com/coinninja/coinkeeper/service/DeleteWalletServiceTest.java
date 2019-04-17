@@ -55,8 +55,6 @@ public class DeleteWalletServiceTest {
     @Mock
     private SyncWalletManager syncWalletManager;
 
-    private String uuid = "-- uuid --";
-
     @After
     public void tearDown() {
         service = null;
@@ -68,7 +66,6 @@ public class DeleteWalletServiceTest {
         analytics = null;
         apiClient = null;
         syncWalletManager = null;
-        uuid = null;
     }
 
     @Before
@@ -83,7 +80,6 @@ public class DeleteWalletServiceTest {
         service.apiClient = apiClient;
         service.pushNotificationEndpointManager = pushNotificationEndpointManager;
         service.pushNotificationDeviceManager = pushNotificationDeviceManager;
-        service.uuid = uuid;
     }
 
     @Test
@@ -139,7 +135,7 @@ public class DeleteWalletServiceTest {
     public void creates_first_user_again() {
         service.onHandleIntent(null);
 
-        verify(userHelper).createFirstUser(uuid);
+        verify(userHelper).createFirstUser();
     }
 
     @Test

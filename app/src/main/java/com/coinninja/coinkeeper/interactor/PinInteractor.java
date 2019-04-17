@@ -1,23 +1,20 @@
 package com.coinninja.coinkeeper.interactor;
 
-import android.content.Context;
-
-import com.coinninja.coinkeeper.CoinKeeperApplication;
-import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.model.helpers.SavePinTask;
+import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.util.Hasher;
 
 import javax.inject.Inject;
 
 public class PinInteractor {
     private static final String TAG = PinInteractor.class.getSimpleName();
-    private CoinKeeperApplication application;
+    private final UserHelper userHelper;
     private SavePinTask savePinTask;
 
     @Inject
-    public PinInteractor(@ApplicationContext Context context) {
-        application = (CoinKeeperApplication) context.getApplicationContext();
-        savePinTask = new SavePinTask(application);
+    public PinInteractor(UserHelper userHelper, SavePinTask savePinTask) {
+        this.userHelper = userHelper;
+        this.savePinTask = savePinTask;
     }
 
     public void savePin(String pin) {
@@ -26,7 +23,7 @@ public class PinInteractor {
 
 
     public String getSavedPin() {
-        String pin = application.getUser().getPin();
+        String pin = userHelper.getPin();
         if (pin == null || pin.isEmpty())
             return null;
         return pin;

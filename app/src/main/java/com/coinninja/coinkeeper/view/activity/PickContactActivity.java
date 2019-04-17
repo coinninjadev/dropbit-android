@@ -11,14 +11,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Filter;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
 import com.coinninja.coinkeeper.ui.util.OnItemClickListener;
-import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
@@ -49,6 +47,9 @@ public class PickContactActivity extends SecuredActivity implements CoinNinjaUse
     @Inject
     LocalContactQueryUtil localContactQueryUtil;
 
+    @Inject
+    CoinNinjaUserQueryTask fetchUserTask;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +61,7 @@ public class PickContactActivity extends SecuredActivity implements CoinNinjaUse
         list.setHasFixedSize(true);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, layoutManager.getOrientation());
         list.addItemDecoration(dividerItemDecoration);
-        searchView = (SearchView) findViewById(R.id.searchView);
+        searchView = findViewById(R.id.searchView);
         initSearch(searchView);
     }
 
@@ -97,6 +98,12 @@ public class PickContactActivity extends SecuredActivity implements CoinNinjaUse
         loadContacts(this);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        fetchUserTask.setOnCompleteListener(null);
+    }
+
     protected void loadContacts(Activity context) {
         if (hasContactsPermission(context)) {
             showLoading();
@@ -118,10 +125,8 @@ public class PickContactActivity extends SecuredActivity implements CoinNinjaUse
     }
 
     private void fetchContacts() {
-        SignedCoinKeeperApiClient client = ((CoinKeeperApplication) getApplication()).getSecuredClient();
-        CoinNinjaUserQueryTask task = ((CoinKeeperApplication) getApplication()).getCoinNinjaUserQueryTask(client, localContactQueryUtil, this);
-
-        task.execute();
+        fetchUserTask.setOnCompleteListener(this);
+        fetchUserTask.clone().execute();
     }
 
     private void reqeustContactsPermission(Activity context) {

@@ -8,9 +8,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.qrscanner.QRScanManager;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
@@ -22,46 +20,12 @@ import androidx.annotation.Nullable;
 
 public class QrScanActivity extends SecuredActivity {
 
-    private DecoratedBarcodeView barcodeScannerView;
-    private QRScanManager qrScanManager;
-
+    @Inject
+    CNQRScanManager qrScanManager;
     @Inject
     PermissionsUtil permissionsUtil;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activty_qr_scanner);
-
-        View flashView = findViewById(R.id.qr_scan_flash_btn_view);
-        View flashBtn = findViewById(R.id.qr_scan_flash_btn);
-        flashView.setOnClickListener(v -> onFlashPressed());
-        flashBtn.setOnClickListener(v -> onFlashPressed());
-
-        barcodeScannerView = findViewById(R.id.zxing_barcode_scanner);
-        qrScanManager = ((CoinKeeperApplication) getApplication()).getScanManager(this, barcodeScannerView, this::onScanComplete);
-        qrScanManager.initializeFromIntent(getIntent(), savedInstanceState);
-
-        if (!hasCameraPermission()) {
-            requestCameraPermission();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (hasCameraPermission()) {
-            qrScanManager.startCapture();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (hasCameraPermission()) {
-            qrScanManager.stopCapture();
-        }
-    }
+    private DecoratedBarcodeView barcodeScannerView;
+    private Bundle savedInstanceState;
 
     public void onScanComplete(String rawScannedResult) {
         Intent returnIntent = new Intent();
@@ -78,7 +42,6 @@ public class QrScanActivity extends SecuredActivity {
         setResult(Intents.RESULT_SCAN_ERROR);
         finish();
     }
-
 
     public void requestCameraPermission() {
         permissionsUtil.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
@@ -107,8 +70,42 @@ public class QrScanActivity extends SecuredActivity {
         finish();
     }
 
-    private void onFlashPressed() {
-        qrScanManager.toggleFlash();
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activty_qr_scanner);
+        this.savedInstanceState = savedInstanceState;
+        barcodeScannerView = findViewById(R.id.zxing_barcode_scanner);
+        View flashView = findViewById(R.id.qr_scan_flash_btn_view);
+        View flashBtn = findViewById(R.id.qr_scan_flash_btn);
+        flashView.setOnClickListener(v -> onFlashPressed());
+        flashBtn.setOnClickListener(v -> onFlashPressed());
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!hasCameraPermission()) {
+            requestCameraPermission();
+        }
+        qrScanManager.initializeFromIntent(this, barcodeScannerView, this::onScanComplete, savedInstanceState);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (hasCameraPermission()) {
+            qrScanManager.stopCapture();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (hasCameraPermission()) {
+            qrScanManager.startCapture();
+        }
     }
 
     @Override
@@ -123,6 +120,15 @@ public class QrScanActivity extends SecuredActivity {
         qrScanManager.onSaveInstanceState(outState);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return barcodeScannerView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+    }
+
+    private void onFlashPressed() {
+        qrScanManager.toggleFlash();
+    }
+
     private void showReAskPermissionBtn() {
         View reAskBtn = findViewById(R.id.qr_scan_reask_permission_btn);
         reAskBtn.setOnClickListener(v -> requestCameraPermission());
@@ -134,11 +140,5 @@ public class QrScanActivity extends SecuredActivity {
         View reAskBtn = findViewById(R.id.qr_scan_reask_permission_btn);
 
         reAskBtn.setVisibility(View.GONE);
-    }
-
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return barcodeScannerView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
     }
 }

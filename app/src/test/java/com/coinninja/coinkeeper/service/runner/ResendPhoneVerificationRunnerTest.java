@@ -1,11 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
-import android.app.Service;
-
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.model.db.Account;
-import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
@@ -14,9 +10,11 @@ import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.google.gson.Gson;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -49,17 +47,10 @@ public class ResendPhoneVerificationRunnerTest {
             "\"verification_ttl\": \"2018-05-09T16:09:05.294Z\",\n" +
             "\"verified_at\": \"2018-05-09T16:09:05.294Z\"\n" +
             "}";
-
     @Mock
     private SignedCoinKeeperApiClient apiClient;
     @Mock
     private CNPhoneNumber CNPhoneNumber;
-    @Mock
-    private Service service;
-    @Mock
-    private CoinKeeperApplication application;
-    @Mock
-    private UserHelper user;
     @Mock
     private DataSigner dataSigner;
     @Mock
@@ -68,47 +59,34 @@ public class ResendPhoneVerificationRunnerTest {
     private Account account;
     @Mock
     private LocalBroadCastUtil localBroadCast;
-
-    ResendPhoneVerificationRunner runner;
     private CNUserAccount cnUserAccount;
+    @InjectMocks
+    private ResendPhoneVerificationRunner runner;
 
+    @After
+    public void tearDown() {
+        apiClient = null;
+        CNPhoneNumber = null;
+        dataSigner = null;
+        walletHelper = null;
+        account = null;
+        localBroadCast = null;
+        cnUserAccount = null;
+        runner = null;
+    }
 
     @Before
     public void setUp() {
-        when(service.getApplication()).thenReturn(application);
-        when(application.getUser()).thenReturn(user);
-        when(application.getSecuredClient()).thenReturn(apiClient);
-        when(application.getLocalBroadCastUtil()).thenReturn(localBroadCast);
-        when(user.getWalletHelper()).thenReturn(walletHelper);
         when(dataSigner.getCoinNinjaVerificationKey()).thenReturn(SIGN_VERIFICATION_KEY);
         when(walletHelper.hasAccount()).thenReturn(true);
         when(walletHelper.getUserAccount()).thenReturn(account);
-
-        runner = new ResendPhoneVerificationRunner(service);
-
         Gson gson = new Gson();
         cnUserAccount = gson.fromJson(json, CNUserAccount.class);
         setResponse(200);
     }
 
-    @NonNull
-    private Response getResponse(int successCode) {
-        return Response.success(cnUserAccount, new okhttp3.Response.Builder()
-                .code(successCode)
-                .message("OK")
-                .protocol(Protocol.HTTP_1_1)
-                .request(new Request.Builder().url("http://localhost/").build())
-                .build());
-    }
-
-    private void setResponse(int successCode) {
-        Response response = getResponse(successCode);
-        when(apiClient.registerUserAccount(any(CNPhoneNumber.class))).thenReturn(response);
-    }
-
-
     @Test
-    public void resends_verification_on_execution() {
+    public void reseeds_verification_on_execution() {
         setResponse(200);
         runner.setCNPhoneNumber(CNPhoneNumber);
         when(apiClient.resendVerification(CNPhoneNumber)).thenReturn(getResponse(200));
@@ -119,7 +97,7 @@ public class ResendPhoneVerificationRunnerTest {
     }
 
     @Test
-    public void saves_user_account_when_resend_is_successfull() {
+    public void saves_user_account_when_resend_is_successful() {
         setResponse(200);
         runner.setCNPhoneNumber(CNPhoneNumber);
         when(apiClient.resendVerification(CNPhoneNumber)).thenReturn(getResponse(200));
@@ -128,7 +106,6 @@ public class ResendPhoneVerificationRunnerTest {
 
         verify(walletHelper).saveAccountRegistration(cnUserAccount, CNPhoneNumber);
     }
-
 
     @Test
     public void unsuccessful_resend_ends_runner() {
@@ -177,5 +154,20 @@ public class ResendPhoneVerificationRunnerTest {
         runner.run();
 
         verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
+    }
+
+    @NonNull
+    private Response getResponse(int successCode) {
+        return Response.success(cnUserAccount, new okhttp3.Response.Builder()
+                .code(successCode)
+                .message("OK")
+                .protocol(Protocol.HTTP_1_1)
+                .request(new Request.Builder().url("http://localhost/").build())
+                .build());
+    }
+
+    private void setResponse(int successCode) {
+        Response response = getResponse(successCode);
+        when(apiClient.registerUserAccount(any(CNPhoneNumber.class))).thenReturn(response);
     }
 }

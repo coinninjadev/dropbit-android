@@ -8,12 +8,17 @@ import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.ResendPhoneVerificationRunner;
 import com.coinninja.coinkeeper.util.Intents;
 
+import javax.inject.Inject;
+
 import androidx.annotation.Nullable;
+import dagger.android.AndroidInjection;
 
 public class ResendPhoneVerificationService extends IntentService {
 
     public static final String TAG = ResendPhoneVerificationService.class.getName();
-    private ResendPhoneVerificationRunner runner;
+
+    @Inject
+    ResendPhoneVerificationRunner runner;
 
     public ResendPhoneVerificationService() {
         this(TAG);
@@ -26,7 +31,7 @@ public class ResendPhoneVerificationService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        runner = new ResendPhoneVerificationRunner(this);
+        AndroidInjection.inject(this);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.model.helpers;
 
 import com.coinninja.coinkeeper.model.db.User;
-import com.coinninja.coinkeeper.model.db.Wallet;
 
 import javax.inject.Inject;
 
@@ -18,9 +17,8 @@ public class UserHelper {
         this.walletHelper = walletHelper;
     }
 
-    public User createFirstUser(String uniqueID) {
+    public User createFirstUser() {
         User user = new User();
-        user.setUid(uniqueID);
         daoSessionManager.getUserDao().insert(user);
         daoSessionManager.attach(user);
         daoSessionManager.createWallet(user);
@@ -40,25 +38,6 @@ public class UserHelper {
 
     public User getUser() {
         return daoSessionManager.getUserDao().queryBuilder().limit(1).unique();
-    }
-
-    public Wallet getPrimaryWallet() {
-        return walletHelper.getWallet();
-    }
-
-
-    @Deprecated
-    public String getUniqueID() {
-        User user = getUser();
-        if (user == null) {
-            return null;
-        }
-        return getUser().getUid();
-    }
-
-    @Deprecated
-    public WalletHelper getWalletHelper() {
-        return walletHelper;
     }
 
     public void lockOutUntil(long unlockTime) {
