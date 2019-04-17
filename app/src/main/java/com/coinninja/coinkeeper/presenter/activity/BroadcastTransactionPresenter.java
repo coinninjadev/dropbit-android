@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
 import com.coinninja.bindings.TransactionBroadcastResult;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.service.runner.BroadcastTransactionRunner;
 
 import javax.inject.Inject;
@@ -17,20 +17,20 @@ public class BroadcastTransactionPresenter implements BroadcastTransactionRunner
         this.broadcastRunner = broadcastRunner;
     }
 
-    public void broadcastTransaction(UnspentTransactionHolder unspentTransactionHolder) {
+    public void broadcastTransaction(TransactionData transactionData) {
         broadcastRunner.setBroadcastListener(this);
-        broadcastRunner.clone().execute(unspentTransactionHolder);
-    }
-
-    @Override
-    public void onBroadcastProgress(int progress) {
-        view.showProgress(progress);
+        broadcastRunner.clone().execute(transactionData);
     }
 
     @Override
     public void onBroadcastSuccessful(TransactionBroadcastResult transactionBroadcastResult) {
 
         view.showBroadcastSuccessful(transactionBroadcastResult);
+    }
+
+    @Override
+    public void onBroadcastProgress(int progress) {
+        view.showProgress(progress);
     }
 
     @Override

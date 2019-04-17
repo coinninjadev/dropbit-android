@@ -201,12 +201,13 @@ by using their mobile number</string>
     <string name="broadcast_sent_try_again">Try Again</string>
     <string name="loading_dialog">Loading....</string>
 
-    <!-- Payment dialog messages-->
+    <!-- Payment dialog -->
     <string name="pay_error_add_valid_bitcoin_address">Please add valid bitcoin address or phone number</string>
     <string name="pay_error_invalid_amount">Invalid amount</string>
     <string name="pay_error_too_little_transaction">Can not spend less than $1</string>
     <string name="payment_error_too_much_sent_to_contact">Can not send more than $100.00 to a phone contact</string>
     <string name="payment_memo">What’s it for?</string>
+    <string name="send_max">send max</string>
 
     <!-- Delete Auth Message -->
     <string name="authorize_delete_message">Enter pin to confirm deletion of your wallet.</string>

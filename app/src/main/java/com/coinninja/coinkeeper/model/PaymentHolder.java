@@ -1,6 +1,8 @@
 package com.coinninja.coinkeeper.model;
 
-import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.bindings.TransactionData;
+import com.coinninja.bindings.UnspentTransactionOutput;
+import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
@@ -11,26 +13,25 @@ import javax.inject.Inject;
 
 public class PaymentHolder {
     private Currency evaluationCurrency;
-    private TransactionFee transactionFee;
     private BTCCurrency spendableBalance;
     private boolean isSharingMemo = true;
     private String publicKey = "";
     private String memo = "";
-    private String paymentAddress = "";
-    private TransactionFee requiredTransactionFee;
+    private TransactionData transactionData;
 
     private DefaultCurrencies defaultCurrencies;
 
     @Inject
     public PaymentHolder() {
-        this(new USDCurrency(0L), new TransactionFee(0, 0, 0));
+        this(new USDCurrency(0L));
     }
 
-    public PaymentHolder(Currency evaluationCurrency, TransactionFee transactionFee) {
+    public PaymentHolder(Currency evaluationCurrency) {
         this.evaluationCurrency = evaluationCurrency;
-        this.transactionFee = transactionFee;
         spendableBalance = new BTCCurrency(0L);
+        clearTransactionData();
     }
+
 
     public Currency updateValue(Currency currency) {
         if (currency.isCrypto() != getPrimaryCurrency().isCrypto()) {
@@ -67,14 +68,6 @@ public class PaymentHolder {
 
     public void setEvaluationCurrency(Currency currency) {
         evaluationCurrency = currency;
-    }
-
-    public TransactionFee getTransactionFee() {
-        return requiredTransactionFee != null ? requiredTransactionFee : transactionFee;
-    }
-
-    public void setTransactionFee(TransactionFee transactionFee) {
-        this.transactionFee = transactionFee;
     }
 
     public String getMemo() {
@@ -126,15 +119,15 @@ public class PaymentHolder {
     }
 
     public String getPaymentAddress() {
-        return paymentAddress;
+        return transactionData.getPaymentAddress();
     }
 
     public void setPaymentAddress(String paymentAddress) {
-        this.paymentAddress = paymentAddress;
+        transactionData.setPaymentAddress(paymentAddress);
     }
 
     public boolean hasPaymentAddress() {
-        return !"".equals(paymentAddress);
+        return transactionData != null && transactionData.getPaymentAddress() != null && !"".equals(transactionData.getPaymentAddress());
     }
 
     public boolean hasPubKey() {
@@ -143,16 +136,13 @@ public class PaymentHolder {
 
     public void clearPayment() {
         publicKey = "";
-        paymentAddress = "";
+        clearTransactionData();
+        getPrimaryCurrency().zero();
     }
 
     public void setMaxLimitForFiat() {
         if (evaluationCurrency != null)
-            USDCurrency.SET_MAX_LIMIT((USDCurrency) evaluationCurrency);
-    }
-
-    public void setRequiredTransactionFee(TransactionFee requiredTransactionFee) {
-        this.requiredTransactionFee = requiredTransactionFee;
+            USDCurrency.setMaxLimit((USDCurrency) evaluationCurrency);
     }
 
     public DefaultCurrencies getDefaultCurrencies() {
@@ -161,5 +151,20 @@ public class PaymentHolder {
 
     public void setDefaultCurrencies(DefaultCurrencies defaultCurrencies) {
         this.defaultCurrencies = defaultCurrencies;
+    }
+
+    public TransactionData getTransactionData() {
+        return transactionData;
+    }
+
+    public void setTransactionData(TransactionData transactionData) {
+        if (hasPaymentAddress())
+            transactionData.setPaymentAddress(getPaymentAddress());
+        this.transactionData = transactionData;
+    }
+
+    private void clearTransactionData() {
+        transactionData = new TransactionData(new UnspentTransactionOutput[0], 0, 0,
+                0, new Address().getDerivationPath(), "");
     }
 }

@@ -797,7 +797,7 @@ public class TransactionHelper {
         long currentTime = dateUtil.getCurrentTimeInMillis();
 
         String originalTxId = txid;
-        String newTxId = "FAILED_TO_BROADCAST" + "_" + Long.toString(currentTime) + "_" + originalTxId;
+        String newTxId = "failedToBroadcast" + "_" + Long.toString(currentTime) + "_" + originalTxId;
 
         renameTransSummary(originalTxId, newTxId);
         renameInviteSummary(originalTxId, newTxId);

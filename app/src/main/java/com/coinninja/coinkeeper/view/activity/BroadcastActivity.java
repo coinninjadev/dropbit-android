@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.view.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -13,9 +12,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.coinninja.bindings.TransactionBroadcastResult;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
@@ -35,36 +34,68 @@ import static com.coinninja.coinkeeper.util.analytics.Analytics.EVENT_TRANSACTIO
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
 public class BroadcastActivity extends SecuredActivity implements BroadcastTransactionPresenter.View {
-    private static final String TAG = BroadcastActivity.class.getSimpleName();
     static final String RESTORE_STATE = "RESTORE_STATE";
     static final String TRANSACTION_ID = "TRANSACTION_ID";
-
-    public static final String TRANSACTION_ROUTE = "tx";
-    public static final String COIN_NINJA_COM = "coinninja.com";
-
+    private static final String TAG = BroadcastActivity.class.getSimpleName();
     @Inject
     CoinNinjaUriBuilder coinNinjaUriBuilder;
-
+    SendState sendState = SendState.INIT;
+    @Inject
+    ActivityNavigationUtil activityNavigationUtil;
+    @Inject
+    BroadcastTransactionPresenter broadcastPresenter;
+    @Inject
+    SyncWalletManager syncWalletManager;
+    SendingProgressView sendingProgressView;
     private BroadcastTransactionDTO broadcastDTO;
     private TextView sendingProgressLabel;
     private TextView transactionIdLabel;
     private TextView transactionIdLink;
     private ImageView transactionIdIcon;
     private Button transactionActionBtn;
-    SendState sendState = SendState.INIT;
     private String transactionId;
 
-    @Inject
-    ActivityNavigationUtil activityNavigationUtil;
+    public void showInitTransaction() {
+        sendingProgressView.setProgress(0);
+        sendingProgressView.resetView();
+        transactionIdLabel.setVisibility(View.INVISIBLE);
+        transactionIdLink.setVisibility(View.INVISIBLE);
+        transactionIdIcon.setVisibility(View.INVISIBLE);
+        transactionActionBtn.setVisibility(View.INVISIBLE);
+        sendingProgressLabel.setText("");
+        transactionActionBtn.setText("");
+        transactionIdLink.setText("");
+        transactionActionBtn.setOnClickListener(null);
+        transactionIdLink.setOnClickListener(null);
+        transactionIdIcon.setOnClickListener(null);
+        transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+    }
 
-    @Inject
-    BroadcastTransactionPresenter broadcastPresenter;
+    public void onRetryClicked() {
+        showInitTransaction();
+        startBroadcast(broadcastDTO.getTransactionData());
+        analytics.trackEvent(EVENT_TRANSACTION_RETRY);
+    }
 
-    @Inject
-    SyncWalletManager syncWalletManager;
+    @Override
+    public void showBroadcastFail(TransactionBroadcastResult transactionBroadcastResult) {
+        Log.e(TAG, "showBroadcastFail: " + transactionBroadcastResult.getMessage());
+        genericFail();
+    }
 
+    @Override
+    public void showBroadcastSuccessful(TransactionBroadcastResult transactionBroadcastResult) {
+        transactionId = transactionBroadcastResult.getTxId();
+        CompletedBroadcastDTO completedBroadcastActivityDTO = new CompletedBroadcastDTO(broadcastDTO, transactionId);
+        finalizeTransaction(completedBroadcastActivityDTO);
+        showInitTransaction();
+        showSuccess();
+    }
 
-    SendingProgressView sendingProgressView;
+    @Override
+    public void showProgress(int progress) {
+        sendingProgressView.setProgress(progress);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,6 +120,12 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        syncWalletManager.schedule30SecondSync();
+    }
+
+    @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (null != savedInstanceState && savedInstanceState.containsKey(RESTORE_STATE)) {
@@ -101,11 +138,20 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(RESTORE_STATE, sendState.value);
+        if (transactionId != null) {
+            outState.putString(TRANSACTION_ID, transactionId);
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         switch (sendState) {
             case INIT:
-                startBroadcast(broadcastDTO.getHolder());
+                startBroadcast(broadcastDTO.getTransactionData());
                 break;
             case COMPLETED_SUCCESS:
                 showSuccess();
@@ -115,47 +161,10 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        syncWalletManager.schedule30SecondSync();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putInt(RESTORE_STATE, sendState.value);
-        if (transactionId != null) {
-            outState.putString(TRANSACTION_ID, transactionId);
-        }
-    }
-
-    public void showInitTransaction() {
-        sendingProgressView.setProgress(0);
-        sendingProgressView.resetView();
-        transactionIdLabel.setVisibility(View.INVISIBLE);
-        transactionIdLink.setVisibility(View.INVISIBLE);
-        transactionIdIcon.setVisibility(View.INVISIBLE);
-        transactionActionBtn.setVisibility(View.INVISIBLE);
-        sendingProgressLabel.setText("");
-        transactionActionBtn.setText("");
-        transactionIdLink.setText("");
-        transactionActionBtn.setOnClickListener(null);
-        transactionIdLink.setOnClickListener(null);
-        transactionIdIcon.setOnClickListener(null);
-        transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-    }
-
-    public void onRetryClicked() {
-        showInitTransaction();
-        startBroadcast(broadcastDTO.getHolder());
-        analytics.trackEvent(EVENT_TRANSACTION_RETRY);
-    }
-
-    private void startBroadcast(UnspentTransactionHolder unspentTransactionHolder) {
+    private void startBroadcast(TransactionData transactionData) {
         sendState = SendState.STARTED;
         broadcastPresenter.attachView(this);
-        broadcastPresenter.broadcastTransaction(unspentTransactionHolder);
+        broadcastPresenter.broadcastTransaction(transactionData);
     }
 
     private void genericFail() {
@@ -169,26 +178,6 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         transactionActionBtn.setText(getResources().getText(R.string.broadcast_sent_try_again));
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.color_error));
         transactionActionBtn.setOnClickListener(view -> onRetryClicked());
-    }
-
-    @Override
-    public void showBroadcastFail(TransactionBroadcastResult transactionBroadcastResult) {
-        Log.e(TAG, "showBroadcastFail: " + transactionBroadcastResult.getMessage());
-        genericFail();
-    }
-
-    @Override
-    public void showProgress(int progress) {
-        sendingProgressView.setProgress(progress);
-    }
-
-    @Override
-    public void showBroadcastSuccessful(TransactionBroadcastResult transactionBroadcastResult) {
-        transactionId = transactionBroadcastResult.getTxId();
-        CompletedBroadcastDTO completedBroadcastActivityDTO = new CompletedBroadcastDTO(broadcastDTO, transactionId);
-        finalizeTransaction(completedBroadcastActivityDTO);
-        showInitTransaction();
-        showSuccess();
     }
 
     private void showSuccess() {
@@ -228,16 +217,16 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
             this.value = value;
         }
 
-        public int getValue() {
-            return value;
-        }
-
         public static SendState valueOf(int value) {
             for (SendState sendState : SendState.values()) {
                 if (sendState.getValue() == value) return sendState;
             }
 
             return SendState.INIT;
+        }
+
+        public int getValue() {
+            return value;
         }
     }
 }

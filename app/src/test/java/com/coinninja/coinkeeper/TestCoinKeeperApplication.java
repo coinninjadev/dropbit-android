@@ -13,6 +13,7 @@ import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
+import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.component.AppComponent;
 import com.coinninja.coinkeeper.di.component.DaggerTestAppComponent;
 import com.coinninja.coinkeeper.di.component.TestAppComponent;
@@ -51,7 +52,6 @@ import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.messaging.MessageCryptor;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-import org.mockito.Mock;
 import org.robolectric.TestLifecycleApplication;
 
 import java.lang.reflect.Method;
@@ -124,9 +124,11 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     @Inject
     public CurrencyPreference currencyPreference;
     public DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
+    public TransactionFundingManager transactionFundingManager;
 
     @Override
     public void afterTest(Method method) {
+        transactionFundingManager = null;
         defaultCurrencies = null;
         currencyPreference = null;
         accountManager = null;

@@ -37,6 +37,11 @@
     <color name="cta_pressed">#99242536</color>
     <color name="cta_disabled">#99242536</color>
 
+    <!-- Plain Buttons (Call To Action) -->
+    <color name="plain">#fafafa</color>
+    <color name="plain_stroke">#e0e0e0</color>
+    <color name="plain_pressed">#e1e1e1</color>
+
     <!-- Flat Buttons -->
     <color name="flat_pressed">#992cd1ff</color>
     <color name="flat_disabled">#40000000</color>

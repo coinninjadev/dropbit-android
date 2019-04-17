@@ -20,6 +20,7 @@
         android:importantForAutofill="no"
         android:inputType="numberDecimal"
         android:longClickable="false"
+        android:lines="1"
         android:maxLines="1"
         android:textColor="@color/colorAccent"
         android:textSize="@dimen/pay_dialog_large_text"
@@ -56,11 +57,28 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/background_color_white"
+        android:background="@android:color/transparent"
+        android:padding="@dimen/button_vertical_padding"
         android:src="@drawable/ic_toggle_payment"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/secondary_currency"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/primary_currency" />
+
+    <Button
+        android:id="@+id/send_max"
+        style="@style/Button.Payment.SendMax"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="0dp"
+        android:text="@string/send_max"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/secondary_currency"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/primary_currency"
+        app:layout_constraintTop_toTopOf="@+id/primary_currency" />
 
 </merge>

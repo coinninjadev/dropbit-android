@@ -5,6 +5,7 @@ import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.EncryptionKeys;
 import com.coinninja.bindings.Libbitcoin;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
+import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -44,22 +45,10 @@ public class HDWallet {
         return libBitcoinProvider.provide().getUncompressedPublicKeyHex(path);
     }
 
-    public BTCCurrency getFeeForTransaction(TransactionFee transactionFee, int numInsOuts) {
+    public long getFeeInSatoshis(TransactionFee transactionFee, int numInsOuts) {
         int currentTransactionByteSize = numInsOuts * 100;
-
-        double satoshiMinFee = calcMinMinerFee(transactionFee);
-        long feeInSatoshis = (long) (satoshiMinFee * currentTransactionByteSize);
-
-        BTCCurrency btcOut = satoshisToBTC(feeInSatoshis);
-        return btcOut;
-    }
-
-    double calcMinMinerFee(TransactionFee transactionFee) {
-        return Math.max(transactionFee.getMin(), Intents.MIN_FEE_FLOOR);
-    }
-
-    private BTCCurrency satoshisToBTC(long satoshis) {
-        return new BTCCurrency(satoshis);
+        double fee = calcMinMinerFee(transactionFee) * currentTransactionByteSize;
+        return Math.round(fee);
     }
 
     public String getExternalAddress(int index) {
@@ -81,11 +70,19 @@ public class HDWallet {
         return libBitcoinProvider.provide().isBase58CheckEncoded(address);
     }
 
-    public EncryptionKeys generateEncryptionKeys(String publicKey){
+    public EncryptionKeys generateEncryptionKeys(String publicKey) {
         return libBitcoinProvider.provide().getEncryptionKeys(publicKey);
     }
 
     public DecryptionKeys generateDecryptionKeys(DerivationPath derivationPath, byte[] ephemeralPublicKey) {
         return libBitcoinProvider.provide().getDecryptionKeys(derivationPath, ephemeralPublicKey);
+    }
+
+    public double calcMinMinerFee(TransactionFee transactionFee) {
+        return Math.max(transactionFee.getMin(), Intents.MIN_FEE_FLOOR);
+    }
+
+    private BTCCurrency satoshisToBTC(long satoshis) {
+        return new BTCCurrency(satoshis);
     }
 }

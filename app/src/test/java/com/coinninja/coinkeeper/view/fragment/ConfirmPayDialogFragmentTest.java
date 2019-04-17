@@ -6,25 +6,19 @@ import android.os.Parcel;
 import android.widget.TextView;
 
 import com.coinninja.bindings.DerivationPath;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.cn.account.AccountManager;
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
-import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.service.runner.FundingRunnable;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
@@ -35,6 +29,7 @@ import com.coinninja.coinkeeper.view.activity.InviteSendActivity;
 import com.coinninja.coinkeeper.view.button.ConfirmHoldButton;
 import com.coinninja.matchers.ActivityMatchers;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,12 +43,9 @@ import org.robolectric.shadows.ShadowActivity;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -63,49 +55,44 @@ import static org.robolectric.Shadows.shadowOf;
 @Config(application = TestCoinKeeperApplication.class)
 public class ConfirmPayDialogFragmentTest {
 
-    @Mock
-    private HDWallet hdWallet;
-
+    private static final String PHONE_NUMBER_STRING = "+13305551111";
     @Mock
     private PaymentBarCallbacks paymentBarCallbacks;
-
     @Mock
-    private AccountManager accountManager;
-
+    private CurrencyPreference currencyPreference;
     @Mock
-    FundingRunnable fundingRunnable;
-
-    @Mock
-    private UnspentTransactionHolder transactionHolder;
-
-    private PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
-
-    public static final String PHONE_NUMBER_STRING = "+13305551111";
-    PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER_STRING);
-
+    private DefaultCurrencies defaultCurrencies;
+    private TransactionData transactionData;
+    private PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER_STRING);
     private ConfirmPayDialogFragment dialog;
-    private TransactionFee transactionFee;
     private FragmentController<ConfirmPayDialogFragment> fragmentController;
-    private String sendAddress = "1CmACXcAQBch7ewpVRrA9Qbb6zc4UiWjJP";
+    private String paymentAddress = "--send-address--";
     private Currency eval = new USDCurrency(5000d);
-    private PaymentHolder paymentHolder = new PaymentHolder(eval, transactionFee);
+    private PaymentHolder paymentHolder = new PaymentHolder(eval);
     private ShadowActivity shadowActivity;
 
-    @Mock
-    CurrencyPreference currencyPreference;
-
-    @Mock
-    DefaultCurrencies defaultCurrencies;
+    @After
+    public void tearDown() {
+        paymentBarCallbacks = null;
+        currencyPreference = null;
+        defaultCurrencies = null;
+        phoneNumber = null;
+        dialog = null;
+        fragmentController = null;
+        paymentAddress = null;
+        eval = null;
+        paymentHolder = null;
+        shadowActivity = null;
+    }
 
     @Before
     public void setUp() throws Exception {
-        transactionHolder = new UnspentTransactionHolder(1100L,
-                new UnspentTransactionOutput[0],
+        transactionData = new TransactionData(new UnspentTransactionOutput[0],
                 1000L,
                 100L,
                 0L,
                 mock(DerivationPath.class),
-                "--pay to address"
+                paymentAddress
         );
         MockitoAnnotations.initMocks(this);
         when(defaultCurrencies.getPrimaryCurrency()).thenReturn(new USDCurrency());
@@ -114,6 +101,7 @@ public class ConfirmPayDialogFragmentTest {
         when(defaultCurrencies.getCrypto()).thenReturn(new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         paymentHolder.setDefaultCurrencies(defaultCurrencies);
+        paymentHolder.setTransactionData(transactionData);
         fragmentController = Robolectric.buildFragment(ConfirmPayDialogFragment.class);
         dialog = fragmentController.get();
 
@@ -125,54 +113,17 @@ public class ConfirmPayDialogFragmentTest {
         double maxFee = 300;
         parcel.writeDouble(maxFee);
         parcel.setDataPosition(0);
-        transactionFee = new TransactionFee(parcel);
         paymentHolder.updateValue(new USDCurrency("50"));
-        when(hdWallet.getFeeForTransaction(any(), eq(3))).thenReturn(new BTCCurrency("0.5"));
+        paymentHolder.setTransactionData(transactionData);
+        paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
         fragmentController.create();
         dialog.onAttach(dialog.getActivity());
-        dialog.accountManager = accountManager;
-        dialog.hdWallet = hdWallet;
         dialog.paymentBarCallbacks = paymentBarCallbacks;
-        dialog.fundingRunnable = fundingRunnable;
-        dialog.phoneNumberUtil = phoneNumberUtil;
 
-        // HACk To force quick execution of async task -- there is apparently a real async task running here
-        FundingRunnable.FundedHolder fundholder = mock(FundingRunnable.FundedHolder.class);
-        when(fundingRunnable.evaluateFundingUTXOs(any(FundingUTXOs.class))).thenReturn(fundholder);
-        when(fundholder.getUnspentTransactionHolder()).thenReturn(transactionHolder);
-
-        paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
 
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
         when(defaultCurrencies.getPrimaryCurrency()).thenReturn(new BTCCurrency());
         when(defaultCurrencies.getSecondaryCurrency()).thenReturn(new USDCurrency());
-    }
-
-    private void show() {
-        fragmentController.start().resume().visible();
-        shadowActivity = shadowOf(dialog.getActivity());
-    }
-
-    private Activity show(Contact contact, String address, PaymentHolder paymentHolder) {
-        dialog.setContact(contact);
-        dialog.setSendAddress(address);
-        dialog.setPaymentHolder(paymentHolder);
-        show();
-        return dialog.getActivity();
-    }
-
-    private Activity show(String address, PaymentHolder paymentHolder) {
-        dialog.setSendAddress(address);
-        dialog.setPaymentHolder(paymentHolder);
-        show();
-        return dialog.getActivity();
-    }
-
-    private Activity show(Contact phoneNumber, PaymentHolder paymentHolder) {
-        dialog.setContact(phoneNumber);
-        dialog.setPaymentHolder(paymentHolder);
-        show();
-        return dialog.getActivity();
     }
 
     @Test
@@ -180,8 +131,6 @@ public class ConfirmPayDialogFragmentTest {
         verify(dialog.analytics).trackEvent(Analytics.EVENT_CONFIRM_SCREEN_LOADED);
         verify(dialog.analytics).flush();
     }
-
-    // Payment Authorization
 
     @Test
     public void successful_authorization_begins_broadcast() {
@@ -196,18 +145,16 @@ public class ConfirmPayDialogFragmentTest {
         assertThat(intent.getComponent().getClassName(), equalTo(AuthorizedActionActivity.class.getName()));
     }
 
-
     @Test
     public void sends_regular_transactions_with_memo() {
-        Activity activity = show("--send address--", paymentHolder);
+        Activity activity = show(
+                paymentHolder);
         paymentHolder.setMemo("--memo--");
         paymentHolder.setIsSharingMemo(false);
         paymentHolder.setPublicKey(null);
-
-        dialog.onFundingSuccessful(transactionHolder, 100L);
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
-        BroadcastTransactionDTO broadcastDTO = new BroadcastTransactionDTO(transactionHolder,
+        BroadcastTransactionDTO broadcastDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(),
                 null, false, "--memo--", null);
         Intent intent = new Intent(activity, BroadcastActivity.class);
         intent.putExtra(Intents.EXTRA_BROADCAST_DTO, broadcastDTO);
@@ -219,13 +166,13 @@ public class ConfirmPayDialogFragmentTest {
         String publicKey = "--public-key--";
         paymentHolder.setPublicKey(publicKey);
         paymentHolder.setMemo("--memo--");
+        paymentHolder.setTransactionData(transactionData);
         Contact contact = new Contact(phoneNumber, "Joe", true);
-        Activity activity = show(contact, "--send address--", paymentHolder);
+        Activity activity = show(contact, paymentHolder);
 
-        dialog.onFundingSuccessful(transactionHolder, 100L);
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
-        BroadcastTransactionDTO broadcastDTO = new BroadcastTransactionDTO(transactionHolder, contact,
+        BroadcastTransactionDTO broadcastDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(), contact,
                 true, "--memo--", publicKey);
         Intent intent = new Intent(activity, BroadcastActivity.class);
         intent.putExtra(Intents.EXTRA_BROADCAST_DTO, broadcastDTO);
@@ -236,37 +183,39 @@ public class ConfirmPayDialogFragmentTest {
     public void sends_invite_with_memo() {
         String memo = "--memo--";
         paymentHolder.setMemo(memo);
-        paymentHolder.setIsSharingMemo(true)/**/;
+        paymentHolder.setPaymentAddress("");
+        paymentHolder.setIsSharingMemo(true);
         Contact contact = new Contact(phoneNumber, "Joe", true);
         Activity activity = show(contact, paymentHolder);
 
-        dialog.onFundingSuccessful(transactionHolder, 100L);
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
         PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(contact,
                 paymentHolder.getEvaluationCurrency().toLong(),
-                transactionHolder.satoshisRequestingToSpend,
-                transactionHolder.satoshisFeeAmount,
+                paymentHolder.getTransactionData().getAmount(),
+                paymentHolder.getTransactionData().getFeeAmount(),
                 memo, true);
         Intent intent = new Intent(activity, InviteSendActivity.class);
         intent.putExtra(Intents.EXTRA_INVITE_DTO, inviteActivityDTO);
         assertThat(activity, ActivityMatchers.activityWithIntentStarted(intent));
     }
 
+    // Payment Authorization
+
     @Test
     public void sends_invite_without_memo() {
+        paymentHolder.setPaymentAddress("");
         Contact contact = new Contact(phoneNumber, "Joe Smoe", false);
         paymentHolder.setMemo(null);
         paymentHolder.setIsSharingMemo(false);
         Activity activity = show(contact, paymentHolder);
 
-        dialog.onFundingSuccessful(transactionHolder, 100L);
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
         PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(contact,
                 paymentHolder.getEvaluationCurrency().toLong(),
-                transactionHolder.satoshisRequestingToSpend,
-                transactionHolder.satoshisFeeAmount,
+                paymentHolder.getTransactionData().getAmount(),
+                paymentHolder.getTransactionData().getFeeAmount(),
                 null, false);
         Intent intent = new Intent(activity, InviteSendActivity.class);
         intent.putExtra(Intents.EXTRA_INVITE_DTO, inviteActivityDTO);
@@ -275,7 +224,7 @@ public class ConfirmPayDialogFragmentTest {
 
     @Test
     public void successful_authorizes_contact_sends_without_addresses() {
-        dialog.unspentTransactionHolder = transactionHolder;
+        paymentHolder.setPaymentAddress("");
         Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
         String memo = "for dinner and drinks";
         paymentHolder.setMemo(memo);
@@ -286,8 +235,8 @@ public class ConfirmPayDialogFragmentTest {
 
         PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(contact,
                 paymentHolder.getEvaluationCurrency().toLong(),
-                transactionHolder.satoshisRequestingToSpend,
-                transactionHolder.satoshisFeeAmount,
+                paymentHolder.getTransactionData().getAmount(),
+                paymentHolder.getTransactionData().getFeeAmount(),
                 memo, false);
         Intent intent = new Intent(activity, InviteSendActivity.class);
         intent.putExtra(Intents.EXTRA_INVITE_DTO, inviteActivityDTO);
@@ -296,7 +245,7 @@ public class ConfirmPayDialogFragmentTest {
 
     @Test
     public void notifies_invoker_that_user_canceled_payment_request_by_close_button() {
-        show(sendAddress, paymentHolder);
+        show(paymentHolder);
 
         dialog.getView().findViewById(R.id.confirm_pay_header_close_btn).performClick();
 
@@ -305,7 +254,7 @@ public class ConfirmPayDialogFragmentTest {
 
     @Test
     public void init_without_calculating_fee() {
-        show(sendAddress, paymentHolder);
+        show(paymentHolder);
         ConfirmHoldButton confirmHoldButton = dialog.getView().findViewById(R.id.confirm_pay_hold_progress_btn);
         assertNotNull(confirmHoldButton);
 
@@ -313,27 +262,17 @@ public class ConfirmPayDialogFragmentTest {
     }
 
     @Test
-    public void confirm_payment_enabled_when_funded() {
-        show(sendAddress, paymentHolder);
-
-        ConfirmHoldButton confirmHoldButton = dialog.getView().findViewById(R.id.confirm_pay_hold_progress_btn);
-
-        dialog.onFundingSuccessful(mock(UnspentTransactionHolder.class), 32);
-
-        assertTrue(confirmHoldButton.isEnabled());
-    }
-
-    @Test
     public void sets_btc_address_when_sending_to_address() {
-        show(sendAddress, paymentHolder);
+        show(paymentHolder);
 
         TextView address = dialog.getView().findViewById(R.id.confirm_pay_btc_address);
 
-        assertThat(address.getText().toString(), equalTo(sendAddress));
+        assertThat(address.getText().toString(), equalTo(paymentAddress));
     }
 
     @Test
     public void showing_contact_shows_both_name_and_number() {
+        paymentHolder.setPaymentAddress("");
         Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
         show(contact, paymentHolder);
 
@@ -369,7 +308,7 @@ public class ConfirmPayDialogFragmentTest {
 
     @Test
     public void sends_broadcast_to_address_event() {
-        show(sendAddress, paymentHolder);
+        show(paymentHolder);
 
         verify(dialog.analytics).trackEvent(Analytics.EVENT_BROADCAST_TO_ADDRESS);
     }
@@ -389,9 +328,27 @@ public class ConfirmPayDialogFragmentTest {
         String memo = "dinner and drinks";
         paymentHolder.setMemo(memo);
 
-        show(sendAddress, paymentHolder);
+        show(paymentHolder);
         TextView memoView = withId(dialog.getView(), R.id.shared_memo_text_view);
 
         assertThat(memoView, hasText(memo));
+    }
+
+    private void show() {
+        fragmentController.start().resume().visible();
+        shadowActivity = shadowOf(dialog.getActivity());
+    }
+
+    private Activity show(Contact contact, PaymentHolder paymentHolder) {
+        dialog.setContact(contact);
+        dialog.setPaymentHolder(paymentHolder);
+        show();
+        return dialog.getActivity();
+    }
+
+    private Activity show(PaymentHolder paymentHolder) {
+        dialog.setPaymentHolder(paymentHolder);
+        show();
+        return dialog.getActivity();
     }
 }

@@ -27,8 +27,9 @@ abstract class BaseCurrency implements Currency {
 
     BaseCurrency(long initialValue) {
         this();
-        value = scale(new BigDecimal(initialValue).movePointLeft(getMaxNumSubValues()));
+        valueFromLong(initialValue);
     }
+
 
     BaseCurrency(double initialValue) {
         this();
@@ -168,6 +169,11 @@ abstract class BaseCurrency implements Currency {
                 stripTrailingZeros().toPlainString();
     }
 
+    @Override
+    public void zero() {
+        valueFromLong(0);
+    }
+
     protected BigDecimal fromFormattedDecimalString(String initialValue) {
         BigDecimal scrubbed = scrubInput(initialValue);
         return scale(scrubbed);
@@ -181,6 +187,10 @@ abstract class BaseCurrency implements Currency {
             return new BigDecimal(0L);
         }
         return new BigDecimal(initialValue);
+    }
+
+    private void valueFromLong(long initialValue) {
+        value = scale(new BigDecimal(initialValue).movePointLeft(getMaxNumSubValues()));
     }
 
     protected abstract long getMaxLongValue();

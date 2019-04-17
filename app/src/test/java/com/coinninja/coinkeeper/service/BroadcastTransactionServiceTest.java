@@ -2,9 +2,9 @@ package com.coinninja.coinkeeper.service;
 
 import android.content.Intent;
 
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.service.client.model.Contact;
@@ -39,7 +39,7 @@ public class BroadcastTransactionServiceTest {
         broadcastTransactionService = Robolectric.setupService(BroadcastTransactionService.class);
         broadcastTransactionService.runner = saveTransactionRunner;
         BroadcastTransactionDTO broadcastActivityDTO = new BroadcastTransactionDTO(
-                mock(UnspentTransactionHolder.class),
+                mock(TransactionData.class),
                 new Contact(new PhoneNumber("+13333333333"), "Joe Blow", true),
                 false, "--memo--",
                 null);

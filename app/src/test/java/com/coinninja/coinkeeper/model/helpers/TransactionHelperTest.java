@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.BroadcastBtcInviteDao;
@@ -745,8 +745,7 @@ public class TransactionHelperTest {
 
     @Test
     public void rename_txid_when_marked_as_failed() {
-        String exceptedNewTxId = "FAILED_TO_BROADCAST" + "_" + Long.toString(654654) + "_" + "some - txid";
-
+        String exceptedNewTxId = "failedToBroadcast" + "_" + Long.toString(654654) + "_" + "some - txid";
 
         TransactionSummary transaction = mock(TransactionSummary.class);
         InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
@@ -775,7 +774,7 @@ public class TransactionHelperTest {
 
         String newTxid = helper.markTransactionSummaryAsFailedToBroadcast("some - txid");
 
-        assertThat(newTxid, equalTo("FAILED_TO_BROADCAST_654654_some - txid"));
+        assertThat(newTxid, equalTo("failedToBroadcast_654654_some - txid"));
         verify(transaction).setTxid(exceptedNewTxId);
         verify(invite).setBtcTransactionId(exceptedNewTxId);
         verify(transactionsInvitesSummary).setInviteTxID(exceptedNewTxId);
@@ -998,11 +997,11 @@ public class TransactionHelperTest {
         long now = System.currentTimeMillis();
         when(dateUtil.getCurrentTimeInMillis()).thenReturn(now);
         when(transactionInviteSummaryHelper.getOrCreateTransactionInviteSummaryFor(transaction)).thenReturn(transactionsInvitesSummary);
-        UnspentTransactionHolder unspentTransactionHolder = UnspentTransactionExample.build_holder();
+        TransactionData transactionData = mock(TransactionData.class);
         String toName = "Joe Smoe";
         Contact contact = new Contact(receiverPhoneNumber, toName, true);
         String txid = "--txid--";
-        CompletedBroadcastDTO completedBroadcastDTO = new CompletedBroadcastDTO(unspentTransactionHolder, txid, contact);
+        CompletedBroadcastDTO completedBroadcastDTO = new CompletedBroadcastDTO(transactionData, txid, contact);
         Wallet wallet = mock(Wallet.class);
         when(walletHelper.getWallet()).thenReturn(wallet);
         when(daoSessionManager.newTransactionSummary()).thenReturn(transaction);

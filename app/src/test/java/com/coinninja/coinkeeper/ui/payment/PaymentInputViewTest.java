@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.ui.payment;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -31,6 +32,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
@@ -39,6 +43,7 @@ public class PaymentInputViewTest {
     private PaymentInputView paymentInputView;
     private EditText primaryCurrency;
     private TextView secondaryCurrency;
+    private Button sendMax;
     private PaymentHolder paymentHolder = new PaymentHolder();
 
     @Before
@@ -48,6 +53,7 @@ public class PaymentInputViewTest {
         paymentInputView = withId(activity, R.id.payment_input_view);
         primaryCurrency = withId(activity, R.id.primary_currency);
         secondaryCurrency = withId(activity, R.id.secondary_currency);
+        sendMax = withId(activity, R.id.send_max);
         paymentHolder.setEvaluationCurrency(new USDCurrency(1000.00D));
         paymentHolder.setDefaultCurrencies(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
     }
@@ -58,6 +64,7 @@ public class PaymentInputViewTest {
         primaryCurrency = null;
         secondaryCurrency = null;
         paymentHolder = null;
+        sendMax = null;
     }
 
     @Test
@@ -244,5 +251,61 @@ public class PaymentInputViewTest {
         assertNull(altCompoundDrawables[1]);
         assertNull(altCompoundDrawables[2]);
         assertNull(altCompoundDrawables[3]);
+    }
+
+    @Test
+    public void adding_value_hides_send_max_button() {
+        paymentHolder.updateValue(new USDCurrency(5000.00D));
+        paymentInputView.setPaymentHolder(paymentHolder);
+        primaryCurrency.setText("1");
+
+        assertThat(sendMax, isGone());
+    }
+
+    @Test
+    public void removing_all_values_reveals_send_max_button() {
+        paymentHolder.updateValue(new USDCurrency(5000.00D));
+        paymentInputView.setPaymentHolder(paymentHolder);
+
+        primaryCurrency.setText("1");
+        assertThat(sendMax, isGone());
+
+        primaryCurrency.setText("$0");
+        assertThat(sendMax, isVisible());
+
+
+        primaryCurrency.setText("$0.");
+        assertThat(sendMax, isGone());
+    }
+
+    @Test
+    public void sending_max_event_can_be_observed() {
+        PaymentInputView.OnSendMaxObserver sendMaxObserver = mock(PaymentInputView.OnSendMaxObserver.class);
+        paymentHolder.updateValue(new USDCurrency(0D));
+        paymentInputView.setPaymentHolder(paymentHolder);
+        clickOn(sendMax);
+        paymentInputView.setOnSendMaxObserver(sendMaxObserver);
+
+        clickOn(sendMax);
+
+        verify(sendMaxObserver).onSendMax();
+    }
+
+    @Test
+    public void observing_clearing_of_send_max() {
+        PaymentInputView.OnSendMaxObserver sendMaxObserver = mock(PaymentInputView.OnSendMaxObserver.class);
+        PaymentInputView.OnSendMaxClearedObserver sendMaxClearedObserver = mock(PaymentInputView.OnSendMaxClearedObserver.class);
+        paymentHolder.updateValue(new USDCurrency(0D));
+        paymentInputView.setPaymentHolder(paymentHolder);
+        clickOn(sendMax);
+        paymentInputView.setOnSendMaxObserver(sendMaxObserver);
+        paymentInputView.setOnSendMaxClearedObserver(sendMaxClearedObserver);
+
+        clickOn(sendMax);
+
+        primaryCurrency.setText("0.01");
+
+        verify(sendMaxObserver).onSendMax();
+        verify(sendMaxClearedObserver, times(1)).onSendMaxCleared();
     }
 }

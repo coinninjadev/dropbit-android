@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
 import com.coinninja.bindings.TransactionBroadcastResult;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.service.runner.BroadcastTransactionRunner;
 
 import org.junit.Before;
@@ -42,14 +42,14 @@ public class BroadcastTransactionPresenterTest {
 
     @Test
     public void broadcastTransaction() {
-        UnspentTransactionHolder mockData = mock(UnspentTransactionHolder.class);
+        TransactionData transactionData = mock(TransactionData.class);
         InOrder inOrder = inOrder(broadcastTransactionRunner);
 
-        broadcastTransactionPresenter.broadcastTransaction(mockData);
+        broadcastTransactionPresenter.broadcastTransaction(transactionData);
 
         inOrder.verify(broadcastTransactionRunner).setBroadcastListener(broadcastTransactionPresenter);
         inOrder.verify(broadcastTransactionRunner).clone();
-        inOrder.verify(broadcastTransactionRunner).execute(mockData);
+        inOrder.verify(broadcastTransactionRunner).execute(transactionData);
     }
 
 

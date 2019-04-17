@@ -135,7 +135,6 @@ android {
     }
     testOptions {
         unitTests.all {
-            // All the usual Gradle options.
             jvmArgs '-Xmx4096m'
         }
     }
@@ -151,27 +150,24 @@ android.applicationVariants.all { variant ->
 dependencies {
     implementation fileTree(include: ['*.jar', "*.aar"], dir: 'libs')
 
-    //TODO: are we packaging secured messaging incorrectly?
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation group: 'org.cryptonode.jncryptor', name: 'jncryptor', version: '1.0.1'
 
     implementation 'com.google.dagger:dagger:2.17'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.17'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.17'
     androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:2.17'
     testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.17'
     implementation 'com.google.dagger:dagger-android:2.17'
     implementation 'com.google.dagger:dagger-android-support:2.17'
 
-    // if you use the support libraries
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.17'
-
-    implementation 'com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.38898'
+    implementation 'com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.44514'
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
-    implementation "com.google.android.material:material:1.1.0-alpha03"
+    implementation "com.google.android.material:material:1.1.0-alpha05"
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.multidex:multidex:2.0.1'
 
@@ -189,8 +185,8 @@ dependencies {
     implementation group: 'com.madgag.spongycastle', name: 'core', version: '1.58.0.0'
     implementation group: 'com.madgag.spongycastle', name: 'bcpkix-jdk15on', version: '1.58.0.0'
     implementation 'com.mixpanel.android:mixpanel-android:5.4.1'
-    implementation 'com.google.firebase:firebase-messaging:17.4.0'
-    implementation 'com.google.firebase:firebase-core:16.0.7'
+    implementation 'com.google.firebase:firebase-messaging:17.6.0'
+    implementation 'com.google.firebase:firebase-core:16.0.8'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
 
     testImplementation 'junit:junit:4.12'
@@ -199,9 +195,6 @@ dependencies {
     testImplementation "org.powermock:powermock-api-mockito:1.6.6"
     testImplementation "org.powermock:powermock-classloading-xstream:1.6.6"
     testImplementation group: 'org.json', name: 'json', version: '20180130'
-
-    // Robolectric
-    //testImplementation "org.robolectric:robolectric:3.8"
     testImplementation "org.robolectric:robolectric:4.0.2"
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
 

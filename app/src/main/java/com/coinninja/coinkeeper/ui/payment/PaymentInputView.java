@@ -2,10 +2,10 @@ package com.coinninja.coinkeeper.ui.payment;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -30,7 +30,11 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     private TextView secondaryCurrency;
     private EditText primaryCurrency;
     private PaymentHolder paymentHolder;
+    private boolean isSendingMax = false;
+    private Button sendMax;
     private CurrencyFormattingTextWatcher watcher;
+    private OnSendMaxObserver onSendMaxObserver;
+    private OnSendMaxClearedObserver sendMaxClearedObserver;
 
     public PaymentInputView(Context context) {
         this(context, null);
@@ -44,6 +48,10 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
         super(context, attrs, defStyleAttr);
         LayoutInflater.from(context).inflate(R.layout.merge_component_payment_input_view, this, true);
         init();
+    }
+
+    public void setOnSendMaxObserver(OnSendMaxObserver onSendMaxObserver) {
+        this.onSendMaxObserver = onSendMaxObserver;
     }
 
     public void setPaymentHolder(PaymentHolder paymentHolder) {
@@ -67,11 +75,49 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     }
 
     @Override
+    public void onZeroed() {
+        sendMax.setVisibility(VISIBLE);
+        clearSendMaxIfNessisary();
+    }
+
+    @Override
+    public void onInput() {
+        sendMax.setVisibility(GONE);
+        clearSendMaxIfNessisary();
+    }
+
+    @Override
     public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
         if (direction == View.FOCUS_DOWN) {
             return requestFocusIfZero();
         }
         return false;
+    }
+
+    public void setOnSendMaxClearedObserver(OnSendMaxClearedObserver sendMaxClearedObserver) {
+        this.sendMaxClearedObserver = sendMaxClearedObserver;
+    }
+
+    private void clearSendMaxIfNessisary() {
+        if (isSendingMax) {
+            notifyOfClearedSendMax();
+            isSendingMax = false;
+        }
+    }
+
+    private void onSendMax() {
+        if (onSendMaxObserver != null) {
+            isSendingMax = true;
+            sendMax.setVisibility(GONE);
+            onSendMaxObserver.onSendMax();
+        }
+    }
+
+    private void notifyOfClearedSendMax() {
+        if (sendMaxClearedObserver != null && isSendingMax) {
+            sendMaxClearedObserver.onSendMaxCleared();
+            isSendingMax = false;
+        }
     }
 
     private boolean requestFocusIfZero() {
@@ -88,11 +134,13 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     private void init() {
         primaryCurrency = withId(this, R.id.primary_currency);
         secondaryCurrency = withId(this, R.id.secondary_currency);
+        sendMax = withId(this, R.id.send_max);
         secondaryCurrency.setVisibility(GONE);
         watcher = new CurrencyFormattingTextWatcher();
         watcher.setCallback(this);
         primaryCurrency.addTextChangedListener(watcher);
         setOnClickListener(v -> focusOnPrimary());
+        sendMax.setOnClickListener(v -> onSendMax());
     }
 
     private void togglePrimaryCurrencies() {
@@ -112,26 +160,38 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     private void onPaymentHolderChanged() {
         if (paymentHolder == null) return;
         watcher.setCurrency(paymentHolder.getPrimaryCurrency());
-        updatePrimaryCurrencyWith(paymentHolder.getPrimaryCurrency());
+
+        setPrimaryCurrencyWithoutNotifying();
 
         if (hasEvaluationCurrency()) {
             updateSecondaryCurrencyWith(paymentHolder.getSecondaryCurrency());
             configureToggleCurrencyButton();
         }
-
         invalidateSymbol();
     }
 
-    private void updatePrimaryCurrencyWith(Currency value) {
-        if (value.isCrypto()) {
-            value.setCurrencyFormat(CryptoCurrency.NO_SYMBOL_FORMAT);
+    private void setPrimaryCurrencyWithoutNotifying() {
+        primaryCurrency.removeTextChangedListener(watcher);
+        updatePrimaryCurrencyWith(paymentHolder.getPrimaryCurrency());
+        primaryCurrency.addTextChangedListener(watcher);
+    }
+
+    private void updatePrimaryCurrencyWith(Currency currency) {
+        if (currency.isCrypto()) {
+            currency.setCurrencyFormat(CryptoCurrency.NO_SYMBOL_FORMAT);
         }
 
-        if (value.isZero()) {
-            primaryCurrency.setText("");
+        if (currency.isZero()) {
+            if (currency.isCrypto()) {
+                primaryCurrency.setText(currency.toFormattedCurrency());
+            } else {
+                primaryCurrency.setText(String.format("%s0", currency.getSymbol()));
+            }
+            onZeroed();
         } else {
-            primaryCurrency.setText(value.toFormattedCurrency());
+            primaryCurrency.setText(currency.toFormattedCurrency());
         }
+        primaryCurrency.setSelection(primaryCurrency.getText().length());
     }
 
     private void updateSecondaryCurrencyWith(Currency value) {
@@ -162,7 +222,11 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
         return paymentHolder.getEvaluationCurrency() != null && paymentHolder.getEvaluationCurrency().toLong() > 0L;
     }
 
-    private Drawable getDrawableFor(CryptoCurrency currency) {
-        return currency.getSymbolDrawable(getContext());
+    public interface OnSendMaxObserver {
+        void onSendMax();
+    }
+
+    public interface OnSendMaxClearedObserver {
+        void onSendMaxCleared();
     }
 }

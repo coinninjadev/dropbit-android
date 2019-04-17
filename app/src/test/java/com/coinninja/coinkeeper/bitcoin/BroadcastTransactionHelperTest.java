@@ -217,7 +217,6 @@ public class BroadcastTransactionHelperTest {
     public void report_libbitcoin_successful_to_mixpanel_test() throws JSONException {
         ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        TransactionData transactionData = new TransactionData();
         //libbitcoin setup
         String txID = "SOME TXID";
         String mockRawTX = "RAW TX DATA 000000000djs9jds9js9jds";
@@ -245,7 +244,6 @@ public class BroadcastTransactionHelperTest {
     public void report_blockchain_successful_to_mixpanel_test() throws JSONException {
         ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        TransactionData transactionData = new TransactionData();
         //libbitcoin setup
         String txID = "SOME TXID";
         String mockRawTX = "RAW TX DATA 000000000djs9jds9js9jds";

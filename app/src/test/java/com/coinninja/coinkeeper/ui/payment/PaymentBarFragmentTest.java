@@ -1,25 +1,23 @@
 package com.coinninja.coinkeeper.ui.payment;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.view.View;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PaymentHolder;
+import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
-import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.view.activity.QrScanActivity;
 import com.coinninja.coinkeeper.view.fragment.PayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.RequestDialogFragment;
 import com.coinninja.matchers.IntentFilterMatchers;
@@ -34,18 +32,15 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.FragmentController;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowAlertDialog;
 
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestCoinKeeperApplication.class)
@@ -117,10 +112,6 @@ public class PaymentBarFragmentTest {
         defaultCurrencies = null;
     }
 
-    private void start() {
-        fragmentController.start().resume().visible();
-    }
-
     @Test
     public void observes_wallet_sync_complete() {
         start();
@@ -157,7 +148,7 @@ public class PaymentBarFragmentTest {
 
         assertThat(paymentHolder.getSpendableBalance().toLong(), equalTo(walletHelper.getSpendableBalance().toLong()));
         assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
-        assertThat(paymentHolder.getTransactionFee(), equalTo(initialFee));
+        verify(paymentUtil).setTransactionFee(initialFee);
         verify(fragment.paymentUtil).setPaymentHolder(fragment.paymentHolder);
         when(paymentUtil.getPaymentHolder()).thenReturn(fragment.paymentHolder);
         PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
@@ -182,6 +173,36 @@ public class PaymentBarFragmentTest {
     }
 
     @Test
+    public void showing_confirm_screen_dismisses_pay_dialog__payment_to_address() {
+        start();
+        clickOn(sendButton);
+
+        fragment.confirmPaymentFor(fragment.paymentHolder);
+
+        assertNull(fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName()));
+    }
+
+    @Test
+    public void showing_confirm_screen_dismisses_pay_dialog__payment_to_contact() {
+        start();
+        clickOn(sendButton);
+
+        fragment.confirmPaymentFor(fragment.paymentHolder, new Contact(new PhoneNumber("+3305551111"), "Joe", false));
+
+        assertNull(fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName()));
+    }
+
+    @Test
+    public void showing_confirm_screen_dismisses_pay_dialog__payment_to_dropbit() {
+        start();
+        clickOn(sendButton);
+
+        fragment.confirmInvite(new Contact(new PhoneNumber("+3305551111"), "Joe", false));
+
+        assertNull(fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName()));
+    }
+
+    @Test
     public void clears_payment_info_when_payment_canceled() {
         start();
 
@@ -202,5 +223,9 @@ public class PaymentBarFragmentTest {
         clickOn(requestButton);
 
         assertThat(fragment.paymentHolder.getPaymentAddress(), equalTo(""));
+    }
+
+    private void start() {
+        fragmentController.start().resume().visible();
     }
 }

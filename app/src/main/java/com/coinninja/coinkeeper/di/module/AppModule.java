@@ -27,6 +27,7 @@ import com.coinninja.coinkeeper.di.interfaces.DebugBuild;
 import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
 import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler;
+import com.coinninja.coinkeeper.di.interfaces.TransactionDust;
 import com.coinninja.coinkeeper.di.interfaces.UUID;
 import com.coinninja.coinkeeper.interactor.AuthenticationImpl;
 import com.coinninja.coinkeeper.interactor.PinEntryImpl;
@@ -191,6 +192,12 @@ public class AppModule {
     @Provides
     Authentication authentication(@ApplicationContext Context context, PreferencesUtil preferencesUtil, SyncWalletManager syncWalletManager, @TimeOutHandler Handler handler, CoinKeeperLifecycleListener coinKeeperLifecycleListener) {
         return new AuthenticationImpl(context, preferencesUtil, handler, syncWalletManager, coinKeeperLifecycleListener);
+    }
+
+    @TransactionDust
+    @Provides
+    long provideDustAmountSatoshis() {
+        return BuildConfig.DUST_AMOUNT_SATOSHIS;
     }
 
     @BuildVersionName

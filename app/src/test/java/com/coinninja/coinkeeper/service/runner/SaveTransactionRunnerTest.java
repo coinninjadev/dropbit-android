@@ -1,17 +1,16 @@
 package com.coinninja.coinkeeper.service.runner;
 
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.TransactionNotification;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
-import com.coinninja.coinkeeper.model.helpers.UnspentTransactionExample;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
@@ -38,8 +37,9 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricTestRunner.class)
 public class SaveTransactionRunnerTest {
     @Mock
-    TransactionNotificationManager transactionNotificationManager;
-    private UnspentTransactionHolder unspentTransactionHolder;
+    TransactionData transactionData;
+    @Mock
+    private TransactionNotificationManager transactionNotificationManager;
     private String sampleTransactionID;
     private CompletedBroadcastDTO completedBroadcastActivityDTO;
     @Mock
@@ -52,7 +52,6 @@ public class SaveTransactionRunnerTest {
     private CNWalletManager cnWalletManager;
     @Mock
     private SyncWalletManager syncWalletManager;
-
     @InjectMocks
     private SaveTransactionRunner runner;
 
@@ -62,10 +61,9 @@ public class SaveTransactionRunnerTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        unspentTransactionHolder = UnspentTransactionExample.build_holder();
         sampleTransactionID = "---TXID---";
 
-        BroadcastTransactionDTO broadcastActivityDTO = new BroadcastTransactionDTO(unspentTransactionHolder, null, false, null, null);
+        BroadcastTransactionDTO broadcastActivityDTO = new BroadcastTransactionDTO(transactionData, null, false, null, null);
         completedBroadcastActivityDTO = new CompletedBroadcastDTO(broadcastActivityDTO, sampleTransactionID);
         runner.setCompletedBroadcastActivityDTO(completedBroadcastActivityDTO);
 

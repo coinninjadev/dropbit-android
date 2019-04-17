@@ -1,10 +1,13 @@
 package com.coinninja.coinkeeper.model.db;
 
+import com.coinninja.bindings.UnspentTransactionOutput;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.converter.PropertyConverter;
@@ -97,21 +100,30 @@ public class TargetStat {
     @Property()
     private TargetStat.State state;
 
-    /**
-     * Used to resolve relations
-     */
+    @Keep
+    public UnspentTransactionOutput toUnspentTranasactionOutput() {
+        TransactionSummary transaction = getTransaction();
+        Address address = getAddress();
+        return new UnspentTransactionOutput(
+                transaction.getTxid(),
+                getPosition(),
+                getValue(),
+                address.getDerivationPath(),
+                transaction.isReplaceable()
+        );
+    }
+
+    /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
-    /**
-     * Used for active entity operations.
-     */
+    /** Used for active entity operations. */
     @Generated(hash = 994360634)
     private transient TargetStatDao myDao;
 
     @Generated(hash = 788946611)
     public TargetStat(Long id, Long addressId, Long tsid, Long walletId, String addr, int position,
-                      long value, long txTime, Long fundingId, TargetStat.State state) {
+            long value, long txTime, Long fundingId, TargetStat.State state) {
         this.id = id;
         this.addressId = addressId;
         this.tsid = tsid;
@@ -230,9 +242,7 @@ public class TargetStat {
         return wallet;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 112459860)
     public void setWallet(Wallet wallet) {
         synchronized (this) {
@@ -264,9 +274,7 @@ public class TargetStat {
         return transaction;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 796903244)
     public void setTransaction(TransactionSummary transaction) {
         synchronized (this) {
@@ -298,9 +306,7 @@ public class TargetStat {
         return address;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 607080948)
     public void setAddress(Address address) {
         synchronized (this) {
@@ -332,9 +338,7 @@ public class TargetStat {
         return fundingStat;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1388994558)
     public void setFundingStat(FundingStat fundingStat) {
         synchronized (this) {

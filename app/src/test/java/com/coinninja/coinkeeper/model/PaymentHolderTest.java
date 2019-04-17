@@ -1,7 +1,9 @@
 package com.coinninja.coinkeeper.model;
 
+import com.coinninja.bindings.DerivationPath;
+import com.coinninja.bindings.TransactionData;
+import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -18,31 +20,55 @@ import org.robolectric.annotation.Config;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Config(application = TestCoinKeeperApplication.class)
 public class PaymentHolderTest {
 
-    private PaymentHolder holder;
 
-    @Mock
     DefaultCurrencies defaultCurrencies;
-
-    @Mock
-    private CurrencyPreference currencyPreference;
+    private PaymentHolder holder;
 
     @Before
     public void setUp() {
-        holder = new PaymentHolder(new USDCurrency(5000d), new TransactionFee(10L, 15L, 20L));
-        holder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
-
-        when(defaultCurrencies.getPrimaryCurrency()).thenReturn(new USDCurrency());
-        when(defaultCurrencies.getSecondaryCurrency()).thenReturn(new BTCCurrency());
-        when(defaultCurrencies.getFiat()).thenReturn(new USDCurrency());
-        when(defaultCurrencies.getCrypto()).thenReturn(new BTCCurrency(1.d));
-        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        holder = new PaymentHolder(new USDCurrency(5000d));
+        defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         holder.setDefaultCurrencies(defaultCurrencies);
+        holder.updateValue(new USDCurrency(5000d));
+    }
+
+    @Test
+    public void copies_address_from_current_to_new_transaction_data_when_set() {
+        TransactionData transactionData = new TransactionData(new UnspentTransactionOutput[0], 0, 0,
+                0, mock(DerivationPath.class), "");
+
+        String paymentAddress = "--address--";
+        holder.setPaymentAddress(paymentAddress);
+        holder.setTransactionData(transactionData);
+
+        assertThat(holder.getPaymentAddress(), equalTo(paymentAddress));
+    }
+
+    @Test
+    public void copies_address_from_current_to_new_transaction_data_when_set__only_overrides_when_currently_has_address() {
+        String paymentAddress = "--address--";
+        TransactionData transactionData = new TransactionData(new UnspentTransactionOutput[0], 0, 0,
+                0, mock(DerivationPath.class), paymentAddress);
+
+        holder.setPaymentAddress("");
+        holder.setTransactionData(transactionData);
+
+        assertThat(holder.getPaymentAddress(), equalTo(paymentAddress));
+    }
+
+    @Test
+    public void sets_address_on_transaction_data_when_available() {
+        String paymentAddress = "--address--";
+        holder.setPaymentAddress(paymentAddress);
+
+        assertThat(holder.getPaymentAddress(), equalTo(paymentAddress));
     }
 
     @Test
@@ -77,15 +103,6 @@ public class PaymentHolderTest {
 
         assertThat(holder.getPrimaryCurrency().toFormattedCurrency(),
                 equalTo(usd.toFormattedCurrency()));
-    }
-
-    @Test
-    public void return_required_fee_rate_if_set() {
-       TransactionFee regularTransactionFee = new TransactionFee(10.0, 10.0, 10.0);
-       TransactionFee requiredTransactionFee = new TransactionFee(20.0, 20.0, 20.0);
-       holder.setTransactionFee(regularTransactionFee);
-       holder.setRequiredTransactionFee(requiredTransactionFee);
-       assertThat(holder.getTransactionFee(), equalTo(requiredTransactionFee));
     }
 
     @Test
@@ -138,13 +155,20 @@ public class PaymentHolderTest {
     @Test
     public void clear_payment_clears_pub_key_and_address() {
         holder.updateValue(new USDCurrency(25d));
+        holder.setTransactionData(new TransactionData(new UnspentTransactionOutput[3], 10000000L, 1000L, 45000L, mock(DerivationPath.class), ""));
         holder.setPublicKey("-pub-key-");
         holder.setPaymentAddress("-address-");
+        holder.updateValue(new USDCurrency(1.d));
 
         holder.clearPayment();
 
         assertThat(holder.getPaymentAddress(), equalTo(""));
         assertThat(holder.getPublicKey(), equalTo(""));
+        assertThat(holder.getTransactionData().getUtxos().length, equalTo(0));
+        assertThat(holder.getTransactionData().getAmount(), equalTo(0L));
+        assertThat(holder.getTransactionData().getFeeAmount(), equalTo(0L));
+        assertThat(holder.getTransactionData().getChangeAmount(), equalTo(0L));
+        assertThat(holder.getPrimaryCurrency().toLong(), equalTo(0L));
     }
 
     @Test

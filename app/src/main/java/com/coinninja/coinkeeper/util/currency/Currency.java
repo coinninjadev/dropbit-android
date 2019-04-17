@@ -22,6 +22,8 @@ public interface Currency extends Parcelable {
 
     long toLong();
 
+    void zero();
+
     String toFormattedString();
 
     String toFormattedCurrency();

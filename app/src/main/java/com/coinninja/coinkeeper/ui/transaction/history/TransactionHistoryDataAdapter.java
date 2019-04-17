@@ -236,10 +236,12 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             String text;
             Resources resources = view.getResources();
             switch (inviteState) {
+                case SENT_ADDRESS_PROVIDED:
                 case SENT_PENDING:
                     text = resources.getString(R.string.history_invite_sent_pending);
                     view.setVisibility(View.VISIBLE);
                     break;
+                case RECEIVED_ADDRESS_PROVIDED:
                 case RECEIVED_PENDING:
                     text = resources.getString(R.string.history_invite_received_pending);
                     view.setVisibility(View.VISIBLE);
