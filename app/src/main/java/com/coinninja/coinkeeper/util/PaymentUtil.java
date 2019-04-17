@@ -2,50 +2,47 @@ package com.coinninja.coinkeeper.util;
 
 import android.content.Context;
 
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
-import com.coinninja.coinkeeper.model.FundedCallback;
-import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
-import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.tasks.CreateFundingUTXOsTask;
+import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import javax.inject.Inject;
 
-public class PaymentUtil implements FundedCallback {
+public class PaymentUtil {
 
     private final Context context;
     private final BitcoinUtil bitcoinUtil;
+    private final TransactionFundingManager transactionFundingManager;
+    private TransactionFee transactionFee;
     private String address;
     private Contact contact;
     private PaymentMethod paymentMethod;
     private String errorMessage;
     private PaymentHolder paymentHolder;
-    private final TargetStatHelper targetStatHelper;
-    private final FundingUTXOs.Builder fundingBuilder;
-    private FundedCallback fundedCallback;
-    FundingUTXOs fundingUTXOs = null;
+    private boolean isFudningMax = false;
 
     @Inject
     public PaymentUtil(@ApplicationContext Context context, BitcoinUtil bitcoinUtil,
-                       TargetStatHelper targetStatHelper, FundingUTXOs.Builder fundingBuilder) {
+                       TransactionFundingManager transactionFundingManager) {
         this.context = context;
-        this.targetStatHelper = targetStatHelper;
-        this.fundingBuilder = fundingBuilder;
+        this.transactionFundingManager = transactionFundingManager;
         paymentMethod = PaymentMethod.INVALID;
         this.bitcoinUtil = bitcoinUtil;
     }
 
-    public void setPaymentHolder(PaymentHolder paymentHolder) {
-        this.paymentHolder = paymentHolder;
-    }
-
     public PaymentMethod getPaymentMethod() {
         return paymentMethod;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     public void setAddress(String address) {
@@ -55,8 +52,8 @@ public class PaymentUtil implements FundedCallback {
         setPaymentMethod();
     }
 
-    public String getAddress() {
-        return address;
+    public Contact getContact() {
+        return contact;
     }
 
     public void setContact(Contact contact) {
@@ -66,21 +63,114 @@ public class PaymentUtil implements FundedCallback {
         setPaymentMethod();
     }
 
-    public Contact getContact() {
-        return contact;
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    private void setErrorMessage(String message) {
+        errorMessage = message;
+    }
+
+    public boolean fundMax() {
+        isFudningMax = true;
+        TransactionData transactionData = transactionFundingManager.buildFundedTransactionData(transactionFee);
+        paymentHolder.setTransactionData(transactionData);
+        return isFunded();
+    }
+
+    public void clearFunding() {
+        isFudningMax = false;
+        String address = paymentHolder.getPaymentAddress();
+        paymentHolder.clearPayment();
+        paymentHolder.setPaymentAddress(address);
+    }
+
+    public boolean isSendingMax() {
+        return isFudningMax;
+    }
+
+    public PaymentHolder getPaymentHolder() {
+        return paymentHolder;
+    }
+
+    public void setPaymentHolder(PaymentHolder paymentHolder) {
+        this.paymentHolder = paymentHolder;
+    }
+
+    public boolean isValid() {
+        return isValidPaymentMethod() && isValidPaymentAmount();
+    }
+
+    public boolean checkFunding() {
+        if (!isSendingMax()) {
+            TransactionData transactionData = transactionFundingManager
+                    .buildFundedTransactionData(transactionFee,
+                            paymentHolder.getCryptoCurrency().toLong());
+            paymentHolder.setTransactionData(transactionData);
+        }
+        return isFunded();
+    }
+
+    public boolean isFunded() {
+        BTCCurrency spendableBalance = paymentHolder.getSpendableBalance();
+        TransactionData transactionData = paymentHolder.getTransactionData();
+        boolean funded = isValidFunding() && transactionData.getUtxos().length > 0 && transactionData.getAmount() > 0;
+        String total = paymentHolder.getBtcCurrency().toFormattedCurrency();
+
+        if (!funded) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(getString(R.string.pay_not_attempting_to_send));
+            builder.append(" ");
+            builder.append(total);
+            builder.append(". ");
+            builder.append(getString(R.string.pay_not_enough_funds_error));
+            builder.append("\n");
+            builder.append(getString(R.string.pay_not_available_funds_error));
+            builder.append(" ");
+            builder.append(spendableBalance.toFormattedCurrency());
+            builder.append(" ");
+            builder.append(spendableBalance.toUSD(paymentHolder.getEvaluationCurrency()).toFormattedCurrency());
+            errorMessage = builder.toString();
+        }
+
+        return funded;
+    }
+
+    public void reset() {
+        setAddress(null);
+    }
+
+    public void clearErrors() {
+        errorMessage = "";
+    }
+
+    public boolean isVerifiedContact() {
+        return getContact().isVerified();
+    }
+
+    public TransactionFee getTransactionFee() {
+        return transactionFee;
+    }
+
+    public void setTransactionFee(TransactionFee transactionFee) {
+        this.transactionFee = transactionFee;
+    }
+
+    protected boolean isValidPaymentMethod() {
+        if (paymentMethod == PaymentMethod.ADDRESS) {
+            validateAddress();
+        }
+        return paymentMethod != PaymentMethod.INVALID;
     }
 
     private void setPaymentMethod() {
         if (null != address) {
             paymentMethod = PaymentMethod.ADDRESS;
+            paymentHolder.setPaymentAddress(address);
         } else if (null != contact && contact.isVerified()) {
-
             paymentMethod = PaymentMethod.VERIFIED_CONTACT;
-
         } else if (null != contact && !contact.isVerified()) {
-
             paymentMethod = PaymentMethod.INVITE;
-
         } else {
             errorMessage = getString(R.string.pay_error_add_valid_bitcoin_address);
             paymentMethod = PaymentMethod.INVALID;
@@ -115,27 +205,6 @@ public class PaymentUtil implements FundedCallback {
         }
     }
 
-    private void setErrorMessage(String message) {
-        errorMessage = message;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public PaymentHolder getPaymentHolder() {
-        return paymentHolder;
-    }
-
-    public boolean isValid() {
-        return isValidPaymentMethod() && isValidPaymentAmount() && isFunded();
-    }
-
-    public void checkFunding(FundedCallback fundedCallback) {
-        this.fundedCallback = fundedCallback;
-        CreateFundingUTXOsTask.newInstance(fundingBuilder, targetStatHelper, paymentHolder, this).execute();
-    }
-
     private boolean isValidPaymentAmount() {
         BTCCurrency btcCurrency = paymentHolder.getBtcCurrency();
         USDCurrency usdCurrency = (USDCurrency) paymentHolder.getFiat();
@@ -147,7 +216,8 @@ public class PaymentUtil implements FundedCallback {
             return false;
         }
 
-        isValid = usdCurrency.toLong() > 99L;
+        long amountSpending = usdCurrency.toLong();
+        isValid = isFudningMax && amountSpending > 0 || !isFudningMax && amountSpending > 99;
         if (!isValid) {
             errorMessage = getString(R.string.pay_error_too_little_transaction);
             return false;
@@ -163,94 +233,28 @@ public class PaymentUtil implements FundedCallback {
         return isValid;
     }
 
-    protected boolean isValidPaymentMethod() {
-        if (paymentMethod == PaymentMethod.ADDRESS) {
-            validateAddress();
-        }
-        return paymentMethod != PaymentMethod.INVALID;
+    private boolean isValidFunding() {
+        return !(hasNegativeValue() || hasTooLargeValue());
     }
 
-    public boolean isFunded() {
-        BTCCurrency spendableBalance = paymentHolder.getSpendableBalance();
-        boolean funded = true;
-        String total = "";
-        BTCCurrency availableBTC;
-
-        if (null == fundingUTXOs) {
-            funded = paymentHolder.getBtcCurrency().toSatoshis() <= spendableBalance.toSatoshis();
-            total = paymentHolder.getBtcCurrency().toFormattedCurrency();
-            availableBTC = spendableBalance;
-        } else {
-            funded = isValidFundingUtxos() && fundingUTXOs.getSatoshisTotalSpending() <= fundingUTXOs.getSatoshisFundedTotal();
-            total = new BTCCurrency(fundingUTXOs.getSatoshisTotalSpending()).toFormattedCurrency();
-            availableBTC = new BTCCurrency(fundingUTXOs.getSatoshisFundedTotal());
-        }
-
-        if (!funded) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(getString(R.string.pay_not_attempting_to_send));
-            builder.append(" ");
-            builder.append(total);
-            builder.append(". ");
-            builder.append(getString(R.string.pay_not_enough_funds_error));
-            builder.append("\n");
-            builder.append(getString(R.string.pay_not_available_funds_error));
-            builder.append(" ");
-            builder.append(availableBTC.toFormattedCurrency());
-            builder.append(" ");
-            builder.append(availableBTC.toUSD(paymentHolder.getEvaluationCurrency()).toFormattedCurrency());
-            errorMessage = builder.toString();
-        }
-
-        return funded;
+    private boolean hasNegativeValue() {
+        TransactionData transactionData = paymentHolder.getTransactionData();
+        return transactionData.getUtxos().length <= 0 ||
+                transactionData.getAmount() < 0 ||
+                transactionData.getFeeAmount() < 0 ||
+                transactionData.getChangeAmount() < 0;
     }
 
-
-    private boolean isValidFundingUtxos() {
-        return !(hasNegativeValue(fundingUTXOs) || hasTooLargeValue(fundingUTXOs));
-    }
-
-    private boolean hasNegativeValue(FundingUTXOs fundingUTXOs) {
-        return fundingUTXOs.getSatoshisFundedTotal() < 0 ||
-                fundingUTXOs.getSatoshisFeesSpending() < 0 ||
-                fundingUTXOs.getSatoshisSpending() < 0 ||
-                fundingUTXOs.getSatoshisTotalSpending() < 0;
-    }
-
-    private boolean hasTooLargeValue(FundingUTXOs fundingUTXOs) {
+    private boolean hasTooLargeValue() {
+        TransactionData transactionData = paymentHolder.getTransactionData();
         long max = BTCCurrency.MAX_SATOSHI;
-        return fundingUTXOs.getSatoshisFundedTotal() >= max ||
-                fundingUTXOs.getSatoshisFeesSpending() >= max ||
-                fundingUTXOs.getSatoshisSpending() >= max ||
-                fundingUTXOs.getSatoshisTotalSpending() >= max;
+        return transactionData.getAmount() >= max ||
+                transactionData.getChangeAmount() >= max ||
+                transactionData.getFeeAmount() >= max;
     }
 
     private String getString(int res_id) {
         return context.getString(res_id);
-    }
-
-    @Override
-    public void onComplete(FundingUTXOs fundingUTXOs) {
-        this.fundingUTXOs = fundingUTXOs;
-        fundedCallback.onComplete(fundingUTXOs);
-    }
-
-    public void setFundingUTXOs(FundingUTXOs fundingUTXOs) {
-        this.fundingUTXOs = fundingUTXOs;
-    }
-
-    public void reset() {
-        fundingUTXOs = null;
-        setAddress(null);
-    }
-
-    public void clearErrors() {
-        fundingUTXOs = null;
-        errorMessage = "";
-    }
-
-    public boolean isVerifiedContact() {
-        return getContact().isVerified();
     }
 
     public enum PaymentMethod {

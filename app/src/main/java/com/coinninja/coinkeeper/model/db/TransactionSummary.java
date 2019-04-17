@@ -8,6 +8,7 @@ import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.ToMany;
@@ -18,6 +19,8 @@ import java.util.List;
 
 @Entity(active = true)
 public class TransactionSummary {
+    private static final int REQUIRED_CONFIRMATIONS = 3;
+
     @Id
     Long id;
     @Unique
@@ -62,6 +65,12 @@ public class TransactionSummary {
     @Convert(converter = MemPoolStateConverter.class, columnType = Integer.class)
     @Property()
     private MemPoolState memPoolState;
+
+    @Keep
+    public boolean isReplaceable() {
+        return getNumConfirmations() < REQUIRED_CONFIRMATIONS;
+    }
+
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;

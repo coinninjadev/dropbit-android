@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.model.helpers;
 
-import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
 import com.coinninja.coinkeeper.model.db.Address;
@@ -35,7 +34,7 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.coinninja.coinkeeper.view.util.TransactionUtil.IS_TARGETSTAT_NOT_SPENDABLE;
+import static com.coinninja.coinkeeper.view.util.TransactionUtil.isTargetNotSpendable;
 
 public class WalletHelper {
     private static final String TAG = WalletHelper.class.getSimpleName();
@@ -110,7 +109,9 @@ public class WalletHelper {
     }
 
     public void setLatestFee(TransactionFee transactionFee) {
-        if (getWallet() == null || transactionFee == null || transactionFee.getMin() <= 0.0D) { return; }
+        if (getWallet() == null || transactionFee == null || transactionFee.getMin() <= 0.0D) {
+            return;
+        }
         Wallet wallet = getWallet();
         wallet.setLastFee(String.valueOf(transactionFee.getMin()));
         wallet.update();
@@ -230,20 +231,6 @@ public class WalletHelper {
         account.update();
     }
 
-    public void saveAccountRegistration(String cnUserId, Account.Status status, String phoneNumberHash, String phoneNumber) {
-        if (!hasAccount()) return;
-
-        getWallet().refresh();
-        Account account = getUserAccount();
-        account.refresh();
-        account.setStatus(status);
-        account.setCnUserId(cnUserId);
-        account.setPhoneNumberHash(phoneNumberHash);
-        account.setPhoneNumber(new PhoneNumber(phoneNumber));
-
-        account.update();
-    }
-
     public void removeCurrentCnRegistration() {
         clearRegistration(true);
     }
@@ -331,7 +318,7 @@ public class WalletHelper {
         for (TargetStat target : targetStats) {
             if (target.getState() == TargetStat.State.CANCELED) continue;//skip canceled stats
 
-            boolean isNotSpendable = IS_TARGETSTAT_NOT_SPENDABLE(target);
+            boolean isNotSpendable = isTargetNotSpendable(target);
 
             if (isNotSpendable && !useUnSpendableTargetStat) {
                 continue;

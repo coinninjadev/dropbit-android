@@ -5,13 +5,16 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.widget.EditText;
+import android.widget.TextView;
 
+import com.coinninja.bindings.DerivationPath;
+import com.coinninja.bindings.TransactionData;
+import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
+import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
-import com.coinninja.coinkeeper.model.FundedCallback;
-import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -31,6 +34,7 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.PickContactActivity;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
@@ -42,7 +46,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
@@ -65,9 +68,11 @@ import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -94,8 +99,6 @@ public class PayDialogFragmentTest {
     @Mock
     private WalletHelper walletHelper;
     @Mock
-    private PaymentUtil paymentUtil;
-    @Mock
     private ClipboardUtil clipboardUtil;
     @Mock
     private BitcoinUtil bitcoinUtil;
@@ -105,7 +108,15 @@ public class PayDialogFragmentTest {
     private PaymentBarCallbacks paymentBarCallbacks;
     @Mock
     private CNAddressLookupDelegate cnAddressLookupDelegate;
+    @Mock
+    private TransactionFundingManager transactionFundingManger;
     private List<CountryCodeLocale> countryCodeLocales = new ArrayList<>();
+    private PaymentUtil paymentUtil;
+
+    private TransactionData validTransactionData = new TransactionData(new UnspentTransactionOutput[1],
+            10000L, 1000L, 0, mock(DerivationPath.class), "");
+    private TransactionData invalidTransactionData = new TransactionData(new UnspentTransactionOutput[0],
+            0, 0, 0, mock(DerivationPath.class), "");
 
     @Before
     public void setUp() throws Exception {
@@ -113,11 +124,10 @@ public class PayDialogFragmentTest {
         MockitoAnnotations.initMocks(this);
         defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
-        paymentHolder = new PaymentHolder(new USDCurrency(5000.00d), new TransactionFee(5, 10, 15));
+        when(preferenceInteractor.getShouldShowInviteHelp()).thenReturn(true);
+        paymentHolder = new PaymentHolder(new USDCurrency(5000.00d));
         paymentHolder.setDefaultCurrencies(defaultCurrencies);
         paymentHolder.updateValue(new USDCurrency(5000.00d));
-        when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
-        when(preferenceInteractor.getShouldShowInviteHelp()).thenReturn(true);
         addressLookupResult = new AddressLookupResult();
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "GB"), 44));
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "US"), 1));
@@ -126,6 +136,9 @@ public class PayDialogFragmentTest {
         dialog = fragmentController.get();
         fragmentController.create();
         dialog.onAttach(dialog.getActivity());
+        paymentUtil = new PaymentUtil(dialog.getActivity(), bitcoinUtil, transactionFundingManger);
+        paymentUtil.setPaymentHolder(paymentHolder);
+        paymentUtil.setTransactionFee(new TransactionFee(5, 10, 15));
         dialog.paymentBarCallbacks = paymentBarCallbacks;
         dialog.paymentUtil = paymentUtil;
         dialog.paymentHolder = paymentHolder;
@@ -180,7 +193,7 @@ public class PayDialogFragmentTest {
     @Test
     public void shows_payment_address_when_initialized_from_scan() {
         String address = EXTERNAL_ADDRESSES[0];
-        when(paymentUtil.getAddress()).thenReturn(address);
+        paymentUtil.setAddress(address);
         startFragment();
 
         PaymentReceiverView receiverView = withId(dialog.getView(), R.id.payment_receiver);
@@ -191,62 +204,50 @@ public class PayDialogFragmentTest {
     @Test
     public void funded_payments_get_confirmed() {
         String address = "-- expected--";
-        when(paymentUtil.getAddress()).thenReturn(address);
-        when(paymentUtil.isValid()).thenReturn(true);
-        when(paymentUtil.isFunded()).thenReturn(true);
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.ADDRESS);
-        ArgumentCaptor<FundedCallback> callbackCaptor = ArgumentCaptor.forClass(FundedCallback.class);
+        when(bitcoinUtil.isValidBTCAddress(address)).thenReturn(true);
+        paymentHolder.updateValue(new USDCurrency(1.00d));
+        paymentUtil.setAddress(address);
+        when(transactionFundingManger.buildFundedTransactionData(any(), anyLong()))
+                .thenReturn(validTransactionData);
         startFragment();
 
-        dialog.getView().findViewById(R.id.pay_footer_send_btn).performClick();
+        clickOn(withId(dialog.getView(), R.id.pay_footer_send_btn));
 
-        verify(paymentUtil).checkFunding(callbackCaptor.capture());
-        callbackCaptor.getValue().onComplete(mock(FundingUTXOs.class));
-        verify(paymentBarCallbacks).confirmPaymentFor(address);
+        verify(paymentBarCallbacks).confirmPaymentFor(paymentHolder);
     }
 
     // CHECK FUNDED
 
     @Test
     public void contact_sends_get_confirmed() {
-        ArgumentCaptor<FundedCallback> fundedCallbackCaptor = ArgumentCaptor.forClass(FundedCallback.class);
         Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
-        when(paymentUtil.getContact()).thenReturn(contact);
-        when(paymentUtil.isValid()).thenReturn(true);
-        when(paymentUtil.isFunded()).thenReturn(true);
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.VERIFIED_CONTACT);
+        when(transactionFundingManger.buildFundedTransactionData(any(), anyLong())).thenReturn(validTransactionData);
+        paymentUtil.setContact(contact);
         paymentHolder.setPublicKey("-pub-key-");
         paymentHolder.setPaymentAddress("-pay-address-");
         when(walletHelper.hasVerifiedAccount()).thenReturn(true);
         startFragment();
 
-        dialog.getView().findViewById(R.id.pay_footer_send_btn).performClick();
+        clickOn(withId(dialog.getView(), R.id.pay_footer_send_btn));
 
-        verify(paymentUtil).checkFunding(fundedCallbackCaptor.capture());
-        fundedCallbackCaptor.getValue().onComplete(mock(FundingUTXOs.class));
-        verify(paymentBarCallbacks).confirmPaymentFor("-pay-address-", contact);
+        verify(paymentBarCallbacks).confirmPaymentFor(paymentHolder, contact);
     }
 
     @Test
     public void verified_contacts_with_out_addresses_get_invited_without_help_confirmation() {
         when(preferenceInteractor.getShouldShowInviteHelp()).thenReturn(true);
-        ArgumentCaptor<FundedCallback> fundedCallbackCaptor = ArgumentCaptor.forClass(FundedCallback.class);
+        when(transactionFundingManger.buildFundedTransactionData(any(), anyLong())).thenReturn(validTransactionData);
         Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
-        when(paymentUtil.getContact()).thenReturn(contact);
-        when(paymentUtil.isValid()).thenReturn(true);
-        when(paymentUtil.isVerifiedContact()).thenReturn(true);
-        when(paymentUtil.isFunded()).thenReturn(true);
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.INVITE);
+        paymentHolder.setPaymentAddress("");
+        paymentHolder.updateValue(new USDCurrency(1.00d));
+        paymentUtil.setContact(contact);
         when(walletHelper.hasVerifiedAccount()).thenReturn(true);
         startFragment();
 
-        dialog.getView().findViewById(R.id.pay_footer_send_btn).performClick();
+        clickOn(withId(dialog.getView(), R.id.pay_footer_send_btn));
 
-        verify(paymentUtil).checkFunding(fundedCallbackCaptor.capture());
-        fundedCallbackCaptor.getValue().onComplete(mock(FundingUTXOs.class));
         verify(paymentBarCallbacks).confirmInvite(contact);
     }
-
 
     // PRIMARY / SECONDARY CURRENCIES
 
@@ -288,9 +289,8 @@ public class PayDialogFragmentTest {
     @Test
     public void shows_error_when_address_not_valid() {
         startFragment();
-        when(paymentUtil.isValid()).thenReturn(false);
+        paymentUtil.setAddress(null);
         String message = dialog.getActivity().getResources().getString(R.string.pay_error_add_valid_bitcoin_address);
-        when(paymentUtil.getErrorMessage()).thenReturn(message);
 
         dialog.getView().findViewById(R.id.pay_footer_send_btn).performClick();
 
@@ -298,32 +298,38 @@ public class PayDialogFragmentTest {
         ShadowAlertDialog shadowAlertDialog = shadowOf(alert);
         assertThat(shadowAlertDialog.getMessage(),
                 equalTo(message));
-        verify(paymentUtil).clearErrors();
+
+        assertThat(paymentUtil.getErrorMessage(), equalTo(""));
     }
 
     // VALIDATION
 
     @Test
     public void sending_adds_memo_and_sharing_to_payment_holder() {
+        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
         dialog.memoToggleView = mock(SharedMemoToggleView.class);
         when(dialog.memoToggleView.isSharing()).thenReturn(false);
         when(dialog.memoToggleView.getMemo()).thenReturn("--memo--");
 
-        dialog.sendPaymentTo();
+        paymentUtil.setAddress("--address--");
+        paymentHolder.setMemo("");
+        dialog.sendPayment();
+        assertThat(paymentHolder.getMemo(), equalTo("--memo--"));
+        assertThat(paymentHolder.getIsSharingMemo(), equalTo(false));
+
+        paymentHolder.setIsSharingMemo(true);
+        paymentHolder.setMemo("");
+        paymentHolder.setPaymentAddress("--address--");
+        paymentUtil.setContact(new Contact(phoneNumber, "Joe Dirt", true));
+
+        dialog.sendPayment();
         assertThat(paymentHolder.getMemo(), equalTo("--memo--"));
         assertThat(paymentHolder.getIsSharingMemo(), equalTo(false));
 
         paymentHolder.setMemo("");
         paymentHolder.setIsSharingMemo(true);
-
-        dialog.sendPaymentTo("--address--", new Contact());
-        assertThat(paymentHolder.getMemo(), equalTo("--memo--"));
-        assertThat(paymentHolder.getIsSharingMemo(), equalTo(false));
-
-        paymentHolder.setMemo("");
-        paymentHolder.setIsSharingMemo(true);
-
-        dialog.inviteContact(new Contact());
+        paymentUtil.setContact(new Contact());
+        dialog.sendPayment();
         assertThat(paymentHolder.getMemo(), equalTo("--memo--"));
         assertThat(paymentHolder.getIsSharingMemo(), equalTo(false));
     }
@@ -343,8 +349,8 @@ public class PayDialogFragmentTest {
 
     @Test
     public void allows_user_to_share_memo_for_invite_phone_number_entry__simulate_non_verified_user_lookup() {
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.INVITE);
         Contact contact = new Contact(phoneNumber, "Joe Dirt", false);
+        paymentUtil.setContact(contact);
         Intent intent = new Intent();
         intent.putExtra(Intents.EXTRA_CONTACT, contact);
         startFragment();
@@ -355,20 +361,10 @@ public class PayDialogFragmentTest {
     }
 
     @Test
-    public void allows_user_to_share_memo_for_invite_phone_number_entry__simulate_phone_number_lookup() {
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.INVITE);
-
-        dialog.onFetchContactComplete(new AddressLookupResult("--phone-hash--", "", ""));
-
-        verify(dialog.memoToggleView).showSharedMemoViews();
-    }
-
-    @Test
     public void shows_shared_memos_when_valid_number_returns_with_pub_key() {
         Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
         when(walletHelper.hasVerifiedAccount()).thenReturn(true);
-        when(paymentUtil.getContact()).thenReturn(contact);
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.VERIFIED_CONTACT);
+        paymentUtil.setContact(contact);
         AddressLookupResult addressLookupResult = new AddressLookupResult(
                 "-phone-hash-",
                 "-payment-address-",
@@ -382,9 +378,7 @@ public class PayDialogFragmentTest {
     @Test
     public void hides_shared_memos_when_valid_number_does_not_return_with_pub_key() {
         Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
-        when(paymentUtil.getContact()).thenReturn(contact);
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.VERIFIED_CONTACT);
+        paymentUtil.setContact(contact);
 
         AddressLookupResult addressLookupResult = new AddressLookupResult(
                 "-phone-hash-",
@@ -417,7 +411,8 @@ public class PayDialogFragmentTest {
 
         PaymentReceiverView paymentReceiverView = withId(dialog.getView(), R.id.payment_receiver);
         assertThat(paymentReceiverView.getPaymentAddress(), equalTo(rawString));
-        verify(paymentUtil).setAddress(rawString);
+        assertThat(paymentUtil.getAddress(), equalTo(rawString));
+        assertThat(paymentHolder.getPaymentAddress(), equalTo(rawString));
     }
 
     // PASTING ADDRESS
@@ -440,6 +435,7 @@ public class PayDialogFragmentTest {
     public void pasting_with_empty_clipboard_does_nothing() throws UriException {
         when(clipboardUtil.getRaw()).thenReturn("");
         when(bitcoinUtil.parse("")).thenThrow(new UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS));
+        paymentHolder.setPaymentAddress("--address--");
         startFragment();
 
         withId(dialog.getView(), R.id.paste_address_btn).performClick();
@@ -447,21 +443,24 @@ public class PayDialogFragmentTest {
         assertThat(ShadowToast.getTextOfLatestToast(), equalTo("Nothing to paste"));
         PaymentReceiverView paymentReceiverView = withId(dialog.getView(), R.id.payment_receiver);
         assertThat(paymentReceiverView.getPaymentAddress(), equalTo(""));
+        assertNull(paymentUtil.getAddress());
+        assertThat(paymentHolder.getPaymentAddress(), equalTo(""));
     }
 
     @Test
     public void clears_pub_key_from_holder_when_pasting_address() throws UriException {
         startFragment();
+        String address = "34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R";
         paymentHolder.setPublicKey("--pub-key--");
         when(clipboardUtil.getRaw()).thenReturn("--bitcoin uri--");
         BitcoinUri uri = mock(BitcoinUri.class);
-        when(uri.getAddress()).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R");
+        when(uri.getAddress()).thenReturn(address);
         when(uri.getSatoshiAmount()).thenReturn(0L);
         when(bitcoinUtil.parse(anyString())).thenReturn(uri);
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.ADDRESS);
 
         dialog.onPasteClicked();
 
+        assertThat(paymentUtil.getAddress(), equalTo(address));
         assertThat(paymentHolder.getPublicKey(), equalTo(""));
     }
 
@@ -549,13 +548,15 @@ public class PayDialogFragmentTest {
         startFragment();
         Intent data = new Intent();
         BitcoinUri bitcoinUri = mock(BitcoinUri.class);
-        when(bitcoinUri.getAddress()).thenReturn("xfdkjvhbw43hfbwkehvbw43jhkf");
+        String address = "xfdkjvhbw43hfbwkehvbw43jhkf";
+        when(bitcoinUri.getAddress()).thenReturn(address);
         data.putExtra(Intents.EXTRA_SCANNED_DATA, "bitcoin:xfdkjvhbw43hfbwkehvbw43jhkf");
         when(bitcoinUtil.parse(anyString())).thenReturn(bitcoinUri);
-        when(paymentUtil.getPaymentMethod()).thenReturn(PaymentUtil.PaymentMethod.ADDRESS);
 
         dialog.onActivityResult(Intents.REQUEST_QR_FRAGMENT_SCAN, Intents.RESULT_SCAN_OK, data);
 
+        assertThat(paymentUtil.getAddress(), equalTo(address));
+        assertThat(paymentHolder.getPaymentAddress(), equalTo(address));
         assertThat(paymentHolder.getPublicKey(), equalTo(""));
     }
 
@@ -579,12 +580,11 @@ public class PayDialogFragmentTest {
         phoneNumberInputView.setText(text);
 
         assertThat(phoneNumberInputView.getText(), equalTo("+1"));
-        verify(paymentUtil).setContact(null);
+        assertNull(paymentUtil.getContact());
     }
 
     @Test
     public void sets_phone_number_on_payment_util_when_valid_input() {
-        ArgumentCaptor<Contact> argumentCaptor = ArgumentCaptor.forClass(Contact.class);
         startFragment();
 
         PaymentReceiverView paymentReceiverView = withId(dialog.getView(), R.id.payment_receiver);
@@ -592,10 +592,7 @@ public class PayDialogFragmentTest {
         PhoneNumberInputView phoneNumberInputView = withId(paymentReceiverView, R.id.phone_number_input);
         phoneNumberInputView.setText("3305551111");
 
-        verify(paymentUtil).setContact(argumentCaptor.capture());
-
-        Contact contact = argumentCaptor.getValue();
-        assertThat(contact.getPhoneNumber(), equalTo(phoneNumber));
+        assertThat(paymentUtil.getContact().getPhoneNumber(), equalTo(phoneNumber));
     }
 
     @Test
@@ -715,7 +712,7 @@ public class PayDialogFragmentTest {
 
         fragmentController.pause().stop().destroy();
 
-        verify(paymentUtil).reset();
+        assertNull(paymentUtil.getAddress());
     }
 
     @Test
@@ -725,6 +722,33 @@ public class PayDialogFragmentTest {
         dialog.onDismiss(mock(DialogInterface.class));
 
         verify(cnAddressLookupDelegate).teardown();
+    }
+
+    @Test
+    public void observes_sending_max() {
+        startFragment();
+        when(transactionFundingManger.buildFundedTransactionData(any())).thenReturn(validTransactionData);
+
+        clickOn(withId(dialog.getView(), R.id.send_max));
+
+        assertTrue(paymentHolder.getPrimaryCurrency() instanceof CryptoCurrency);
+        assertThat(paymentHolder.getPrimaryCurrency().toLong(), equalTo(paymentHolder.getTransactionData().getAmount()));
+    }
+
+    @Test
+    public void observes_send_max_cleared() {
+        startFragment();
+        when(transactionFundingManger.buildFundedTransactionData(any())).thenReturn(validTransactionData);
+        clickOn(withId(dialog.getView(), R.id.send_max));
+
+        TextView view = withId(dialog.getView(), R.id.primary_currency);
+        view.setText("0");
+
+        assertTrue(paymentHolder.getPrimaryCurrency() instanceof CryptoCurrency);
+        assertThat(paymentHolder.getPrimaryCurrency().toLong(), equalTo(0L));
+        assertThat(paymentHolder.getTransactionData().getAmount(), equalTo(0L));
+        assertThat(paymentHolder.getTransactionData().getUtxos().length, equalTo(0));
+        assertFalse(paymentUtil.isFunded());
     }
 
     private void startFragment() {

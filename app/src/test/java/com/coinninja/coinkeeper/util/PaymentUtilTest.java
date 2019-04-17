@@ -1,15 +1,15 @@
 package com.coinninja.coinkeeper.util;
 
-import android.app.Application;
 import android.content.Context;
 
+import com.coinninja.bindings.DerivationPath;
+import com.coinninja.bindings.TransactionData;
+import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.model.FundedCallback;
-import com.coinninja.coinkeeper.model.FundingUTXOs;
+import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.PaymentUtil.PaymentMethod;
@@ -17,6 +17,7 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,8 +35,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
@@ -46,70 +53,69 @@ public class PaymentUtilTest {
     private static final String BASE58_BAD_ADDRESS = "3PxEH5t91Cio4B7LCZCEWQEGGxaqGW5HkXEEEEEE";
     private static final String INVALID_BTC_ADDRESS = "---btc-address---";
     private static final String DISPLAY_NAME = "Joe Smoe";
-    private final PhoneNumber PHONE_NUMBER = new PhoneNumber("+13305551111");
     private static final String BC1_ADDRESS = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4";
+    private static final PhoneNumber PHONE_NUMBER = new PhoneNumber("+13305551111");
 
-    private Application application;
+    private DefaultCurrencies defaultCurrencies;
     private PaymentUtil paymentUtil;
     private PaymentHolder paymentHolder;
     private Contact contact;
     private Context context;
-
+    @Mock
+    private TransactionFundingManager transactionFundingManager;
     @Mock
     private BitcoinUtil bitcoinUtil;
-    @Mock
-    private FundingUTXOs.Builder fundingUTXOsBuilder;
-    @Mock
-    private FundingUTXOs fundingUTXOs;
-    @Mock
-    private TargetStatHelper targetStatHelper;
-    @Mock
-    private FundedCallback fundedCallback;
-
-    @Mock
-    CurrencyPreference currencyPreference;
-
-    @Mock
-    DefaultCurrencies defaultCurrencies;
-
     private USDCurrency usdCurrency = new USDCurrency(2.d);
     private BTCCurrency btcCurrency = new BTCCurrency(1.d);
+    private TransactionData validTransactionData = new TransactionData(new UnspentTransactionOutput[1],
+            10000L, 1000L, 0, mock(DerivationPath.class), "");
+    private TransactionData invalidTransactionData = new TransactionData(new UnspentTransactionOutput[0],
+            0, 0, 0, mock(DerivationPath.class), "");
+    private TransactionFee transactionFee;
+
+    @After
+    public void tearDown() {
+        defaultCurrencies = null;
+        paymentHolder = null;
+        paymentUtil = null;
+        contact = null;
+        context = null;
+        transactionFundingManager = null;
+        bitcoinUtil = null;
+        usdCurrency = null;
+        btcCurrency = null;
+        validTransactionData = null;
+        invalidTransactionData = null;
+    }
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        when(defaultCurrencies.getPrimaryCurrency()).thenReturn(usdCurrency);
-        when(defaultCurrencies.getSecondaryCurrency()).thenReturn(btcCurrency);
-        when(defaultCurrencies.getFiat()).thenReturn(usdCurrency);
-        when(defaultCurrencies.getCrypto()).thenReturn(btcCurrency);
-        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
-        paymentHolder = new PaymentHolder(new USDCurrency(5000.00d),
-                new TransactionFee(10L, 5L, 1L));
-        paymentHolder.setDefaultCurrencies(defaultCurrencies);
-        paymentHolder.setSpendableBalance(new BTCCurrency("1.0"));
-        paymentHolder.updateValue(new USDCurrency(25d));
+        defaultCurrencies = new DefaultCurrencies(usdCurrency, btcCurrency);
         contact = new Contact(PHONE_NUMBER, DISPLAY_NAME, false);
-        application = RuntimeEnvironment.application;
-        context = application.getApplicationContext();
+        context = RuntimeEnvironment.application.getApplicationContext();
 
         when(bitcoinUtil.isValidBTCAddress(BTC_ADDRESS)).thenReturn(true);
         when(bitcoinUtil.isValidBTCAddress(BASE58_BAD_ADDRESS)).thenReturn(false);
         when(bitcoinUtil.isValidBTCAddress(BC1_ADDRESS)).thenReturn(false);
         when(bitcoinUtil.isValidBTCAddress(INVALID_BTC_ADDRESS)).thenReturn(false);
 
-        paymentUtil = new PaymentUtil(context, bitcoinUtil, targetStatHelper, fundingUTXOsBuilder);
+        paymentUtil = new PaymentUtil(context, bitcoinUtil, transactionFundingManager);
+        paymentHolder = new PaymentHolder(new USDCurrency(5000.00d));
+        paymentHolder.setDefaultCurrencies(defaultCurrencies);
+        paymentHolder.setSpendableBalance(new BTCCurrency("1.0"));
+        paymentHolder.updateValue(new USDCurrency(25d));
+        transactionFee = new TransactionFee(5, 10, 15);
+        paymentUtil.setTransactionFee(transactionFee);
         paymentUtil.setPaymentHolder(paymentHolder);
-        paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d));
         when(bitcoinUtil.isValidBase58Address(anyString())).thenReturn(true);
     }
 
     @Test
     public void resetting_payment_util_nulls_out_address_and_fundingUTXO() {
-        paymentUtil.fundingUTXOs = fundingUTXOs;
         paymentUtil.setAddress(BTC_ADDRESS);
         paymentUtil.reset();
 
-        assertNull(paymentUtil.fundingUTXOs);
         assertNull(paymentUtil.getAddress());
     }
 
@@ -141,61 +147,44 @@ public class PaymentUtilTest {
 
         assertTrue(paymentUtil.isValidPaymentMethod());
         assertTrue(paymentUtil.getErrorMessage().isEmpty());
+        assertThat(paymentHolder.getPaymentAddress(), equalTo(BTC_ADDRESS));
     }
 
     @Test
     public void confirms_insufficient_funding_with_given_fees() {
-        long fee = 100l;
         paymentUtil.setAddress(BTC_ADDRESS);
         BTCCurrency btcCurrency = (BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d));
-        long spendableBalance = btcCurrency.toSatoshis() + fee + 1;
+        long spendableBalance = btcCurrency.toSatoshis() - 100L;
         paymentHolder.setSpendableBalance(new BTCCurrency(spendableBalance));
-        paymentUtil.checkFunding(fundedCallback);
-        when(fundingUTXOs.getSatoshisFeesSpending()).thenReturn(fee);
-        when(fundingUTXOs.getSatoshisSpending()).thenReturn(btcCurrency.toSatoshis());
-        long totalSpending = btcCurrency.toSatoshis() + fee;
-        when(fundingUTXOs.getSatoshisTotalSpending()).thenReturn(totalSpending);
-        long fundedTotal = btcCurrency.toSatoshis() - 99;
-        when(fundingUTXOs.getSatoshisFundedTotal()).thenReturn(fundedTotal);
 
-        paymentUtil.onComplete(fundingUTXOs);
+        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong())).
+                thenReturn(invalidTransactionData);
 
-        assertFalse(paymentUtil.isFunded());
-        assertThat(paymentUtil.getErrorMessage(), equalTo("Attempting to send " + new BTCCurrency(totalSpending).toFormattedCurrency() + ". Not enough spendable funds\nAvailable " + new BTCCurrency(fundedTotal).toFormattedCurrency() + " $25.00"));
+        assertFalse(paymentUtil.checkFunding());
+        assertThat(paymentUtil.getErrorMessage(), equalTo("Attempting to send "
+                + btcCurrency.toFormattedCurrency() + ". Not enough spendable funds\nAvailable "
+                + new BTCCurrency(spendableBalance).toFormattedCurrency() + " $25.00"));
     }
 
     @Test
     public void confirms_funding_with_given_fees() {
         paymentUtil.setAddress(BTC_ADDRESS);
         paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(50d)));
-        BTCCurrency btcCurrency = (BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d));
-        paymentUtil.checkFunding(fundedCallback);
-        long fee = 100l;
-        when(fundingUTXOs.getSatoshisFeesSpending()).thenReturn(fee);
-        when(fundingUTXOs.getSatoshisSpending()).thenReturn(btcCurrency.toSatoshis());
-        when(fundingUTXOs.getSatoshisTotalSpending()).thenReturn(btcCurrency.toSatoshis() + fee);
-        when(fundingUTXOs.getSatoshisFundedTotal()).thenReturn(paymentHolder.getSpendableBalance().toSatoshis());
+        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong())).
+                thenReturn(validTransactionData);
 
-        paymentUtil.onComplete(fundingUTXOs);
-
+        assertTrue(paymentUtil.checkFunding());
         assertTrue(paymentUtil.isFunded());
     }
 
-    @Test
-    public void forwards_funding_utxo_to_caller() {
-        paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.checkFunding(fundedCallback);
-
-        paymentUtil.onComplete(fundingUTXOs);
-
-        verify(fundedCallback).onComplete(fundingUTXOs);
-    }
 
     @Test
     public void can_send_more_than_limit_to_address() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d));
         paymentUtil.setAddress(BTC_ADDRESS);
+        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong())).thenReturn(validTransactionData);
 
+        assertTrue(paymentUtil.checkFunding());
         assertTrue(paymentUtil.isValid());
     }
 
@@ -204,11 +193,12 @@ public class PaymentUtilTest {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
         contact.setVerified(true);
         paymentUtil.setContact(contact);
+        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong()))
+                .thenReturn(validTransactionData);
 
+        assertTrue(paymentUtil.checkFunding());
         assertTrue(paymentUtil.isValid());
-
-        assertThat(paymentUtil.getErrorMessage(),
-                equalTo(""));
+        assertThat(paymentUtil.getErrorMessage(), equalTo(""));
     }
 
     @Test
@@ -219,29 +209,7 @@ public class PaymentUtilTest {
         assertFalse(paymentUtil.isValid());
 
         assertThat(paymentUtil.getErrorMessage(),
-                equalTo(application.getString(R.string.payment_error_too_much_sent_to_contact)));
-    }
-
-    @Test
-    public void payment_valid_when_enough_funds_to_cover_payment() {
-        paymentUtil.setAddress(BTC_ADDRESS);
-        BTCCurrency spendableBalance = (BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(15d));
-        paymentHolder.setSpendableBalance(spendableBalance);
-        BTCCurrency payment = (BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d));
-
-        assertFalse(paymentUtil.isValid());
-
-        String error = "Attempting to send " + payment.toFormattedCurrency() + ". Not enough spendable funds\nAvailable " + paymentHolder.getSpendableBalance().toFormattedCurrency() + " $15.00";
-
-        assertThat(paymentUtil.getErrorMessage(), equalTo(error));
-
-    }
-
-    @Test
-    public void valid_payment_when_btc_amount_present_with_address() {
-        paymentUtil.setAddress(BTC_ADDRESS);
-
-        assertTrue(paymentUtil.isValid());
+                equalTo(context.getString(R.string.payment_error_too_much_sent_to_contact)));
     }
 
     @Test
@@ -251,7 +219,7 @@ public class PaymentUtilTest {
 
         assertFalse(paymentUtil.isValid());
 
-        assertThat(paymentUtil.getErrorMessage(), equalTo(application.getResources()
+        assertThat(paymentUtil.getErrorMessage(), equalTo(context.getResources()
                 .getString(R.string.pay_error_too_little_transaction)));
     }
 
@@ -262,13 +230,16 @@ public class PaymentUtilTest {
 
         assertFalse(paymentUtil.isValid());
 
-        assertThat(paymentUtil.getErrorMessage(), equalTo(application.getResources()
+        assertThat(paymentUtil.getErrorMessage(), equalTo(context.getResources()
                 .getString(R.string.pay_error_invalid_amount)));
     }
 
     @Test
     public void valid_payment_is_valid() {
         paymentUtil.setAddress(BTC_ADDRESS);
+        when(transactionFundingManager.buildFundedTransactionData(any(), anyLong())).thenReturn(validTransactionData);
+
+        paymentUtil.checkFunding();
 
         assertTrue(paymentUtil.isValid());
     }
@@ -292,7 +263,7 @@ public class PaymentUtilTest {
     public void invalid_address_and_contact_message() {
         paymentUtil.setContact(null);
 
-        assertThat(paymentUtil.getErrorMessage(), equalTo(application.getResources()
+        assertThat(paymentUtil.getErrorMessage(), equalTo(context.getResources()
                 .getString(R.string.pay_error_add_valid_bitcoin_address)));
     }
 
@@ -384,85 +355,122 @@ public class PaymentUtilTest {
     }
 
     @Test
-    public void payment_method_intially_invalid() {
+    public void payment_method_initially_invalid() {
         assertThat(paymentUtil.getPaymentMethod(), equalTo(PaymentMethod.INVALID));
     }
 
     @Test
-    public void invalid_when_satoshisFundedTotal_negative_from_long_overflow() {
-        paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
+    public void is_valid_checks_payment_type_and_payment_amount() {
         paymentUtil.setAddress(BTC_ADDRESS);
-        when(fundingUTXOs.getSatoshisFundedTotal()).thenReturn(-1L);
-        paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.setFundingUTXOs(fundingUTXOs);
-
+        paymentHolder.updateValue(new BTCCurrency(0.d));
         assertFalse(paymentUtil.isValid());
+
+        paymentHolder.updateValue(new BTCCurrency(1.d));
+        assertTrue(paymentUtil.isValid());
+
+        verifyZeroInteractions(transactionFundingManager);
     }
 
     @Test
-    public void invalid_when_satoshisFeesSpending_negative_from_long_overflow() {
-        paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
-        paymentUtil.setAddress(BTC_ADDRESS);
-        when(fundingUTXOs.getSatoshisFeesSpending()).thenReturn(-1L);
-        paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.setFundingUTXOs(fundingUTXOs);
+    public void check_funding_validates_funding() {
+        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong()))
+                .thenReturn(validTransactionData);
 
-        assertFalse(paymentUtil.isValid());
+        assertTrue(paymentUtil.checkFunding());
     }
 
     @Test
     public void invalid_when_satoshisSpending_negative_from_long_overflow() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
         paymentUtil.setAddress(BTC_ADDRESS);
-        when(fundingUTXOs.getSatoshisSpending()).thenReturn(-1L);
         paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.setFundingUTXOs(fundingUTXOs);
+        paymentHolder.setTransactionData(validTransactionData);
 
-        assertFalse(paymentUtil.isValid());
+        validTransactionData.setAmount(-1);
+        paymentHolder.setTransactionData(validTransactionData);
+        assertFalse(paymentUtil.isFunded());
+
+        validTransactionData.setAmount(1);
+        validTransactionData.setFeeAmount(-1);
+        paymentHolder.setTransactionData(validTransactionData);
+        assertFalse(paymentUtil.isFunded());
+
+        validTransactionData.setFeeAmount(1);
+        validTransactionData.setChangeAmount(-1);
+        paymentHolder.setTransactionData(validTransactionData);
+        assertFalse(paymentUtil.isFunded());
     }
 
     @Test
-    public void invalid_when_satoshisTotalSpending_negative_from_long_overflow() {
-        paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
-        paymentUtil.setAddress(BTC_ADDRESS);
-        when(fundingUTXOs.getSatoshisTotalSpending()).thenReturn(-1L);
-        paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.setFundingUTXOs(fundingUTXOs);
+    public void funding_max_calculates_max() {
+        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
 
-        assertFalse(paymentUtil.isValid());
+        assertTrue(paymentUtil.fundMax());
+
+        assertThat(paymentHolder.getTransactionData(), equalTo(validTransactionData));
     }
 
     @Test
-    public void invalid_when_attempting_to_send_with_fee_pushing_spendable_balance_beyond_what_is_available() {
-        paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
+    public void can_clear_funding() {
+        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
         paymentUtil.setAddress(BTC_ADDRESS);
-        when(fundingUTXOs.getSatoshisFeesSpending()).thenReturn(BTCCurrency.MAX_SATOSHI);
-        paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.setFundingUTXOs(fundingUTXOs);
+        paymentUtil.fundMax();
 
-        assertFalse(paymentUtil.isValid());
+        paymentUtil.clearFunding();
+
+        assertFalse(paymentUtil.isFunded());
+        TransactionData transactionData = paymentHolder.getTransactionData();
+        assertThat(transactionData.getUtxos().length, equalTo(0));
+        assertThat(transactionData.getAmount(), equalTo(0L));
+        assertThat(transactionData.getChangeAmount(), equalTo(0L));
+        assertThat(transactionData.getFeeAmount(), equalTo(0L));
+        assertThat(transactionData.getPaymentAddress(), equalTo(BTC_ADDRESS));
     }
 
     @Test
-    public void invalid_when_spendable_balance_is_less_than_amount_trying_to_send() {
-        paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
+    public void ignores_floor_amount_when_sending_max() {
+        paymentHolder.setEvaluationCurrency(new USDCurrency(1000.00d));
+        paymentHolder.updateValue(new USDCurrency(.99d));
+        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
         paymentUtil.setAddress(BTC_ADDRESS);
-        when(fundingUTXOs.getSatoshisSpending()).thenReturn(BTCCurrency.MAX_SATOSHI);
-        paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.setFundingUTXOs(fundingUTXOs);
+        paymentUtil.fundMax();
 
-        assertFalse(paymentUtil.isValid());
+        assertTrue(paymentUtil.isValid());
+        assertTrue(paymentUtil.isFunded());
     }
 
     @Test
-    public void invalid_when_satoshi_total_spendable_amount_is_beyond_spendable_balance() {
-        paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
+    public void checking_funding_uses_send_max_flag() {
+        paymentHolder.setEvaluationCurrency(new USDCurrency(1000.00d));
+        paymentHolder.updateValue(new USDCurrency(5.99d));
         paymentUtil.setAddress(BTC_ADDRESS);
-        when(fundingUTXOs.getSatoshisTotalSpending()).thenReturn(BTCCurrency.MAX_SATOSHI);
-        paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d)));
-        paymentUtil.setFundingUTXOs(fundingUTXOs);
+        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
+        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class), anyLong())).thenReturn(invalidTransactionData);
+        paymentUtil.fundMax();
 
-        assertFalse(paymentUtil.isValid());
+        paymentUtil.checkFunding();
+
+        assertTrue(paymentUtil.isValid());
+        assertTrue(paymentUtil.isFunded());
+        verify(transactionFundingManager).buildFundedTransactionData(any());
+        verify(transactionFundingManager, times(0)).buildFundedTransactionData(any(), anyLong());
     }
 
+    @Test
+    public void keeps_values_when_setting() {
+        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
+
+        paymentUtil.fundMax();
+        paymentUtil.setAddress(BTC_ADDRESS);
+
+        assertThat(paymentHolder.getTransactionData(), equalTo(validTransactionData));
+        assertThat(paymentHolder.getPaymentAddress(), equalTo(BTC_ADDRESS));
+
+        paymentHolder.clearPayment();
+
+        paymentUtil.setAddress(BTC_ADDRESS);
+        paymentUtil.fundMax();
+        assertThat(paymentHolder.getTransactionData(), equalTo(validTransactionData));
+        assertThat(paymentHolder.getPaymentAddress(), equalTo(BTC_ADDRESS));
+    }
 }

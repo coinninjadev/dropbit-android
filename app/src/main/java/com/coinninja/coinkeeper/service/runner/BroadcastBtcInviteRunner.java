@@ -6,23 +6,18 @@ import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.bitcoin.BroadcastTransactionHelper;
-import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
-import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.helpers.BroadcastBtcInviteHelper;
-import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 
@@ -31,39 +26,32 @@ import javax.inject.Inject;
 
 public class BroadcastBtcInviteRunner implements Runnable {
     private final BroadcastTransactionHelper broadcastHelper;
+    private final TransactionFundingManager transactionFundingManager;
     private final TransactionNotificationManager transactionNotificationManager;
     private final InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
     private final BroadcastBtcInviteHelper broadcastBtcInviteHelper;
-    private final HDWallet hdWallet;
     private final SyncWalletManager syncWalletManager;
     private final ExternalNotificationHelper externalNotificationHelper;
-    private final AccountManager accountManager;
     private final Analytics analytics;
     private final WalletHelper walletHelper;
     private final Context context;
-    private final DaoSessionManager daoSessionManager;
-    private FundingRunnable fundingRunnable;
 
     private TransactionHelper transactionHelper;
     private InviteTransactionSummary invite;
-    private PhoneNumberUtil phoneNumberUtil;
 
     @Inject
     BroadcastBtcInviteRunner(@ApplicationContext Context context, WalletHelper walletHelper,
-                             HDWallet hdWallet, DaoSessionManager daoSessionManager,
-                             TransactionHelper transactionHelper, FundingRunnable fundingRunnable,
+                             TransactionFundingManager transactionFundingManager,
                              TransactionNotificationManager transactionNotificationManager,
                              InviteTransactionSummaryHelper inviteTransactionSummaryHelper,
-                             BroadcastBtcInviteHelper broadcastBtcInviteHelper,
+                             TransactionHelper transactionHelper, BroadcastBtcInviteHelper broadcastBtcInviteHelper,
                              BroadcastTransactionHelper broadcastHelper,
                              SyncWalletManager syncWalletManager,
                              ExternalNotificationHelper externalNotificationHelper,
-                             AccountManager accountManager, Analytics analytics,
-                             PhoneNumberUtil phoneNumberUtil) {
+                             Analytics analytics) {
         this.context = context;
-        this.daoSessionManager = daoSessionManager;
         this.walletHelper = walletHelper;
-        this.hdWallet = hdWallet;
+        this.transactionFundingManager = transactionFundingManager;
         this.transactionNotificationManager = transactionNotificationManager;
         this.inviteTransactionSummaryHelper = inviteTransactionSummaryHelper;
         this.broadcastBtcInviteHelper = broadcastBtcInviteHelper;
@@ -71,62 +59,25 @@ public class BroadcastBtcInviteRunner implements Runnable {
         this.broadcastHelper = broadcastHelper;
         this.syncWalletManager = syncWalletManager;
         this.externalNotificationHelper = externalNotificationHelper;
-        this.accountManager = accountManager;
         this.analytics = analytics;
-        this.fundingRunnable = fundingRunnable;
-        this.phoneNumberUtil = phoneNumberUtil;
     }
 
     @Override
     public void run() {
-        //Step 1. fund the Invite
-        FundingRunnable.FundedHolder fundedHolder = fundInvite();
-        if (fundedHolder == null || fundedHolder.getUnspentTransactionHolder() == null) {
-            saveCancellationToBroadcastBtcDatabase(invite);
-            saveInviteCanceledToExternalNotificationsDatabase(invite);
-            updateWalletBalance();
-            return;
+        TransactionData transactionData = fundInvite();
+
+        TransactionBroadcastResult transactionBroadcastResult = fulfillInvite(transactionData);
+        if (transactionBroadcastResult.isSuccess()) {
+            updateFulfilledInvite(transactionBroadcastResult);
         }
-
-        //Step 2. broadcast the funded invite to libbitcoin network
-        TransactionBroadcastResult transactionBroadcastResult = broadcastTXToBtcNetwork(fundedHolder.getUnspentTransactionHolder());
-        if (!transactionBroadcastResult.isSuccess()) {
-            onBroadcastTxError(transactionBroadcastResult);
-            return;
-        }
-
-        //Step 3. save tx as transactionSummary
-        inviteTransactionSummaryHelper.updateFulfilledInvite(invite.getTransactionsInvitesSummary(), transactionBroadcastResult);
-
-        //Step 4. save tx to database so later we can update the invite server
-        saveToBroadcastBtcDatabaseMarkAsFunded(transactionBroadcastResult);
-
-        //Step 5. save tx to database so later we can show a notifications in on the users phone
-        saveToExternalNotificationsDatabase(transactionBroadcastResult, invite, fundedHolder.getUnspentTransactionHolder());
-
-        transactionNotificationManager.notifyCnOfFundedInvite(invite);
-
-        syncWalletManager.syncNow();
     }
 
-    private void saveCancellationToBroadcastBtcDatabase(InviteTransactionSummary invite) {
-        transactionHelper.updateInviteAsCanceled(invite.getServerId());
-        broadcastBtcInviteHelper.saveBroadcastInviteAsCanceled(invite);
+    public void setInvite(InviteTransactionSummary invite) {
+        this.invite = invite;
     }
 
-    private FundingRunnable.FundedHolder fundInvite() {
-        fundingRunnable.setCurrentChangeAddressIndex(accountManager.getNextChangeIndex());
-        fundingRunnable.setPaymentAddress(invite.getAddress());
-        FundingUTXOs fundingUTXOs = fundingRunnable.fundRun(invite.getValueSatoshis(), invite.getValueFeesSatoshis(), null);
-        FundingRunnable.FundedHolder fundedHolder = fundingRunnable.evaluateFundingUTXOs(fundingUTXOs);
-        return fundedHolder;
-    }
-
-    public TransactionBroadcastResult broadcastTXToBtcNetwork(UnspentTransactionHolder unspentTransactionHolder) {
+    private TransactionBroadcastResult broadcastTXToBtcNetwork(TransactionData transactionData) {
         TransactionBroadcastResult result;
-
-        TransactionData transactionData = unspentTransactionHolder.toTransactionData();
-
         if (checksumPass(transactionData)) {
             result = broadcastHelper.broadcast(transactionData);
             analytics.trackEvent(Analytics.EVENT_DROPBIT_COMPLETED);
@@ -137,14 +88,50 @@ public class BroadcastBtcInviteRunner implements Runnable {
         return result;
     }
 
+    private void updateFulfilledInvite(TransactionBroadcastResult transactionBroadcastResult) {
+        inviteTransactionSummaryHelper.updateFulfilledInvite(invite.getTransactionsInvitesSummary(), transactionBroadcastResult);
+        saveToBroadcastBtcDatabaseMarkAsFunded(transactionBroadcastResult);
+        saveToExternalNotificationsDatabase(transactionBroadcastResult, invite);
+        transactionNotificationManager.notifyCnOfFundedInvite(invite);
+        syncWalletManager.syncNow();
+    }
+
+    private TransactionBroadcastResult fulfillInvite(TransactionData transactionData) {
+        TransactionBroadcastResult transactionBroadcastResult = broadcastTXToBtcNetwork(transactionData);
+        if (!transactionBroadcastResult.isSuccess()) {
+            onBroadcastTxError(transactionBroadcastResult);
+        }
+        return transactionBroadcastResult;
+    }
+
+    private TransactionData fundInvite() {
+        TransactionData transactionData = transactionFundingManager.
+                buildFundedTransactionDataForDropBit(invite.getValueSatoshis(), invite.getValueFeesSatoshis());
+
+        if (transactionData.getUtxos().length == 0) {
+            cancelInvite();
+        }
+
+        transactionData.setPaymentAddress(invite.getAddress());
+        return transactionData;
+    }
+
+    private void cancelInvite() {
+        saveCancellationToBroadcastBtcDatabase(invite);
+        saveInviteCanceledToExternalNotificationsDatabase(invite);
+        updateWalletBalance();
+    }
+
+    private void saveCancellationToBroadcastBtcDatabase(InviteTransactionSummary invite) {
+        transactionHelper.updateInviteAsCanceled(invite.getServerId());
+        broadcastBtcInviteHelper.saveBroadcastInviteAsCanceled(invite);
+    }
+
     private void saveToExternalNotificationsDatabase(TransactionBroadcastResult result,
-                                                     InviteTransactionSummary invite,
-                                                     UnspentTransactionHolder unspentTransactionHolder) {
+                                                     InviteTransactionSummary invite) {
         PhoneNumber phoneNumber = invite.getReceiverPhoneNumber();
-        long spent = unspentTransactionHolder.satoshisRequestingToSpend;
 
-        BTCCurrency btcSpent = new BTCCurrency(spent);
-
+        BTCCurrency btcSpent = new BTCCurrency(invite.getValueSatoshis());
         String messageAmount = btcSpent.toFormattedCurrency();
         String messageReceiver = phoneNumber.displayTextForLocale();
         String message = context.getString(R.string.invite_broadcast_real_btc_message, messageAmount, messageReceiver);
@@ -180,10 +167,6 @@ public class BroadcastBtcInviteRunner implements Runnable {
         return transactionData != null &&
                 transactionData.getPaymentAddress() != null &&
                 !transactionData.getPaymentAddress().isEmpty();
-    }
-
-    public void setInvite(InviteTransactionSummary invite) {
-        this.invite = invite;
     }
 
 }

@@ -5,7 +5,6 @@ import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.bitcoin.BroadcastTransactionHelper;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
@@ -16,7 +15,7 @@ import javax.inject.Inject;
 
 import retrofit2.Response;
 
-public class BroadcastTransactionRunner extends SteppedAsyncTask<UnspentTransactionHolder, Integer, TransactionBroadcastResult> {
+public class BroadcastTransactionRunner extends SteppedAsyncTask<TransactionData, Integer, TransactionBroadcastResult> {
     private static final int NUMBER_OF_STEPS = 2;
 
     private final CoinKeeperApplication application;
@@ -44,6 +43,21 @@ public class BroadcastTransactionRunner extends SteppedAsyncTask<UnspentTransact
     }
 
     @Override
+    public BroadcastTransactionRunner clone() {
+        return new BroadcastTransactionRunner(application, broadcastTransactionHelper,
+                apiClient, analytics, broadcastListener);
+    }
+
+    public void setBroadcastListener(BroadcastListener broadcastListener) {
+        this.broadcastListener = broadcastListener;
+    }
+
+    @Override
+    int getNumberOfPrimarySteps() {
+        return NUMBER_OF_STEPS;
+    }
+
+    @Override
     public void reportPrimaryStepCompleted() {
         super.reportPrimaryStepCompleted();
         publishProgress(Math.round(getProgress()) * 100);
@@ -56,10 +70,10 @@ public class BroadcastTransactionRunner extends SteppedAsyncTask<UnspentTransact
     }
 
     @Override
-    protected TransactionBroadcastResult doInBackground(UnspentTransactionHolder... transactionHolders) {
+    protected TransactionBroadcastResult doInBackground(TransactionData... transactions) {
         analytics.trackEvent(Analytics.EVENT_BROADCAST_STARTED);
-        if (transactionHolders.length < 1) return null;
-        TransactionData transactionData = transactionHolders[0].toTransactionData();
+        if (transactions.length < 1) return null;
+        TransactionData transactionData = transactions[0];
         TransactionBroadcastResult transactionBroadcastResult;
 
         if (checkIn()) {
@@ -73,20 +87,6 @@ public class BroadcastTransactionRunner extends SteppedAsyncTask<UnspentTransact
         return transactionBroadcastResult;
     }
 
-    private boolean checkIn() {
-        reportSubStepCompleted(3);
-        Response currentState = apiClient.getCurrentState();
-        reportSubStepCompleted(3);
-        boolean isSuccess = currentState.isSuccessful();
-        if (isSuccess) reportPrimaryStepCompleted();
-        return isSuccess;
-    }
-
-    @Override
-    protected void onProgressUpdate(Integer... values) {
-        broadcastListener.onBroadcastProgress(values[0]);
-    }
-
     @Override
     protected void onPostExecute(TransactionBroadcastResult transactionBroadcastResult) {
         if (transactionBroadcastResult.isSuccess()) {
@@ -98,18 +98,17 @@ public class BroadcastTransactionRunner extends SteppedAsyncTask<UnspentTransact
     }
 
     @Override
-    public BroadcastTransactionRunner clone() {
-        return new BroadcastTransactionRunner(application, broadcastTransactionHelper,
-                apiClient, analytics, broadcastListener);
+    protected void onProgressUpdate(Integer... values) {
+        broadcastListener.onBroadcastProgress(values[0]);
     }
 
-    public void setBroadcastListener(BroadcastListener broadcastListener) {
-        this.broadcastListener = broadcastListener;
-    }
-
-    @Override
-    int getNumberOfPrimarySteps() {
-        return NUMBER_OF_STEPS;
+    private boolean checkIn() {
+        reportSubStepCompleted(3);
+        Response currentState = apiClient.getCurrentState();
+        reportSubStepCompleted(3);
+        boolean isSuccess = currentState.isSuccessful();
+        if (isSuccess) reportPrimaryStepCompleted();
+        return isSuccess;
     }
 
     private TransactionBroadcastResult broadcastTransaction(TransactionData transactionData) {

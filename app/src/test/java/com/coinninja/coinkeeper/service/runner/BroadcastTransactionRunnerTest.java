@@ -5,12 +5,12 @@ import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.bitcoin.BroadcastTransactionHelper;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,9 +47,6 @@ public class BroadcastTransactionRunnerTest {
     private Analytics analytics;
 
     @Mock
-    private UnspentTransactionHolder transactionHolder;
-
-    @Mock
     private TransactionData transactionData;
 
     @Mock
@@ -61,6 +58,18 @@ public class BroadcastTransactionRunnerTest {
     @InjectMocks
     private BroadcastTransactionRunner task;
 
+    @After
+    public void tearDown() {
+        task = null;
+        broadcastTransactionHelper = null;
+        apiClient = null;
+        transactionData = null;
+        analytics = null;
+        callback = null;
+        result = null;
+        application = null;
+    }
+
     @Before
     public void setUp() throws Exception {
         when(result.isSuccess()).thenReturn(true);
@@ -70,7 +79,6 @@ public class BroadcastTransactionRunnerTest {
         task.setBroadcastListener(callback);
 
         when(broadcastTransactionHelper.broadcast(any())).thenReturn(result);
-        when(transactionHolder.toTransactionData()).thenReturn(transactionData);
         when(transactionData.getPaymentAddress()).thenReturn("Some bitcoin address");
     }
 
@@ -82,7 +90,7 @@ public class BroadcastTransactionRunnerTest {
 
     @Test
     public void notifies_of_broadcast_started() {
-        task.doInBackground(transactionHolder);
+        task.doInBackground(transactionData);
 
         verify(analytics).trackEvent(eq(Analytics.EVENT_BROADCAST_STARTED));
     }
@@ -100,7 +108,7 @@ public class BroadcastTransactionRunnerTest {
                 ResponseBody.create(MediaType.parse("plain/text"), "")));
 
 
-        task.doInBackground(transactionHolder);
+        task.doInBackground(transactionData);
 
 
         ArgumentCaptor<JSONObject> argumentCaptor = ArgumentCaptor.forClass(JSONObject.class);
@@ -115,7 +123,7 @@ public class BroadcastTransactionRunnerTest {
         when(apiClient.getCurrentState()).thenReturn(Response.error(500,
                 ResponseBody.create(MediaType.parse("plain/text"), "")));
 
-        task.doInBackground(transactionHolder);
+        task.doInBackground(transactionData);
 
         verify(apiClient).getCurrentState();
         assertThat(task.getProgress(), equalTo(.33333334F));
@@ -123,7 +131,7 @@ public class BroadcastTransactionRunnerTest {
 
     @Test
     public void checks_in_with_coinninja() {
-        task.doInBackground(transactionHolder);
+        task.doInBackground(transactionData);
 
         verify(apiClient).getCurrentState();
         assertThat(task.getProgress(), equalTo(1F));
@@ -131,7 +139,7 @@ public class BroadcastTransactionRunnerTest {
 
     @Test
     public void doInBackground() {
-        TransactionBroadcastResult result = task.doInBackground(transactionHolder);
+        TransactionBroadcastResult result = task.doInBackground(transactionData);
 
         verify(broadcastTransactionHelper).broadcast(transactionData);
         assertThat(result, equalTo(result));
@@ -166,7 +174,7 @@ public class BroadcastTransactionRunnerTest {
         when(transactionData.getPaymentAddress()).thenReturn(null);
         when(application.getString(R.string.transaction_checksum_error)).thenReturn(reason);
 
-        task.doInBackground(transactionHolder);
+        task.doInBackground(transactionData);
 
         verify(broadcastTransactionHelper).generateFailedBroadcast(reason);
     }

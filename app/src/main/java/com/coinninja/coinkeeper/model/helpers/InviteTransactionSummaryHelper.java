@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.model.helpers;
 
 import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
+import com.coinninja.coinkeeper.model.db.InviteTransactionSummaryDao;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
@@ -12,6 +13,10 @@ import com.coinninja.coinkeeper.util.DateUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -94,6 +99,15 @@ public class InviteTransactionSummaryHelper {
         transactionsInvitesSummary.setBtcTxTime(dateUtil.getCurrentTimeInMillis());
         inviteTransactionSummary.update();
         transactionsInvitesSummary.update();
+
+    }
+
+    public List<InviteTransactionSummary> getUnfulfilledSentInvites() {
+        QueryBuilder<InviteTransactionSummary> inviteTransactionSummaryQueryBuilder = daoSessionManager.getInviteTransactionSummaryDao().queryBuilder();
+        return inviteTransactionSummaryQueryBuilder
+                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()),
+                        InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.getId()))
+                .list();
 
     }
 }

@@ -6,11 +6,9 @@ import android.text.TextWatcher;
 
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.google.zxing.common.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
 import javax.inject.Inject;
@@ -35,6 +33,15 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
             @Override
             public void onInvalid(String text) {
             }
+
+            @Override
+            public void onZeroed() {
+            }
+
+            @Override
+            public void onInput() {
+
+            }
         };
         DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance();
         decimalSeparator = String.valueOf(decimalFormatSymbols.getDecimalSeparator());
@@ -43,20 +50,9 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
         setCurrency(new USDCurrency());
     }
 
-    public void setCurrency(Currency currency) {
-        try {
-            this.currency = currency.getClass().newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-            this.currency = currency;
-        }
-        this.currency.setCurrencyFormat(currency.getIncrementalFormat());
-    }
-
     public void setCallback(Callback callback) {
         this.callback = callback;
     }
-
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -82,10 +78,21 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
             callback.onInvalid(value);
         }
 
+
     }
 
     public Currency getCurrency() {
         return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        try {
+            this.currency = currency.getClass().newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.currency = currency;
+        }
+        this.currency.setCurrencyFormat(currency.getIncrementalFormat());
     }
 
     @NotNull
@@ -104,7 +111,7 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
 
     private boolean hasGroupingAfterPrecision(String value) {
         int locationOfDecimalSeparator = value.lastIndexOf(decimalSeparator);
-        return (locationOfDecimalSeparator!= -1) && (locationOfDecimalSeparator < value.lastIndexOf(groupingSeparator));
+        return (locationOfDecimalSeparator != -1) && (locationOfDecimalSeparator < value.lastIndexOf(groupingSeparator));
     }
 
     private boolean containsMultipleDecimals(String value) {
@@ -115,10 +122,22 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
         selfChanged = true;
         editable.clear();
 
-        editable.append(formatIncrement(value));
+        String text = formatIncrement(value).trim();
+        editable.append(text);
+        checkZero(text);
 
-        Selection.setSelection(editable, editable.length());
+        Selection.setSelection(editable, text.length());
         selfChanged = false;
+    }
+
+    private void checkZero(String text) {
+        String value = text;
+        value = value.replace(currency.getSymbol(), "");
+        if (value.length() <= 1 && "0".equals(value)) {
+            callback.onZeroed();
+        } else {
+            callback.onInput();
+        }
     }
 
     private String formatIncrement(String value) {
@@ -168,5 +187,9 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
         void onValid(Currency currency);
 
         void onInvalid(String text);
+
+        void onZeroed();
+
+        void onInput();
     }
 }

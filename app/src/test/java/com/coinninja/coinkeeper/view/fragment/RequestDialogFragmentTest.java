@@ -11,8 +11,6 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.model.PaymentHolder;
-import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
@@ -77,7 +75,7 @@ public class RequestDialogFragmentTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(accountManager.getNextReceiveAddress()).thenReturn(testAddress);
-        paymentHolder = new PaymentHolder(new USDCurrency(60000d), new TransactionFee(5, 10, 15));
+        paymentHolder = new PaymentHolder(new USDCurrency(60000d));
         fragmentController = Robolectric.buildFragment(RequestDialogFragment.class);
         fragment = fragmentController.get();
         fragmentController.create();

@@ -60,7 +60,7 @@ public class USDCurrency extends BaseCurrency implements FiatCurrency, Parcelabl
         }
     };
 
-    public static void SET_MAX_LIMIT(USDCurrency currency) {
+    public static void setMaxLimit(USDCurrency currency) {
         try {
             MAX_DOLLAR_AMOUNT = new BTCCurrency(BTCCurrency.MAX_SATOSHI).toUSD(currency).toLong();
         } catch (FormatNotValidException ex) {

@@ -46,7 +46,7 @@ public class TransactionNotificationMapper {
         InfoV1 infoV1 = new InfoV1();
         infoV1.setMemo(completedBroadcastDTO.getMemo());
         infoV1.setCurrency("USD");
-        infoV1.setAmount(completedBroadcastDTO.getHolder().satoshisRequestingToSpend);
+        infoV1.setAmount(completedBroadcastDTO.getTransactionData().getAmount());
 
         CNPhoneNumber CNPhoneNumber = new CNPhoneNumber(account.getPhoneNumber());
 

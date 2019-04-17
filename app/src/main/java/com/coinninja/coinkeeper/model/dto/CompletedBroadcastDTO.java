@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.model.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 
 import java.util.Objects;
@@ -24,14 +24,14 @@ public class CompletedBroadcastDTO extends BroadcastTransactionDTO implements Pa
     public String transactionId;
 
     public CompletedBroadcastDTO(BroadcastTransactionDTO broadcastActivityDTO, String transactionId) {
-        super(broadcastActivityDTO.getHolder(), broadcastActivityDTO.getContact(),
+        super(broadcastActivityDTO.getTransactionData(), broadcastActivityDTO.getContact(),
                 broadcastActivityDTO.isMemoShared(), broadcastActivityDTO.getMemo(),
                 broadcastActivityDTO.getPublicKey());
         this.transactionId = transactionId;
     }
 
-    public CompletedBroadcastDTO(UnspentTransactionHolder holder, String transactionId, Contact contact) {
-        super(holder, contact);
+    public CompletedBroadcastDTO(TransactionData transactionData, String transactionId, Contact contact) {
+        super(transactionData, contact);
         this.transactionId = transactionId;
     }
 
@@ -52,17 +52,17 @@ public class CompletedBroadcastDTO extends BroadcastTransactionDTO implements Pa
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), transactionId);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         CompletedBroadcastDTO that = (CompletedBroadcastDTO) o;
         return Objects.equals(transactionId, that.transactionId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), transactionId);
     }
 
     public boolean shouldShareMemo() {

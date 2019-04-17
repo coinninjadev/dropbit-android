@@ -20,7 +20,6 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
-import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -182,23 +181,25 @@ public class PayDialogFragment extends BaseDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        USDCurrency.SET_MAX_LIMIT((USDCurrency) paymentHolder.getEvaluationCurrency());
+        USDCurrency.setMaxLimit((USDCurrency) paymentHolder.getEvaluationCurrency());
         paymentHolder.setMaxLimitForFiat();
         setupView();
         setupBip70Callback();
         processBitcoinUriIfNecessary(injectedBitcoinUri);
     }
 
-    public void onPaymentAddressChange(String text) {
-        paymentHolder.clearPayment();
-        paymentUtil.setAddress(text);
-        paymentReceiverView.setPaymentAddress(text);
+    public void onPaymentAddressChange(String address) {
+        paymentHolder.setPublicKey("");
+        paymentUtil.setAddress(address);
+        paymentReceiverView.setPaymentAddress(address);
         showSendToInput();
         updateSharedMemosUI();
         paymentInputView.requestFocus();
     }
 
     public void showPasteAttemptFail(String message) {
+        paymentUtil.setAddress("");
+        paymentHolder.setPaymentAddress("");
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
@@ -242,29 +243,25 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     void inviteContact(Contact pickedContact) {
-        setMemoOnPayment();
         paymentBarCallbacks.confirmInvite(pickedContact);
-        dismiss();
     }
 
-    void sendPaymentTo() {
+    void sendPaymentTo(Contact phoneNumber) {
+        paymentBarCallbacks.confirmPaymentFor(paymentHolder, phoneNumber);
+    }
+
+    void sendPayment() {
         setMemoOnPayment();
-        paymentBarCallbacks.confirmPaymentFor(paymentUtil.getAddress());
-        dismiss();
-    }
-
-    void sendPaymentTo(String address, Contact phoneNumber) {
-        setMemoOnPayment();
-        paymentBarCallbacks.confirmPaymentFor(address, phoneNumber);
-        dismiss();
-    }
-
-    void onComplete(FundingUTXOs fundingUTXOs) {
-        if (paymentUtil.isFunded()) {
-            sendPayment();
-        } else {
-            invalidPayment();
+        switch (paymentUtil.getPaymentMethod()) {
+            case ADDRESS:
+                paymentBarCallbacks.confirmPaymentFor(paymentHolder);
+                break;
+            case INVITE:
+            case VERIFIED_CONTACT:
+                sendPaymentToContact();
+                break;
         }
+
     }
 
     protected void showError(String message) {
@@ -298,6 +295,21 @@ public class PayDialogFragment extends BaseDialogFragment {
     private void configurePaymentInput(View base) {
         paymentInputView = withId(base, R.id.payment_input_view);
         paymentInputView.setPaymentHolder(paymentHolder);
+        paymentInputView.setOnSendMaxObserver(this::onSendMaxObserved);
+        paymentInputView.setOnSendMaxClearedObserver(this::onSendMaxClearedObserved);
+    }
+
+    private void onSendMaxClearedObserved() {
+        if (paymentUtil.isSendingMax()) {
+            paymentUtil.clearFunding();
+        }
+    }
+
+    private void onSendMaxObserved() {
+        if (paymentUtil.fundMax()) {
+            paymentHolder.updateValue(new BTCCurrency(paymentHolder.getTransactionData().getAmount()));
+            paymentInputView.setPaymentHolder(paymentHolder);
+        }
     }
 
     private void setupBip70Callback() {
@@ -316,7 +328,9 @@ public class PayDialogFragment extends BaseDialogFragment {
             }
 
             private void commonCompletion() {
-                if (progressSpinner == null) { return; }
+                if (progressSpinner == null) {
+                    return;
+                }
                 progressSpinner.dismiss();
                 progressSpinner = null;
             }
@@ -326,7 +340,7 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void configureButtons(View base) {
-        withId(base, R.id.pay_footer_send_btn).setOnClickListener(v -> onSendBtnClicked());
+        withId(base, R.id.pay_footer_send_btn).setOnClickListener(v -> onSendButtonClicked());
         withId(base, R.id.scan_btc_address_btn).setOnClickListener(v -> onScanClicked());
         withId(base, R.id.pay_header_close_btn).setOnClickListener(v -> onCloseClicked());
         withId(base, R.id.paste_address_btn).setOnClickListener(v -> onPasteClicked());
@@ -361,9 +375,9 @@ public class PayDialogFragment extends BaseDialogFragment {
         }
     }
 
-    private void onSendBtnClicked() {
-        if (paymentUtil.isValid()) {
-            paymentUtil.checkFunding(this::onComplete);
+    private void onSendButtonClicked() {
+        if (paymentUtil.isValid() && paymentUtil.checkFunding()) {
+            sendPayment();
         } else {
             invalidPayment();
         }
@@ -399,23 +413,10 @@ public class PayDialogFragment extends BaseDialogFragment {
         paymentHolder.setIsSharingMemo(memoToggleView.isSharing());
     }
 
-    private void sendPayment() {
-        switch (paymentUtil.getPaymentMethod()) {
-            case ADDRESS:
-                sendPaymentTo();
-                break;
-            case INVITE:
-            case VERIFIED_CONTACT:
-                sendPaymentToContact();
-                break;
-            default:
-        }
-    }
-
     private void sendPaymentToContact() {
         if (walletHelper.hasVerifiedAccount()) {
             if (paymentHolder.hasPaymentAddress()) {
-                sendPaymentTo(paymentHolder.getPaymentAddress(), paymentUtil.getContact());
+                sendPaymentTo(paymentUtil.getContact());
             } else if (paymentUtil.isVerifiedContact()) {
                 inviteContact(paymentUtil.getContact());
             } else {
@@ -490,44 +491,50 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void processBitcoinUriIfNecessary(BitcoinUri bitcoinUri) {
-        if (bitcoinUri == null) { return; }
+        if (bitcoinUri == null) {
+            return;
+        }
         onReceiveBitcoinUri(bitcoinUri);
         checkForBip70Url(bitcoinUri);
     }
 
     private void resetPaymentHolderIfNecessary() {
-        paymentHolder.setTransactionFee(walletHelper.getLatestFee());
+        paymentUtil.setTransactionFee(walletHelper.getLatestFee());
         memoToggleView.setText("");
         paymentHolder.setMemo(null);
     }
 
     private void checkForBip70Url(BitcoinUri bitcoinUri) {
-        if (bitcoinUri == null) { return; }
+        if (bitcoinUri == null) {
+            return;
+        }
         Uri bip70Uri = bitcoinUri.getBip70UrlIfApplicable();
-        if (bip70Uri == null) { return; }
+        if (bip70Uri == null) {
+            return;
+        }
 
         progressSpinner = AlertDialogBuilder.buildIndefiniteProgress(getActivity());
         bip70Client.getMerchantInformation(bip70Uri, bip70Callback);
     }
 
     private void setBip70UriParameters(MerchantResponse merchantResponse) {
-       if (merchantResponse.getMemo() != null) {
-           memoToggleView.setText(merchantResponse.getMemo());
-           paymentHolder.setMemo(merchantResponse.getMemo());
-       }
+        if (merchantResponse.getMemo() != null) {
+            memoToggleView.setText(merchantResponse.getMemo());
+            paymentHolder.setMemo(merchantResponse.getMemo());
+        }
 
-       if (merchantResponse.getOutputs() != null && merchantResponse.getOutputs().size() > 0) {
-           MerchantPaymentRequestOutput output = merchantResponse.getOutputs().get(0);
+        if (merchantResponse.getOutputs() != null && merchantResponse.getOutputs().size() > 0) {
+            MerchantPaymentRequestOutput output = merchantResponse.getOutputs().get(0);
 
-           onPaymentAddressChange(output.getAddress());
-           setAmount(output.getAmount());
-       }
+            onPaymentAddressChange(output.getAddress());
+            setAmount(output.getAmount());
+        }
 
-       if (merchantResponse.getRequiredFeeRate() != 0L) {
-           double roundedUpFeeRate = Math.ceil(merchantResponse.getRequiredFeeRate());
-           TransactionFee transactionFee = new TransactionFee(roundedUpFeeRate, roundedUpFeeRate, roundedUpFeeRate);
-           paymentHolder.setTransactionFee(transactionFee);
-       }
+        if (merchantResponse.getRequiredFeeRate() != 0L) {
+            double roundedUpFeeRate = Math.ceil(merchantResponse.getRequiredFeeRate());
+            TransactionFee transactionFee = new TransactionFee(roundedUpFeeRate, roundedUpFeeRate, roundedUpFeeRate);
+            paymentUtil.setTransactionFee(transactionFee);
+        }
     }
 
     private void setAmount(Long satoshiAmount) {
@@ -537,7 +544,9 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void onReceiveBitcoinUri(BitcoinUri bitcoinUri) {
-        if (bitcoinUri == null || bitcoinUri.getAddress() == null) { return; }
+        if (bitcoinUri == null || bitcoinUri.getAddress() == null) {
+            return;
+        }
         onPaymentAddressChange(bitcoinUri.getAddress());
         setAmount(bitcoinUri.getSatoshiAmount());
     }

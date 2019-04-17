@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.model;
 
 import com.coinninja.bindings.DerivationPath;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
@@ -102,15 +103,14 @@ public class TransactionNotificationMapperTest {
     @Test
     public void test_to_V1_from_completed_broadcast() {
         UnspentTransactionOutput[] outputs = new UnspentTransactionOutput[0];
-        UnspentTransactionHolder holder = new UnspentTransactionHolder(
-                10000100L,
+        TransactionData transactionData = new TransactionData(
                 outputs,
                 10000000L,
                 100L,
                 400000L,
                 mock(DerivationPath.class),
                 "--pay-address--");
-        BroadcastTransactionDTO broadcastTransactionDTO = new BroadcastTransactionDTO(holder,
+        BroadcastTransactionDTO broadcastTransactionDTO = new BroadcastTransactionDTO(transactionData,
                 new Contact(contactPhoneNumber, "Joe", true),
                 true,
                 "--memo--",
@@ -125,7 +125,7 @@ public class TransactionNotificationMapperTest {
         assertEquals(v1.getMeta().getVersion(), COUNTRY_CODE);
         assertEquals(v1.getTxid(), "--txid--");
         assertEquals(v1.getInfo().getCurrency(), "USD");
-        assertEquals(v1.getInfo().getAmount(), completedBroadcastDTO.getHolder().satoshisRequestingToSpend);
+        assertEquals(v1.getInfo().getAmount(), completedBroadcastDTO.getTransactionData().getAmount());
         assertEquals(v1.getInfo().getMemo(), "--memo--");
         assertEquals(v1.getProfile().getAvatar(), "");
         assertEquals(v1.getProfile().getDisplayName(), "");

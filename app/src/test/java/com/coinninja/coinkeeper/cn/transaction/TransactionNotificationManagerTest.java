@@ -1,10 +1,10 @@
 package com.coinninja.coinkeeper.cn.transaction;
 
 import com.coinninja.bindings.DerivationPath;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.TransactionNotificationMapper;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionNotification;
@@ -201,7 +201,7 @@ public class TransactionNotificationManagerTest {
         transactionNotificationManager.notifyOfPayment(completedBroadcastDTO);
 
         verify(apiClient).postTransactionNotification(completedBroadcastDTO.transactionId,
-                completedBroadcastDTO.getHolder().paymentAddress,
+                completedBroadcastDTO.getTransactionData().getPaymentAddress(),
                 completedBroadcastDTO.getPhoneNumberHash(),
                 "");
 
@@ -222,7 +222,7 @@ public class TransactionNotificationManagerTest {
         transactionNotificationManager.sendTransactionNotificationToReceiver(completedBroadcastDTO);
 
         verify(apiClient).postTransactionNotification(completedBroadcastDTO.transactionId,
-                completedBroadcastDTO.getHolder().paymentAddress,
+                completedBroadcastDTO.getTransactionData().getPaymentAddress(),
                 completedBroadcastDTO.getPhoneNumberHash(),
                 encryption);
 
@@ -251,15 +251,14 @@ public class TransactionNotificationManagerTest {
 
     private CompletedBroadcastDTO createCompletedBroadCastDTO() {
         UnspentTransactionOutput[] outputs = new UnspentTransactionOutput[0];
-        UnspentTransactionHolder holder = new UnspentTransactionHolder(
-                10000100L,
+        TransactionData transactionData = new TransactionData(
                 outputs,
                 10000000L,
                 100L,
                 400000L,
                 mock(DerivationPath.class),
                 "--pay-address--");
-        BroadcastTransactionDTO broadcastTransactionDTO = new BroadcastTransactionDTO(holder,
+        BroadcastTransactionDTO broadcastTransactionDTO = new BroadcastTransactionDTO(transactionData,
                 new Contact(receiverPhone, "Joe", true),
                 true,
                 "--memo--",

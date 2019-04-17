@@ -19,6 +19,7 @@ import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
+import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.component.AppComponent;
 import com.coinninja.coinkeeper.di.component.TestAppComponent;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
@@ -398,6 +399,15 @@ public class TestAppModule {
     @Provides
     List<CountryCodeLocale> provideCountryCodeLocales(CountryCodeLocaleGenerator countryCodeLocaleGenerator) {
         return new ArrayList<>();
+    }
+
+    @Provides
+    TransactionFundingManager transactionFundingManager(TestCoinKeeperApplication app) {
+        if (app.transactionFundingManager == null) {
+            app.transactionFundingManager = mock(TransactionFundingManager.class);
+        }
+
+        return app.transactionFundingManager;
     }
 
     @CoinkeeperApplicationScope

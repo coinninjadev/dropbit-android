@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.ui.payment;
 
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +32,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import static com.coinninja.android.helpers.Views.withId;
 
@@ -51,12 +51,8 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
 
     @Inject
     CurrencyPreference currencyPreference;
-
-    private PaymentBarView paymentBarView;
     PaymentHolder paymentHolder;
-
     IntentFilter intentFilter = new IntentFilter(Intents.ACTION_WALLET_SYNC_COMPLETE);
-
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -65,6 +61,7 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
             }
         }
     };
+    private PaymentBarView paymentBarView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,10 +92,6 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         paymentBarView.setOnScanPressedObserver(this::onQrScanPressed);
     }
 
-    private void showPayDialogWithDefault() {
-        showPayDialog(false);
-    }
-
     @Override
     public void onStop() {
         super.onStop();
@@ -106,15 +99,22 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     }
 
     @Override
-    public void confirmPaymentFor(String btcAddress) {
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(btcAddress, paymentHolder, this);
+    public void onQrScanPressed() {
+        showPayDialog(true);
+    }
+
+    @Override
+    public void confirmPaymentFor(PaymentHolder paymentHolder) {
+        dismissPayDialog();
+        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(paymentHolder, this);
         confirmPayDialogFragment.setCancelable(false);
         confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
     }
 
     @Override
-    public void confirmPaymentFor(String btcAddress, Contact phoneNumber) {
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(btcAddress, phoneNumber, paymentHolder, this);
+    public void confirmPaymentFor(PaymentHolder paymentHolder, Contact phoneNumber) {
+        dismissPayDialog();
+        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(phoneNumber, paymentHolder, this);
         confirmPayDialogFragment.setCancelable(false);
         confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
     }
@@ -122,14 +122,16 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
 
     @Override
     public void confirmInvite(Contact phoneNumber) {
+        dismissPayDialog();
         ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(phoneNumber, paymentHolder, this);
         confirmPayDialogFragment.setCancelable(false);
         confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
     }
 
-    @Override
-    public void onQrScanPressed() {
-        showPayDialog(true);
+    private void dismissPayDialog() {
+        PayDialogFragment dialog = (PayDialogFragment) getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
+        getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
+        dialog.dismiss();
     }
 
     @Override
@@ -141,15 +143,23 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         paymentHolder.clearPayment();
     }
 
+    public void showPayDialogWithBitcoinUri(BitcoinUri uri) {
+        showPayDialog(uri);
+    }
+
     void onRequestButtonPressed() {
         paymentHolder = new PaymentHolder();
         paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
         paymentHolder.setEvaluationCurrency(walletHelper.getLatestPrice());
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
-        paymentHolder.setTransactionFee(walletHelper.getLatestFee());
+        paymentUtil.setTransactionFee(walletHelper.getLatestFee());
         RequestDialogFragment requestDialog = new RequestDialogFragment();
         requestDialog.setPaymentHolder(paymentHolder);
         requestDialog.show(getFragmentManager(), RequestDialogFragment.class.getSimpleName());
+    }
+
+    private void showPayDialogWithDefault() {
+        showPayDialog(false);
     }
 
     private void showPayDialog(boolean shouldShowScan) {
@@ -166,15 +176,11 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
 
     private void resetPaymentUtilForPayDialogFragment() {
         currencyPreference.reset();
-        paymentHolder.clearPayment();
         paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
         paymentHolder.setEvaluationCurrency(walletHelper.getLatestPrice());
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
-        paymentHolder.setTransactionFee(walletHelper.getLatestFee());
+        paymentUtil.setTransactionFee(walletHelper.getLatestFee());
         paymentUtil.setPaymentHolder(paymentHolder);
-    }
-
-    public void showPayDialogWithBitcoinUri(BitcoinUri uri) {
-        showPayDialog(uri);
+        paymentHolder.clearPayment();
     }
 }

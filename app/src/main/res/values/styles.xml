@@ -198,6 +198,22 @@
         <item name="android:gravity">center_vertical|center_horizontal</item>
     </style>
 
+    <style name="Button.Payment" />
+
+    <style name="Button.Payment.SendMax">
+        <item name="android:background">@drawable/button_plain</item>
+        <item name="android:textAppearance">@style/TextAppearance</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingTop">@dimen/button_vertical_padding_small</item>
+        <item name="android:paddingBottom">@dimen/button_vertical_padding_small</item>
+        <item name="android:paddingLeft">@dimen/button_horizontal_padding</item>
+        <item name="android:paddingRight">@dimen/button_horizontal_padding</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+    </style>
+
     <style name="FlatButton" parent="Theme.AppCompat.Light">
         <item name="android:textAppearance">@style/TextAppearance</item>
         <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>

@@ -14,7 +14,6 @@ import com.coinninja.coinkeeper.di.module.AppModule;
 import com.coinninja.coinkeeper.di.module.DaoSessionManagerModule;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
-import com.coinninja.coinkeeper.model.FundingUTXOs;
 import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -39,14 +38,6 @@ import dagger.android.AndroidInjectionModule;
         AndroidBroadcastReceiverBuilder.class, AndroidFragmentBuilder.class})
 public interface AppComponent {
 
-
-    @Component.Builder
-    interface Builder {
-        @BindsInstance
-        Builder application(Application application);
-
-        AppComponent build();
-    }
 
     void inject(CoinKeeperApplication application);
 
@@ -86,12 +77,17 @@ public interface AppComponent {
     TargetStatHelper getTargetStatHelper();
 
     @Deprecated
-    FundingUTXOs.Builder getFundingUTXOsBuilder();
-
-    @Deprecated
     PreferencesUtil getPreferencesUtil();
 
     @Deprecated
     PinEntry getPinEntry();
+
+    @Component.Builder
+    interface Builder {
+        @BindsInstance
+        Builder application(Application application);
+
+        AppComponent build();
+    }
 
 }

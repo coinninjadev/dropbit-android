@@ -6,7 +6,6 @@ import com.coinninja.bindings.EncryptionKeys;
 import com.coinninja.bindings.Libbitcoin;
 import com.coinninja.coinkeeper.cn.wallet.data.HDWalletTestData;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,18 +35,6 @@ public class HDWalletTest {
     public void setUp() throws Exception {
         when(libBitcoinProvider.provide()).thenReturn(libbitcoin);
         prepareAddresses();
-    }
-
-    private void prepareAddresses() {
-        //External
-        for (int i = 0; i < HDWalletTestData.blockOneExternalAddresses.length; i++) {
-            when(libbitcoin.getExternalChangeAddress(i)).thenReturn(HDWalletTestData.blockOneExternalAddresses[i]);
-        }
-
-        //Internal
-        for (int i = 0; i < HDWalletTestData.blockOneExternalAddresses.length; i++) {
-            when(libbitcoin.getInternalChangeAddress(i)).thenReturn(HDWalletTestData.blockOneInternalAddresses[i]);
-        }
     }
 
     @Test
@@ -88,11 +75,9 @@ public class HDWalletTest {
         when(mockFee.getMin()).thenReturn(normalFee);
         int numberOfInsAndOuts = 3;//1 ins -- 2 outs
 
+        long fees = wallet.getFeeInSatoshis(mockFee, numberOfInsAndOuts);
 
-        BTCCurrency transactionFee = wallet.getFeeForTransaction(mockFee, numberOfInsAndOuts);
-
-
-        assertThat(transactionFee.toSatoshis(), equalTo(expectedTransactionFeeSatoshis));
+        assertThat(fees, equalTo(expectedTransactionFeeSatoshis));
     }
 
     @Test
@@ -104,15 +89,13 @@ public class HDWalletTest {
         when(mockFee.getMin()).thenReturn(sampleLowFee);
         int numberOfInsAndOuts = 6;//4 ins -- 2 outs
 
+        long fee = wallet.getFeeInSatoshis(mockFee, numberOfInsAndOuts);
 
-        BTCCurrency transactionFee = wallet.getFeeForTransaction(mockFee, numberOfInsAndOuts);
-
-
-        assertThat(transactionFee.toSatoshis(), equalTo(expectedTransactionFeeSatoshis));
+        assertThat(fee, equalTo(expectedTransactionFeeSatoshis));
     }
 
     @Test
-    public void generateEncryptionKeys(){
+    public void generateEncryptionKeys() {
         String publicKey = "public";
         EncryptionKeys encryptionKeys = new EncryptionKeys("".getBytes(), "".getBytes(), "".getBytes());
         when(libbitcoin.getEncryptionKeys(publicKey)).thenReturn(encryptionKeys);
@@ -122,7 +105,7 @@ public class HDWalletTest {
     }
 
     @Test
-    public void generateDecryptionKeys(){
+    public void generateDecryptionKeys() {
         DecryptionKeys decryptionKeys = new DecryptionKeys("".getBytes(), "".getBytes());
 
         DerivationPath derivationPath = new DerivationPath("m/49/0/0/0/1");
@@ -133,5 +116,17 @@ public class HDWalletTest {
         DecryptionKeys keys = wallet.generateDecryptionKeys(derivationPath, ephemeralPublicKey);
 
         assertThat(keys, equalTo(decryptionKeys));
+    }
+
+    private void prepareAddresses() {
+        //External
+        for (int i = 0; i < HDWalletTestData.blockOneExternalAddresses.length; i++) {
+            when(libbitcoin.getExternalChangeAddress(i)).thenReturn(HDWalletTestData.blockOneExternalAddresses[i]);
+        }
+
+        //Internal
+        for (int i = 0; i < HDWalletTestData.blockOneExternalAddresses.length; i++) {
+            when(libbitcoin.getInternalChangeAddress(i)).thenReturn(HDWalletTestData.blockOneInternalAddresses[i]);
+        }
     }
 }

@@ -1,11 +1,9 @@
 package com.coinninja.coinkeeper.util.currency;
 
 import org.junit.Test;
-import org.robolectric.annotation.Config;
 
 import java.math.BigDecimal;
 
-import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -15,10 +13,10 @@ public class USDCurrencyTest {
 
     @Test
     public void sets_max_value_statically() {
-        USDCurrency.SET_MAX_LIMIT(new USDCurrency(0));
+        USDCurrency.setMaxLimit(new USDCurrency(0));
         assertThat(USDCurrency.MAX_DOLLAR_AMOUNT, equalTo(Long.MAX_VALUE));
 
-        USDCurrency.SET_MAX_LIMIT(new USDCurrency(10000));
+        USDCurrency.setMaxLimit(new USDCurrency(10000));
         assertThat(USDCurrency.MAX_DOLLAR_AMOUNT, equalTo(209999999769L));
     }
 

@@ -7,20 +7,19 @@ import android.widget.TextView;
 
 import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.TransactionBroadcastResult;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.bindings.model.Transaction;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.UnspentTransactionHolder;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.Intents;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.BroadcastActivity.SendState;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
@@ -64,21 +63,20 @@ public class BroadcastActivityTest {
     private ActivityController<BroadcastActivity> activityController;
     private BroadcastActivity activity;
     private ShadowActivity shadowActivity;
-    private UnspentTransactionHolder unspentTransactionHolder;
+    private TransactionData transactionData;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         Contact contact = new Contact(new PhoneNumber("+13305551111"), "Bob", true);
         UnspentTransactionOutput[] outputs = new UnspentTransactionOutput[2];
-        unspentTransactionHolder = new UnspentTransactionHolder(
-                1000100L,
+        transactionData = new TransactionData(
                 outputs,
                 1000100L,
                 100L, 50000L,
                 new DerivationPath("m49/0/0/0/0/1"),
                 "--payment-address");
-        broadcastActivityDTO = new BroadcastTransactionDTO(unspentTransactionHolder, contact, true, "memo", "--pub-key--");
+        broadcastActivityDTO = new BroadcastTransactionDTO(transactionData, contact, true, "memo", "--pub-key--");
         broadcastActivityDTO.setContact(contact);
         broadcastActivityDTO.setMemoShared(true);
         broadcastActivityDTO.setMemo("memo");
@@ -105,7 +103,7 @@ public class BroadcastActivityTest {
         activityController = null;
         activity = null;
         shadowActivity = null;
-        unspentTransactionHolder = null;
+        transactionData = null;
         syncWalletManager = null;
     }
 
@@ -113,7 +111,7 @@ public class BroadcastActivityTest {
     public void broadcastTransaction() {
         activityController.start().resume().visible();
 
-        verify(broadcastPresenter).broadcastTransaction(unspentTransactionHolder);
+        verify(broadcastPresenter).broadcastTransaction(transactionData);
         assertThat(activity.sendState, equalTo(SendState.STARTED));
     }
 
@@ -242,7 +240,7 @@ public class BroadcastActivityTest {
         inState.putInt(BroadcastActivity.RESTORE_STATE, SendState.COMPLETED_FAILED.getValue());
         activityController.start().restoreInstanceState(inState).resume();
 
-        verify(broadcastPresenter, times(0)).broadcastTransaction(unspentTransactionHolder);
+        verify(broadcastPresenter, times(0)).broadcastTransaction(transactionData);
         TextView sendLabel = activity.findViewById(R.id.broadcast_sending_progress_label);
         assertThat(sendLabel.getVisibility(), equalTo(View.VISIBLE));
         assertThat(sendLabel.getText().toString(), equalTo(activity.getString(R.string.broadcast_sent_failed)));
@@ -256,7 +254,7 @@ public class BroadcastActivityTest {
         inState.putString(BroadcastActivity.TRANSACTION_ID, "__txid__");
         activityController.start().restoreInstanceState(inState).resume().visible();
 
-        verify(broadcastPresenter, times(0)).broadcastTransaction(unspentTransactionHolder);
+        verify(broadcastPresenter, times(0)).broadcastTransaction(transactionData);
         TextView sendLabel = activity.findViewById(R.id.broadcast_sending_progress_label);
         assertThat(sendLabel.getVisibility(), equalTo(View.VISIBLE));
         assertThat(sendLabel.getText().toString(), equalTo(activity.getString(R.string.broadcast_sent_label)));

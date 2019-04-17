@@ -2,6 +2,8 @@ package com.coinninja.coinkeeper.model.query;
 
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
+import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 
 import javax.inject.Inject;
 

@@ -88,14 +88,14 @@ public class TransactionNotificationManager {
         String encryption = messageEncryptor.encrypt(message.toString(), completedBroadcastDTO.getPublicKey());
 
         sendNotificationToCN(completedBroadcastDTO.transactionId,
-                completedBroadcastDTO.getHolder().paymentAddress,
+                completedBroadcastDTO.getTransactionData().getPaymentAddress(),
                 completedBroadcastDTO.getPhoneNumberHash(),
                 encryption);
     }
 
     public void notifyOfPayment(CompletedBroadcastDTO completedBroadcastDTO) {
         sendNotificationToCN(completedBroadcastDTO.transactionId,
-                completedBroadcastDTO.getHolder().paymentAddress,
+                completedBroadcastDTO.getTransactionData().getPaymentAddress(),
                 completedBroadcastDTO.getPhoneNumberHash(),
                 "");
 

@@ -5,6 +5,7 @@ import android.widget.EditText;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -72,6 +73,20 @@ public class CurrencyFormattingTextWatcherTest {
         editText.setText("1.123456789");
         assertThat(editText, hasText("1.12345678"));
         verify(callback).onInvalid("1.123456789");
+
+        editText.setText("0.00");
+        assertThat(editText, hasText("0.00"));
+    }
+
+    @Test
+    public void allows_empty_btc() {
+        watcher.setCurrency(new BTCCurrency());
+
+        editText.setText("0.001");
+        assertThat(editText, hasText("0.001"));
+
+        editText.setText("0.00");
+        assertThat(editText, hasText("0.00"));
     }
 
     @Test
@@ -175,5 +190,38 @@ public class CurrencyFormattingTextWatcherTest {
         value = "$2.222.222,01";
         editText.setText(value);
         assertThat(editText, hasText(value));
+    }
+
+    @Test
+    public void notifies_on_input() {
+        watcher.setCurrency(new BTCCurrency());
+
+        editText.setText("0");
+        editText.setText("0.");
+        editText.setText("0.0");
+
+        watcher.setCurrency(new USDCurrency());
+        editText.setText("$0");
+        editText.setText("$0.");
+        editText.setText("$0.0");
+
+        verify(callback, times(4)).onInput();
+    }
+
+    @Test
+    public void notifies_when_reached_zero_value() {
+        watcher.setCurrency(new BTCCurrency());
+
+        editText.setText("1");
+        editText.setText("0.0");
+        editText.setText("0.");
+        editText.setText("0");
+
+        watcher.setCurrency(new USDCurrency());
+        editText.setText("$0.9");
+        editText.setText("$0.");
+        editText.setText("$0");
+
+        verify(callback, times(2)).onZeroed();
     }
 }
