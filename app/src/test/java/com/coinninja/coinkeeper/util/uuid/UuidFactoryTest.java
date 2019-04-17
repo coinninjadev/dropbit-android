@@ -1,9 +1,8 @@
 package com.coinninja.coinkeeper.util.uuid;
 
-import com.coinninja.coinkeeper.model.db.User;
-import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +12,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,23 +20,25 @@ import static org.mockito.Mockito.when;
 public class UuidFactoryTest {
 
     @Mock
-    UserHelper userHelper;
+    private PreferencesUtil preferencesUtil;
 
     @Mock
-    PreferencesUtil preferencesUtil;
-
-    @Mock
-    UUIDGenerator uuidGenerator;
+    private UUIDGenerator uuidGenerator;
 
     @InjectMocks
-    UuidFactory uuidFactory;
-
+    private UuidFactory uuidFactory;
 
     @Before
     public void setUp() {
         when(preferencesUtil.getString(UuidFactory.PREFERENCES_UUID, "")).thenReturn("");
     }
 
+    @After
+    public void tearDown() {
+        preferencesUtil = null;
+        uuidGenerator = null;
+        uuidFactory = null;
+    }
 
     @Test
     public void provides_uuid_from_preferences_when_available() {
@@ -50,7 +50,6 @@ public class UuidFactoryTest {
         String providedUUID = uuidFactory.provideUuid();
 
         verify(uuidGenerator, times(0)).generate();
-        verify(userHelper, times(0)).getUniqueID();
         assertThat(providedUUID, equalTo(savedUUID));
     }
 
@@ -62,28 +61,6 @@ public class UuidFactoryTest {
         String providedUUID = uuidFactory.provideUuid();
 
         assertThat(providedUUID, equalTo(sampleUUID));
+        verify(preferencesUtil).savePreference(UuidFactory.PREFERENCES_UUID, sampleUUID);
     }
-
-    @Test
-    public void saves_uuid_local_upon_generation() {
-        String uuid = "--- Generated UUID --";
-        when(uuidGenerator.generate()).thenReturn(uuid);
-
-        uuidFactory.provideUuid();
-
-        verify(preferencesUtil).savePreference(UuidFactory.PREFERENCES_UUID, uuid);
-    }
-
-    @Test
-    public void saves_from_user_when_unavailable_locally_and_available_on_the_user() {
-        String uuid = "-- db uuid";
-        when(userHelper.getUser()).thenReturn(mock(User.class));
-        when(userHelper.getUniqueID()).thenReturn(uuid);
-
-        uuidFactory.provideUuid();
-
-        verify(preferencesUtil).savePreference(UuidFactory.PREFERENCES_UUID, uuid);
-        verify(uuidGenerator, times(0)).generate();
-    }
-
 }

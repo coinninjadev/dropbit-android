@@ -1,11 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
-import android.app.Service;
-
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.model.db.Account;
-import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
@@ -17,6 +13,7 @@ import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -48,17 +45,12 @@ public class RegisterPhoneNumberRunnableTest {
             "\"verification_ttl\": \"2018-05-09T16:09:05.294Z\",\n" +
             "\"verified_at\": \"2018-05-09T16:09:05.294Z\"\n" +
             "}";
-
+    @Mock
+    ResendPhoneVerificationRunner resendPhoneVerificationRunner;
     @Mock
     private SignedCoinKeeperApiClient apiClient;
     @Mock
     private CNPhoneNumber CNPhoneNumber;
-    @Mock
-    private Service service;
-    @Mock
-    private CoinKeeperApplication application;
-    @Mock
-    private UserHelper user;
     @Mock
     private DataSigner dataSigner;
     @Mock
@@ -67,43 +59,19 @@ public class RegisterPhoneNumberRunnableTest {
     private Account account;
     @Mock
     private LocalBroadCastUtil localBroadCast;
-    @Mock
-    ResendPhoneVerificationRunner resendPhoneVerificationRunner;
+    @InjectMocks
     private RegisterPhoneNumberRunnable runner;
     private CNUserAccount cnUserAccount;
 
 
     @Before
     public void setUp() {
-        when(service.getApplication()).thenReturn(application);
-        when(application.getUser()).thenReturn(user);
-        when(application.getSecuredClient()).thenReturn(apiClient);
-        when(application.getLocalBroadCastUtil()).thenReturn(localBroadCast);
-        when(user.getWalletHelper()).thenReturn(walletHelper);
         when(dataSigner.getCoinNinjaVerificationKey()).thenReturn(SIGN_VERIFICATION_KEY);
         when(walletHelper.hasAccount()).thenReturn(true);
         when(walletHelper.getUserAccount()).thenReturn(account);
 
-        runner = new RegisterPhoneNumberRunnable(service);
-        runner.setResendRunner(resendPhoneVerificationRunner);
-
         Gson gson = new Gson();
         cnUserAccount = gson.fromJson(json, CNUserAccount.class);
-    }
-
-    private void setResponse(int successCode) {
-        Response response = getResponse(successCode);
-        when(apiClient.registerUserAccount(any(CNPhoneNumber.class))).thenReturn(response);
-    }
-
-    @NonNull
-    private Response getResponse(int successCode) {
-        return Response.success(cnUserAccount, new okhttp3.Response.Builder()
-                .code(successCode)
-                .message("OK")
-                .protocol(Protocol.HTTP_1_1)
-                .request(new Request.Builder().url("http://localhost/").build())
-                .build());
     }
 
     @Test
@@ -128,9 +96,8 @@ public class RegisterPhoneNumberRunnableTest {
 
     }
 
-
     @Test
-    public void resends_verification_on_success_result() {
+    public void resend_verification_on_success_result() {
         setResponse(200);
         runner.setCNPhoneNumber(CNPhoneNumber);
         when(apiClient.resendVerification(CNPhoneNumber)).thenReturn(getResponse(200));
@@ -197,6 +164,21 @@ public class RegisterPhoneNumberRunnableTest {
         runner.run();
 
         verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
+    }
+
+    private void setResponse(int successCode) {
+        Response response = getResponse(successCode);
+        when(apiClient.registerUserAccount(any(CNPhoneNumber.class))).thenReturn(response);
+    }
+
+    @NonNull
+    private Response getResponse(int successCode) {
+        return Response.success(cnUserAccount, new okhttp3.Response.Builder()
+                .code(successCode)
+                .message("OK")
+                .protocol(Protocol.HTTP_1_1)
+                .request(new Request.Builder().url("http://localhost/").build())
+                .build());
     }
 
 }

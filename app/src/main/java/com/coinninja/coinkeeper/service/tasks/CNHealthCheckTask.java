@@ -2,21 +2,27 @@ package com.coinninja.coinkeeper.service.tasks;
 
 import android.os.AsyncTask;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
+
+import javax.inject.Inject;
 
 public class CNHealthCheckTask extends AsyncTask<Void, Void, Boolean> {
     private final CoinKeeperApiClient apiClient;
     private HealthCheckCallback callback;
 
 
-    public static CNHealthCheckTask newInstance(CoinKeeperApplication application, HealthCheckCallback callback) {
-        return new CNHealthCheckTask(application, callback);
+    @Inject
+    CNHealthCheckTask(CoinKeeperApiClient apiClient) {
+        this.apiClient = apiClient;
     }
 
-    public CNHealthCheckTask(CoinKeeperApplication application, HealthCheckCallback callback) {
+    private CNHealthCheckTask(CoinKeeperApiClient apiClient, HealthCheckCallback callback) {
+        this(apiClient);
+        setCallback(callback);
+    }
+
+    public void setCallback(HealthCheckCallback callback) {
         this.callback = callback;
-        apiClient = application.getAPIClient();
     }
 
     @Override
@@ -30,6 +36,11 @@ public class CNHealthCheckTask extends AsyncTask<Void, Void, Boolean> {
             callback.onHealthSuccess();
         else
             callback.onHealthFail();
+    }
+
+    @Override
+    public CNHealthCheckTask clone() {
+        return new CNHealthCheckTask(apiClient, callback);
     }
 
     public interface HealthCheckCallback {

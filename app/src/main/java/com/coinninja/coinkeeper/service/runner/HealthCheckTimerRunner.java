@@ -1,25 +1,23 @@
 package com.coinninja.coinkeeper.service.runner;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask;
 
 import javax.inject.Inject;
 
 public class HealthCheckTimerRunner implements Runnable {
-    private final CoinKeeperApplication application;
-    private CNHealthCheckTask.HealthCheckCallback callback;
+    private final CNHealthCheckTask task;
 
     @Inject
-    public HealthCheckTimerRunner(CoinKeeperApplication application) {
-        this.application = application;
+    HealthCheckTimerRunner(CNHealthCheckTask task) {
+        this.task = task;
     }
 
     public void setCallback(CNHealthCheckTask.HealthCheckCallback callback) {
-        this.callback = callback;
+        task.setCallback(callback);
     }
 
     @Override
     public void run() {
-        application.getHealthCheckTask(callback).execute();
+        task.clone().execute();
     }
 }

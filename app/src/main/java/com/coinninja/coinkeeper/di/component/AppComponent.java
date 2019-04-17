@@ -49,39 +49,6 @@ public interface AppComponent {
 
     Locale getLocale();
 
-    @Deprecated
-    ClipboardUtil getClipboardUtil();
-
-    @Deprecated
-    SignedCoinKeeperApiClient getSignedApiClient();
-
-    @Deprecated
-    CoinKeeperApiClient getCnApiClient();
-
-    @Deprecated
-    WalletHelper getWalletHelper();
-
-    @Deprecated
-    HDWallet getHDWallet();
-
-    @Deprecated
-    UserPreferences getPreferenceInteractor();
-
-    @Deprecated
-    UserHelper getUserHelper();
-
-    @Deprecated
-    CNWalletManager getWalletManager();
-
-    @Deprecated
-    TargetStatHelper getTargetStatHelper();
-
-    @Deprecated
-    PreferencesUtil getPreferencesUtil();
-
-    @Deprecated
-    PinEntry getPinEntry();
-
     @Component.Builder
     interface Builder {
         @BindsInstance

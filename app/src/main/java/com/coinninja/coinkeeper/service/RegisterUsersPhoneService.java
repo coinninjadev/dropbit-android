@@ -8,12 +8,17 @@ import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.RegisterPhoneNumberRunnable;
 import com.coinninja.coinkeeper.util.Intents;
 
+import javax.inject.Inject;
+
 import androidx.annotation.Nullable;
+import dagger.android.AndroidInjection;
 
 public class RegisterUsersPhoneService extends IntentService {
 
     public static final String LOG_TAG = RegisterUsersPhoneService.class.getSimpleName();
-    private RegisterPhoneNumberRunnable runner;
+
+    @Inject
+    RegisterPhoneNumberRunnable runner;
 
     public RegisterUsersPhoneService() {
         this(LOG_TAG);
@@ -26,7 +31,7 @@ public class RegisterUsersPhoneService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        runner = new RegisterPhoneNumberRunnable(this);
+        AndroidInjection.inject(this);
     }
 
     @Override
@@ -41,13 +46,5 @@ public class RegisterUsersPhoneService extends IntentService {
         runner.setCNPhoneNumber(new CNPhoneNumber(phoneNumber));
         runner.run();
 
-    }
-
-    public void setRunner(RegisterPhoneNumberRunnable runner) {
-        this.runner = runner;
-    }
-
-    public RegisterPhoneNumberRunnable getRunner() {
-        return runner;
     }
 }

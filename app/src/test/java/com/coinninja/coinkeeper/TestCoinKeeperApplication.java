@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper;
 
-import android.app.Activity;
 import android.content.ClipboardManager;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -50,7 +49,6 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.messaging.MessageCryptor;
-import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import org.robolectric.TestLifecycleApplication;
 
@@ -127,6 +125,38 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public TransactionFundingManager transactionFundingManager;
 
     @Override
+    public AppComponent getAppComponent() {
+        return injector;
+    }
+
+    @Override
+    protected void createComponent() {
+        injector = DaggerTestAppComponent.builder().application(this).build();
+        injector.inject(this);
+        appComponent = injector;
+    }
+
+    @Override
+    protected void notifyOfStart() {
+    }
+
+    @Override
+    public void beforeTest(Method method) {
+        when(walletHelper.getUserAccount()).thenReturn(account);
+        PhoneNumber phoneNumber = new PhoneNumber("+15550123456");
+        when(account.getPhoneNumber()).thenReturn(phoneNumber);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+
+        actionBarController = mock(ActionBarController.class);
+    }
+
+    @Override
+    public void prepareTest(Object test) {
+
+    }
+
+    @Override
     public void afterTest(Method method) {
         transactionFundingManager = null;
         defaultCurrencies = null;
@@ -173,83 +203,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         typedValue = null;
         actionBarController = null;
         coinKeeperLifecycleListener = null;
-    }
-
-    @Override
-    protected void createComponent() {
-        injector = DaggerTestAppComponent.builder().application(this).build();
-        injector.inject(this);
-        appComponent = injector;
-    }
-
-    @Override
-    public AppComponent getAppComponent() {
-        return injector;
-    }
-
-    @Override
-    protected void notifiyStart() {
-    }
-
-    @Override
-    public void beforeTest(Method method) {
-        //TODO REMOVE ONCE DI FULLY baked
-        when(userHelper.getWalletHelper()).thenReturn(walletHelper);
-        when(userHelper.getPrimaryWallet()).thenReturn(wallet);
-        when(walletHelper.getUserAccount()).thenReturn(account);
-        PhoneNumber phoneNumber = new PhoneNumber("+15550123456");
-        when(account.getPhoneNumber()).thenReturn(phoneNumber);
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
-
-        //for BaseActivity to have an actionBarController
-        actionBarController = mock(ActionBarController.class);
-    }
-
-    @Override
-    public void prepareTest(Object test) {
-
-    }
-
-    // -----------[x_x]----------> {HEADSHOT}
-    // remove methods once DI takes over
-
-    @Override
-    public CoinNinjaUserQueryTask getCoinNinjaUserQueryTask(SignedCoinKeeperApiClient client, LocalContactQueryUtil localContactQueryUtil, CoinNinjaUserQueryTask.OnCompleteListener onCompleteListener) {
-        return new CoinNinjaUserQueryTask(client, localContactQueryUtil, onCompleteListener);
-    }
-
-    @Override
-    public UserHelper getUser() {
-        return userHelper;
-
-    }
-
-    @Override
-    @Deprecated
-    public CoinKeeperApiClient getAPIClient() {
-        return coinKeeperApiClient;
-    }
-
-    @Override
-    public SignedCoinKeeperApiClient getSecuredClient() {
-        return signedCoinKeeperApiClient;
-    }
-
-
-    @Override
-    public QRScanManager getScanManager(Activity activity, DecoratedBarcodeView barcodeScannerView, QRScanManager.OnScanListener onScanListener) {
-        return qrScanManager;
-    }
-
-    @Override
-    public HDWallet getHDWallet() {
-        return hdWallet;
-    }
-
-    @Override
-    public PinEntry getPinEntry() {
-        return pinEntry;
     }
 
 }

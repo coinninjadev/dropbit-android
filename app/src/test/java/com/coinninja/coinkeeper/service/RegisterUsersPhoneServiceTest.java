@@ -40,8 +40,7 @@ public class RegisterUsersPhoneServiceTest {
         runner = mock(RegisterPhoneNumberRunnable.class);
 
         service = new RegisterUsersPhoneService();
-        service.setRunner(runner);
-
+        service.runner = runner;
 
         phoneNumber = new PhoneNumber(COUNTRY_CODE, NATIONAL_NUMBER);
     }

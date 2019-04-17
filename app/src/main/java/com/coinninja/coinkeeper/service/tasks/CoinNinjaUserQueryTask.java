@@ -12,21 +12,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import retrofit2.Response;
 
 public class CoinNinjaUserQueryTask extends AsyncTask<Void, Void, CoinNinjaUserQueryTask.ContactsHolder> {
 
     private static final String TAG = CoinNinjaUserQueryTask.class.getSimpleName();
     private final SignedCoinKeeperApiClient client;
-    private final OnCompleteListener onCompleteListener;
+    private OnCompleteListener onCompleteListener;
     private final LocalContactQueryUtil localContactQueryUtil;
     private List<Contact> verifiedContacts;
     private List<Contact> unVerifiedContacts;
 
-    public CoinNinjaUserQueryTask(SignedCoinKeeperApiClient client, LocalContactQueryUtil localContactQueryUtil,
-                                  OnCompleteListener onCompleteListener) {
+    @Inject
+    CoinNinjaUserQueryTask(SignedCoinKeeperApiClient client, LocalContactQueryUtil localContactQueryUtil) {
         this.client = client;
         this.localContactQueryUtil = localContactQueryUtil;
+    }
+
+    private CoinNinjaUserQueryTask(SignedCoinKeeperApiClient client, LocalContactQueryUtil localContactQueryUtil, OnCompleteListener onCompleteListener) {
+        this(client, localContactQueryUtil);
+        setOnCompleteListener(onCompleteListener);
+    }
+
+    public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
         this.onCompleteListener = onCompleteListener;
     }
 
@@ -41,6 +51,11 @@ public class CoinNinjaUserQueryTask extends AsyncTask<Void, Void, CoinNinjaUserQ
         }
 
         return new ContactsHolder(verifiedContacts, unVerifiedContacts);
+    }
+
+    @Override
+    public CoinNinjaUserQueryTask clone() {
+        return new CoinNinjaUserQueryTask(client, localContactQueryUtil, onCompleteListener);
     }
 
     @Override

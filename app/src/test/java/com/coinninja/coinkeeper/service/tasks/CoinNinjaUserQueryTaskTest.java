@@ -7,9 +7,11 @@ import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -39,6 +41,7 @@ public class CoinNinjaUserQueryTaskTest {
     @Mock
     private CoinNinjaUserQueryTask.OnCompleteListener onCompleteListener;
 
+    @InjectMocks
     private CoinNinjaUserQueryTask task;
 
     private Gson gson;
@@ -55,12 +58,27 @@ public class CoinNinjaUserQueryTaskTest {
     private static final String HASH = "--- phone-hash ";
     private List<JsonObject> responses;
 
+    @After
+    public void tearDown() {
+        localContactQueryUtil = null;
+        client = null;
+        onCompleteListener = null;
+        task = null;
+        gson = null;
+        contacts = null;
+        verifiedContacts = null;
+        unverifiedContacts = null;
+        hunks = null;
+        phoneNumber = null;
+        responses = null;
+    }
+
     @Before
     public void setup() {
+        task.setOnCompleteListener(onCompleteListener);
         contacts = new ArrayList<>();
         verifiedContacts = new ArrayList<>();
         unverifiedContacts = new ArrayList<>();
-        task = new CoinNinjaUserQueryTask(client, localContactQueryUtil, onCompleteListener);
         gson = new Gson();
     }
 

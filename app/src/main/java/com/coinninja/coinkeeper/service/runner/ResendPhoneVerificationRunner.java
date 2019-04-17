@@ -1,9 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
-import android.app.Service;
 import android.util.Log;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
@@ -13,30 +11,28 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import retrofit2.Response;
 
 public class ResendPhoneVerificationRunner implements Runnable {
     final static String TAG = ResendPhoneVerificationRunner.class.getName();
-    private final CoinKeeperApplication application;
+    private final WalletHelper walletHelper;
     private final SignedCoinKeeperApiClient apiClient;
     private final LocalBroadCastUtil localBroadCastUtil;
     private CNPhoneNumber CNPhoneNumber;
 
-    public ResendPhoneVerificationRunner(Service service) {
-        this((CoinKeeperApplication) service.getApplication(),
-                ((CoinKeeperApplication) service.getApplication()).getSecuredClient(),
-                ((CoinKeeperApplication) service.getApplication()).getLocalBroadCastUtil());
-    }
 
-    public ResendPhoneVerificationRunner(CoinKeeperApplication application, SignedCoinKeeperApiClient apiClient, LocalBroadCastUtil localBroadCastUtil) {
-        this.application = application;
+    @Inject
+    ResendPhoneVerificationRunner(WalletHelper walletHelper, SignedCoinKeeperApiClient apiClient, LocalBroadCastUtil localBroadCastUtil) {
+        this.walletHelper = walletHelper;
         this.apiClient = apiClient;
         this.localBroadCastUtil = localBroadCastUtil;
     }
 
     @Override
     public void run() {
-        if (hasAccount()) {
+        if (walletHelper.hasAccount()) {
             resendVerification();
         }
     }
@@ -49,11 +45,11 @@ public class ResendPhoneVerificationRunner implements Runnable {
         Response response = apiClient.resendVerification(CNPhoneNumber);
 
         if (response.isSuccessful()) {
-            getWalletHelper().saveAccountRegistration((CNUserAccount) response.body(), CNPhoneNumber);
+            walletHelper.saveAccountRegistration((CNUserAccount) response.body(), CNPhoneNumber);
             localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
         } else if (response.code() == 429) {
             localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
-        }  else if (response.code() == 424) {
+        } else if (response.code() == 424) {
             localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
         } else {
             localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
@@ -69,13 +65,5 @@ public class ResendPhoneVerificationRunner implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean hasAccount() {
-        return getWalletHelper().hasAccount();
-    }
-
-    public WalletHelper getWalletHelper() {
-        return application.getUser().getWalletHelper();
     }
 }

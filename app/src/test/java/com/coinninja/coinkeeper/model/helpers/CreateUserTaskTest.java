@@ -8,10 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -20,13 +19,11 @@ public class CreateUserTaskTest {
     @Mock
     UserHelper userHelper;
 
-    String uuid = "-- uuid--";
-
     private CreateUserTask task;
 
     @Before
     public void setUp() {
-        task = new CreateUserTask(uuid, userHelper);
+        task = new CreateUserTask(userHelper);
     }
 
     @Test
@@ -35,7 +32,7 @@ public class CreateUserTaskTest {
 
         task.doInBackground();
 
-        verify(userHelper).createFirstUser(uuid);
+        verify(userHelper).createFirstUser();
     }
 
     @Test
@@ -44,7 +41,7 @@ public class CreateUserTaskTest {
 
         task.doInBackground();
 
-        verify(userHelper, times(0)).createFirstUser(anyString());
+        verify(userHelper, never()).createFirstUser();
     }
 
     @Test

@@ -7,7 +7,6 @@ import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.service.PushNotificationDeviceManager;
 import com.coinninja.coinkeeper.cn.service.PushNotificationEndpointManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
-import com.coinninja.coinkeeper.di.interfaces.UUID;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
@@ -40,11 +39,7 @@ public class DeleteWalletService extends IntentService {
     @Inject
     CoinKeeperApplication application;
     @Inject
-    @UUID
-    String uuid;
-    @Inject
     SyncWalletManager syncWalletManager;
-
 
     public DeleteWalletService() {
         this(TAG);
@@ -71,7 +66,7 @@ public class DeleteWalletService extends IntentService {
         pushNotificationDeviceManager.removeCNDevice();
         apiClient.resetWallet();
         daoSessionManager.resetAll();
-        userHelper.createFirstUser(uuid);
+        userHelper.createFirstUser();
         resetAnalyticsProperties();
         localBroadCastUtil.sendBroadcast(Intents.ACTION_ON_WALLET_DELETED);
     }

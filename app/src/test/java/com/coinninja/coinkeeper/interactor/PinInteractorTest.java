@@ -1,12 +1,12 @@
 package com.coinninja.coinkeeper.interactor;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.model.helpers.SavePinTask;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -20,27 +20,24 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PinInteractorTest {
-    private PinInteractor pinInteractor;
 
     @Mock
     private SavePinTask savePinTask;
 
     @Mock
-    CoinKeeperApplication application;
+    private UserHelper userHelper;
 
-    @Mock
-    UserHelper userHelper;
+    private String pin = "foobar";
 
-    String pin = "foobar";
+    @InjectMocks
+    private PinInteractor pinInteractor;
 
-
-    @Before
-    public void setUp() {
-        when(application.getApplicationContext()).thenReturn(application);
-        when(application.getUser()).thenReturn(userHelper);
-        pinInteractor = new PinInteractor(application);
+    @After
+    public void tearDown() {
+        pin = null;
+        userHelper = null;
+        savePinTask = null;
     }
-
 
     @Test
     public void itSavesPinToStorage() throws NoSuchFieldException {
