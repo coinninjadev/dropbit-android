@@ -14,6 +14,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
@@ -46,6 +47,8 @@ public abstract class BaseActivity extends AppCompatActivity implements HasFragm
     @Inject
     ActivityNavigationUtil navigationUtil;
 
+    @Inject
+    public Analytics analytics;
 
     @Override
     public AndroidInjector<Fragment> fragmentInjector() {

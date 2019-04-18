@@ -3,35 +3,50 @@ package com.coinninja.coinkeeper.util.android.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
+import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
+import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
+import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
-import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 
+import java.util.HashMap;
+
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+
 import static com.coinninja.android.helpers.Resources.getString;
+import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LATITUDE;
+import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LONGITUDE;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.ADDRESS;
+import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.BUY_BITCOIN;
+import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.NEWS;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
 public class ActivityNavigationUtil {
 
     private CoinNinjaUriBuilder coinNinjaUriBuilder;
+    private final Analytics analytics;
 
     @Inject
-    public ActivityNavigationUtil(CoinNinjaUriBuilder coinNinjaUriBuilder) {
+    public ActivityNavigationUtil(CoinNinjaUriBuilder coinNinjaUriBuilder, Analytics analytics) {
         this.coinNinjaUriBuilder = coinNinjaUriBuilder;
+        this.analytics = analytics;
     }
 
     public void navigateToSettings(Context context) {
@@ -46,6 +61,11 @@ public class ActivityNavigationUtil {
 
     public void navigateToSupport(Context context) {
         Intent intent = new Intent(context, CoinKeeperSupportActivity.class);
+        context.startActivity(intent);
+    }
+
+    public void navigateToSpend(Context context) {
+        Intent intent = new Intent(context, SpendBitcoinActivity.class);
         context.startActivity(intent);
     }
 
@@ -97,5 +117,38 @@ public class ActivityNavigationUtil {
         intent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, seedWords);
         intent.putExtra(Intents.EXTRA_VIEW_STATE, viewState);
         context.startActivity(intent);
+    }
+
+    public void navigateToBuyGiftCard(Activity activity) {
+        UriUtil.openUrl(Uri.parse("https://www.bitrefill.com/buy"), activity);
+        analytics.trackEvent(Analytics.EVENT_SPEND_GIFT_CARDS);
+    }
+
+    public void navigateToWhereToSpend(Activity activity) {
+        UriUtil.openUrl(coinNinjaUriBuilder.build(NEWS, "webview", "load-online"), activity);
+        analytics.trackEvent(Analytics.EVENT_SPEND_ONLINE);
+    }
+
+    public void navigatesToMapWith(Activity activity, @Nullable HashMap<CoinNinjaParameter, String> parameters, @Nullable Location location, String analyticsEvent) {
+        if (parameters == null)
+            parameters = new HashMap<>();
+
+        if (location != null) {
+            parameters.put(LATITUDE, String.valueOf(location.getLatitude()));
+            parameters.put(LONGITUDE, String.valueOf(location.getLongitude()));
+        }
+
+        UriUtil.openUrl(coinNinjaUriBuilder.build(NEWS, parameters, "webview", "load-map"), activity);
+        analytics.trackEvent(analyticsEvent);
+    }
+
+    public void navigateToBuyBitcoinWithCreditCard(Activity activity) {
+        UriUtil.openUrl(coinNinjaUriBuilder.build(BUY_BITCOIN, "creditcards"), activity);
+        analytics.trackEvent(Analytics.EVENT_BUY_BITCOIN_CREDIT_CARD);
+    }
+
+    public void navigateToBuyBitcoinWithGiftCard(Activity activity) {
+        UriUtil.openUrl(coinNinjaUriBuilder.build(BUY_BITCOIN, "giftcards"), activity);
+        analytics.trackEvent(Analytics.EVENT_BUY_BITCOIN_GIFT_CARD);
     }
 }

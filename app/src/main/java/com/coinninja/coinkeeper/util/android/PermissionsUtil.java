@@ -33,4 +33,16 @@ public class PermissionsUtil {
     public void requestPermissions(@NonNull Activity activity, @NonNull String[] permissions, int requestCode) {
         ActivityCompat.requestPermissions(activity, permissions, requestCode);
     }
+
+    public boolean hasGranted(String permission, String[] permissions, int[] grantResults) {
+        boolean hasGranted = false;
+        if (permission != null && !permission.isEmpty() && permissions.length == grantResults.length) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (permission.equals(permissions[i]) && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    hasGranted = true;
+                }
+            }
+        }
+        return hasGranted;
+    }
 }

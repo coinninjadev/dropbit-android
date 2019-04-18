@@ -33,7 +33,7 @@ public class Intents {
     /* PATTERNS */
     public static final String BITCOIN_ADDRESS_PATTERN = "((?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
     public static final String BITCOIN_URI_PATTERN = BITCOIN_ADDRESS_PATTERN + "(\\?.*&?(?:amount=)((?:[0-9]{0,8})(?:\\.[0-9]{1,8})?))?";
-    public static final int REQUEST_PERMISSIONS_CAMERA = 524;
+
     /* RESULTS */
     public static final int RESULT_SCAN_OK = 221;
     public static final int RESULT_SCAN_ERROR = 400;
@@ -122,7 +122,9 @@ public class Intents {
     public static final String CN_API_CREATE_DEVICE_PLATFORM_IOS = "ios";
 
     /* REQUESTS */
-    public static int REQUEST_QR_FRAGMENT_SCAN = 222;
+    public static final int REQUEST_QR_FRAGMENT_SCAN = 222;
+    public static final int REQUEST_PERMISSIONS_CAMERA = 524;
+    public static final int REQUEST_PERMISSIONS_LOCATION = 333;
 
     static {
         Map<String, String> aMap = new LinkedHashMap<>();

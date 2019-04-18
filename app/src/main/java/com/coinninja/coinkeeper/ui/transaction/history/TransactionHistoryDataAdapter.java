@@ -29,7 +29,6 @@ import static com.coinninja.android.helpers.Views.withId;
 
 public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDataAdapter.ViewHolder> implements DefaultCurrencyChangeObserver {
 
-
     private LazyList<TransactionsInvitesSummary> transactions;
     private OnItemClickListener onItemClickListener;
     private TransactionAdapterUtil transactionAdapterUtil;

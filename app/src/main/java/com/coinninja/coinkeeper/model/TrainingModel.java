@@ -7,27 +7,23 @@ public enum TrainingModel {
 
     WHATS_BITCOIN(
             R.raw.dropbit_page_1_840x990,
-            R.string.training_video_header_dropbit,
             R.string.training_body_header_whats_bitcoin,
             R.string.training_body_whats_bitcoin,
             -1,
             R.string.training_footer_learn_whats_bitcoin),
     SYSTEM_BROKEN(
             R.raw.dropbit_page_2_840x990,
-            R.string.training_video_header_dropbit,
             R.string.training_body_header_system_broken,
             R.string.training_body_system_broken,
             -1,
             R.string.training_footer_learn_system_broken),
     RECOVERY_WORDS(
             R.raw.dropbit_page_3_840x990,
-            -1,
             R.string.training_body_header_recovery_words,
             R.string.training_body_recovery_words,
             -1,
             R.string.training_footer_learn_recovery_words),
     DROPBIT(
-            -1,
             -1,
             R.string.training_body_header_dropbit,
             R.string.training_body_dropbit,
@@ -35,7 +31,6 @@ public enum TrainingModel {
             R.string.training_footer_learn_dropbit);
 
 
-    private final int rVideoHeader;
     private final int rBodyHeader;
     private final int rBody;
     private final int rBodySubText;
@@ -43,9 +38,8 @@ public enum TrainingModel {
 
     private int rVideoId;
 
-    TrainingModel(int rVideoId, int rVideoHeader, int rBodyHeader, int rBody, int rBodySubText, int rLearnLink) {
+    TrainingModel(int rVideoId, int rBodyHeader, int rBody, int rBodySubText, int rLearnLink) {
         this.rVideoId = rVideoId;
-        this.rVideoHeader = rVideoHeader;
         this.rBodyHeader = rBodyHeader;
         this.rBody = rBody;
         this.rBodySubText = rBodySubText;
@@ -54,10 +48,6 @@ public enum TrainingModel {
 
     public int getResVideoId() {
         return rVideoId;
-    }
-
-    public int getrVideoHeader() {
-        return rVideoHeader;
     }
 
     public int getrBodyHeader() {
@@ -82,10 +72,6 @@ public enum TrainingModel {
 
     public boolean hasVideo() {
         return rVideoId > 0;
-    }
-
-    public boolean hasVideoHeader() {
-        return rVideoHeader > 0;
     }
 
     public boolean hasBodySubText() {

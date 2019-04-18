@@ -18,10 +18,9 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 public class PhoneNumberUtilTest {
-    public static final int COUNTRY_CODE = 1;
-    static final String I18N_PHONE = "+12345678901";
-    static final long NATIONAL_NUMBER = 2345678901L;
-    static final String NATIONAL_NUMBER_STRING = String.valueOf(NATIONAL_NUMBER);
+    private static final int COUNTRY_CODE = 1;
+    private static final String I18N_PHONE = "+12345678901";
+    private static final long NATIONAL_NUMBER = 2345678901L;
     private PhoneNumber phoneNumber;
     private PhoneNumberUtil util;
 
@@ -92,13 +91,13 @@ public class PhoneNumberUtilTest {
     }
 
     @Test
-    public void is_valid_number_returns_false_on_null_string(){
+    public void is_valid_number_returns_false_on_null_string() {
         assertFalse(util.isValidNumber(null));
 
     }
 
     @Test
-    public void is_valid_number_returns_false_on_empty_string(){
+    public void is_valid_number_returns_false_on_empty_string() {
         assertFalse(util.isValidNumber(""));
     }
 

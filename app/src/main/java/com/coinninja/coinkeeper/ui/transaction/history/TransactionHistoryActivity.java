@@ -12,17 +12,23 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
+import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
+import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
+import com.coinninja.coinkeeper.ui.util.OnViewClickListener;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.view.activity.TrainingActivity;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
+import com.coinninja.coinkeeper.view.widget.TransactionEmptyStateView;
 
 import org.greenrobot.greendao.query.LazyList;
 
@@ -51,6 +57,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     PaymentBarFragment fragment;
     IntentFilter intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
     private RecyclerView transactionHistory;
+    private TransactionEmptyStateView transactionEmptyStateView;
     private LazyList<TransactionsInvitesSummary> transactions;
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -81,6 +88,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
         intentFilter.addAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
         fragment = (PaymentBarFragment) getFragmentManager().findFragmentById(R.id.payment_bar_fragment);
+        transactionEmptyStateView = findViewById(R.id.empty_state_view);
         clearTitle();
         if (getIntent() != null && getIntent().getData() != null) {
             bitcoinUriString = getIntent().getData().toString();
@@ -96,6 +104,27 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         adapter.setTransactions(transactions);
         adapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
         setupHistoryList();
+        setupNewWalletButtons();
+    }
+
+    private void setupNewWalletButtons() {
+        transactionEmptyStateView.setGetBitcoinButtonClickListener((view) -> {
+            analytics.trackEvent(Analytics.EVENT_GET_BITCOIN);
+            Intent intent = new Intent(this, BuyBitcoinActivity.class);
+            startActivity(intent);
+        });
+
+        transactionEmptyStateView.setLearnBitcoinButtonClickListener((view) -> {
+            analytics.trackEvent(Analytics.EVENT_LEARN_BITCOIN);
+            Intent intent = new Intent(this, TrainingActivity.class);
+            startActivity(intent);
+        });
+
+        transactionEmptyStateView.setSpendBitcoinButtonClickListener((view) -> {
+            analytics.trackEvent(Analytics.EVENT_SPEND_BITCOIN);
+            Intent intent = new Intent(this, SpendBitcoinActivity.class);
+            startActivity(intent);
+        });
     }
 
     @Override
@@ -158,22 +187,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     }
 
     private void presentTransactions() {
-        if (transactions.isEmpty()) {
-            showEmpty();
-        } else {
-            showList();
-        }
-    }
-
-    private void showList() {
-        findViewById(R.id.empty_transaction_history).setVisibility(View.GONE);
-        RecyclerView list = findViewById(R.id.transaction_history);
-        list.setVisibility(View.VISIBLE);
-    }
-
-    private void showEmpty() {
-        findViewById(R.id.empty_transaction_history).setVisibility(View.VISIBLE);
-        findViewById(R.id.transaction_history).setVisibility(View.GONE);
+        transactionEmptyStateView.setupUIForWallet(walletHelper);
     }
 
     private void showDetailWithInitialIntent() {
@@ -188,6 +202,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
 
     private void setupHistoryList() {
         transactionHistory = findViewById(R.id.transaction_history);
+        transactionHistory.setVisibility(View.VISIBLE);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         transactionHistory.setLayoutManager(layoutManager);
         transactionHistory.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));

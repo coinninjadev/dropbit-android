@@ -219,7 +219,6 @@ public class TransactionHistoryActivityTest {
         startActivity();
         RecyclerView list = activity.findViewById(R.id.transaction_history);
         assertThat(list.getAdapter().getItemCount(), equalTo(0));
-        assertThat(list.getVisibility(), equalTo(View.GONE));
 
 
         LazyList<TransactionsInvitesSummary> updatedTransactions = mock(LazyList.class);
@@ -244,7 +243,7 @@ public class TransactionHistoryActivityTest {
 
         verify(adapter).setTransactions(transactions);
         verify(adapter).setTransactions(updatedTransactions);
-        verify(walletHelper, times(2)).getTransactionsLazily();
+        verify(walletHelper, times(4)).getTransactionsLazily();
     }
 
     @Test
@@ -276,24 +275,22 @@ public class TransactionHistoryActivityTest {
         when(transactions.isEmpty()).thenReturn(true);
         startActivity();
 
-        View empty = activity.findViewById(R.id.empty_transaction_history);
+        View empty = activity.findViewById(R.id.empty_state_view);
         View list = activity.findViewById(R.id.transaction_history);
 
         assertNotNull(empty);
         assertThat(empty.getVisibility(), equalTo(View.VISIBLE));
-        assertThat(list.getVisibility(), equalTo(View.GONE));
     }
 
     @Test
     public void has_list_view_for_transactions() {
         startActivity();
 
-        View empty = activity.findViewById(R.id.empty_transaction_history);
+        View empty = activity.findViewById(R.id.empty_state_view);
         View list = activity.findViewById(R.id.transaction_history);
 
         assertNotNull(list);
         assertThat(list.getVisibility(), equalTo(View.VISIBLE));
-        assertThat(empty.getVisibility(), equalTo(View.GONE));
     }
 
     @Test
@@ -308,7 +305,7 @@ public class TransactionHistoryActivityTest {
 
         verify(adapter).setTransactions(transactions);
         verify(adapter).setTransactions(updatedTransactions);
-        verify(walletHelper, times(2)).getTransactionsLazily();
+        verify(walletHelper, times(4)).getTransactionsLazily();
     }
 
     @Test

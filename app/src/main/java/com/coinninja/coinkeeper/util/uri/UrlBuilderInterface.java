@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import java.util.Map;
 
-public abstract class UrlBuilderInterface<T, R, X> extends UriParameterInterface<T, R, X> {
-    public abstract X build(T route, Map<R, String> parameters, String... breadcrumbs);
-    public abstract X build(T route, String... breadcrumbs);
+public abstract class UrlBuilderInterface<RouteType, ParameterType, UriType> extends UriParameterInterface<RouteType, ParameterType, UriType> {
+    public abstract UriType build(RouteType route, Map<ParameterType, String> parameters, String... breadcrumbs);
+    public abstract UriType build(RouteType route, String... breadcrumbs);
 }

@@ -190,12 +190,16 @@ dependencies {
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation "androidx.test:core:1.2.0-alpha03"
+    testImplementation 'com.android.support.test:rules:1.0.2'
+    testImplementation 'com.android.support.test:runner:1.0.2'
+    testImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    testImplementation "org.robolectric:robolectric:4.0.2"
     testImplementation "org.powermock:powermock-module-junit4:1.6.6"
     testImplementation "org.powermock:powermock-module-junit4-rule:1.6.6"
     testImplementation "org.powermock:powermock-api-mockito:1.6.6"
     testImplementation "org.powermock:powermock-classloading-xstream:1.6.6"
     testImplementation group: 'org.json', name: 'json', version: '20180130'
-    testImplementation "org.robolectric:robolectric:4.0.2"
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
 
     androidTestImplementation 'androidx.annotation:annotation:1.0.1'

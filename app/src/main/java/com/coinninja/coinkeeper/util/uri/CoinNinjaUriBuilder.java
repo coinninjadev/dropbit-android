@@ -23,18 +23,12 @@ public class CoinNinjaUriBuilder extends UrlBuilderInterface<CoinNinjaRoute, Coi
 
     @Override
     public Uri build(CoinNinjaRoute route, Map<CoinNinjaParameter, String> parameters, String... breadcrumbs) {
-        return build(route, breadcrumbs);
+        return createBuilder(route, parameters, breadcrumbs).build();
     }
 
     @Override
     public Uri build(CoinNinjaRoute route, String... breadcrumbs) {
-        Uri.Builder builder = getBuilder().appendPath(route.getPath());
-
-        for (String breadcrumb : breadcrumbs) {
-            builder.appendPath(breadcrumb);
-        }
-
-        return builder.build();
+        return createBuilder(route, null, breadcrumbs).build();
     }
 
     @Override
@@ -43,12 +37,33 @@ public class CoinNinjaUriBuilder extends UrlBuilderInterface<CoinNinjaRoute, Coi
     }
 
     @Override
-    public String getBaseScheme(){
+    public String getBaseScheme() {
         return "https";
     }
 
     @Override
     public Uri build(CoinNinjaRoute route, Map<CoinNinjaParameter, String> parameters) {
-        return build(route, new HashMap<>());
+        return createBuilder(route, parameters, "").build();
     }
+
+    private Uri.Builder createBuilder(CoinNinjaRoute route, Map<CoinNinjaParameter, String> parameters, String... breadcrumbs) {
+        Uri.Builder builder = getBuilder().appendPath(route.getPath());
+
+        if (breadcrumbs != null) {
+            for (String breadcrumb : breadcrumbs) {
+                if (!breadcrumb.isEmpty()) {
+                    builder.appendPath(breadcrumb);
+                }
+            }
+        }
+
+        if (parameters != null) {
+            for (CoinNinjaParameter parameter: parameters.keySet()) {
+                builder.appendQueryParameter(parameter.getParameterKey(), parameters.get(parameter));
+            }
+        }
+
+        return builder;
+    }
+
 }

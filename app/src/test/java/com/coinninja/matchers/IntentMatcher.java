@@ -1,6 +1,7 @@
 package com.coinninja.matchers;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -64,10 +65,41 @@ public class IntentMatcher extends BaseMatcher {
             return false;
         }
 
-        if (intent.getData() != null && !intent.getDataString().equals(actual.getDataString())) {
-            expected = String.format("Expected Data Uri: %s", intent.getDataString());
-            describeReason = String.format("Actual Data Uri: %s", actual.getDataString());
-            return false;
+        if (intent.getData() != null) {
+            Uri uri1 = intent.getData();
+            Uri uri2 = actual.getData();
+
+            if (!uri1.getScheme().equals(uri2.getScheme())) {
+                expected = String.format("Expected Data Uri Scheme: %s", uri1.getScheme());
+                describeReason = String.format("Actual Data Uri Scheme: %s", uri2.getScheme());
+                return false;
+            }
+
+            if (!uri1.getHost().equals(uri2.getHost())) {
+                expected = String.format("Expected Data Uri host: %s", uri1.getHost());
+                describeReason = String.format("Actual Data Uri host: %s", uri2.getHost());
+                return false;
+            }
+
+            if (!uri1.getPath().equals(uri2.getPath())) {
+                expected = String.format("Expected Data Uri path: %s", uri1.getPath());
+                describeReason = String.format("Actual Data Uri path: %s", uri2.getPath());
+                return false;
+            }
+
+            if (!uri1.getAuthority().equals(uri2.getAuthority())) {
+                expected = String.format("Expected Data Uri authority: %s", uri1.getAuthority());
+                describeReason = String.format("Actual Data Uri authority: %s", uri2.getAuthority());
+                return false;
+            }
+
+            for (String name: uri1.getQueryParameterNames()) {
+                if (!uri1.getQueryParameter(name).equals(uri2.getQueryParameter(name))) {
+                    expected = String.format("Expected Data Uri query param: %s", uri1.getQueryParameter(name));
+                    describeReason = String.format("Actual Data Uri query param: %s", uri2.getQueryParameter(name));
+                    return false;
+                }
+            }
         }
 
         Bundle extras = intent.getExtras();

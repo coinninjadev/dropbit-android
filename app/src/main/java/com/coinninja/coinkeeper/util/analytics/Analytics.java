@@ -77,6 +77,21 @@ public interface Analytics {
     //BACKUP / Recovery Words
     String EVENT_VIEW_RECOVERY_WORDS = "ViewWords";
 
+    //Transaction history empty state
+    String EVENT_GET_BITCOIN = "GetBitcoin";
+    String EVENT_LEARN_BITCOIN = "LearnBitcoin";
+    String EVENT_SPEND_BITCOIN = "SpendBitcoin";
+
+    //Buying bitcoin
+    String EVENT_BUY_BITCOIN_CREDIT_CARD = "BuyBitcoinWithCreditCard";
+    String EVENT_BUY_BITCOIN_GIFT_CARD = "BuyBitcoinWithGiftCard";
+    String EVENT_BUY_BITCOIN_AT_ATM = "BuyBitcoinAtATM";
+
+    //Spending bitcoin
+    String EVENT_SPEND_GIFT_CARDS = "SpendOnGiftCards";
+    String EVENT_SPEND_AROUND_ME = "SpendOnAroundMe";
+    String EVENT_SPEND_ONLINE = "SpendOnOnline";
+
     //not implemented yet
     String EVENT_CANCEL_DROPBIT_PRESSED = "CancelDropBit";
 
