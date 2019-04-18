@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.util.TypedValue;
 
@@ -48,7 +49,9 @@ import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
@@ -430,5 +433,26 @@ public class TestAppModule {
             app.defaultCurrencies = mock(DefaultCurrencies.class);
         }
         return app.defaultCurrencies;
+    }
+
+    @Provides
+    LocationManager provideLocationManager() {
+        return mock(LocationManager.class);
+    }
+
+    @Provides
+    ActivityNavigationUtil activityNavigationUtil(TestCoinKeeperApplication app) {
+        if (app.activityNavigationUtil == null) {
+            app.activityNavigationUtil = mock(ActivityNavigationUtil.class);
+        }
+        return app.activityNavigationUtil;
+    }
+
+    @Provides
+    LocationUtil locationUtil(TestCoinKeeperApplication app) {
+        if (app.locationUtil == null) {
+            app.locationUtil = mock(LocationUtil.class);
+        }
+        return app.locationUtil;
     }
 }

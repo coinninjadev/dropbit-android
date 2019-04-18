@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/horizontal_margin_xxlarge"
+    android:layout_marginRight="@dimen/horizontal_margin_xxlarge"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:visibility="visible">
+
+    <Button
+        android:id="@+id/buy_at_atm"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="30dp"
+        android:drawableLeft="@drawable/map_pin"
+        android:layout_height="wrap_content"
+        android:text="FIND BITCOIN ATM" />
+
+    <Button
+        android:id="@+id/buy_with_credit_card"
+        android:layout_width="match_parent"
+        android:drawableLeft="@drawable/circle_money"
+        android:backgroundTint="@color/primary_green"
+        android:layout_height="wrap_content"
+        android:text="WITH CREDIT CARD" />
+
+    <Button
+        android:id="@+id/buy_with_gift_card"
+        android:layout_width="match_parent"
+        android:layout_marginTop="30dp"
+        android:drawableLeft="@drawable/card_logo"
+        android:backgroundTint="@color/primary_orange"
+        android:layout_height="wrap_content"
+        android:text="WITH GIFT CARD" />
+
+</LinearLayout>

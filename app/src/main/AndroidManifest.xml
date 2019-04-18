@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.coinninja.coinkeeper">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -167,6 +169,20 @@
         <activity
             android:name=".view.activity.RestoreWalletActivity"
             android:label="@string/restore_wallet_header"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn"
+            android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
+
+        <activity
+            android:name=".ui.spending.SpendBitcoinActivity"
+            android:label="@string/spend_bitcoin_header"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn"
+            android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
+
+        <activity
+            android:name=".ui.spending.BuyBitcoinActivity"
+            android:label="@string/get_bitcoin_header"
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />

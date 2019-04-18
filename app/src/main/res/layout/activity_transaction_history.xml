@@ -31,43 +31,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/empty_transaction_history"
+    <com.coinninja.coinkeeper.view.widget.TransactionEmptyStateView
+        android:id="@+id/empty_state_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="@dimen/horizontal_margin_xxlarge"
-        android:layout_marginRight="@dimen/horizontal_margin_xxlarge"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@id/payment_bar_fragment"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/empty_transactions_header"
-            android:textAppearance="@style/TextAppearance.Medium" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/vertical_margin_medium"
-            android:layout_marginBottom="@dimen/vertical_margin_medium"
-            android:gravity="center"
-            android:text="@string/empty_transactions_paragraph"
-            android:textAppearance="@style/TextAppearance" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/empty_transactions_paragraph_2"
-            android:textAppearance="@style/TextAppearance" />
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/details_content"
@@ -78,4 +49,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

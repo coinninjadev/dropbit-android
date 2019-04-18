@@ -43,7 +43,9 @@ import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -113,7 +115,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public BlockchainClient blockchainClient;
     public InternalNotificationHelper internalNotificationHelper = mock(InternalNotificationHelper.class);
     public TypedValue typedValue;
-
+    public ActivityNavigationUtil activityNavigationUtil;
     public ActionBarController actionBarController;
     public MessageCryptor messageCryptor;
     public PhoneNumberUtil phoneNumberUtil;
@@ -123,6 +125,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public CurrencyPreference currencyPreference;
     public DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
     public TransactionFundingManager transactionFundingManager;
+    public LocationUtil locationUtil;
 
     @Override
     public AppComponent getAppComponent() {
@@ -158,6 +161,8 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
 
     @Override
     public void afterTest(Method method) {
+        locationUtil = null;
+        activityNavigationUtil = null;
         transactionFundingManager = null;
         defaultCurrencies = null;
         currencyPreference = null;

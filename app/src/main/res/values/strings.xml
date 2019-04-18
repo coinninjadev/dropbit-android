@@ -118,9 +118,8 @@ by using their mobile number</string>
     <string name="scan_qr_label">SCAN QR CODE</string>
 
     <!-- Transaction History Activity -->
-    <string name="empty_transactions_header">No Transactions Yet</string>
+    <string name="empty_transactions_header">No Bitcoin... Yet!</string>
     <string name="empty_transactions_paragraph">All incoming and outgoing transactions will appear here.</string>
-    <string name="empty_transactions_paragraph_2">Go ahead. Send some Bitcoin!</string>
     <string name="send_to_self">Sent to myself</string>
     <string name="share_transaction_intent_title">Share Transaction</string>
     <string name="history_failed_to_broadcast">Failed to Broadcast</string>
@@ -274,7 +273,6 @@ by using their mobile number</string>
     <string name="training_footer_learn_system_broken"><u>Learn why Bitcoin is better</u></string>
     <string name="training_footer_learn_recovery_words"><u>Learn more about Recovery Words</u></string>
     <string name="training_footer_learn_dropbit"><u>Learn more about DropBit™</u></string>
-    <string name="training_video_header_dropbit">I know about Bitcoin…skip</string>
     <string name="training_body_subtext">*You must verify your number if you are accepting Bitcoin from an SMS invite</string>
     <string name="training_body_header">Send Bitcoin via SMS</string>
     <string name="view_recovery_words">view recovery words</string>
@@ -330,9 +328,17 @@ by using their mobile number</string>
 
     <!-- User Phone Verification -->
     <string name="user_account_verification_title">PHONE NUMBER STATUS</string>
+    <string name="get_bitcoin_title">GET BITCOIN</string>
+    <string name="learn_bitcoin_title">LEARN BITCOIN</string>
+    <string name="spend_bitcoin_title">SPEND BITCOIN</string>
     <string name="server_addresses_overview">These are the addresses from your wallet that we securely store on the server for DropBit requests</string>
     <string name="dropbit_addresses_title">DropBit Addresses</string>
     <string name="view_dropbit_addresses">View DropBit Addresses</string>
     <string name="logo_slide">logo_slide</string>
+    <string name="buy_giftcards_title">BUY GIFTCARDS</string>
+    <string name="online_title">ONLINE</string>
+    <string name="around_me_title">AROUND ME</string>
+    <string name="spend_bitcoin_header">Spend your Bitcoin</string>
+    <string name="get_bitcoin_header">Get Bitcoin</string>
 
 </resources>

@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
@@ -270,6 +271,11 @@ public class AppModule {
     @Provides
     DefaultCurrencies provideDefaultCurrency(CurrencyPreference currencyPreference) {
         return currencyPreference.getCurrenciesPreference();
+    }
+
+    @Provides
+    LocationManager provideLocationManager(@ApplicationContext Context context) {
+        return (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
 }

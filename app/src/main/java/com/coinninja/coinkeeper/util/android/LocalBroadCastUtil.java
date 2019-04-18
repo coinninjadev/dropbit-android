@@ -42,8 +42,4 @@ public class LocalBroadCastUtil {
     public void sendGlobalBroadcast(Class klass, String intentAction) {
         context.sendBroadcast(new Intent(context, klass).setAction(intentAction));
     }
-
-    public void registerGlobalReceiver(BroadcastReceiver receiver, IntentFilter intentFilter) {
-        context.registerReceiver(receiver, intentFilter);
-    }
 }

@@ -1,6 +1,8 @@
 package com.coinninja.coinkeeper.util.android.activity;
 
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 
 import com.coinninja.coinkeeper.R;
@@ -10,7 +12,9 @@ import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
+import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
@@ -27,9 +31,13 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 
+import java.util.HashMap;
+
 import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.matchers.ActivityMatchers.activityWithIntentStarted;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
 public class ActivityNavigationUtilTest {
@@ -40,12 +48,16 @@ public class ActivityNavigationUtilTest {
     @Mock
     StartActivity activity;
 
-    CoinNinjaUriBuilder coinNinjaUriBuilder = new CoinNinjaUriBuilder();
-    ActivityNavigationUtil activityNavigationUtil = new ActivityNavigationUtil(coinNinjaUriBuilder);
+    @Mock
+    Analytics analytics;
+
+    private CoinNinjaUriBuilder coinNinjaUriBuilder = new CoinNinjaUriBuilder();
+    private ActivityNavigationUtil activityNavigationUtil;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        activityNavigationUtil = new ActivityNavigationUtil(coinNinjaUriBuilder, analytics);
         activityController = Robolectric.buildActivity(StartActivity.class);
         activity = activityController.get();
         activityController.setup();
@@ -58,6 +70,7 @@ public class ActivityNavigationUtilTest {
         activity = null;
         activityNavigationUtil = null;
         coinNinjaUriBuilder = null;
+        analytics = null;
     }
 
     @Test
@@ -172,5 +185,88 @@ public class ActivityNavigationUtilTest {
         Intent intent = new Intent(activity, VerifyPhoneVerificationCodeActivity.class);
         intent.putExtra(Intents.EXTRA_PHONE_NUMBER, number);
         assertThat(activity, activityWithIntentStarted(intent));
+    }
+
+    @Test
+    public void navigates_to_buy_bitcoin_with_credit_card() {
+        Uri uri = Uri.parse("https://coinninja.com/buybitcoin/creditcards");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+
+        activityNavigationUtil.navigateToBuyBitcoinWithCreditCard(activity);
+
+        assertThat(activity, activityWithIntentStarted(intent));
+        verify(analytics).trackEvent(Analytics.EVENT_BUY_BITCOIN_CREDIT_CARD);
+    }
+
+    @Test
+    public void navigates_to_buy_bitcoin_with_gift_card() {
+        Uri uri = Uri.parse("https://coinninja.com/buybitcoin/giftcards");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+
+        activityNavigationUtil.navigateToBuyBitcoinWithGiftCard(activity);
+
+        assertThat(activity, activityWithIntentStarted(intent));
+        verify(analytics).trackEvent(Analytics.EVENT_BUY_BITCOIN_GIFT_CARD);
+    }
+
+    @Test
+    public void navigates_to_where_to_spend() {
+        Uri uri = Uri.parse("https://coinninja.com/news/webview/load-online");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+
+        activityNavigationUtil.navigateToWhereToSpend(activity);
+
+        assertThat(activity, activityWithIntentStarted(intent));
+        verify(analytics).trackEvent(Analytics.EVENT_SPEND_ONLINE);
+    }
+
+    @Test
+    public void navigates_to_buy_gift_card() {
+        Uri uri = Uri.parse("https://www.bitrefill.com/buy");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+
+        activityNavigationUtil.navigateToBuyGiftCard(activity);
+
+        assertThat(activity, activityWithIntentStarted(intent));
+        verify(analytics).trackEvent(Analytics.EVENT_SPEND_GIFT_CARDS);
+    }
+
+    @Test
+    public void navigate_to_around_me() {
+        HashMap<CoinNinjaParameter, String> parameters = new HashMap<>();
+        parameters.put(CoinNinjaParameter.TYPE, "atm");
+        Location location = new Location(LocationManager.GPS_PROVIDER);
+        location.setLatitude(87d);
+        location.setLongitude(25d);
+
+        activityNavigationUtil.navigatesToMapWith(activity, parameters, location, Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+
+        Uri uri = Uri.parse("https://coinninja.com/news/webview/load-map?lat=87.0&long=25.0&type=atm");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        assertThat(activity, activityWithIntentStarted(intent));
+        verify(analytics, times(1)).trackEvent(Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+    }
+
+    @Test
+    public void navigate_to_around_me__without_location() {
+        HashMap<CoinNinjaParameter, String> parameters = new HashMap<>();
+        parameters.put(CoinNinjaParameter.TYPE, "atm");
+
+        activityNavigationUtil.navigatesToMapWith(activity, parameters, null, Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+
+        Uri uri = Uri.parse("https://coinninja.com/news/webview/load-map?type=atm");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        assertThat(activity, activityWithIntentStarted(intent));
+        verify(analytics, times(1)).trackEvent(Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+    }
+
+    @Test
+    public void navigate_to_around_me__without_location_and_parameters() {
+        activityNavigationUtil.navigatesToMapWith(activity, null, null, Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+
+        Uri uri = Uri.parse("https://coinninja.com/news/webview/load-map");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        assertThat(activity, activityWithIntentStarted(intent));
+        verify(analytics, times(1)).trackEvent(Analytics.EVENT_BUY_BITCOIN_AT_ATM);
     }
 }

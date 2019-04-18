@@ -47,7 +47,6 @@ public class TrainingPagerAdapter extends PagerAdapter {
         TextView bodySubText = layout.findViewById(R.id.training_body_subtext);
 
         bindVideo(dropbitLayout, videoLayout, videoView, videoHeader, trainingModel);
-        bindVideoHeader(videoHeader, trainingModel);
         bindBodyHeader(bodyHeaderText, trainingModel);
         bindBody(bodyText, trainingModel);
         bindBodySubText(bodySubText, trainingModel);
@@ -64,16 +63,6 @@ public class TrainingPagerAdapter extends PagerAdapter {
         } else {
             dropbitLayout.setVisibility(View.VISIBLE);
             videoLayout.setVisibility(View.GONE);
-        }
-    }
-
-    protected void bindVideoHeader(TextView videoHeader, TrainingModel trainingModel) {
-        if (trainingModel.hasVideoHeader()) {
-            videoHeader.setText(context.getText(trainingModel.getrVideoHeader()));
-            videoHeader.setOnClickListener(view -> onTrainingClickListener.onSkipClicked(trainingModel));
-        } else {
-            videoHeader.setText("");
-            videoHeader.setOnClickListener(null);
         }
     }
 

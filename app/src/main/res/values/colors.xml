@@ -31,6 +31,8 @@
     <color name="primary">#2cd1ff</color>
     <color name="primary_pressed">#992cd1ff</color>
     <color name="primary_disabled">#992cd1ff</color>
+    <color name="primary_green">#94CB45</color>
+    <color name="primary_orange">#ECA14D</color>
 
     <!-- CTA Buttons (Call To Action) -->
     <color name="cta">#242536</color>

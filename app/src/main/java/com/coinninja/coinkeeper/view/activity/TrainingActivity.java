@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.adapter.TrainingPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
@@ -54,6 +53,15 @@ public class TrainingActivity extends SecuredActivity implements ViewPager.OnPag
     protected void onResume() {
         super.onResume();
         trainingAdapter.restartAllVideos();
+        setupOnClickListeners();
+    }
+
+    private void setupOnClickListeners() {
+        findViewById(R.id.ic_close).setOnClickListener(v -> dismiss());
+    }
+
+    private void dismiss() {
+        finish();
     }
 
     protected void initPager(TrainingPagerAdapter trainingAdapter) {
@@ -146,15 +154,7 @@ public class TrainingActivity extends SecuredActivity implements ViewPager.OnPag
         userHelper.setCompletedTraining(true);
         if (cnWalletManager.hasWallet()) {
             activityNavigationUtil.navigateToHome(this);
-        } else {
-            navigateToStartActivity();
         }
-    }
-
-    private void navigateToStartActivity() {
-        Intent intent = new Intent(this, StartActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
     }
 
     @Override

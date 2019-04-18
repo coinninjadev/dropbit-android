@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <LinearLayout
+        android:id="@+id/empty_transaction_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/horizontal_margin_xxlarge"
+        android:layout_marginRight="@dimen/horizontal_margin_xxlarge"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/payment_bar_fragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/no_bitcoin_yet_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/empty_transactions_header"
+            android:textAppearance="@style/TextAppearance.Medium" />
+
+        <TextView
+            android:id="@+id/bitcoin_detail_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vertical_margin_medium"
+            android:layout_marginBottom="@dimen/vertical_margin_medium"
+            android:gravity="center"
+            android:text="@string/empty_transactions_paragraph"
+            android:textAppearance="@style/TextAppearance" />
+
+        <Button
+            android:id="@+id/get_bitcoin_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary_green"
+            android:drawableLeft="@drawable/green_bitcoin"
+            android:layout_marginBottom="30px"
+            android:text="@string/get_bitcoin_title" />
+
+        <Button
+            android:id="@+id/learn_bitcoin_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/graduate_cap"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:layout_marginBottom="30px"
+            android:text="@string/learn_bitcoin_title" />
+
+        <Button
+            android:id="@+id/spend_bitcoin_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/bitcoin_money_clip"
+            android:backgroundTint="@color/primary_orange"
+            android:layout_marginBottom="30px"
+            android:text="@string/spend_bitcoin_title" />
+
+    </LinearLayout>
+
+</merge>

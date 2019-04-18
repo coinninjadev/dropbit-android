@@ -152,9 +152,7 @@ public class DrawerController {
     }
 
     private void onWhereToBuyClicked(View view) {
-        Context context = view.getContext();
-
-        UriUtil.openUrl(Intents.URI_WHERE_TO_BUY, (Activity) context);
+        navigationUtil.navigateToSpend(view.getContext());
     }
 
     private void onBackupNowClicked(View view) {

@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.util.uri;
 
 import android.net.Uri;
 
-import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
 import com.coinninja.coinkeeper.util.uri.parameter.DropbitParameter;
 import com.coinninja.coinkeeper.util.uri.routes.DropbitRoute;
 

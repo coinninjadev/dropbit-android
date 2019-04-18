@@ -166,21 +166,6 @@ public class TrainingPagerAdapterTest {
         assertThat(bodySubText.getText(), equalTo("*You must verify your number if you are accepting Bitcoin from an SMS invite"));
     }
 
-
-    @Test
-    public void bind_video_header_test() {
-        LayoutInflater inflater = LayoutInflater.from(activity);
-        ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.page_training, activity.findViewById(R.id.training_pager), false);
-        TextView videoHeader = layout.findViewById(R.id.video_message);
-
-        TrainingModel trainingModel = TrainingModel.WHATS_BITCOIN;
-
-        trainingPagerAdapter.bindVideoHeader(videoHeader, trainingModel);
-
-
-        assertThat(videoHeader.getText(), equalTo("I know about Bitcoin…skip"));
-    }
-
     @Test
     public void restart_all_videos_on_restart_test() {
         VideoView videoView1 = mock(VideoView.class);
