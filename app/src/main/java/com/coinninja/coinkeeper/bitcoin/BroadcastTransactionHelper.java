@@ -30,10 +30,11 @@ public class BroadcastTransactionHelper {
     public TransactionBroadcastResult broadcast(TransactionData transactionData) {
 
         TransactionBroadcastResult blockChainInfoResult = broadcastToBlockChainInfo(transactionData);
-        TransactionBroadcastResult libbitcoinResult = broadcastToLibbitcoin(transactionData);
+        //TransactionBroadcastResult libbitcoinResult = broadcastToLibbitcoin(transactionData);
 
-        reportBroadcastResult(blockChainInfoResult, libbitcoinResult);
-        return blockChainInfoResult.isSuccess() ? blockChainInfoResult : libbitcoinResult;
+        //reportBroadcastResult(blockChainInfoResult, libbitcoinResult);
+        //return blockChainInfoResult.isSuccess() ? blockChainInfoResult : libbitcoinResult;
+        return blockChainInfoResult;
     }
 
     private TransactionBroadcastResult broadcastToLibbitcoin(TransactionData transactionData) {

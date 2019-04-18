@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -109,6 +110,7 @@ public class BroadcastTransactionHelperTest {
     }
 
     @Test
+    @Ignore
     public void blockchainInfo_failed_but_libbitcoin_worked_so_use_libbitcoin_data_test() {
         String txID = "SOME TXID";
         TransactionBroadcastResult mockLibbitcoinResult = new TransactionBroadcastResult(200, true, "", new Transaction("", txID));
@@ -166,6 +168,7 @@ public class BroadcastTransactionHelperTest {
 
 
     @Test
+    @Ignore
     public void report_libbitcoin_failed_test() throws JSONException {
         ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
@@ -189,6 +192,7 @@ public class BroadcastTransactionHelperTest {
     }
 
     @Test
+    @Ignore
     public void report_blockchain_failed_test() throws JSONException {
         ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
@@ -214,6 +218,7 @@ public class BroadcastTransactionHelperTest {
     }
 
     @Test
+    @Ignore
     public void report_libbitcoin_successful_to_mixpanel_test() throws JSONException {
         ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
@@ -242,6 +247,7 @@ public class BroadcastTransactionHelperTest {
     }
 
     @Test
+    @Ignore
     public void report_blockchain_successful_to_mixpanel_test() throws JSONException {
         ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
