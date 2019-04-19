@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -25,14 +26,14 @@ import retrofit2.Response;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
 public class BroadcastTransactionHelperTest {
-    String BLOCK_CHAIN_INFO =
+    private static final String BLOCK_CHAIN_INFO =
             "\n" +
                     "\n" +
                     "{\n" +
@@ -98,9 +99,15 @@ public class BroadcastTransactionHelperTest {
     @InjectMocks
     private BroadcastTransactionHelper broadcastHelper;
 
+    private String txid = "--txid--";
+    private String rawTxid = "RAW TX DATA 000000000djs9jds9js9jds";
+    private TransactionBroadcastResult transactionBroadcastResult = new TransactionBroadcastResult(200, true, "", new Transaction("", txid));
+
     @After
     public void tearDown() {
-        BLOCK_CHAIN_INFO = null;
+        txid = null;
+        rawTxid = null;
+        transactionBroadcastResult = null;
         analytics = null;
         transactionBuilder = null;
         blockchainClient = null;
@@ -108,192 +115,65 @@ public class BroadcastTransactionHelperTest {
         broadcastHelper = null;
     }
 
-    @Test
-    public void blockchainInfo_failed_but_libbitcoin_worked_so_use_libbitcoin_data_test() {
-        String txID = "SOME TXID";
-        TransactionBroadcastResult mockLibbitcoinResult = new TransactionBroadcastResult(200, true, "", new Transaction("", txID));
-        TransactionData transactionData = mock(TransactionData.class);
-        String mockRawTX = "RAW TX DATA 000000000djs9jds9js9jds";
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
-        when(transactionBuilder.build(transactionData)).thenReturn(new Transaction(mockRawTX, txID));
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
+    @Before
+    public void setUp() {
+        when(transactionBuilder.build(transactionData)).thenReturn(new Transaction(rawTxid, txid));
+        Response broadcastResult = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
+        when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
 
-        Response blockchainInfoResposneBad = getBadResponse(400, "");
-        when(blockchainClient.broadcastTransaction(mockRawTX)).thenReturn(blockchainInfoResposneBad);
-
-        TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
-
-        assertThat(mockLibbitcoinResult, equalTo(result));
     }
 
     @Test
-    public void blockchainInfo_worked_and_libbitcoin_worked_so_use_blockchainInfo_data_test() {
-        String txID = "SOME TXID";
-        TransactionBroadcastResult mockLibbitcoinResult = new TransactionBroadcastResult(200, true, "", new Transaction("", txID));
-        TransactionData transactionData = mock(TransactionData.class);
-        String mockRawTX = "RAW TX DATA 000000000djs9jds9js9jds";
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
-        when(transactionBuilder.build(transactionData)).thenReturn(new Transaction(mockRawTX, txID));
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
-        Response blockchainInfoResposneGood = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
-        when(blockchainClient.broadcastTransaction(mockRawTX)).thenReturn(blockchainInfoResposneGood);
-
+    public void sending_successful_broadcast_to_blockchain_info() {
+        Response broadcastResult = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
+        when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
 
         TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
-
-
-        assertThat(result.getTxId(), equalTo("SOME TXID"));
-    }
-
-    @Test
-    public void blockchainInfo_worked_and_libbitcoin_failed_so_use_blockchainInfo_data_test() {
-        String txID = "SOME TXID";
-        TransactionBroadcastResult mockLibbitcoinResult = new TransactionBroadcastResult(200, true, "", new Transaction("", txID));
-        TransactionData transactionData = mock(TransactionData.class);
-        String mockRawTX = "RAW TX DATA 000000000djs9jds9js9jds";
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
-        when(transactionBuilder.build(transactionData)).thenReturn(new Transaction(mockRawTX, txID));
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
-        Response blockchainInfoResposneGood = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
-        when(blockchainClient.broadcastTransaction(mockRawTX)).thenReturn(blockchainInfoResposneGood);
-
-
-        TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
-
-
-        assertThat(result.getTxId(), equalTo("SOME TXID"));
-    }
-
-
-    @Test
-    public void report_libbitcoin_failed_test() throws JSONException {
-        ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-
-        Transaction transaction = new Transaction("SOME TXID", "RAW TX DATA 000000000djs9jds9js9jds");
-        TransactionBroadcastResult mockLibbitcoinResult =
-                new TransactionBroadcastResult(500, false, "some error Libbitcoin", transaction);
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
-        when(transactionBuilder.build(transactionData)).thenReturn(transaction);
-        Response blockchainInfoResposneBad = getBadResponse(500, "some error blockchain");
-        when(blockchainClient.broadcastTransaction(transaction.getRawTx())).thenReturn(blockchainInfoResposneBad);
-
-        TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
-
-        assertThat(result.isSuccess(), equalTo(false));
-        verify(analytics).trackEvent(eventCaptor.capture(), proprietiesCaptor.capture());
-        assertThat(eventCaptor.getValue(), equalTo("BroadcastFailure"));
-        JSONObject jsonObject = proprietiesCaptor.getValue();
-        assertThat(jsonObject.getInt(Analytics.EVENT_BROADCAST_JSON_KEY_LIB_CODE), equalTo(500));
-        assertThat(jsonObject.getString(Analytics.EVENT_BROADCAST_JSON_KEY_LIB_MSG), equalTo("some error Libbitcoin"));
-    }
-
-    @Test
-    public void report_blockchain_failed_test() throws JSONException {
-        ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-
-        String txID = "SOME TXID";
-        String mockRawTX = "RAW TX DATA 000000000djs9jds9js9jds";
-        TransactionBroadcastResult mockLibbitcoinResult = new TransactionBroadcastResult(500, false, "some error Libbitcoin", new Transaction(mockRawTX, txID));
-        TransactionData transactionData = mock(TransactionData.class);
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
-        when(transactionBuilder.build(transactionData)).thenReturn(new Transaction(mockRawTX, txID));
-        Response blockchainInfoResposneBad = getBadResponse(500, "some error blockchain");
-        when(blockchainClient.broadcastTransaction(mockRawTX)).thenReturn(blockchainInfoResposneBad);
-
-
-        TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
-
-        assertThat(result.isSuccess(), equalTo(false));
-        verify(analytics).trackEvent(eventCaptor.capture(), proprietiesCaptor.capture());
-        assertThat(eventCaptor.getValue(), equalTo("BroadcastFailure"));
-        JSONObject jsonObject = proprietiesCaptor.getValue();
-        assertThat(jsonObject.getInt(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE), equalTo(500));
-        assertThat(jsonObject.getString(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG), equalTo("some error blockchain"));
-    }
-
-    @Test
-    public void report_libbitcoin_successful_to_mixpanel_test() throws JSONException {
-        ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        TransactionData transactionData = new TransactionData();
-        //libbitcoin setup
-        String txID = "SOME TXID";
-        String mockRawTX = "RAW TX DATA 000000000djs9jds9js9jds";
-        int libbitcoinResponseCode = 200;
-        boolean libbitcoinIsSuccess = true;
-        String libbitcoinMessage = "some Libbitcoin success";
-        setupLibbitcoinResponse(libbitcoinResponseCode, libbitcoinIsSuccess, libbitcoinMessage, mockRawTX, txID, transactionData);
-        //blockchain.info
-        Response blockChainInfoResponseGood = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
-        when(blockchainClient.broadcastTransaction(mockRawTX)).thenReturn(blockChainInfoResponseGood);
-
-
-        TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
-
 
         assertThat(result.isSuccess(), equalTo(true));
-        verify(analytics).trackEvent(eventCaptor.capture(), proprietiesCaptor.capture());
-        assertThat(eventCaptor.getValue(), equalTo("BroadcastSuccess"));
-        JSONObject jsonObject = proprietiesCaptor.getValue();
-        assertThat(jsonObject.getInt(Analytics.EVENT_BROADCAST_JSON_KEY_LIB_CODE), equalTo(200));
-        assertThat(jsonObject.getString(Analytics.EVENT_BROADCAST_JSON_KEY_LIB_MSG), equalTo("some Libbitcoin success"));
+        assertThat(result.getTxId(), equalTo(txid));
     }
 
     @Test
-    public void report_blockchain_successful_to_mixpanel_test() throws JSONException {
-        ArgumentCaptor<String> eventCaptor = ArgumentCaptor.forClass(String.class);
+    public void report_successful_broadcast() throws JSONException {
+        Response broadcastResult = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
+        when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        TransactionData transactionData = new TransactionData();
-        //libbitcoin setup
-        String txID = "SOME TXID";
-        String mockRawTX = "RAW TX DATA 000000000djs9jds9js9jds";
-        int libbitcoinResponseCode = 200;
-        boolean libbitcoinIsSuccess = true;
-        String libbitcoinMessage = "some Libbitcoin success";
-        setupLibbitcoinResponse(libbitcoinResponseCode, libbitcoinIsSuccess, libbitcoinMessage, mockRawTX, txID, transactionData);
-        //blockchain.info
-        Response blockChainInfoResponseGood = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
-        when(blockchainClient.broadcastTransaction(mockRawTX)).thenReturn(blockChainInfoResponseGood);
 
-        TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
+        broadcastHelper.broadcast(transactionData);
 
-
-        assertThat(result.isSuccess(), equalTo(true));
-        verify(analytics).trackEvent(eventCaptor.capture(), proprietiesCaptor.capture());
-        assertThat(eventCaptor.getValue(), equalTo("BroadcastSuccess"));
+        verify(analytics).trackEvent(eq(Analytics.EVENT_BROADCAST_COMPLETE), proprietiesCaptor.capture());
         JSONObject jsonObject = proprietiesCaptor.getValue();
         assertThat(jsonObject.getInt(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE), equalTo(200));
         assertThat(jsonObject.getString(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG), equalTo("OK"));
     }
 
-    private void setupLibbitcoinResponse(int libbitcoinResponseCode,
-                                         boolean libbitcoinIsSuccess, String libbitcoinMessage, String mockRawTX, String
-                                                 txID, TransactionData transactionData) {
-        TransactionBroadcastResult mockLibbitcoinResult = new TransactionBroadcastResult(libbitcoinResponseCode, libbitcoinIsSuccess, libbitcoinMessage, new Transaction(mockRawTX, txID));
-        when(transactionBuilder.buildAndBroadcast(transactionData)).thenReturn(mockLibbitcoinResult);
-        when(transactionBuilder.build(transactionData)).thenReturn(new Transaction(mockRawTX, txID));
-    }
-
     @Test
-    public void generate_failed_broadcast_test() {
-        String sampleFailedReasonMessage = "SOME ERROR MESSAGE";
+    public void blockchain_request_failed() {
+        String message = "Transaction already exists.";
+        Response broadcastResult = buildFailureResponse(500, message);
+        when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
 
-        TransactionBroadcastResult result = broadcastHelper.generateFailedBroadcast(sampleFailedReasonMessage);
+        TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
 
         assertThat(result.isSuccess(), equalTo(false));
-        assertThat(result.getMessage(), equalTo(sampleFailedReasonMessage));
+        assertThat(result.getTxId(), equalTo(txid));
+        assertThat(result.getMessage(), equalTo(message));
     }
 
     @Test
-    public void generate_successful_broadcast_test() {
-        String sampleTxid = "SOME TX ID -- dkjs09jds0ind9inmsokkjhw9u";
+    public void report_failure_broadcast() throws JSONException {
+        String message = "Transaction already exists.";
+        Response broadcastResult = buildFailureResponse(500, message);
+        when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
+        ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
 
-        TransactionBroadcastResult result = broadcastHelper.generateSuccessfulBroadcast(new Transaction("", sampleTxid), "Successful", 200);
+        broadcastHelper.broadcast(transactionData);
 
-        assertThat(result.isSuccess(), equalTo(true));
-        assertThat(result.getTxId(), equalTo(sampleTxid));
+        verify(analytics).trackEvent(eq(Analytics.EVENT_BROADCAST_FAILED), proprietiesCaptor.capture());
+        JSONObject jsonObject = proprietiesCaptor.getValue();
+        assertThat(jsonObject.getInt(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE), equalTo(500));
+        assertThat(jsonObject.getString(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG), equalTo(message));
     }
 
     private Response buildBlockchainInfoResposne(String json) {
@@ -301,7 +181,7 @@ public class BroadcastTransactionHelperTest {
 
     }
 
-    private Response getBadResponse(int code, String message) {
+    private Response buildFailureResponse(int code, String message) {
         return Response.error(code, ResponseBody.create(MediaType.parse("application/json"),
                 message));
     }
