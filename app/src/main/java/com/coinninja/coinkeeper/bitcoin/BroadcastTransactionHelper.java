@@ -30,16 +30,10 @@ public class BroadcastTransactionHelper {
     public TransactionBroadcastResult broadcast(TransactionData transactionData) {
 
         TransactionBroadcastResult blockChainInfoResult = broadcastToBlockChainInfo(transactionData);
-        //TransactionBroadcastResult libbitcoinResult = broadcastToLibbitcoin(transactionData);
-
-        //reportBroadcastResult(blockChainInfoResult, libbitcoinResult);
-        //return blockChainInfoResult.isSuccess() ? blockChainInfoResult : libbitcoinResult;
+        reportBroadcastResult(blockChainInfoResult);
         return blockChainInfoResult;
     }
 
-    private TransactionBroadcastResult broadcastToLibbitcoin(TransactionData transactionData) {
-        return transactionBuilder.buildAndBroadcast(transactionData);
-    }
 
     private TransactionBroadcastResult broadcastToBlockChainInfo(TransactionData transactionData) {
         Transaction transaction = transactionBuilder.build(transactionData);
@@ -66,11 +60,10 @@ public class BroadcastTransactionHelper {
     }
 
 
-    private void reportBroadcastResult(TransactionBroadcastResult blockChainInfoResult, TransactionBroadcastResult libbitcoinResult) {
-        boolean isSuccess = blockChainInfoResult.isSuccess() ? blockChainInfoResult.isSuccess() : libbitcoinResult.isSuccess();
-        JSONObject properties = buildBroadcastProp(blockChainInfoResult, libbitcoinResult);
+    private void reportBroadcastResult(TransactionBroadcastResult broadcastResult) {
+        JSONObject properties = buildBroadcastProp(broadcastResult);
 
-        if (isSuccess) {
+        if (broadcastResult.isSuccess()) {
             analytics.trackEvent(Analytics.EVENT_BROADCAST_COMPLETE, properties);
         } else {
             analytics.trackEvent(Analytics.EVENT_BROADCAST_FAILED, properties);
@@ -78,14 +71,12 @@ public class BroadcastTransactionHelper {
     }
 
 
-    private JSONObject buildBroadcastProp(TransactionBroadcastResult blockChainInfoResult, TransactionBroadcastResult libbitcoinResult) {
+    private JSONObject buildBroadcastProp(TransactionBroadcastResult broadcastResult) {
         JSONObject jsonObject = new JSONObject();
 
         try {
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_LIB_CODE, libbitcoinResult.getResponseCode());
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_LIB_MSG, libbitcoinResult.getMessage());
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE, blockChainInfoResult.getResponseCode());
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG, blockChainInfoResult.getMessage());
+            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE, broadcastResult.getResponseCode());
+            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG, broadcastResult.getMessage());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -95,19 +86,19 @@ public class BroadcastTransactionHelper {
     }
 
 
-    public TransactionBroadcastResult generateFailedBroadcast(String reason) {
-        return generateFailedBroadcast(reason, "", "", -1);
-    }
-
     public TransactionBroadcastResult generateSuccessfulBroadcast(Transaction transaction, String message, int responseCode) {
         return generateBroadcastResponse(true, message, transaction, responseCode);
+    }
+
+    public TransactionBroadcastResult generateFailedBroadcast(String reason) {
+        return generateFailedBroadcast(reason, "", "", -1);
     }
 
     public TransactionBroadcastResult generateFailedBroadcast(String reason, String raxTX, String txid, int responseCode) {
         return generateBroadcastResponse(false, reason, new Transaction(raxTX, txid), responseCode);
     }
 
-    public TransactionBroadcastResult generateBroadcastResponse(boolean isSuccessful, String reason, Transaction transaction, int responseCode) {
+    private TransactionBroadcastResult generateBroadcastResponse(boolean isSuccessful, String reason, Transaction transaction, int responseCode) {
         return new TransactionBroadcastResult(responseCode, isSuccessful, reason, transaction);
     }
 }
