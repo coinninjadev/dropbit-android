@@ -12,11 +12,9 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
-import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
-import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.google.android.material.navigation.NavigationView;
 
 import javax.inject.Inject;
@@ -101,8 +99,13 @@ public class DrawerController {
     private void setupDrawerButtons() {
         drawerLayout.findViewById(R.id.drawer_setting).setOnClickListener(this::onSettingsClicked);
         drawerLayout.findViewById(R.id.drawer_support).setOnClickListener(this::onSupportClicked);
-        drawerLayout.findViewById(R.id.drawer_where_to_buy).setOnClickListener(this::onWhereToBuyClicked);
+        drawerLayout.findViewById(R.id.drawer_where_to_buy).setOnClickListener(this::onWhereToSpendClicked);
         drawerLayout.findViewById(R.id.drawer_phone).setOnClickListener(this::onPhoneClicked);
+        drawerLayout.findViewById(R.id.buy_bitcoin_drawer).setOnClickListener(this::onBuyBitcoinClicked);
+    }
+
+    private void onBuyBitcoinClicked(View view) {
+        navigationUtil.navigtateToBuyBitcoin(view.getContext());
     }
 
     private void onPhoneClicked(View view) {
@@ -151,8 +154,8 @@ public class DrawerController {
         navigationUtil.navigateToSupport(context);
     }
 
-    private void onWhereToBuyClicked(View view) {
-        navigationUtil.navigateToSpend(view.getContext());
+    private void onWhereToSpendClicked(View view) {
+        navigationUtil.navigateToSpendBitcoin(view.getContext());
     }
 
     private void onBackupNowClicked(View view) {

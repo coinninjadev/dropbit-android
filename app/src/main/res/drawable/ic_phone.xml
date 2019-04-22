@@ -1,12 +1,24 @@
-<vector android:height="24dp" android:viewportHeight="25"
-    android:viewportWidth="17" android:width="16dp" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillAlpha="0.91" android:fillColor="#FFF"
-        android:fillType="nonZero"
-        android:pathData="M14,0.5h-11A2.502,2.502 0,0 0,0.5 3v19C0.5,23.379 1.621,24.5 3,24.5h11c1.379,0 2.5,-1.121 2.5,-2.5v-19C16.5,1.621 15.379,0.5 14,0.5zM1.5,5.5h14v14L1.5,19.5L1.5,5.5zM3,1.5h11c0.827,0 1.5,0.673 1.5,1.5L15.5,4.5L1.5,4.5L1.5,3C1.5,2.173 2.173,1.5 3,1.5zM14,23.5h-11c-0.827,0 -1.5,-0.673 -1.5,-1.5L1.5,20.5h14v1.5c0,0.827 -0.673,1.5 -1.5,1.5z" android:strokeAlpha="0.91"/>
-    <path android:fillAlpha="0.91" android:fillColor="#FFF"
-        android:fillType="nonZero"
-        android:pathData="M6,3.5h5a0.5,0.5 0,0 0,0 -1h-5a0.5,0.5 0,0 0,0 1z" android:strokeAlpha="0.91"/>
-    <path android:fillAlpha="0.91" android:fillColor="#FFF"
-        android:fillType="nonZero"
-        android:pathData="M8.5,22m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0" android:strokeAlpha="0.91"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="17dp"
+    android:height="25dp"
+    android:viewportWidth="17"
+    android:viewportHeight="25">
+  <path
+      android:pathData="M14,0.5h-11A2.502,2.502 0,0 0,0.5 3v19C0.5,23.379 1.621,24.5 3,24.5h11c1.379,0 2.5,-1.121 2.5,-2.5v-19C16.5,1.621 15.379,0.5 14,0.5zM1.5,5.5h14v14L1.5,19.5L1.5,5.5zM3,1.5h11c0.827,0 1.5,0.673 1.5,1.5L15.5,4.5L1.5,4.5L1.5,3C1.5,2.173 2.173,1.5 3,1.5zM14,23.5h-11c-0.827,0 -1.5,-0.673 -1.5,-1.5L1.5,20.5h14v1.5c0,0.827 -0.673,1.5 -1.5,1.5z"
+      android:strokeAlpha="0.91"
+      android:fillColor="#FFF"
+      android:fillType="nonZero"
+      android:fillAlpha="0.91"/>
+  <path
+      android:pathData="M6,3.5h5a0.5,0.5 0,0 0,0 -1h-5a0.5,0.5 0,0 0,0 1z"
+      android:strokeAlpha="0.91"
+      android:fillColor="#FFF"
+      android:fillType="nonZero"
+      android:fillAlpha="0.91"/>
+  <path
+      android:pathData="M8.5,22m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0"
+      android:strokeAlpha="0.91"
+      android:fillColor="#FFF"
+      android:fillType="nonZero"
+      android:fillAlpha="0.91"/>
 </vector>

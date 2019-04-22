@@ -21,6 +21,7 @@ import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
+import com.coinninja.coinkeeper.view.activity.TrainingActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 
@@ -64,10 +65,6 @@ public class ActivityNavigationUtil {
         context.startActivity(intent);
     }
 
-    public void navigateToSpend(Context context) {
-        Intent intent = new Intent(context, SpendBitcoinActivity.class);
-        context.startActivity(intent);
-    }
 
     public void navigateToBackupRecoveryWords(Context context) {
         context.startActivity(new Intent(context, BackupRecoveryWordsStartActivity.class));
@@ -116,6 +113,21 @@ public class ActivityNavigationUtil {
         Intent intent = new Intent(context, VerifyRecoverywordsActivity.class);
         intent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, seedWords);
         intent.putExtra(Intents.EXTRA_VIEW_STATE, viewState);
+        context.startActivity(intent);
+    }
+
+    public void navigtateToBuyBitcoin(Context context) {
+        Intent intent = new Intent(context, BuyBitcoinActivity.class);
+        context.startActivity(intent);
+    }
+
+    public void navigateToLearnBitcoin(Context context) {
+        Intent intent = new Intent(context, TrainingActivity.class);
+        context.startActivity(intent);
+    }
+
+    public void navigateToSpendBitcoin(Context context) {
+        Intent intent = new Intent(context, SpendBitcoinActivity.class);
         context.startActivity(intent);
     }
 
