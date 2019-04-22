@@ -292,6 +292,17 @@ public class PaymentInputViewTest {
     }
 
     @Test
+    public void updating_payment_holder_with_value_hides_send_max_button() {
+        PaymentInputView.OnSendMaxObserver sendMaxObserver = mock(PaymentInputView.OnSendMaxObserver.class);
+        paymentHolder.updateValue(new USDCurrency(100D));
+        paymentInputView.setOnSendMaxObserver(sendMaxObserver);
+
+        paymentInputView.setPaymentHolder(paymentHolder);
+
+        assertThat(sendMax, isGone());
+    }
+
+    @Test
     public void observing_clearing_of_send_max() {
         PaymentInputView.OnSendMaxObserver sendMaxObserver = mock(PaymentInputView.OnSendMaxObserver.class);
         PaymentInputView.OnSendMaxClearedObserver sendMaxClearedObserver = mock(PaymentInputView.OnSendMaxClearedObserver.class);

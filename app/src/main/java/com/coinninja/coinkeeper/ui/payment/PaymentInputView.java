@@ -173,6 +173,9 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     private void setPrimaryCurrencyWithoutNotifying() {
         primaryCurrency.removeTextChangedListener(watcher);
         updatePrimaryCurrencyWith(paymentHolder.getPrimaryCurrency());
+        if (!paymentHolder.getPrimaryCurrency().isZero()) {
+            sendMax.setVisibility(GONE);
+        }
         primaryCurrency.addTextChangedListener(watcher);
     }
 
