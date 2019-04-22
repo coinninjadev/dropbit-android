@@ -42,10 +42,39 @@
         </com.coinninja.coinkeeper.view.analytics.AnalyticsLinearLayout>
 
         <com.coinninja.coinkeeper.view.analytics.AnalyticsLinearLayout
-            android:id="@+id/drawer_setting"
+            android:id="@+id/buy_bitcoin_drawer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/drawer_backup_now_CTA"
+            android:layout_marginTop="@dimen/vertical_margin_large"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/bitcoin_flat_image"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="@string/drawer_setting_label"
+                android:focusable="true"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/bitcoin_logo_flat" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/vertical_margin_xsmall"
+                android:focusable="true"
+                android:gravity="center_horizontal"
+                android:text="@string/get_bitcoin_header"
+                android:textAppearance="@style/TextAppearance.Drawer" />
+        </com.coinninja.coinkeeper.view.analytics.AnalyticsLinearLayout>
+
+        <com.coinninja.coinkeeper.view.analytics.AnalyticsLinearLayout
+            android:id="@+id/drawer_setting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/buy_bitcoin_drawer"
             android:layout_marginTop="@dimen/vertical_margin_large"
             android:orientation="vertical">
 
@@ -57,7 +86,6 @@
                 android:contentDescription="@string/drawer_setting_label"
                 android:focusable="true"
                 android:scaleType="centerInside"
-                android:tint="@color/flat_white_base"
                 app:srcCompat="@drawable/ic_settings" />
 
             <TextView
@@ -87,8 +115,7 @@
                 android:contentDescription="@string/drawer_setting_label"
                 android:focusable="true"
                 android:scaleType="centerInside"
-                android:tint="@color/flat_white_base"
-                app:srcCompat="@drawable/ic_phone" />
+                app:srcCompat="@drawable/checkmark_circle" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -110,14 +137,13 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="17dp"
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/drawer_where_to_buy_label"
                 android:focusable="true"
                 android:scaleType="fitXY"
-                android:tint="@color/flat_white_base"
-                app:srcCompat="@drawable/ic_where_to_buy" />
+                app:srcCompat="@drawable/bitcoin_money_clip_dark" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -145,7 +171,6 @@
                 android:contentDescription="@string/drawer_support_label"
                 android:focusable="true"
                 android:scaleType="fitXY"
-                android:tint="@color/flat_white_base"
                 app:srcCompat="@drawable/ic_support" />
 
             <TextView

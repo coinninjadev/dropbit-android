@@ -100,7 +100,7 @@ by using their mobile number</string>
     <string name="pay_scan_btn_label">SCAN</string>
     <string name="pay_contacts_label">CONTACTS</string>
     <string name="drawer_setting_label">Settings</string>
-    <string name="drawer_phone_label">Phone</string>
+    <string name="drawer_phone_label">Verify</string>
     <string name="drawer_support_label">Support</string>
     <string name="drawer_where_to_buy_label">Spend</string>
 

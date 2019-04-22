@@ -21,6 +21,7 @@ import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
@@ -53,6 +54,8 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
     @Inject
     CurrencyPreference currencyPreference;
+    @Inject
+    ActivityNavigationUtil activityNavigationUtil;
 
     PaymentBarFragment fragment;
     IntentFilter intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
@@ -110,20 +113,17 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     private void setupNewWalletButtons() {
         transactionEmptyStateView.setGetBitcoinButtonClickListener((view) -> {
             analytics.trackEvent(Analytics.EVENT_GET_BITCOIN);
-            Intent intent = new Intent(this, BuyBitcoinActivity.class);
-            startActivity(intent);
+            activityNavigationUtil.navigtateToBuyBitcoin(this);
         });
 
         transactionEmptyStateView.setLearnBitcoinButtonClickListener((view) -> {
             analytics.trackEvent(Analytics.EVENT_LEARN_BITCOIN);
-            Intent intent = new Intent(this, TrainingActivity.class);
-            startActivity(intent);
+            activityNavigationUtil.navigateToLearnBitcoin(this);
         });
 
         transactionEmptyStateView.setSpendBitcoinButtonClickListener((view) -> {
             analytics.trackEvent(Analytics.EVENT_SPEND_BITCOIN);
-            Intent intent = new Intent(this, SpendBitcoinActivity.class);
-            startActivity(intent);
+            activityNavigationUtil.navigateToSpendBitcoin(this);
         });
     }
 
