@@ -22,6 +22,7 @@ import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
 import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.service.WalletTransactionRetrieverService;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
+import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;

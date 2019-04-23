@@ -5,7 +5,9 @@ import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.model.Transaction;
 import com.coinninja.coinkeeper.service.client.BlockchainClient;
+import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 import com.coinninja.coinkeeper.service.client.model.BlockchainTX;
+import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.google.gson.Gson;
 
@@ -20,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import io.fabric.sdk.android.Fabric;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -89,12 +92,21 @@ public class BroadcastTransactionHelperTest {
 
     @Mock
     private TransactionBuilder transactionBuilder;
+
     @Mock
     private Analytics analytics;
+
+    @Mock
+    BlockstreamClient blockstreamClient;
+
     @Mock
     private BlockchainClient blockchainClient;
+
     @Mock
     private TransactionData transactionData;
+
+    @Mock
+    private ErrorLoggingUtil errorLoggingUtil;
 
     @InjectMocks
     private BroadcastTransactionHelper broadcastHelper;
@@ -127,6 +139,7 @@ public class BroadcastTransactionHelperTest {
     public void sending_successful_broadcast_to_blockchain_info() {
         Response broadcastResult = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
         when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
+        when(blockstreamClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
 
         TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
 
@@ -138,6 +151,7 @@ public class BroadcastTransactionHelperTest {
     public void report_successful_broadcast() throws JSONException {
         Response broadcastResult = buildBlockchainInfoResposne(BLOCK_CHAIN_INFO);
         when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
+        when(blockstreamClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
 
         broadcastHelper.broadcast(transactionData);
@@ -152,7 +166,9 @@ public class BroadcastTransactionHelperTest {
     public void blockchain_request_failed() {
         String message = "Transaction already exists.";
         Response broadcastResult = buildFailureResponse(500, message);
+        Response blockstreamResult = buildFailureResponse(400, message);
         when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
+        when(blockstreamClient.broadcastTransaction(rawTxid)).thenReturn(blockstreamResult);
 
         TransactionBroadcastResult result = broadcastHelper.broadcast(transactionData);
 
@@ -166,6 +182,7 @@ public class BroadcastTransactionHelperTest {
         String message = "Transaction already exists.";
         Response broadcastResult = buildFailureResponse(500, message);
         when(blockchainClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
+        when(blockstreamClient.broadcastTransaction(rawTxid)).thenReturn(broadcastResult);
         ArgumentCaptor<JSONObject> proprietiesCaptor = ArgumentCaptor.forClass(JSONObject.class);
 
         broadcastHelper.broadcast(transactionData);

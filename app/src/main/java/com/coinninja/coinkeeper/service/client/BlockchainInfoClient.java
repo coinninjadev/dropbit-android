@@ -12,7 +12,6 @@ import retrofit2.http.Path;
 
 public interface BlockchainInfoClient {
 
-
     @GET("rawtx/{txid}")
     Call<BlockchainTX> getTransactionFor(@Path("txid") String transactionId);
 
