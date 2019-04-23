@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
@@ -54,17 +55,22 @@ public class SentInvitesStatusGetterTest {
     private InviteTransactionSummary newSummary;
     private InviteTransactionSummary oldSummary;
 
+    @Mock
+    private InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
-        runner = new SentInvitesStatusGetter(application, internalNotificationHelper, apiClient, transactionHelper, phoneNumberUtil);
+        runner = new SentInvitesStatusGetter(application, internalNotificationHelper, apiClient, transactionHelper, phoneNumberUtil, inviteTransactionSummaryHelper);
     }
 
     @Test
     public void update_new_invites() {
         String status = "new";
         mockSendForStatus(status, false);
+
+        when(inviteTransactionSummaryHelper.getInviteSummaryById(invite.getId())).thenReturn(newSummary);
 
         runner.run();
 
@@ -84,6 +90,8 @@ public class SentInvitesStatusGetterTest {
     public void updates_completed_invites() {
         String status = "completed";
         mockSendForStatus(status, false);
+
+        when(inviteTransactionSummaryHelper.getInviteSummaryById(invite.getId())).thenReturn(newSummary);
 
         runner.run();
 
@@ -105,6 +113,8 @@ public class SentInvitesStatusGetterTest {
         String status = "expired";
         mockSendForStatus(status, false);
 
+        when(inviteTransactionSummaryHelper.getInviteSummaryById(invite.getId())).thenReturn(newSummary);
+
         runner.run();
 
         verify(transactionHelper).updateInviteAddressTransaction(invite);
@@ -115,6 +125,8 @@ public class SentInvitesStatusGetterTest {
         String formatedPhone = "(330) 555-1111";
         String status = "expired";
         mockSendForStatus(status, true);
+
+        when(inviteTransactionSummaryHelper.getInviteSummaryById(invite.getId())).thenReturn(newSummary);
 
         runner.run();
         verify(internalNotificationHelper).addNotifications(
@@ -190,7 +202,6 @@ public class SentInvitesStatusGetterTest {
 
         return invite;
     }
-
 
     String response = "[\n" +
             "  {\n" +

@@ -9,11 +9,9 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
-import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.model.query.InviteSummaryQueryManager;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.util.DateUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 
@@ -56,14 +54,15 @@ public class InviteTransactionSummaryHelperTest {
     @Mock
     DateUtil dateUtil;
 
-    // Join Table
     @Mock
     TransactionsInvitesSummary transactionsInvitesSummary;
-    // Actual Invite
+
     @Mock
     InviteTransactionSummary inviteTransactionSummary;
+
     @Mock
     PhoneNumberUtil phoneNumberUtil;
+
     @InjectMocks
     InviteTransactionSummaryHelper helper;
 
@@ -90,64 +89,60 @@ public class InviteTransactionSummaryHelperTest {
     }
 
     @Test
-    public void creates_new_transaction_invite_join_table_when_server_id_absent_from_records() {
+    public void creates_new_temp_invite_when_server_id_absent_from_records() {
         InOrder orderedOperations = inOrder(daoSessionManager, inviteTransactionSummary, transactionsInvitesSummary);
 
-        CompletedInviteDTO completedInviteDTO = createCompletedInviteDTO();
-        when(inviteSummaryQueryManager.getInviteSummaryByCnId(completedInviteDTO.getCnId())).thenReturn(null);
-        when(daoSessionManager.newTransactionInviteSummary()).thenReturn(transactionsInvitesSummary);
+        PendingInviteDTO pendingInviteDTO = createPendingInviteDTO();
+        when(inviteSummaryQueryManager.getInviteSummaryByCnId(pendingInviteDTO.getRequestId())).thenReturn(null);
         when(daoSessionManager.newInviteTransactionSummary()).thenReturn(inviteTransactionSummary);
         when(daoSessionManager.insert(inviteTransactionSummary)).thenReturn(1L);
-        when(daoSessionManager.insert(transactionsInvitesSummary)).thenReturn(4L);
 
-        assertThat(helper.getOrCreateInviteSummaryWithServerId(completedInviteDTO.getCnId()),
+        when(daoSessionManager.newTransactionInviteSummary()).thenReturn(transactionsInvitesSummary);
+
+        assertThat(helper.getOrCreateInviteSummaryWithServerId(pendingInviteDTO.getRequestId()),
                 equalTo(transactionsInvitesSummary));
 
-        orderedOperations.verify(inviteTransactionSummary).setServerId(completedInviteDTO.getCnId());
+        orderedOperations.verify(inviteTransactionSummary).setServerId(pendingInviteDTO.getRequestId());
         orderedOperations.verify(daoSessionManager).insert(inviteTransactionSummary);
         orderedOperations.verify(daoSessionManager).insert(transactionsInvitesSummary);
-        orderedOperations.verify(transactionsInvitesSummary).setInviteSummaryID(1L);
-        orderedOperations.verify(transactionsInvitesSummary).update();
-        orderedOperations.verify(inviteTransactionSummary).setTransactionsInvitesSummaryID(4L);
         orderedOperations.verify(inviteTransactionSummary).update();
     }
 
     @Test
     public void returns_existing_invite_join_record_when_server_id_exists_in_records() {
         when(inviteTransactionSummary.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
-        CompletedInviteDTO completedInviteDTO = createCompletedInviteDTO();
-        when(inviteSummaryQueryManager.getInviteSummaryByCnId(completedInviteDTO.getCnId())).thenReturn(inviteTransactionSummary);
+        PendingInviteDTO completedInviteDTO = createPendingInviteDTO();
+        when(inviteSummaryQueryManager.getInviteSummaryByCnId(completedInviteDTO.getRequestId())).thenReturn(inviteTransactionSummary);
 
-        assertThat(helper.getOrCreateInviteSummaryWithServerId(completedInviteDTO.getCnId()),
+        assertThat(helper.getOrCreateInviteSummaryWithServerId(completedInviteDTO.getRequestId()),
                 equalTo(transactionsInvitesSummary));
     }
 
     @Test
-    public void saves_completed_sent_invite() {
+    public void saves_temporary_sent_invite() {
         Wallet wallet = mock(Wallet.class);
-        CompletedInviteDTO completedInviteDTO = createCompletedInviteDTO();
-        when(inviteSummaryQueryManager.getInviteSummaryByCnId(completedInviteDTO.getCnId())).thenReturn(inviteTransactionSummary);
+        PendingInviteDTO pendingInviteDTO = createPendingInviteDTO();
+        when(daoSessionManager.newInviteTransactionSummary()).thenReturn(inviteTransactionSummary);
+        when(daoSessionManager.newTransactionInviteSummary()).thenReturn(transactionsInvitesSummary);
+        when(inviteSummaryQueryManager.getInviteSummaryByCnId(pendingInviteDTO.getRequestId())).thenReturn(inviteTransactionSummary);
         when(inviteTransactionSummary.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
         when(transactionsInvitesSummary.getInviteTransactionSummary()).thenReturn(inviteTransactionSummary);
         when(walletHelper.getUserAccount()).thenReturn(account);
         when(account.getPhoneNumber()).thenReturn(senderPhoneNumber);
         when(walletHelper.getWallet()).thenReturn(wallet);
 
-        InviteTransactionSummary invite = helper.saveCompletedSentInvite(completedInviteDTO);
+        InviteTransactionSummary invite = helper.saveTemporaryInvite(pendingInviteDTO);
 
-        verify(inviteTransactionSummary).setInviteName(completedInviteDTO.getContact().getDisplayName());
+        verify(inviteTransactionSummary).setInviteName(pendingInviteDTO.getContact().getDisplayName());
         verify(inviteTransactionSummary).setHistoricValue(34000L);
         verify(inviteTransactionSummary).setReceiverPhoneNumber(receiverPhoneNumber);
         verify(inviteTransactionSummary).setSenderPhoneNumber(senderPhoneNumber);
-        verify(inviteTransactionSummary).setSentDate(completedInviteDTO.getInvitedContact().getCreatedAt());
-        verify(inviteTransactionSummary).setBtcState(BTCState.UNFULFILLED);
-        verify(inviteTransactionSummary).setValueSatoshis(completedInviteDTO.getInviteAmount());
-        verify(inviteTransactionSummary).setValueFeesSatoshis(completedInviteDTO.getInviteFee());
+        verify(inviteTransactionSummary).setBtcState(BTCState.UNACKNOWLEDGED);
+        verify(inviteTransactionSummary).setValueSatoshis(pendingInviteDTO.getInviteAmount());
+        verify(inviteTransactionSummary).setValueFeesSatoshis(pendingInviteDTO.getInviteFee());
         verify(inviteTransactionSummary).setWallet(wallet);
         verify(inviteTransactionSummary).setType(Type.SENT);
         verify(inviteTransactionSummary).update();
-        verify(transactionsInvitesSummary).setInviteTime(completedInviteDTO.getInvitedContact().getCreatedAt());
-        verify(transactionsInvitesSummary).update();
 
         assertThat(invite, equalTo(inviteTransactionSummary));
     }
@@ -178,8 +173,7 @@ public class InviteTransactionSummaryHelperTest {
         orderedOperations.verify(transactionsInvitesSummary).update();
     }
 
-
-    private CompletedInviteDTO createCompletedInviteDTO() {
+    private PendingInviteDTO createPendingInviteDTO() {
         Contact contact = new Contact(receiverPhoneNumber, "Joe Blow", false);
         PendingInviteDTO pendingInviteDTO = new PendingInviteDTO(contact,
                 340000L,
@@ -188,17 +182,7 @@ public class InviteTransactionSummaryHelperTest {
                 "--memo--",
                 true
         );
-        InvitedContact invitedContact = new InvitedContact(
-                "--cn-id--",
-                System.currentTimeMillis(),
-                System.currentTimeMillis(),
-                "",
-                contact.getHash(),
-                "new",
-                null
-        );
 
-        return new CompletedInviteDTO(pendingInviteDTO, invitedContact);
+        return pendingInviteDTO;
     }
-
 }

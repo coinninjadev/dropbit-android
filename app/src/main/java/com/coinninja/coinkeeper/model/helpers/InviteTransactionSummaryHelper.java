@@ -8,7 +8,9 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO;
+import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.model.query.InviteSummaryQueryManager;
+import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.util.DateUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -19,6 +21,11 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import static com.coinninja.coinkeeper.model.db.enums.BTCState.UNACKNOWLEDGED;
 
 public class InviteTransactionSummaryHelper {
     private final InviteSummaryQueryManager inviteSummaryQueryManager;
@@ -39,6 +46,7 @@ public class InviteTransactionSummaryHelper {
         this.phoneNumberUtil = phoneNumberUtil;
     }
 
+    @NonNull
     TransactionsInvitesSummary getOrCreateInviteSummaryWithServerId(String cnId) {
         InviteTransactionSummary inviteTransactionSummary = inviteSummaryQueryManager.getInviteSummaryByCnId(cnId);
         if (null == inviteTransactionSummary)
@@ -46,42 +54,87 @@ public class InviteTransactionSummaryHelper {
         return inviteTransactionSummary.getTransactionsInvitesSummary();
     }
 
+    @Nullable
+    TransactionsInvitesSummary getInviteSummaryWithServerId(String cnId) {
+        InviteTransactionSummary inviteTransactionSummary = inviteSummaryQueryManager.getInviteSummaryByCnId(cnId);
+        if (null == inviteTransactionSummary)
+            return null;
+        return inviteTransactionSummary.getTransactionsInvitesSummary();
+    }
+
     private TransactionsInvitesSummary createInviteTransactionSummaryWithParent(String cnId) {
         TransactionsInvitesSummary transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary();
-        InviteTransactionSummary inviteTransactionSummary = daoSessionManager.newInviteTransactionSummary();
-        inviteTransactionSummary.setServerId(cnId);
-        long inviteId = daoSessionManager.insert(inviteTransactionSummary);
+        InviteTransactionSummary inviteTransactionSummary = createInviteTransactionSummary(cnId);
+
         long joinId = daoSessionManager.insert(transactionsInvitesSummary);
+        long inviteId = daoSessionManager.insert(inviteTransactionSummary);
+        inviteTransactionSummary.setTransactionsInvitesSummaryID(joinId);
         transactionsInvitesSummary.setInviteSummaryID(inviteId);
         transactionsInvitesSummary.update();
-        inviteTransactionSummary.setTransactionsInvitesSummaryID(joinId);
         inviteTransactionSummary.update();
+
         return transactionsInvitesSummary;
     }
 
-    public InviteTransactionSummary saveCompletedSentInvite(CompletedInviteDTO completedInviteDTO) {
-        TransactionsInvitesSummary transactionsInvitesSummary = getOrCreateInviteSummaryWithServerId(completedInviteDTO.getCnId());
-        transactionsInvitesSummary.setInviteTime(completedInviteDTO.getInvitedContact().getCreatedAt());
-        transactionsInvitesSummary.setToPhoneNumber(completedInviteDTO.getContact().getPhoneNumber());
-        transactionsInvitesSummary.update();
-        InviteTransactionSummary invite = transactionsInvitesSummary.getInviteTransactionSummary();
-        USDCurrency conversionCurrency = new USDCurrency(completedInviteDTO.getBitcoinPrice());
-        BTCCurrency btcCurrency = new BTCCurrency(completedInviteDTO.getInviteAmount() + completedInviteDTO.getInviteFee());
+    private InviteTransactionSummary createInviteTransactionSummary(String cnId) {
+        InviteTransactionSummary inviteTransactionSummary = daoSessionManager.newInviteTransactionSummary();
+        inviteTransactionSummary.setServerId(cnId);
+        daoSessionManager.insert(inviteTransactionSummary);
+
+        return inviteTransactionSummary;
+    }
+
+    public InviteTransactionSummary saveTemporaryInvite(PendingInviteDTO pendingInviteDTO) {
+        InviteTransactionSummary invite = createInviteTransactionSummary(pendingInviteDTO.getRequestId());
+        USDCurrency conversionCurrency = new USDCurrency(pendingInviteDTO.getBitcoinPrice());
+        BTCCurrency btcCurrency = new BTCCurrency(pendingInviteDTO.getInviteAmount() + pendingInviteDTO.getInviteFee());
         USDCurrency totalUsdSpending = btcCurrency.toUSD(conversionCurrency);
 
-        invite.setInviteName(completedInviteDTO.getContact().getDisplayName());
+        invite.setInviteName(pendingInviteDTO.getContact().getDisplayName());
         invite.setHistoricValue(totalUsdSpending.toLong());
         invite.setSenderPhoneNumber(walletHelper.getUserAccount().getPhoneNumber());
-        invite.setReceiverPhoneNumber(completedInviteDTO.getContact().getPhoneNumber());
-        invite.setSentDate(completedInviteDTO.getInvitedContact().getCreatedAt());
-        invite.setValueSatoshis(completedInviteDTO.getInviteAmount());
-        invite.setValueFeesSatoshis(completedInviteDTO.getInviteFee());
+        invite.setReceiverPhoneNumber(pendingInviteDTO.getContact().getPhoneNumber());
+        invite.setValueSatoshis(pendingInviteDTO.getInviteAmount());
+        invite.setValueFeesSatoshis(pendingInviteDTO.getInviteFee());
         invite.setWallet(walletHelper.getWallet());
-        invite.setBtcState(BTCState.from(completedInviteDTO.getInvitedContact().getStatus()));
+        invite.setBtcState(UNACKNOWLEDGED);
         invite.setType(Type.SENT);
         invite.update();
 
         return invite;
+    }
+
+    @Nullable
+    public InviteTransactionSummary acknowledgeInviteTransactionSummary(CompletedInviteDTO completedInviteDTO) {
+        TransactionsInvitesSummary transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary();
+        transactionsInvitesSummary.setInviteTime(completedInviteDTO.getInvitedContact().getCreatedAt());
+
+        InviteTransactionSummary invite = inviteSummaryQueryManager.getInviteSummaryByCnId(completedInviteDTO.getRequestId());
+        transactionsInvitesSummary.setInviteSummaryID(invite.getId());
+        daoSessionManager.insert(transactionsInvitesSummary);
+        invite.setServerId(completedInviteDTO.getCnId());
+        invite.setSentDate(completedInviteDTO.getInvitedContact().getCreatedAt());
+        invite.setBtcState(BTCState.from(completedInviteDTO.getInvitedContact().getStatus()));
+        invite.update();
+        transactionsInvitesSummary.update();
+
+        return invite;
+    }
+
+    public void acknowledgeInviteTransactionSummary(SentInvite sentInvite) {
+        TransactionsInvitesSummary transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary();
+        if (null == transactionsInvitesSummary) { return; }
+
+        InviteTransactionSummary invite = inviteSummaryQueryManager.getInviteSummaryByCnId(sentInvite.getMetadata().getRequest_id());
+
+        if (invite.getBtcState() != UNACKNOWLEDGED) { return; }
+
+        transactionsInvitesSummary.setInviteTime(sentInvite.getCreated_at());
+        invite.setServerId(sentInvite.getId());
+        invite.setSentDate(sentInvite.getCreated_at());
+        invite.setBtcState(BTCState.from(sentInvite.getStatus()));
+        transactionsInvitesSummary.update();
+        invite.update();
     }
 
     public void updateFulfilledInvite(TransactionsInvitesSummary transactionsInvitesSummary,
@@ -99,7 +152,14 @@ public class InviteTransactionSummaryHelper {
         transactionsInvitesSummary.setBtcTxTime(dateUtil.getCurrentTimeInMillis());
         inviteTransactionSummary.update();
         transactionsInvitesSummary.update();
+    }
 
+    public InviteTransactionSummary getInviteSummaryById(String id) {
+        return inviteSummaryQueryManager.getInviteSummaryByCnId(id);
+    }
+
+    public List<InviteTransactionSummary> getAllUnacknowledgedInvitations() {
+        return daoSessionManager.getInviteTransactionSummaryDao().queryBuilder().where(InviteTransactionSummaryDao.Properties.BtcState.eq(UNACKNOWLEDGED.getId())).list();
     }
 
     public List<InviteTransactionSummary> getUnfulfilledSentInvites() {

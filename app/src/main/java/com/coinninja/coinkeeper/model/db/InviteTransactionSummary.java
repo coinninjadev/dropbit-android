@@ -19,7 +19,6 @@ import org.greenrobot.greendao.annotation.Unique;
 
 @Entity(active = true)
 public class InviteTransactionSummary {
-
     @Property
     Long walletId;
     @ToOne(joinProperty = "walletId")

@@ -4,7 +4,8 @@ public enum BTCState {
     UNFULFILLED(0),
     FULFILLED(1),
     CANCELED(2),
-    EXPIRED(3);
+    EXPIRED(3),
+    UNACKNOWLEDGED(4);
 
     private final int id;
 

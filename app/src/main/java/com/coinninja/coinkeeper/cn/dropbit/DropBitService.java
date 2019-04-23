@@ -3,6 +3,8 @@ package com.coinninja.coinkeeper.cn.dropbit;
 import android.app.IntentService;
 import android.content.Intent;
 
+import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
@@ -39,6 +41,5 @@ public class DropBitService extends IntentService {
             dropBitCancellationManager.markAsCanceled(intent.getStringExtra(Intents.EXTRA_INVITATION_ID));
             localBroadCastUtil.sendBroadcast(Intents.ACTION_TRANSACTION_DATA_CHANGED);
         }
-
     }
 }

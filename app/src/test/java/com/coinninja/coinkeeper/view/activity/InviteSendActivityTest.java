@@ -41,7 +41,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestCoinKeeperApplication.class)
 public class InviteSendActivityTest {
@@ -86,16 +85,16 @@ public class InviteSendActivityTest {
 
     @Test
     public void inviteTransaction() {
-        ArgumentCaptor<Contact> argumentCaptor = ArgumentCaptor.forClass(Contact.class);
+        ArgumentCaptor<PendingInviteDTO> argumentCaptor = ArgumentCaptor.forClass(PendingInviteDTO.class);
 
         activityController.start().resume();
 
-        verify(invitePresenter).requestInvite(argumentCaptor.capture(), eq(satoshisSpending), eq(bitcoinUSDPrice));
+        verify(invitePresenter).requestInvite(argumentCaptor.capture());
 
-        Contact contact = argumentCaptor.getValue();
-        assertThat(contact.getPhoneNumber().toNationalDisplayText(), equalTo(this.contact.getPhoneNumber().toNationalDisplayText()));
-        assertThat(contact.getDisplayName(), equalTo(this.contact.getDisplayName()));
-        assertThat(contact.isVerified(), equalTo(this.contact.isVerified()));
+        PendingInviteDTO inviteDTO = argumentCaptor.getValue();
+        assertThat(inviteDTO.getContact().getPhoneNumber().toNationalDisplayText(), equalTo(this.contact.getPhoneNumber().toNationalDisplayText()));
+        assertThat(inviteDTO.getContact().getDisplayName(), equalTo(this.contact.getDisplayName()));
+        assertThat(inviteDTO.getContact().isVerified(), equalTo(this.contact.isVerified()));
     }
 
     @Test

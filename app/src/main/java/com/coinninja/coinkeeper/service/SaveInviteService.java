@@ -27,7 +27,6 @@ public class SaveInviteService extends IntentService {
     @Inject
     CNWalletManager cnWalletManager;
 
-
     public SaveInviteService() {
         this(TAG);
     }
@@ -45,7 +44,7 @@ public class SaveInviteService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         CompletedInviteDTO completedInviteDTO = intent.getParcelableExtra(Intents.EXTRA_COMPLETED_INVITE_DTO);
-        InviteTransactionSummary invite = inviteTransactionSummaryHelper.saveCompletedSentInvite(completedInviteDTO);
+        InviteTransactionSummary invite = inviteTransactionSummaryHelper.acknowledgeInviteTransactionSummary(completedInviteDTO);
         transactionNotificationManager.saveTransactionNotificationLocally(invite, completedInviteDTO);
         cnWalletManager.updateBalances();
     }

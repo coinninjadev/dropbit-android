@@ -31,6 +31,7 @@ public class GetIncomingInviteRunner implements Runnable {
 
     @Override
     public void run() {
+        //
         Response response = client.getReceivedInvites();
         if (response.isSuccessful()) {
             writeInvitesToDatabase((List<ReceivedInvite>) response.body());

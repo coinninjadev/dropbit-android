@@ -3,12 +3,15 @@ package com.coinninja.coinkeeper.service.runner;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.util.uuid.UUIDGenerator;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,8 +42,16 @@ public class InviteContactRunnerTest {
     private InviteContactRunner.OnInviteListener onInviteListener;
     @Mock
     CNWalletManager cnWalletManager;
+    @Mock
+    private UUIDGenerator generator;
 
-    private USDCurrency bitcoinUSDPrice;
+    @Mock
+    PendingInviteDTO pendingInviteDTO;
+
+    @Mock
+    InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
+
+    private long bitcoinUSDPrice;
     private long satoshisSending;
     private String sendBtcToPhoneNumber;
     private InviteContactRunner inviteContactRunner;
@@ -48,6 +59,7 @@ public class InviteContactRunnerTest {
     private final PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
     private PhoneNumber toPhoneNumber;
     private PhoneNumber accountPhoneNumber;
+    private String uuid = "23742734-23742734-23472734-23742734";
 
     @Before
     public void setUp() throws Exception {
@@ -57,11 +69,18 @@ public class InviteContactRunnerTest {
         toPhoneNumber = new PhoneNumber(sendBtcToPhoneNumber);
         accountPhoneNumber = new PhoneNumber(myAccountPhoneNumber);
         satoshisSending = 4568949465L;
-        bitcoinUSDPrice = new USDCurrency("8000");
+        bitcoinUSDPrice = 800000;
+
+        pendingInviteDTO = mock(PendingInviteDTO.class);
+        when(pendingInviteDTO.getInviteAmount()).thenReturn(satoshisSending);
+        when(pendingInviteDTO.getBitcoinPrice()).thenReturn(bitcoinUSDPrice);
+        when(pendingInviteDTO.getRequestId()).thenReturn(uuid);
 
         myContact = new Contact(accountPhoneNumber, "send_to_self", true);
         when(cnWalletManager.getContact()).thenReturn(myContact);
-        inviteContactRunner = new InviteContactRunner(client, cnWalletManager, phoneNumberUtil);
+        when(generator.generate()).thenReturn(uuid);
+        inviteContactRunner = new InviteContactRunner(client, cnWalletManager, phoneNumberUtil, inviteTransactionSummaryHelper);
+        inviteContactRunner.setPendingInviteDTO(pendingInviteDTO);
     }
 
     @After
@@ -69,10 +88,10 @@ public class InviteContactRunnerTest {
         client = null;
         onInviteListener = null;
         cnWalletManager = null;
-        bitcoinUSDPrice = null;
         sendBtcToPhoneNumber = null;
         inviteContactRunner = null;
         myContact = null;
+        pendingInviteDTO = null;
     }
 
     @Test
@@ -82,18 +101,15 @@ public class InviteContactRunnerTest {
 
         Response mockResponse = Response.success(contact);
 
-        when(client.invitePhoneNumber(anyLong(), anyLong(), any(), any())).thenReturn(mockResponse);
+        when(client.invitePhoneNumber(anyLong(), anyLong(), any(), any(), any())).thenReturn(mockResponse);
         inviteContactRunner.setOnInviteListener(onInviteListener);
-        inviteContactRunner.setSatoshisSending(satoshisSending);
-        inviteContactRunner.setUSAExchangeCurrency(bitcoinUSDPrice);
 
         inviteContactRunner.execute(sendToPhoneNumber);
-
 
         PhoneNumber senderPhoneNumber = myContact.getPhoneNumber();
         PhoneNumber receiverPhoneNumber = sendToPhoneNumber.getPhoneNumber();
         verify(client).invitePhoneNumber(36551596l, 4568949465l,
-                senderPhoneNumber, receiverPhoneNumber);
+                senderPhoneNumber, receiverPhoneNumber, uuid);
         verify(onInviteListener).onInviteSuccessful(contact);
     }
 
@@ -104,17 +120,15 @@ public class InviteContactRunnerTest {
         ResponseBody body = ResponseBody.create(MediaType.parse("text"), "bad request");
         Response mockResponse = Response.error(400, body);
 
-        when(client.invitePhoneNumber(anyLong(), anyLong(), any(), any())).thenReturn(mockResponse);
+        when(client.invitePhoneNumber(anyLong(), anyLong(), any(), any(), any())).thenReturn(mockResponse);
         inviteContactRunner.setOnInviteListener(onInviteListener);
-        inviteContactRunner.setSatoshisSending(satoshisSending);
-        inviteContactRunner.setUSAExchangeCurrency(bitcoinUSDPrice);
 
         inviteContactRunner.execute(sendToPhoneNumber);
 
         PhoneNumber senderPhoneNumber = myContact.getPhoneNumber();
         PhoneNumber receiverPhoneNumber = sendToPhoneNumber.getPhoneNumber();
         verify(client).invitePhoneNumber(36551596l, 4568949465l,
-                senderPhoneNumber, receiverPhoneNumber);
+                senderPhoneNumber, receiverPhoneNumber, uuid);
 
         verify(onInviteListener).onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, "bad request");
     }
@@ -126,17 +140,15 @@ public class InviteContactRunnerTest {
         ResponseBody body = ResponseBody.create(MediaType.parse("text"), "rate limit error");
         Response mockResponse = Response.error(429, body);
 
-        when(client.invitePhoneNumber(anyLong(), anyLong(), any(), any())).thenReturn(mockResponse);
+        when(client.invitePhoneNumber(anyLong(), anyLong(), any(), any(), any())).thenReturn(mockResponse);
         inviteContactRunner.setOnInviteListener(onInviteListener);
-        inviteContactRunner.setSatoshisSending(satoshisSending);
-        inviteContactRunner.setUSAExchangeCurrency(bitcoinUSDPrice);
 
         inviteContactRunner.execute(sendToPhoneNumber);
 
         PhoneNumber senderPhoneNumber = myContact.getPhoneNumber();
         PhoneNumber receiverPhoneNumber = sendToPhoneNumber.getPhoneNumber();
         verify(client).invitePhoneNumber(36551596l, 4568949465l,
-                senderPhoneNumber, receiverPhoneNumber);
+                senderPhoneNumber, receiverPhoneNumber, uuid);
 
         verify(onInviteListener).onInviteError(Intents.ACTION_DROPBIT__ERROR_RATE_LIMIT, "rate limit error");
     }

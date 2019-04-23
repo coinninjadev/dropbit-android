@@ -40,7 +40,6 @@ public class ActivityWItoIntentStarted<Activity> extends BaseMatcher<Activity> {
 
         intentMatcher = new IntentMatcher(intent);
         return intentMatcher.matches(startedActivity);
-
     }
 
     @Override
