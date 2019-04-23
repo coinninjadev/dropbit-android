@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -53,6 +54,9 @@ public class DrawerControllerTest {
     private ActivityNavigationUtil navigationUtil;
 
     @Mock
+    private WalletHelper walletHelper;
+
+    @Mock
     private DrawerProvider drawerProvider;
 
     private Activity activity;
@@ -64,7 +68,7 @@ public class DrawerControllerTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        drawerController = new DrawerController(badgeRenderer, navigationUtil, drawerProvider, "1.1.1");
+        drawerController = new DrawerController(badgeRenderer, navigationUtil, drawerProvider, "1.1.1", walletHelper);
         activity = Robolectric.setupActivity(A.class);
         actionbarType.resourceId = R.id.actionbar_dark_up_on_with_nav_bar;
     }
@@ -217,6 +221,19 @@ public class DrawerControllerTest {
         verify(badgeRenderer).renderBadge(toolbar);
         verify(badgeRenderer).renderBadge(settings);
         assertThat(withId(activity, R.id.drawer_backup_now), isVisible());
+    }
+
+    @Test
+    public void show_badge_if_phone_is_not_verified() {
+        drawerController.inflateDrawer(activity, actionbarType);
+
+        drawerController.renderBadgeForUnverifiedDeviceIfNecessary();
+
+        ImageView phoneImage = withId(activity, R.id.contact_phone);
+        Toolbar toolbar = withId(activity, R.id.toolbar);
+
+        verify(badgeRenderer).renderBadge(phoneImage);
+        verify(badgeRenderer).renderBadge(toolbar);
     }
 
     @Test

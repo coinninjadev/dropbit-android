@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
@@ -28,6 +29,7 @@ import static com.coinninja.android.helpers.Views.withId;
 
 public class DrawerController {
 
+    private final WalletHelper walletHelper;
     DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private BadgeRenderer badgeRenderer;
@@ -36,11 +38,13 @@ public class DrawerController {
     private final String versionName;
 
     @Inject
-    public DrawerController(BadgeRenderer badgeRenderer, ActivityNavigationUtil navigationUtil, DrawerProvider drawerProvider, @BuildVersionName String versionName) {
+    public DrawerController(BadgeRenderer badgeRenderer, ActivityNavigationUtil navigationUtil, DrawerProvider drawerProvider,
+                            @BuildVersionName String versionName, WalletHelper walletHelper) {
         this.badgeRenderer = badgeRenderer;
         this.navigationUtil = navigationUtil;
         this.drawerProvider = drawerProvider;
         this.versionName = versionName;
+        this.walletHelper = walletHelper;
     }
 
     public void inflateDrawer(Activity activity, TypedValue actionBarType) {
@@ -86,6 +90,15 @@ public class DrawerController {
         if (drawerLayout == null) return false;
 
         return drawerLayout.isDrawerOpen(GravityCompat.START);
+    }
+
+    public void renderBadgeForUnverifiedDeviceIfNecessary() {
+        if (drawerLayout == null) { return; }
+
+        if (!walletHelper.hasVerifiedAccount()) {
+            badgeRenderer.renderBadge((ImageView) drawerLayout.findViewById(R.id.contact_phone));
+            badgeRenderer.renderBadge((Toolbar) drawerLayout.findViewById(R.id.toolbar));
+        }
     }
 
     public void updatePriceOfBtcDisplay(USDCurrency price) {

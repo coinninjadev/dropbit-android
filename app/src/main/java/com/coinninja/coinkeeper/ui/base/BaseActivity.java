@@ -80,6 +80,8 @@ public abstract class BaseActivity extends AppCompatActivity implements HasFragm
         if (cnWalletManager.hasSkippedBackup()) {
             drawerController.showBackupNowDrawerActions();
         }
+
+        drawerController.renderBadgeForUnverifiedDeviceIfNecessary();
     }
 
     @Override
@@ -88,7 +90,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasFragm
         actionBarController.setMenuItemClickListener(this);
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
