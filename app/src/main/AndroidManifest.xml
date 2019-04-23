@@ -177,15 +177,13 @@
             android:name=".ui.spending.SpendBitcoinActivity"
             android:label="@string/spend_bitcoin_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn"
-            android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn" />
 
         <activity
             android:name=".ui.spending.BuyBitcoinActivity"
             android:label="@string/get_bitcoin_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn"
-            android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
+            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn" />
 
         <activity
             android:name=".view.activity.RecoverWalletActivity"
