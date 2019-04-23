@@ -28,6 +28,7 @@ import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
+import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.LazyList;
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -159,7 +160,6 @@ public class WalletHelper {
                 " where _id in (select _id from TARGET_STAT where WALLET_ID is null and ADDRESS_ID is not null)");
         daoSessionManager.runRaw("update FUNDING_STAT set WALLET_ID = (select _id from WALLET limit 1)" +
                 " where _id in (select _id from FUNDING_STAT where WALLET_ID is null and ADDRESS_ID is not null);");
-
     }
 
     public TransactionSummary initTransactions(List<GsonAddress> addresses) {
@@ -220,7 +220,6 @@ public class WalletHelper {
     }
 
     public void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
-        //todo: hasAccount() actually inserts a new account into the database
         if (!hasAccount()) return;
 
         Account account = getUserAccount();
@@ -316,7 +315,7 @@ public class WalletHelper {
         List<InviteTransactionSummary> invites = wallet.getInviteTransactionSummaries();
 
         for (TargetStat target : targetStats) {
-            if (target.getState() == TargetStat.State.CANCELED) continue;//skip canceled stats
+            if (target.getState() == TargetStat.State.CANCELED) continue;
 
             boolean isNotSpendable = isTargetNotSpendable(target);
 
@@ -328,7 +327,7 @@ public class WalletHelper {
         }
 
         for (FundingStat funding : fundingStats) {
-            if (funding.getState() == FundingStat.State.CANCELED) continue;//skip canceled stats
+            if (funding.getState() == FundingStat.State.CANCELED) continue;
 
             balance -= funding.getValue();
         }

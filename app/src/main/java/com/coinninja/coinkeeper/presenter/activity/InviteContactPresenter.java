@@ -1,10 +1,9 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
-import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.runner.InviteContactRunner;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import javax.inject.Inject;
 
@@ -24,12 +23,11 @@ public class InviteContactPresenter implements InviteContactRunner.OnInviteListe
         this.view = view;
     }
 
-    public void requestInvite(Contact contact, Long satoshisSending, Long bitcoinUSDPrice) {
+    public void requestInvite(PendingInviteDTO pendingInviteDTO) {
         inviteRunner.setOnInviteListener(this);
+        inviteRunner.setPendingInviteDTO(pendingInviteDTO);
         inviteRunner = inviteRunner.clone();
-        inviteRunner.setSatoshisSending(satoshisSending);
-        inviteRunner.setUSAExchangeCurrency(new USDCurrency(bitcoinUSDPrice));
-        inviteRunner.execute(contact);
+        inviteRunner.execute(pendingInviteDTO.getContact());
     }
 
     @Override

@@ -5,6 +5,9 @@ import android.util.Log;
 
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
+import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
@@ -23,22 +26,29 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
     private final SignedCoinKeeperApiClient client;
     private final CNWalletManager cnWalletManager;
     private OnInviteListener onInviteListener;
-    private Long satoshisSending;
-    private USDCurrency usdExchangeCurrency;
     private PhoneNumberUtil phoneNumberUtil;
+    private PendingInviteDTO pendingInviteDTO;
+    private InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
 
     @Inject
-    InviteContactRunner(SignedCoinKeeperApiClient client, CNWalletManager cnWalletManager, PhoneNumberUtil phoneNumberUtil) {
+    InviteContactRunner(SignedCoinKeeperApiClient client, CNWalletManager cnWalletManager, PhoneNumberUtil phoneNumberUtil, InviteTransactionSummaryHelper inviteTransactionSummaryHelper) {
         this.client = client;
         this.cnWalletManager = cnWalletManager;
         this.phoneNumberUtil = phoneNumberUtil;
+        this.inviteTransactionSummaryHelper = inviteTransactionSummaryHelper;
     }
 
-    private InviteContactRunner(SignedCoinKeeperApiClient client, CNWalletManager cnWalletManager, PhoneNumberUtil phoneNumberUtil, OnInviteListener onInviteListener) {
+    private InviteContactRunner(SignedCoinKeeperApiClient client, CNWalletManager cnWalletManager, PhoneNumberUtil phoneNumberUtil, PendingInviteDTO pendingInviteDTO, OnInviteListener onInviteListener, InviteTransactionSummaryHelper inviteTransactionSummaryHelper) {
         this.client = client;
         this.cnWalletManager = cnWalletManager;
         this.onInviteListener = onInviteListener;
         this.phoneNumberUtil = phoneNumberUtil;
+        this.pendingInviteDTO = pendingInviteDTO;
+        this.inviteTransactionSummaryHelper = inviteTransactionSummaryHelper;
+    }
+
+    public void setPendingInviteDTO(PendingInviteDTO pendingInviteDTO) {
+        this.pendingInviteDTO = pendingInviteDTO;
     }
 
     public void setOnInviteListener(OnInviteListener onInviteListener) {
@@ -47,17 +57,19 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
 
     @Override
     public InviteContactRunner clone() {
-        return new InviteContactRunner(client, cnWalletManager, phoneNumberUtil, onInviteListener);
+        return new InviteContactRunner(client, cnWalletManager, phoneNumberUtil, pendingInviteDTO, onInviteListener, inviteTransactionSummaryHelper);
     }
 
     @Override
     protected Response doInBackground(Contact... contacts) {
         publishProgress(50);
 
+        inviteTransactionSummaryHelper.saveTemporaryInvite(pendingInviteDTO);
+
         Contact receiverContact = contacts[0];
 
-        BTCCurrency sendingValue = new BTCCurrency(satoshisSending);
-        long centsAmountSendingUSD = sendingValue.toUSD(usdExchangeCurrency).toLong();
+        BTCCurrency sendingValue = new BTCCurrency(pendingInviteDTO.getInviteAmount());
+        long centsAmountSendingUSD = sendingValue.toUSD(new USDCurrency(pendingInviteDTO.getBitcoinPrice())).toLong();
         long satoshisAmountSendingBTC = sendingValue.toSatoshis();
 
         PhoneNumber senderPhoneNumber = cnWalletManager.getContact().getPhoneNumber();
@@ -68,8 +80,8 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
                 centsAmountSendingUSD,
                 satoshisAmountSendingBTC,
                 senderPhoneNumber,
-                receiverPhoneNumber);
-
+                receiverPhoneNumber,
+                pendingInviteDTO.getRequestId());
 
         if (response.isSuccessful()) {
             return response;
@@ -112,14 +124,6 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
             default:
                 onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, getErrorMessage(errorResponse));
         }
-    }
-
-    public void setSatoshisSending(Long satoshisSending) {
-        this.satoshisSending = satoshisSending;
-    }
-
-    public void setUSAExchangeCurrency(USDCurrency usdExchangeCurrency) {
-        this.usdExchangeCurrency = usdExchangeCurrency;
     }
 
     private String getErrorMessage(Response response) {

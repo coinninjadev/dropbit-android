@@ -13,7 +13,8 @@ public class CompletedInviteDTO extends PendingInviteDTO implements Parcelable {
     public CompletedInviteDTO(PendingInviteDTO pendingInvite, InvitedContact invitedContact) {
         super(pendingInvite.getContact(), pendingInvite.getBitcoinPrice(),
                 pendingInvite.getInviteAmount(), pendingInvite.getInviteFee(),
-                pendingInvite.getMemo(), pendingInvite.isMemoIsShared());
+                pendingInvite.getMemo(), pendingInvite.isMemoIsShared(),
+                pendingInvite.getRequestId());
 
         this.invitedContact = invitedContact;
     }

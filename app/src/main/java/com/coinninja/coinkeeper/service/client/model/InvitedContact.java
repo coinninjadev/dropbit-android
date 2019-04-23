@@ -3,12 +3,15 @@ package com.coinninja.coinkeeper.service.client.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
+
 import java.util.Objects;
 
 public class InvitedContact implements Parcelable {
     String id = "";
     long created_at = 0L;
     long updated_at = 0L;
+    PendingInviteDTO pendingInviteDTO;
     String address = "";
     String phone_number_hash = "";
     String status = "";

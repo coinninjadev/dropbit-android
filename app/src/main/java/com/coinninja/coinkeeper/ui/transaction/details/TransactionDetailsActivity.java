@@ -83,8 +83,8 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
     @Override
     protected void onStop() {
         pageAdapter.setShowTransactionDetailRequestObserver(null);
-        pageAdapter.tearDown();
         localBroadCastUtil.unregisterReceiver(receiver);
+        pageAdapter.tearDown();
         super.onStop();
     }
 

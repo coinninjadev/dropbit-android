@@ -93,7 +93,7 @@ public class SaveInviteServiceTest {
     public void does_nothing_when_intent_does_not_have_completed_dto() {
         intent.removeExtra(Intents.EXTRA_COMPLETED_INVITE_DTO);
 
-        verify(inviteTransactionSummaryHelper, times(0)).saveCompletedSentInvite(completedInviteDTO);
+        verify(inviteTransactionSummaryHelper, times(0)).saveTemporaryInvite(completedInviteDTO);
         verify(cnWalletManager, times(0)).updateBalances();
         verify(transactionNotificationManager, times(0)).saveTransactionNotificationLocally(any(InviteTransactionSummary.class), any());
     }
@@ -102,11 +102,10 @@ public class SaveInviteServiceTest {
     public void saves_invite_transaction_notification_and_updates_wallet() {
         InOrder orderedOperations = inOrder(inviteTransactionSummaryHelper, cnWalletManager, transactionNotificationManager);
         InviteTransactionSummary inviteTransactionSummary = mock(InviteTransactionSummary.class);
-        when(inviteTransactionSummaryHelper.saveCompletedSentInvite(completedInviteDTO)).thenReturn(inviteTransactionSummary);
+        when(inviteTransactionSummaryHelper.acknowledgeInviteTransactionSummary(completedInviteDTO)).thenReturn(inviteTransactionSummary);
 
         service.onHandleIntent(intent);
 
-        orderedOperations.verify(inviteTransactionSummaryHelper).saveCompletedSentInvite(completedInviteDTO);
         orderedOperations.verify(transactionNotificationManager).saveTransactionNotificationLocally(inviteTransactionSummary, completedInviteDTO);
         orderedOperations.verify(cnWalletManager).updateBalances();
     }

@@ -252,7 +252,11 @@ public class TransactionAdapterUtil {
             bindableTransaction.setTargetAddress(invite.getAddress());
         bindableTransaction.setHistoricalInviteUSDValue(invite.getHistoricValue());
         bindableTransaction.setServerInviteId(invite.getServerId());
-        translateTransactionDate(bindableTransaction, invite.getSentDate());
+
+        if (invite.getSentDate() != null) {
+            translateTransactionDate(bindableTransaction, invite.getSentDate());
+        }
+
         translateInviteState(bindableTransaction);
         translateInviteDisplayName(bindableTransaction);
         translateInviteFee(bindableTransaction);

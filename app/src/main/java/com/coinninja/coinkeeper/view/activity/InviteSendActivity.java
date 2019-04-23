@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -26,13 +27,17 @@ import androidx.annotation.Nullable;
 
 public class InviteSendActivity extends SecuredActivity implements InviteContactPresenter.View {
     public static final String RATE_LIMIT_DROPBIT_FRAGMENT_TAG = "EXPIRED_CODE_FRAGMENT_TAG";
+    static final String RESTORE_STATE = "RESTORE_STATE";
 
     @Inject
     ActivityNavigationUtil activityNavigationUtil;
+
     @Inject
     InviteContactPresenter invitePresenter;
+
     SendingProgressView sendingProgressView;
     PendingInviteDTO pendingInviteDTO;
+    SendState sendState = SendState.INIT;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,13 +45,37 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         setContentView(R.layout.activity_broadcast);
         sendingProgressView = findViewById(R.id.broadcast_sending_progress);
         pendingInviteDTO = getIntent().getParcelableExtra(Intents.EXTRA_INVITE_DTO);
+        onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        showInitTransaction();
-        startInviteContact();
+    protected void onResume() {
+        super.onResume();
+        switch (sendState) {
+            case INIT:
+                showInitTransaction();
+                startInviteContact();
+                break;
+            case COMPLETED_SUCCESS:
+                showSuccessUI();
+                break;
+            case COMPLETED_FAILED:
+                showFailureInviteUI();
+                break;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(RESTORE_STATE, sendState.value);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState == null) { return; }
+        super.onRestoreInstanceState(savedInstanceState);
+        sendState = (SendState) savedInstanceState.get(RESTORE_STATE);
     }
 
     public void showInitTransaction() {
@@ -55,7 +84,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         TextView transactionIdLink = findViewById(R.id.transaction_id_link);
         ImageView transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
-
 
         sendingProgressView.setProgress(0);
         sendingProgressView.resetView();
@@ -76,17 +104,15 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     private void startInviteContact() {
         invitePresenter.attachView(this);
-        invitePresenter.requestInvite(pendingInviteDTO.getContact(), pendingInviteDTO.getInviteAmount(), pendingInviteDTO.getBitcoinPrice());
+        invitePresenter.requestInvite(pendingInviteDTO);
     }
 
-
-    public void showDefaultInviteFail(String message) {
+    public void showFailureInviteUI() {
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
         TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
         TextView transactionIdLink = findViewById(R.id.transaction_id_link);
         ImageView transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
-
 
         sendingProgressView.setProgress(100);
         sendingProgressView.completeFail();
@@ -106,7 +132,8 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     @Override
     public void showInviteFail(String dropBitActionError, String message) {
-        showDefaultInviteFail(message);
+        sendState = SendState.COMPLETED_FAILED;
+        showFailureInviteUI();
         reportFail();
 
         if (Intents.ACTION_DROPBIT__ERROR_RATE_LIMIT.equals(dropBitActionError)) {
@@ -118,7 +145,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     private void onRateLimitError() {
         showErrorRetryButton();
-
 
         GenericAlertDialog alertDialog = GenericAlertDialog.newInstance(
                 null,
@@ -149,12 +175,16 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     @Override
     public void showInviteSuccessful(InvitedContact inviteContact) {
+        sendState = SendState.COMPLETED_SUCCESS;
         saveInvite(inviteContact);
+        showSuccessUI();
+        reportSuccessful();
+    }
 
+    private void showSuccessUI() {
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
         TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
         Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
-
 
         sendingProgressView.setProgress(100);
         sendingProgressView.completeSuccess();
@@ -168,7 +198,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
 
         transactionActionBtn.setOnClickListener(view -> activityNavigationUtil.navigateToHome(view.getContext()));
-        reportSuccessful();
     }
 
     private void reportSuccessful() {
@@ -193,5 +222,27 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
     @Override
     public void showProgress(int progress) {
         sendingProgressView.setProgress(progress);
+    }
+
+    enum SendState {
+        INIT(0), STARTED(1), COMPLETED_FAILED(2), COMPLETED_SUCCESS(3);
+
+        private final int value;
+
+        SendState(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static SendState valueOf(int value) {
+            for (SendState sendState : SendState.values()) {
+                if (sendState.getValue() == value) return sendState;
+            }
+
+            return SendState.INIT;
+        }
     }
 }

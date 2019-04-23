@@ -51,6 +51,7 @@ public class Intents {
     public static final String ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR";
 
     public static final String ACTION_PHONE_VERIFICATION__SUCCESS = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__SUCCESS";
+    public static final String ACTION_SAVE_TEMP_INVITE = BuildConfig.APPLICATION_ID + ".ACTION_SAVE_TEMP_INVITE";
     public static final String ACTION_ON_WALLET_DELETED = BuildConfig.APPLICATION_ID + ".ACTION_ON_WALLET_DELETED";
     public static final String ACTION_INTERNAL_NOTIFICATION_UPDATE = BuildConfig.APPLICATION_ID + ".ACTION_INTERNAL_NOTIFICATION_UPDATE";
     public static final String ACTION_CANCEL_DROPBIT = BuildConfig.APPLICATION_ID + ".ACTION_CANCEL_DROPBIT";
@@ -99,6 +100,7 @@ public class Intents {
     public static final String EXTRA_ADDRESS_LOOKUP_RESULT = "EXTRA_ADDRESS_LOOKUP_RESULT";
     public static final String EXTRA_PREFERENCE = "EXTRA_PREFERENCE";
     public static final String EXTRA_ON_COMPLETION = "EXTRA_ON_COMPLETION";
+    public static final String EXTRA_PENDING_INVITE_DTO = "EXTRA_PENDING_INVITE_DTO";
     /* CN Rest API KEYS */
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ALL = "all";
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID = "android";
@@ -120,6 +122,8 @@ public class Intents {
     public static final String CN_API_CREATE_DEVICE_APPLICATION_NAME = "DropBit";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_ANDROID = "android";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_IOS = "ios";
+
+
 
     /* REQUESTS */
     public static final int REQUEST_QR_FRAGMENT_SCAN = 222;

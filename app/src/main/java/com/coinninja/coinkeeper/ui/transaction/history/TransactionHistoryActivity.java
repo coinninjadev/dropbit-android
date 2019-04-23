@@ -33,6 +33,8 @@ import com.coinninja.coinkeeper.view.widget.TransactionEmptyStateView;
 
 import org.greenrobot.greendao.query.LazyList;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
@@ -77,7 +79,6 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
 
     @Override
     public void onItemClick(View view, int position) {
-        if (transactions.isClosed()) return;
         Intent intent = new Intent(this, TransactionDetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(Intents.EXTRA_TRANSACTION_RECORD_ID, transactions.get(position).getId());

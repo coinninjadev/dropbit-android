@@ -33,6 +33,7 @@ import com.coinninja.coinkeeper.service.client.model.VOut;
 import com.coinninja.coinkeeper.util.DateUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -933,4 +934,5 @@ public class TransactionHelper {
 
         return transactionSummary;
     }
+
 }

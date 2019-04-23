@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
+import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.runner.InviteContactRunner;
@@ -28,6 +29,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class InviteContactPresenterTest {
 
+    @Mock
+    PendingInviteDTO pendingInviteDTO;
 
     @Mock
     private InviteContactRunner inviteRunner;
@@ -49,16 +52,17 @@ public class InviteContactPresenterTest {
     public void inviteContact() {
         Contact contact = mock(Contact.class);
         Long satoshisSending = 5985454L;
-        Long bitcoinUSDPrice = 5062L;
+        Long bitcoinUSDPrice = 506200L;
+        when(pendingInviteDTO.getInviteAmount()).thenReturn(satoshisSending);
+        when(pendingInviteDTO.getBitcoinPrice()).thenReturn(bitcoinUSDPrice);
+        when(pendingInviteDTO.getContact()).thenReturn(contact);
         InOrder inOrder = inOrder(inviteRunner);
 
         when(inviteRunner.clone()).thenReturn(inviteRunner);
-        inviteContactPresenter.requestInvite(contact, satoshisSending, bitcoinUSDPrice);
+        inviteContactPresenter.requestInvite(pendingInviteDTO);
 
         inOrder.verify(inviteRunner).setOnInviteListener(inviteContactPresenter);
         inOrder.verify(inviteRunner).clone();
-        inOrder.verify(inviteRunner).setSatoshisSending(satoshisSending);
-        inOrder.verify(inviteRunner).setUSAExchangeCurrency(any(USDCurrency.class));
         inOrder.verify(inviteRunner).execute(contact);
     }
 

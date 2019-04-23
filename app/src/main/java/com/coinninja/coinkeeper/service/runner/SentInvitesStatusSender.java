@@ -16,7 +16,6 @@ import retrofit2.Response;
 public class SentInvitesStatusSender implements Runnable {
     private static final String TAG = SentInvitesStatusSender.class.getSimpleName();
 
-
     private final SignedCoinKeeperApiClient client;
     private final BroadcastBtcInviteHelper broadcastBtcInviteHelper;
 

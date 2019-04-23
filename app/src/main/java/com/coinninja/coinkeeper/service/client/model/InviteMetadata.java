@@ -4,6 +4,11 @@ public class InviteMetadata {
     MetadataAmount amount;
     MetadataContact sender;
     MetadataContact receiver;
+    String request_id;
+
+    public String getRequest_id() {
+        return request_id;
+    }
 
     public MetadataAmount getAmount() {
         return amount;

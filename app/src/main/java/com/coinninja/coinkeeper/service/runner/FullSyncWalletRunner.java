@@ -83,6 +83,7 @@ public class FullSyncWalletRunner implements Runnable {
 
     private void syncDropbits() {
         if (!walletHelper.hasVerifiedAccount()) return;
+        //
         syncIncomingInvitesRunner.run();
         fulfillSentInvitesRunner.run();
         receivedInvitesStatusRunner.run();

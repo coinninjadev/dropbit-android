@@ -5,10 +5,13 @@ import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNTopic;
 import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.util.uuid.UUIDGenerator;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import retrofit2.Response;
@@ -86,7 +89,8 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
     }
 
     public Response invitePhoneNumber(long centsAmountSendingUSD, long satoshisAmountSendingBTC,
-                                      PhoneNumber senderPhoneNumber, PhoneNumber receiverPhoneNumber) {
+                                      PhoneNumber senderPhoneNumber, PhoneNumber receiverPhoneNumber,
+                                      String uuid) {
         JsonObject query = new JsonObject();
 
         JsonObject amount = new JsonObject();
@@ -101,10 +105,10 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         receiver.addProperty("country_code", receiverPhoneNumber.getCountryCode());
         receiver.addProperty("phone_number", Long.toString(receiverPhoneNumber.getNationalNumber()));
 
-
         query.add("amount", amount);
         query.add("sender", sender);
         query.add("receiver", receiver);
+        query.addProperty("request_id", uuid);
         return executeCall(getClient().invitePhoneNumber(query));
     }
 
