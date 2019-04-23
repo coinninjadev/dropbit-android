@@ -38,6 +38,7 @@ import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.ContactLookupService;
+import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 import com.coinninja.coinkeeper.service.runner.FailedBroadcastCleaner;
 import com.coinninja.coinkeeper.service.runner.FulfillSentInvitesRunner;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
@@ -46,6 +47,7 @@ import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -72,6 +74,16 @@ import static org.mockito.Mockito.mock;
 
 @Module
 public class TestAppModule {
+
+    @Provides
+    ErrorLoggingUtil errorLoggingUtil() {
+        return new ErrorLoggingUtil();
+    }
+
+    @Provides
+    BlockstreamClient blockstreamClient() {
+        return BlockstreamClient.newInstance();
+    }
 
     @Provides
     CoinKeeperApplication coinKeeperApplication(Application application) {

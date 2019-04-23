@@ -44,6 +44,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.model.helpers.WordHelper;
 import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.WalletCreationIntentService;
+import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
@@ -51,6 +52,7 @@ import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
@@ -72,6 +74,11 @@ import dagger.Provides;
 
 @Module(includes = {AndroidActivityBuilder.class, AndroidFragmentBuilder.class})
 public class AppModule {
+
+    @Provides
+    ErrorLoggingUtil errorLoggingUtil() {
+        return new ErrorLoggingUtil();
+    }
 
     @Provides
     WalletCreationIntentService walletCreationIntentService() {

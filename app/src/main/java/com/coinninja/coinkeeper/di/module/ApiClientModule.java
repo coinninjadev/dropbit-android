@@ -5,6 +5,7 @@ import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.interfaces.FCMAppID;
 import com.coinninja.coinkeeper.service.client.Bip70Client;
 import com.coinninja.coinkeeper.service.client.BlockchainClient;
+import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.CoinKeeperClient;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
@@ -54,6 +55,11 @@ public class ApiClientModule {
     @Provides
     BlockchainClient blockchainClient() {
         return BlockchainClient.newInstance();
+    }
+
+    @Provides
+    BlockstreamClient blockstreamClient() {
+        return BlockstreamClient.newInstance();
     }
 
     @Provides

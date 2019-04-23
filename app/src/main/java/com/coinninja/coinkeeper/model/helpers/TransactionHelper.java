@@ -354,9 +354,13 @@ public class TransactionHelper {
             invite.setServerId(inviteServerID);
             inviteDao.insert(invite);
         } else {
-            TransactionSummary tx = invite.getTransactionsInvitesSummary().getTransactionSummary();
-            if (tx != null && tx.getMemPoolState() == MemPoolState.FAILED_TO_BROADCAST) {
-                return null;
+            TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
+
+            if (summary != null) {
+                TransactionSummary tx = summary.getTransactionSummary();
+                if (tx != null && tx.getMemPoolState() == MemPoolState.FAILED_TO_BROADCAST) {
+                    return null;
+                }
             }
         }
 
