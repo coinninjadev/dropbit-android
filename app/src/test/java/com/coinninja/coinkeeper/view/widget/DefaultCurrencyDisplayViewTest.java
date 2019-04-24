@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.view.widget;
 
 import android.graphics.drawable.Drawable;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 

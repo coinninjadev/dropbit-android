@@ -5,6 +5,7 @@ import com.coinninja.coinkeeper.cn.service.runner.AccountDeverificationServiceRu
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletSyncCompletedReceiver;
+import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
@@ -27,6 +28,7 @@ public class FullSyncWalletRunner implements Runnable {
     private final WalletHelper walletHelper;
     private final LocalBroadCastUtil localBroadCastUtil;
     private final RemoteAddressCache remoteAddressCache;
+    private final SyncManagerViewNotifier syncManagerViewNotifier;
 
     @Inject
     FullSyncWalletRunner(CNWalletManager cnWalletManager, AccountDeverificationServiceRunner accountDeverificationServiceRunner,
@@ -35,7 +37,8 @@ public class FullSyncWalletRunner implements Runnable {
                          FailedBroadcastCleaner failedBroadcastCleaner, SyncIncomingInvitesRunner syncIncomingInvitesRunner,
                          FulfillSentInvitesRunner fulfillSentInvitesRunner, ReceivedInvitesStatusRunner receivedInvitesStatusRunner,
                          NegativeBalanceRunner negativeBalanceRunner,
-                         WalletHelper walletHelper, LocalBroadCastUtil localBroadCastUtil, RemoteAddressCache remoteAddressCache
+                         WalletHelper walletHelper, LocalBroadCastUtil localBroadCastUtil, RemoteAddressCache remoteAddressCache,
+                         SyncManagerViewNotifier syncManagerViewNotifier
     ) {
 
         this.cnWalletManager = cnWalletManager;
@@ -52,10 +55,13 @@ public class FullSyncWalletRunner implements Runnable {
         this.walletHelper = walletHelper;
         this.localBroadCastUtil = localBroadCastUtil;
         this.remoteAddressCache = remoteAddressCache;
+        this.syncManagerViewNotifier = syncManagerViewNotifier;
     }
 
     @Override
     public void run() {
+        syncManagerViewNotifier.setSyncing(true);
+
         if (!cnWalletManager.hasWallet())
             return;
 
@@ -71,6 +77,8 @@ public class FullSyncWalletRunner implements Runnable {
 
         localBroadCastUtil.sendGlobalBroadcast(WalletSyncCompletedReceiver.class,
                 Intents.ACTION_WALLET_SYNC_COMPLETE);
+
+        syncManagerViewNotifier.setSyncing(false);
     }
 
     private void syncTransactions() {

@@ -340,5 +340,6 @@ by using their mobile number</string>
     <string name="around_me_title">AROUND ME</string>
     <string name="spend_bitcoin_header">Spend your Bitcoin</string>
     <string name="get_bitcoin_header">Get Bitcoin</string>
+    <string name="syncing">Syncing</string>
 
 </resources>

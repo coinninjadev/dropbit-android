@@ -130,7 +130,7 @@ public class SyncWalletManagerTest {
     public void shedules_sync_for_30_second_intervals() {
         syncWalletManager.schedule30SecondSync();
 
-        verify(handler).postDelayed(syncWalletManager.timeOutRunnable, 30 * 1000);
+        verify(handler).postDelayed(syncWalletManager.timeOutRunnable, 60 * 1000);
     }
 
     @Test

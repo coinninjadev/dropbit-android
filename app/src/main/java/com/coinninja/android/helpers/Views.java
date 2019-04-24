@@ -71,6 +71,12 @@ public class Views {
         vibrator.vibrate(pattern, 0);
     }
 
+    public static void rotate(View view) {
+        Animation animation = AnimationUtils.loadAnimation(view.getContext(), R.anim.rotate);
+        animation.setRepeatCount(Animation.INFINITE);
+        view.startAnimation(animation);
+    }
+
     public static void renderBTCIconOnCurrencyViewPair(Context context, DefaultCurrencies defaultCurrencies, TextView primaryCurrencyView,
                                                        double primaryScale, TextView secondaryCurrencyView, double secondaryScale) {
         Drawable drawable = defaultCurrencies.getCrypto().getSymbolDrawable(context);
