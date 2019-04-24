@@ -5,6 +5,7 @@ import com.coinninja.coinkeeper.cn.service.runner.AccountDeverificationServiceRu
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletSyncCompletedReceiver;
+import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
@@ -54,6 +55,8 @@ public class FullSyncWalletRunnerTest {
     private AccountDeverificationServiceRunner accountDeverificationServiceRunner;
     @Mock
     private RemoteAddressCache remoteAddressCache;
+    @Mock
+    private SyncManagerViewNotifier syncManagerViewNotifier;
 
     @InjectMocks
     FullSyncWalletRunner runner;
@@ -126,10 +129,11 @@ public class FullSyncWalletRunnerTest {
         InOrder inOrder = inOrder(accountDeverificationServiceRunner, walletRegistrationRunner,
                 currentBTCstateRunner, syncRunnable, transactionConfirmationUpdateRunner,
                 syncIncomingInvitesRunner, fulfillSentInvitesRunner, receivedInvitesStatusRunner,
-                negativeBalanceRunner, failedBroadcastCleaner, cnWalletManager);
+                negativeBalanceRunner, failedBroadcastCleaner, cnWalletManager, syncManagerViewNotifier);
 
         runner.run();
 
+        inOrder.verify(syncManagerViewNotifier).setSyncing(true);
         inOrder.verify(accountDeverificationServiceRunner).run();
         inOrder.verify(walletRegistrationRunner).run();
         inOrder.verify(currentBTCstateRunner).run();
@@ -137,6 +141,7 @@ public class FullSyncWalletRunnerTest {
         inOrder.verify(transactionConfirmationUpdateRunner).run();
         inOrder.verify(failedBroadcastCleaner).run();
         inOrder.verify(cnWalletManager).updateBalances();
+        inOrder.verify(syncManagerViewNotifier).setSyncing(false);
 
         verify(remoteAddressCache, times(0)).cacheAddresses();
         verify(syncIncomingInvitesRunner, times(0)).run();

@@ -18,6 +18,7 @@ import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.ui.util.OnViewClickListener;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;

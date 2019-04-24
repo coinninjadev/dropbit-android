@@ -49,6 +49,7 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
+import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;

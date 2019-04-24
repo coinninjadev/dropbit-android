@@ -5,6 +5,10 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,19 +24,19 @@ import androidx.annotation.Nullable;
 
 public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultCurrencyChangeObserver {
 
-    private TextView secondaryCurrencyView;
-    private TextView primaryCurrencyView;
-    private DefaultCurrencies defaultCurrencies;
-    private BindableTransaction.SendState sendState;
-    private CryptoCurrency totalCrypto;
-    private FiatCurrency fiatValue;
-    private boolean useCryptoIcon = false;
-    private boolean useCryptoSymbol = false;
-    private int receivedTextAppearance = R.style.TextAppearance_History_Receive_Value;
-    private int sentTextAppearance = R.style.TextAppearance_History_Send_Value;
-    private int secondaryTextAppearance = R.style.TextAppearance_History_Currency;
-    private float primaryIconScale = 1;
-    private float secondaryIconScale = .8F;
+    protected TextView secondaryCurrencyView;
+    protected TextView primaryCurrencyView;
+    protected DefaultCurrencies defaultCurrencies;
+    protected BindableTransaction.SendState sendState;
+    protected CryptoCurrency totalCrypto;
+    protected FiatCurrency fiatValue;
+    protected boolean useCryptoIcon = false;
+    protected boolean useCryptoSymbol = false;
+    protected int receivedTextAppearance = R.style.TextAppearance_History_Receive_Value;
+    protected int sentTextAppearance = R.style.TextAppearance_History_Send_Value;
+    protected int secondaryTextAppearance = R.style.TextAppearance_History_Currency;
+    protected float primaryIconScale = 1;
+    protected float secondaryIconScale = .8F;
 
     public DefaultCurrencyDisplayView(Context context) {
         this(context, null);
@@ -48,12 +52,19 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
 
     public DefaultCurrencyDisplayView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        commonInit(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    protected int getLayoutId() {
+        return R.layout.merge_default_currency_display_view;
+    }
+
+    protected void commonInit(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        LayoutInflater.from(context).inflate(getLayoutId(), this, true);
         setOrientation(VERTICAL);
-        LayoutInflater.from(context).inflate(R.layout.merge_default_currency_display_view, this, true);
         primaryCurrencyView = findViewById(R.id.primary_currency);
         secondaryCurrencyView = findViewById(R.id.secondary_currency);
         parseAttributes(context, attrs, defStyleAttr);
-        styleTextView(secondaryCurrencyView, secondaryTextAppearance);
     }
 
     public void useCryptoIcon(boolean useCryptoIcon) {
@@ -102,7 +113,7 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         setDefaultCurrencyPreference(defaultCurrencies);
     }
 
-    private void parseAttributes(Context context, AttributeSet attrs, int defStyleAttr) {
+    protected void parseAttributes(Context context, AttributeSet attrs, int defStyleAttr) {
         if (attrs != null) {
             TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.DefaultCurrencyDisplayView, defStyleAttr, 0);
             if (typedArray.hasValue(R.styleable.DefaultCurrencyDisplayView_receivedTextAppearance)) {
@@ -138,13 +149,13 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         }
     }
 
-    private void invalidateValues() {
+    protected void invalidateValues() {
         invalidateCrypto();
         invalidateFiat();
         formatDirection();
     }
 
-    private void formatDirection() {
+    protected void formatDirection() {
         switch (sendState) {
             case RECEIVE:
                 styleTextView(primaryCurrencyView, receivedTextAppearance);
@@ -157,7 +168,7 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         }
     }
 
-    private void styleTextView(TextView textView, int resId) {
+    protected void styleTextView(TextView textView, int resId) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             textView.setTextAppearance(getContext(), resId);
         } else {
@@ -165,7 +176,7 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         }
     }
 
-    private void invalidateCrypto() {
+    protected void invalidateCrypto() {
         TextView cryptoView = getCryptoView();
         String formattedCryptoValue = getFormattedCryptoValue();
         if (useCryptoIcon) {
@@ -177,24 +188,24 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         cryptoView.setText(formattedCryptoValue);
     }
 
-    private void invalidateFiat() {
+    protected void invalidateFiat() {
         getFiatView().setText(getFormattedFiatValue());
     }
 
-    private String getFormattedCryptoValue() {
+    protected String getFormattedCryptoValue() {
         totalCrypto.setCurrencyFormat(CryptoCurrency.NO_SYMBOL_FORMAT);
         return totalCrypto.toFormattedCurrency();
     }
 
-    private String getFormattedFiatValue() {
+    protected String getFormattedFiatValue() {
         return fiatValue.toFormattedCurrency();
     }
 
-    private TextView getFiatView() {
+    protected TextView getFiatView() {
         return defaultCurrencies.getPrimaryCurrency().isFiat() ? primaryCurrencyView : secondaryCurrencyView;
     }
 
-    private TextView getCryptoView() {
+    protected TextView getCryptoView() {
         return defaultCurrencies.getPrimaryCurrency().isCrypto() ? primaryCurrencyView : secondaryCurrencyView;
     }
 }

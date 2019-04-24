@@ -7,7 +7,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Intents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
@@ -121,4 +123,6 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
             getIntent().removeExtra(Intents.EXTRA_TRANSACTION_RECORD_ID);
         }
     }
+
+
 }

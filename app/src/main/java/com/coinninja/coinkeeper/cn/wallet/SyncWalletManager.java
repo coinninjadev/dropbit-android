@@ -22,7 +22,7 @@ import javax.inject.Inject;
 @CoinkeeperApplicationScope
 public class SyncWalletManager implements ServiceConnection {
     public static final int NETWORK_TYPE_ANY = 1;
-    public static final long REPEAT_FREQUENCY_30_SECONDS = 30 * 1000;
+    public static final long REPEAT_FREQUENCY_60_SECONDS = 60 * 1000;
     public static final long REPEAT_FREQUENCY_1_HOUR = 60 * 60 * 1000;
 
     private Context context;
@@ -61,7 +61,7 @@ public class SyncWalletManager implements ServiceConnection {
         if (null == binder) {
             context.bindService(new Intent(context, CNWalletService.class), this, Context.BIND_AUTO_CREATE);
         }
-        timeoutHandler.postDelayed(timeOutRunnable, REPEAT_FREQUENCY_30_SECONDS);
+        timeoutHandler.postDelayed(timeOutRunnable, REPEAT_FREQUENCY_60_SECONDS);
     }
 
     public void scheduleHourlySync() {
@@ -83,6 +83,7 @@ public class SyncWalletManager implements ServiceConnection {
             context.unbindService(this);
             binder = null;
         }
+
         timeoutHandler.removeCallbacks(timeOutRunnable);
     }
 
@@ -90,11 +91,9 @@ public class SyncWalletManager implements ServiceConnection {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent serviceIntent = new Intent(context, WalletTransactionRetrieverService.class);
 
-        // Hourly sync via alarm manager
         PendingIntent alarmIntent = PendingIntent.getService(context, 0, serviceIntent, 0);
         alarmManager.cancel(alarmIntent);
 
-        // 30 second sync via alarm manager
         alarmIntent = PendingIntent.getService(context, 30, serviceIntent, 0);
         alarmManager.cancel(alarmIntent);
     }

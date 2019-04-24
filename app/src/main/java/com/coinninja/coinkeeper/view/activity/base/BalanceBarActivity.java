@@ -13,6 +13,8 @@ import android.view.View;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
+import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.history.SyncManagerChangeObserver;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -20,7 +22,7 @@ import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.FiatCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
+import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView;
 
 import javax.inject.Inject;
 
@@ -33,7 +35,7 @@ import static com.coinninja.coinkeeper.util.Intents.ACTION_BTC_PRICE_UPDATE;
 import static com.coinninja.coinkeeper.util.Intents.ACTION_WALLET_SYNC_COMPLETE;
 import static com.coinninja.coinkeeper.util.Intents.EXTRA_BITCOIN_PRICE;
 
-public abstract class BalanceBarActivity extends SecuredActivity implements ServiceConnection {
+public abstract class BalanceBarActivity extends SecuredActivity implements ServiceConnection, SyncManagerChangeObserver {
 
     @Inject
     CurrencyPreference currencyPreference;
@@ -41,12 +43,14 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     LocalBroadCastUtil localBroadCastUtil;
     @Inject
     WalletHelper walletHelper;
+    @Inject
+    SyncManagerViewNotifier syncManagerViewNotifier;
 
     BlockChainService.BlockChainBinder serviceBinder;
     BroadcastReceiver receiver;
     IntentFilter filter;
     private DefaultCurrencies defaultCurrencies;
-    private DefaultCurrencyDisplayView balance;
+    protected DefaultCurrencyDisplaySyncView balance;
 
     @Override
     public void setContentView(int layoutResID) {
@@ -62,6 +66,7 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
         filter = new IntentFilter(ACTION_WALLET_SYNC_COMPLETE);
         filter.addAction(ACTION_BTC_PRICE_UPDATE);
         bindService(new Intent(this, BlockChainService.class), this, Context.BIND_AUTO_CREATE);
+        syncManagerViewNotifier.observeSyncManagerChange(this);
     }
 
     @Override
@@ -96,6 +101,7 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
         localBroadCastUtil.registerReceiver(receiver, filter);
         registerReceiver(receiver, filter);
         invalidateBalance();
+        updateSyncingUI();
     }
 
     @Override
@@ -131,6 +137,14 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
         balance.renderValues(defaultCurrencies, getHoldingsOfCrypto(), getHoldingsOfFiat());
     }
 
+    protected void updateSyncingUI() {
+        if(syncManagerViewNotifier.isSyncing()) {
+            balance.showSyncingUI();
+        } else {
+            balance.hideSyncingUI();
+        }
+    }
+
     private CryptoCurrency getHoldingsOfCrypto() {
         return new BTCCurrency(walletHelper.getBalance());
     }
@@ -150,5 +164,9 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
             }
         }
 
+    }
+
+    public void onSyncStatusChanged() {
+        updateSyncingUI();
     }
 }

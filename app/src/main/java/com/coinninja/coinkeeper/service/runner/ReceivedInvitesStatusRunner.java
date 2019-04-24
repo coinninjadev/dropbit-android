@@ -57,7 +57,6 @@ public class ReceivedInvitesStatusRunner implements Runnable {
 
             saveFulfilledInvite(invite);
         }
-
     }
 
     private void saveFulfilledInvite(ReceivedInvite invite) {
