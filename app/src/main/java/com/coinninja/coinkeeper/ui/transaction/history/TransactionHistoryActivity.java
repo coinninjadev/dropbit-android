@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -15,6 +16,7 @@ import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.ui.util.OnViewClickListener;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
@@ -42,8 +44,9 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class TransactionHistoryActivity extends BalanceBarActivity implements TransactionHistoryDataAdapter.OnItemClickListener {
+public class TransactionHistoryActivity extends BalanceBarActivity implements TransactionHistoryDataAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncManagerChangeObserver{
 
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
@@ -59,12 +62,17 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     CurrencyPreference currencyPreference;
     @Inject
     ActivityNavigationUtil activityNavigationUtil;
+    @Inject
+    SyncWalletManager syncWalletManager;
+    @Inject
+    SyncManagerViewNotifier syncManagerViewNotifier;
 
     PaymentBarFragment fragment;
     IntentFilter intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
     private RecyclerView transactionHistory;
     private TransactionEmptyStateView transactionEmptyStateView;
     private LazyList<TransactionsInvitesSummary> transactions;
+    private SwipeRefreshLayout swipeRefreshLayout;
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -76,6 +84,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
             }
         }
     };
+
     private String bitcoinUriString;
 
     @Override
@@ -87,9 +96,16 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     }
 
     @Override
+    public void onRefresh() {
+        syncWalletManager.syncNow();
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_history);
+        swipeRefreshLayout = findViewById(R.id.pull_refresh_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
         intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
         intentFilter.addAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
         fragment = (PaymentBarFragment) getFragmentManager().findFragmentById(R.id.payment_bar_fragment);
@@ -99,6 +115,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
             bitcoinUriString = getIntent().getData().toString();
             launchPayScreenWithBitcoinUriIfNecessary();
         }
+        syncManagerViewNotifier.observeSyncManagerChange(this);
     }
 
     @Override
@@ -210,5 +227,11 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         transactionHistory.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
         transactionHistory.setHasFixedSize(false);
         transactionHistory.setAdapter(adapter);
+    }
+
+    @Override
+    public void onSyncStatusChanged() {
+        super.onSyncStatusChanged();
+        swipeRefreshLayout.setRefreshing(false);
     }
 }
