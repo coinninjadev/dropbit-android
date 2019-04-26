@@ -88,7 +88,6 @@ public class SettingsActivityTest {
         activity = activityController.get();
         activity.deleteWalletPresenter = deleteWalletPresenter;
         activity.cnWalletManager = cnWalletManager;
-        activity.syncWalletManager = syncWalletManager;
         activity.phoneNumberUtil = phoneNumberUtil;
         activity.dustProtectionPreference = dustProtectionPreference;
         activity.dropbitUriBuilder = dropbitUriBuilder;
@@ -134,29 +133,6 @@ public class SettingsActivityTest {
         Intent startedActivity = shadowActivity.getNextStartedActivity();
         assertThat(startedActivity.getComponent().getClassName(),
                 equalTo(LicensesActivity.class.getName()));
-    }
-
-    @Test
-    public void clicking_sync_triggers_sync() {
-        start(true);
-
-        activity.findViewById(R.id.settings_sync).performClick();
-
-        verify(syncWalletManager).syncNow();
-    }
-
-    @Test
-    public void shows_sync_when_debug_is_on() {
-        start(true);
-
-        assertThat(activity.findViewById(R.id.settings_sync).getVisibility(), equalTo(View.VISIBLE));
-    }
-
-    @Test
-    public void hides_sync_when_debug_is_off() {
-        start();
-
-        assertThat(activity.findViewById(R.id.settings_sync).getVisibility(), equalTo(View.GONE));
     }
 
     @Test
