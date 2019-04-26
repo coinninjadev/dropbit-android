@@ -60,6 +60,7 @@ public class FullSyncWalletRunner implements Runnable {
 
     @Override
     public void run() {
+        if (syncManagerViewNotifier.isSyncing()) { return; }
         syncManagerViewNotifier.setSyncing(true);
 
         if (!cnWalletManager.hasWallet())

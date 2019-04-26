@@ -149,7 +149,6 @@ android.applicationVariants.all { variant ->
 
 dependencies {
     implementation fileTree(include: ['*.jar', "*.aar"], dir: 'libs')
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation group: 'org.cryptonode.jncryptor', name: 'jncryptor', version: '1.0.1'
 

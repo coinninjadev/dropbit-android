@@ -15,21 +15,31 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/transaction_history"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pull_refresh_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/background_color_white"
-        android:fadingEdge="horizontal"
-        android:fadingEdgeLength="30dp"
-        android:fillViewport="true"
-        android:padding="0dp"
-        android:requiresFadingEdge="vertical"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/payment_bar_fragment"
+        app:layout_constraintBottom_toTopOf="@+id/payment_bar_fragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/transaction_history"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/background_color_white"
+            android:fadingEdge="horizontal"
+            android:fadingEdgeLength="30dp"
+            android:fillViewport="true"
+            android:padding="0dp"
+            android:requiresFadingEdge="vertical"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/payment_bar_fragment"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.coinninja.coinkeeper.view.widget.TransactionEmptyStateView
         android:id="@+id/empty_state_view"
