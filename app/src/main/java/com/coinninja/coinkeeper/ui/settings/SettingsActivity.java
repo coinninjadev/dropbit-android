@@ -9,7 +9,6 @@ import android.widget.Switch;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
 import com.coinninja.coinkeeper.di.interfaces.DebugBuild;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
@@ -36,9 +35,6 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
 
     @Inject
     DustProtectionPreference dustProtectionPreference;
-
-    @Inject
-    SyncWalletManager syncWalletManager;
 
     @Inject
     CNWalletManager cnWalletManager;
@@ -72,12 +68,6 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
         startActivity(intent);
     }
 
-    public boolean onSync() {
-        syncWalletManager.syncNow();
-        onBackPressed();
-        return true;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == DELETE_WALLET_REQUEST_CODE && resultCode == AuthorizedActionActivity.RESULT_AUTHORIZED) {
@@ -92,7 +82,6 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
         super.onResume();
         setupRecoverWallet();
         setupDeleteWallet();
-        setupSync();
         setupLicenses();
         setupDustProtection();
     }
@@ -154,14 +143,6 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
 
     private void onLicenseClicked() {
         startActivity(new Intent(this, LicensesActivity.class));
-    }
-
-    private void setupSync() {
-        if (isDebugBuild) {
-            View view = findViewById(R.id.settings_sync);
-            view.setVisibility(View.VISIBLE);
-            view.setOnClickListener(V -> onSync());
-        }
     }
 
     private void setupRecoverWallet() {
