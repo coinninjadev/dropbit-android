@@ -108,10 +108,11 @@ public class InviteTransactionSummaryHelper {
     public InviteTransactionSummary acknowledgeInviteTransactionSummary(CompletedInviteDTO completedInviteDTO) {
         TransactionsInvitesSummary transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary();
         transactionsInvitesSummary.setInviteTime(completedInviteDTO.getInvitedContact().getCreatedAt());
+        daoSessionManager.insert(transactionsInvitesSummary);
 
         InviteTransactionSummary invite = inviteSummaryQueryManager.getInviteSummaryByCnId(completedInviteDTO.getRequestId());
         transactionsInvitesSummary.setInviteSummaryID(invite.getId());
-        daoSessionManager.insert(transactionsInvitesSummary);
+        invite.setTransactionsInvitesSummary(transactionsInvitesSummary);
         invite.setServerId(completedInviteDTO.getCnId());
         invite.setSentDate(completedInviteDTO.getInvitedContact().getCreatedAt());
         invite.setBtcState(BTCState.from(completedInviteDTO.getInvitedContact().getStatus()));
@@ -123,13 +124,13 @@ public class InviteTransactionSummaryHelper {
 
     public void acknowledgeInviteTransactionSummary(SentInvite sentInvite) {
         TransactionsInvitesSummary transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary();
-        if (null == transactionsInvitesSummary) { return; }
 
         InviteTransactionSummary invite = inviteSummaryQueryManager.getInviteSummaryByCnId(sentInvite.getMetadata().getRequest_id());
 
         if (invite.getBtcState() != UNACKNOWLEDGED) { return; }
 
         transactionsInvitesSummary.setInviteTime(sentInvite.getCreated_at());
+        invite.setTransactionsInvitesSummary(transactionsInvitesSummary);
         invite.setServerId(sentInvite.getId());
         invite.setSentDate(sentInvite.getCreated_at());
         invite.setBtcState(BTCState.from(sentInvite.getStatus()));
@@ -139,19 +140,20 @@ public class InviteTransactionSummaryHelper {
 
     public void updateFulfilledInvite(TransactionsInvitesSummary transactionsInvitesSummary,
                                       TransactionBroadcastResult transactionBroadcastResult) {
-
         String txid = transactionBroadcastResult.getTxId();
-        TransactionSummary transactionSummary = transactionHelper.createInitialTransaction(txid);
         InviteTransactionSummary inviteTransactionSummary = transactionsInvitesSummary.getInviteTransactionSummary();
         inviteTransactionSummary.setBtcTransactionId(txid);
         inviteTransactionSummary.setBtcState(BTCState.FULFILLED);
+        inviteTransactionSummary.update();
+
         transactionsInvitesSummary.setInviteTxID(txid);
         transactionsInvitesSummary.setTransactionTxID(txid);
-        transactionsInvitesSummary.setTransactionSummary(transactionSummary);
         transactionsInvitesSummary.setInviteTime(0L);
         transactionsInvitesSummary.setBtcTxTime(dateUtil.getCurrentTimeInMillis());
-        inviteTransactionSummary.update();
         transactionsInvitesSummary.update();
+
+        TransactionSummary transactionSummary = transactionHelper.createInitialTransaction(txid);
+        transactionsInvitesSummary.setTransactionSummary(transactionSummary);
     }
 
     public InviteTransactionSummary getInviteSummaryById(String id) {

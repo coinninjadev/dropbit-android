@@ -101,7 +101,9 @@ public class SentInvitesStatusGetter implements Runnable {
 
         for (InviteTransactionSummary unacknowledgedInvitation: allUnacknowledgedInvitations) {
             if(serverIds.get(unacknowledgedInvitation.getId()) == null) {
-                unacknowledgedInvitation.getTransactionsInvitesSummary().delete();
+                if (unacknowledgedInvitation.getTransactionNotification() != null) {
+                    unacknowledgedInvitation.getTransactionsInvitesSummary().delete();
+                }
                 unacknowledgedInvitation.delete();
             }
         }
