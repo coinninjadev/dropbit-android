@@ -24,24 +24,11 @@ public class SyncWalletManager implements ServiceConnection {
     public static final int NETWORK_TYPE_ANY = 1;
     public static final long REPEAT_FREQUENCY_60_SECONDS = 60 * 1000;
     public static final long REPEAT_FREQUENCY_1_HOUR = 60 * 60 * 1000;
-
+    CNWalletBinder binder;
     private Context context;
     private CNWalletManager cnWalletManager;
     private JobServiceScheduler jobServiceScheduler;
     private Handler timeoutHandler;
-    CNWalletBinder binder;
-
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder binder) {
-        this.binder = (CNWalletBinder) binder;
-        syncNow();
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        binder = null;
-    }
-
     Runnable timeOutRunnable = () -> {
         syncNow();
         schedule30SecondSync();
@@ -54,6 +41,17 @@ public class SyncWalletManager implements ServiceConnection {
         this.cnWalletManager = cnWalletManager;
         this.jobServiceScheduler = jobServiceScheduler;
         this.timeoutHandler = timeoutHandler;
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder binder) {
+        this.binder = (CNWalletBinder) binder;
+        syncNow();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        binder = null;
     }
 
     public void schedule30SecondSync() {

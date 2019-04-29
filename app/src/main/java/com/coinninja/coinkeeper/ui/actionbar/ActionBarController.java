@@ -1,13 +1,11 @@
 package com.coinninja.coinkeeper.ui.actionbar;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.actionbar.managers.TitleViewManager;
 import com.coinninja.coinkeeper.ui.base.MenuItemClickListener;
@@ -81,7 +79,7 @@ public class ActionBarController {
 
     public void displayTitle(AppCompatActivity context) {
         if (isActionBarGone != null && isActionBarGone == true) {
-            ((Activity) context).findViewById(R.id.cn_appbar_layout_container).setVisibility(View.GONE);
+            ((AppCompatActivity) context).findViewById(R.id.cn_appbar_layout_container).setVisibility(View.GONE);
             return;
         }
 

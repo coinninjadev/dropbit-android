@@ -6,6 +6,8 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.view.View;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
@@ -16,7 +18,7 @@ import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
@@ -41,14 +43,11 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import static com.coinninja.matchers.ActivityMatchers.activityWithIntentStarted;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -156,8 +155,8 @@ public class TransactionHistoryActivityTest {
     public void notifies_of_currency_preference_change() {
         startActivity();
         DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
-        Intent intent = new Intent(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
-        intent.putExtra(Intents.EXTRA_PREFERENCE, defaultCurrencies);
+        Intent intent = new Intent(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        intent.putExtra(DropbitIntents.EXTRA_PREFERENCE, defaultCurrencies);
 
         activity.receiver.onReceive(activity, intent);
 
@@ -169,8 +168,8 @@ public class TransactionHistoryActivityTest {
         startActivity();
 
         verify(localBroadCastUtil).registerReceiver(activity.receiver, activity.intentFilter);
-        assertThat(activity.intentFilter, IntentFilterMatchers.containsAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED));
-        assertThat(activity.intentFilter, IntentFilterMatchers.containsAction(Intents.ACTION_TRANSACTION_DATA_CHANGED));
+        assertThat(activity.intentFilter, IntentFilterMatchers.containsAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED));
+        assertThat(activity.intentFilter, IntentFilterMatchers.containsAction(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED));
     }
 
     @Test
@@ -185,16 +184,16 @@ public class TransactionHistoryActivityTest {
     @Test
     public void shows_detail_of_transaction_from_Creation_intent() {
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_TRANSACTION_ID, "--TXID--");
+        intent.putExtra(DropbitIntents.EXTRA_TRANSACTION_ID, "--TXID--");
         activity.setIntent(intent);
 
         startActivity();
 
         Intent i = new Intent(activity, TransactionDetailsActivity.class);
-        i.putExtra(Intents.EXTRA_TRANSACTION_ID, "--TXID--");
+        i.putExtra(DropbitIntents.EXTRA_TRANSACTION_ID, "--TXID--");
         i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         assertThat(activity, activityWithIntentStarted(i));
-        assertFalse(activity.getIntent().hasExtra(Intents.EXTRA_TRANSACTION_ID));
+        assertFalse(activity.getIntent().hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID));
     }
 
     @Test
@@ -208,7 +207,7 @@ public class TransactionHistoryActivityTest {
 
         Intent intent = new Intent(activity, TransactionDetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra(Intents.EXTRA_TRANSACTION_RECORD_ID, 4L);
+        intent.putExtra(DropbitIntents.EXTRA_TRANSACTION_RECORD_ID, 4L);
         assertThat(activity, activityWithIntentStarted(intent));
     }
 
@@ -301,7 +300,7 @@ public class TransactionHistoryActivityTest {
         when(updatedTransactions.get(anyInt())).thenReturn(transaction);
         when(walletHelper.getTransactionsLazily()).thenReturn(updatedTransactions);
 
-        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_TRANSACTION_DATA_CHANGED));
+        activity.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED));
 
         verify(adapter).setTransactions(transactions);
         verify(adapter).setTransactions(updatedTransactions);
@@ -319,7 +318,7 @@ public class TransactionHistoryActivityTest {
         activity.onResume();
 
         verify(broadCastUtil).registerReceiver(any(BroadcastReceiver.class), intentFilterArgumentCaptor.capture());
-        assertThat(intentFilterArgumentCaptor.getValue().getAction(0), equalTo(Intents.ACTION_TRANSACTION_DATA_CHANGED));
+        assertThat(intentFilterArgumentCaptor.getValue().getAction(0), equalTo(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED));
     }
 
     @Test

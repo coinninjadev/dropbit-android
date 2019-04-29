@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.qrscanner;
 
-import android.app.Activity;
 import android.media.AudioManager;
 import android.view.View;
 import android.widget.TextView;
@@ -14,6 +13,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 public class QRScanManagerTest {
 
     private QRScanManager qrScanManager;
-    private Activity mockActivity;
+    private AppCompatActivity mockActivity;
     private DecoratedBarcodeView mockDecoratedBarcodeView;
     private QRScanManager.OnScanListener mockOnScanListener;
     private DecoratedBarcodeView.TorchListener torchListener;
@@ -33,7 +34,7 @@ public class QRScanManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        mockActivity = mock(Activity.class);
+        mockActivity = mock(AppCompatActivity.class);
         mockDecoratedBarcodeView = mock(DecoratedBarcodeView.class);
         mockOnScanListener = mock(QRScanManager.OnScanListener.class);
         mockBarcodeView = mock(BarcodeView.class);

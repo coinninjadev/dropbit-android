@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.receiver;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.service.DropbitServicePatchService;
 import com.coinninja.coinkeeper.service.PushNotificationEndpointRegistrationService;
 
@@ -12,14 +11,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -76,7 +74,7 @@ public class ApplicationStartedReceiverTest {
     }
 
     @Test
-    public void skip_when_missing_wallet(){
+    public void skip_when_missing_wallet() {
         when(application.cnWalletManager.hasWallet()).thenReturn(false);
 
         appStartedReceiver.onReceive(application, null);

@@ -8,14 +8,14 @@ class AddressDTOWrapper implements Comparable<AddressDTOWrapper> {
     private boolean shouldShowDerivationPath = false;
 
     public AddressDTOWrapper(AddressDTO addressDTO) {
-       this.addressDTO = addressDTO;
+        this.addressDTO = addressDTO;
     }
 
-    public String getDisplayText(){
+    public String getDisplayText() {
         if (shouldShowDerivationPath) {
-            return addressDTO.getDerivationPathString();
+            return addressDTO.getDerivationPath();
         } else {
-            return addressDTO.getWrappedAddress().getAddress();
+            return addressDTO.getAddress();
         }
     }
 
@@ -25,15 +25,15 @@ class AddressDTOWrapper implements Comparable<AddressDTOWrapper> {
 
     @Override
     public int compareTo(AddressDTOWrapper otherWrapper) {
-        if (otherWrapper == null) { return 0; }
-
-        if (this.addressDTO.getWrappedAddress().getIndex() < otherWrapper.addressDTO.getWrappedAddress().getIndex()) {
-            return -1;
-        } else if (this.addressDTO.getWrappedAddress().getIndex() > otherWrapper.addressDTO.getWrappedAddress().getIndex()) {
-            return 1;
-        } else {
+        if (otherWrapper == null) {
             return 0;
         }
+
+        return Integer.compare(addressDTO.getIndex(), otherWrapper.getIndex());
+    }
+
+    private int getIndex() {
+        return addressDTO.getIndex();
     }
 
     public boolean isDerivationPath() {

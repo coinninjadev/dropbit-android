@@ -26,6 +26,17 @@ public class SharedMemoView extends AbstractBasicViewType {
         setupSharingUI();
     }
 
+    @Override
+    public void render() {
+        memoView = withId(view, R.id.shared_memo_text_view);
+        sharedMemoStatusTextView = withId(view, R.id.shared_memo_status_text_view);
+        sharedStatusImageView = withId(view, R.id.shared_status_image_view);
+    }
+
+    public void hide() {
+        view.setVisibility(View.GONE);
+    }
+
     private void setupSharingUI() {
         if (isSharing) {
             sharedStatusImageView.setImageResource(R.drawable.ic_shared_user);
@@ -36,21 +47,10 @@ public class SharedMemoView extends AbstractBasicViewType {
             sharedMemoStatusTextView.setText(R.string.only_me_memo);
         }
 
-        memoView.setText(memoText);
-    }
-
-    @Override
-    public void render() {
-        memoView = withId(view, R.id.shared_memo_text_view);
-        sharedMemoStatusTextView = withId(view, R.id.shared_memo_status_text_view);
-        sharedStatusImageView = withId(view, R.id.shared_status_image_view);
-    }
-
-    public String getMemoText() {
-        return memoView.getText().toString();
-    }
-
-    public void hide() {
-        view.setVisibility(View.GONE);
+        if (memoText == null || "".equals(memoText)) {
+            hide();
+        } else {
+            memoView.setText(memoText);
+        }
     }
 }

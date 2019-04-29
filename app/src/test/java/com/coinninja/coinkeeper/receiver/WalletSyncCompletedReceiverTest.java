@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.service.BtcBroadcastNotificationService;
 import com.coinninja.coinkeeper.service.ContactLookupService;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import org.junit.After;
@@ -20,7 +20,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -58,7 +58,7 @@ public class WalletSyncCompletedReceiverTest {
 
     @Test
     public void sends_local_broadcast() {
-        Intent intent = new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE);
+        Intent intent = new Intent(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
         receiver.onReceive(application, intent);
 
         verify(application.localBroadCastUtil).sendBroadcast(intent);

@@ -8,7 +8,7 @@ import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver;
 import com.coinninja.coinkeeper.util.DateUtil;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
@@ -270,7 +270,7 @@ public class CNWalletManagerTest {
         cnWalletManager.saveSeedWords(valid_words);
 
         verify(localBroadCastUtil).
-                sendGlobalBroadcast(WalletCreatedBroadCastReceiver.class, Intents.ACTION_WALLET_CREATED);
+                sendGlobalBroadcast(WalletCreatedBroadCastReceiver.class, DropbitIntents.ACTION_WALLET_CREATED);
     }
 
     @Test
@@ -311,6 +311,6 @@ public class CNWalletManagerTest {
 
         verify(walletHelper).updateBalances();
         verify(walletHelper).updateSpendableBalances();
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_WALLET_SYNC_COMPLETE);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
     }
 }

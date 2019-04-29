@@ -1,13 +1,14 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.PinInteractor;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.edittext.PinEditText;
 
 import org.junit.Before;
@@ -22,7 +23,7 @@ import org.robolectric.shadows.ShadowToast;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,7 +45,7 @@ public class AuthorizedActionActivityTest {
         pinInteractor = mock(PinInteractor.class);
 
         Intent messageIntent = new Intent();
-        messageIntent.putExtra(Intents.EXTRA_AUTHORIZED_ACTION_MESSAGE, SAMPLE_AUTH_ACTION_MESSAGE);
+        messageIntent.putExtra(DropbitIntents.EXTRA_AUTHORIZED_ACTION_MESSAGE, SAMPLE_AUTH_ACTION_MESSAGE);
         controller = Robolectric.buildActivity(AuthorizedActionActivity.class, messageIntent);
         activity = controller.get();
         shadowActivity = shadowOf(activity);
@@ -89,7 +90,7 @@ public class AuthorizedActionActivityTest {
         ((PinEditText) activity.findViewById(R.id.pin_entry_edittext)).setText(INVALID_PIN);
         ((PinEditText) activity.findViewById(R.id.pin_entry_edittext)).setText(INVALID_PIN);
 
-        assertThat(shadowActivity.getResultCode(), equalTo(Activity.RESULT_CANCELED));
+        assertThat(shadowActivity.getResultCode(), equalTo(AppCompatActivity.RESULT_CANCELED));
         assertTrue(shadowActivity.isFinishing());
     }
 

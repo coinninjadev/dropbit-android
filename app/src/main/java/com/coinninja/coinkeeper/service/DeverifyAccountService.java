@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import javax.inject.Inject;
@@ -50,9 +50,9 @@ public class DeverifyAccountService extends IntentService {
 
         if (response.isSuccessful()) {
             cnWalletManager.deverifyAccount();
-            localBroadCastUtil.sendBroadcast(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
+            localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
         } else {
-            localBroadCastUtil.sendBroadcast(Intents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED);
+            localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED);
             logger.logError(getClass().getSimpleName(), "|------------ Failed to deverify phone number", response);
         }
 

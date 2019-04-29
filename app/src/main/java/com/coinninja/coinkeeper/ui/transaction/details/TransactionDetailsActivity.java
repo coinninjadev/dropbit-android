@@ -6,19 +6,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.ViewPager;
+
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
-import androidx.viewpager.widget.ViewPager;
 
 import static com.coinninja.android.helpers.Views.withId;
 
@@ -46,11 +44,11 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (Intents.ACTION_WALLET_SYNC_COMPLETE.equals(action) ||
-                    Intents.ACTION_TRANSACTION_DATA_CHANGED.equals(action)) {
+            if (DropbitIntents.ACTION_WALLET_SYNC_COMPLETE.equals(action) ||
+                    DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED.equals(action)) {
                 onTransactionDataChanged();
-            } else if (Intents.ACTION_CURRENCY_PREFERENCE_CHANGED.equals(action) && intent.hasExtra(Intents.EXTRA_PREFERENCE)) {
-                defaultCurrencyChangeViewNotifier.onDefaultCurrencyChanged(intent.getParcelableExtra(Intents.EXTRA_PREFERENCE));
+            } else if (DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED.equals(action) && intent.hasExtra(DropbitIntents.EXTRA_PREFERENCE)) {
+                defaultCurrencyChangeViewNotifier.onDefaultCurrencyChanged(intent.getParcelableExtra(DropbitIntents.EXTRA_PREFERENCE));
             }
         }
     };
@@ -64,9 +62,9 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_details);
         pager = withId(this, R.id.pager_transaction_details);
-        intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
-        intentFilter.addAction(Intents.ACTION_WALLET_SYNC_COMPLETE);
-        intentFilter.addAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        intentFilter = new IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED);
+        intentFilter.addAction(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
+        intentFilter.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED);
         pageAdapter.refreshData();
     }
 
@@ -111,16 +109,16 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
         pager.setPageMargin((int) getResources().getDimension(R.dimen.horizontal_margin_small));
         refreshPageData();
 
-        if (getIntent().hasExtra(Intents.EXTRA_TRANSACTION_ID)) {
-            int location = pageAdapter.lookupTransactionBy(getIntent().getStringExtra(Intents.EXTRA_TRANSACTION_ID));
+        if (getIntent().hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID)) {
+            int location = pageAdapter.lookupTransactionBy(getIntent().getStringExtra(DropbitIntents.EXTRA_TRANSACTION_ID));
             pager.setCurrentItem(location, true);
-            getIntent().removeExtra(Intents.EXTRA_TRANSACTION_ID);
+            getIntent().removeExtra(DropbitIntents.EXTRA_TRANSACTION_ID);
         }
 
-        if (getIntent().hasExtra(Intents.EXTRA_TRANSACTION_RECORD_ID)) {
-            int location = pageAdapter.lookupTransactionById(getIntent().getLongExtra(Intents.EXTRA_TRANSACTION_RECORD_ID, 0L));
+        if (getIntent().hasExtra(DropbitIntents.EXTRA_TRANSACTION_RECORD_ID)) {
+            int location = pageAdapter.lookupTransactionById(getIntent().getLongExtra(DropbitIntents.EXTRA_TRANSACTION_RECORD_ID, 0L));
             pager.setCurrentItem(location, true);
-            getIntent().removeExtra(Intents.EXTRA_TRANSACTION_RECORD_ID);
+            getIntent().removeExtra(DropbitIntents.EXTRA_TRANSACTION_RECORD_ID);
         }
     }
 

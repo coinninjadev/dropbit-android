@@ -7,21 +7,21 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
-import com.coinninja.coinkeeper.model.helpers.TargetStatHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
-import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
-import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
-import com.coinninja.coinkeeper.ui.util.OnViewClickListener;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
@@ -29,14 +29,11 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.view.activity.TrainingActivity;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 import com.coinninja.coinkeeper.view.widget.TransactionEmptyStateView;
 
 import org.greenrobot.greendao.query.LazyList;
-
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -68,7 +65,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     SyncManagerViewNotifier syncManagerViewNotifier;
 
     PaymentBarFragment fragment;
-    IntentFilter intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
+    IntentFilter intentFilter = new IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED);
     private RecyclerView transactionHistory;
     private TransactionEmptyStateView transactionEmptyStateView;
     private LazyList<TransactionsInvitesSummary> transactions;
@@ -76,11 +73,11 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Intents.ACTION_TRANSACTION_DATA_CHANGED.equals(intent.getAction())) {
+            if (DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED.equals(intent.getAction())) {
                 refreshTransactions();
-            } else if (Intents.ACTION_CURRENCY_PREFERENCE_CHANGED.equals(intent.getAction())
-                    && intent.hasExtra(Intents.EXTRA_PREFERENCE)) {
-                defaultCurrencyChangeViewNotifier.onDefaultCurrencyChanged(intent.getParcelableExtra(Intents.EXTRA_PREFERENCE));
+            } else if (DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED.equals(intent.getAction())
+                    && intent.hasExtra(DropbitIntents.EXTRA_PREFERENCE)) {
+                defaultCurrencyChangeViewNotifier.onDefaultCurrencyChanged(intent.getParcelableExtra(DropbitIntents.EXTRA_PREFERENCE));
             }
         }
     };
@@ -91,7 +88,7 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     public void onItemClick(View view, int position) {
         Intent intent = new Intent(this, TransactionDetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra(Intents.EXTRA_TRANSACTION_RECORD_ID, transactions.get(position).getId());
+        intent.putExtra(DropbitIntents.EXTRA_TRANSACTION_RECORD_ID, transactions.get(position).getId());
         startActivity(intent);
     }
 
@@ -106,9 +103,9 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         setContentView(R.layout.activity_transaction_history);
         swipeRefreshLayout = findViewById(R.id.pull_refresh_container);
         swipeRefreshLayout.setOnRefreshListener(this);
-        intentFilter = new IntentFilter(Intents.ACTION_TRANSACTION_DATA_CHANGED);
-        intentFilter.addAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
-        fragment = (PaymentBarFragment) getFragmentManager().findFragmentById(R.id.payment_bar_fragment);
+        intentFilter = new IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED);
+        intentFilter.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        fragment = (PaymentBarFragment) getSupportFragmentManager().findFragmentById(R.id.payment_bar_fragment);
         transactionEmptyStateView = findViewById(R.id.empty_state_view);
         clearTitle();
         if (getIntent() != null && getIntent().getData() != null) {
@@ -127,23 +124,6 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         adapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
         setupHistoryList();
         setupNewWalletButtons();
-    }
-
-    private void setupNewWalletButtons() {
-        transactionEmptyStateView.setGetBitcoinButtonClickListener((view) -> {
-            analytics.trackEvent(Analytics.EVENT_GET_BITCOIN);
-            activityNavigationUtil.navigtateToBuyBitcoin(this);
-        });
-
-        transactionEmptyStateView.setLearnBitcoinButtonClickListener((view) -> {
-            analytics.trackEvent(Analytics.EVENT_LEARN_BITCOIN);
-            activityNavigationUtil.navigateToLearnBitcoin(this);
-        });
-
-        transactionEmptyStateView.setSpendBitcoinButtonClickListener((view) -> {
-            analytics.trackEvent(Analytics.EVENT_SPEND_BITCOIN);
-            activityNavigationUtil.navigateToSpendBitcoin(this);
-        });
     }
 
     @Override
@@ -185,6 +165,23 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
         transactions.close();
     }
 
+    private void setupNewWalletButtons() {
+        transactionEmptyStateView.setGetBitcoinButtonClickListener((view) -> {
+            analytics.trackEvent(Analytics.EVENT_GET_BITCOIN);
+            activityNavigationUtil.navigtateToBuyBitcoin(this);
+        });
+
+        transactionEmptyStateView.setLearnBitcoinButtonClickListener((view) -> {
+            analytics.trackEvent(Analytics.EVENT_LEARN_BITCOIN);
+            activityNavigationUtil.navigateToLearnBitcoin(this);
+        });
+
+        transactionEmptyStateView.setSpendBitcoinButtonClickListener((view) -> {
+            analytics.trackEvent(Analytics.EVENT_SPEND_BITCOIN);
+            activityNavigationUtil.navigateToSpendBitcoin(this);
+        });
+    }
+
     private void launchPayScreenWithBitcoinUriIfNecessary() {
         if (bitcoinUriString == null) {
             return;
@@ -210,13 +207,13 @@ public class TransactionHistoryActivity extends BalanceBarActivity implements Tr
     }
 
     private void showDetailWithInitialIntent() {
-        if (!getIntent().hasExtra(Intents.EXTRA_TRANSACTION_ID)) return;
+        if (!getIntent().hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID)) return;
 
         Intent intent = new Intent(this, TransactionDetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra(Intents.EXTRA_TRANSACTION_ID, getIntent().getStringExtra(Intents.EXTRA_TRANSACTION_ID));
+        intent.putExtra(DropbitIntents.EXTRA_TRANSACTION_ID, getIntent().getStringExtra(DropbitIntents.EXTRA_TRANSACTION_ID));
         startActivity(intent);
-        getIntent().removeExtra(Intents.EXTRA_TRANSACTION_ID);
+        getIntent().removeExtra(DropbitIntents.EXTRA_TRANSACTION_ID);
     }
 
     private void setupHistoryList() {

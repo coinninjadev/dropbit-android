@@ -1,179 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="bottom"
-    android:gravity="bottom"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/horizontal_margin_xxlarge"
-    android:paddingBottom="0dp">
+    tools:minHeight="700dp">
 
-    <RelativeLayout
-        style="@style/PayDialog"
+    <TextView
+        android:id="@+id/pay_header_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/pay_header"
+        android:textAppearance="@style/Dialog.Header"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/pay_header_close_btn"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="20dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_close"
+        tools:ignore="ContentDescription"
+        tools:visibility="visible" />
+
+    <com.coinninja.coinkeeper.ui.payment.PaymentInputView
+        android:id="@+id/payment_input_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        app:layout_constraintTop_toBottomOf="@id/pay_header_label"
+        tools:layout_editor_absoluteX="97dp" />
+
+    <TextView
+        android:id="@+id/contact_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:textAppearance="@style/TextAppearance.History.Details.Contact"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/payment_input_view"
+        tools:text="Joe Smoe" />
+
+    <TextView
+        android:id="@+id/contact_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contact_name"
+        tools:text="(330) 555-1111" />
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            style="@style/PayDialog"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="true">
-
-            <TextView
-                android:id="@+id/pay_header_label"
-                android:layout_width="wrap_content"
-                android:layout_height="18dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/pay_header"
-                android:textSize="@dimen/text_size_header_small"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/pay_header_close_btn"
-                android:layout_width="54dp"
-                android:layout_height="54dp"
-                android:layout_marginTop="0dp"
-                android:layout_marginEnd="0dp"
-                android:paddingStart="20dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="20dp"
-                android:src="@drawable/ic_close"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
-
-            <com.coinninja.coinkeeper.ui.payment.PaymentInputView
-                android:id="@+id/payment_input_view"
-                android:layout_width="match_parent"
-                android:layout_marginTop="32dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/pay_header_label" />
+    <com.coinninja.coinkeeper.view.widget.PaymentReceiverView
+        android:id="@+id/payment_receiver"
+        style="@style/PhoneNumberInputWidgetStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="0dp"
+        android:background="@drawable/input_background"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contact_number"
+        app:layout_constraintVertical_bias="1.0" />
 
 
-            <TextView
-                android:id="@+id/contact_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
-                android:textAppearance="@style/TextAppearance.History.Details.Contact"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/payment_input_view"
-                tools:text="Joe Smoe" />
+    <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
+        android:id="@+id/contacts_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="@string/pay_contacts_label"
+        android:textSize="12sp"
+        app:layout_constrainedHeight="false"
+        app:layout_constraintBottom_toBottomOf="@+id/scan_btc_address_btn"
+        app:layout_constraintEnd_toStartOf="@+id/scan_btc_address_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/scan_btc_address_btn" />
 
-            <TextView
-                android:id="@+id/contact_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/contact_name"
-                tools:text="(330) 555-1111" />
+    <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
+        android:id="@+id/scan_btc_address_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/pay_scan_btn_label"
+        android:textSize="12sp"
+        app:layout_constrainedHeight="false"
+        app:layout_constraintBottom_toTopOf="@+id/transaction_memo"
+        app:layout_constraintEnd_toStartOf="@+id/paste_address_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/contacts_btn"
+        app:layout_constraintTop_toBottomOf="@+id/barrier"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="1"
+        app:layout_goneMarginBottom="16dp" />
 
+    <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
+        android:id="@+id/paste_address_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:text="@string/paste_btn_label"
+        android:textSize="12sp"
+        app:layout_constrainedHeight="false"
+        app:layout_constraintBottom_toBottomOf="@+id/scan_btc_address_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/scan_btc_address_btn"
+        app:layout_constraintTop_toTopOf="@+id/scan_btc_address_btn" />
 
-            <com.coinninja.coinkeeper.view.widget.PaymentReceiverView
-                android:id="@+id/payment_receiver"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toTopOf="@+id/scan_btc_address_btn"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/contact_number"
-                app:layout_constraintVertical_bias="0.93" />
+    <include
+        android:id="@+id/transaction_memo"
+        layout="@layout/memo_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:ellipsize="end"
+        android:hint="@string/payment_memo"
+        android:importantForAutofill="no"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toTopOf="@+id/pay_footer_send_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scan_btc_address_btn"
+        tools:ignore="UnusedAttribute" />
 
-            <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
-                android:id="@+id/contacts_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="@string/pay_contacts_label"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@+id/scan_btc_address_btn"
-                app:layout_constraintEnd_toStartOf="@+id/scan_btc_address_btn"
-                app:layout_constraintTop_toTopOf="@+id/scan_btc_address_btn" />
+    <Button
+        android:id="@+id/pay_footer_send_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/pay_send_btn_label"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/transaction_memo"
+        app:layout_goneMarginBottom="8dp" />
 
-            <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
-                android:id="@+id/scan_btc_address_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/pay_scan_btn_label"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.59000003" />
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:barrierAllowsGoneWidgets="false"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="payment_receiver,contact_name,pay_header_close_btn,pay_header_label,contact_number,payment_input_view,guideline"
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="228dp" />
 
-            <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
-                android:id="@+id/paste_address_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/paste_btn_label"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@+id/scan_btc_address_btn"
-                app:layout_constraintStart_toEndOf="@+id/scan_btc_address_btn"
-                app:layout_constraintTop_toTopOf="@+id/scan_btc_address_btn" />
-
-            <include
-                android:id="@+id/transaction_memo"
-                style="@style/PayDialog.EditText"
-                layout="@layout/memo_container"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="10dp"
-                android:ellipsize="end"
-                android:hint="@string/payment_memo"
-                android:importantForAutofill="no"
-                app:layout_constraintBottom_toTopOf="@+id/pay_footer_send_btn"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/scan_btc_address_btn" />
-
-            <Button
-                android:id="@+id/pay_footer_send_btn"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/horizontal_margin_xlarge"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginBottom="32dp"
-                android:text="@string/pay_send_btn_label"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="256dp" />
 
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </RelativeLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

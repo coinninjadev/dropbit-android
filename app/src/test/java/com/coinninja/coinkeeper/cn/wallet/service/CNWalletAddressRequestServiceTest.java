@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.matchers.IntentMatcher;
 
@@ -27,7 +27,7 @@ import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -73,12 +73,12 @@ public class CNWalletAddressRequestServiceTest {
     public void looks_up_address_for_phone_hash() {
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER_HASH, "-phone-hash-");
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_HASH, "-phone-hash-");
 
         walletAddressRequestService.onHandleIntent(intent);
 
-        Intent successMessage = new Intent(Intents.ACTION_WALLET_ADDRESS_RETRIEVED);
-        successMessage.putExtra(Intents.EXTRA_ADDRESS_LOOKUP_RESULT, result);
+        Intent successMessage = new Intent(DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED);
+        successMessage.putExtra(DropbitIntents.EXTRA_ADDRESS_LOOKUP_RESULT, result);
 
         verify(localBroadCastUtil).sendBroadcast(argumentCaptor.capture());
         Intent actualIntent = argumentCaptor.getValue();
@@ -90,15 +90,15 @@ public class CNWalletAddressRequestServiceTest {
     public void sends_empty_result_back_when_failed() {
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER_HASH, "-phone-hash-");
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_HASH, "-phone-hash-");
         Response error = Response.error(400, ResponseBody.create(MediaType.get("plain/text"), ""));
         when(apiClient.queryWalletAddress("-phone-hash-")).thenReturn(
                 error);
 
         walletAddressRequestService.onHandleIntent(intent);
 
-        Intent successMessage = new Intent(Intents.ACTION_WALLET_ADDRESS_RETRIEVED);
-        successMessage.putExtra(Intents.EXTRA_ADDRESS_LOOKUP_RESULT, new AddressLookupResult());
+        Intent successMessage = new Intent(DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED);
+        successMessage.putExtra(DropbitIntents.EXTRA_ADDRESS_LOOKUP_RESULT, new AddressLookupResult());
 
         verify(localBroadCastUtil).sendBroadcast(argumentCaptor.capture());
         Intent actualIntent = argumentCaptor.getValue();

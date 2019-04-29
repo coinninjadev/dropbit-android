@@ -3,11 +3,11 @@ package com.coinninja.coinkeeper.view.activity;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.presenter.fragment.PinFragmentPresenter;
+import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
 import com.coinninja.coinkeeper.view.fragment.PinConfirmFragment;
 import com.coinninja.coinkeeper.view.fragment.PinCreateFragment;
@@ -26,8 +26,8 @@ import org.robolectric.shadows.ShadowActivity;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,7 +67,7 @@ public class CreatePinActivityTest {
     private String initWithNextIntent() {
         Intent intent = new Intent(application, CreatePinActivity.class);
         String nextActivity = VerifyPhoneNumberActivity.class.getName();
-        intent.putExtra(Intents.EXTRA_NEXT, nextActivity);
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
 
         initWithIntent(intent);
         return nextActivity;
@@ -76,8 +76,8 @@ public class CreatePinActivityTest {
     private Intent initWithCompletionAndNextIntents() {
         Intent intent = new Intent(application, CreatePinActivity.class);
         String nextActivity = VerifyPhoneNumberActivity.class.getName();
-        intent.putExtra(Intents.EXTRA_NEXT, nextActivity);
-        intent.putExtra(Intents.EXTRA_ON_COMPLETION, new Intent(application, WalletCreationIntentService.class));
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
+        intent.putExtra(DropbitIntents.EXTRA_ON_COMPLETION, new Intent(application, WalletCreationIntentService.class));
 
         initWithIntent(intent);
         return intent;
@@ -102,9 +102,9 @@ public class CreatePinActivityTest {
 
         Intent startedActivity = shadowActivity.getNextStartedActivity();
         assertThat(startedActivity.getComponent().getClassName(),
-                equalTo(invocationIntent.getStringExtra(Intents.EXTRA_NEXT)));
+                equalTo(invocationIntent.getStringExtra(DropbitIntents.EXTRA_NEXT)));
         Intent startedService = shadowActivity.getNextStartedService();
-        Intent completionIntent  = (Intent)invocationIntent.getExtras().get(Intents.EXTRA_ON_COMPLETION);
+        Intent completionIntent = (Intent) invocationIntent.getExtras().get(DropbitIntents.EXTRA_ON_COMPLETION);
         assertThat(startedService.getComponent().getClassName(),
                 equalTo(completionIntent.getComponent().getClassName()));
         assertTrue(shadowActivity.isFinishing());
@@ -122,7 +122,7 @@ public class CreatePinActivityTest {
     public void requests_pin() {
         initWithIntent(new Intent());
 
-        assertNotNull(activity.getFragmentManager().
+        assertNotNull(activity.getSupportFragmentManager().
                 findFragmentByTag(CreatePinActivity.TAG_CREATE_PIN));
     }
 
@@ -132,7 +132,7 @@ public class CreatePinActivityTest {
 
         activity.showConfirmPin();
 
-        assertNotNull(activity.getFragmentManager().
+        assertNotNull(activity.getSupportFragmentManager().
                 findFragmentByTag(CreatePinActivity.TAG_CONFIRM_PIN));
     }
 
@@ -140,7 +140,7 @@ public class CreatePinActivityTest {
     public void authenticates_when_pin_saved_and_confirmed() {
         initWithNextIntent();
 
-        activity.onPinConfirmedAndSaved("---hashed_pin---");
+        activity.onPinConfirmed("---hashed_pin---");
 
         verify(application.authentication).setAuthenticated();
     }
@@ -149,7 +149,7 @@ public class CreatePinActivityTest {
     public void navigates_to_next_screen_once_authenicated() {
         String nextActivity = initWithNextIntent();
 
-        activity.onPinConfirmedAndSaved("---hashed_pin---");
+        activity.onPinConfirmed("---hashed_pin---");
 
         Intent startedIntent = shadowActivity.getNextStartedActivity();
         assertThat(startedIntent.getComponent().getClassName(), equalTo(nextActivity));
@@ -206,7 +206,7 @@ public class CreatePinActivityTest {
         when(pinEntry.hasExistingPin()).thenReturn(true);
 
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_NEXT, "rubbish");
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, "rubbish");
         initWithIntent(intent);
 
         Intent startedIntent = shadowActivity.getNextStartedActivity();

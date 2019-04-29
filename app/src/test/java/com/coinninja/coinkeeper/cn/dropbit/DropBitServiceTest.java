@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.cn.dropbit;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.After;
@@ -50,7 +50,7 @@ public class DropBitServiceTest {
     public void cancels_DropBit_by_id(){
         Intent intent = new Intent();
         String inviteId = "--invite id";
-        intent.putExtra(Intents.EXTRA_INVITATION_ID, inviteId);
+        intent.putExtra(DropbitIntents.EXTRA_INVITATION_ID, inviteId);
         dropBitService.onHandleIntent(intent);
 
         verify(manager).markAsCanceled(inviteId);
@@ -68,10 +68,10 @@ public class DropBitServiceTest {
     public void notifies_observers_that_invite_canceled() {
         Intent intent = new Intent();
         String inviteId = "--invite id";
-        intent.putExtra(Intents.EXTRA_INVITATION_ID, inviteId);
+        intent.putExtra(DropbitIntents.EXTRA_INVITATION_ID, inviteId);
         dropBitService.onHandleIntent(intent);
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_TRANSACTION_DATA_CHANGED);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED);
     }
 
 }

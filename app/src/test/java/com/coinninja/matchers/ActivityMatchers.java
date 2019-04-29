@@ -12,10 +12,11 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class ActivityMatchers {
-    public static final Matcher<Activity> hasViewWithId(int resourceId) {
-        return new BaseMatcher<Activity>() {
+    public static final Matcher<AppCompatActivity> hasViewWithId(int resourceId) {
+        return new BaseMatcher<AppCompatActivity>() {
             @Override
             public boolean matches(Object item) {
                 return ((Activity) item).findViewById(resourceId) != null;
@@ -29,17 +30,17 @@ public class ActivityMatchers {
         };
     }
 
-    public static Matcher<Activity> noServiceStarted() {
-        return new NoServiceStartedMatcher<Activity>();
+    public static Matcher<AppCompatActivity> noServiceStarted() {
+        return new NoServiceStartedMatcher<AppCompatActivity>();
     }
 
-    public static final Matcher<Activity> serviceWithIntentStarted(@NonNull Intent intent) {
-        return new ServiceWithIntentStartedMatcher<Activity>(intent);
+    public static final Matcher<AppCompatActivity> serviceWithIntentStarted(@NonNull Intent intent) {
+        return new ServiceWithIntentStartedMatcher<AppCompatActivity>(intent);
     }
 
 
-    public static final Matcher<Activity> activityWithIntentStarted(@NonNull Intent intent) {
-        return new ActivityWItoIntentStarted<Activity>(intent);
+    public static final Matcher<AppCompatActivity> activityWithIntentStarted(@NonNull Intent intent) {
+        return new ActivityWItoIntentStarted<AppCompatActivity>(intent);
     }
 
 

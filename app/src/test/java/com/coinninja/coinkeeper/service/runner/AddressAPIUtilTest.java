@@ -21,7 +21,7 @@ import retrofit2.Response;
 import static com.coinninja.coinkeeper.service.client.CoinKeeperClient.ADDRESSES_TO_QUERY_AT_A_TIME;
 import static com.coinninja.coinkeeper.service.runner.AddressAPIUtil.INITIAL_GAP_LIMIT;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

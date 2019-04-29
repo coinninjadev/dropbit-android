@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletSyncCompletedReceiver;
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.After;
@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FullSyncWalletRunnerTest {
 
+    @InjectMocks
+    FullSyncWalletRunner runner;
     @Mock
     private CNWalletManager cnWalletManager;
     @Mock
@@ -57,9 +59,6 @@ public class FullSyncWalletRunnerTest {
     private RemoteAddressCache remoteAddressCache;
     @Mock
     private SyncManagerViewNotifier syncManagerViewNotifier;
-
-    @InjectMocks
-    FullSyncWalletRunner runner;
 
     @Before
     public void setUp() {
@@ -118,7 +117,7 @@ public class FullSyncWalletRunnerTest {
         inOrder.verify(cnWalletManager).updateBalances();
         inOrder.verify(localBroadCastUtil).sendGlobalBroadcast(
                 WalletSyncCompletedReceiver.class,
-                Intents.ACTION_WALLET_SYNC_COMPLETE);
+                DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
 
     }
 
@@ -154,7 +153,7 @@ public class FullSyncWalletRunnerTest {
     public void notifiesThatWalletSyncHasCompleted() {
         runner.run();
 
-        verify(localBroadCastUtil).sendGlobalBroadcast(WalletSyncCompletedReceiver.class, Intents.ACTION_WALLET_SYNC_COMPLETE);
+        verify(localBroadCastUtil).sendGlobalBroadcast(WalletSyncCompletedReceiver.class, DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
     }
 
     @Test

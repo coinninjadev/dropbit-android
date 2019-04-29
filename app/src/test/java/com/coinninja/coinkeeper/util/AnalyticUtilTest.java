@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.util;
 
-import android.app.Activity;
-
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
@@ -13,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -90,7 +90,7 @@ public class AnalyticUtilTest {
 
     @Test
     public void flushes_when_activity_reports_done() {
-        util.onActivityStop(new Activity());
+        util.onActivityStop(new AppCompatActivity());
         verify(analytics).flush();
     }
 

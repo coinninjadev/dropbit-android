@@ -1,12 +1,11 @@
 package com.coinninja.coinkeeper.util.android;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.shadows.ShadowLocationManager;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -76,14 +76,14 @@ public class LocationUtilTest {
 
     @Test
     public void conducts_permission_check_for_location() {
-        Activity activity = mock(Activity.class);
+        AppCompatActivity activity = mock(AppCompatActivity.class);
         String[] permissions = new String[2];
         permissions[0] = Manifest.permission.ACCESS_COARSE_LOCATION;
         permissions[1] = Manifest.permission.ACCESS_FINE_LOCATION;
 
         locationUtil.requestPermissionToAccessLocationFor(activity);
 
-        verify(permissionsUtil).requestPermissions(activity, permissions, Intents.REQUEST_PERMISSIONS_LOCATION);
+        verify(permissionsUtil).requestPermissions(activity, permissions, DropbitIntents.REQUEST_PERMISSIONS_LOCATION);
     }
 
 

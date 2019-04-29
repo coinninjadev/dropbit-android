@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.service.client.CurrentState;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
@@ -25,7 +25,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
@@ -96,8 +96,8 @@ public class CurrentBTCStateRunnerTest {
 
         Intent intent = argumentCaptor.getAllValues().get(1);
 
-        assertThat(intent.getAction(), equalTo(Intents.ACTION_TRANSACTION_FEE_UPDATE));
-        assertThat(intent.getExtras().getParcelable(Intents.EXTRA_TRANSACTION_FEE), equalTo(transactionFee));
+        assertThat(intent.getAction(), equalTo(DropbitIntents.ACTION_TRANSACTION_FEE_UPDATE));
+        assertThat(intent.getExtras().getParcelable(DropbitIntents.EXTRA_TRANSACTION_FEE), equalTo(transactionFee));
     }
 
     @Test
@@ -118,8 +118,8 @@ public class CurrentBTCStateRunnerTest {
         Intent intent = argumentCaptor.getAllValues().get(0);
         verify(localBroadCastUtil, times(2)).sendBroadcast(argumentCaptor.capture());
 
-        assertThat(intent.getAction(), equalTo(Intents.ACTION_BTC_PRICE_UPDATE));
-        assertThat(intent.getExtras().getLong(Intents.EXTRA_BITCOIN_PRICE), equalTo(2500L));
+        assertThat(intent.getAction(), equalTo(DropbitIntents.ACTION_BTC_PRICE_UPDATE));
+        assertThat(intent.getExtras().getLong(DropbitIntents.EXTRA_BITCOIN_PRICE), equalTo(2500L));
     }
 
     @Test

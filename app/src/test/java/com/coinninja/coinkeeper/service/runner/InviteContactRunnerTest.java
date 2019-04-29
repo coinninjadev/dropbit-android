@@ -8,7 +8,7 @@ import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.uuid.UUIDGenerator;
@@ -130,7 +130,7 @@ public class InviteContactRunnerTest {
         verify(client).invitePhoneNumber(36551596l, 4568949465l,
                 senderPhoneNumber, receiverPhoneNumber, uuid);
 
-        verify(onInviteListener).onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, "bad request");
+        verify(onInviteListener).onInviteError(DropbitIntents.ACTION_DROPBIT__ERROR_UNKNOWN, "bad request");
     }
 
     @Test
@@ -150,6 +150,6 @@ public class InviteContactRunnerTest {
         verify(client).invitePhoneNumber(36551596l, 4568949465l,
                 senderPhoneNumber, receiverPhoneNumber, uuid);
 
-        verify(onInviteListener).onInviteError(Intents.ACTION_DROPBIT__ERROR_RATE_LIMIT, "rate limit error");
+        verify(onInviteListener).onInviteError(DropbitIntents.ACTION_DROPBIT__ERROR_RATE_LIMIT, "rate limit error");
     }
 }

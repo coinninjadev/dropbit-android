@@ -7,9 +7,8 @@ import android.widget.Button;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BackupActivity;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
@@ -31,9 +30,9 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == AuthorizedActionActivity.RESULT_AUTHORIZED && requestCode == AUTHORIZE_VIEW_REQUEST_CODE)
-            navigateToViewRecoveryWords(cnWalletManager.getRecoveryWords(), Intents.EXTRA_VIEW);
+            navigateToViewRecoveryWords(cnWalletManager.getRecoveryWords(), DropbitIntents.EXTRA_VIEW);
         else if (resultCode == AuthorizedActionActivity.RESULT_AUTHORIZED && requestCode == AUTHORIZE_BACKUP_REQUEST_CODE)
-            navigateToViewRecoveryWords(cnWalletManager.getRecoveryWords(), Intents.EXTRA_BACKUP);
+            navigateToViewRecoveryWords(cnWalletManager.getRecoveryWords(), DropbitIntents.EXTRA_BACKUP);
     }
 
     @Override
@@ -84,7 +83,7 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
 
 
     private void backupRecoveryWords() {
-        navigateToViewRecoveryWords(cnWalletManager.generateRecoveryWords(), Intents.EXTRA_CREATE);
+        navigateToViewRecoveryWords(cnWalletManager.generateRecoveryWords(), DropbitIntents.EXTRA_CREATE);
     }
 
     private void onAuthorizeBackupRecoveryWords() {
@@ -100,8 +99,8 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
     private void navigateToViewRecoveryWords(String[] seedWords, int extraState) {
         analytics.trackEvent(Analytics.EVENT_VIEW_RECOVERY_WORDS);
         Intent intent = new Intent(this, BackupActivity.class);
-        intent.putExtra(Intents.EXTRA_RECOVERY_WORDS, seedWords);
-        intent.putExtra(Intents.EXTRA_VIEW_STATE, extraState);
+        intent.putExtra(DropbitIntents.EXTRA_RECOVERY_WORDS, seedWords);
+        intent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, extraState);
         startActivity(intent);
         finish();
     }

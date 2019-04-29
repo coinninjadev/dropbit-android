@@ -1,9 +1,7 @@
 package com.coinninja.coinkeeper.view.dialog;
 
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +10,8 @@ import com.coinninja.coinkeeper.R;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 
 public class GenericAlertDialog extends DialogFragment {
 
@@ -25,6 +25,7 @@ public class GenericAlertDialog extends DialogFragment {
     private boolean isCancelableOnTouchOutside = true;
     private View view;
     private boolean showAsWide = false;
+    private AlertDialog alertDialog;
 
     public static GenericAlertDialog newInstance(String message) {
         return newInstance(null, message, null, null, null, true, true);
@@ -87,22 +88,17 @@ public class GenericAlertDialog extends DialogFragment {
 
         builder.setCancelable(isCancelable);
 
-        Dialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(isCancelableOnTouchOutside);
+        alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(isCancelableOnTouchOutside);
 
         if (showAsWide)
-            dialog.getContext().setTheme(R.style.WideDialogTheme);
+            alertDialog.getContext().setTheme(R.style.WideDialogTheme);
 
-        return dialog;
+        return alertDialog;
     }
 
     public void setDialogBuilder(AlertDialog.Builder builder) {
         this.builder = builder;
-    }
-
-    @Nullable
-    protected void setTitle(String title) {
-        this.title = title;
     }
 
     public void setMessage(String message) {
@@ -133,5 +129,18 @@ public class GenericAlertDialog extends DialogFragment {
 
     public void asWide() {
         showAsWide = true;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public AlertDialog getAlertDialog() {
+        return alertDialog;
+    }
+
+    @Nullable
+    protected void setTitle(String title) {
+        this.title = title;
     }
 }

@@ -1,25 +1,22 @@
 package com.coinninja.coinkeeper.presenter.fragment;
 
 
-import android.annotation.TargetApi;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.CancellationSignal;
 
+import androidx.annotation.RequiresApi;
+
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
 
-@TargetApi(Build.VERSION_CODES.M)
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class FingerprintAuthPresenter extends FingerprintManager.AuthenticationCallback implements FingerprintAuthDialog.FingerprintAuthUIPresentor {
 
-    private FingerprintManager fingerprintManager = null;
-    private FingerprintManager.CryptoObject cryptoObject;
+    CancellationSignal cancellationSignal;
+    FingerprintManager fingerprintManager = null;
+    FingerprintManager.CryptoObject cryptoObject;
     private FingerprintAuthDialog dialog;
-    private CancellationSignal cancellationSignal;
     private FingerprintAuthPresenter.View view;
-
-    public static FingerprintAuthPresenter newInstance(FingerprintAuthPresenter.View view) {
-        return new FingerprintAuthPresenter(view);
-    }
 
     public FingerprintAuthPresenter(FingerprintAuthPresenter.View view) {
         this.view = view;
@@ -27,19 +24,12 @@ public class FingerprintAuthPresenter extends FingerprintManager.AuthenticationC
         cancellationSignal = FingerprintAuthPresenter.newCancellationSignal();
     }
 
+    public static FingerprintAuthPresenter newInstance(FingerprintAuthPresenter.View view) {
+        return new FingerprintAuthPresenter(view);
+    }
+
     public static CancellationSignal newCancellationSignal() {
         return new CancellationSignal();
-    }
-
-    @Override
-    public void setDialog(FingerprintAuthDialog dialog) {
-        this.dialog = dialog;
-    }
-
-    @Override
-    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
-        super.onAuthenticationSucceeded(result);
-        dialog.onSucces();
     }
 
     @Override
@@ -49,15 +39,21 @@ public class FingerprintAuthPresenter extends FingerprintManager.AuthenticationC
     }
 
     @Override
-    public void onAuthenticationFailed() {
-        super.onAuthenticationFailed();
-        dialog.onFailure();
-    }
-
-    @Override
     public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
         super.onAuthenticationHelp(helpCode, helpString);
         dialog.onHelp(helpCode, helpString);
+    }
+
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+        super.onAuthenticationSucceeded(result);
+        dialog.onSucces();
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        super.onAuthenticationFailed();
+        dialog.onFailure();
     }
 
     public void captureFingerprintAuth() {
@@ -83,7 +79,9 @@ public class FingerprintAuthPresenter extends FingerprintManager.AuthenticationC
     public void startListeningForTouch() {
         if (!hasFingerprintSupport()) return;
 
-        fingerprintManager.authenticate(cryptoObject, cancellationSignal, 0, this, null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fingerprintManager.authenticate(cryptoObject, cancellationSignal, 0, this, null);
+        }
     }
 
     @Override
@@ -91,12 +89,20 @@ public class FingerprintAuthPresenter extends FingerprintManager.AuthenticationC
         cancellationSignal.cancel();
     }
 
+    @Override
+    public void setDialog(FingerprintAuthDialog dialog) {
+        this.dialog = dialog;
+    }
+
     public void tearDown() {
         view = null;
     }
 
     private boolean hasFingerprintSupport() {
-        return fingerprintManager != null && fingerprintManager.isHardwareDetected() && fingerprintManager.hasEnrolledFingerprints();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return fingerprintManager != null && fingerprintManager.isHardwareDetected() && fingerprintManager.hasEnrolledFingerprints();
+        }
+        return false;
     }
 
     public interface View {

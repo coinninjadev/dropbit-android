@@ -33,8 +33,8 @@ public class CurrencyPreference {
     public void setCurrencies(Currency primary, Currency secondary) {
         preferencesUtil.savePreference(PREFERENCE_PRIMARY_CURRENCY, primary.getSymbol());
         preferencesUtil.savePreference(PREFERENCE_SECONDARY_CURRENCY, secondary.getSymbol());
-        Intent intent = new Intent(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
-        intent.putExtra(Intents.EXTRA_PREFERENCE, getCurrenciesPreference());
+        Intent intent = new Intent(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        intent.putExtra(DropbitIntents.EXTRA_PREFERENCE, getCurrenciesPreference());
         localBroadCastUtil.sendBroadcast(intent);
     }
 

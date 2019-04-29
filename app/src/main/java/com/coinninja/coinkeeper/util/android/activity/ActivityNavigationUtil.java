@@ -15,7 +15,7 @@ import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
@@ -30,6 +30,9 @@ import java.util.HashMap;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LATITUDE;
@@ -92,27 +95,27 @@ public class ActivityNavigationUtil {
     }
 
     public void showAddressOnBlock(Context context, String address) {
-        UriUtil.openUrl(coinNinjaUriBuilder.build(ADDRESS, address), (Activity) context);
+        UriUtil.openUrl(coinNinjaUriBuilder.build(ADDRESS, address), (AppCompatActivity) context);
     }
 
     public void showTxidOnBlock(Context context, String txid) {
-        UriUtil.openUrl(coinNinjaUriBuilder.build(TRANSACTION, txid), (Activity) context);
+        UriUtil.openUrl(coinNinjaUriBuilder.build(TRANSACTION, txid), (AppCompatActivity) context);
     }
 
     public void explainSharedMemos(Context context) {
-        UriUtil.openUrl(Intents.URI_SHARED_MEMOS, (Activity) context);
+        UriUtil.openUrl(DropbitIntents.URI_SHARED_MEMOS, (AppCompatActivity) context);
     }
 
     public void navigateToVerifyPhoneNumberCode(Context context, PhoneNumber phoneNumber) {
         Intent intent = new Intent(context, VerifyPhoneVerificationCodeActivity.class);
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER, phoneNumber);
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, phoneNumber);
         context.startActivity(intent);
     }
 
     public void navigateToVerifyRecoveryWords(Context context, String[] seedWords, int viewState) {
         Intent intent = new Intent(context, VerifyRecoverywordsActivity.class);
         intent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, seedWords);
-        intent.putExtra(Intents.EXTRA_VIEW_STATE, viewState);
+        intent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, viewState);
         context.startActivity(intent);
     }
 
@@ -162,5 +165,9 @@ public class ActivityNavigationUtil {
     public void navigateToBuyBitcoinWithGiftCard(Activity activity) {
         UriUtil.openUrl(coinNinjaUriBuilder.build(BUY_BITCOIN, "giftcards"), activity);
         analytics.trackEvent(Analytics.EVENT_BUY_BITCOIN_GIFT_CARD);
+    }
+
+    public void showDialogWithTag(FragmentManager fragmentManager, DialogFragment dialogFragment, String tag) {
+        dialogFragment.show(fragmentManager, tag);
     }
 }

@@ -6,7 +6,7 @@ import android.content.Intent;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import java.util.List;
@@ -45,13 +45,13 @@ public class CNWalletAddressRequestService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        if (intent == null || !intent.hasExtra(Intents.EXTRA_PHONE_NUMBER_HASH)) return;
+        if (intent == null || !intent.hasExtra(DropbitIntents.EXTRA_PHONE_NUMBER_HASH)) return;
 
-        String phoneNumberHash = intent.getStringExtra(Intents.EXTRA_PHONE_NUMBER_HASH);
+        String phoneNumberHash = intent.getStringExtra(DropbitIntents.EXTRA_PHONE_NUMBER_HASH);
         AddressLookupResult addressLookupResult = lookupAddress(phoneNumberHash);
 
-        intent = new Intent(Intents.ACTION_WALLET_ADDRESS_RETRIEVED);
-        intent.putExtra(Intents.EXTRA_ADDRESS_LOOKUP_RESULT, addressLookupResult);
+        intent = new Intent(DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED);
+        intent.putExtra(DropbitIntents.EXTRA_ADDRESS_LOOKUP_RESULT, addressLookupResult);
         localBroadCastUtil.sendBroadcast(intent);
     }
 

@@ -1,9 +1,9 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.github.ksoichiro.console.reporter'
 apply plugin: 'org.greenrobot.greendao'
-apply plugin: 'de.undercouch.download'
-apply plugin: 'com.android.application'
 apply plugin: 'com.github.triplet.play'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'io.fabric'
+apply plugin: 'de.felixschulze.gradle.hockeyapp'
 
 // Create a variable called keystorePropertiesFile, and initialize it to your
 // keystore.properties file, in the projectDir folder.
@@ -28,17 +28,25 @@ def PROD_FCM_APP_KEY = System.getenv("PROD_FCM_APP_KEY") ? System.getenv("PROD_F
 def PHONE_HASH_SALT = System.getenv("PHONE_HASH_SALT") ? System.getenv("PHONE_HASH_SALT") : PHONE_HASH_SALT
 def PHONE_HASH_ITERATIONS = System.getenv("PHONE_HASH_ITERATIONS") ? System.getenv("PHONE_HASH_ITERATIONS") : PHONE_HASH_ITERATIONS
 
+def JVM_ARGS = project.hasProperty("JVM_ARGS") ?  JVM_ARGS : "-Xmx4g"
+JVM_ARGS = System.getenv("JVM_ARGS") ? System.getenv("JVM_ARGS") : JVM_ARGS
+JVM_ARGS = JVM_ARGS == null ? "-Xmx4g" : JVM_ARGS
+def MAX_PARALLEL_FORKS = project.hasProperty("MAX_PARALLEL_FORKS") ?  Integer.parseInt(MAX_PARALLEL_FORKS) : 2
+MAX_PARALLEL_FORKS = System.getenv("MAX_PARALLEL_FORKS") ? Integer.parseInt(System.getenv("MAX_PARALLEL_FORKS")) : MAX_PARALLEL_FORKS
+
+System.out.println("------ Run Configuration")
+System.out.println(JVM_ARGS)
+System.out.println(MAX_PARALLEL_FORKS)
+System.out.println("Run Configuration ------")
 
 greendao {
     schemaVersion 30
 }
 
-apply plugin: 'de.felixschulze.gradle.hockeyapp'
 hockeyapp {
     apiToken = "${hockeyAppApiToken}"
 }
 
-// documentation for plugin https://github.com/Triple-T/gradle-play-publisher#initial-play-store-upload
 play {
     track 'internal'
     untrackOld true
@@ -48,7 +56,6 @@ play {
 }
 
 android {
-    //https://developer.android.com/studio/releases/build-tools
     buildToolsVersion "28.0.3"
     compileSdkVersion 28
     defaultConfig {
@@ -120,13 +127,11 @@ android {
         }
 
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    testOptions.unitTests.includeAndroidResources = true
-    testOptions.unitTests.returnDefaultValues = true
 
     lintOptions {
         abortOnError true
@@ -134,10 +139,20 @@ android {
         noLines false
     }
     testOptions {
-        unitTests.all {
-            jvmArgs '-Xmx4096m'
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+            all {
+                systemProperty "robolectric.logging.enabled", false
+                jvmArgs JVM_ARGS
+            }
         }
     }
+
+}
+
+tasks.withType(Test) {
+    maxParallelForks = MAX_PARALLEL_FORKS
 }
 
 android.applicationVariants.all { variant ->
@@ -152,23 +167,22 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation group: 'org.cryptonode.jncryptor', name: 'jncryptor', version: '1.0.1'
 
-    implementation 'com.google.dagger:dagger:2.17'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.17'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.17'
-    androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:2.17'
-    testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.17'
-    implementation 'com.google.dagger:dagger-android:2.17'
-    implementation 'com.google.dagger:dagger-android-support:2.17'
+    implementation 'com.google.dagger:dagger:2.22.1'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.22.1'
+    androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
+    testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
+    implementation 'com.google.dagger:dagger-android:2.22.1'
+    implementation 'com.google.dagger:dagger-android-support:2.22.1'
 
     implementation 'com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.44514'
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
-    implementation "com.google.android.material:material:1.1.0-alpha05"
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation "com.google.android.material:material:1.1.0-alpha05"
 
     implementation 'org.greenrobot:greendao:3.2.2'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
@@ -177,23 +191,17 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
 
     implementation "com.journeyapps:zxing-android-embedded:3.3.0"
-    implementation "com.google.zxing:core:3.3.0"
-    implementation 'com.google.zxing:javase:3.3.0'
-    implementation "com.googlecode.libphonenumber:libphonenumber:8.9.4"
-    implementation 'commons-codec:commons-codec:1.10'
+    implementation 'com.google.zxing:core:3.3.3'
+    implementation 'com.google.zxing:javase:3.3.3'
+    implementation 'com.googlecode.libphonenumber:libphonenumber:8.9.4'
+    implementation 'commons-codec:commons-codec:20041127.091804'
     implementation group: 'com.madgag.spongycastle', name: 'core', version: '1.58.0.0'
     implementation group: 'com.madgag.spongycastle', name: 'bcpkix-jdk15on', version: '1.58.0.0'
-    implementation 'com.mixpanel.android:mixpanel-android:5.4.1'
+    implementation 'com.mixpanel.android:mixpanel-android:5.6.0'
     implementation 'com.google.firebase:firebase-messaging:17.6.0'
     implementation 'com.google.firebase:firebase-core:16.0.8'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation "androidx.test:core:1.2.0-alpha03"
-    testImplementation 'com.android.support.test:rules:1.0.2'
-    testImplementation 'com.android.support.test:runner:1.0.2'
-    testImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    testImplementation "org.robolectric:robolectric:4.0.2"
     testImplementation "org.powermock:powermock-module-junit4:1.6.6"
     testImplementation "org.powermock:powermock-module-junit4-rule:1.6.6"
     testImplementation "org.powermock:powermock-api-mockito:1.6.6"
@@ -201,48 +209,45 @@ dependencies {
     testImplementation group: 'org.json', name: 'json', version: '20180130'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
 
-    androidTestImplementation 'androidx.annotation:annotation:1.0.1'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test:rules:1.1.1'
-    androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
-    androidTestImplementation('androidx.test.espresso:espresso-contrib:3.1.0-alpha4') {
-        exclude module: 'support-annotations'
-        exclude group: 'com.android.support', module: 'appcompat'
-        exclude group: 'com.android.support', module: 'support-v4'
-        exclude group: 'com.android.support', module: 'support-compat'
-        exclude module: 'recyclerview-v7'
-    }
-    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
-
+    testImplementation 'junit:junit:4.13-beta-2'
+    testImplementation "androidx.test:core:1.1.0"
+    testImplementation 'androidx.test:rules:1.1.1'
+    testImplementation 'androidx.test.ext:junit:1.1.0'
+    testImplementation 'androidx.test:runner:1.1.1'
+    testImplementation 'androidx.test.espresso:espresso-core:3.2.0-alpha04'
+    implementation 'androidx.fragment:fragment-testing:1.1.0-alpha06'
+    //--https://issuetracker.google.com/issues/122321150
+    testImplementation "org.robolectric:robolectric:4.0.2"
+    testImplementation 'androidx.test.espresso:espresso-intents:3.1.1'
 }
 
-task packageReleaseDeliverable(dependsOn: "assembleRelease") << {
-    def CURRENT_DATE = new Date().format('yyyy-MM-dd-hh:mm')
+task packageReleaseDeliverable(dependsOn: "assembleRelease") {
+    doLast {
 
-    def VERSION_NAME = android.defaultConfig.versionName
-    def VERSION_CODE = android.defaultConfig.versionCode
+        def CURRENT_DATE = new Date().format('yyyy-MM-dd-hh:mm')
 
-    def GIT_BRANCH_NAME = gitWorkingBranch()
-    def GIT_BRANCH_COMMIT = gitWorkingCommit()
+        def VERSION_NAME = android.defaultConfig.versionName
+        def VERSION_CODE = android.defaultConfig.versionCode
+
+        def GIT_BRANCH_NAME = gitWorkingBranch()
+        def GIT_BRANCH_COMMIT = gitWorkingCommit()
 
 
-    mkdir "${project.buildDir}/deliverables"
-    File infoFile = file("${project.buildDir}/deliverables/info.txt")
+        mkdir "${project.buildDir}/deliverables"
+        File infoFile = file("${project.buildDir}/deliverables/info.txt")
 
-    def infoMessage
-    def newLine = "\n"
+        def infoMessage
+        def newLine = "\n"
 
-    infoMessage = "Build date          ${CURRENT_DATE}"
-    infoMessage = infoMessage + newLine + "App version name    ${VERSION_NAME}"
-    infoMessage = infoMessage + newLine + "App version code    ${VERSION_CODE}"
-    infoMessage = infoMessage + newLine + "Git branch          ${GIT_BRANCH_NAME}"
-    infoMessage = infoMessage + newLine + "Git commit          ${GIT_BRANCH_COMMIT}"
+        infoMessage = "Build date          ${CURRENT_DATE}"
+        infoMessage = infoMessage + newLine + "App version name    ${VERSION_NAME}"
+        infoMessage = infoMessage + newLine + "App version code    ${VERSION_CODE}"
+        infoMessage = infoMessage + newLine + "Git branch          ${GIT_BRANCH_NAME}"
+        infoMessage = infoMessage + newLine + "Git commit          ${GIT_BRANCH_COMMIT}"
 
-    logger.quiet(infoMessage)
-    infoFile.text = infoMessage
+        logger.quiet(infoMessage)
+        infoFile.text = infoMessage
+    }
 }
 
 def gitWorkingBranch() {
@@ -262,6 +267,4 @@ def gitWorkingCommit() {
 }
 
 
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'io.fabric'
 

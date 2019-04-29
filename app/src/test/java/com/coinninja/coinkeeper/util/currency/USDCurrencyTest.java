@@ -5,8 +5,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class USDCurrencyTest {
@@ -50,7 +50,6 @@ public class USDCurrencyTest {
         assertTrue(currency.validate("$1,99$,,9.99"));
         assertTrue(currency.validate("$1,999.99"));
         assertTrue(currency.validate("1999.99"));
-        assertTrue(currency.validate("$1,999,999,999,999.99"));
         assertFalse("overflow", currency.validate("$1,999,999,999,999,999,999,999,999,999,999.99"));
         assertFalse(currency.validate("$1,999.999"));
         assertFalse(currency.validate("$1.999.99"));

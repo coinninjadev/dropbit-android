@@ -1,15 +1,15 @@
 package com.coinninja.coinkeeper.view.activity.base;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.service.WalletCreationIntentService;
+import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
 import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
@@ -17,13 +17,13 @@ import com.coinninja.coinkeeper.view.activity.RecoverWalletActivity;
 import com.coinninja.coinkeeper.view.activity.RestoreWalletActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TrainingActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 
 import java.util.Arrays;
 
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 public abstract class SecuredActivity extends MessengerActivity {
 
@@ -60,11 +60,11 @@ public abstract class SecuredActivity extends MessengerActivity {
 
     protected void onAuthenticationResult(int resultCode) {
         switch (resultCode) {
-            case Activity.RESULT_CANCELED:
+            case AppCompatActivity.RESULT_CANCELED:
                 moveTaskToBack(true);
                 finish();
                 break;
-            case Activity.RESULT_OK:
+            case AppCompatActivity.RESULT_OK:
                 if (!(authentication.isAuthenticated())) {
                     authenticate();
                 } else {
@@ -101,7 +101,7 @@ public abstract class SecuredActivity extends MessengerActivity {
     }
 
     private void broadcastAuthSuccessful() {
-        localBroadCastUtil.sendGlobalBroadcast(AuthenticationCompleteReceiver.class, Intents.ACTION_ON_USER_AUTH_SUCCESSFULLY);
+        localBroadCastUtil.sendGlobalBroadcast(AuthenticationCompleteReceiver.class, DropbitIntents.ACTION_ON_USER_AUTH_SUCCESSFULLY);
     }
 
     private void showStartActivity() {
@@ -111,9 +111,10 @@ public abstract class SecuredActivity extends MessengerActivity {
     }
 
     protected void showCreatePinCreateWalletThenVerifyPhone() {
+        cnWalletManager.createWallet();
         Intent intent = new Intent(this, CreatePinActivity.class);
-        intent.putExtra(Intents.EXTRA_NEXT, VerifyPhoneNumberActivity.class.getName());
-        intent.putExtra(Intents.EXTRA_ON_COMPLETION, new Intent(this, WalletCreationIntentService.class));
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, VerifyPhoneNumberActivity.class.getName());
+        intent.putExtra(DropbitIntents.EXTRA_ON_COMPLETION, new Intent(this, WalletCreationIntentService.class));
         navigateTo(intent);
         finish();
     }
@@ -129,9 +130,9 @@ public abstract class SecuredActivity extends MessengerActivity {
 
     protected void showNext() {
         onCompletion();
-        if (getIntent().hasExtra(Intents.EXTRA_NEXT)) {
+        if (getIntent().hasExtra(DropbitIntents.EXTRA_NEXT)) {
             try {
-                Class<?> nextClass = Class.forName(getIntent().getStringExtra(Intents.EXTRA_NEXT));
+                Class<?> nextClass = Class.forName(getIntent().getStringExtra(DropbitIntents.EXTRA_NEXT));
                 showNext(nextClass);
 
             } catch (ClassNotFoundException e) {
@@ -143,10 +144,12 @@ public abstract class SecuredActivity extends MessengerActivity {
     }
 
 
-    protected void onCompletion(){
-        if (getIntent() == null || getIntent().getExtras() == null) { return; }
-        Intent completionIntent = (Intent) getIntent().getExtras().get(Intents.EXTRA_ON_COMPLETION);
-        if(completionIntent != null){
+    protected void onCompletion() {
+        if (getIntent() == null || getIntent().getExtras() == null) {
+            return;
+        }
+        Intent completionIntent = (Intent) getIntent().getExtras().get(DropbitIntents.EXTRA_ON_COMPLETION);
+        if (completionIntent != null) {
             startService(completionIntent);
         }
     }
@@ -154,8 +157,8 @@ public abstract class SecuredActivity extends MessengerActivity {
     protected void showNext(@NonNull Class nextClass) {
         finish();
         Intent intent = new Intent(this, nextClass);
-        if (getIntent().hasExtra(Intents.EXTRA_NEXT_BUNDLE)) {
-            Bundle bundle = getIntent().getBundleExtra(Intents.EXTRA_NEXT_BUNDLE);
+        if (getIntent().hasExtra(DropbitIntents.EXTRA_NEXT_BUNDLE)) {
+            Bundle bundle = getIntent().getBundleExtra(DropbitIntents.EXTRA_NEXT_BUNDLE);
             intent.replaceExtras(bundle);
         }
 

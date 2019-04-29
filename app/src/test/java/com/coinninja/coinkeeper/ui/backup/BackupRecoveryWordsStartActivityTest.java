@@ -1,17 +1,14 @@
 package com.coinninja.coinkeeper.ui.backup;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BackupActivity;
 
@@ -28,6 +25,7 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import static junit.framework.Assert.assertFalse;
@@ -35,7 +33,6 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
@@ -114,7 +111,7 @@ public class BackupRecoveryWordsStartActivityTest {
 
         Intent intent = shadowActivity.getNextStartedActivity();
 
-        assertThat(intent.getExtras().getStringArray(Intents.EXTRA_RECOVERY_WORDS),
+        assertThat(intent.getExtras().getStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS),
                 equalTo(words));
     }
 
@@ -139,8 +136,8 @@ public class BackupRecoveryWordsStartActivityTest {
         Intent intent = shadowActivity.getNextStartedActivity();
 
 
-        assertThat(intent.getIntExtra(Intents.EXTRA_VIEW_STATE, -1),
-                equalTo(Intents.EXTRA_CREATE));
+        assertThat(intent.getIntExtra(DropbitIntents.EXTRA_VIEW_STATE, -1),
+                equalTo(DropbitIntents.EXTRA_CREATE));
     }
 
     // Has Wallet but skipped Backup
@@ -153,7 +150,7 @@ public class BackupRecoveryWordsStartActivityTest {
                 null);
 
         Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getExtras().getInt(Intents.EXTRA_VIEW_STATE), equalTo(Intents.EXTRA_BACKUP));
+        assertThat(intent.getExtras().getInt(DropbitIntents.EXTRA_VIEW_STATE), equalTo(DropbitIntents.EXTRA_BACKUP));
     }
 
     @Test
@@ -166,7 +163,7 @@ public class BackupRecoveryWordsStartActivityTest {
                 null);
 
         Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getExtras().getStringArray(Intents.EXTRA_RECOVERY_WORDS),
+        assertThat(intent.getExtras().getStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS),
                 equalTo(words));
     }
 
@@ -189,7 +186,7 @@ public class BackupRecoveryWordsStartActivityTest {
         when(cnWalletManager.hasSkippedBackup()).thenReturn(true);
         start();
         activity.onActivityResult(BackupRecoveryWordsStartActivity.AUTHORIZE_BACKUP_REQUEST_CODE,
-                Activity.RESULT_CANCELED,
+                AppCompatActivity.RESULT_CANCELED,
                 null);
 
         Intent intent = shadowActivity.getNextStartedActivity();
@@ -241,7 +238,7 @@ public class BackupRecoveryWordsStartActivityTest {
                 null);
 
         Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getExtras().getInt(Intents.EXTRA_VIEW_STATE), equalTo(Intents.EXTRA_VIEW));
+        assertThat(intent.getExtras().getInt(DropbitIntents.EXTRA_VIEW_STATE), equalTo(DropbitIntents.EXTRA_VIEW));
     }
 
     // Has Backed Up Wallet
@@ -256,7 +253,7 @@ public class BackupRecoveryWordsStartActivityTest {
                 null);
 
         Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getExtras().getStringArray(Intents.EXTRA_RECOVERY_WORDS),
+        assertThat(intent.getExtras().getStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS),
                 equalTo(words));
     }
 
@@ -279,7 +276,7 @@ public class BackupRecoveryWordsStartActivityTest {
         when(cnWalletManager.hasSkippedBackup()).thenReturn(false);
         start();
         activity.onActivityResult(BackupRecoveryWordsStartActivity.AUTHORIZE_VIEW_REQUEST_CODE,
-                Activity.RESULT_CANCELED,
+                AppCompatActivity.RESULT_CANCELED,
                 null);
 
         Intent intent = shadowActivity.getNextStartedActivity();

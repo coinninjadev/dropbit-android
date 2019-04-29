@@ -54,18 +54,8 @@ public class WalletHelper {
 
     public void saveWords(String[] recoveryWords) {
         Wallet wallet = getWallet();
-        wallet.refresh();
-        verifyCanSave(wallet);
         for (int i = 0; i < recoveryWords.length; i++) {
             wordHelper.saveWord(wallet.getId(), recoveryWords[i], i);
-        }
-    }
-
-    private void verifyCanSave(Wallet wallet) {
-        List<Word> words = wallet.getWords();
-        List<Address> addresses = wallet.getAddressses();
-        if ((words != null && words.size() > 0) || (addresses != null && addresses.size() > 0)) {
-            throw new IllegalAccessError("Wallet already has words!! This is not safe");
         }
     }
 
@@ -208,6 +198,10 @@ public class WalletHelper {
         }
     }
 
+    public void createWallet() {
+        daoSessionManager.createWallet();
+    }
+
     private Account createAccount() {
         Wallet wallet = getWallet();
         Account account = new Account();
@@ -262,7 +256,10 @@ public class WalletHelper {
     }
 
     public Account getUserAccount() {
-        Account account = daoSessionManager.getAccountDao().queryBuilder().where(AccountDao.Properties.WalletId.eq(getWallet().getId())).limit(1).unique();
+        Wallet wallet = getWallet();
+        if (wallet == null) return new Account();
+
+        Account account = daoSessionManager.getAccountDao().queryBuilder().where(AccountDao.Properties.WalletId.eq(wallet.getId())).limit(1).unique();
         if (account != null) {
             account.refresh();
         } else {

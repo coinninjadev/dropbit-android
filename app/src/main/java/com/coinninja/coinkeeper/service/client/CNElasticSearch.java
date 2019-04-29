@@ -2,7 +2,7 @@ package com.coinninja.coinkeeper.service.client;
 
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
 import com.coinninja.coinkeeper.util.DateUtil;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -18,7 +18,7 @@ public class CNElasticSearch {
     @Inject
     public CNElasticSearch(@BuildVersionName String buildConfigVersionName, DateUtil dateUtil) {
         appVersion = buildConfigVersionName;
-        platforms = new String[]{Intents.CN_API_ELASTIC_SEARCH_PLATFORM_ALL, Intents.CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID};
+        platforms = new String[]{DropbitIntents.CN_API_ELASTIC_SEARCH_PLATFORM_ALL, DropbitIntents.CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID};
         this.dateUtil = dateUtil;
     }
 
@@ -40,7 +40,7 @@ public class CNElasticSearch {
         addPlatform(query);
 
 
-        json.add(Intents.CN_API_ELASTIC_SEARCH_QUERY, query);
+        json.add(DropbitIntents.CN_API_ELASTIC_SEARCH_QUERY, query);
         return json;
     }
 
@@ -50,13 +50,13 @@ public class CNElasticSearch {
         JsonObject params = new JsonObject();
 
 
-        String id = Intents.CN_API_ELASTIC_SEARCH_SEMVER;
+        String id = DropbitIntents.CN_API_ELASTIC_SEARCH_SEMVER;
 
-        params.addProperty(Intents.CN_API_ELASTIC_SEARCH_VERSION, removeVersionNameSuffix(appVersion));
-        script2.add(Intents.CN_API_ELASTIC_SEARCH_PARAMS, params);
-        script2.addProperty(Intents.CN_API_ELASTIC_SEARCH_ID, id);
-        script.add(Intents.CN_API_ELASTIC_SEARCH_SCRIPT, script2);
-        query.add(Intents.CN_API_ELASTIC_SEARCH_SCRIPT, script);
+        params.addProperty(DropbitIntents.CN_API_ELASTIC_SEARCH_VERSION, removeVersionNameSuffix(appVersion));
+        script2.add(DropbitIntents.CN_API_ELASTIC_SEARCH_PARAMS, params);
+        script2.addProperty(DropbitIntents.CN_API_ELASTIC_SEARCH_ID, id);
+        script.add(DropbitIntents.CN_API_ELASTIC_SEARCH_SCRIPT, script2);
+        query.add(DropbitIntents.CN_API_ELASTIC_SEARCH_SCRIPT, script);
     }
 
     private void addPublishedTime(JsonObject query) {
@@ -65,9 +65,9 @@ public class CNElasticSearch {
         JsonObject publishedTime = new JsonObject();
         JsonObject range = new JsonObject();
 
-        publishedTime.addProperty(Intents.CN_API_ELASTIC_SEARCH_GREATER_THAN, publishedAt);
-        range.add(Intents.CN_API_ELASTIC_SEARCH_PUBLISH_TIME, publishedTime);
-        query.add(Intents.CN_API_ELASTIC_SEARCH_RANGE, range);
+        publishedTime.addProperty(DropbitIntents.CN_API_ELASTIC_SEARCH_GREATER_THAN, publishedAt);
+        range.add(DropbitIntents.CN_API_ELASTIC_SEARCH_PUBLISH_TIME, publishedTime);
+        query.add(DropbitIntents.CN_API_ELASTIC_SEARCH_RANGE, range);
     }
 
     private void addPlatform(JsonObject query) {
@@ -78,8 +78,8 @@ public class CNElasticSearch {
             platformItems.add(devicePlatform);
         }
 
-        terms.add(Intents.CN_API_ELASTIC_SEARCH_PLATFORM, platformItems);
-        query.add(Intents.CN_API_ELASTIC_SEARCH_TERMS, terms);
+        terms.add(DropbitIntents.CN_API_ELASTIC_SEARCH_PLATFORM, platformItems);
+        query.add(DropbitIntents.CN_API_ELASTIC_SEARCH_TERMS, terms);
     }
 
     private String removeVersionNameSuffix(String appVersion) {

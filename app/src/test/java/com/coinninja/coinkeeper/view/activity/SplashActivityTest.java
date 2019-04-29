@@ -4,10 +4,9 @@ import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.model.helpers.CreateUserTask;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.receiver.StartupCompleteReceiver;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
@@ -24,8 +23,6 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
-import junitx.util.PrivateAccessor;
-
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,24 +34,17 @@ import static org.robolectric.Shadows.shadowOf;
 @Config(application = TestCoinKeeperApplication.class)
 public class SplashActivityTest {
 
+    @Mock
+    LocalBroadCastUtil localBroadCastUtil;
+    @Mock
+    UserHelper userHelper;
+    @Mock
+    CNWalletManager cnWalletManager;
+    @Mock
+    ActivityNavigationUtil activityNavigationUtil;
     private SplashActivity activity;
     private ActivityController<SplashActivity> activityActivityController;
     private TestCoinKeeperApplication application;
-
-    @Mock
-    LocalBroadCastUtil localBroadCastUtil;
-
-    @Mock
-    CreateUserTask createUserTask;
-
-    @Mock
-    UserHelper userHelper;
-
-    @Mock
-    CNWalletManager cnWalletManager;
-
-    @Mock
-    ActivityNavigationUtil activityNavigationUtil;
 
     @Before
     public void setUp() throws Exception {
@@ -63,9 +53,7 @@ public class SplashActivityTest {
         activityActivityController = Robolectric.buildActivity(SplashActivity.class);
         activity = activityActivityController.get();
         activityActivityController.create();
-        activity.createUserTask = createUserTask;
         activity.localBroadCastUtil = localBroadCastUtil;
-        activity.userHelper = userHelper;
         activity.cnWalletManager = cnWalletManager;
         activity.activityNavigationUtil = activityNavigationUtil;
     }
@@ -76,16 +64,8 @@ public class SplashActivityTest {
         activityActivityController = null;
         application = null;
         localBroadCastUtil = null;
-        createUserTask = null;
         userHelper = null;
         cnWalletManager = null;
-    }
-
-    void start() {
-        activityActivityController.start().resume().visible();
-        activity.displayDelayRunnable = null;
-        //TODO abstract to startup Manager class?
-        activity.onUserCreated();
     }
 
     @Test
@@ -111,12 +91,13 @@ public class SplashActivityTest {
         start();
 
         verify(localBroadCastUtil).sendGlobalBroadcast(StartupCompleteReceiver.class,
-                Intents.ACTION_ON_APPLICATION_FOREGROUND_STARTUP);
+                DropbitIntents.ACTION_ON_APPLICATION_FOREGROUND_STARTUP);
     }
 
     @Test
     public void starts_home_activity_when_recovery_words_are_saved() {
         when(cnWalletManager.hasWallet()).thenReturn(true);
+
         start();
 
         verify(activityNavigationUtil).navigateToHome(activity);
@@ -127,5 +108,10 @@ public class SplashActivityTest {
         start();
 
         verify(application.authentication).forceDeAuthenticate();
+    }
+
+    void start() {
+        activityActivityController.start().resume().visible();
+        activity.displayDelayRunnable.run();
     }
 }

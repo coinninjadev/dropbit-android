@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.receiver.WalletRegistrationCompleteReceiver;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import javax.inject.Inject;
@@ -49,6 +49,6 @@ public class WalletRegistraionRunner implements Runnable {
     }
 
     private void notifiyOfWalletRegistrationCompleted() {
-        localBroadCastUtil.sendGlobalBroadcast(WalletRegistrationCompleteReceiver.class, Intents.ACTION_WALLET_REGISTRATION_COMPLETE);
+        localBroadCastUtil.sendGlobalBroadcast(WalletRegistrationCompleteReceiver.class, DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE);
     }
 }

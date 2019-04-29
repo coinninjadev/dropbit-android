@@ -1,16 +1,20 @@
 package com.coinninja.coinkeeper.view.widget.phonenumber;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
-import android.os.LocaleList;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.os.ConfigurationCompat;
+import androidx.core.os.LocaleListCompat;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.text.PhoneNumberFormattingTextWatcher;
@@ -19,9 +23,6 @@ import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.List;
 import java.util.Locale;
-
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class PhoneNumberInputView extends ConstraintLayout {
 
@@ -71,7 +72,7 @@ public class PhoneNumberInputView extends ConstraintLayout {
 
 
     private void init(Context context, AttributeSet attrs) {
-        final TypedArray styleAttributesArray = context.obtainStyledAttributes(attrs, R.styleable.PhoneNumberInputView);
+        TypedArray styleAttributesArray = context.obtainStyledAttributes(attrs, R.styleable.PhoneNumberInputView);
         textAppearanceStyle = styleAttributesArray.getResourceId(R.styleable.PhoneNumberInputView_textAppearance,
                 android.R.style.TextAppearance);
         render(context);
@@ -89,23 +90,16 @@ public class PhoneNumberInputView extends ConstraintLayout {
         setDefaults();
         numberFormattingTextWatcher = new PhoneNumberFormattingTextWatcher(defaultLocale, phoneInputCallback);
         phoneNumberInput.addTextChangedListener(numberFormattingTextWatcher);
+        setBackground(getResources().getDrawable(R.drawable.input_background));
     }
-
 
     private void setDefaults() {
         setDefaultLocale();
     }
 
     private void setDefaultLocale() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            LocaleList locales;
-            locales = getContext().getResources().getConfiguration().getLocales();
-            if (locales.size() > 0) {
-                defaultLocale = locales.get(0);
-            }
-        } else {
-            defaultLocale = getContext().getResources().getConfiguration().locale;
-        }
+        LocaleListCompat locales = ConfigurationCompat.getLocales(getContext().getResources().getConfiguration());
+        defaultLocale = locales.get(0);
     }
 
     public void setCountryCodeLocals(List<CountryCodeLocale> countryCodeLocales) {

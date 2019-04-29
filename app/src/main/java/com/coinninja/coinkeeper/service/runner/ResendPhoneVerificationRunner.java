@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import java.io.IOException;
@@ -46,13 +46,13 @@ public class ResendPhoneVerificationRunner implements Runnable {
 
         if (response.isSuccessful()) {
             walletHelper.saveAccountRegistration((CNUserAccount) response.body(), CNPhoneNumber);
-            localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
+            localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT);
         } else if (response.code() == 429) {
-            localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
+            localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
         } else if (response.code() == 424) {
-            localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
+            localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
         } else {
-            localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
+            localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
             logError(response);
         }
     }

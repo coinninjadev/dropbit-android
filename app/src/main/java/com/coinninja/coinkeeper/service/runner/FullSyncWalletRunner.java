@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletSyncCompletedReceiver;
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.greenrobot.greendao.DaoException;
@@ -77,7 +77,7 @@ public class FullSyncWalletRunner implements Runnable {
         }
 
         localBroadCastUtil.sendGlobalBroadcast(WalletSyncCompletedReceiver.class,
-                Intents.ACTION_WALLET_SYNC_COMPLETE);
+                DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
 
         syncManagerViewNotifier.setSyncing(false);
     }

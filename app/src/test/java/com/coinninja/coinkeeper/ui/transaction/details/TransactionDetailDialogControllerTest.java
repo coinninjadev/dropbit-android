@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.transaction.details;
 
-import android.app.AlertDialog;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,7 +23,9 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowAlertDialog;
+import org.robolectric.shadows.ShadowDialog;
+
+import androidx.appcompat.app.AlertDialog;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -232,6 +233,6 @@ public class TransactionDetailDialogControllerTest {
     }
 
     private AlertDialog getLastShownAlertDialog() {
-        return ShadowAlertDialog.getLatestAlertDialog();
+        return (AlertDialog) ShadowDialog.getLatestDialog();
     }
 }

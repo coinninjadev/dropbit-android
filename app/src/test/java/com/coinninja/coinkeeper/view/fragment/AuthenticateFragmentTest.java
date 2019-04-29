@@ -8,10 +8,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.fragment.app.testing.FragmentScenario;
+import androidx.lifecycle.Lifecycle;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.interactor.AuthenticationImpl;
 import com.coinninja.coinkeeper.presenter.fragment.AuthenticateFragmentPresenter;
+import com.coinninja.coinkeeper.presenter.fragment.FingerprintAuthPresenter;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,227 +22,243 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.android.controller.FragmentController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowFingerprintManager;
-
-import junitx.util.PrivateAccessor;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestCoinKeeperApplication.class)
 public class AuthenticateFragmentTest {
-
-    private AuthenticateFragment fragment;
-
+    @Mock
+    FingerprintAuthPresenter fingerprintAuthPresenter;
+    @Mock
+    FingerprintAuthDialog fingerPrintAuthDialog;
     @Mock
     AuthenticateFragmentPresenter authPresenter;
+    @Mock
+    AuthenticateFragment.OnUserHasAuthenticated onUserHasAuthenticated;
+    private FragmentScenario<AuthenticateFragment> scenario;
 
 
     private void setupFingerprint() {
-        ShadowFingerprintManager manager = shadowOf((FingerprintManager) fragment.getContext().getSystemService(Context.FINGERPRINT_SERVICE));
-        manager.setIsHardwareDetected(true);
-        manager.setHasEnrolledFingerprints(true);
+        scenario.onFragment(fragment -> {
+            ShadowFingerprintManager manager = shadowOf((FingerprintManager) fragment.getContext().getSystemService(Context.FINGERPRINT_SERVICE));
+            manager.setIsHardwareDetected(true);
+            manager.setDefaultFingerprints(2);
+        });
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
-        FragmentController<AuthenticateFragment> fragmentController = Robolectric.buildFragment(AuthenticateFragment.class);
-        fragment = fragmentController.get();
-        fragment.setAuthentication(mock(AuthenticationImpl.class));
-        fragmentController.create();
-        fragment.authPresenter = authPresenter;
-        fragmentController.start().resume().visible();
-        authPresenter = mock(AuthenticateFragmentPresenter.class);
+        scenario = FragmentScenario.launchInContainer(AuthenticateFragment.class);
+        scenario.onFragment(fragment -> {
+            fragment.authPresenter = authPresenter;
+            fragment.setOnUserHasAuthenticated(onUserHasAuthenticated);
+            fragment.fingerprintAuthDialog = fingerPrintAuthDialog;
+            fragment.fingerprintAuthPresenter = fingerprintAuthPresenter;
+        });
+        scenario.moveToState(Lifecycle.State.RESUMED);
     }
 
     @After
-    public void tearDown() throws Exception {
-        fragment = null;
+    public void tearDown() {
         authPresenter = null;
+        scenario.moveToState(Lifecycle.State.DESTROYED);
+        scenario = null;
+        onUserHasAuthenticated = null;
+        fingerPrintAuthDialog = null;
+        fingerprintAuthPresenter = null;
     }
 
     @Test
     public void shows_fingerprint_auth_when_not_muted() {
-        FragmentController<AuthenticateFragment> fragmentController = Robolectric.buildFragment(AuthenticateFragment.class);
-        fragment = fragmentController.get();
-        fragmentController.create();
-        fragment.muteViews();
-        fragment.authPresenter = authPresenter;
-        fragmentController.start().resume().visible();
+        scenario.onFragment(fragment -> {
+            fragment.muteViews();
+            assertTrue(fragment.isMuted());
 
-        fragment.teardownMute();
+            fragment.teardownMute();
+        });
 
         verify(authPresenter).startAuth(anyBoolean());
     }
 
     @Test
     public void hides_fingerprint_auth_when_muted() {
-        FragmentController<AuthenticateFragment> fragmentController = Robolectric.buildFragment(AuthenticateFragment.class);
-        fragment = fragmentController.get();
-        fragmentController.create();
-        fragment.muteViews();
-        fragment.authPresenter = authPresenter;
-        fragmentController.start().resume().visible();
+        scenario.onFragment(fragment -> {
+            fragment.muteViews();
+        });
 
         verify(authPresenter, times(0)).startAuth(anyBoolean());
     }
 
     @Test
     public void recovers_views_from_unlocked_notification() {
-        View view = fragment.getView();
+        scenario.onFragment(fragment -> {
+            View view = fragment.getView();
+            fragment.onWalletLock();
 
-        fragment.onWalletLock();
-        fragment.onWalletLockRemoved();
+            fragment.onWalletLockRemoved();
 
-        EditText input = view.findViewById(R.id.pin_entry_edittext);
-
-        assertThat(input.isEnabled(), equalTo(true));
-        assertThat(input.getVisibility(), equalTo(View.VISIBLE));
+            EditText input = view.findViewById(R.id.pin_entry_edittext);
+            assertThat(input.isEnabled(), equalTo(true));
+            assertThat(input.getVisibility(), equalTo(View.VISIBLE));
+        });
     }
 
     @Test
     public void locks_screen_when_instructed() {
-        View view = fragment.getView();
+        scenario.onFragment(fragment -> {
+            View view = fragment.getView();
 
-        fragment.onWalletLock();
+            fragment.onWalletLock();
 
-        EditText input = view.findViewById(R.id.pin_entry_edittext);
-        TextView error = view.findViewById(R.id.error_message);
+            EditText input = view.findViewById(R.id.pin_entry_edittext);
+            TextView error = view.findViewById(R.id.error_message);
 
-        assertThat(input.isEnabled(), equalTo(false));
-        assertThat(input.getVisibility(), equalTo(View.INVISIBLE));
-        assertThat(error.getVisibility(), equalTo(View.INVISIBLE));
+            assertThat(input.isEnabled(), equalTo(false));
+            assertThat(input.getVisibility(), equalTo(View.INVISIBLE));
+            assertThat(error.getVisibility(), equalTo(View.INVISIBLE));
+        });
     }
 
     @Test
     public void fragmentInflatesViewOnCreateView() {
-        assertNotNull(fragment.getView().findViewById(R.id.logo_fragment_pin));
+        scenario.onFragment(fragment -> {
+            assertNotNull(fragment.getView().findViewById(R.id.logo_fragment_pin));
+        });
     }
 
     @Test
     public void showFingerprintAuth() {
-        fragment.showFingerprintAuth();
+        scenario.onFragment(fragment -> {
+            fragment.showFingerprintAuth();
 
-        View fingerprintBtn = fragment.getView().findViewById(R.id.finger_btn_fragment_pin);
-        assertTrue(fingerprintBtn.isEnabled());
-        assertThat(fingerprintBtn.getVisibility(), equalTo(View.VISIBLE));
+            View fingerprintBtn = fragment.getView().findViewById(R.id.finger_btn_fragment_pin);
+            assertTrue(fingerprintBtn.isEnabled());
+            assertThat(fingerprintBtn.getVisibility(), equalTo(View.VISIBLE));
+        });
     }
 
     @Test
     public void showFingerprintAuthDialogWhenInstructedToAuthWithFingerprint() {
         setupFingerprint();
+        scenario.onFragment(fragment -> {
+            fragment.authenticateWithFingerprint();
+        });
 
-        fragment.authenticateWithFingerprint();
-
-        assertNotNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+        verify(fingerprintAuthPresenter).captureFingerprintAuth();
     }
 
     @Test
     public void hideFingerprintButtonIfUserTrashesFingerprintsWhileAppIsRunning() {
         setupFingerprint();
+        scenario.onFragment(fragment -> {
+            fragment.showFingerprintAuth();
+            fragment.onFingerprintAuthenticationNotAvailable();
 
-        fragment.showFingerprintAuth();
-        fragment.onFingerprintAuthenticationNotAvailable();
+            View fingerprintBtn = fragment.getView().findViewById(R.id.finger_btn_fragment_pin);
+            assertFalse(fingerprintBtn.isEnabled());
+            assertThat(fingerprintBtn.getVisibility(), equalTo(View.INVISIBLE));
+        });
 
-        View fingerprintBtn = fragment.getView().findViewById(R.id.finger_btn_fragment_pin);
-        assertFalse(fingerprintBtn.isEnabled());
-        assertThat(fingerprintBtn.getVisibility(), equalTo(View.INVISIBLE));
     }
 
     @Test
     public void onFingerprintAuthenticationCanceledDismissesDialog() {
         setupFingerprint();
-        fragment.authenticateWithFingerprint();
+        scenario.onFragment(fragment -> {
+            fragment.authenticateWithFingerprint();
 
-        fragment.onFingerprintAuthenticationCanceled();
+            fragment.onFingerprintAuthenticationCanceled();
 
-        assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+            assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+        });
     }
 
     @Test
-    public void instructPresenterToHandleSuccessfulFingerprintAuth() throws NoSuchFieldException {
+    public void instructPresenterToHandleSuccessfulFingerprintAuth() {
         setupFingerprint();
-        fragment.authenticateWithFingerprint();
-        AuthenticateFragmentPresenter mockPresenter = mock(AuthenticateFragmentPresenter.class);
-        PrivateAccessor.setField(fragment, "authPresenter", mockPresenter);
+        scenario.onFragment(fragment -> {
+            fragment.authenticateWithFingerprint();
 
-        fragment.onFingerprintAuthenticationComplete();
+            fragment.onFingerprintAuthenticationComplete();
 
-        verify(mockPresenter, times(1)).onFingerprintAuthenticated();
-        assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
-        assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+            assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+            assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+        });
     }
 
     @Test
     public void showFingerprintAuthDialogWhenFingerprintButtonPressed() {
         setupFingerprint();
+        scenario.onFragment(fragment -> {
+            fragment.showFingerprintAuth();
+            fragment.getView().findViewById(R.id.finger_btn_fragment_pin).performClick();
+        });
 
-        fragment.showFingerprintAuth();
-        fragment.getView().findViewById(R.id.finger_btn_fragment_pin).performClick();
-
-        assertNotNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+        verify(fingerprintAuthPresenter).captureFingerprintAuth();
     }
 
     @Test
-    public void onPinMismatch() throws Exception {
+    public void onPinMismatch() {
+        scenario.onFragment(fragment -> {
+            fragment.onPinMismatch();
+            Resources resources = fragment.getContext().getResources();
+            TextView pinErrorDisplay = fragment.getView().findViewById(R.id.error_message);
 
-        fragment.onPinMismatch();
-        Resources resources = fragment.getContext().getResources();
-        TextView pinErrorDisplay = fragment.getView().findViewById(R.id.error_message);
-
-        assertThat(pinErrorDisplay.getText(), equalTo(resources.getText(R.string.pin_mismatch_error)));
-        assertThat(pinErrorDisplay.getVisibility(), equalTo(View.VISIBLE));
-
+            assertThat(pinErrorDisplay.getText(), equalTo(resources.getText(R.string.pin_mismatch_error)));
+            assertThat(pinErrorDisplay.getVisibility(), equalTo(View.VISIBLE));
+        });
     }
 
     @Test
     public void canProvideTheFingerprintManager() {
+        scenario.onFragment(fragment -> {
+            FingerprintManager fingerprintManager = (FingerprintManager) fragment.getActivity().getSystemService(Context.FINGERPRINT_SERVICE);
 
-        FingerprintManager fingerprintManager = (FingerprintManager) fragment.getActivity().getSystemService(Context.FINGERPRINT_SERVICE);
-
-        assertThat(fragment.getFingerprintManager(), equalTo(fingerprintManager));
+            assertThat(fragment.getFingerprintManager(), equalTo(fingerprintManager));
+        });
     }
 
     @Test
     @Config(sdk = Build.VERSION_CODES.LOLLIPOP)
     public void willReturnNullForFingerprintOnNonSupportedSDKs() {
-        assertNull(fragment.getFingerprintManager());
+        verifyZeroInteractions(fingerPrintAuthDialog);
+        verifyZeroInteractions(fingerprintAuthPresenter);
     }
 
     @Test
     public void fragmentDismissesDialogWhenGoingIntoBackground() {
-
         setupFingerprint();
+        scenario.onFragment(AuthenticateFragment::authenticateWithFingerprint);
+        when(fingerPrintAuthDialog.isAdded()).thenReturn(true);
 
-        fragment.authenticateWithFingerprint();
-        fragment.onPause();
+        scenario.moveToState(Lifecycle.State.DESTROYED);
 
-        assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+        verify(fingerPrintAuthDialog).dismiss();
     }
 
     @Test
     public void showDialogOnResumeToContinueFingerprintAuth() {
         setupFingerprint();
-        fragment.authenticateWithFingerprint();
+        scenario.onFragment(AuthenticateFragment::authenticateWithFingerprint);
 
-        fragment.onPause();
-        fragment.onResume();
+        scenario.moveToState(Lifecycle.State.RESUMED);
 
-        assertNotNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+        verify(fingerprintAuthPresenter).captureFingerprintAuth();
     }
 }

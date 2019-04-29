@@ -18,13 +18,12 @@ import com.coinninja.coinkeeper.service.ResendPhoneVerificationService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
 import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
 import com.coinninja.coinkeeper.text.TextInputNotifierWatcher;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 import javax.inject.Inject;
 
@@ -60,7 +59,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         parent = findViewById(R.id.pin_wrapper);
         error_message = findViewById(R.id.error_message);
 
-        phoneNumber = getIntent().getParcelableExtra(Intents.EXTRA_PHONE_NUMBER);
+        phoneNumber = getIntent().getParcelableExtra(DropbitIntents.EXTRA_PHONE_NUMBER);
         TextView headline = findViewById(R.id.headline);
         String headlineCopy = headline.getResources().
                 getString(R.string.activity_verify_phone_code_headline, phoneNumber.toInternationalDisplayText());
@@ -77,13 +76,13 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     protected void onResume() {
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__INVALID_CODE);
-        intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
-        intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__SUCCESS);
-        intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
-        intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
-        intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
-        intentFilter.addAction(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__INVALID_CODE);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT);
         localBroadCastUtil.registerReceiver(receiver, intentFilter);
     }
 
@@ -222,7 +221,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
 
     private void onResendClick() {
         Intent intent = new Intent(this, ResendPhoneVerificationService.class);
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER, phoneNumber);
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, phoneNumber);
 
         startService(intent);
     }
@@ -238,7 +237,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
                 false
         );
 
-        alertDialog.show(getFragmentManager(), VERIFICATION_CODE_SENT);
+        alertDialog.show(getSupportFragmentManager(), VERIFICATION_CODE_SENT);
     }
 
     private void onVerificationCodeSentClickListener(DialogInterface dialogInterface, int i) {
@@ -256,7 +255,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
                 false
         );
 
-        alertDialog.show(getFragmentManager(), EXPIRED_CODE_FRAGMENT_TAG);
+        alertDialog.show(getSupportFragmentManager(), EXPIRED_CODE_FRAGMENT_TAG);
     }
 
     private void onRateLimitErrorCode() {
@@ -270,7 +269,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
                 false
         );
 
-        alertDialog.show(getFragmentManager(), TOO_FAST_SERVER_ATTEMPTS_FRAGMENT_TAG);
+        alertDialog.show(getSupportFragmentManager(), TOO_FAST_SERVER_ATTEMPTS_FRAGMENT_TAG);
     }
 
 
@@ -285,7 +284,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
                 false
         );
 
-        alertDialog.show(getFragmentManager(), SERVER_ERROR_FRAGMENT_TAG);
+        alertDialog.show(getSupportFragmentManager(), SERVER_ERROR_FRAGMENT_TAG);
     }
 
     private void onServerBlacklistErrorCode() {
@@ -299,7 +298,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
                 false
         );
 
-        alertDialog.show(getFragmentManager(), SERVER_ERROR_FRAGMENT_TAG);
+        alertDialog.show(getSupportFragmentManager(), SERVER_ERROR_FRAGMENT_TAG);
     }
 
     public void onInvalidCode() {
@@ -338,7 +337,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
                 "OK", null,
                 this, false, false
         );
-        tooManyDialog.show(getFragmentManager(), TOO_MANY_ATTEMPTS_FRAGMENT_TAG);
+        tooManyDialog.show(getSupportFragmentManager(), TOO_MANY_ATTEMPTS_FRAGMENT_TAG);
     }
 
     private void removeWatcher(EditText view) {
@@ -348,7 +347,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
 
     private void validateCode(String code) {
         Intent serviceIntent = new Intent(this, UserPhoneConfirmationService.class);
-        serviceIntent.putExtra(Intents.EXTRA_PHONE_NUMBER_CODE, code);
+        serviceIntent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_CODE, code);
         startService(serviceIntent);
     }
 
@@ -362,19 +361,19 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Intents.ACTION_PHONE_VERIFICATION__INVALID_CODE.equals(intent.getAction())) {
+            if (DropbitIntents.ACTION_PHONE_VERIFICATION__INVALID_CODE.equals(intent.getAction())) {
                 onInvalidCode();
-            } else if (Intents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE.equals(intent.getAction())) {
+            } else if (DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE.equals(intent.getAction())) {
                 onExpiredCode();
-            } else if (Intents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR.equals(intent.getAction())) {
+            } else if (DropbitIntents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR.equals(intent.getAction())) {
                 onRateLimitErrorCode();
-            } else if (Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR.equals(intent.getAction())) {
+            } else if (DropbitIntents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR.equals(intent.getAction())) {
                 onServerErrorCode();
-            } else if (Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR.equals(intent.getAction())) {
+            } else if (DropbitIntents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR.equals(intent.getAction())) {
                 onServerBlacklistErrorCode();
-            } else if (Intents.ACTION_PHONE_VERIFICATION__CODE_SENT.equals(intent.getAction())) {
+            } else if (DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT.equals(intent.getAction())) {
                 onVerificationCodeSent();
-            } else if (Intents.ACTION_PHONE_VERIFICATION__SUCCESS.equals(intent.getAction())) {
+            } else if (DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS.equals(intent.getAction())) {
                 onSuccess();
             }
         }

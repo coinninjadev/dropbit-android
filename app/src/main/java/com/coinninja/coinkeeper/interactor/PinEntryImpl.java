@@ -37,8 +37,8 @@ public class PinEntryImpl implements PinEntry {
     }
 
     @Override
-    public void savePin_InRAM(String newPin_hashed) {
-        inRamPin_hashed = newPin_hashed;
+    public void savePin_InRAM(String pinHashed) {
+        inRamPin_hashed = pinHashed;
     }
 
     @Override
@@ -47,8 +47,8 @@ public class PinEntryImpl implements PinEntry {
     }
 
     @Override
-    public PinCompare comparePins_WithFailCountDown(String pin1Hashed, String pin2Hashed) {
-        if (comparePins(pin1Hashed, pin2Hashed) == PinCompare.MATCH) {
+    public PinCompare comparePins_WithFailCountDown(String firstPinHashed, String secondPinHashed) {
+        if (comparePins(firstPinHashed, secondPinHashed) == PinCompare.MATCH) {
             return PinCompare.MATCH;
         }
 
@@ -62,8 +62,8 @@ public class PinEntryImpl implements PinEntry {
     }
 
     @Override
-    public PinCompare comparePins(String pin1Hashed, String pin2Hashed) {
-        if (pin1Hashed.contentEquals(pin2Hashed)) {
+    public PinCompare comparePins(String firstPinHashed, String secondPinHashed) {
+        if (firstPinHashed.contentEquals(secondPinHashed)) {
             return PinCompare.MATCH;
         }
 
@@ -71,8 +71,8 @@ public class PinEntryImpl implements PinEntry {
     }
 
     @Override
-    public void savePin_ToKeystore(String savePinHashed) {
-        pinInteractor.savePin(savePinHashed);
+    public void savePin(String pinHashed) {
+        pinInteractor.savePin(pinHashed);
     }
 
     @Override

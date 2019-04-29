@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.settings;
 
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -8,13 +7,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Switch;
 
+import androidx.fragment.app.DialogFragment;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
@@ -38,8 +39,8 @@ import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -150,7 +151,7 @@ public class SettingsActivityTest {
     public void performs_authorization_for_deleting_wallet() {
         start();
         activity.findViewById(R.id.delete_wallet).performClick();
-        DialogFragment dialog = (DialogFragment) activity.getFragmentManager().findFragmentByTag(SettingsActivity.TAG_CONFIRM_DELETE_WALLET);
+        DialogFragment dialog = (DialogFragment) activity.getSupportFragmentManager().findFragmentByTag(SettingsActivity.TAG_CONFIRM_DELETE_WALLET);
 
         activity.onClick(dialog.getDialog(), DialogInterface.BUTTON_POSITIVE);
 
@@ -172,11 +173,11 @@ public class SettingsActivityTest {
     public void negative_delete_confirmation_dismisses_only() {
         start();
         activity.findViewById(R.id.delete_wallet).performClick();
-        DialogFragment dialog = (DialogFragment) activity.getFragmentManager().findFragmentByTag(SettingsActivity.TAG_CONFIRM_DELETE_WALLET);
+        DialogFragment dialog = (DialogFragment) activity.getSupportFragmentManager().findFragmentByTag(SettingsActivity.TAG_CONFIRM_DELETE_WALLET);
 
         activity.onClick(dialog.getDialog(), DialogInterface.BUTTON_NEGATIVE);
 
-        assertNull(activity.getFragmentManager().findFragmentByTag(SettingsActivity.TAG_CONFIRM_DELETE_WALLET));
+        assertNull(activity.getSupportFragmentManager().findFragmentByTag(SettingsActivity.TAG_CONFIRM_DELETE_WALLET));
     }
 
     @Test
@@ -186,7 +187,7 @@ public class SettingsActivityTest {
         activity.findViewById(R.id.delete_wallet).performClick();
 
         verify(deleteWalletPresenter).setCallback(any());
-        assertNotNull(activity.getFragmentManager().findFragmentByTag(SettingsActivity.TAG_CONFIRM_DELETE_WALLET));
+        assertNotNull(activity.getSupportFragmentManager().findFragmentByTag(SettingsActivity.TAG_CONFIRM_DELETE_WALLET));
     }
 
     @Test
@@ -198,7 +199,7 @@ public class SettingsActivityTest {
         Intent intent = shadowActivity.getNextStartedActivity();
 
         Bundle extras = intent.getExtras();
-        String authorizedActionMessage = extras.getString(Intents.EXTRA_AUTHORIZED_ACTION_MESSAGE);
+        String authorizedActionMessage = extras.getString(DropbitIntents.EXTRA_AUTHORIZED_ACTION_MESSAGE);
 
         assertThat(authorizedActionMessage, equalTo(expectedAuthMessage));
     }

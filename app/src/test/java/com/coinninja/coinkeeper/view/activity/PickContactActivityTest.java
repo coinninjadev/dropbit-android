@@ -1,8 +1,6 @@
 package com.coinninja.coinkeeper.view.activity;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -10,12 +8,17 @@ import android.content.pm.PackageManager;
 import android.view.View;
 import android.widget.Filter;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import org.junit.After;
@@ -33,18 +36,16 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.shadows.ShadowDialog;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.appcompat.widget.SearchView;
-import androidx.recyclerview.widget.RecyclerView;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -130,9 +131,9 @@ public class PickContactActivityTest {
 
         Intent resultIntent = shadowActivity.getResultIntent();
         assertNotNull(resultIntent);
-        assertThat(shadowActivity.getResultCode(), equalTo(Activity.RESULT_OK));
-        assertThat(((Contact) resultIntent.getExtras().getParcelable(Intents.EXTRA_CONTACT)).getPhoneNumber(), equalTo(contact.getPhoneNumber()));
-        assertThat(((Contact) resultIntent.getExtras().getParcelable(Intents.EXTRA_CONTACT)).getDisplayName(), equalTo(contact.getDisplayName()));
+        assertThat(shadowActivity.getResultCode(), equalTo(AppCompatActivity.RESULT_OK));
+        assertThat(((Contact) resultIntent.getExtras().getParcelable(DropbitIntents.EXTRA_CONTACT)).getPhoneNumber(), equalTo(contact.getPhoneNumber()));
+        assertThat(((Contact) resultIntent.getExtras().getParcelable(DropbitIntents.EXTRA_CONTACT)).getDisplayName(), equalTo(contact.getDisplayName()));
         verify(activity.analytics).trackEvent(Analytics.EVENT_CONTACT_SEND_BTN);
     }
 
@@ -249,8 +250,9 @@ public class PickContactActivityTest {
 
         activity.loadContacts(activity);
 
-        AlertDialog alert = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(alert);
+        AlertDialog alert = (AlertDialog) ShadowDialog.getLatestDialog();
+        ShadowAlertDialog shadowAlertDialog = (ShadowAlertDialog) shadowOf(alert);
+
         assertThat(alert.isShowing(), equalTo(true));
         assertThat(shadowAlertDialog.getMessage(), equalTo(sampleLoadingMessage));
     }
@@ -260,13 +262,13 @@ public class PickContactActivityTest {
     public void when_done_loading_contacts_remove_spinner_test() {
         start();
         CoinNinjaUserQueryTask.OnCompleteListener onCompleteListener = activity;
-        Activity context = mock(Activity.class);
+        AppCompatActivity context = mock(AppCompatActivity.class);
         when(context.checkPermission(eq(Manifest.permission.READ_CONTACTS), anyInt(), anyInt())).thenReturn(
                 PackageManager.PERMISSION_GRANTED);
 
 
         activity.loadContacts(context);
-        AlertDialog alert = ShadowAlertDialog.getLatestAlertDialog();
+        AlertDialog alert = (AlertDialog) ShadowDialog.getLatestDialog();
         assertThat(alert.isShowing(), equalTo(true));
         onCompleteListener.onComplete(null, null);
 

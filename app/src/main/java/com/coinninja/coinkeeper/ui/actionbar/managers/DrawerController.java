@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.actionbar.managers;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.MenuItem;
@@ -20,6 +19,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -47,7 +47,7 @@ public class DrawerController {
         this.walletHelper = walletHelper;
     }
 
-    public void inflateDrawer(Activity activity, TypedValue actionBarType) {
+    public void inflateDrawer(AppCompatActivity activity, TypedValue actionBarType) {
         if (actionBarType.resourceId == R.id.actionbar_dark_up_on_with_nav_bar) {
             View root = activity.findViewById(R.id.cn_content_wrapper);
             wrapBaseLayoutWithDrawer(activity, root);
@@ -58,7 +58,7 @@ public class DrawerController {
         }
     }
 
-    private void wrapBaseLayoutWithDrawer(Activity activity, View root) {
+    private void wrapBaseLayoutWithDrawer(AppCompatActivity activity, View root) {
         drawerLayout = new DrawerLayout(activity);
         drawerLayout.setFitsSystemWindows(true);
         ViewGroup screen = (ViewGroup) root.getParent();
@@ -67,7 +67,7 @@ public class DrawerController {
         drawerLayout.addView(root);
     }
 
-    private void inflate(Activity activity) {
+    private void inflate(AppCompatActivity activity) {
         activity.getLayoutInflater().inflate(R.layout.cn_drawer_layout, drawerLayout, true);
     }
 

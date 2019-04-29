@@ -1,8 +1,10 @@
 package com.coinninja.coinkeeper.view.activity.base;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
@@ -14,7 +16,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
 import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
 import com.coinninja.coinkeeper.view.activity.RecoverWalletActivity;
@@ -36,12 +38,10 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
-import androidx.viewpager.widget.ViewPager;
-
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -136,9 +136,9 @@ public class SecuredActivityTest {
         when(authentication.isAuthenticated()).thenReturn(true);
         setupActivity(TransactionHistoryActivity.class);
 
-        activity.onAuthenticationResult(Activity.RESULT_OK);
+        activity.onAuthenticationResult(AppCompatActivity.RESULT_OK);
 
-        verify(activity.localBroadCastUtil).sendGlobalBroadcast(AuthenticationCompleteReceiver.class, Intents.ACTION_ON_USER_AUTH_SUCCESSFULLY);
+        verify(activity.localBroadCastUtil).sendGlobalBroadcast(AuthenticationCompleteReceiver.class, DropbitIntents.ACTION_ON_USER_AUTH_SUCCESSFULLY);
     }
 
     @Test
@@ -169,7 +169,7 @@ public class SecuredActivityTest {
         assertThat(intent.intent.getComponent().getClassName(),
                 equalTo(AuthenticateActivity.class.getName()));
 
-        activity.onActivityResult(SecuredActivity.AUTHENTICATION_REQUEST_CODE, Activity.RESULT_OK, null);
+        activity.onActivityResult(SecuredActivity.AUTHENTICATION_REQUEST_CODE, AppCompatActivity.RESULT_OK, null);
 
         intent = shadowActivity.getNextStartedActivityForResult();
 
@@ -189,7 +189,7 @@ public class SecuredActivityTest {
         assertThat(intent.intent.getComponent().getClassName(),
                 equalTo(AuthenticateActivity.class.getName()));
 
-        activity.onActivityResult(SecuredActivity.AUTHENTICATION_REQUEST_CODE, Activity.RESULT_OK, null);
+        activity.onActivityResult(SecuredActivity.AUTHENTICATION_REQUEST_CODE, AppCompatActivity.RESULT_OK, null);
 
         intent = shadowActivity.getNextStartedActivityForResult();
 
@@ -206,7 +206,7 @@ public class SecuredActivityTest {
         when(application.cnWalletManager.hasWallet()).thenReturn(true);
         setupActivity(TransactionHistoryActivity.class);
 
-        activity.onActivityResult(SecuredActivity.AUTHENTICATION_REQUEST_CODE, Activity.RESULT_CANCELED, null);
+        activity.onActivityResult(SecuredActivity.AUTHENTICATION_REQUEST_CODE, AppCompatActivity.RESULT_CANCELED, null);
 
         assertTrue(shadowActivity.isFinishing());
     }
@@ -242,7 +242,7 @@ public class SecuredActivityTest {
         Intent intent = shadowActivity.getNextStartedActivity();
         assertThat(intent.getComponent().getClassName(),
                 equalTo(CreatePinActivity.class.getName()));
-        assertThat(intent.getStringExtra(Intents.EXTRA_NEXT),
+        assertThat(intent.getStringExtra(DropbitIntents.EXTRA_NEXT),
                 equalTo(VerifyPhoneNumberActivity.class.getName()));
     }
 
@@ -261,11 +261,11 @@ public class SecuredActivityTest {
     public void forwards_bundle_to_next_activity() {
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_NEXT, TransactionHistoryActivity.class.getName());
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, TransactionHistoryActivity.class.getName());
         Bundle bundle_to_forward = new Bundle();
         String[] recovery_words = {"foo", "bar"};
-        bundle_to_forward.putStringArray(Intents.EXTRA_RECOVERY_WORDS, recovery_words);
-        intent.putExtra(Intents.EXTRA_NEXT_BUNDLE, bundle_to_forward);
+        bundle_to_forward.putStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS, recovery_words);
+        intent.putExtra(DropbitIntents.EXTRA_NEXT_BUNDLE, bundle_to_forward);
 
 
         ActivityController<CreatePinActivity> activityController =
@@ -278,7 +278,7 @@ public class SecuredActivityTest {
 
         Intent startedIntent = shadowActivity.getNextStartedActivity();
         assertThat(startedIntent.getComponent().getClassName(), equalTo(TransactionHistoryActivity.class.getName()));
-        assertThat(startedIntent.getExtras().getStringArray(Intents.EXTRA_RECOVERY_WORDS),
+        assertThat(startedIntent.getExtras().getStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS),
                 equalTo(recovery_words));
         assertTrue(shadowActivity.isFinishing());
     }
@@ -287,7 +287,7 @@ public class SecuredActivityTest {
     public void shows_next_activity_from_creation_intent() {
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_NEXT, TransactionHistoryActivity.class.getName());
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, TransactionHistoryActivity.class.getName());
         ActivityController<CreatePinActivity> activityController =
                 Robolectric.buildActivity(CreatePinActivity.class, intent);
         CreatePinActivity activity = activityController.get();
@@ -307,7 +307,7 @@ public class SecuredActivityTest {
         Bundle extraData = new Bundle();
         Intent intent = new Intent();
         extraData.putString("random key", "random arbitrary data");
-        intent.putExtra(Intents.EXTRA_NEXT_BUNDLE, extraData);
+        intent.putExtra(DropbitIntents.EXTRA_NEXT_BUNDLE, extraData);
 
         ActivityController<TransactionHistoryActivity> activityController =
                 Robolectric.buildActivity(TransactionHistoryActivity.class, intent).create();

@@ -1,83 +1,67 @@
 package com.coinninja.coinkeeper.view.fragment;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.lifecycle.Lifecycle;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.FingerprintAuthPresenter;
+import com.coinninja.coinkeeper.view.activity.SplashActivity;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.android.controller.FragmentController;
 
 import junitx.util.PrivateAccessor;
 
+import static com.coinninja.android.helpers.Views.clickOn;
+import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class FingerprintAuthDialogTest {
 
-    private FingerprintAuthPresenter mockPresentor = mock(FingerprintAuthPresenter.class);
-    private LayoutInflater mockLayoutInflater = mock(LayoutInflater.class);
-    private ViewGroup mockViewGroup = mock(ViewGroup.class);
-    private Bundle mockBundle = mock(Bundle.class);
-    private View mockDialog = mock(View.class);
-    private View mockNegativeButton = mock(View.class);
-    private FingerprintAuthDialog dialog = mock(FingerprintAuthDialog.class);
-    private FragmentController<FingerprintAuthDialog> fragmentController;
+    private FingerprintAuthPresenter authPresenter = mock(FingerprintAuthPresenter.class);
+    private FingerprintAuthDialog dialog;
+    private ActivityScenario<SplashActivity> scenario;
 
     @Before
     public void setUp() {
-        fragmentController = Robolectric.buildFragment(FingerprintAuthDialog.class);
-        dialog = fragmentController.get();
-        dialog.setAuthUIPresentor(mockPresentor);
-        dialog.setLayoutId(R.layout.dialog_fingerprint);
-        fragmentController.create().start().resume().visible();
+        scenario = ActivityScenario.launch(SplashActivity.class);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        dialog = FingerprintAuthDialog.newInstance(authPresenter, R.layout.dialog_fingerprint);
+
+        scenario.onActivity(new ActivityScenario.ActivityAction<SplashActivity>() {
+            @Override
+            public void perform(SplashActivity activity) {
+                dialog.show(activity.getSupportFragmentManager(), FingerprintAuthDialog.class.getName());
+            }
+        });
     }
 
     @After
     public void tearDown() {
-        mockPresentor = null;
-        mockLayoutInflater = null;
-        mockViewGroup = null;
-        mockBundle = null;
-        mockNegativeButton = null;
+        authPresenter = null;
         dialog = null;
-        fragmentController = null;
+        scenario.close();
     }
 
     @Test
     public void setsDialogOnPresentorWhenAttached() {
-        verify(mockPresentor).setDialog(dialog);
+        verify(authPresenter).setDialog(dialog);
     }
 
     @Test
     public void dialogFingerprintPreferenceViewInflatesOnCreateView() {
         assertNotNull(dialog.getView().findViewById(R.id.fingerprint_pref));
-    }
-
-    @Test
-    public void onclickListenerIsSetOnNegativeButton() {
-        mockOnCreateView();
-
-        dialog.onCreateView(mockLayoutInflater, mockViewGroup, null);
-
-        verify(mockNegativeButton).setOnClickListener(any());
-
     }
 
     @Test
@@ -87,38 +71,36 @@ public class FingerprintAuthDialogTest {
 
     @Test
     public void negativeResponsesForwardToParentActivity() {
-        mockOnCreateView();
+        clickOn(withId(dialog.getView(), R.id.negative_button));
 
-        FingerprintAuthDialog.newInstance(mockPresentor, R.layout.dialog_fingerprint).onCreateView(mockLayoutInflater, mockViewGroup, mockBundle);
-
-        verify(mockNegativeButton).setOnClickListener(any());
+        verify(authPresenter).onAuthCancel();
     }
 
     @Test
     public void onAuthCancelForwardsToPresentor() {
-        FingerprintAuthDialog dialog = FingerprintAuthDialog.newInstance(mockPresentor, R.layout.dialog_fingerprint);
+        FingerprintAuthDialog dialog = FingerprintAuthDialog.newInstance(authPresenter, R.layout.dialog_fingerprint);
 
         dialog.onAuthCancel();
 
-        verify(mockPresentor).onAuthCancel();
+        verify(authPresenter).onAuthCancel();
     }
 
     @Test
     public void observesFingerprintAuthWhenResumed() {
-        verify(mockPresentor).startListeningForTouch();
+        verify(authPresenter).startListeningForTouch();
     }
 
     @Test
     public void stopsObservingFingerprintAuthWhenAppBackgrounded() {
-        fragmentController.pause();
+        scenario.moveToState(Lifecycle.State.DESTROYED);
 
-        verify(mockPresentor).stopListeningForTouch();
+        verify(authPresenter).stopListeningForTouch();
     }
 
 
     // Auth Success
     @Test
-    public void updatesViewWhenAuthIsSuccessfull() throws NoSuchFieldException {
+    public void updatesViewWhenAuthIsSuccessfull() {
         dialog.onSucces();
 
         assertThat(((TextView) dialog.getView().findViewById(R.id.instructions)).getText().toString(),
@@ -127,7 +109,7 @@ public class FingerprintAuthDialogTest {
 
     // Auth Fail
     @Test
-    public void updatesViewWhenAuthFails() throws NoSuchFieldException {
+    public void updatesViewWhenAuthFails() {
         dialog.onFailure();
         assertThat(((TextView) dialog.getView().findViewById(R.id.instructions)).getText().toString(),
                 equalTo("Fingerprint not recognized. Try again"));
@@ -136,7 +118,7 @@ public class FingerprintAuthDialogTest {
 
     // Auth Error
     @Test
-    public void updatesViewWhenAuthError() throws NoSuchFieldException {
+    public void updatesViewWhenAuthError() {
         String message = "The Universe Just Exploaded";
 
         dialog.onError(1, message);
@@ -147,7 +129,7 @@ public class FingerprintAuthDialogTest {
 
     // Auth Help
     @Test
-    public void updatesViewWhenAuthHelp() throws NoSuchFieldException {
+    public void updatesViewWhenAuthHelp() {
         String message = "Touch sensor";
         int color = 0xf00000;
 
@@ -163,19 +145,13 @@ public class FingerprintAuthDialogTest {
 
         successRunnable.run();
 
-        verify(mockPresentor, times(1)).onSuccessfulTransition();
+        verify(authPresenter, times(1)).onSuccessfulTransition();
     }
 
     @Test
     public void dialogCanRenderSuppliedLayout() {
-
         String headerText = dialog.getResources().getString(R.string.sign_in);
 
         assertThat(((TextView) dialog.getView().findViewById(R.id.header)).getText().toString(), equalTo(headerText));
-    }
-
-    private void mockOnCreateView() {
-        when(mockLayoutInflater.inflate(R.layout.dialog_fingerprint, mockViewGroup, false)).thenReturn(mockDialog);
-        when(mockDialog.findViewById(R.id.negative_button)).thenReturn(mockNegativeButton);
     }
 }

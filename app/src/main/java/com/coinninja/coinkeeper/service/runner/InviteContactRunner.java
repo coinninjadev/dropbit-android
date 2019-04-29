@@ -11,7 +11,7 @@ import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -104,7 +104,7 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
     @Override
     protected void onPostExecute(Response response) {
         if (response == null) {
-            onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, getErrorMessage(response));
+            onInviteListener.onInviteError(DropbitIntents.ACTION_DROPBIT__ERROR_UNKNOWN, getErrorMessage(response));
             return;
         }
 
@@ -119,10 +119,10 @@ public class InviteContactRunner extends AsyncTask<Contact, Integer, Response> {
     private void onResponseError(Response errorResponse) {
         switch (errorResponse.code()) {
             case 429:
-                onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_RATE_LIMIT, getErrorMessage(errorResponse));
+                onInviteListener.onInviteError(DropbitIntents.ACTION_DROPBIT__ERROR_RATE_LIMIT, getErrorMessage(errorResponse));
                 break;
             default:
-                onInviteListener.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, getErrorMessage(errorResponse));
+                onInviteListener.onInviteError(DropbitIntents.ACTION_DROPBIT__ERROR_UNKNOWN, getErrorMessage(errorResponse));
         }
     }
 

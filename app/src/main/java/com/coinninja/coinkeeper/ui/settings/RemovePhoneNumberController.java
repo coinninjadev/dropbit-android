@@ -1,17 +1,17 @@
 package com.coinninja.coinkeeper.ui.settings;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.view.LayoutInflater;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.service.DeverifyAccountService;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
@@ -20,12 +20,12 @@ import javax.inject.Inject;
 public class RemovePhoneNumberController {
     public static final String TAG = "TAG_REMOVE_PHONE_NUMBER";
     private final LocalBroadCastUtil localBroadCastUtil;
-    Activity activity;
+    AppCompatActivity activity;
     IntentFilter intentFilter;
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Intents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED.equals(intent.getAction())) {
+            if (DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED.equals(intent.getAction())) {
                 showDeverificationFailed();
             } else {
                 dismissCurrentNotice();
@@ -38,13 +38,14 @@ public class RemovePhoneNumberController {
         this.localBroadCastUtil = localBroadCastUtil;
     }
 
-    public void onRemovePhoneNumber(View view) {
-        showNotice(view);
+    public void onRemovePhoneNumber(AppCompatActivity activity) {
+        this.activity = activity;
+        showNotice();
     }
 
     public void onStart() {
-        intentFilter = new IntentFilter(Intents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED);
-        intentFilter.addAction(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
+        intentFilter = new IntentFilter(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED);
+        intentFilter.addAction(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
         localBroadCastUtil.registerReceiver(receiver, intentFilter);
     }
 
@@ -67,17 +68,16 @@ public class RemovePhoneNumberController {
                 this::deverifyAccountWhenPositiveClickListener,
                 false,
                 false
-        ).show(activity.getFragmentManager(), TAG);
+        ).show(activity.getSupportFragmentManager(), TAG);
     }
 
-    private void showNotice(View view) {
-        activity = (Activity) view.getContext();
-        View alertView = LayoutInflater.from(activity).inflate(R.layout.dialog_remove_phone_number, null);
+    private void showNotice() {
+        View alertView = activity.getLayoutInflater().inflate(R.layout.dialog_remove_phone_number, null);
         GenericAlertDialog.newInstance(
                 alertView,
                 false,
                 false
-        ).show(activity.getFragmentManager(), TAG);
+        ).show(activity.getSupportFragmentManager(), TAG);
         alertView.findViewById(R.id.ok).setOnClickListener(v -> onConfirmedRemovePhoneNumber());
     }
 
@@ -91,13 +91,13 @@ public class RemovePhoneNumberController {
                 this::deverifyAccountWhenPositiveClickListener,
                 false,
                 false
-        ).show(activity.getFragmentManager(), TAG);
+        ).show(activity.getSupportFragmentManager(), TAG);
     }
 
     private void dismissCurrentNotice() {
         if (activity == null) return;
 
-        GenericAlertDialog dialog = (GenericAlertDialog) activity.getFragmentManager().findFragmentByTag(TAG);
+        GenericAlertDialog dialog = (GenericAlertDialog) activity.getSupportFragmentManager().findFragmentByTag(TAG);
         if (dialog != null) {
             dialog.dismiss();
         }

@@ -8,11 +8,13 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.robolectric.shadows.ShadowActivity;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import static org.robolectric.Shadows.shadowOf;
 
 public class ServiceWithIntentStartedMatcher<Activity> extends BaseMatcher<Activity> {
     private final Intent intent;
-    private android.app.Activity activity;
+    private AppCompatActivity activity;
     private String expected = "";
     private String describeReason = "";
     private IntentMatcher intentMatcher;
@@ -23,7 +25,7 @@ public class ServiceWithIntentStartedMatcher<Activity> extends BaseMatcher<Activ
 
     @Override
     public boolean matches(Object item) {
-        activity = ((android.app.Activity) item);
+        activity = (AppCompatActivity) item;
         ShadowActivity shadowActivity = shadowOf(activity);
         Intent startedService = shadowActivity.getNextStartedService();
 

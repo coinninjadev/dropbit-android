@@ -17,23 +17,22 @@ public class RemoteAddressLocalCache {
     @Inject
     RemoteAddressLocalCache(PreferencesUtil preferencesUtil) {
         this.preferencesUtil = preferencesUtil;
+
     }
 
     public List<AddressDTO> getLocalRemoteAddressCache() {
-        List<AddressDTO> localAddresses = new ArrayList<>();
-        if (preferencesUtil == null) { return localAddresses; }
-        String remoteAddressString = preferencesUtil.getString(LOCAL_ADDRESS_CACHE_KEY, "");
-
-        if (remoteAddressString.isEmpty()) { return localAddresses; }
-
+        String remoteAddressString = preferencesUtil.getString(LOCAL_ADDRESS_CACHE_KEY, "[]");
         AddressDTO[] addresses = new Gson().fromJson(remoteAddressString, AddressDTO[].class);
         return Arrays.asList(addresses);
     }
 
     public void setLocalRemoteAddressCache(List<AddressDTO> remoteAddressCache) {
-        if (preferencesUtil == null || remoteAddressCache == null) { return; }
-        String gsonString = new Gson().toJson(remoteAddressCache);
-        preferencesUtil.savePreference(LOCAL_ADDRESS_CACHE_KEY, gsonString);
+        if (remoteAddressCache == null || remoteAddressCache.size() < 1) {
+            preferencesUtil.removePreference(LOCAL_ADDRESS_CACHE_KEY);
+            return;
+        }
+        String json = new Gson().toJson(remoteAddressCache);
+        preferencesUtil.savePreference(LOCAL_ADDRESS_CACHE_KEY, json);
     }
 
 }

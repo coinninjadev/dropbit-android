@@ -2,13 +2,14 @@ package com.coinninja.coinkeeper.util.android;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.location.Location;
 import android.location.LocationManager;
 
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import javax.inject.Inject;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class LocationUtil {
 
@@ -34,14 +35,14 @@ public class LocationUtil {
                 permissionsUtil.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
-    public void requestPermissionToAccessLocationFor(Activity activity) {
+    public void requestPermissionToAccessLocationFor(AppCompatActivity activity) {
         permissionsUtil.requestPermissions(activity,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                Intents.REQUEST_PERMISSIONS_LOCATION);
+                DropbitIntents.REQUEST_PERMISSIONS_LOCATION);
     }
 
     public boolean hasGrantedPermission(int requestCode, String[] permissions, int[] grantResults) {
-        return requestCode == Intents.REQUEST_PERMISSIONS_LOCATION &&
+        return requestCode == DropbitIntents.REQUEST_PERMISSIONS_LOCATION &&
                 permissionsUtil.hasGranted(Manifest.permission.ACCESS_COARSE_LOCATION, permissions, grantResults) &&
                 permissionsUtil.hasGranted(Manifest.permission.ACCESS_FINE_LOCATION, permissions, grantResults);
     }

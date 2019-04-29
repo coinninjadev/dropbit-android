@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.cn.wallet.service;
 
 import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.Before;
@@ -58,6 +58,6 @@ public class CNServiceConnectionTest {
 
         cnServiceConnection.onServiceConnected(null, binder);
 
-        verify(mockLocalBroadCastUtil).sendBroadcast(Intents.ACTION_ON_SERVICE_CONNECTION_BOUNDED);
+        verify(mockLocalBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_ON_SERVICE_CONNECTION_BOUNDED);
     }
 }

@@ -25,14 +25,14 @@ public class PinFragmentPresenter {
         }
     }
 
-    public void pinEntered_Confirm(int[] pin) throws Exception {
+    public void pinEntered_Confirm(int[] pin) {
         if (pinEntryModel.isPinValid(pin)) {
-            String pinHASHED = PinEntryImpl.HASH_PIN(pin);
-            PinEntry.PinCompare failedComparisonCount = pinEntryModel.comparePins_WithFailCountDown(pinHASHED, pinEntryModel.getPin_SavedInRam());
+            String pinHashed = PinEntryImpl.HASH_PIN(pin);
+            PinEntry.PinCompare failedComparisonCount = pinEntryModel.comparePins_WithFailCountDown(pinHashed, pinEntryModel.getPin_SavedInRam());
             switch (failedComparisonCount) {
                 case MATCH:
-                    pinEntryModel.savePin_ToKeystore(pinHASHED);
-                    view.onPinConfirmedAndSaved(pinHASHED);
+                    pinEntryModel.savePin(pinHashed);
+                    view.onPinConfirmed(pinHashed);
                     break;
                 case NON_MATCH:
                     view.onPinMismatch();
@@ -65,7 +65,7 @@ public class PinFragmentPresenter {
 
         void forceSoftKey();
 
-        void onPinConfirmedAndSaved(String userPinHashed);
+        void onPinConfirmed(String userPinHashed);
 
         void onMalformedPin(String msg);
 

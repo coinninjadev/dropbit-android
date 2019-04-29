@@ -9,7 +9,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.adapter.SeedWordsPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.presenter.activity.RecoveryWordsPresenter;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 
@@ -77,7 +77,7 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
 
     @Override
     public void showNextActivity() {
-        if (Intents.EXTRA_VIEW == viewState) {
+        if (DropbitIntents.EXTRA_VIEW == viewState) {
             activityNavigationUtil.navigateToHome(this);
         } else {
             showVerifyScreen();
@@ -98,7 +98,7 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
     public void showLast() {
         nextBTN.setBackgroundResource(R.drawable.cta_button);
 
-        if (Intents.EXTRA_VIEW == viewState) {
+        if (DropbitIntents.EXTRA_VIEW == viewState) {
             nextBTN.setText(R.string.finish);
         } else {
             nextBTN.setText(R.string.verify);
@@ -108,15 +108,15 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewState = getIntent().getIntExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_CREATE);
-        if (Intents.EXTRA_VIEW == viewState || Intents.EXTRA_BACKUP == viewState) {
+        viewState = getIntent().getIntExtra(DropbitIntents.EXTRA_VIEW_STATE, DropbitIntents.EXTRA_CREATE);
+        if (DropbitIntents.EXTRA_VIEW == viewState || DropbitIntents.EXTRA_BACKUP == viewState) {
             setTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff_CloseOn);
         } else {
             setTheme(R.style.CoinKeeperTheme_LightActionBar_UpOn_SkipOn);
         }
 
         setContentView(R.layout.activity_backup);
-        seedWords = getIntent().getStringArrayExtra(Intents.EXTRA_RECOVERY_WORDS);
+        seedWords = getIntent().getStringArrayExtra(DropbitIntents.EXTRA_RECOVERY_WORDS);
         seedWordsPager = findViewById(R.id.seed_words_pager);
         nextBTN = findViewById(R.id.seed_word_next_btn);
         backBTN = findViewById(R.id.seed_word_back_btn);

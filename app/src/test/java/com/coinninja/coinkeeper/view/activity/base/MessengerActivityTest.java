@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.activity.base;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -9,6 +8,8 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
@@ -36,7 +37,7 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -82,7 +83,7 @@ public class MessengerActivityTest {
 
     @Test
     public void settings_screen_sets_content_view() {
-        Activity activity = Robolectric.setupActivity(SettingsActivity.class);
+        AppCompatActivity activity = Robolectric.setupActivity(SettingsActivity.class);
 
         assertNotNull(activity.findViewById(R.id.message_queue));
     }

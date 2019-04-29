@@ -8,7 +8,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.DateUtil;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -55,6 +55,14 @@ public class CNWalletManager {
         return 1 + currentBlockHeight - transactionBlock;
     }
 
+    public void createWallet() {
+        walletHelper.createWallet();
+    }
+
+    public Account getAccount() {
+        return walletHelper.getUserAccount();
+    }
+
     boolean saveSeedWords(String[] recoveryWords) {
         boolean savedSuccessfully;
         if (!isValid(recoveryWords)) {
@@ -64,7 +72,7 @@ public class CNWalletManager {
         } else {
             walletHelper.saveWords(recoveryWords);
             accountManager.cacheAddresses();
-            localBroadCastUtil.sendGlobalBroadcast(WalletCreatedBroadCastReceiver.class, Intents.ACTION_WALLET_CREATED);
+            localBroadCastUtil.sendGlobalBroadcast(WalletCreatedBroadCastReceiver.class, DropbitIntents.ACTION_WALLET_CREATED);
             savedSuccessfully = true;
         }
 
@@ -142,7 +150,7 @@ public class CNWalletManager {
     public void updateBalances() {
         walletHelper.updateBalances();
         walletHelper.updateSpendableBalances();
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_WALLET_SYNC_COMPLETE);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
     }
 
     public void deverifyAccount() {

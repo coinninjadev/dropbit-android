@@ -83,4 +83,6 @@ public class ReceivedInvite {
     public void setMetadata(InviteMetadata metadata) {
         this.metadata = metadata;
     }
+
 }
+

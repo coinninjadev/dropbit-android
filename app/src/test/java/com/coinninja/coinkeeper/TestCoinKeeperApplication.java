@@ -5,17 +5,21 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.util.TypedValue;
 
+import androidx.test.espresso.intent.Intents;
+
 import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
-import com.coinninja.coinkeeper.di.component.AppComponent;
+import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.di.component.DaggerTestAppComponent;
 import com.coinninja.coinkeeper.di.component.TestAppComponent;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.model.PhoneNumber;
@@ -25,6 +29,8 @@ import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
+import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
 import com.coinninja.coinkeeper.qrscanner.QRScanManager;
 import com.coinninja.coinkeeper.service.client.BlockchainClient;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
@@ -40,8 +46,10 @@ import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
+import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
@@ -50,13 +58,18 @@ import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceSche
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.messaging.MessageCryptor;
 
 import org.robolectric.TestLifecycleApplication;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjector;
+import dagger.android.support.DaggerApplication;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -65,6 +78,8 @@ import static org.mockito.Mockito.when;
  * http://robolectric.org/custom-test-runner/
  */
 public class TestCoinKeeperApplication extends CoinKeeperApplication implements TestLifecycleApplication {
+    public static AndroidInjector<DaggerApplication> injector;
+
     public QRScanManager qrScanManager = mock(QRScanManager.class);
     public LocalContactQueryUtil localContactQueryUtil = mock(LocalContactQueryUtil.class);
     public CoinNinjaUserQueryTask coinNinjaUserQueryTask = mock(CoinNinjaUserQueryTask.class);
@@ -85,7 +100,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public Account account;
     public DataSigner dataSigner;
     public JobServiceScheduler jobServiceScheduler;
-    public TestAppComponent injector;
     public String version_name = "1.2.1";
     public boolean debug = true;
     @Inject
@@ -126,17 +140,21 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
     public TransactionFundingManager transactionFundingManager;
     public LocationUtil locationUtil;
+    public CNAddressLookupDelegate cnAddressLookupDelegae;
+    public ClipboardUtil clipboardUtil;
+    public UserPreferences userPreferences;
+    public List<CountryCodeLocale> countryCodeLocales;
+    public InviteContactPresenter inviteContactPresenter;
+    public VerifyRecoveryWordsPresenter verifyRecoveryWordsPresenter;
+    public NotificationUtil notificationUtil;
+
 
     @Override
-    public AppComponent getAppComponent() {
-        return injector;
-    }
-
-    @Override
-    protected void createComponent() {
+    protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
         injector = DaggerTestAppComponent.builder().application(this).build();
-        injector.inject(this);
-        appComponent = injector;
+        ((TestAppComponent) injector).inject(this);
+        appComponent = (CoinKeeperComponent) injector;
+        return injector;
     }
 
     @Override
@@ -156,19 +174,37 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
 
     @Override
     public void prepareTest(Object test) {
+        try {
+            Intents.init();
+        } catch (IllegalStateException e) {
+            // pass
+        }
 
     }
 
     @Override
     public void afterTest(Method method) {
+        try {
+            Intents.release();
+        } catch (IllegalStateException e) {
+            // pass
+        }
+        USDCurrency.MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
         locationUtil = null;
+        injector = null;
+        appComponent = null;
+        notificationUtil = null;
+        verifyRecoveryWordsPresenter = null;
         activityNavigationUtil = null;
         transactionFundingManager = null;
         defaultCurrencies = null;
         currencyPreference = null;
         accountManager = null;
         internalNotificationHelper = null;
+        countryCodeLocales = null;
+        clipboardUtil = null;
         messageCryptor = null;
+        cnAddressLookupDelegae = null;
         phoneNumberUtil = null;
         version_name = null;
         transactionHelper = null;
@@ -179,6 +215,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         qrScanManager = null;
         signedCoinKeeperApiClient = null;
         permissionsUtil = null;
+        userPreferences = null;
         coinNinjaUserQueryTask = null;
         failedBroadcastCleaner = null;
         negativeBalanceRunner = null;
@@ -208,6 +245,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         typedValue = null;
         actionBarController = null;
         coinKeeperLifecycleListener = null;
+        inviteContactPresenter = null;
     }
 
 }

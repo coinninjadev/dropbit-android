@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.service.runner;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.Before;
@@ -40,6 +40,6 @@ public class CnUserLocalDeverificationRunnerTest {
 
         verify(walletHelper).removeCurrentCnRegistration();
         verify(localBroadCastUtil).sendBroadcast(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getAction(), equalTo(Intents.ACTION_CN_USER_ACCOUNT_UPDATED));
+        assertThat(argumentCaptor.getValue().getAction(), equalTo(DropbitIntents.ACTION_CN_USER_ACCOUNT_UPDATED));
     }
 }

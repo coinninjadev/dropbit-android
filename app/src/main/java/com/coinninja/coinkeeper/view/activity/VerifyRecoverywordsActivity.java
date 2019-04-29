@@ -1,8 +1,5 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -11,7 +8,7 @@ import android.transition.TransitionInflater;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
@@ -21,6 +18,9 @@ import com.coinninja.coinkeeper.view.fragment.VerifyRecoverywordsFragment;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 public class VerifyRecoverywordsActivity extends SecuredActivity implements VerifyRecoveryWordsPresenter.View {
 
@@ -45,8 +45,8 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewState = getIntent().getIntExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_CREATE);
-        if (Intents.EXTRA_BACKUP == viewState) {
+        viewState = getIntent().getIntExtra(DropbitIntents.EXTRA_VIEW_STATE, DropbitIntents.EXTRA_CREATE);
+        if (DropbitIntents.EXTRA_BACKUP == viewState) {
             setTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff_CloseOn);
         } else {
             setTheme(R.style.CoinKeeperTheme_LightActionBar_UpOn_SkipOn);
@@ -61,7 +61,7 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
         super.onStart();
         currentTag = getNextTag();
         Fragment fragment = VerifyRecoverywordsFragment.newInstance(presenter);
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.wrapper, fragment, currentTag);
         fragmentTransaction.commit();
     }
@@ -70,14 +70,14 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
     public void showRecoveryWords() {
         Intent intent = new Intent(this, BackupActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(Intents.EXTRA_RECOVERY_WORDS, recoveryWords);
-        intent.putExtra(Intents.EXTRA_VIEW_STATE, viewState);
+        intent.putExtra(DropbitIntents.EXTRA_RECOVERY_WORDS, recoveryWords);
+        intent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, viewState);
         startActivity(intent);
     }
 
     @Override
     public void showNextChallenge() {
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentByTag(currentTag);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -99,7 +99,7 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
     @Override
     public void onChallengeCompleted() {
         reportAnalytics();
-        if (viewState == Intents.EXTRA_BACKUP) {
+        if (viewState == DropbitIntents.EXTRA_BACKUP) {
             notificationUtil.dispatchInternal(getString(R.string.message_successful_wallet_backup));
             activityNavigationUtil.navigateToHome(this);
         } else {

@@ -31,9 +31,9 @@ import androidx.annotation.Nullable;
 import dagger.android.AndroidInjection;
 
 import static com.coinninja.android.helpers.Views.withId;
-import static com.coinninja.coinkeeper.util.Intents.ACTION_BTC_PRICE_UPDATE;
-import static com.coinninja.coinkeeper.util.Intents.ACTION_WALLET_SYNC_COMPLETE;
-import static com.coinninja.coinkeeper.util.Intents.EXTRA_BITCOIN_PRICE;
+import static com.coinninja.coinkeeper.util.DropbitIntents.ACTION_BTC_PRICE_UPDATE;
+import static com.coinninja.coinkeeper.util.DropbitIntents.ACTION_WALLET_SYNC_COMPLETE;
+import static com.coinninja.coinkeeper.util.DropbitIntents.EXTRA_BITCOIN_PRICE;
 
 public abstract class BalanceBarActivity extends SecuredActivity implements ServiceConnection, SyncManagerChangeObserver {
 

@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -38,9 +38,11 @@ public class QrFileManagerTest {
     @Mock
     Context context;
 
-    @Mock FileProviderUtil fileProviderUtil;
+    @Mock
+    FileProviderUtil fileProviderUtil;
 
-    @Mock Uri uri;
+    @Mock
+    Uri uri;
 
     private QRFileManager qrFileManager;
     private String exampleScan;
@@ -53,7 +55,7 @@ public class QrFileManagerTest {
         qrFileManager = new QRFileManager(context, qrGeneratorUtil, fileUtil, fileProviderUtil);
     }
 
-    
+
     @Test
     public void provides_sharable_qr_uri() {
         String file = "content://com.coinninja.coinkeeper.debug.provider/qr_code/qr_code.png";
@@ -117,7 +119,7 @@ public class QrFileManagerTest {
 
     @Test
     public void generates_qr_code_from_string() {
-        boolean created =  qrFileManager.createQrCode(exampleScan);
+        boolean created = qrFileManager.createQrCode(exampleScan);
 
         assertTrue(created);
     }

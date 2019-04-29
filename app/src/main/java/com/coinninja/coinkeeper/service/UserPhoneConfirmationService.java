@@ -4,7 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.service.runner.UserPhoneConfirmationRunner;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import javax.inject.Inject;
 
@@ -34,8 +34,8 @@ public class UserPhoneConfirmationService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        if (intent != null && intent.hasExtra(Intents.EXTRA_PHONE_NUMBER_CODE)) {
-            String code = intent.getExtras().getString(Intents.EXTRA_PHONE_NUMBER_CODE);
+        if (intent != null && intent.hasExtra(DropbitIntents.EXTRA_PHONE_NUMBER_CODE)) {
+            String code = intent.getExtras().getString(DropbitIntents.EXTRA_PHONE_NUMBER_CODE);
             runner.setCode(code);
             runner.run();
         }

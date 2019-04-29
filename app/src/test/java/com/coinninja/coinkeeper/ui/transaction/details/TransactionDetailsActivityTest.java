@@ -5,7 +5,7 @@ import android.content.Intent;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
@@ -96,7 +96,7 @@ public class TransactionDetailsActivityTest {
 
         verify(pageAdapter).refreshData();
 
-        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
+        activity.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE));
 
         verify(pageAdapter, times(2)).refreshData();
     }
@@ -105,7 +105,7 @@ public class TransactionDetailsActivityTest {
     public void refreshes_when_dropbit_canceled() {
         activity.pager = mock(ViewPager.class);
 
-        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_TRANSACTION_DATA_CHANGED));
+        activity.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED));
 
         verify(pageAdapter, atLeast(1)).refreshData();
         verify(activity.pager).setAdapter(pageAdapter);
@@ -119,7 +119,7 @@ public class TransactionDetailsActivityTest {
         when(pageAdapter.getTransactionIdForIndex(2)).thenReturn(3L);
         when(pageAdapter.lookupTransactionById(3L)).thenReturn(3);
 
-        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
+        activity.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE));
 
         verify(activity.pager).setCurrentItem(3);
     }
@@ -128,9 +128,9 @@ public class TransactionDetailsActivityTest {
     public void observes_local_events() {
         startUp();
 
-        assertThat(activity.intentFilter, containsAction(Intents.ACTION_TRANSACTION_DATA_CHANGED));
-        assertThat(activity.intentFilter, containsAction(Intents.ACTION_WALLET_SYNC_COMPLETE));
-        assertThat(activity.intentFilter, containsAction(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED));
+        assertThat(activity.intentFilter, containsAction(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED));
+        assertThat(activity.intentFilter, containsAction(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE));
+        assertThat(activity.intentFilter, containsAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED));
         verify(activity.localBroadCastUtil).registerReceiver(activity.receiver, activity.intentFilter);
     }
 
@@ -147,7 +147,7 @@ public class TransactionDetailsActivityTest {
     public void refreshes_data_when_dropbit_canceled_event_observed() {
         startUp();
 
-        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_TRANSACTION_DATA_CHANGED));
+        activity.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED));
 
         verify(pageAdapter, times(2)).refreshData();
     }
@@ -165,28 +165,28 @@ public class TransactionDetailsActivityTest {
     public void can_show_transaction_record_on_launch() {
         when(pageAdapter.lookupTransactionById(4L)).thenReturn(10);
         Intent newIntent = new Intent();
-        newIntent.putExtra(Intents.EXTRA_TRANSACTION_RECORD_ID, 4L);
+        newIntent.putExtra(DropbitIntents.EXTRA_TRANSACTION_RECORD_ID, 4L);
         activity.setIntent(newIntent);
         activity.pager = mock(ViewPager.class);
 
         startUp();
 
         verify(activity.pager).setCurrentItem(10, true);
-        assertFalse(activity.getIntent().hasExtra(Intents.EXTRA_TRANSACTION_RECORD_ID));
+        assertFalse(activity.getIntent().hasExtra(DropbitIntents.EXTRA_TRANSACTION_RECORD_ID));
     }
 
     @Test
     public void can_show_txid_on_launch() {
         when(pageAdapter.lookupTransactionBy("-- txid --")).thenReturn(10);
         Intent newIntent = new Intent();
-        newIntent.putExtra(Intents.EXTRA_TRANSACTION_ID, "-- txid --");
+        newIntent.putExtra(DropbitIntents.EXTRA_TRANSACTION_ID, "-- txid --");
         activity.setIntent(newIntent);
         activity.pager = mock(ViewPager.class);
 
         startUp();
 
         verify(activity.pager).setCurrentItem(10, true);
-        assertFalse(activity.getIntent().hasExtra(Intents.EXTRA_TRANSACTION_ID));
+        assertFalse(activity.getIntent().hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID));
     }
 
     @Test
@@ -234,8 +234,8 @@ public class TransactionDetailsActivityTest {
     @Test
     public void observes_currency_preference_change() {
         DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
-        Intent intent = new Intent(Intents.ACTION_CURRENCY_PREFERENCE_CHANGED);
-        intent.putExtra(Intents.EXTRA_PREFERENCE, defaultCurrencies);
+        Intent intent = new Intent(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED);
+        intent.putExtra(DropbitIntents.EXTRA_PREFERENCE, defaultCurrencies);
         startUp();
 
         activity.receiver.onReceive(activity, intent);

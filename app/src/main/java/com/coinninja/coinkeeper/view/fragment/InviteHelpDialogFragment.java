@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.fragment;
 
-import android.app.DialogFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,7 @@ import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
 public class InviteHelpDialogFragment extends BaseDialogFragment {
 

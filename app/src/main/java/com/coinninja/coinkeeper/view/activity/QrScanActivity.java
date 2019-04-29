@@ -9,7 +9,7 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
@@ -30,8 +30,8 @@ public class QrScanActivity extends SecuredActivity {
     public void onScanComplete(String rawScannedResult) {
         Intent returnIntent = new Intent();
         try {
-            returnIntent.putExtra(Intents.EXTRA_SCANNED_DATA, rawScannedResult);
-            setResult(Intents.RESULT_SCAN_OK, returnIntent);
+            returnIntent.putExtra(DropbitIntents.EXTRA_SCANNED_DATA, rawScannedResult);
+            setResult(DropbitIntents.RESULT_SCAN_OK, returnIntent);
             finish();
         } catch (IllegalArgumentException ex) {
             onScanError();
@@ -39,13 +39,13 @@ public class QrScanActivity extends SecuredActivity {
     }
 
     public void onScanError() {
-        setResult(Intents.RESULT_SCAN_ERROR);
+        setResult(DropbitIntents.RESULT_SCAN_ERROR);
         finish();
     }
 
     public void requestCameraPermission() {
         permissionsUtil.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
-                Intents.REQUEST_PERMISSIONS_CAMERA);
+                DropbitIntents.REQUEST_PERMISSIONS_CAMERA);
     }
 
     public boolean hasCameraPermission() {
@@ -54,7 +54,7 @@ public class QrScanActivity extends SecuredActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if (requestCode == Intents.REQUEST_PERMISSIONS_CAMERA) {
+        if (requestCode == DropbitIntents.REQUEST_PERMISSIONS_CAMERA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 removeReAskPermissionBtn();
                 qrScanManager.startCapture();

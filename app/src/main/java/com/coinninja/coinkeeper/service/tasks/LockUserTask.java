@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.util.DateUtil;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import javax.inject.Inject;
 
@@ -21,7 +21,7 @@ public class LockUserTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
-        user.lockOutUntil(dateUtil.getCurrentTimeInMillis() + Intents.LOCK_DURRATION);
+        user.lockOutUntil(dateUtil.getCurrentTimeInMillis() + DropbitIntents.LOCK_DURRATION);
         return null;
     }
 

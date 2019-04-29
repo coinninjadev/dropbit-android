@@ -1,50 +1,48 @@
 package com.coinninja.coinkeeper.view.fragment;
 
-import android.app.Dialog;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+
+import androidx.lifecycle.Lifecycle;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
-import com.coinninja.coinkeeper.model.PaymentHolder;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
+import com.coinninja.matchers.IntentFilterMatchers;
 
+import org.greenrobot.greendao.query.LazyList;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.android.controller.FragmentController;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowToast;
 
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtraWithKey;
+import static com.coinninja.android.helpers.Views.clickOn;
+import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class RequestDialogFragmentTest {
 
     @Mock
@@ -56,46 +54,53 @@ public class RequestDialogFragmentTest {
     LocalBroadCastUtil localBroadCastUtil;
 
     @Mock
-    ClipboardUtil clipboardUtil;
+    WalletHelper walletHelper;
 
-    PaymentHolder paymentHolder;
+    @Mock
+    LazyList transactions;
+
+    @Mock
+    ClipboardUtil clipboardUtil;
 
     private String testAddress = "jd9dj9sdjd9jdf0swhje";
 
-    private FragmentController<RequestDialogFragment> fragmentController;
     private RequestDialogFragment fragment;
-    private ShadowActivity shadowActivity;
 
-    DefaultCurrencies defaultCurrencies;
-
-    private USDCurrency usdCurrency = new USDCurrency(60000d);
-    private BTCCurrency btcCurrency = new BTCCurrency(1.d);
+    private ActivityScenario<TransactionHistoryActivity> scenario;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        TestCoinKeeperApplication application = ApplicationProvider.getApplicationContext();
+        application.walletHelper = walletHelper;
+        application.accountManager = accountManager;
+        application.clipboardUtil = clipboardUtil;
+        application.localBroadCastUtil = localBroadCastUtil;
+
         when(accountManager.getNextReceiveAddress()).thenReturn(testAddress);
-        paymentHolder = new PaymentHolder(new USDCurrency(60000d));
-        fragmentController = Robolectric.buildFragment(RequestDialogFragment.class);
-        fragment = fragmentController.get();
-        fragmentController.create();
-        defaultCurrencies = new DefaultCurrencies(usdCurrency, btcCurrency);
-        paymentHolder.setDefaultCurrencies(defaultCurrencies);
+        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+
+        scenario = ActivityScenario.launch(TransactionHistoryActivity.class);
+    }
+
+    @After
+    public void tearDown() {
+        fragment = null;
+        clipboardUtil = null;
+        transactions = null;
+        localBroadCastUtil = null;
+        bitcoinUriBuilder = null;
+        accountManager = null;
+        testAddress = null;
+        scenario.close();
     }
 
     private void start() {
-        fragment.setPaymentHolder(paymentHolder);
-        fragment.accountManager = accountManager;
-        fragment.bitcoinUriBuilder = bitcoinUriBuilder;
-        fragment.localBroadCastUtil = localBroadCastUtil;
-        fragment.clipboardUtil = clipboardUtil;
-        fragmentController.start().resume().visible();
-        shadowActivity = shadowOf(fragment.getActivity());
-    }
-
-    private void startWithAmount() {
-        paymentHolder.updateValue(new BTCCurrency(1d));
-        start();
+        fragment = new RequestDialogFragment();
+        scenario.onActivity(activity -> {
+            fragment.show(activity.getSupportFragmentManager(), RequestDialogFragment.class.getName());
+        });
+        scenario.moveToState(Lifecycle.State.RESUMED);
     }
 
     @Test
@@ -107,35 +112,13 @@ public class RequestDialogFragmentTest {
     }
 
     @Test
-    public void price_visible_when_set() {
-        startWithAmount();
-
-        TextView primary = fragment.getView().findViewById(R.id.primary_currency);
-        TextView secondary = fragment.getView().findViewById(R.id.secondary_currency);
-
-        assertThat(primary.getText().toString(), equalTo(paymentHolder.getPrimaryCurrency().toFormattedCurrency()));
-        assertThat(secondary.getText().toString(), equalTo(paymentHolder.getSecondaryCurrency().toFormattedCurrency()));
-        assertThat(secondary.getVisibility(), equalTo(View.VISIBLE));
-        assertThat(primary.getVisibility(), equalTo(View.VISIBLE));
-    }
-
-    @Test
-    public void price_not_visible_when_void() {
-        paymentHolder.updateValue(new USDCurrency(0d));
-        start();
-        TextView primary = fragment.getView().findViewById(R.id.primary_currency);
-        TextView secondary = fragment.getView().findViewById(R.id.secondary_currency);
-
-        assertThat(secondary.getVisibility(), equalTo(View.GONE));
-        assertThat(primary.getVisibility(), equalTo(View.GONE));
-    }
-
-    @Test
     public void selecting_copy_button_puts_address_in_clipboard() {
-        startWithAmount();
-        fragment.getView().findViewById(R.id.request_copy_button).performClick();
+        start();
 
-        verify(clipboardUtil).setClipFromText("Bitcoin Address", "bitcoin:jd9dj9sdjd9jdf0swhje?amount=1.00000000");
+        assertNotNull(fragment.getView());
+        clickOn(withId(fragment.getView(), R.id.request_copy_button));
+
+        verify(clipboardUtil).setClipFromText("Bitcoin Address", "bitcoin:jd9dj9sdjd9jdf0swhje");
     }
 
     @Test
@@ -148,92 +131,47 @@ public class RequestDialogFragmentTest {
     }
 
     @Test
-    public void send_opens_chooser_to_share_address() {
-        paymentHolder.updateValue(new USDCurrency(0d));
+    public void clicking_on_request_shows_chooser() {
         start();
+
         fragment.getView().findViewById(R.id.request_funds).performClick();
 
-        Intent chooserIntent = shadowActivity.getNextStartedActivity();
-        Intent intent = (Intent) chooserIntent.getExtras().get("android.intent.extra.INTENT");
-
-        assertThat(intent.getAction(), equalTo(Intent.ACTION_SEND));
-        assertThat(intent.getExtras().getString(Intent.EXTRA_TEXT), equalTo("bitcoin:" + testAddress));
-        assertThat(intent.getType(), equalTo("image/*"));
-    }
-
-    @Ignore
-    @Test
-    public void close_button_closes_fragment() {
-        start();
-        Dialog latestDialog = ShadowDialog.getLatestDialog();
-
-        assertFalse(latestDialog.isShowing());
-    }
-
-    @Test
-    public void does_not_include_price_for_request_when_price_is_zero() {
-        paymentHolder.updateValue(new USDCurrency(0d));
-        start();
-        fragment.getView().findViewById(R.id.request_funds).performClick();
-
-        Intent chooserIntent = shadowActivity.getNextStartedActivity();
-        Intent intent = (Intent) chooserIntent.getExtras().get("android.intent.extra.INTENT");
-        assertThat(intent.getExtras().getString(Intent.EXTRA_TEXT), equalTo("bitcoin:" + testAddress));
+        Intents.intending(hasAction(Intent.ACTION_SEND));
+        Intents.intending(hasExtraWithKey(Intent.EXTRA_TEXT));
+        Intents.intending(hasExtra(Intent.EXTRA_TEXT, "bitcoin:jd9dj9sdjd9jdf0swhje"));
+        Intents.intending(hasExtraWithKey(Intent.EXTRA_SUBJECT));
+        Intents.intending(hasExtra(Intent.EXTRA_SUBJECT, "Request Bitcoin"));
+        Intents.intending(hasExtraWithKey("subject"));
+        Intents.intending(hasExtra("subject", "Request Bitcoin"));
+        Intents.intending(hasExtraWithKey("sms_body"));
+        Intents.intending(hasExtra("sms_body", "Request Bitcoin"));
     }
 
 
     @Test
     public void starts_qr_service_to_generate_qr_code() {
-        startWithAmount();
+        start();
 
-        Intent intent = shadowActivity.getNextStartedService();
-        assertThat(intent.getStringExtra(Intents.EXTRA_TEMP_QR_SCAN),
-                equalTo("bitcoin:jd9dj9sdjd9jdf0swhje?amount=1.00000000"));
-    }
-
-    @Test
-    public void includes_price_with_request() {
-        startWithAmount();
-
-        fragment.getView().findViewById(R.id.request_funds).performClick();
-
-        Intent chooserIntent = shadowActivity.getNextStartedActivity();
-        Intent intent = (Intent) chooserIntent.getExtras().get("android.intent.extra.INTENT");
-        assertThat(intent.getExtras().getString(Intent.EXTRA_TEXT),
-                equalTo("bitcoin:" + testAddress + "?amount=" + "1.00000000"));
-    }
-
-    @Test
-    public void includes_price_with_request_fiat_as_primary() {
-        paymentHolder.toggleCurrencies();
-        startWithAmount();
-
-        fragment.getView().findViewById(R.id.request_funds).performClick();
-
-        Intent chooserIntent = shadowActivity.getNextStartedActivity();
-        Intent intent = (Intent) chooserIntent.getExtras().get("android.intent.extra.INTENT");
-        assertThat(intent.getExtras().getString(Intent.EXTRA_TEXT),
-                equalTo("bitcoin:" + testAddress + "?amount=" + "1.00000000"));
+        Intents.intending(hasComponent(DropbitIntents.EXTRA_TEMP_QR_SCAN));
+        Intents.intending(hasExtraWithKey(DropbitIntents.EXTRA_TEMP_QR_SCAN));
+        Intents.intending(hasExtra(DropbitIntents.EXTRA_TEMP_QR_SCAN, "bitcoin:jd9dj9sdjd9jdf0swhje"));
     }
 
     @Test
     public void registers_for_qr_broadcast_when_resumed() {
         start();
-
-        ArgumentCaptor<IntentFilter> intentFilterCaptor = ArgumentCaptor.forClass(IntentFilter.class);
-
-        verify(localBroadCastUtil).registerReceiver(eq(fragment.qrBroadcastReceiver), intentFilterCaptor.capture());
-        IntentFilter filter = intentFilterCaptor.getValue();
-        assertThat(filter.getAction(0), equalTo(Intents.ACTION_VIEW_QR_CODE));
+        assertThat(fragment.intentFilter, IntentFilterMatchers.containsAction(DropbitIntents.ACTION_VIEW_QR_CODE));
+        verify(localBroadCastUtil).registerReceiver(fragment.receiver, fragment.intentFilter);
     }
 
     @Test
     public void unregisters_for_qr_broadcast_when_paused() {
         start();
 
-        fragmentController.pause();
+        fragment.onPause();
+        fragment.onStop();
 
-        verify(localBroadCastUtil).unregisterReceiver(fragment.qrBroadcastReceiver);
+        verify(localBroadCastUtil).unregisterReceiver(fragment.receiver);
     }
 
 

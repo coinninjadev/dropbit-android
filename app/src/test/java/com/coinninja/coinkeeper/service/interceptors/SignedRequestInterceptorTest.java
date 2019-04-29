@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.service.interceptors;
 
+import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.util.DateUtil;
@@ -20,8 +21,8 @@ import okhttp3.RequestBody;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -29,13 +30,13 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SignedRequestInterceptorTest {
 
-    public static final String SIGN_KEY = "02262233847a69026f8f3ae027af347f2501adf008fe4f6087d31a1d975fd41473";
-    public static final String SIGNED_CONTENT = "3045022100aef1851655cd6e7ccc77afc3cd6c8f7a99de855571cea2dce9e94b17b392228f02206b37f35397018eb64d3f68995e6500d3c761c284d6a67a2509947da9137558d1";
-    public static final String SIGNED_TIME_STAMP = "3044022035d8f2b8e269cc84d49ee40fb4ccbc16bcc68d845894e37fcc08da1993bebfb202202f1cd4ef2d260644de71035b196de577f4fde8d57db770a2d8697268b71b48c6";
-    public static final String CN_WALLET_ID = "----wallet-id---";
-    public static final String CURRENT_TIME = "2018-05-09T23:45:22Z";
-    public static final String CN_USER_ID = "----USER-id---";
-    public static final String CN_AUTH_DEVICE_UUID = "----96a5d785-c449-4fc2-a92f-9c7884b29b31---";
+    private static final String SIGN_KEY = "02262233847a69026f8f3ae027af347f2501adf008fe4f6087d31a1d975fd41473";
+    private static final String SIGNED_CONTENT = "3045022100aef1851655cd6e7ccc77afc3cd6c8f7a99de855571cea2dce9e94b17b392228f02206b37f35397018eb64d3f68995e6500d3c761c284d6a67a2509947da9137558d1";
+    private static final String SIGNED_TIME_STAMP = "3044022035d8f2b8e269cc84d49ee40fb4ccbc16bcc68d845894e37fcc08da1993bebfb202202f1cd4ef2d260644de71035b196de577f4fde8d57db770a2d8697268b71b48c6";
+    private static final String CN_WALLET_ID = "----wallet-id---";
+    private static final String CURRENT_TIME = "2018-05-09T23:45:22Z";
+    private static final String CN_USER_ID = "----USER-id---";
+    private static final String CN_AUTH_DEVICE_UUID = "----96a5d785-c449-4fc2-a92f-9c7884b29b31---";
 
     @Mock
     DataSigner dataSigner;
@@ -49,6 +50,9 @@ public class SignedRequestInterceptorTest {
     @Mock
     Account account;
 
+    @Mock
+    CNWalletManager cnWalletManager;
+
     Request origionalRequest;
 
     private SignedRequestInterceptor interceptor;
@@ -60,13 +64,14 @@ public class SignedRequestInterceptorTest {
         content = "{ \"phoneNumber\": \"330-555-5555\",\"countryCode\": 1}";
         when(account.getCnWalletId()).thenReturn(CN_WALLET_ID);
         when(account.getCnUserId()).thenReturn(CN_USER_ID);
-        interceptor = new SignedRequestInterceptor(dateUtil, dataSigner, CN_AUTH_DEVICE_UUID, account);
+        interceptor = new SignedRequestInterceptor(dateUtil, dataSigner, CN_AUTH_DEVICE_UUID, cnWalletManager);
         setupRequest();
         when(dataSigner.getCoinNinjaVerificationKey()).thenReturn(SIGN_KEY);
         when(dataSigner.sign(any())).
                 thenReturn(SIGNED_CONTENT);
 
         when(dateUtil.getCurrentTimeFormatted()).thenReturn(CURRENT_TIME);
+        when(cnWalletManager.getAccount()).thenReturn(account);
 
         when(chain.request()).thenReturn(origionalRequest);
     }
@@ -106,7 +111,7 @@ public class SignedRequestInterceptorTest {
     }
 
     @Test
-    public void signs_timestamp_as_content_when_body_of_post_is_empty() throws IOException {
+    public void signs_timestamp_as_content_when_body_of_post_is_empty() {
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), "");
         Request request = new Request.Builder().url("http://localhost:8080").method("POST", body).build();
         when(dataSigner.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP);

@@ -14,7 +14,7 @@ import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -134,8 +134,8 @@ public class BalanceBarActivityTest {
         start();
 
         verify(localBroadCastUtil, atLeast(1)).registerReceiver(eq(activity.receiver), any(IntentFilter.class));
-        assertThat(activity.filter, IntentFilterMatchers.containsAction(Intents.ACTION_WALLET_SYNC_COMPLETE));
-        assertThat(activity.filter, IntentFilterMatchers.containsAction(Intents.ACTION_BTC_PRICE_UPDATE));
+        assertThat(activity.filter, IntentFilterMatchers.containsAction(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE));
+        assertThat(activity.filter, IntentFilterMatchers.containsAction(DropbitIntents.ACTION_BTC_PRICE_UPDATE));
     }
 
     @Test
@@ -151,8 +151,8 @@ public class BalanceBarActivityTest {
     public void itUpdatesBTCPriceOnChange() {
         start();
 
-        Intent intent = new Intent().setAction(Intents.ACTION_BTC_PRICE_UPDATE).
-                putExtra(Intents.EXTRA_BITCOIN_PRICE, 1200L);
+        Intent intent = new Intent().setAction(DropbitIntents.ACTION_BTC_PRICE_UPDATE).
+                putExtra(DropbitIntents.EXTRA_BITCOIN_PRICE, 1200L);
         activity.receiver.onReceive(activity, intent);
 
         assertThat(((TextView) activity.findViewById(R.id.drawer_action_price_text)).
@@ -238,7 +238,7 @@ public class BalanceBarActivityTest {
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00D));
         start();
 
-        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
+        activity.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE));
 
         DefaultCurrencyDisplayView view = withId(activity, R.id.balance);
         assertThat(view.getTotalCrypto().toLong(), equalTo(80000L));

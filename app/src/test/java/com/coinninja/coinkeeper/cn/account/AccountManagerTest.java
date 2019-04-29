@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -56,7 +56,6 @@ public class AccountManagerTest {
         verify(addressCache).cacheAddressesFor(HDWallet.EXTERNAL);
         verify(addressCache).cacheAddressesFor(HDWallet.INTERNAL);
     }
-
 
     @Test
     public void reportLargestChangeIndexConsumed_when_less_than_current() {
@@ -196,9 +195,9 @@ public class AccountManagerTest {
         HashMap<String, AddressDTO> block = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 3);
 
         assertThat(block.keySet().size(), equalTo(3));
-        assertEquals(block.get("-- addr 1 --").getWrappedAddress().getAddress(), addressOne.getAddress());
-        assertEquals(block.get("-- addr 4 --").getWrappedAddress().getAddress(), addressTwo.getAddress());
-        assertEquals(block.get("-- addr 7 --").getWrappedAddress().getAddress(), addressThree.getAddress());
+        assertEquals(block.get("-- addr 1 --").getAddress(), addressOne.getAddress());
+        assertEquals(block.get("-- addr 4 --").getAddress(), addressTwo.getAddress());
+        assertEquals(block.get("-- addr 7 --").getAddress(), addressThree.getAddress());
     }
 
     @Test
@@ -214,8 +213,8 @@ public class AccountManagerTest {
         HashMap<String, AddressDTO> block = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 3);
 
         assertThat(block.keySet().size(), equalTo(2));
-        assertEquals(block.get("-- addr 1 --").getWrappedAddress().getAddress(), addressOne.getAddress());
-        assertEquals(block.get("-- addr 4 --").getWrappedAddress().getAddress(), addressTwo.getAddress());
+        assertEquals(block.get("-- addr 1 --").getAddress(), addressOne.getAddress());
+        assertEquals(block.get("-- addr 4 --").getAddress(), addressTwo.getAddress());
     }
 
 }

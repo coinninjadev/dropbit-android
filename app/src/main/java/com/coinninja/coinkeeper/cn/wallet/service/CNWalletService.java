@@ -9,6 +9,7 @@ import android.os.Message;
 import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
 import com.coinninja.coinkeeper.cn.wallet.runner.SaveRecoveryWordsRunner;
 import com.coinninja.coinkeeper.di.component.AppComponent;
+import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
 
 import javax.inject.Inject;
@@ -27,7 +28,7 @@ public class CNWalletService extends Service implements CNWalletServicesInterfac
     Handler workHandler;
 
     @Inject
-    AppComponent appComponent;
+    CoinKeeperComponent appComponent;
 
 
     @Override

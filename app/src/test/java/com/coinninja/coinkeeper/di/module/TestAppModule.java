@@ -10,6 +10,9 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.util.TypedValue;
 
+import androidx.core.os.ConfigurationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener;
@@ -19,9 +22,10 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
-import com.coinninja.coinkeeper.di.component.AppComponent;
+import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.di.component.TestAppComponent;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
@@ -32,11 +36,14 @@ import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
 import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler;
 import com.coinninja.coinkeeper.di.interfaces.UUID;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
+import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
 import com.coinninja.coinkeeper.service.ContactLookupService;
 import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 import com.coinninja.coinkeeper.service.runner.FailedBroadcastCleaner;
@@ -48,8 +55,10 @@ import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
+import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
@@ -58,15 +67,13 @@ import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceSche
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
-import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.core.os.ConfigurationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import dagger.Module;
 import dagger.Provides;
 
@@ -101,10 +108,10 @@ public class TestAppModule {
         return new BitcoinUriBuilder();
     }
 
+
     @Provides
-    @CoinkeeperApplicationScope
-    AppComponent appComponent(TestAppComponent testAppComponent) {
-        return testAppComponent;
+    CoinKeeperComponent coinKeeperComponent(TestAppComponent appComponent) {
+        return appComponent;
     }
 
     @Provides
@@ -412,8 +419,11 @@ public class TestAppModule {
 
     @CountryCodeLocales
     @Provides
-    List<CountryCodeLocale> provideCountryCodeLocales(CountryCodeLocaleGenerator countryCodeLocaleGenerator) {
-        return new ArrayList<>();
+    List<CountryCodeLocale> provideCountryCodeLocales(TestCoinKeeperApplication app) {
+        if (app.countryCodeLocales == null) {
+            app.countryCodeLocales = new ArrayList<>();
+        }
+        return app.countryCodeLocales;
     }
 
     @Provides
@@ -467,4 +477,59 @@ public class TestAppModule {
         }
         return app.locationUtil;
     }
+
+    @Provides
+    Gson gson() {
+        return new Gson();
+    }
+
+    @Provides
+    InviteContactPresenter InviteContactPresenter(TestCoinKeeperApplication app) {
+        if (app.inviteContactPresenter == null) {
+            app.inviteContactPresenter = mock(InviteContactPresenter.class);
+        }
+        return app.inviteContactPresenter;
+    }
+
+    @Provides
+    CNAddressLookupDelegate cnAddressLookupDelegate(TestCoinKeeperApplication app) {
+        if (app.cnAddressLookupDelegae == null) {
+            app.cnAddressLookupDelegae = mock(CNAddressLookupDelegate.class);
+        }
+        return app.cnAddressLookupDelegae;
+    }
+
+    @Provides
+    ClipboardUtil clipboardUtil(TestCoinKeeperApplication app) {
+        if (app.clipboardUtil == null) {
+            app.clipboardUtil = mock(ClipboardUtil.class);
+        }
+
+        return app.clipboardUtil;
+    }
+
+    @Provides
+    UserPreferences userPreferences(TestCoinKeeperApplication app) {
+        if (app.userPreferences == null) {
+            app.userPreferences = mock(UserPreferences.class);
+        }
+        return app.userPreferences;
+    }
+
+    @Provides
+    VerifyRecoveryWordsPresenter verifyRecoveryWordsPresenter(TestCoinKeeperApplication app) {
+        if (app.verifyRecoveryWordsPresenter == null) {
+            app.verifyRecoveryWordsPresenter = mock(VerifyRecoveryWordsPresenter.class);
+        }
+        return app.verifyRecoveryWordsPresenter;
+    }
+
+    @Provides
+    NotificationUtil notificationUtil(TestCoinKeeperApplication app) {
+        if (app.notificationUtil == null) {
+            app.notificationUtil = mock(NotificationUtil.class);
+        }
+        return app.notificationUtil;
+    }
+
 }

@@ -1,46 +1,31 @@
 package com.coinninja.coinkeeper.view.fragment;
 
-import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
-import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.service.QRCodeService;
-import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.ui.base.BaseBottomDialogFragment;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
-import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
-
-import java.util.HashMap;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-import dagger.android.AndroidInjection;
-
-import static com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter.AMOUNT;
 import static com.coinninja.coinkeeper.util.uri.routes.BitcoinRoute.DEFAULT;
 
-public class RequestDialogFragment extends BaseDialogFragment {
+public class RequestDialogFragment extends BaseBottomDialogFragment {
     private static final String TAG = RequestDialogFragment.class.getSimpleName();
 
     @Inject
@@ -56,35 +41,22 @@ public class RequestDialogFragment extends BaseDialogFragment {
     ClipboardUtil clipboardUtil;
 
     BitcoinUri address;
+    IntentFilter intentFilter = new IntentFilter(DropbitIntents.ACTION_VIEW_QR_CODE);
     private Uri qrImageURI;
-    private String receiveAddress;
-    private PaymentHolder paymentHolder;
-
-    BroadcastReceiver qrBroadcastReceiver = new BroadcastReceiver() {
+    BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String image = intent.getStringExtra(Intents.EXTRA_QR_CODE_LOCATION);
+            String image = intent.getStringExtra(DropbitIntents.EXTRA_QR_CODE_LOCATION);
             qrImageURI = Uri.parse(image);
             drawQR(qrImageURI);
         }
     };
+    private String receiveAddress;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_Dialog);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        AndroidInjection.inject(this);
-        super.onAttach(context);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_request_dialog, container, false);
+    public void onPause() {
+        super.onPause();
+        localBroadCastUtil.unregisterReceiver(receiver);
     }
 
     @Override
@@ -95,66 +67,33 @@ public class RequestDialogFragment extends BaseDialogFragment {
         setupRequestButton();
         setupCopyButton();
         startQRImageService();
-        setupPrice();
-        localBroadCastUtil.registerReceiver(qrBroadcastReceiver, new IntentFilter(Intents.ACTION_VIEW_QR_CODE));
+        localBroadCastUtil.registerReceiver(receiver, intentFilter);
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        localBroadCastUtil.unregisterReceiver(qrBroadcastReceiver);
+    protected int getContentViewLayoutId() {
+        return R.layout.fragment_request_dialog;
     }
 
-    public void startQRImageService() {
-        Intent intent = new Intent(getActivity(), QRCodeService.class);
-        intent.putExtra(Intents.EXTRA_TEMP_QR_SCAN, address.toString());
-        getActivity().startService(intent);
-    }
-
-    protected void drawQR(Uri qrImageURI) {
+    private void drawQR(Uri qrImageURI) {
         this.qrImageURI = qrImageURI;
         ImageView qrImage = getView().findViewById(R.id.request_body_qr_image);
         qrImage.setImageURI(qrImageURI);
         qrImage.setVisibility(View.VISIBLE);
     }
 
-    private void removePriceDisplay() {
-        getView().findViewById(R.id.primary_currency).setVisibility(View.GONE);
-        getView().findViewById(R.id.secondary_currency).setVisibility(View.GONE);
-    }
-
-    private void showPrice() {
-        TextView primaryCurrency = getView().findViewById(R.id.primary_currency);
-        primaryCurrency.setVisibility(View.VISIBLE);
-        primaryCurrency.setText(paymentHolder.getPrimaryCurrency().toFormattedCurrency());
-
-        TextView secondaryCurrency = getView().findViewById(R.id.secondary_currency);
-        secondaryCurrency.setVisibility(View.VISIBLE);
-        secondaryCurrency.setText(paymentHolder.getSecondaryCurrency().toFormattedCurrency());
-    }
-
-    private void setupPrice() {
-        if (paymentHolder.getPrimaryCurrency().isZero()) {
-            removePriceDisplay();
-        } else {
-            showPrice();
-        }
+    private void startQRImageService() {
+        Intent intent = new Intent(getActivity(), QRCodeService.class);
+        intent.putExtra(DropbitIntents.EXTRA_TEMP_QR_SCAN, address.toString());
+        getActivity().startService(intent);
     }
 
     private void setupShareUri() {
         receiveAddress = accountManager.getNextReceiveAddress();
-
-        HashMap<BitcoinParameter, String> parameters = new HashMap();
-
-        Currency currency = paymentHolder.getCryptoCurrency();
-        if (!currency.isZero())
-            parameters.put(AMOUNT, ((BTCCurrency) currency).toUriFormattedString());
-
-        address = bitcoinUriBuilder.build(DEFAULT.setAddress(receiveAddress), parameters);
+        address = bitcoinUriBuilder.build(DEFAULT.setAddress(receiveAddress));
     }
 
     private void setupCloseButton() {
-        getView().findViewById(R.id.close_btn).setOnClickListener(V -> dismiss());
         getView().findViewById(R.id.close).setOnClickListener(V -> dismiss());
     }
 
@@ -173,8 +112,8 @@ public class RequestDialogFragment extends BaseDialogFragment {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_TEXT, address.toString());
         intent.putExtra(Intent.EXTRA_SUBJECT, "Request Bitcoin");
-        intent.putExtra("subject", "Request Bitcoin");//support older sms clients
-        intent.putExtra("sms_body", address.toString());//support older sms clients
+        intent.putExtra("subject", "Request Bitcoin");
+        intent.putExtra("sms_body", address.toString());
         intent.setType(Intent.normalizeMimeType("image/*"));
 
         try {
@@ -193,13 +132,5 @@ public class RequestDialogFragment extends BaseDialogFragment {
                 getActivity().getString(R.string.request_copied_message),
                 Toast.LENGTH_SHORT)
                 .show();
-    }
-
-    public PaymentHolder getPaymentHolder() {
-        return paymentHolder;
-    }
-
-    public void setPaymentHolder(PaymentHolder paymentHolder) {
-        this.paymentHolder = paymentHolder;
     }
 }

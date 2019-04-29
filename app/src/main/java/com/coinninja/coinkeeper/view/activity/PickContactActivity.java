@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.view.activity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
 import com.coinninja.coinkeeper.ui.util.OnItemClickListener;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
@@ -28,6 +27,8 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -87,7 +88,7 @@ public class PickContactActivity extends SecuredActivity implements CoinNinjaUse
 
     protected void onWhatIsDropBit(View view) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Intents.URI_WHAT_IS_DROPBIT);
+        intent.setData(DropbitIntents.URI_WHAT_IS_DROPBIT);
         startActivity(intent);
         analytics.trackEvent(Analytics.EVENT_INVITE_WHATIS_DROPBIT);
     }
@@ -104,7 +105,7 @@ public class PickContactActivity extends SecuredActivity implements CoinNinjaUse
         fetchUserTask.setOnCompleteListener(null);
     }
 
-    protected void loadContacts(Activity context) {
+    protected void loadContacts(AppCompatActivity context) {
         if (hasContactsPermission(context)) {
             showLoading();
             fetchContacts();
@@ -129,7 +130,7 @@ public class PickContactActivity extends SecuredActivity implements CoinNinjaUse
         fetchUserTask.clone().execute();
     }
 
-    private void reqeustContactsPermission(Activity context) {
+    private void reqeustContactsPermission(AppCompatActivity context) {
         permissionsUtil.requestPermissions(context, new String[]{Manifest.permission.READ_CONTACTS}, CONTACTS_PERMISSION_REQUEST_CODE);
     }
 
@@ -170,7 +171,7 @@ public class PickContactActivity extends SecuredActivity implements CoinNinjaUse
     public void onItemClick(View view, int position) {
         Contact contact = ((PickContactRecycleViewAdapter) list.getAdapter()).getItemAt(position);
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_CONTACT, contact);
+        intent.putExtra(DropbitIntents.EXTRA_CONTACT, contact);
         setResult(RESULT_OK, intent);
         reportAnalytics(contact);
         finish();

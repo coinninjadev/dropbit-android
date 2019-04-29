@@ -30,7 +30,7 @@ public class NotificationUtil {
 
     public void dispatchInternal(String message) {
         internalNotificationHelper.addNotifications(message);
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
     }
 
     public void dispatchInternalError(String message) {
@@ -39,6 +39,6 @@ public class NotificationUtil {
 
     public void dispatchInternalError(String message, Uri clickAction) {
         internalNotificationHelper.addNotifications(InternalNotificationPriority._0_HIGHEST, clickAction, message, MessageLevel.ERROR);
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
     }
 }

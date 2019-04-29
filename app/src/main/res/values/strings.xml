@@ -254,7 +254,7 @@ by using their mobile number</string>
     <string name="recover_wallet_success_button_text">Go to my Wallet</string>
     <string name="invite_send_expired_message">For security purposes we can only allow 24 hours for a DropBit to be completed. Your DropBit sent to %1$s has expired. Please try sending again.</string>
     <string name="invite_send_canceled_message">%1$s has canceled the DropBit for %2$s.</string>
-    <string name="invite_broadcast_real_btc_message">%1$s was send to %2$s</string>
+    <string name="invite_broadcast_real_btc_message">%1$s was sent to %2$s</string>
     <string name="invite_broadcast_canceled_message">DropBit to %1$s has been canceled</string>
 
     <!-- Training Screens -->
@@ -341,5 +341,7 @@ by using their mobile number</string>
     <string name="spend_bitcoin_header">Spend your Bitcoin</string>
     <string name="get_bitcoin_header">Get Bitcoin</string>
     <string name="syncing">Syncing</string>
+    <string name="user_account_remove_button">CHANGE/REMOVE</string>
+    <string name="user_account_verified_verified_number_title">Verified number:</string>
 
 </resources>

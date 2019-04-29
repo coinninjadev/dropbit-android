@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.transaction.details;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -18,7 +17,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.history.DefaultCurrencyChangeObserver;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -36,6 +35,7 @@ import org.greenrobot.greendao.query.LazyList;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.PagerAdapter;
 
 import static com.coinninja.android.helpers.Resources.getDrawable;
@@ -190,11 +190,11 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     }
 
     private void showTooltipInfo(View view) {
-        UriUtil.openUrl(dropbitUriBuilder.build(tooltipId), (Activity) view.getContext());
+        UriUtil.openUrl(dropbitUriBuilder.build(tooltipId), (AppCompatActivity) view.getContext());
     }
 
     private void close(View view) {
-        ((Activity) view.getContext()).finish();
+        ((AppCompatActivity) view.getContext()).finish();
     }
 
     private void renderShowDetails(View page, BindableTransaction bindableTransaction, int position) {
@@ -295,8 +295,8 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
 
     private void onCancelDropbit(View view) {
         Intent intent = new Intent(view.getContext(), DropBitService.class);
-        intent.setAction(Intents.ACTION_CANCEL_DROPBIT);
-        intent.putExtra(Intents.EXTRA_INVITATION_ID, (String) view.getTag());
+        intent.setAction(DropbitIntents.ACTION_CANCEL_DROPBIT);
+        intent.putExtra(DropbitIntents.EXTRA_INVITATION_ID, (String) view.getTag());
         view.getContext().startService(intent);
     }
 

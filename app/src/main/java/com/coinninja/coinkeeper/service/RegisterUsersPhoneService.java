@@ -6,7 +6,7 @@ import android.content.Intent;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.RegisterPhoneNumberRunnable;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import javax.inject.Inject;
 
@@ -37,12 +37,12 @@ public class RegisterUsersPhoneService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         PhoneNumber phoneNumber;
-        if (!intent.hasExtra(Intents.EXTRA_PHONE_NUMBER)) {
+        if (!intent.hasExtra(DropbitIntents.EXTRA_PHONE_NUMBER)) {
             stopSelf();
             return;
         }
 
-        phoneNumber = intent.getParcelableExtra(Intents.EXTRA_PHONE_NUMBER);
+        phoneNumber = intent.getParcelableExtra(DropbitIntents.EXTRA_PHONE_NUMBER);
         runner.setCNPhoneNumber(new CNPhoneNumber(phoneNumber));
         runner.run();
 

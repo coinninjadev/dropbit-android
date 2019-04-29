@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -14,8 +13,9 @@ import com.coinninja.coinkeeper.view.edittext.PinEditText;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
-import static com.coinninja.coinkeeper.util.Intents.EXTRA_AUTHORIZED_ACTION_MESSAGE;
+import static com.coinninja.coinkeeper.util.DropbitIntents.EXTRA_AUTHORIZED_ACTION_MESSAGE;
 
 public class AuthorizedActionActivity extends SecuredActivity implements PinEditText.OnSixDigitsEnteredListener {
 
@@ -89,7 +89,7 @@ public class AuthorizedActionActivity extends SecuredActivity implements PinEdit
 
     private void showCanceledError() {
         Toast.makeText(this, getText(R.string.pin_mismatch_error_toast_fatal_re_enter), Toast.LENGTH_LONG).show();
-        setResult(Activity.RESULT_CANCELED);
+        setResult(AppCompatActivity.RESULT_CANCELED);
         finish();
     }
 }

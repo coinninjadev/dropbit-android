@@ -9,7 +9,7 @@ import com.coinninja.coinkeeper.service.client.BlockchainClient;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.BlockchainTX;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class FailedBroadcastCleaner implements Runnable {
 
     @Override
     public void run() {
-        List<TransactionSummary> oldPendingTransactions = transactionHelper.getPendingTransactionsOlderThan(Intents.PENDING_TRANSITION_LIFE_LIMIT_SECONDS);
+        List<TransactionSummary> oldPendingTransactions = transactionHelper.getPendingTransactionsOlderThan(DropbitIntents.PENDING_TRANSITION_LIFE_LIMIT_SECONDS);
         if (isListEmpty(oldPendingTransactions))
             return;
 

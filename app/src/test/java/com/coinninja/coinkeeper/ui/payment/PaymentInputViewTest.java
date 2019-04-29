@@ -27,11 +27,10 @@ import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -109,15 +108,6 @@ public class PaymentInputViewTest {
         primaryCurrency.setText("1.15");
 
         assertThat(secondaryCurrency, hasText("0.00115"));
-    }
-
-    @Test
-    public void requests_focus_when_primary_value_is_zero() {
-        paymentInputView.setPaymentHolder(paymentHolder);
-
-        paymentInputView.requestFocus();
-
-        assertTrue(primaryCurrency.hasFocus());
     }
 
     @Test

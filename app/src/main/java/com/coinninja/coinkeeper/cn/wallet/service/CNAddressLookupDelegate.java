@@ -9,7 +9,7 @@ import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.Hasher;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 
@@ -29,17 +29,17 @@ public class CNAddressLookupDelegate extends BroadcastReceiver {
         this.serviceWorkUtil = serviceWorkUtil;
         this.localBroadCastUtil = localBroadCastUtil;
         this.hasher = hasher;
-        intentFilter = new IntentFilter(Intents.ACTION_WALLET_ADDRESS_RETRIEVED);
+        intentFilter = new IntentFilter(DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED);
 
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (callback != null &&
-                Intents.ACTION_WALLET_ADDRESS_RETRIEVED.equals(intent.getAction()) &&
-                intent.hasExtra(Intents.EXTRA_ADDRESS_LOOKUP_RESULT)) {
+                DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED.equals(intent.getAction()) &&
+                intent.hasExtra(DropbitIntents.EXTRA_ADDRESS_LOOKUP_RESULT)) {
 
-            AddressLookupResult result = intent.getParcelableExtra(Intents.EXTRA_ADDRESS_LOOKUP_RESULT);
+            AddressLookupResult result = intent.getParcelableExtra(DropbitIntents.EXTRA_ADDRESS_LOOKUP_RESULT);
             callback.onAddressLookupComplete(result);
         }
 

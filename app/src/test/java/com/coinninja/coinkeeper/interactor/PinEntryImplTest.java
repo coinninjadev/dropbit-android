@@ -43,7 +43,7 @@ public class PinEntryImplTest {
         String userPinHASH = PinEntryImpl.HASH_PIN(userPin);
 
         when(keyStoreInteractor.getSavedPin()).thenReturn(userPinHASH);
-        pinEntry.savePin_ToKeystore(userPinHASH);
+        pinEntry.savePin(userPinHASH);
 
         verify(keyStoreInteractor).savePin(eq(userPinHASH));
     }

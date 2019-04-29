@@ -19,6 +19,8 @@ import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.di.component.AppComponent;
+import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.di.interfaces.AnalyticsApiToken;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
@@ -63,6 +65,7 @@ import com.coinninja.coinkeeper.util.uuid.UuidFactory;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
+import com.google.gson.Gson;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
 import java.util.List;
@@ -89,6 +92,11 @@ public class AppModule {
     @Provides
     CoinKeeperApplication coinKeeperApplication(Application application) {
         return (CoinKeeperApplication) application;
+    }
+
+    @Provides
+    CoinKeeperComponent coinKeeperComponent(AppComponent appComponent) {
+        return appComponent;
     }
 
     @Provides
@@ -284,6 +292,11 @@ public class AppModule {
     @Provides
     LocationManager provideLocationManager(@ApplicationContext Context context) {
         return (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    @Provides
+    Gson gson() {
+        return new Gson();
     }
 
 }

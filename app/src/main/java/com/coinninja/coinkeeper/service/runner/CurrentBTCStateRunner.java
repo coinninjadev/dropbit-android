@@ -6,9 +6,8 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.CurrentState;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import javax.inject.Inject;
 
@@ -55,16 +54,16 @@ public class CurrentBTCStateRunner implements Runnable {
     }
 
     private void notifyOfFees(CurrentState currentState) {
-        Intent intent = new Intent(Intents.ACTION_TRANSACTION_FEE_UPDATE);
-        intent.putExtra(Intents.EXTRA_TRANSACTION_FEE, currentState.getFees());
+        Intent intent = new Intent(DropbitIntents.ACTION_TRANSACTION_FEE_UPDATE);
+        intent.putExtra(DropbitIntents.EXTRA_TRANSACTION_FEE, currentState.getFees());
         walletHelper.setLatestFee(currentState.getFees());
         localBroadCastUtil.sendBroadcast(intent);
     }
 
     private void notifyOfPrice(CurrentState currentState) {
         walletHelper.setLatestPrice(currentState.getLatestPrice());
-        Intent intent = new Intent(Intents.ACTION_BTC_PRICE_UPDATE);
-        intent.putExtra(Intents.EXTRA_BITCOIN_PRICE, walletHelper.getLatestPrice().toLong());
+        Intent intent = new Intent(DropbitIntents.ACTION_BTC_PRICE_UPDATE);
+        intent.putExtra(DropbitIntents.EXTRA_BITCOIN_PRICE, walletHelper.getLatestPrice().toLong());
         localBroadCastUtil.sendBroadcast(intent);
     }
 

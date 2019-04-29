@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.Activity;
-import android.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.view.fragment.AuthenticateFragment;
@@ -20,7 +20,7 @@ import java.util.List;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -83,7 +83,7 @@ public class AuthenticateActivityTest {
     public void showsAuthenticationFragmentWhenCreated() {
         activityController.create().start().resume().visible();
 
-        List<Fragment> fragments = activity.getFragmentManager().getFragments();
+        List<Fragment> fragments = activity.getSupportFragmentManager().getFragments();
         Fragment latestFragment = fragments.get(fragments.size() - 1);
         assertNotNull(latestFragment);
         assertThat(latestFragment.getClass().getCanonicalName(), equalTo(AuthenticateFragment.class.getCanonicalName()));
@@ -96,7 +96,7 @@ public class AuthenticateActivityTest {
 
         activity.onAuthenticated();
 
-        assertThat(shadowActivity.getResultCode(), equalTo(Activity.RESULT_OK));
+        assertThat(shadowActivity.getResultCode(), equalTo(AppCompatActivity.RESULT_OK));
         assertTrue(shadowActivity.isFinishing());
 
     }

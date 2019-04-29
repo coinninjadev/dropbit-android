@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
@@ -26,13 +27,13 @@
             <ImageView
                 android:layout_width="@dimen/training_drop_logo_width"
                 android:layout_height="@dimen/training_drop_logo_height"
-                android:src="@drawable/group_2_copy_3"
+                app:srcCompat="@drawable/group_2_copy_3"
                 android:layout_marginBottom="@dimen/training_dots_padding" />
 
             <ImageView
                 android:layout_width="@dimen/training_drop_background_width"
                 android:layout_height="@dimen/training_drop_background_height"
-                android:src="@drawable/pixel" />
+                app:srcCompat="@drawable/pixel" />
         </LinearLayout>
     </LinearLayout>
 

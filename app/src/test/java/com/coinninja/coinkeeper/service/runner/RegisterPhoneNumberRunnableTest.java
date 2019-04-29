@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.google.gson.Gson;
 
@@ -92,7 +92,7 @@ public class RegisterPhoneNumberRunnableTest {
         runner.run();
 
         verify(walletHelper, times(0)).saveAccountRegistration(any(), eq(CNPhoneNumber));
-        verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
+        verify(localBroadCast).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
 
     }
 
@@ -125,7 +125,7 @@ public class RegisterPhoneNumberRunnableTest {
 
         verify(walletHelper).saveAccountRegistration(cnUserAccount, null);
 
-        verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
+        verify(localBroadCast).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT);
 
     }
 
@@ -139,7 +139,7 @@ public class RegisterPhoneNumberRunnableTest {
 
         verify(walletHelper, times(0)).saveAccountRegistration(any(), eq(CNPhoneNumber));
 
-        verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
+        verify(localBroadCast).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
 
     }
 
@@ -163,7 +163,7 @@ public class RegisterPhoneNumberRunnableTest {
 
         runner.run();
 
-        verify(localBroadCast).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CODE_SENT);
+        verify(localBroadCast).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT);
     }
 
     private void setResponse(int successCode) {

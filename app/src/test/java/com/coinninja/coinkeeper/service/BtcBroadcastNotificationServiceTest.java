@@ -13,7 +13,7 @@ import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.Before;
@@ -31,7 +31,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
@@ -125,7 +125,7 @@ public class BtcBroadcastNotificationServiceTest {
         PendingIntent pendingIntent = notification.contentIntent;
         ShadowPendingIntent pi = shadowOf(pendingIntent);
         Intent intent = pi.getSavedIntent();
-        assertThat(intent.getExtras().getString(Intents.EXTRA_TRANSACTION_ID), equalTo("tx id 3"));
+        assertThat(intent.getExtras().getString(DropbitIntents.EXTRA_TRANSACTION_ID), equalTo("tx id 3"));
     }
 
     @Test

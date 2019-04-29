@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.transaction.details;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +29,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.android.helpers.Views.withId;
@@ -361,7 +361,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         assertThat(withId(page, R.id.button_cancel_dropbit), isInvisible());
     }
 
-    public static class A extends Activity {
+    public static class A extends AppCompatActivity {
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
             setTheme(R.style.CoinKeeperTheme_Dark_Toolbar);

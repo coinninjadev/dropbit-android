@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.adapter.RestoreWalletPageAdapter;
@@ -76,9 +76,9 @@ public class RestoreWalletActivity extends SecuredActivity {
     private void createPin() {
         Intent intent = new Intent(this, CreatePinActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putStringArray(Intents.EXTRA_RECOVERY_WORDS, recovery_words);
-        intent.putExtra(Intents.EXTRA_NEXT_BUNDLE, bundle);
-        intent.putExtra(Intents.EXTRA_NEXT, RecoverWalletActivity.class.getName());
+        bundle.putStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS, recovery_words);
+        intent.putExtra(DropbitIntents.EXTRA_NEXT_BUNDLE, bundle);
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, RecoverWalletActivity.class.getName());
         startActivity(intent);
     }
 

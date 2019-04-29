@@ -9,8 +9,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(qualifiers = "en-rUS")
@@ -30,7 +30,7 @@ public class CNPhoneNumberTest {
     }
 
     @Test
-    public void toPhoneNumber(){
+    public void toPhoneNumber() {
         assertThat(number.toPhoneNumber(), equalTo(phoneNumber));
     }
 

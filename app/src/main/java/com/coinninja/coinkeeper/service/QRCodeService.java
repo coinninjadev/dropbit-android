@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.service;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.file.FileOutputUtil;
 import com.coinninja.coinkeeper.util.file.FileProviderUtil;
@@ -34,11 +34,11 @@ public class QRCodeService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        String dataToEncode = intent.getStringExtra(Intents.EXTRA_TEMP_QR_SCAN);
+        String dataToEncode = intent.getStringExtra(DropbitIntents.EXTRA_TEMP_QR_SCAN);
 
         if (qrFileManager.createQrCode(dataToEncode)) {
-            Intent broadcastIntent = new Intent(Intents.ACTION_VIEW_QR_CODE);
-            broadcastIntent.putExtra(Intents.EXTRA_QR_CODE_LOCATION, qrFileManager.getSharableURI().toString());
+            Intent broadcastIntent = new Intent(DropbitIntents.ACTION_VIEW_QR_CODE);
+            broadcastIntent.putExtra(DropbitIntents.EXTRA_QR_CODE_LOCATION, qrFileManager.getSharableURI().toString());
             localBroadCastUtil.sendBroadcast(broadcastIntent);
         }
     }

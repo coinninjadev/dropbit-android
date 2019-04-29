@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.memo;
 
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -12,6 +11,7 @@ import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import static com.coinninja.android.helpers.Input.showKeyboard;
 import static com.coinninja.android.helpers.Views.withId;
@@ -25,12 +25,12 @@ public class MemoCreator {
     MemoCreator() {
     }
 
-    public void createMemo(@NonNull Activity activity, @NonNull OnMemoCreatedCallback callback, String text) {
+    public void createMemo(@NonNull AppCompatActivity activity, @NonNull OnMemoCreatedCallback callback, String text) {
         this.callback = callback;
         view = LayoutInflater.from(activity).inflate(R.layout.dialog_create_memo, null);
         genericAlertDialog = GenericAlertDialog.newInstance(view, false, false);
         genericAlertDialog.asWide();
-        genericAlertDialog.show(activity.getFragmentManager(), MemoCreator.class.getSimpleName());
+        genericAlertDialog.show(activity.getSupportFragmentManager(), MemoCreator.class.getSimpleName());
         EditText memoView = withId(view, R.id.memo);
         memoView.setText(text);
         memoView.setSelection(text.length());

@@ -7,30 +7,35 @@ import com.coinninja.coinkeeper.util.Keys;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.android.controller.FragmentController;
 import org.robolectric.annotation.Config;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.testing.FragmentScenario;
+import androidx.test.runner.AndroidJUnit4;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @Config(application = TestCoinKeeperApplication.class)
 public class KeyboardFragmentTest {
 
     private KeyboardFragment fragment;
     private KeyboardFragment.OnKeyPressListener listener;
+    private FragmentScenario scenario;
 
     @Before
     public void setUp() {
         listener = mock(KeyboardFragment.OnKeyPressListener.class);
-        FragmentController<KeyboardFragment> fragmentController = Robolectric.buildFragment(KeyboardFragment.class);
-        fragment = fragmentController.get();
-        fragmentController.create().start().resume().visible();
-
+        scenario = FragmentScenario.launchInContainer(KeyboardFragment.class);
+        scenario.onFragment(new FragmentScenario.FragmentAction<KeyboardFragment>() {
+            @Override
+            public void perform(@NonNull KeyboardFragment instance) {
+                fragment = instance;
+            }
+        });
     }
 
     @Test

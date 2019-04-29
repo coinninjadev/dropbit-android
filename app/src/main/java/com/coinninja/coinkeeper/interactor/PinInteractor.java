@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.interactor;
 
-import com.coinninja.coinkeeper.model.helpers.SavePinTask;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.util.Hasher;
 
@@ -9,16 +8,14 @@ import javax.inject.Inject;
 public class PinInteractor {
     private static final String TAG = PinInteractor.class.getSimpleName();
     private final UserHelper userHelper;
-    private SavePinTask savePinTask;
 
     @Inject
-    public PinInteractor(UserHelper userHelper, SavePinTask savePinTask) {
+    public PinInteractor(UserHelper userHelper) {
         this.userHelper = userHelper;
-        this.savePinTask = savePinTask;
     }
 
-    public void savePin(String pin) {
-        savePinTask.execute(pin);
+    void savePin(String pin) {
+        userHelper.savePin(pin);
     }
 
 

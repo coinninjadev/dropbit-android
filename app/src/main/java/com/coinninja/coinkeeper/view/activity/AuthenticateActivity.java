@@ -1,8 +1,5 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 
 import com.coinninja.coinkeeper.R;
@@ -10,6 +7,10 @@ import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.fragment.AuthenticateFragment;
 
 import javax.inject.Inject;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 public class AuthenticateActivity extends SecuredActivity {
 
@@ -42,13 +43,13 @@ public class AuthenticateActivity extends SecuredActivity {
     }
 
     private void replaceFragment(Fragment currentFragment) {
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.authenticate_frame, currentFragment);
         fragmentTransaction.commit();
     }
 
     public void onAuthenticated() {
-        setResult(Activity.RESULT_OK);
+        setResult(AppCompatActivity.RESULT_OK);
         finish();
     }
 }
