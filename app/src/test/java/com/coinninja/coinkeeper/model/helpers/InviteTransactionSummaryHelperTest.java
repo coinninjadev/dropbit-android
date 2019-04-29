@@ -163,14 +163,14 @@ public class InviteTransactionSummaryHelperTest {
 
         orderedOperations.verify(inviteTransactionSummary).setBtcTransactionId(txid);
         orderedOperations.verify(inviteTransactionSummary).setBtcState(BTCState.FULFILLED);
+        orderedOperations.verify(inviteTransactionSummary).update();
         orderedOperations.verify(transactionsInvitesSummary).setInviteTxID(txid);
         orderedOperations.verify(transactionsInvitesSummary).setTransactionTxID(txid);
-        orderedOperations.verify(transactionsInvitesSummary).setTransactionSummary(transactionSummary);
         orderedOperations.verify(transactionsInvitesSummary).setInviteTime(0L);
         orderedOperations.verify(transactionsInvitesSummary).setBtcTxTime(currentTimeMillis);
-
-        orderedOperations.verify(inviteTransactionSummary).update();
         orderedOperations.verify(transactionsInvitesSummary).update();
+        orderedOperations.verify(transactionsInvitesSummary).setTransactionSummary(transactionSummary);
+
     }
 
     private PendingInviteDTO createPendingInviteDTO() {
