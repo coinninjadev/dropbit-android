@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.dialog;
 
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
@@ -11,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import androidx.appcompat.app.AlertDialog;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

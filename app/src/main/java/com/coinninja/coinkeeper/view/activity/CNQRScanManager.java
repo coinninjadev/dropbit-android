@@ -1,12 +1,13 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import com.coinninja.coinkeeper.qrscanner.QRScanManager;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import javax.inject.Inject;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 class CNQRScanManager {
 
@@ -17,7 +18,7 @@ class CNQRScanManager {
 
     }
 
-    public void initializeFromIntent(Activity activity, DecoratedBarcodeView barcodeScannerView, QRScanManager.OnScanListener onScanComplete, Bundle savedInstanceState) {
+    public void initializeFromIntent(AppCompatActivity activity, DecoratedBarcodeView barcodeScannerView, QRScanManager.OnScanListener onScanComplete, Bundle savedInstanceState) {
         qrScanManager = new QRScanManager(activity, barcodeScannerView, onScanComplete);
         qrScanManager.initializeFromIntent(activity.getIntent(), savedInstanceState);
     }

@@ -1,12 +1,16 @@
 package com.coinninja.coinkeeper.ui.transaction.details;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
@@ -14,7 +18,7 @@ import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
@@ -30,14 +34,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 
-import androidx.annotation.Nullable;
-
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtraWithKey;
 import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.android.helpers.Views.withId;
-import static com.coinninja.matchers.ActivityMatchers.serviceWithIntentStarted;
 import static com.coinninja.matchers.ConfirmationViewMatcher.configuredForDropbit;
 import static com.coinninja.matchers.ConfirmationViewMatcher.stageIs;
 import static com.coinninja.matchers.ImageViewMatchers.hasContentDescription;
@@ -55,7 +58,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class TransactionDetailPageAdapterTest__SendDropBit {
 
     @Mock
@@ -73,11 +76,16 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
     @InjectMocks
     private TransactionDetailPageAdapter adapter;
     private A activity;
+    private ActivityScenario<A> scenario;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        activity = Robolectric.setupActivity(A.class);
+        scenario = ActivityScenario.launch(A.class);
+        scenario.onActivity(a -> {
+            activity = a;
+        });
+
         page = withId(activity, R.id.page);
         when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(0L));
@@ -105,6 +113,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         adapter = null;
         transaction = null;
         transactions = null;
+        scenario.close();
     }
 
     @Test
@@ -474,10 +483,10 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         withId(page, R.id.button_cancel_dropbit).performClick();
 
-        Intent intent = new Intent(activity, DropBitService.class);
-        intent.setAction(Intents.ACTION_CANCEL_DROPBIT);
-        intent.putExtra(Intents.EXTRA_INVITATION_ID, inviteId);
-        assertThat(activity, serviceWithIntentStarted(intent));
+        Intents.intending(hasAction(DropbitIntents.ACTION_CANCEL_DROPBIT));
+        Intents.intending(hasComponent(DropBitService.class.getName()));
+        Intents.intending(hasExtraWithKey(DropbitIntents.EXTRA_INVITATION_ID));
+        Intents.intending(hasExtra(DropbitIntents.EXTRA_INVITATION_ID, inviteId));
     }
 
     @Test
@@ -487,7 +496,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         assertThat(withId(page, R.id.call_to_action), isInvisible());
     }
 
-    public static class A extends Activity {
+    public static class A extends AppCompatActivity {
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
             setTheme(R.style.CoinKeeperTheme_Dark_Toolbar);

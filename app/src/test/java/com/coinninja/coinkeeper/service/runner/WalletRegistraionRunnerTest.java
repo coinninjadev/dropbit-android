@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.receiver.WalletRegistrationCompleteReceiver;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.google.gson.Gson;
 
@@ -83,7 +83,7 @@ public class WalletRegistraionRunnerTest {
         runner.run();
 
         verify(localBroadCastUtil).sendGlobalBroadcast(eq(WalletRegistrationCompleteReceiver.class),
-                eq(Intents.ACTION_WALLET_REGISTRATION_COMPLETE));
+                eq(DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE));
 
     }
 
@@ -94,7 +94,7 @@ public class WalletRegistraionRunnerTest {
         runner.run();
 
         verify(localBroadCastUtil).sendGlobalBroadcast(eq(WalletRegistrationCompleteReceiver.class),
-                eq(Intents.ACTION_WALLET_REGISTRATION_COMPLETE));
+                eq(DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE));
     }
 
     @Test

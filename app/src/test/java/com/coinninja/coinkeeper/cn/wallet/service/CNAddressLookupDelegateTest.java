@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.Hasher;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.google.i18n.phonenumbers.NumberParseException;
@@ -100,8 +100,8 @@ public class CNAddressLookupDelegateTest {
     public void invokes_callback_when_fetching_via_contact() {
         cnAddressLookupDelegate.fetchAddressFor(contact, callback);
         AddressLookupResult result = new AddressLookupResult("hash", "address", "pubkey");
-        Intent intent = new Intent(Intents.ACTION_WALLET_ADDRESS_RETRIEVED);
-        intent.putExtra(Intents.EXTRA_ADDRESS_LOOKUP_RESULT, result);
+        Intent intent = new Intent(DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED);
+        intent.putExtra(DropbitIntents.EXTRA_ADDRESS_LOOKUP_RESULT, result);
 
         cnAddressLookupDelegate.onReceive(mock(Context.class), intent);
 
@@ -113,8 +113,8 @@ public class CNAddressLookupDelegateTest {
         PhoneNumber phoneNumber = new PhoneNumber("+13305551111");
         cnAddressLookupDelegate.fetchAddressFor(phoneNumber, callback);
         AddressLookupResult result = new AddressLookupResult("hash", "address", "pubkey");
-        Intent intent = new Intent(Intents.ACTION_WALLET_ADDRESS_RETRIEVED);
-        intent.putExtra(Intents.EXTRA_ADDRESS_LOOKUP_RESULT, result);
+        Intent intent = new Intent(DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED);
+        intent.putExtra(DropbitIntents.EXTRA_ADDRESS_LOOKUP_RESULT, result);
 
         cnAddressLookupDelegate.onReceive(mock(Context.class), intent);
 

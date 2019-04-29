@@ -20,7 +20,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:padding="23dp"
-        android:src="@drawable/ic_close_light" />
+        app:srcCompat="@drawable/ic_close_light" />
 
     <RelativeLayout
         android:id="@+id/training_footer"

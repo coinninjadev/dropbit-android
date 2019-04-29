@@ -3,12 +3,18 @@ package com.coinninja.coinkeeper.view.activity;
 import android.os.Bundle;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.animation.StartScreenAnimation;
+
+import javax.inject.Inject;
 
 public class StartActivity extends SecuredActivity {
 
     private StartScreenAnimation startScreenAnimation;
+
+    @Inject
+    CNWalletManager cnWalletManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,7 @@ public class StartActivity extends SecuredActivity {
     }
 
     private void gotoRestoreWalletActivity() {
+        cnWalletManager.createWallet();
         navigateTo(RestoreWalletActivity.class);
     }
 }

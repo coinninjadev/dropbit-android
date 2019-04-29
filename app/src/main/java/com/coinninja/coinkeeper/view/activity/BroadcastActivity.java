@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,7 +18,7 @@ import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
@@ -29,6 +28,7 @@ import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import static com.coinninja.coinkeeper.util.analytics.Analytics.EVENT_TRANSACTION_RETRY;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
@@ -107,8 +107,8 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         transactionIdLink = findViewById(R.id.transaction_id_link);
         transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
-        if (getIntent().hasExtra(Intents.EXTRA_BROADCAST_DTO)) {
-            broadcastDTO = getIntent().getParcelableExtra(Intents.EXTRA_BROADCAST_DTO);
+        if (getIntent().hasExtra(DropbitIntents.EXTRA_BROADCAST_DTO)) {
+            broadcastDTO = getIntent().getParcelableExtra(DropbitIntents.EXTRA_BROADCAST_DTO);
         }
     }
 
@@ -200,12 +200,12 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
 
     private void finalizeTransaction(CompletedBroadcastDTO completedBroadcastActivityDTO) {
         Intent serviceIntent = new Intent(this, BroadcastTransactionService.class);
-        serviceIntent.putExtra(Intents.EXTRA_COMPLETED_BROADCAST_DTO, completedBroadcastActivityDTO);
+        serviceIntent.putExtra(DropbitIntents.EXTRA_COMPLETED_BROADCAST_DTO, completedBroadcastActivityDTO);
         startService(serviceIntent);
     }
 
     private void exploreBlock(Context context, String record) {
-        UriUtil.openUrl(coinNinjaUriBuilder.build(TRANSACTION, record), (Activity) context);
+        UriUtil.openUrl(coinNinjaUriBuilder.build(TRANSACTION, record), (AppCompatActivity) context);
     }
 
     enum SendState {

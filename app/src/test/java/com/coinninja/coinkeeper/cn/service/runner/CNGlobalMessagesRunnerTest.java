@@ -9,7 +9,7 @@ import com.coinninja.coinkeeper.service.client.CNElasticSearch;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNGlobalMessage;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 
@@ -70,7 +70,7 @@ public class CNGlobalMessagesRunnerTest {
     @Test
     public void use_saved_pref_value_to_query_for_servers_test() {
         long sampleLastSeenMessagePublishedTime = 1539035083519l;
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
         setUpGoodResponse();
 
         cnGlobalMessagesRunner.run();
@@ -81,7 +81,7 @@ public class CNGlobalMessagesRunnerTest {
     @Test
     public void use_no_pref_value_to_query_for_servers_when_pref_is_0_test() {
         long sampleLastSeenMessagePublishedTime = 0l;
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
         setUpGoodResponse();
 
         cnGlobalMessagesRunner.run();
@@ -91,7 +91,7 @@ public class CNGlobalMessagesRunnerTest {
 
     @Test
     public void add_all_messages_to_notification_test() {
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(0l);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(0l);
         setUpGoodResponse();
 
         cnGlobalMessagesRunner.run();
@@ -101,7 +101,7 @@ public class CNGlobalMessagesRunnerTest {
 
     @Test
     public void add_missing_http_to_url_from_server_test() {
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(0l);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(0l);
         setUpGoodResponseMissing_http();
 
         cnGlobalMessagesRunner.run();
@@ -111,7 +111,7 @@ public class CNGlobalMessagesRunnerTest {
 
     @Test
     public void log_error_do_not_try_to_add_messages_test() {
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(0l);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(0l);
         Response badResponse = getBadResponse(401);
         when(mockClient.getCNMessages(mockCNElasticSearch)).thenReturn(badResponse);
 
@@ -124,18 +124,18 @@ public class CNGlobalMessagesRunnerTest {
     @Test
     public void save_latest_cn_messages_publish_time_to_shared_pref_test() {
         long sampleLastSeenMessagePublishedTime = 0l;
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
         setUpGoodResponse();
 
         cnGlobalMessagesRunner.run();
 
-        verify(mockPreferencesUtil).savePreference(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 6);
+        verify(mockPreferencesUtil).savePreference(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 6);
     }
 
     @Test
     public void set_time_to_cn_elastic_search_test() {
         long sampleLastSeenMessagePublishedTime = 1000l;
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
         setUpGoodResponse();
 
         cnGlobalMessagesRunner.run();
@@ -147,7 +147,7 @@ public class CNGlobalMessagesRunnerTest {
     public void do_not_set_time_to_cn_elastic_search_is_pref_is_0_test() {
         long sampleLastSeenMessagePublishedTime = 0l;
         setUpGoodResponse();
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, Intents.PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME)).thenReturn(sampleLastSeenMessagePublishedTime);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME)).thenReturn(sampleLastSeenMessagePublishedTime);
 
         cnGlobalMessagesRunner.run();
 
@@ -157,12 +157,12 @@ public class CNGlobalMessagesRunnerTest {
     @Test
     public void save_latest_cn_messages_publish_time_to_shared_pref_only_if_higher_value_test() {
         long sampleLastSeenMessagePublishedTime = 100l;
-        when(mockPreferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
+        when(mockPreferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 0)).thenReturn(sampleLastSeenMessagePublishedTime);
         setUpGoodResponse();
 
         cnGlobalMessagesRunner.run();
 
-        verify(mockPreferencesUtil).savePreference(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, 100);
+        verify(mockPreferencesUtil).savePreference(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, 100);
     }
 
     @Test

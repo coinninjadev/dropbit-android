@@ -31,6 +31,6 @@ public class AddressDTOTest {
 
     @Test
     public void test_display_derivation_path() {
-        assertEquals(addressDTO.getDerivationPathString(), "M/49'/0'/0'/0/44");
+        assertEquals(addressDTO.getDerivationPath(), "M/49/0/0/0/44");
     }
 }

@@ -9,31 +9,21 @@ import androidx.annotation.NonNull;
 public class UserHelper {
 
     private final DaoSessionManager daoSessionManager;
-    private WalletHelper walletHelper;
 
     @Inject
-    public UserHelper(@NonNull DaoSessionManager daoSessionManager, WalletHelper walletHelper) {
+    public UserHelper(@NonNull DaoSessionManager daoSessionManager) {
         this.daoSessionManager = daoSessionManager;
-        this.walletHelper = walletHelper;
-    }
-
-    public User createFirstUser() {
-        User user = new User();
-        daoSessionManager.getUserDao().insert(user);
-        daoSessionManager.attach(user);
-        daoSessionManager.createWallet(user);
-        return user;
     }
 
     public void savePin(String pin) {
         User user = getUser();
-        user.refresh();
         user.setPin(pin);
         user.update();
     }
 
     public String getPin() {
-        return getUser().getPin();
+        User user = getUser();
+        return user == null ? null : user.getPin();
     }
 
     public User getUser() {
@@ -48,13 +38,6 @@ public class UserHelper {
 
     public long getLockedUntilTime() {
         return getUser().getLockedUntilTime();
-    }
-
-    public boolean hasCompletedTraining() {
-        if (getUser() != null) {
-            return getUser().getCompletedTraining();
-        }
-        return false;
     }
 
     public void setCompletedTraining(boolean completedTraining) {

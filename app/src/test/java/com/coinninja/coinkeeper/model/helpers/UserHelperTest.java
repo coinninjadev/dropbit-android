@@ -66,7 +66,7 @@ public class UserHelperTest {
         when(query.unique()).thenReturn(user);
         when(user.getWallets()).thenReturn(wallets);
         when(walletHelper.getWallet()).thenReturn(wallet);
-        userHelper = new UserHelper(daoSessionManager, walletHelper);
+        userHelper = new UserHelper(daoSessionManager);
     }
 
     @Test
@@ -89,43 +89,5 @@ public class UserHelperTest {
         userHelper.getPin();
 
         assertThat(userHelper.getPin(), equalTo(pin));
-    }
-
-    @Test
-    public void create_new_user_test() {
-        ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
-
-        userHelper.createFirstUser();
-
-        verify(userDao).insert(argumentCaptor.capture());
-        User user = argumentCaptor.getValue();
-        verify(daoSessionManager).createWallet(user);
-    }
-
-    @Test
-    public void user_has_completed_training_screens_test() {
-        when(user.getCompletedTraining()).thenReturn(true);
-
-        boolean hasCompletedTraining = userHelper.hasCompletedTraining();
-
-        assertThat(hasCompletedTraining, equalTo(true));
-    }
-
-    @Test
-    public void user_has_NOT_completed_training_screens_test() {
-        when(user.getCompletedTraining()).thenReturn(false);
-
-        boolean hasCompletedTraining = userHelper.hasCompletedTraining();
-
-        assertThat(hasCompletedTraining, equalTo(false));
-    }
-
-    @Test
-    public void user_object_null_while_asking_about_training_screens_test() {
-        when(query.unique()).thenReturn(null);
-
-        boolean hasCompletedTraining = userHelper.hasCompletedTraining();
-
-        assertThat(hasCompletedTraining, equalTo(false));
     }
 }

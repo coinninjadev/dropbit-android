@@ -1,19 +1,17 @@
 package com.coinninja.coinkeeper.view.fragment;
 
-import android.app.AlertDialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
@@ -32,10 +30,10 @@ import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.MerchantPaymentRequestOutput;
 import com.coinninja.coinkeeper.service.client.model.MerchantResponse;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
+import com.coinninja.coinkeeper.ui.base.BaseBottomDialogFragment;
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
@@ -47,6 +45,7 @@ import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.PickContactActivity;
 import com.coinninja.coinkeeper.view.activity.QrScanActivity;
+import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView;
@@ -57,15 +56,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-
-import static android.app.Activity.RESULT_CANCELED;
-import static android.app.Activity.RESULT_OK;
+import static androidx.appcompat.app.AppCompatActivity.RESULT_CANCELED;
+import static androidx.appcompat.app.AppCompatActivity.RESULT_OK;
 import static com.coinninja.android.helpers.Views.shakeInError;
 import static com.coinninja.android.helpers.Views.withId;
 
-public class PayDialogFragment extends BaseDialogFragment {
-    public static final int PICK_CONTACT_REQUEST = 100001;
+public class PayDialogFragment extends BaseBottomDialogFragment {
+    public static final int PICK_CONTACT_REQUEST = 1001;
 
     @Inject
     CNAddressLookupDelegate cnAddressLookupDelegate;
@@ -78,7 +75,7 @@ public class PayDialogFragment extends BaseDialogFragment {
     @Inject
     ClipboardUtil clipboardUtil;
     @Inject
-    UserPreferences preferenceInteractor;
+    UserPreferences userPreferences;
     @Inject
     CoinKeeperApplication application;
     @Inject
@@ -124,26 +121,25 @@ public class PayDialogFragment extends BaseDialogFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PayDialogFragment.PICK_CONTACT_REQUEST && resultCode == RESULT_OK) {
             onPickContactResult(data);
-        } else if (requestCode == Intents.REQUEST_QR_FRAGMENT_SCAN && resultCode == RESULT_CANCELED) {
+        } else if (requestCode == DropbitIntents.REQUEST_QR_FRAGMENT_SCAN && resultCode == RESULT_CANCELED) {
             onCloseClicked();
-        } else if (requestCode == Intents.REQUEST_QR_FRAGMENT_SCAN) {
+        } else if (requestCode == DropbitIntents.REQUEST_QR_FRAGMENT_SCAN) {
             onQrScanResult(resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    @Nullable
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_pay_dialog, container, false);
-        memoToggleView.render(getActivity(), view);
-        return view;
+    protected int getContentViewLayoutId() {
+        return R.layout.fragment_pay_dialog;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        memoToggleView.render((AppCompatActivity) getActivity(), getView());
         paymentInputView.requestFocus();
     }
 
@@ -164,18 +160,7 @@ public class PayDialogFragment extends BaseDialogFragment {
         super.onDetach();
         memoToggleView.tearDown();
         paymentUtil.reset();
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_Dialog);
-    }
-
-    @Override
-    public void onDismiss(DialogInterface dialog) {
         cnAddressLookupDelegate.teardown();
-        super.onDismiss(dialog);
     }
 
     @Override
@@ -226,7 +211,7 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     void startContactInviteFlow(Contact pickedContact) {
-        if (preferenceInteractor.getShouldShowInviteHelp()) {
+        if (userPreferences.getShouldShowInviteHelp()) {
             showInviteHelpScreen(pickedContact);
         } else {
             inviteContact(pickedContact);
@@ -264,12 +249,11 @@ public class PayDialogFragment extends BaseDialogFragment {
 
     }
 
-    protected void showError(String message) {
-        AlertDialogBuilder.build(getActivity(), message)
-                .show();
+    private void showError(String message) {
+        GenericAlertDialog.newInstance(message).show(getActivity().getSupportFragmentManager(), "INVALID_PAYMENT");
     }
 
-    protected void onPasteClicked() {
+    void onPasteClicked() {
         String cryptoUriString = clipboardUtil.getRaw();
         if (cryptoUriString == null || cryptoUriString.isEmpty()) {
             String reason = getString(R.string.clipboard_empty_error_message);
@@ -280,7 +264,7 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void onPickContactResult(Intent data) {
-        Contact contact = data.getExtras().getParcelable(Intents.EXTRA_CONTACT);
+        Contact contact = data.getExtras().getParcelable(DropbitIntents.EXTRA_CONTACT);
         setContactResult(contact);
     }
 
@@ -405,7 +389,7 @@ public class PayDialogFragment extends BaseDialogFragment {
 
     private void startScan() {
         Intent qrScanIntent = new Intent(getActivity(), QrScanActivity.class);
-        startActivityForResult(qrScanIntent, Intents.REQUEST_QR_FRAGMENT_SCAN);
+        startActivityForResult(qrScanIntent, DropbitIntents.REQUEST_QR_FRAGMENT_SCAN);
     }
 
     private void setMemoOnPayment() {
@@ -428,7 +412,7 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void showInviteHelpScreen(Contact contact) {
-        DialogFragment dialogFragment = InviteHelpDialogFragment.newInstance(preferenceInteractor,
+        DialogFragment dialogFragment = InviteHelpDialogFragment.newInstance(userPreferences,
                 contact,
                 () -> onInviteHelpAccepted(contact));
 
@@ -474,8 +458,8 @@ public class PayDialogFragment extends BaseDialogFragment {
     }
 
     private void onQrScanResult(int resultCode, Intent data) {
-        if (resultCode == Intents.RESULT_SCAN_OK) {
-            String cryptoUriString = data.getStringExtra(Intents.EXTRA_SCANNED_DATA);
+        if (resultCode == DropbitIntents.RESULT_SCAN_OK) {
+            String cryptoUriString = data.getStringExtra(DropbitIntents.EXTRA_SCANNED_DATA);
             onCryptoStringReceived(cryptoUriString);
         }
     }
@@ -513,7 +497,7 @@ public class PayDialogFragment extends BaseDialogFragment {
             return;
         }
 
-        progressSpinner = AlertDialogBuilder.buildIndefiniteProgress(getActivity());
+        progressSpinner = AlertDialogBuilder.buildIndefiniteProgress((AppCompatActivity) getActivity());
         bip70Client.getMerchantInformation(bip70Uri, bip70Callback);
     }
 

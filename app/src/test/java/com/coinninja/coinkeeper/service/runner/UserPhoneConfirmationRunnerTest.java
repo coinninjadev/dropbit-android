@@ -5,7 +5,7 @@ import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.google.gson.Gson;
@@ -107,7 +107,7 @@ public class UserPhoneConfirmationRunnerTest {
 
         runner.run();
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class UserPhoneConfirmationRunnerTest {
 
         runner.run();
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class UserPhoneConfirmationRunnerTest {
 
         runner.run();
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__INVALID_CODE);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__INVALID_CODE);
     }
 
     @Test
@@ -143,14 +143,14 @@ public class UserPhoneConfirmationRunnerTest {
 
         runner.run();
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
     }
 
     @Test
     public void broadcasts_successful_account_creation() {
         runner.run();
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__SUCCESS);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS);
     }
 
     @Test

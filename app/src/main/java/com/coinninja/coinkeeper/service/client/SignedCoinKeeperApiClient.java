@@ -16,10 +16,10 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import retrofit2.Response;
 
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_APPLICATION_KEY;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_APPLICATION_NAME;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_PLATFORM_KEY;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_UUID_KEY;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_APPLICATION_KEY;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_APPLICATION_NAME;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_PLATFORM_KEY;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_UUID_KEY;
 
 public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
 

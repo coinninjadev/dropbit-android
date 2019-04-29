@@ -41,7 +41,7 @@ public class NotificationUtilTest {
         localNotificationUtil.dispatchInternalError(message);
 
         verify(internalNotificationHelper).addNotifications(InternalNotificationPriority._0_HIGHEST, null, message, MessageLevel.ERROR);
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class NotificationUtilTest {
 
         localNotificationUtil.dispatchInternal(message);
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
     }
 
     @Test

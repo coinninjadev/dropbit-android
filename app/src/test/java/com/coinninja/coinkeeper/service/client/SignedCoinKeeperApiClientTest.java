@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.service.client;
 
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
-import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNDeviceEndpoint;
@@ -41,14 +40,14 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_APPLICATION_KEY;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_APPLICATION_NAME;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_PLATFORM_KEY;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_UUID_KEY;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_APPLICATION_KEY;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_APPLICATION_NAME;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_PLATFORM_KEY;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_UUID_KEY;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -201,8 +200,8 @@ public class SignedCoinKeeperApiClientTest {
                 "  \"query\": {" +
                 "    \"terms\": {" +
                 "      \"phone_number_hash\": [" +
-                "        \"" + contact1Hash +"\"," +
-                "        \"" + contact2Hash +"\"" +
+                "        \"" + contact1Hash + "\"," +
+                "        \"" + contact2Hash + "\"" +
                 "      ]" +
                 "    }" +
                 "  }" +

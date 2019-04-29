@@ -8,13 +8,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
 import com.coinninja.coinkeeper.service.SaveInviteService;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
@@ -22,8 +24,6 @@ import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
 
 public class InviteSendActivity extends SecuredActivity implements InviteContactPresenter.View {
     public static final String RATE_LIMIT_DROPBIT_FRAGMENT_TAG = "EXPIRED_CODE_FRAGMENT_TAG";
@@ -38,45 +38,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
     SendingProgressView sendingProgressView;
     PendingInviteDTO pendingInviteDTO;
     SendState sendState = SendState.INIT;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_broadcast);
-        sendingProgressView = findViewById(R.id.broadcast_sending_progress);
-        pendingInviteDTO = getIntent().getParcelableExtra(Intents.EXTRA_INVITE_DTO);
-        onRestoreInstanceState(savedInstanceState);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        switch (sendState) {
-            case INIT:
-                showInitTransaction();
-                startInviteContact();
-                break;
-            case COMPLETED_SUCCESS:
-                showSuccessUI();
-                break;
-            case COMPLETED_FAILED:
-                showFailureInviteUI();
-                break;
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putInt(RESTORE_STATE, sendState.value);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState == null) { return; }
-        super.onRestoreInstanceState(savedInstanceState);
-        sendState = (SendState) savedInstanceState.get(RESTORE_STATE);
-    }
 
     public void showInitTransaction() {
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
@@ -100,11 +61,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         transactionIdLink.setOnClickListener(null);
         transactionIdIcon.setOnClickListener(null);
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-    }
-
-    private void startInviteContact() {
-        invitePresenter.attachView(this);
-        invitePresenter.requestInvite(pendingInviteDTO);
     }
 
     public void showFailureInviteUI() {
@@ -136,11 +92,75 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         showFailureInviteUI();
         reportFail();
 
-        if (Intents.ACTION_DROPBIT__ERROR_RATE_LIMIT.equals(dropBitActionError)) {
+        if (DropbitIntents.ACTION_DROPBIT__ERROR_RATE_LIMIT.equals(dropBitActionError)) {
             onRateLimitError();
-        } else if (Intents.ACTION_DROPBIT__ERROR_UNKNOWN.equals(dropBitActionError)) {
+        } else if (DropbitIntents.ACTION_DROPBIT__ERROR_UNKNOWN.equals(dropBitActionError)) {
             onUnknownError();
         }
+    }
+
+    @Override
+    public void showInviteSuccessful(InvitedContact inviteContact) {
+        sendState = SendState.COMPLETED_SUCCESS;
+        saveInvite(inviteContact);
+        showSuccessUI();
+        reportSuccessful();
+    }
+
+    @Override
+    public void showProgress(int progress) {
+        sendingProgressView.setProgress(progress);
+    }
+
+    public void onRetryClicked() {
+        showInitTransaction();
+        startInviteContact();
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_broadcast);
+        sendingProgressView = findViewById(R.id.broadcast_sending_progress);
+        pendingInviteDTO = getIntent().getParcelableExtra(DropbitIntents.EXTRA_INVITE_DTO);
+        onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        switch (sendState) {
+            case INIT:
+                showInitTransaction();
+                startInviteContact();
+                break;
+            case COMPLETED_SUCCESS:
+                showSuccessUI();
+                break;
+            case COMPLETED_FAILED:
+                showFailureInviteUI();
+                break;
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return;
+        }
+        super.onRestoreInstanceState(savedInstanceState);
+        sendState = (SendState) savedInstanceState.get(RESTORE_STATE);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(RESTORE_STATE, sendState.value);
+    }
+
+    private void startInviteContact() {
+        invitePresenter.attachView(this);
+        invitePresenter.requestInvite(pendingInviteDTO);
     }
 
     private void onRateLimitError() {
@@ -156,7 +176,7 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
                 false
         );
 
-        alertDialog.show(getFragmentManager(), RATE_LIMIT_DROPBIT_FRAGMENT_TAG);
+        alertDialog.show(getSupportFragmentManager(), RATE_LIMIT_DROPBIT_FRAGMENT_TAG);
     }
 
     private void showErrorRetryButton() {
@@ -171,14 +191,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     private void onUnknownError() {
         showErrorRetryButton();
-    }
-
-    @Override
-    public void showInviteSuccessful(InvitedContact inviteContact) {
-        sendState = SendState.COMPLETED_SUCCESS;
-        saveInvite(inviteContact);
-        showSuccessUI();
-        reportSuccessful();
     }
 
     private void showSuccessUI() {
@@ -210,18 +222,8 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     private void saveInvite(InvitedContact invitedContact) {
         Intent intent = new Intent(this, SaveInviteService.class);
-        intent.putExtra(Intents.EXTRA_COMPLETED_INVITE_DTO, new CompletedInviteDTO(pendingInviteDTO, invitedContact));
+        intent.putExtra(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO, new CompletedInviteDTO(pendingInviteDTO, invitedContact));
         startService(intent);
-    }
-
-    public void onRetryClicked() {
-        showInitTransaction();
-        startInviteContact();
-    }
-
-    @Override
-    public void showProgress(int progress) {
-        sendingProgressView.setProgress(progress);
     }
 
     enum SendState {
@@ -233,16 +235,16 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
             this.value = value;
         }
 
-        public int getValue() {
-            return value;
-        }
-
         public static SendState valueOf(int value) {
             for (SendState sendState : SendState.values()) {
                 if (sendState.getValue() == value) return sendState;
             }
 
             return SendState.INIT;
+        }
+
+        public int getValue() {
+            return value;
         }
     }
 }

@@ -54,13 +54,16 @@ public class IncomingInviteResponder implements Runnable {
 
         InviteTransactionSummary invite;
         String address;
+        String pubkey;
+        AddressDTO addressDTO;
 
         for (int i = 0; i < invites.size(); i++) {
             invite = invites.get(i);
             address = addresses.get(i % addresses.size());
+            addressDTO = unusedAddressesToPubKey.get(address);
+            pubkey = addressDTO.getUncompressedPublicKey();
 
-            CNWalletAddress cnAddress = postAddress(address, invite, unusedAddressesToPubKey.get(address).getWrappedAddress().getAddress());
-
+            CNWalletAddress cnAddress = postAddress(address, invite, pubkey);
             if (cnAddress != null) {
                 analytics.trackEvent(Analytics.EVENT_DROPBIT_ADDRESS_PROVIDED);
                 transactionHelper.updateInviteAddressTransaction(invite.getServerId(), address);

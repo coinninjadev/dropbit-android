@@ -1,11 +1,8 @@
 package com.coinninja.android.helpers;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Vibrator;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -15,14 +12,14 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 
 import androidx.annotation.Nullable;
-
-import static com.coinninja.android.helpers.Resources.scaleValue;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class Views {
 
 
     @SuppressWarnings("unchecked")
-    public static <T extends View> T withId(Activity activity, int resourceId) {
+    public static <T extends View> T withId(AppCompatActivity activity, int resourceId) {
         return (T) activity.findViewById(resourceId);
     }
 

@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.viewpager.widget.ViewPager;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.adapter.SeedWordsPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
 import org.junit.After;
@@ -22,14 +24,11 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
-import androidx.viewpager.widget.ViewPager;
-
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestCoinKeeperApplication.class)
@@ -61,7 +60,7 @@ public class BackupActivityTest {
 
         activity.showNextActivity();
 
-        verify(activityNavigationUtil).navigateToVerifyRecoveryWords(activity, words, Intents.EXTRA_CREATE);
+        verify(activityNavigationUtil).navigateToVerifyRecoveryWords(activity, words, DropbitIntents.EXTRA_CREATE);
     }
 
     @Test
@@ -70,7 +69,7 @@ public class BackupActivityTest {
 
         activity.showNextActivity();
 
-        verify(activityNavigationUtil).navigateToVerifyRecoveryWords(activity, words, Intents.EXTRA_BACKUP);
+        verify(activityNavigationUtil).navigateToVerifyRecoveryWords(activity, words, DropbitIntents.EXTRA_BACKUP);
     }
 
     @Test
@@ -175,13 +174,13 @@ public class BackupActivityTest {
 
     private void start(boolean hasWallet, boolean didSkip) {
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_RECOVERY_WORDS, words);
+        intent.putExtra(DropbitIntents.EXTRA_RECOVERY_WORDS, words);
         if (hasWallet && didSkip) {
-            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_BACKUP);
+            intent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, DropbitIntents.EXTRA_BACKUP);
         } else if (hasWallet) {
-            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_VIEW);
+            intent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, DropbitIntents.EXTRA_VIEW);
         } else {
-            intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_CREATE);
+            intent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, DropbitIntents.EXTRA_CREATE);
         }
         ActivityController<BackupActivity> backupActivityActivityController = Robolectric.buildActivity(BackupActivity.class, intent).newIntent(intent).create();
 

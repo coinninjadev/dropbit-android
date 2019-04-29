@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.subviews;
 
-import android.app.Activity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,6 +10,8 @@ import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import static com.coinninja.android.helpers.Views.makeViewGone;
 import static com.coinninja.android.helpers.Views.makeViewVisible;
 import static com.coinninja.android.helpers.Views.withId;
@@ -19,7 +20,7 @@ public class SharedMemoToggleView implements ActivityViewType {
 
     private ActivityNavigationUtil activityNavigationUtil;
     private MemoCreator memoCreator;
-    private Activity activity;
+    private AppCompatActivity activity;
     private View view;
     private TextView memoView;
     private ImageView shareToggleButton;
@@ -33,7 +34,7 @@ public class SharedMemoToggleView implements ActivityViewType {
     }
 
     @Override
-    public void render(Activity activity, View rootView) {
+    public void render(AppCompatActivity activity, View rootView) {
         this.activity = activity;
         view = rootView;
         memoView = view.findViewById(R.id.memo_text_view);
@@ -64,11 +65,6 @@ public class SharedMemoToggleView implements ActivityViewType {
         memoView.setText(text);
     }
 
-    void toggleSharingMemo() {
-        isSharing = !isSharing;
-        updateSharingViews();
-    }
-
     public void hideSharedMemoViews() {
         isSharing = false;
         makeViewGone(view, R.id.shared_memo_group);
@@ -82,15 +78,6 @@ public class SharedMemoToggleView implements ActivityViewType {
         updateSharingViews();
     }
 
-    private void updateSharingViews() {
-        shareToggleButton.setVisibility(isSharing ? View.VISIBLE : View.GONE);
-        unShareToggleButton.setVisibility(isSharing ? View.GONE : View.VISIBLE);
-    }
-
-    private void onAddMemoClicked(TextView view) {
-        memoCreator.createMemo(activity, this::onMemoCreated, view.getText().toString());
-    }
-
     public void onMemoCreated(String memo) {
         if (memo == null || memo.isEmpty()) return;
         memoView.setText(memo);
@@ -102,5 +89,19 @@ public class SharedMemoToggleView implements ActivityViewType {
 
     public String getMemo() {
         return memoView.getText().toString();
+    }
+
+    void toggleSharingMemo() {
+        isSharing = !isSharing;
+        updateSharingViews();
+    }
+
+    private void updateSharingViews() {
+        shareToggleButton.setVisibility(isSharing ? View.VISIBLE : View.GONE);
+        unShareToggleButton.setVisibility(isSharing ? View.GONE : View.VISIBLE);
+    }
+
+    private void onAddMemoClicked(TextView view) {
+        memoCreator.createMemo(activity, this::onMemoCreated, view.getText().toString());
     }
 }

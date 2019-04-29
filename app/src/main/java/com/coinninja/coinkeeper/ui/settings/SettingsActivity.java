@@ -12,7 +12,7 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
 import com.coinninja.coinkeeper.di.interfaces.DebugBuild;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
@@ -55,7 +55,7 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE &&
-                getFragmentManager().findFragmentByTag(TAG_CONFIRM_DELETE_WALLET) != null) {
+                getSupportFragmentManager().findFragmentByTag(TAG_CONFIRM_DELETE_WALLET) != null) {
             authorizeDelete();
         }
 
@@ -101,7 +101,7 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
     protected void authorizeDelete() {
         Intent authIntent = new Intent(this, AuthorizedActionActivity.class);
         String authMessage = getString(R.string.authorize_delete_message);
-        authIntent.putExtra(Intents.EXTRA_AUTHORIZED_ACTION_MESSAGE, authMessage);
+        authIntent.putExtra(DropbitIntents.EXTRA_AUTHORIZED_ACTION_MESSAGE, authMessage);
         startActivityForResult(authIntent, DELETE_WALLET_REQUEST_CODE);
     }
 
@@ -133,7 +133,7 @@ public class SettingsActivity extends SecuredActivity implements DialogInterface
                 getString(R.string.delete_wallet_negative),
                 this,
                 false,
-                false).show(getFragmentManager(), TAG_CONFIRM_DELETE_WALLET);
+                false).show(getSupportFragmentManager(), TAG_CONFIRM_DELETE_WALLET);
         return true;
     }
 

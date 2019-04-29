@@ -2,6 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/fragment_pay_dialog"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <EditText
@@ -59,7 +60,7 @@
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
         android:padding="@dimen/button_vertical_padding"
-        android:src="@drawable/ic_toggle_payment"
+        app:srcCompat="@drawable/ic_toggle_payment"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/secondary_currency"
         app:layout_constraintStart_toStartOf="parent"

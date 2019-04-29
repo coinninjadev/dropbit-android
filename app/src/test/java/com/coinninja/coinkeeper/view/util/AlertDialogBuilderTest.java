@@ -1,12 +1,13 @@
 package com.coinninja.coinkeeper.view.util;
 
-import android.app.AlertDialog;
 import android.content.Context;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
+
+import androidx.appcompat.app.AlertDialog;
 
 import static junit.framework.Assert.assertNotNull;
 

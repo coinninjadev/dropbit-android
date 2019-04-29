@@ -15,8 +15,14 @@ import com.coinninja.coinkeeper.view.fragment.VerifyRecoverywordsFragment;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
+
 @Module()
 public abstract class AndroidFragmentBuilder {
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract BaseFragment baseFragment();
+
 
     @ActivityScope
     @ContributesAndroidInjector

@@ -7,7 +7,7 @@ import android.content.IntentFilter;
 
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.service.DeleteWalletService;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import javax.inject.Inject;
@@ -26,7 +26,7 @@ public class DeleteWalletPresenter {
         this.localBroadCastUtil = localBroadCastUtil;
         receiver = new DeleteWalletCompleteReceiver();
         filter = new IntentFilter();
-        filter.addAction(Intents.ACTION_ON_WALLET_DELETED);
+        filter.addAction(DropbitIntents.ACTION_ON_WALLET_DELETED);
     }
 
     public void onDelete() {

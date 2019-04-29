@@ -2,7 +2,7 @@ package com.coinninja.coinkeeper.cn.wallet.runner;
 
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.After;
@@ -66,7 +66,7 @@ public class SaveRecoveryWordsRunnerTest {
 
         runner.run();
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_SAVE_RECOVERY_WORDS);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_SAVE_RECOVERY_WORDS);
     }
 
     @Test
@@ -76,13 +76,13 @@ public class SaveRecoveryWordsRunnerTest {
 
         runner.run();
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS);
     }
 
     @Test
     public void dispatches_event_that_words_not_saved_due_to_no_words() {
         runner.run();
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS);
     }
 }

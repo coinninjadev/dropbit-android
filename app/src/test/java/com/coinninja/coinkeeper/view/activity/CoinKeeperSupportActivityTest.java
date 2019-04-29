@@ -3,6 +3,8 @@ package com.coinninja.coinkeeper.view.activity;
 import android.content.Intent;
 import android.net.Uri;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 
@@ -15,11 +17,9 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import static junit.framework.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)

@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.interfaces.PinEntry.PinCompare;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.service.tasks.LockUserTask;
 import com.coinninja.coinkeeper.util.DateUtil;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class AuthenticateFragmentPresenterTest {
 
     @Test
     public void instructs_view_to_show_lockout_when_auth_disabled() {
-        long currentTime = lockedUntilTime - Intents.LOCK_DURRATION;
+        long currentTime = lockedUntilTime - DropbitIntents.LOCK_DURRATION;
         when(dateUtil.getCurrentTimeInMillis()).thenReturn(currentTime);
         presenter.attach(view);
 

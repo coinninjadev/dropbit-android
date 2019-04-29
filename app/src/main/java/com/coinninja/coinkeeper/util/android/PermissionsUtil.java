@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.util.android;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -10,6 +9,7 @@ import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -30,7 +30,7 @@ public class PermissionsUtil {
         }
     }
 
-    public void requestPermissions(@NonNull Activity activity, @NonNull String[] permissions, int requestCode) {
+    public void requestPermissions(@NonNull AppCompatActivity activity, @NonNull String[] permissions, int requestCode) {
         ActivityCompat.requestPermissions(activity, permissions, requestCode);
     }
 

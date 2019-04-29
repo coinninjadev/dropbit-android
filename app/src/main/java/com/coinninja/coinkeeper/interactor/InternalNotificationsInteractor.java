@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 
-import static com.coinninja.coinkeeper.util.Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE;
+import static com.coinninja.coinkeeper.util.DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE;
 
 
 public class InternalNotificationsInteractor {

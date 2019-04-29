@@ -11,7 +11,7 @@ import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
@@ -27,11 +27,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.android.controller.ActivityController;
 
 import java.util.HashMap;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.matchers.ActivityMatchers.activityWithIntentStarted;
@@ -39,38 +40,38 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ActivityNavigationUtilTest {
 
-    @Mock
-    ActivityController<StartActivity> activityController;
-
-    @Mock
-    StartActivity activity;
+    AppCompatActivity activity;
 
     @Mock
     Analytics analytics;
 
     private CoinNinjaUriBuilder coinNinjaUriBuilder = new CoinNinjaUriBuilder();
     private ActivityNavigationUtil activityNavigationUtil;
+    private ActivityScenario<StartActivity> scenario;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         activityNavigationUtil = new ActivityNavigationUtil(coinNinjaUriBuilder, analytics);
-        activityController = Robolectric.buildActivity(StartActivity.class);
-        activity = activityController.get();
-        activityController.setup();
+        scenario = ActivityScenario.launch(StartActivity.class);
+        scenario.onActivity(new ActivityScenario.ActivityAction<StartActivity>() {
+            @Override
+            public void perform(StartActivity instance) {
+                activity = instance;
+            }
+        });
     }
 
     @After
     public void tearDown() throws Exception {
-        activityController.pause().stop().destroy();
-        activityController = null;
         activity = null;
         activityNavigationUtil = null;
         coinNinjaUriBuilder = null;
         analytics = null;
+        scenario.close();
     }
 
     @Test
@@ -121,11 +122,11 @@ public class ActivityNavigationUtilTest {
         String[] words = new String[]{"WORD1", "WORD2", "WORD3", "WORD4", "WORD5",
                 "WORD6", "WORD7", "WORD8", "WORD9", "WORD10", "WORD11", "WORD12"};
 
-        activityNavigationUtil.navigateToVerifyRecoveryWords(activity, words, Intents.EXTRA_BACKUP);
+        activityNavigationUtil.navigateToVerifyRecoveryWords(activity, words, DropbitIntents.EXTRA_BACKUP);
 
         Intent intent = new Intent(activity, VerifyRecoverywordsActivity.class);
         intent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, words);
-        intent.putExtra(Intents.EXTRA_VIEW_STATE, Intents.EXTRA_BACKUP);
+        intent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, DropbitIntents.EXTRA_BACKUP);
         assertThat(activity, activityWithIntentStarted(intent));
     }
 
@@ -169,7 +170,7 @@ public class ActivityNavigationUtilTest {
     public void explains_shared_memos() {
         activityNavigationUtil.explainSharedMemos(activity);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, Intents.URI_SHARED_MEMOS);
+        Intent intent = new Intent(Intent.ACTION_VIEW, DropbitIntents.URI_SHARED_MEMOS);
         assertThat(activity, activityWithIntentStarted(intent));
     }
 
@@ -183,7 +184,7 @@ public class ActivityNavigationUtilTest {
         activityNavigationUtil.navigateToVerifyPhoneNumberCode(activity, number);
 
         Intent intent = new Intent(activity, VerifyPhoneVerificationCodeActivity.class);
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER, number);
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, number);
         assertThat(activity, activityWithIntentStarted(intent));
     }
 

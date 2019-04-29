@@ -3,18 +3,23 @@ package com.coinninja.coinkeeper.ui.payment;
 import android.content.Intent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.testing.FragmentScenario;
+import androidx.lifecycle.Lifecycle;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PaymentHolder;
-import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -26,30 +31,28 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.android.controller.FragmentController;
-import org.robolectric.annotation.Config;
 
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class PaymentBarFragmentTest {
 
     @Mock
     WalletHelper walletHelper;
     @Mock
     PaymentUtil paymentUtil;
+    @Mock
+    ActivityNavigationUtil activityNavigationUtil;
 
     @Mock
     BitcoinUtil bitcoinUtil;
@@ -64,7 +67,6 @@ public class PaymentBarFragmentTest {
 
     private long initialUSDValue = 10000L;
     private TransactionFee initialFee = new TransactionFee(0, 5, 10);
-    private FragmentController<PaymentBarFragment> fragmentController;
     private PaymentBarFragment fragment;
     private View requestButton;
     private View sendButton;
@@ -73,68 +75,63 @@ public class PaymentBarFragmentTest {
     private BTCCurrency btcCurrency = new BTCCurrency();
 
     private DefaultCurrencies defaultCurrencies;
+    private FragmentScenario<PaymentBarFragment> fragmentScenario;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        fragmentController = Robolectric.buildFragment(PaymentBarFragment.class).create();
-        fragment = fragmentController.get();
-        fragment.paymentHolder = paymentHolder;
-        fragment.paymentUtil = paymentUtil;
-        fragment.walletHelper = walletHelper;
-        fragment.bitcoinUtil = bitcoinUtil;
-        fragment.currencyPreference = currencyPreference;
-        fragment.localBroadcastUtil = localBroadCastUtil;
-        defaultCurrencies = new DefaultCurrencies(btcCurrency, usdCurrency);
+        configureDI();
+        fragmentScenario = FragmentScenario.launch(PaymentBarFragment.class);
+        fragmentScenario.onFragment(new FragmentScenario.FragmentAction<PaymentBarFragment>() {
+            @Override
+            public void perform(@NonNull PaymentBarFragment frag) {
+                fragment = frag;
+                fragment.paymentHolder = paymentHolder;
+                fragment.paymentUtil = paymentUtil;
+            }
+        });
 
         sendButton = withId(fragment.getView(), R.id.send_btn);
         requestButton = withId(fragment.getView(), R.id.request_btn);
-
-        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(initialUSDValue));
-        when(walletHelper.getLatestFee()).thenReturn(initialFee);
-        when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
-        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
-        when(currencyPreference.getFiat()).thenReturn(usdCurrency);
     }
 
     @After
     public void tearDown() {
         requestButton = null;
         sendButton = null;
+        activityNavigationUtil = null;
         localBroadCastUtil = null;
         walletHelper = null;
         paymentUtil = null;
         paymentHolder = null;
         initialFee = null;
-        fragmentController = null;
-        fragment = null;
         bitcoinUtil = null;
         defaultCurrencies = null;
+        fragment = null;
+        fragmentScenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
     public void observes_wallet_sync_complete() {
-        start();
-
         verify(localBroadCastUtil).registerReceiver(fragment.receiver, fragment.intentFilter);
-        assertThat(fragment.intentFilter, IntentFilterMatchers.containsAction(Intents.ACTION_WALLET_SYNC_COMPLETE));
+
+        assertThat(fragment.intentFilter, IntentFilterMatchers.containsAction(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE));
     }
 
     @Test
     public void updates_spendable_balance_after_wallet_sync() {
-        when(walletHelper.getSpendableBalance()).thenReturn(new BTCCurrency(50000L)).thenReturn(new BTCCurrency(10L));
-        start();
+        when(walletHelper.getSpendableBalance()).thenReturn(new BTCCurrency(50000L))
+                .thenReturn(new BTCCurrency(10L));
 
-        fragment.receiver.onReceive(fragment.getContext(), new Intent(Intents.ACTION_WALLET_SYNC_COMPLETE));
+        fragment.receiver.onReceive(fragment.getContext(), new Intent(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE));
+        clickOn(sendButton);
 
         assertThat(paymentHolder.getSpendableBalance().toLong(), equalTo(10L));
     }
 
     @Test
     public void stops_observing_wallet_sync_when_stopped() {
-        start();
+        fragmentScenario.moveToState(Lifecycle.State.DESTROYED);
 
-        fragmentController.pause().stop();
 
         verify(localBroadCastUtil).unregisterReceiver(fragment.receiver);
     }
@@ -142,90 +139,60 @@ public class PaymentBarFragmentTest {
     @Test
     public void shows_payment_dialog() {
         when(walletHelper.getSpendableBalance()).thenReturn(new BTCCurrency(50000L));
-        start();
+        ArgumentCaptor<PayDialogFragment> argumentCaptor = ArgumentCaptor.forClass(PayDialogFragment.class);
 
         clickOn(sendButton);
 
-        assertThat(paymentHolder.getSpendableBalance().toLong(), equalTo(walletHelper.getSpendableBalance().toLong()));
+        verify(activityNavigationUtil).showDialogWithTag(eq(fragment.getFragmentManager()),
+                argumentCaptor.capture(), eq(PayDialogFragment.class.getSimpleName()));
+
+        PayDialogFragment payDialogFragment = argumentCaptor.getValue();
         assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
+        assertThat(paymentHolder.getSpendableBalance().toLong(), equalTo(walletHelper.getSpendableBalance().toLong()));
         verify(paymentUtil).setTransactionFee(initialFee);
         verify(fragment.paymentUtil).setPaymentHolder(fragment.paymentHolder);
         when(paymentUtil.getPaymentHolder()).thenReturn(fragment.paymentHolder);
-        PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
-        assertNotNull(payDialog);
-        assertThat(payDialog.getPaymentUtil(), equalTo(fragment.paymentUtil));
-        assertThat(payDialog.getPaymentUtil().getPaymentHolder(), equalTo(fragment.paymentHolder));
+        assertThat(payDialogFragment.getPaymentUtil(), equalTo(fragment.paymentUtil));
+        assertThat(payDialogFragment.getPaymentUtil().getPaymentHolder(), equalTo(fragment.paymentHolder));
     }
 
     @Test
     public void shows_request_dialog() {
-        start();
+        ArgumentCaptor<RequestDialogFragment> argumentCaptor = ArgumentCaptor.forClass(RequestDialogFragment.class);
 
         clickOn(requestButton);
 
-        RequestDialogFragment requestDialogFragment = (RequestDialogFragment) fragment.getFragmentManager().findFragmentByTag(RequestDialogFragment.class.getSimpleName());
-        assertNotNull(requestDialogFragment);
-
-        PaymentHolder paymentHolder = requestDialogFragment.getPaymentHolder();
-        assertThat(paymentHolder.getCryptoCurrency().toLong(), equalTo(0L));
-        assertThat(paymentHolder.getFiat().toLong(), equalTo(0L));
-        assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
-    }
-
-    @Test
-    public void showing_confirm_screen_dismisses_pay_dialog__payment_to_address() {
-        start();
-        clickOn(sendButton);
-
-        fragment.confirmPaymentFor(fragment.paymentHolder);
-
-        assertNull(fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName()));
-    }
-
-    @Test
-    public void showing_confirm_screen_dismisses_pay_dialog__payment_to_contact() {
-        start();
-        clickOn(sendButton);
-
-        fragment.confirmPaymentFor(fragment.paymentHolder, new Contact(new PhoneNumber("+3305551111"), "Joe", false));
-
-        assertNull(fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName()));
-    }
-
-    @Test
-    public void showing_confirm_screen_dismisses_pay_dialog__payment_to_dropbit() {
-        start();
-        clickOn(sendButton);
-
-        fragment.confirmInvite(new Contact(new PhoneNumber("+3305551111"), "Joe", false));
-
-        assertNull(fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName()));
+        verify(activityNavigationUtil).showDialogWithTag(eq(fragment.getFragmentManager()),
+                argumentCaptor.capture(), eq(RequestDialogFragment.class.getSimpleName()));
     }
 
     @Test
     public void clears_payment_info_when_payment_canceled() {
-        start();
-
         clickOn(sendButton);
         paymentHolder.setPaymentAddress("--address--");
 
-        PayDialogFragment payDialog = (PayDialogFragment) fragment.getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
+        PayDialogFragment payDialog = mock(PayDialogFragment.class);
         fragment.cancelPayment(payDialog);
 
         assertThat(fragment.paymentHolder.getPaymentAddress(), equalTo(""));
+        verify(payDialog).dismiss();
     }
 
-    @Test
-    public void clears_payment_info_when_processing_new_payment() {
-        start();
-        paymentHolder.setPaymentAddress("--address--");
 
-        clickOn(requestButton);
-
-        assertThat(fragment.paymentHolder.getPaymentAddress(), equalTo(""));
+    private void configureDI() {
+        MockitoAnnotations.initMocks(this);
+        TestCoinKeeperApplication application = ApplicationProvider.getApplicationContext();
+        application.bitcoinUtil = bitcoinUtil;
+        application.localBroadCastUtil = localBroadCastUtil;
+        application.currencyPreference = currencyPreference;
+        application.walletHelper = walletHelper;
+        application.activityNavigationUtil = activityNavigationUtil;
+        defaultCurrencies = new DefaultCurrencies(btcCurrency, usdCurrency);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(initialUSDValue));
+        when(walletHelper.getLatestFee()).thenReturn(initialFee);
+        when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
+        when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
+        when(currencyPreference.getFiat()).thenReturn(usdCurrency);
     }
 
-    private void start() {
-        fragmentController.start().resume().visible();
-    }
 }

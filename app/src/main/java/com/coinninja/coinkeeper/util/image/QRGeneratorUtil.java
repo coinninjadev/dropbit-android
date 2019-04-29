@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.util.image;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -21,7 +21,7 @@ public class QRGeneratorUtil {
     }
 
     public byte[] generateFrom(String data) throws WriterException {
-        Bitmap bitmap = toBitmap(qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, Intents.QR_WIDTH, Intents.QR_HEIGHT));
+        Bitmap bitmap = toBitmap(qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, DropbitIntents.QR_WIDTH, DropbitIntents.QR_HEIGHT));
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         compress(bitmap, byteStream);
 

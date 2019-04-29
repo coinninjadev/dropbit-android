@@ -15,7 +15,7 @@ import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
@@ -44,8 +44,8 @@ public class RecoverWalletActivity extends SecuredActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recover_wallet);
 
-        if (getIntent().hasExtra(Intents.EXTRA_RECOVERY_WORDS)) {
-            recoveryWords = getIntent().getExtras().getStringArray(Intents.EXTRA_RECOVERY_WORDS);
+        if (getIntent().hasExtra(DropbitIntents.EXTRA_RECOVERY_WORDS)) {
+            recoveryWords = getIntent().getExtras().getStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS);
         }
 
         button = findViewById(R.id.ok);
@@ -94,9 +94,9 @@ public class RecoverWalletActivity extends SecuredActivity {
 
     protected void registerForLocalBroadcast() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intents.ACTION_ON_SERVICE_CONNECTION_BOUNDED);
-        intentFilter.addAction(Intents.ACTION_SAVE_RECOVERY_WORDS);
-        intentFilter.addAction(Intents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS);
+        intentFilter.addAction(DropbitIntents.ACTION_ON_SERVICE_CONNECTION_BOUNDED);
+        intentFilter.addAction(DropbitIntents.ACTION_SAVE_RECOVERY_WORDS);
+        intentFilter.addAction(DropbitIntents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS);
         localBroadCastUtil.registerReceiver(receiver, intentFilter);
     }
 
@@ -161,11 +161,11 @@ public class RecoverWalletActivity extends SecuredActivity {
     class RecoverWalletReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Intents.ACTION_ON_SERVICE_CONNECTION_BOUNDED.equals(intent.getAction())) {
+            if (DropbitIntents.ACTION_ON_SERVICE_CONNECTION_BOUNDED.equals(intent.getAction())) {
                 startSaveRecoveryWordsService();
-            } else if (Intents.ACTION_SAVE_RECOVERY_WORDS.equals(intent.getAction())) {
+            } else if (DropbitIntents.ACTION_SAVE_RECOVERY_WORDS.equals(intent.getAction())) {
                 onSaveRecoveryWordsSuccess();
-            } else if (Intents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS.equals(intent.getAction())) {
+            } else if (DropbitIntents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS.equals(intent.getAction())) {
                 onSaveRecoveryWordsFail();
             }
         }

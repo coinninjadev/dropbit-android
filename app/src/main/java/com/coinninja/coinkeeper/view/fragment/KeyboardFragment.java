@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +9,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.util.Keys;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 public class KeyboardFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 

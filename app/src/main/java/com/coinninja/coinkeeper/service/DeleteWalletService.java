@@ -10,7 +10,7 @@ import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
@@ -66,9 +66,8 @@ public class DeleteWalletService extends IntentService {
         pushNotificationDeviceManager.removeCNDevice();
         apiClient.resetWallet();
         daoSessionManager.resetAll();
-        userHelper.createFirstUser();
         resetAnalyticsProperties();
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_ON_WALLET_DELETED);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_ON_WALLET_DELETED);
     }
 
     private void resetAnalyticsProperties() {

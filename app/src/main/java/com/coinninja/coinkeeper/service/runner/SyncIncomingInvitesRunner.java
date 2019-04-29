@@ -2,7 +2,7 @@ package com.coinninja.coinkeeper.service.runner;
 
 import android.content.Intent;
 
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import javax.inject.Inject;
@@ -25,6 +25,6 @@ public class SyncIncomingInvitesRunner implements Runnable {
         getIncomingInviteRunner.run();
         incomingInviteResponder.run();
 
-        broadcastUtil.sendBroadcast(new Intent(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
+        broadcastUtil.sendBroadcast(new Intent(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
     }
 }

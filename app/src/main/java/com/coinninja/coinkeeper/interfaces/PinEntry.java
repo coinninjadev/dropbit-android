@@ -5,18 +5,17 @@ public interface PinEntry {
 
     boolean isPinValid(int[] pin);
 
-    void savePin_InRAM(String pinHASHED);
+    void savePin_InRAM(String pinHashed);
 
     String getPin_SavedInRam();
 
-    void savePin_ToKeystore(String pinHASHED);
+    void savePin(String pinHashed);
 
     String getSavedPin();
 
-    PinCompare comparePins_WithFailCountDown(String pin1HASHED, String pin2HASHED);
+    PinCompare comparePins_WithFailCountDown(String firstPinHashed, String secondPinHashed);
 
-    PinCompare comparePins(String pin1HASHED, String pin2HASHED);
-
+    PinCompare comparePins(String firstPinHashed, String secondPinHashed);
 
     void clean();
 

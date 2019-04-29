@@ -5,9 +5,8 @@ import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.EncryptionKeys;
 import com.coinninja.bindings.Libbitcoin;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
-import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 
 import javax.inject.Inject;
@@ -79,7 +78,7 @@ public class HDWallet {
     }
 
     public double calcMinMinerFee(TransactionFee transactionFee) {
-        return Math.max(transactionFee.getMin(), Intents.MIN_FEE_FLOOR);
+        return Math.max(transactionFee.getMin(), DropbitIntents.MIN_FEE_FLOOR);
     }
 
     private BTCCurrency satoshisToBTC(long satoshis) {

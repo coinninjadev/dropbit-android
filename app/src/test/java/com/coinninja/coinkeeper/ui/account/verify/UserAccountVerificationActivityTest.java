@@ -11,7 +11,7 @@ import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.RemovePhoneNumberController;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.After;
@@ -27,8 +27,8 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,7 +51,7 @@ public class UserAccountVerificationActivityTest {
     private UserAccountVerificationActivity activity;
     private ShadowActivity shadowActivity;
     private ActivityController<UserAccountVerificationActivity> activityController;
-    
+
     @Mock
     private PhoneNumber phoneNumber;
 
@@ -104,7 +104,7 @@ public class UserAccountVerificationActivityTest {
         View view = activity.findViewById(R.id.change_remove_button);
         view.performClick();
 
-        verify(removePhoneNumberController).onRemovePhoneNumber(view);
+        verify(removePhoneNumberController).onRemovePhoneNumber(activity);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class UserAccountVerificationActivityTest {
         when(account.getPhoneNumber()).thenReturn(phoneNumber);
         start();
 
-        activity.receiver.onReceive(activity, new Intent(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED));
+        activity.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED));
 
         verify(walletHelper, times(2)).hasVerifiedAccount();
         assertThat(activity.findViewById(R.id.unverified_phone_group).getVisibility(), equalTo(View.VISIBLE));

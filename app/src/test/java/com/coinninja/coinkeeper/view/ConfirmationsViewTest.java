@@ -1,7 +1,9 @@
 package com.coinninja.coinkeeper.view;
 
-import android.app.Activity;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.coinninja.coinkeeper.R;
 
@@ -12,10 +14,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import androidx.annotation.Nullable;
-
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 public class ConfirmationsViewTest {
@@ -77,7 +77,7 @@ public class ConfirmationsViewTest {
         assertThat(confirmationsView.calcBeadRadius(), equalTo(10F));
     }
 
-    public static class A extends Activity {
+    public static class A extends AppCompatActivity {
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
             setTheme(R.style.CoinKeeperTheme_Dark_Toolbar);

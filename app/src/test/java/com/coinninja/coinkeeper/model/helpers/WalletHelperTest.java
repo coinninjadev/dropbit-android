@@ -8,7 +8,6 @@ import com.coinninja.coinkeeper.model.db.DaoSession;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.TargetStat;
-import com.coinninja.coinkeeper.model.db.TransactionNotification;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
@@ -44,7 +43,6 @@ import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -130,6 +128,7 @@ public class WalletHelperTest {
     public void itSavesRecoveryWordsToWallet() {
         String[] recoveryWords = {"word1", "word2", "word3", "word4", "word5", "word6",
                 "word7", "word8", "word9", "word10", "word11", "word12"};
+        when(daoSessionManager.createWallet()).thenReturn(wallet);
 
         walletHelper.saveWords(recoveryWords);
 
@@ -147,26 +146,9 @@ public class WalletHelperTest {
         verify(wordHelper, times(1)).saveWord(1L, "word12", 11);
     }
 
-    @Test(expected = IllegalAccessError.class)
-    public void throwsExceptionWhenOverritingWalletsWords() {
-        words.add(new Word());
-        String[] recoveryWords = {"word1", "word2", "word3", "word4", "word5", "word6",
-                "word7", "word8", "word9", "word10", "word11", "word12"};
-
-        walletHelper.saveWords(recoveryWords);
-    }
-
-    @Test(expected = IllegalAccessError.class)
-    public void throwsExceptionWhen_addresses_exist() {
-        addresses.add(new Address());
-        String[] recoveryWords = {"word1", "word2", "word3", "word4", "word5", "word6",
-                "word7", "word8", "word9", "word10", "word11", "word12"};
-
-        walletHelper.saveWords(recoveryWords);
-    }
-
     @Test
     public void no_exception_when_words_or_addresses_are_null() {
+        when(daoSessionManager.createWallet()).thenReturn(wallet);
         when(wallet.getWords()).thenReturn(null);
         when(wallet.getAddressses()).thenReturn(null);
         String[] recoveryWords = {"word1", "word2", "word3", "word4", "word5", "word6",

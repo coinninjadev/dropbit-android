@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.interactor;
 
-import com.coinninja.coinkeeper.model.helpers.SavePinTask;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 
 import org.junit.After;
@@ -22,9 +21,6 @@ import static org.mockito.Mockito.when;
 public class PinInteractorTest {
 
     @Mock
-    private SavePinTask savePinTask;
-
-    @Mock
     private UserHelper userHelper;
 
     private String pin = "foobar";
@@ -36,16 +32,13 @@ public class PinInteractorTest {
     public void tearDown() {
         pin = null;
         userHelper = null;
-        savePinTask = null;
     }
 
     @Test
-    public void itSavesPinToStorage() throws NoSuchFieldException {
-        PrivateAccessor.setField(pinInteractor, "savePinTask", savePinTask);
-
+    public void itSavesPinToStorage() {
         pinInteractor.savePin("foobar");
 
-        verify(savePinTask, times(1)).execute("foobar");
+        verify(userHelper, times(1)).savePin("foobar");
     }
 
     @Test

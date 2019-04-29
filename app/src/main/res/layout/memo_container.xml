@@ -3,15 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/memo_container"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@drawable/rounded_view"
+    android:minHeight="100dp"
     android:orientation="vertical"
     android:windowSoftInputMode="stateVisible">
 
     <TextView
         android:id="@+id/memo_text_view"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:fontFamily="@font/montserrat_regular"
@@ -37,7 +38,6 @@
         android:id="@+id/shared_memo_tooltip_button"
         android:layout_width="20dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="11dp"
         android:layout_marginStart="15dp"
         android:background="@drawable/question_mark_circle"
         android:text="?"
@@ -53,7 +53,7 @@
         android:fontFamily="@font/montserrat_light"
         android:maxLines="1"
         android:text="@string/security_label"
-        android:textSize="10dp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -65,11 +65,12 @@
         android:layout_height="15dp"
         android:layout_marginEnd="15dp"
         android:layout_toStartOf="@+id/security_message"
-        android:src="@mipmap/ic_success_foreground"
         android:background="@color/ic_success_background"
         app:layout_constraintBottom_toBottomOf="@+id/security_message"
         app:layout_constraintEnd_toStartOf="@+id/security_message"
-        app:layout_constraintTop_toTopOf="@+id/security_message" />
+        app:layout_constraintTop_toTopOf="@+id/security_message"
+        app:srcCompat="@mipmap/ic_success_foreground"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/unshare_memo_toggle_button"
@@ -77,10 +78,11 @@
         android:layout_height="15dp"
         android:layout_marginEnd="15dp"
         android:layout_toStartOf="@+id/security_message"
-        android:src="@drawable/border_view"
         app:layout_constraintBottom_toBottomOf="@+id/security_message"
         app:layout_constraintEnd_toStartOf="@+id/security_message"
-        app:layout_constraintTop_toTopOf="@+id/security_message" />
+        app:layout_constraintTop_toTopOf="@+id/security_message"
+        app:srcCompat="@drawable/border_view"
+        tools:ignore="ContentDescription" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/shared_memo_group"

@@ -5,7 +5,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import javax.inject.Inject;
@@ -25,7 +25,7 @@ public class CNServiceConnection implements ServiceConnection {
         CNWalletBinder binder = (CNWalletBinder) service;
         cnWalletServicesInterface = binder.getService();
         isBounded = true;
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_ON_SERVICE_CONNECTION_BOUNDED);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_ON_SERVICE_CONNECTION_BOUNDED);
     }
 
     @Override

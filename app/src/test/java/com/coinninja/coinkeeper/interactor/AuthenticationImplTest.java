@@ -26,8 +26,8 @@ import org.robolectric.shadows.ShadowFingerprintManager;
 import org.robolectric.shadows.ShadowLooper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -40,19 +40,19 @@ import static org.robolectric.Shadows.shadowOf;
 public class AuthenticationImplTest {
 
     @Mock
-    Context context;
+    private Context context;
     @Mock
-    PreferencesUtil preferencesUtil;
+    private PreferencesUtil preferencesUtil;
     @Mock
-    SyncWalletManager syncWalletManager;
+    private SyncWalletManager syncWalletManager;
     @Mock
-    Handler timeoutHandler;
+    private Handler timeoutHandler;
     @Mock
-    CoinKeeperLifecycleListener coinKeeperLifecycleListener;
+    private CoinKeeperLifecycleListener coinKeeperLifecycleListener;
 
     @InjectMocks
-    AuthenticationImpl authenticationImpl;
-    StartActivity activity;
+    private AuthenticationImpl authenticationImpl;
+    private StartActivity activity;
 
     @Before
     public void setUp() throws Exception {
@@ -72,12 +72,9 @@ public class AuthenticationImplTest {
     }
 
     @Test
-    public void registersAsReceiver(){
+    public void registersAsReceiver() {
         verify(coinKeeperLifecycleListener).registerReceiver(authenticationImpl);
     }
-
-
-
 
     @Test
     public void deAuthentication_never_time_out() {

@@ -83,7 +83,7 @@ public class AddressAPIUtil {
     private List<GsonAddress> fetchAddresses(String[] requestedAddresses, int page) {
         List<GsonAddress> addresses;
         addresses = queryForAddresses(requestedAddresses, page);
-        if (addresses.size() == ADDRESSES_RESULT_LIMIT) {
+        if (addresses.size() >= ADDRESSES_RESULT_LIMIT) {
             addresses.addAll(fetchAddresses(requestedAddresses, page + 1));
         }
         return addresses;

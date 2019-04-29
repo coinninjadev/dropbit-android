@@ -5,7 +5,7 @@ import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
@@ -56,17 +56,17 @@ public class UserPhoneConfirmationRunner implements Runnable {
                 analytics.flush();
                 break;
             case 400:
-                localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__INVALID_CODE);
+                localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__INVALID_CODE);
                 updateAccount(response);
                 logger.logError(TAG, API_CONFIRM_ACCOUNT_FAILED, response);
                 break;
             case 409:
-                localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
+                localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
                 updateAccount(response);
                 logger.logError(TAG, API_CONFIRM_ACCOUNT_FAILED, response);
                 break;
             default:
-                localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
+                localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
                 logger.logError(TAG, API_CONFIRM_ACCOUNT_FAILED, response);
 
         }
@@ -77,9 +77,9 @@ public class UserPhoneConfirmationRunner implements Runnable {
         if (account != null && VERIFIED.equals(account.getStatus())) {
             userAccount.setStatus(Account.Status.VERIFIED);
             userAccount.update();
-            localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__SUCCESS);
+            localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS);
         } else if (account != null && EXPIRED.equals(account.getStatus())) {
-            localBroadCastUtil.sendBroadcast(Intents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
+            localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
             logger.debug(TAG, "----------API confirmAccount failed");
             logger.debug(TAG, "---------------    Code EXPIRED: ");
         }

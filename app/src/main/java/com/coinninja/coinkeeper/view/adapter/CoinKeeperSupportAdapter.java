@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,8 @@ public class CoinKeeperSupportAdapter extends RecyclerView.Adapter {
 
     public CoinKeeperSupportAdapter(OnItemSelectedListener onItemSelectedListener) {
         this.onItemSelectedListener = onItemSelectedListener;
-        urls = new ArrayList<>(Intents.SUPPORT_LINKS.values());
-        labels = new ArrayList<>(Intents.SUPPORT_LINKS.keySet());
+        urls = new ArrayList<>(DropbitIntents.SUPPORT_LINKS.values());
+        labels = new ArrayList<>(DropbitIntents.SUPPORT_LINKS.keySet());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class CoinKeeperSupportAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return Intents.SUPPORT_LINKS.size();
+        return DropbitIntents.SUPPORT_LINKS.size();
     }
 
 

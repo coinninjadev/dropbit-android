@@ -4,7 +4,6 @@ import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
@@ -13,15 +12,13 @@ import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.robolectric.annotation.Config;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Config(application = TestCoinKeeperApplication.class)

@@ -2,10 +2,10 @@ package com.coinninja.coinkeeper.service.client.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_APPLICATION_KEY;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_PLATFORM_ANDROID;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_PLATFORM_IOS;
-import static com.coinninja.coinkeeper.util.Intents.CN_API_CREATE_DEVICE_PLATFORM_KEY;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_APPLICATION_KEY;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_PLATFORM_ANDROID;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_PLATFORM_IOS;
+import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_PLATFORM_KEY;
 
 public class CNDevice {
     String id;

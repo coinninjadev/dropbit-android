@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.RegisterPhoneNumberRunnable;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +18,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -48,7 +48,7 @@ public class RegisterUsersPhoneServiceTest {
     @Test
     public void executes_underlining_runner_on_handle_intent() {
         Intent intent = new Intent(context, RegisterUsersPhoneService.class);
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER, phoneNumber);
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, phoneNumber);
         ArgumentCaptor<CNPhoneNumber> argumentCaptor = ArgumentCaptor.forClass(CNPhoneNumber.class);
 
         service.onHandleIntent(intent);

@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.service.interceptors;
 
 import android.annotation.SuppressLint;
 
+import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.di.interfaces.UUID;
 import com.coinninja.coinkeeper.model.db.Account;
@@ -28,14 +29,14 @@ public class SignedRequestInterceptor implements Interceptor {
     private final DateUtil dateUtil;
     private final DataSigner signer;
     private final String uuid;
-    private final Account account;
+    private final CNWalletManager cnWalletManager;
 
     @Inject
-    public SignedRequestInterceptor(DateUtil dateUtil, DataSigner signer, @UUID String uuid, Account account) {
+    public SignedRequestInterceptor(DateUtil dateUtil, DataSigner signer, @UUID String uuid, CNWalletManager cnWalletManager) {
         this.dateUtil = dateUtil;
         this.signer = signer;
         this.uuid = uuid;
-        this.account = account;
+        this.cnWalletManager = cnWalletManager;
     }
 
     public static byte[] bodyToString(RequestBody request) {
@@ -76,20 +77,18 @@ public class SignedRequestInterceptor implements Interceptor {
             builder.header(CN_AUTH_SIG, signer.sign(body));
         }
 
-        if (null != account) {
-            addAccountToHeaders(builder);
-        }
+        addAccountToHeaders(builder);
 
         return builder.build();
     }
 
     private void addAccountToHeaders(Request.Builder builder) {
-        account.refresh();
-        if (account != null && null != account.getCnWalletId()) {
+        Account account = cnWalletManager.getAccount();
+        if (null != account.getCnWalletId()) {
             builder.header(CN_AUTH_WALLET_ID, account.getCnWalletId());
         }
 
-        if (account != null && null != account.getCnUserId() && !account.getCnUserId().isEmpty()) {
+        if (null != account.getCnUserId() && !account.getCnUserId().isEmpty()) {
             builder.header(CN_AUTH_USER_ID, account.getCnUserId());
         }
     }

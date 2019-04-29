@@ -1,44 +1,29 @@
 package com.coinninja.coinkeeper;
 
-import android.app.Activity;
-import android.app.Application;
-import android.app.Fragment;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.os.Build;
 
 import com.coinninja.coinkeeper.di.component.AppComponent;
+import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.di.component.DaggerAppComponent;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.receiver.ApplicationStartedReceiver;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import javax.inject.Inject;
 
 import androidx.annotation.RequiresApi;
 import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasActivityInjector;
-import dagger.android.HasBroadcastReceiverInjector;
-import dagger.android.HasFragmentInjector;
-import dagger.android.HasServiceInjector;
+import dagger.android.support.DaggerApplication;
 
 import static com.coinninja.coinkeeper.R.string;
 
-public class CoinKeeperApplication extends Application implements HasServiceInjector, HasActivityInjector, HasFragmentInjector, HasBroadcastReceiverInjector {
+public class CoinKeeperApplication extends DaggerApplication {
+
     public static final String INVITES_SERVICE_CHANNEL_ID = "com.coinninja.coinkeeper.service.INVITES";
-    public static AppComponent appComponent;
-    @Inject
-    DispatchingAndroidInjector<Activity> dispatchingAndroidActivityInjector;
-    @Inject
-    DispatchingAndroidInjector<Service> dispatchingAndroidServiceInjector;
-    @Inject
-    DispatchingAndroidInjector<Fragment> dispatchingAndroidFragmentInjector;
-    @Inject
-    DispatchingAndroidInjector<BroadcastReceiver> dispatchingAndroidBroadcastReceiverInjector;
+    public static CoinKeeperComponent appComponent;
     @Inject
     CoinKeeperLifecycleListener coinKeeperLifecycleListener;
     @Inject
@@ -49,14 +34,9 @@ public class CoinKeeperApplication extends Application implements HasServiceInje
     @Override
     public void onCreate() {
         super.onCreate();
-        createComponent();
         registerNotificationChannels();
         notifyOfStart();
         registerActivityLifecycleCallbacks(coinKeeperLifecycleListener);
-    }
-
-    public AppComponent getAppComponent() {
-        return appComponent;
     }
 
     @Deprecated
@@ -65,32 +45,15 @@ public class CoinKeeperApplication extends Application implements HasServiceInje
     }
 
     @Override
-    public AndroidInjector<BroadcastReceiver> broadcastReceiverInjector() {
-        return dispatchingAndroidBroadcastReceiverInjector;
-    }
-
-    @Override
-    public AndroidInjector<Service> serviceInjector() {
-        return dispatchingAndroidServiceInjector;
-    }
-
-    @Override
-    public AndroidInjector<Activity> activityInjector() {
-        return dispatchingAndroidActivityInjector;
-    }
-
-    @Override
-    public AndroidInjector<Fragment> fragmentInjector() {
-        return dispatchingAndroidFragmentInjector;
-    }
-
-    protected void createComponent() {
-        appComponent = DaggerAppComponent.builder().application(this).build();
-        appComponent.inject(this);
+    protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
+        AppComponent build = DaggerAppComponent.builder().application(this).build();
+        appComponent = build;
+        ((AppComponent) appComponent).inject(this);
+        return (AndroidInjector<? extends DaggerApplication>) appComponent;
     }
 
     protected void notifyOfStart() {
-        localBroadCastUtil.sendGlobalBroadcast(ApplicationStartedReceiver.class, Intents.ACTION_ON_APPLICATION_START);
+        localBroadCastUtil.sendGlobalBroadcast(ApplicationStartedReceiver.class, DropbitIntents.ACTION_ON_APPLICATION_START);
     }
 
     @Deprecated

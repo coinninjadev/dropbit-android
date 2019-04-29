@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.file.QRFileManager;
 
@@ -18,7 +18,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,7 +42,7 @@ public class QRCodeServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         intent = new Intent();
-        intent.putExtra(Intents.EXTRA_TEMP_QR_SCAN, address_link);
+        intent.putExtra(DropbitIntents.EXTRA_TEMP_QR_SCAN, address_link);
         service = new QRCodeService();
         service.qrFileManager = qrFileManager;
         service.localBroadCastUtil = localBroadCastUtil;
@@ -68,7 +68,7 @@ public class QRCodeServiceTest {
 
         verify(localBroadCastUtil).sendBroadcast(argumentCaptor.capture());
         Intent broadcastIntent = argumentCaptor.getValue();
-        assertThat(broadcastIntent.getStringExtra(Intents.EXTRA_QR_CODE_LOCATION),
+        assertThat(broadcastIntent.getStringExtra(DropbitIntents.EXTRA_QR_CODE_LOCATION),
                 equalTo("content://com.coinninja.coinkeeper.debug.provider/qr_code/qr_code.png"));
 
     }
@@ -81,7 +81,7 @@ public class QRCodeServiceTest {
 
         verify(localBroadCastUtil).sendBroadcast(argumentCaptor.capture());
         Intent broadcastIntent = argumentCaptor.getValue();
-        assertThat(broadcastIntent.getAction(), equalTo(Intents.ACTION_VIEW_QR_CODE));
+        assertThat(broadcastIntent.getAction(), equalTo(DropbitIntents.ACTION_VIEW_QR_CODE));
     }
 
     @Test

@@ -1,10 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0c344b</color>
+    <!-- The primary branding color for the app. By default, this is the color applied to the
+     action bar background. -->
+    <color name="colorPrimary">#242536</color>
+
+    <!-- Dark variant of the primary branding color. By default, this is the color applied to
+         the status bar (via statusBarColor) and navigation bar (via navigationBarColor). -->
     <color name="colorPrimaryDark">#242536</color>
+
+    <!-- Bright complement to the primary branding color. By default, this is the color applied
+         to framework controls (via colorControlActivated). -->
     <color name="colorAccent">#2cd1ff</color>
+
     <color name="colorDisabled">#40000000</color>
     <color name="colorFlatHover">#20000000</color>
+
+    <!-- The color applied to framework controls in their normal state. -->
+    <color name="colorButtonNormal">#2cd1ff</color>
+
+    <!-- The color applied to framework controls in their activated (ex. checked) state. -->
+    <color name="colorControlActivated">#20000000</color>
+
+    <!-- The color applied to framework controls in their normal state. -->
+    <color name="colorControlHighlight">#2cd1ff</color>
+
+    <!-- The color applied to framework switch thumbs in their normal state. -->
+    <color name="colorSwitchThumbNormal">#ffffff</color>
+
+    <!-- The background used by framework controls. -->
+    <color name="controlBackground">#20000000</color>
+
+    <!-- Default color of background imagery for floating components, ex. dialogs, popups, and cards. -->
+    <color name="colorBackgroundFloating">#242536</color>
 
     <color name="tabColor">#b3ffffff</color>
     <color name="tabColorSelected">#ffffff</color>

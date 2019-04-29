@@ -5,7 +5,7 @@ import android.location.Location;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
@@ -80,9 +80,9 @@ public class SpendBitcoinActivityTest {
     public void navigates_to_map_for_spending_with_no_location_when_permission_denied() {
         int[] grantResults = new int[1];
         grantResults[0] = PackageManager.PERMISSION_DENIED;
-        when(locationUtil.hasGrantedPermission(Intents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults)).thenReturn(false);
+        when(locationUtil.hasGrantedPermission(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults)).thenReturn(false);
 
-        activity.onRequestPermissionsResult(Intents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
+        activity.onRequestPermissionsResult(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
 
         verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, null, Analytics.EVENT_SPEND_AROUND_ME);
     }
@@ -91,9 +91,9 @@ public class SpendBitcoinActivityTest {
     public void navigates_to_map_for_spending_with_location_when_permission_granted() {
         int[] grantResults = new int[1];
         grantResults[0] = PackageManager.PERMISSION_GRANTED;
-        when(locationUtil.hasGrantedPermission(Intents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults)).thenReturn(true);
+        when(locationUtil.hasGrantedPermission(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults)).thenReturn(true);
 
-        activity.onRequestPermissionsResult(Intents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
+        activity.onRequestPermissionsResult(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
 
         verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.EVENT_SPEND_AROUND_ME);
     }

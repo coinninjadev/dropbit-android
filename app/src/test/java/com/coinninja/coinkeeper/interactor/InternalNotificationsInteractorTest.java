@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.db.InternalNotification;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.base.MessengerActivity;
 import com.coinninja.coinkeeper.view.notifications.InternalNotificationView;
@@ -57,7 +57,7 @@ public class InternalNotificationsInteractorTest {
         notificationsInteractor.startListeningForNotifications(activity, true);
 
         verify(localBroadCastUtil).registerReceiver(notificationsInteractor.receiver, notificationsInteractor.filter);
-        assertThat(notificationsInteractor.filter, IntentFilterMatchers.containsAction(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
+        assertThat(notificationsInteractor.filter, IntentFilterMatchers.containsAction(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
     }
 
     @Test
@@ -65,7 +65,7 @@ public class InternalNotificationsInteractorTest {
         InternalNotification notification = new InternalNotification();
         initSampleNotifications(notification);
 
-        notificationsInteractor.receiver.onReceive(activity, new Intent(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
+        notificationsInteractor.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
 
         verify(notificationView).show(notification);
         verify(notificationView).setDismissListener(any());
@@ -75,7 +75,7 @@ public class InternalNotificationsInteractorTest {
     public void localBroadCast_set_notification_as_seen_test() {
         InternalNotification notification = new InternalNotification();
         initSampleNotifications(notification);
-        notificationsInteractor.receiver.onReceive(activity, new Intent(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
+        notificationsInteractor.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
 
         notificationsInteractor.onUserDismissed(notification);
 
@@ -94,7 +94,7 @@ public class InternalNotificationsInteractorTest {
                 when(internalNotificationHelper.getNextUnseenNotification()).thenReturn(null);
             }
 
-            notificationsInteractor.receiver.onReceive(activity, new Intent(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
+            notificationsInteractor.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
         }
 
         //even thou we called localBroadCastUtil 10 times we only had 5 items to show so only 5 were shown
@@ -106,7 +106,7 @@ public class InternalNotificationsInteractorTest {
         InternalNotification notification = null;
         initSampleNotifications(notification);
 
-        notificationsInteractor.receiver.onReceive(activity, new Intent(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
+        notificationsInteractor.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
 
         verify(notificationView, times(0)).show(any());
         verify(activity).teardownMute();

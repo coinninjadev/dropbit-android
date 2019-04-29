@@ -9,9 +9,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 
@@ -54,6 +54,13 @@ public class PhoneNumberTest {
     public void returns_international_format_when_country_matches() {
         PhoneNumber phoneNumber = new PhoneNumber(I18N_INTERNATIONAL);
         assertTrue(phoneNumber.displayTextForLocale().equals(phoneNumber.toInternationalDisplayText()));
+    }
+
+    @Test
+    public void inits_with_number() {
+        PhoneNumber phoneNumber = new PhoneNumber(1, "3305551111");
+
+        assertThat(phoneNumber.toInternationalDisplayText(), equalTo("+1 330-555-1111"));
     }
 
     @Test

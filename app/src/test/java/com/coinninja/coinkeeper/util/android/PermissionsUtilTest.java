@@ -1,37 +1,27 @@
 package com.coinninja.coinkeeper.util.android;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
-
-import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
-import javax.inject.Inject;
+import androidx.appcompat.app.AppCompatActivity;
 
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
 public class PermissionsUtilTest {
 
     private PermissionsUtil permissionsUtil;
-    private final Activity context = mock(Activity.class);
+    private final AppCompatActivity context = mock(AppCompatActivity.class);
 
     @Before
     public void setup() {

@@ -1,8 +1,6 @@
 package com.coinninja.coinkeeper.view.analytics;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -32,7 +30,6 @@ public class AnalyticsLinearLayout extends LinearLayout implements View.OnClickL
         init();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public AnalyticsLinearLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
@@ -40,8 +37,7 @@ public class AnalyticsLinearLayout extends LinearLayout implements View.OnClickL
 
     private void init() {
         super.setOnClickListener(this);
-        CoinKeeperApplication application = (CoinKeeperApplication) getContext().getApplicationContext();
-        setAnalyticsClickListener(new AnalyticsClickListener(application.getAppComponent().getAnalytics()));
+        setAnalyticsClickListener(new AnalyticsClickListener(CoinKeeperApplication.appComponent.getAnalytics()));
     }
 
     @Override

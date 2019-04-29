@@ -1,11 +1,11 @@
 package com.coinninja.coinkeeper.util.analytics;
 
 import android.app.Activity;
-import android.app.Fragment;
 
 import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 public interface Analytics {
     // EVENTS

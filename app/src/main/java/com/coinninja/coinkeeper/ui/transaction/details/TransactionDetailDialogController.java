@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.ui.transaction.details;
 
-import android.app.Activity;
-import android.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +21,8 @@ import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.uri.routes.DropbitRoute.TRANSACTION_DETAILS;
@@ -44,12 +44,12 @@ public class TransactionDetailDialogController {
         this.activityNavigationUtil = activityNavigationUtil;
     }
 
-    public void showTransaction(@NonNull Activity activity, @NonNull BindableTransaction bindableTransaction) {
+    public void showTransaction(@NonNull AppCompatActivity activity, @NonNull BindableTransaction bindableTransaction) {
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_transaction_block_details, null);
         bindTransactionToView(view, bindableTransaction);
         GenericAlertDialog alertDialog = GenericAlertDialog.newInstance(view, true, true);
         alertDialog.asWide();
-        alertDialog.show(activity.getFragmentManager(), getClass().getSimpleName());
+        alertDialog.show(activity.getSupportFragmentManager(), getClass().getSimpleName());
     }
 
     private void bindTransactionToView(View view, BindableTransaction transaction) {
@@ -70,7 +70,7 @@ public class TransactionDetailDialogController {
     }
 
     private void showTooltipUrl(View view) {
-        UriUtil.openUrl(dropbitUriBuilder.build(TRANSACTION_DETAILS), (Activity) view.getContext());
+        UriUtil.openUrl(dropbitUriBuilder.build(TRANSACTION_DETAILS), (AppCompatActivity) view.getContext());
     }
 
     private void bindClose(View closeBtn) {
@@ -78,7 +78,7 @@ public class TransactionDetailDialogController {
     }
 
     private void closeDialog(View view) {
-        FragmentManager fragmentManager = ((Activity) view.getContext()).getFragmentManager();
+        FragmentManager fragmentManager = ((AppCompatActivity) view.getContext()).getSupportFragmentManager();
         GenericAlertDialog dialog = (GenericAlertDialog) fragmentManager.findFragmentByTag(getClass().getSimpleName());
         if (dialog != null) {
             dialog.dismiss();

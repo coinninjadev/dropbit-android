@@ -35,7 +35,6 @@ public class DaoSessionManager {
     private DaoSession session;
     private DaoMaster daoMaster;
 
-    // todo manage access to other daos
     public DaoSessionManager(DaoMaster daoMaster) {
         this.daoMaster = daoMaster;
     }
@@ -54,16 +53,6 @@ public class DaoSessionManager {
         return session;
     }
 
-    private void dropAllTables() {
-        Database db = session.getDatabase();
-        DaoMaster.dropAllTables(db, true);
-    }
-
-    private void createAllTables() {
-        Database db = session.getDatabase();
-        DaoMaster.createAllTables(db, true);
-    }
-
     public void resetAll() {
         clear();
         dropAllTables();
@@ -80,10 +69,6 @@ public class DaoSessionManager {
         return session.getUserDao();
     }
 
-    public void attach(User user) {
-        user.__setDaoSession(session);
-    }
-
     // WALLET
     public WalletDao getWalletDao() {
         return session.getWalletDao();
@@ -93,10 +78,14 @@ public class DaoSessionManager {
         return getWalletDao().queryBuilder();
     }
 
-    public void createWallet(User user) {
+    public Wallet createWallet() {
+        resetAll();
+        User user = new User();
+        long id = getUserDao().insert(user);
         Wallet wallet = new Wallet();
-        wallet.setUserId(user.getId());
+        wallet.setUserId(id);
         getWalletDao().insert(wallet);
+        return wallet;
     }
 
     // WORD
@@ -124,7 +113,6 @@ public class DaoSessionManager {
     public TargetStat newTargetStat() {
         return new TargetStat();
     }
-
 
     // FUNDING STAT
     public FundingStatDao getFundingStatDao() {
@@ -174,8 +162,6 @@ public class DaoSessionManager {
         transactionSummary.__setDaoSession(session);
     }
 
-    // TRANSACTION
-
     public TransactionSummary newTransactionSummary() {
         return new TransactionSummary();
     }
@@ -184,6 +170,8 @@ public class DaoSessionManager {
     public long insert(TransactionNotification notification) {
         return getTransactionNotificationDao().insert(notification);
     }
+
+    // TRANSACTION
 
     public TransactionNotification newTransactionNotification() {
         return new TransactionNotification();
@@ -222,6 +210,16 @@ public class DaoSessionManager {
 
     public BroadcastBtcInviteDao getBroadcastBtcInviteDao() {
         return session.getBroadcastBtcInviteDao();
+    }
+
+    private void dropAllTables() {
+        Database db = session.getDatabase();
+        DaoMaster.dropAllTables(db, true);
+    }
+
+    private void createAllTables() {
+        Database db = session.getDatabase();
+        DaoMaster.createAllTables(db, true);
     }
 
 }

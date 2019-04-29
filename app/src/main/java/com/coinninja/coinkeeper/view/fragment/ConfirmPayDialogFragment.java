@@ -1,12 +1,7 @@
 package com.coinninja.coinkeeper.view.fragment;
 
-import android.app.DialogFragment;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.coinninja.android.helpers.Resources;
@@ -16,8 +11,8 @@ import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.ui.base.BaseBottomDialogFragment;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
@@ -28,18 +23,17 @@ import com.coinninja.coinkeeper.view.subviews.SharedMemoView;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-
 import static com.coinninja.android.helpers.Views.withId;
 
-public class ConfirmPayDialogFragment extends BaseDialogFragment implements ConfirmHoldButton.OnConfirmHoldEndListener {
+public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implements ConfirmHoldButton.OnConfirmHoldEndListener {
 
     static final int AUTHORIZE_PAYMENT_REQUEST_CODE = 10;
+
     @Inject
     Analytics analytics;
+    PaymentBarCallbacks paymentBarCallbacks;
     private Contact contact;
     private PaymentHolder paymentHolder;
-    PaymentBarCallbacks paymentBarCallbacks;
 
     public static ConfirmPayDialogFragment newInstance(Contact contact, PaymentHolder paymentHolder, PaymentBarCallbacks paymentBarCallbacks) {
         ConfirmPayDialogFragment fragment = new ConfirmPayDialogFragment();
@@ -47,7 +41,6 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
         fragment.commonInit(paymentHolder, paymentBarCallbacks);
         return fragment;
     }
-
 
     public static ConfirmPayDialogFragment newInstance(PaymentHolder paymentHolder, PaymentBarCallbacks paymentBarCallbacks) {
         ConfirmPayDialogFragment fragment = new ConfirmPayDialogFragment();
@@ -73,19 +66,6 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        analytics.trackEvent(Analytics.EVENT_CONFIRM_SCREEN_LOADED);
-        analytics.flush();
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_Dialog);
-    }
-
-    @Override
     public void onHoldCompleteSuccessfully() {
         startActivityForResult(new Intent(getActivity(), AuthorizedActionActivity.class), AUTHORIZE_PAYMENT_REQUEST_CODE);
     }
@@ -99,17 +79,13 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
         }
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_confirm_pay_dialog, container, false);
-    }
-
     @Override
     public void onResume() {
         super.onResume();
         setupClose();
         showPrice();
+        analytics.trackEvent(Analytics.EVENT_CONFIRM_SCREEN_LOADED);
+        analytics.flush();
 
         switch (getDisplayState()) {
             case INVITE_CONTACT:
@@ -135,6 +111,11 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
         setupSharedMemoFragment();
         setupConfirmButton();
         showFees(new BTCCurrency(paymentHolder.getTransactionData().getFeeAmount()));
+    }
+
+    @Override
+    protected int getContentViewLayoutId() {
+        return R.layout.fragment_confirm_pay_dialog;
     }
 
     public void showPrice() {
@@ -165,10 +146,7 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
         View sharedMemo = getView().findViewById(R.id.shared_transaction_subview);
         String displayText = contact == null ? "" : contact.toDisplayNameOrInternationalPhoneNumber();
         SharedMemoView sharedMemoView = new SharedMemoView(sharedMemo, paymentHolder.getIsSharingMemo(), paymentHolder.getMemo(), displayText);
-
-        if (paymentHolder.getMemo() == null || "".equals(paymentHolder.getMemo())) {
-            sharedMemoView.hide();
-        }
+        sharedMemoView.render();
     }
 
     private void setupClose() {
@@ -222,7 +200,7 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
                 paymentHolder.getIsSharingMemo()
         );
         Intent intent = new Intent(getActivity(), InviteSendActivity.class);
-        intent.putExtra(Intents.EXTRA_INVITE_DTO, inviteDto);
+        intent.putExtra(DropbitIntents.EXTRA_INVITE_DTO, inviteDto);
         startActivity(intent);
         dismiss();
     }
@@ -230,7 +208,7 @@ public class ConfirmPayDialogFragment extends BaseDialogFragment implements Conf
     private void broadcastTransaction() {
         Intent intent = new Intent(getActivity(), BroadcastActivity.class);
         BroadcastTransactionDTO broadcastTransactionDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(), contact, paymentHolder.getIsSharingMemo(), paymentHolder.getMemo(), paymentHolder.getPublicKey());
-        intent.putExtra(Intents.EXTRA_BROADCAST_DTO, broadcastTransactionDTO);
+        intent.putExtra(DropbitIntents.EXTRA_BROADCAST_DTO, broadcastTransactionDTO);
         startActivity(intent);
         dismiss();
     }

@@ -1,62 +1,78 @@
 package com.coinninja.coinkeeper.presenter.fragment;
 
+import android.content.Context;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.CancellationSignal;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.shadows.ShadowFingerprintManager;
+
+import java.security.Signature;
 
 import junitx.util.PrivateAccessor;
 
 import static junit.framework.Assert.assertNull;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(FingerprintAuthPresenter.class)
+@RunWith(AndroidJUnit4.class)
 public class FingerprintAuthPresenterTest {
 
     @Mock
-    private FingerprintManager.AuthenticationResult mockAuthenticationResult;
+    private FingerprintManager.AuthenticationResult authenticationResult;
 
     @Mock
-    private CancellationSignal mockCancellationSignal;
+    private CancellationSignal cancellationSignal;
+
+    private FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(mock(Signature.class));
+
+    private FingerprintManager fingerprintManager;
 
     @Mock
-    private FingerprintManager.CryptoObject mockCryptoObject;
+    private ViewImpl view;
 
     @Mock
-    private FingerprintManager mockFingerprintManager;
-
-    @Mock
-    private ViewImpl mockView;
-
-    @Mock
-    private FingerprintAuthDialog mockDialog;
+    private FingerprintAuthDialog dialog;
 
     private FingerprintAuthPresenter fingerprintAuthPresenter;
-
+    private ShadowFingerprintManager shadowFingerprintManager;
 
     @Before
     public void setUp() {
-        mockStatic(FingerprintAuthPresenter.class);
-        when(FingerprintAuthPresenter.newCancellationSignal()).thenReturn(mockCancellationSignal);
-        when(mockView.getFingerprintManager()).thenReturn(mockFingerprintManager);
-        fingerprintAuthPresenter = new FingerprintAuthPresenter(mockView);
-        fingerprintAuthPresenter.setDialog(mockDialog);
+        MockitoAnnotations.initMocks(this);
+        fingerprintManager = (FingerprintManager) ApplicationProvider.getApplicationContext().getSystemService(Context.FINGERPRINT_SERVICE);
+        shadowFingerprintManager = shadowOf(fingerprintManager);
+        when(view.getFingerprintManager()).thenReturn(fingerprintManager);
+        fingerprintAuthPresenter = new FingerprintAuthPresenter(view);
+        fingerprintAuthPresenter.cancellationSignal = cancellationSignal;
+        fingerprintAuthPresenter.cryptoObject = cryptoObject;
+        fingerprintAuthPresenter.fingerprintManager = fingerprintManager;
+        fingerprintAuthPresenter.setDialog(dialog);
     }
 
-    private void configureFingerprintSupport() {
-        when(mockFingerprintManager.isHardwareDetected()).thenReturn(true);
-        when(mockFingerprintManager.hasEnrolledFingerprints()).thenReturn(true);
+    @After
+    public void tearDown() {
+        authenticationResult = null;
+        cancellationSignal = null;
+        cryptoObject = null;
+        fingerprintAuthPresenter = null;
+        fingerprintManager = null;
+        view = null;
+        dialog = null;
+        shadowFingerprintManager = null;
     }
 
     @Test
@@ -65,7 +81,7 @@ public class FingerprintAuthPresenterTest {
 
         fingerprintAuthPresenter.captureFingerprintAuth();
 
-        verify(mockView, times(1)).showAuthenticateWithFingerprint();
+        verify(view).showAuthenticateWithFingerprint();
     }
 
     @Test
@@ -73,69 +89,66 @@ public class FingerprintAuthPresenterTest {
 
         fingerprintAuthPresenter.captureFingerprintAuth();
 
-        verify(mockView, times(1)).onFingerprintAuthenticationNotAvailable();
+        verify(view).onFingerprintAuthenticationNotAvailable();
     }
 
     @Test
     public void completesFingerprintAuthPrefrencesWhenDeviceLacksHardware() {
-
-        // Given a Device without Fingerprint Hardware
-        when(mockFingerprintManager.isHardwareDetected()).thenReturn(false);
-
         fingerprintAuthPresenter.captureFingerprintAuth();
 
-        // Then Presentor will notify mockView that defining Auth Preferences have been conducted
-        verify(mockView, times(1)).onFingerprintAuthenticationNotAvailable();
-
+        verify(view).onFingerprintAuthenticationNotAvailable();
     }
 
     @Test
     public void completesFingerprintAuthPrefrencesWhenDeviceSupportsHardwareButUserHasNoFingers() {
-        when(mockFingerprintManager.isHardwareDetected()).thenReturn(true);
-        when(mockFingerprintManager.hasEnrolledFingerprints()).thenReturn(false);
+        shadowFingerprintManager.setIsHardwareDetected(true);
+        shadowFingerprintManager.setDefaultFingerprints(0);
 
         fingerprintAuthPresenter.captureFingerprintAuth();
 
-        verify(mockView, times(1)).onFingerprintAuthenticationNotAvailable();
+        verify(view).onFingerprintAuthenticationNotAvailable();
     }
 
     @Test
-    public void presentorListensToFingerprintAuthWhenInstructed() throws NoSuchFieldException {
+    public void presenterListensToFingerprintAuthWhenInstructed_successful() {
         configureFingerprintSupport();
-        PrivateAccessor.setField(fingerprintAuthPresenter, "fingerprintManager", mockFingerprintManager);
-        PrivateAccessor.setField(fingerprintAuthPresenter, "cryptoObject", mockCryptoObject);
 
         fingerprintAuthPresenter.startListeningForTouch();
+        shadowFingerprintManager.authenticationSucceeds();
 
-        verify(mockFingerprintManager, times(1)).authenticate(mockCryptoObject, mockCancellationSignal,
-                0, fingerprintAuthPresenter, null);
+        verify(dialog).onSucces();
     }
 
     @Test
-    public void presentorStopsListeningToFingerprintAuthWhenInstructed() throws NoSuchFieldException {
+    public void presenterListensToFingerprintAuthWhenInstructed_failure() {
         configureFingerprintSupport();
-        // Given presentor is observing an for touch
-        PrivateAccessor.setField(fingerprintAuthPresenter, "fingerprintManager", mockFingerprintManager);
-        PrivateAccessor.setField(fingerprintAuthPresenter, "cryptoObject", mockCryptoObject);
+
+        fingerprintAuthPresenter.startListeningForTouch();
+        shadowFingerprintManager.authenticationFails();
+
+        verify(dialog).onFailure();
+    }
+
+    @Test
+    public void presenterStopsListeningToFingerprintAuthWhenInstructed() {
+        configureFingerprintSupport();
         fingerprintAuthPresenter.startListeningForTouch();
 
-        // When presentor instructed to stop observing system fingerprint auth
         fingerprintAuthPresenter.stopListeningForTouch();
 
-        // Then presentor sends inturupt signal
-        verify(mockCancellationSignal, times(1)).cancel();
+        verify(cancellationSignal).cancel();
     }
 
     @Test
-    public void presentorInformsCallBackOfSuccess() {
+    public void presenterInformsCallBackOfSuccess() {
 
-        fingerprintAuthPresenter.onAuthenticationSucceeded(mockAuthenticationResult);
+        fingerprintAuthPresenter.onAuthenticationSucceeded(authenticationResult);
 
-        verify(mockDialog, times(1)).onSucces();
+        verify(dialog).onSucces();
     }
 
     @Test
-    public void presentorInformsCallBackOfError() {
+    public void presenterInformsCallBackOfError() {
 
         int errorCode = 23;
         String errString = "an error";
@@ -143,25 +156,25 @@ public class FingerprintAuthPresenterTest {
 
         fingerprintAuthPresenter.onAuthenticationError(errorCode, errString);
 
-        verify(mockDialog).onError(errorCode, errString);
+        verify(dialog).onError(errorCode, errString);
     }
 
     @Test
-    public void presentorInformsCallBackOfFailure() {
+    public void presenterInformsCallBackOfFailure() {
 
         fingerprintAuthPresenter.onAuthenticationFailed();
 
-        verify(mockDialog).onFailure();
+        verify(dialog).onFailure();
     }
 
     @Test
-    public void presentorInformsCallBackOfHelpResponse() {
+    public void presenterInformsCallBackOfHelpResponse() {
         int helpCode = 22;
         String helpString = "help";
 
         fingerprintAuthPresenter.onAuthenticationHelp(helpCode, helpString);
 
-        verify(mockDialog).onHelp(helpCode, helpString);
+        verify(dialog).onHelp(helpCode, helpString);
     }
 
     @Test
@@ -177,21 +190,26 @@ public class FingerprintAuthPresenterTest {
 
         fingerprintAuthPresenter.onAuthCancel();
 
-        verify(mockCancellationSignal, times(1)).cancel();
+        verify(cancellationSignal).cancel();
     }
 
     @Test
     public void notifyViewThatUserCanceledFingerprintAuth() {
         fingerprintAuthPresenter.onAuthCancel();
 
-        verify(mockView, times(1)).onFingerprintAuthenticationCanceled();
+        verify(view).onFingerprintAuthenticationCanceled();
     }
 
     @Test
     public void notifyViewThatFingerprintAuthWasSuccessful() {
         fingerprintAuthPresenter.onSuccessfulTransition();
 
-        verify(mockView, times(1)).onFingerprintAuthenticationComplete();
+        verify(view).onFingerprintAuthenticationComplete();
+    }
+
+    private void configureFingerprintSupport() {
+        shadowFingerprintManager.setIsHardwareDetected(true);
+        shadowFingerprintManager.setDefaultFingerprints(2);
     }
 
     // implement interface for mocking

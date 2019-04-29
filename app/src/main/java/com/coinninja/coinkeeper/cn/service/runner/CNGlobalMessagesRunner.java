@@ -9,7 +9,7 @@ import com.coinninja.coinkeeper.service.client.CNElasticSearch;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNGlobalMessage;
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 
@@ -48,9 +48,9 @@ public class CNGlobalMessagesRunner implements Runnable {
 
     @Override
     public void run() {
-        long lastMessageTime = preferencesUtil.getLong(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, Intents.PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME);
+        long lastMessageTime = preferencesUtil.getLong(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME);
 
-        if (lastMessageTime != Intents.PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME) {
+        if (lastMessageTime != DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME) {
             elasticSearch.setPublishedAt(lastMessageTime);
         }
 
@@ -73,8 +73,8 @@ public class CNGlobalMessagesRunner implements Runnable {
             lastMessageTime = (messagePublishedDate > lastMessageTime) ? messagePublishedDate : lastMessageTime;
         }
 
-        preferencesUtil.savePreference(Intents.PREFERENCES_LAST_CN_MESSAGES_TIME, lastMessageTime);
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
+        preferencesUtil.savePreference(DropbitIntents.PREFERENCES_LAST_CN_MESSAGES_TIME, lastMessageTime);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE);
     }
 
     private void addMessageToNotification(CNGlobalMessage cnGlobalMessage) {

@@ -27,10 +27,6 @@ public class AnalyticsClickListenerTest {
     @InjectMocks
     private AnalyticsClickListener analyticsClickListener;
 
-    private void setId(int id) {
-        when(view.getId()).thenReturn(id);
-    }
-
     @Test
     public void track_EVENT_BUTTON_REQUEST_event_test() {
         String expectedAnalyticsEvent = Analytics.EVENT_BUTTON_REQUEST;
@@ -41,7 +37,6 @@ public class AnalyticsClickListenerTest {
 
         verify(analytics).trackButtonEvent(expectedAnalyticsEvent);
     }
-
 
     @Test
     public void track_EVENT_BUTTON_BALANCE_HISTORY_event_test() {
@@ -183,5 +178,9 @@ public class AnalyticsClickListenerTest {
         analyticsClickListener.onClick(view);
 
         verify(analytics, times(0)).trackButtonEvent(anyString());
+    }
+
+    private void setId(int id) {
+        when(view.getId()).thenReturn(id);
     }
 }

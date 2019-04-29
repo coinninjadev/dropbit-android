@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:paddingTop="15dp"
@@ -17,24 +18,24 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/amazon_logo"
+            app:srcCompat="@drawable/amazon_logo"
             android:layout_height="match_parent" />
 
         <ImageView
             android:layout_width="wrap_content"
-            android:src="@drawable/target_logo"
+            app:srcCompat="@drawable/target_logo"
             android:layout_weight="1"
             android:layout_height="match_parent" />
 
         <ImageView
             android:layout_width="wrap_content"
-            android:src="@drawable/nike_logo"
+            app:srcCompat="@drawable/nike_logo"
             android:layout_weight="1"
             android:layout_height="match_parent" />
 
         <ImageView
             android:layout_width="wrap_content"
-            android:src="@drawable/netflix_logo"
+            app:srcCompat="@drawable/netflix_logo"
             android:layout_weight="1"
             android:layout_height="match_parent" />
     </LinearLayout>

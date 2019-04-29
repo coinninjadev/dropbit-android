@@ -8,12 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.db.InternalNotification;
 import com.coinninja.coinkeeper.model.db.enums.MessageLevel;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +25,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowApplication;
 
+import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
@@ -40,11 +44,20 @@ public class InternalNotificationViewTest {
     private CoinKeeperApplication application;
     private ShadowApplication shadowActivity;
 
+    @After
+    public void tearDown() {
+        application = null;
+        shadowActivity = null;
+        baseLayout = null;
+        internalNotificationView = null;
+    }
+
     @Before
     public void setUp() throws Exception {
         application = (CoinKeeperApplication) RuntimeEnvironment.application;
-        Context context = RuntimeEnvironment.application.getApplicationContext();
-        baseLayout = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.fragment_confirm_pay_dialog, null, false);
+        Context context = ApplicationProvider.getApplicationContext();
+        baseLayout = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.activity_messenger, null, false);
+        baseLayout = withId(baseLayout, R.id.message_queue);
 
         internalNotificationView = new InternalNotificationView((ViewGroup) baseLayout);
         shadowActivity = shadowOf(application);
@@ -57,7 +70,7 @@ public class InternalNotificationViewTest {
         InternalNotification mockInternalNotification = buildSampleNotification(sampleTestMessage, sampleMessageLevel);
 
         internalNotificationView.show(mockInternalNotification);
-        View notificationView = baseLayout.getChildAt(1);
+        View notificationView = baseLayout.getChildAt(0);
         TextView messageView = notificationView.findViewById(R.id.internal_message);
 
         assertThat(messageView.getText().toString(), equalTo("Some message"));
@@ -72,7 +85,7 @@ public class InternalNotificationViewTest {
         InternalNotificationView.DismissListener dismissListener = mock(InternalNotificationView.DismissListener.class);
         internalNotificationView.setDismissListener(dismissListener);
         internalNotificationView.show(mockInternalNotification);
-        View notificationView = baseLayout.getChildAt(1);
+        View notificationView = baseLayout.getChildAt(0);
 
 
         internalNotificationView.onExitBtnClicked(notificationView, mockInternalNotification);
@@ -88,13 +101,12 @@ public class InternalNotificationViewTest {
         InternalNotificationView.DismissListener dismissListener = mock(InternalNotificationView.DismissListener.class);
         internalNotificationView.setDismissListener(dismissListener);
         internalNotificationView.show(mockInternalNotification);
-        View notificationView = baseLayout.getChildAt(1);
-
-
-        assertThat(baseLayout.getChildCount(), equalTo(2));
-        internalNotificationView.onExitBtnClicked(notificationView, mockInternalNotification);
+        View notificationView = baseLayout.getChildAt(0);
 
         assertThat(baseLayout.getChildCount(), equalTo(1));
+        internalNotificationView.onExitBtnClicked(notificationView, mockInternalNotification);
+
+        assertThat(baseLayout.getChildCount(), equalTo(0));
     }
 
     @Test
@@ -106,11 +118,11 @@ public class InternalNotificationViewTest {
         internalNotificationView.setDismissListener(dismissListener);
         internalNotificationView.show(mockInternalNotification);
 
+        assertThat(baseLayout.getChildCount(), equalTo(1));
 
-        assertThat(baseLayout.getChildCount(), equalTo(2));
         internalNotificationView.unNaturallyDismiss();
 
-        assertThat(baseLayout.getChildCount(), equalTo(1));
+        assertThat(baseLayout.getChildCount(), equalTo(0));
         verify(dismissListener, times(0)).onDismiss(mockInternalNotification);
     }
 

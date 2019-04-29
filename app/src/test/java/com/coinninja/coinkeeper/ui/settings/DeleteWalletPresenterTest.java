@@ -6,7 +6,7 @@ import android.content.IntentFilter;
 
 import com.coinninja.coinkeeper.service.DeleteWalletService;
 import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter.DeleteWalletCompleteReceiver;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.Before;
@@ -16,7 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -77,7 +77,7 @@ public class DeleteWalletPresenterTest {
         verify(localBroadCastUtil).registerReceiver(any(DeleteWalletCompleteReceiver.class), filterCaptor.capture());
 
         IntentFilter filter = filterCaptor.getValue();
-        assertThat(filter.getAction(0), equalTo(Intents.ACTION_ON_WALLET_DELETED));
+        assertThat(filter.getAction(0), equalTo(DropbitIntents.ACTION_ON_WALLET_DELETED));
     }
 
     @Test

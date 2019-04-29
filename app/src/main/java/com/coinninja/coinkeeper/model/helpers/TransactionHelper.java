@@ -2,6 +2,9 @@ package com.coinninja.coinkeeper.model.helpers;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Address;
@@ -33,14 +36,10 @@ import com.coinninja.coinkeeper.service.client.model.VOut;
 import com.coinninja.coinkeeper.util.DateUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class TransactionHelper {
 
@@ -126,6 +125,340 @@ public class TransactionHelper {
             }
         }
 
+    }
+
+    public void updateFeesFor(List<TransactionStats> transactionStats) {
+        TransactionSummaryDao dao = getTransactionDao();
+        for (TransactionStats stats : transactionStats) {
+            TransactionSummary transaction = dao.queryBuilder().where(Properties.Txid.eq(stats.getTransactionId())).limit(1).unique();
+            if (transaction != null) {
+                transaction.refresh();
+                transaction.setFee(stats.getFees());
+                transaction.update();
+            }
+        }
+    }
+
+    public void saveReceivedInviteTransaction(Wallet wallet, ReceivedInvite receivedInvite) {
+        InviteMetadata.MetadataContact sender = receivedInvite.getMetadata().getSender();
+        InviteMetadata.MetadataContact receiver = receivedInvite.getMetadata().getReceiver();
+        saveInviteTransaction(
+                wallet.getId(),
+                receivedInvite.getId(),
+                Type.RECEIVED,
+                "",
+                sender.identityAsPhoneNumber(),
+                receiver.identityAsPhoneNumber(),
+                receivedInvite.getMetadata().getAmount().getUsd(),
+                receivedInvite.getCreated_at(),
+                receivedInvite.getStatus(),
+                receivedInvite.getMetadata().getAmount().getBtc(),
+                0L,
+                receivedInvite.getAddress(),
+                receivedInvite.getTxid());
+    }
+
+    public void addInviteToTransInvitesSummary(InviteTransactionSummary invite) {
+        TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
+
+        TransactionsInvitesSummary transactionsInvitesSummary = transInvitesDao.queryBuilder().
+                where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(invite.getId())).
+                limit(1).unique();
+
+        String btcTxID = invite.getBtcTransactionId();
+
+        if (btcTxID != null && !btcTxID.isEmpty()) {
+            transactionsInvitesSummary = joinInviteToTransaction(transactionsInvitesSummary, btcTxID);
+        }
+
+        if (transactionsInvitesSummary == null) {
+            transactionsInvitesSummary = new TransactionsInvitesSummary();
+            transInvitesDao.insert(transactionsInvitesSummary);
+        }
+
+        transactionsInvitesSummary.setInviteTransactionSummary(invite);
+        transactionsInvitesSummary.setInviteSummaryID(invite.getId());
+
+        if (transactionsInvitesSummary.getBtcTxTime() > 0) {
+            transactionsInvitesSummary.setInviteTime(0);
+        } else {
+            transactionsInvitesSummary.setInviteTime(invite.getSentDate());
+        }
+
+        if (invite.getBtcState() == BTCState.EXPIRED || invite.getBtcState() == BTCState.CANCELED) {
+            transactionsInvitesSummary.setBtcTxTime(invite.getSentDate());
+            transactionsInvitesSummary.setInviteTime(0);
+        }
+
+        transactionsInvitesSummary.setInviteTxID(invite.getBtcTransactionId());
+        invite.setTransactionsInvitesSummary(transactionsInvitesSummary);
+        invite.setTransactionsInvitesSummaryID(transactionsInvitesSummary.getId());
+
+        invite.update();
+        invite.refresh();
+        transactionsInvitesSummary.update();
+        transactionsInvitesSummary.refresh();
+        transInvitesDao.refresh(transactionsInvitesSummary);
+    }
+
+    public void updateInviteAddressTransaction(String id, String address) {
+        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+
+        InviteTransactionSummary invite = inviteDao.queryBuilder().
+                where(InviteTransactionSummaryDao.Properties.ServerId.eq(id)).
+                limit(1).unique();
+
+        if (invite == null) {
+            Log.e(TAG, "unable to update invite: " + address);
+            return;
+        }
+
+        invite.refresh();
+        invite.setAddress(address);
+        invite.update();
+        invite.refresh();
+    }
+
+    public InviteTransactionSummary updateInviteAddressTransaction(SentInvite sentInvite) {
+        InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite);
+        if (invite == null) return null;
+
+        invite.refresh();
+        String status = sentInvite.getStatus();
+        if ("expired".equals(status)) {
+            invite.setBtcState(BTCState.EXPIRED);
+            updateInviteTimeCompleteTransactionInviteSummary(invite);
+        } else if ("new".equals(status)) {
+            invite.setBtcState(BTCState.UNFULFILLED);
+        } else if ("canceled".equals(status)) {
+            invite.setBtcState(BTCState.CANCELED);
+            updateInviteTimeCompleteTransactionInviteSummary(invite);
+        } else if ("completed".equals(status)) {
+            invite.setBtcState(BTCState.FULFILLED);
+        }
+
+        invite.setPubkey(sentInvite.getAddressPubKey());
+        invite.setAddress(sentInvite.getAddress());
+        invite.update();
+        invite.refresh();
+        return invite;
+    }
+
+    @Nullable
+    public InviteTransactionSummary getInviteTransactionSummary(SentInvite sentInvite) {
+        InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite.getId());
+
+        if (invite == null) {
+            Log.e(TAG, "unable to update invite: " + sentInvite.getAddress());
+            return null;
+        }
+        return invite;
+    }
+
+    public void updateInviteTxIDTransaction(Wallet wallet, String inviteServerID, String txID) {
+        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+
+        InviteTransactionSummary invite = inviteDao.queryBuilder().
+                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
+                limit(1).unique();
+
+        if (invite == null) {
+            Log.e(TAG, "unable to update invite: " + txID);
+            return;
+        }
+
+        if (invite.getBtcState() == null || invite.getBtcState() == BTCState.UNFULFILLED) {
+
+            invite.setBtcTransactionId(txID);
+            invite.setBtcState(BTCState.FULFILLED);
+            invite.update();
+            invite.refresh();
+
+            addInviteToTransInvitesSummary(invite);
+
+            saveLocalTransaction(wallet, txID, invite);
+        }
+    }
+
+    public void updateInviteAsCanceled(String inviteServerID) {
+        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+
+        InviteTransactionSummary invite = inviteDao.queryBuilder().
+                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
+                limit(1).unique();
+
+        if (invite == null) {
+            return;
+        }
+
+        invite.setBtcTransactionId("");
+        invite.setBtcState(BTCState.CANCELED);
+        invite.update();
+        invite.refresh();
+
+        addInviteToTransInvitesSummary(invite);
+    }
+
+    public List<InviteTransactionSummary> gatherUnfulfilledInviteTrans() {
+        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+
+        return inviteDao.queryBuilder()
+                .where(InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.getId()),
+                        InviteTransactionSummaryDao.Properties.Address.isNotNull(),
+                        InviteTransactionSummaryDao.Properties.Address.notEq(""))
+                .whereOr(
+                        InviteTransactionSummaryDao.Properties.BtcTransactionId.isNull(),
+                        InviteTransactionSummaryDao.Properties.BtcTransactionId.eq(""))
+                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
+                .list();
+
+    }
+
+    public InviteTransactionSummary getInviteTransactionSummary(String inviteServerID) {
+        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+
+        return inviteDao.queryBuilder().
+                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
+                limit(1).unique();
+    }
+
+    public List<InviteTransactionSummary> getInvitesWithTxID() {
+        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+
+        return inviteDao.queryBuilder().where(
+                InviteTransactionSummaryDao.Properties.BtcTransactionId.isNotNull(),
+                InviteTransactionSummaryDao.Properties.BtcTransactionId.notEq("")).list();
+    }
+
+    public TransactionSummary getTransactionWithTxID(String txID) {
+        TransactionSummaryDao transactionTableDao = daoSessionManager.getTransactionSummaryDao();
+
+        return transactionTableDao.queryBuilder().where(
+                Properties.Txid.eq(txID)).limit(1).unique();
+    }
+
+    public void joinInviteToTx(@NonNull InviteTransactionSummary invite, @NonNull TransactionSummary transaction) {
+
+        TransactionsInvitesSummaryDao joinTableDao = daoSessionManager.getTransactionsInvitesSummaryDao();
+        TransactionsInvitesSummary joinContainingRealTX = joinTableDao.queryBuilder()
+                .where(TransactionsInvitesSummaryDao.Properties.TransactionSummaryID.eq(transaction.getId())).limit(1).unique();
+        TransactionsInvitesSummary joinContainingInvite = joinTableDao.queryBuilder()
+                .where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(invite.getId())).limit(1).unique();
+
+        if (joinContainingRealTX == joinContainingInvite) return;
+
+        dropEntry(joinContainingInvite);
+        dropEntry(joinContainingRealTX);
+
+
+        TransactionsInvitesSummary newJoinTable = daoSessionManager.newTransactionInviteSummary();
+        daoSessionManager.insert(newJoinTable);
+
+        newJoinTable.setInviteTransactionSummary(invite);
+        newJoinTable.setInviteTxID(invite.getBtcTransactionId());
+
+        newJoinTable.setTransactionTxID(transaction.getTxid());
+        newJoinTable.setTransactionSummary(transaction);
+
+        if (transaction.getTxTime() > 0) {
+            newJoinTable.setBtcTxTime(transaction.getTxTime());
+            newJoinTable.setInviteTime(0);
+        } else {
+            newJoinTable.setInviteTime(invite.getSentDate());
+        }
+
+        newJoinTable.update();
+        newJoinTable.refresh();
+
+        invite.setTransactionsInvitesSummaryID(newJoinTable.getId());
+        invite.update();
+        invite.refresh();
+
+        transaction.setTransactionsInvitesSummaryID(newJoinTable.getId());
+        transaction.update();
+        transaction.refresh();
+    }
+
+    public List<InviteTransactionSummary> gatherPendingInviteTrans() {
+        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+
+        return inviteDao.queryBuilder()
+                .where(InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.getId()))
+                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
+                .list();
+
+
+    }
+
+    public String markTransactionSummaryAsFailedToBroadcast(String txid) {
+        TransactionSummary transaction = getTransactionDao().queryBuilder().
+                where(Properties.Txid.eq(txid)).
+                limit(1).unique();
+
+        if (transaction == null) return null;
+
+        markTargetStatsAsCanceled(transaction.getReceiver());
+        markFundingStatsAsCanceled(transaction.getFunder());
+
+        transaction.setMemPoolState(MemPoolState.FAILED_TO_BROADCAST);
+        transaction.update();
+        transaction.refresh();
+
+        String newTxid = renameTXIDToFailed(txid);
+        return newTxid;
+    }
+
+    public void markTransactionSummaryAsAcknowledged(String txid) {
+        TransactionSummary transaction = getTransactionDao().queryBuilder().
+                where(Properties.Txid.eq(txid)).
+                limit(1).unique();
+
+        if (transaction == null) return;
+
+        transaction.setMemPoolState(MemPoolState.ACKNOWLEDGE);
+        transaction.update();
+        transaction.refresh();
+
+    }
+
+    public List<TransactionsInvitesSummary> getAllCanceledDropbits() {
+        List<InviteTransactionSummary> dropbits = daoSessionManager.getInviteTransactionSummaryDao()
+                .queryBuilder()
+                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.CANCELED.getId()))
+                .list();
+        return getTransactionsInvitesSummaries(dropbits);
+    }
+
+    public List<TransactionsInvitesSummary> getAllExpiredDropbits() {
+        List<InviteTransactionSummary> dropbits = daoSessionManager.getInviteTransactionSummaryDao()
+                .queryBuilder()
+                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.EXPIRED.getId()))
+                .list();
+        return getTransactionsInvitesSummaries(dropbits);
+    }
+
+    public List<InviteTransactionSummary> getAllUnfulfilledDropbits() {
+        return daoSessionManager.getInviteTransactionSummaryDao()
+                .queryBuilder()
+                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
+                .list();
+    }
+
+    public void cancelPendingSentInvites() {
+        for (InviteTransactionSummary summary : getAllUnfulfilledDropbits()) {
+            if (Type.SENT == summary.getType()) {
+                summary.setBtcState(BTCState.CANCELED);
+                summary.update();
+            }
+        }
+    }
+
+    public TransactionSummary createInitialTransaction(String txid) {
+        return createInitialTransaction(txid, null);
+    }
+
+    public TransactionSummary createInitialTransactionForCompletedBroadcast(CompletedBroadcastDTO completedBroadcastActivityDTO) {
+        return createInitialTransaction(completedBroadcastActivityDTO.transactionId, completedBroadcastActivityDTO.getContact());
     }
 
     void saveOut(TransactionSummary transaction, VOut out) {
@@ -235,30 +568,6 @@ public class TransactionHelper {
         dao.refresh(funder);
     }
 
-    public void updateFeesFor(List<TransactionStats> transactionStats) {
-        TransactionSummaryDao dao = getTransactionDao();
-        for (TransactionStats stats : transactionStats) {
-            TransactionSummary transaction = dao.queryBuilder().where(Properties.Txid.eq(stats.getTransactionId())).limit(1).unique();
-            if (transaction != null) {
-                transaction.refresh();
-                transaction.setFee(stats.getFees());
-                transaction.update();
-            }
-        }
-    }
-
-    private TransactionSummaryDao getTransactionDao() {
-        return daoSessionManager.getTransactionSummaryDao();
-    }
-
-    private InviteTransactionSummaryDao getInviteTransactionDao() {
-        return daoSessionManager.getInviteTransactionSummaryDao();
-    }
-
-    private TransactionsInvitesSummaryDao getTransactionsInvitesSummaryDao() {
-        return daoSessionManager.getTransactionsInvitesSummaryDao();
-    }
-
     void saveTransaction(TransactionSummary transaction, TransactionDetail detail) {
         if (detail.getBlocktime() > 0L) {
             transaction.setTxTime(detail.getBlocktime());
@@ -307,26 +616,6 @@ public class TransactionHelper {
         }
     }
 
-    public void saveReceivedInviteTransaction(Wallet wallet, ReceivedInvite receivedInvite) {
-        InviteMetadata.MetadataContact sender = receivedInvite.getMetadata().getSender();
-        InviteMetadata.MetadataContact receiver = receivedInvite.getMetadata().getReceiver();
-        saveInviteTransaction(
-                wallet.getId(),
-                receivedInvite.getId(),
-                Type.RECEIVED,
-                "",
-                new PhoneNumber(sender.getCountry_code(), sender.getPhone_number()),
-                new PhoneNumber(receiver.getCountry_code(), receiver.getPhone_number()),
-                receivedInvite.getMetadata().getAmount().getUsd(),
-                receivedInvite.getCreated_at(),
-                receivedInvite.getStatus(),
-                receivedInvite.getMetadata().getAmount().getBtc(),
-                0L,
-                receivedInvite.getAddress(),
-                receivedInvite.getTxid());
-    }
-
-
     InviteTransactionSummary saveInviteTransaction(long walletId,
                                                    String inviteServerID,
                                                    Type type,
@@ -355,10 +644,9 @@ public class TransactionHelper {
             invite.setServerId(inviteServerID);
             inviteDao.insert(invite);
         } else {
-            TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
-
-            if (summary != null) {
-                TransactionSummary tx = summary.getTransactionSummary();
+            TransactionsInvitesSummary transactionsInvitesSummary = invite.getTransactionsInvitesSummary();
+            if (transactionsInvitesSummary != null) {
+                TransactionSummary tx = transactionsInvitesSummary.getTransactionSummary();
                 if (tx != null && tx.getMemPoolState() == MemPoolState.FAILED_TO_BROADCAST) {
                     return null;
                 }
@@ -422,49 +710,6 @@ public class TransactionHelper {
         transInvitesDao.refresh(transactionsInvitesSummary);
     }
 
-    public void addInviteToTransInvitesSummary(InviteTransactionSummary invite) {
-        TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
-
-        TransactionsInvitesSummary transactionsInvitesSummary = transInvitesDao.queryBuilder().
-                where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(invite.getId())).
-                limit(1).unique();
-
-        String btcTxID = invite.getBtcTransactionId();
-
-        if (btcTxID != null && !btcTxID.isEmpty()) {
-            transactionsInvitesSummary = joinInviteToTransaction(transactionsInvitesSummary, btcTxID);
-        }
-
-        if (transactionsInvitesSummary == null) {
-            transactionsInvitesSummary = new TransactionsInvitesSummary();
-            transInvitesDao.insert(transactionsInvitesSummary);
-        }
-
-        transactionsInvitesSummary.setInviteTransactionSummary(invite);
-        transactionsInvitesSummary.setInviteSummaryID(invite.getId());
-
-        if (transactionsInvitesSummary.getBtcTxTime() > 0) {
-            transactionsInvitesSummary.setInviteTime(0);
-        } else {
-            transactionsInvitesSummary.setInviteTime(invite.getSentDate());
-        }
-
-        if (invite.getBtcState() == BTCState.EXPIRED || invite.getBtcState() == BTCState.CANCELED) {
-            transactionsInvitesSummary.setBtcTxTime(invite.getSentDate());
-            transactionsInvitesSummary.setInviteTime(0);
-        }
-
-        transactionsInvitesSummary.setInviteTxID(invite.getBtcTransactionId());
-        invite.setTransactionsInvitesSummary(transactionsInvitesSummary);
-        invite.setTransactionsInvitesSummaryID(transactionsInvitesSummary.getId());
-
-        invite.update();
-        invite.refresh();
-        transactionsInvitesSummary.update();
-        transactionsInvitesSummary.refresh();
-        transInvitesDao.refresh(transactionsInvitesSummary);
-    }
-
     protected TransactionsInvitesSummary joinInviteToTransaction(TransactionsInvitesSummary transactionsInvitesSummary, String btcTxID) {
         TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
 
@@ -486,108 +731,6 @@ public class TransactionHelper {
                 limit(1).unique();
     }
 
-    private void dropEntry(TransactionsInvitesSummary transInvite) {
-        TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
-        if (transInvite == null) {
-            return;
-        }
-        transInvitesDao.delete(transInvite);
-    }
-
-
-    public void updateInviteAddressTransaction(String id, String address) {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        InviteTransactionSummary invite = inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(id)).
-                limit(1).unique();
-
-        if (invite == null) {
-            Log.e(TAG, "unable to update invite: " + address);
-            return;
-        }
-
-        invite.refresh();
-        invite.setAddress(address);
-        invite.update();
-        invite.refresh();
-    }
-
-
-    public InviteTransactionSummary updateInviteAddressTransaction(SentInvite sentInvite) {
-        InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite);
-        if (invite == null) return null;
-
-        invite.refresh();
-        String status = sentInvite.getStatus();
-        if ("expired".equals(status)) {
-            invite.setBtcState(BTCState.EXPIRED);
-            updateInviteTimeCompleteTransactionInviteSummary(invite);
-        } else if ("new".equals(status)) {
-            invite.setBtcState(BTCState.UNFULFILLED);
-        } else if ("canceled".equals(status)) {
-            invite.setBtcState(BTCState.CANCELED);
-            updateInviteTimeCompleteTransactionInviteSummary(invite);
-        } else if ("completed".equals(status)) {
-            invite.setBtcState(BTCState.FULFILLED);
-        }
-
-        invite.setPubkey(sentInvite.getAddressPubKey());
-        invite.setAddress(sentInvite.getAddress());
-        invite.update();
-        invite.refresh();
-        return invite;
-    }
-
-    private void updateInviteTimeCompleteTransactionInviteSummary(InviteTransactionSummary invite) {
-        TransactionsInvitesSummaryDao query = daoSessionManager.getTransactionsInvitesSummaryDao();
-        TransactionsInvitesSummary summary = query.queryBuilder()
-                .where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(invite.getId()))
-                .limit(1).unique();
-
-        if (null != summary) {
-            summary.setInviteTime(0);
-            summary.setBtcTxTime(invite.getSentDate());
-            summary.update();
-        }
-    }
-
-    @Nullable
-    public InviteTransactionSummary getInviteTransactionSummary(SentInvite sentInvite) {
-        InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite.getId());
-
-        if (invite == null) {
-            Log.e(TAG, "unable to update invite: " + sentInvite.getAddress());
-            return null;
-        }
-        return invite;
-    }
-
-    public void updateInviteTxIDTransaction(Wallet wallet, String inviteServerID, String txID) {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        InviteTransactionSummary invite = inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
-                limit(1).unique();
-
-        if (invite == null) {
-            Log.e(TAG, "unable to update invite: " + txID);
-            return;
-        }
-
-        if (invite.getBtcState() == null || invite.getBtcState() == BTCState.UNFULFILLED) {
-
-            invite.setBtcTransactionId(txID);
-            invite.setBtcState(BTCState.FULFILLED);
-            invite.update();
-            invite.refresh();
-
-            addInviteToTransInvitesSummary(invite);
-
-            saveLocalTransaction(wallet, txID, invite);
-        }
-    }
-
     protected void saveLocalTransaction(Wallet wallet, String txID, InviteTransactionSummary invite) {
         TransactionSummaryDao dao = getTransactionDao();
         TransactionSummary transaction = dao.queryBuilder().
@@ -607,133 +750,44 @@ public class TransactionHelper {
         }
     }
 
-    public void updateInviteAsCanceled(String inviteServerID) {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+    protected long calculatePastTimeFromNow(long olderThanSeconds) {
+        long currentTimeInMillis = dateUtil.getCurrentTimeInMillis();
+        long olderThanTimeInMillis = TimeUnit.SECONDS.toMillis(olderThanSeconds);
 
-        InviteTransactionSummary invite = inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
-                limit(1).unique();
+        return currentTimeInMillis - olderThanTimeInMillis;
+    }
 
-        if (invite == null) {
+    private TransactionSummaryDao getTransactionDao() {
+        return daoSessionManager.getTransactionSummaryDao();
+    }
+
+    private InviteTransactionSummaryDao getInviteTransactionDao() {
+        return daoSessionManager.getInviteTransactionSummaryDao();
+    }
+
+    private TransactionsInvitesSummaryDao getTransactionsInvitesSummaryDao() {
+        return daoSessionManager.getTransactionsInvitesSummaryDao();
+    }
+
+    private void dropEntry(TransactionsInvitesSummary transInvite) {
+        TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
+        if (transInvite == null) {
             return;
         }
-
-        invite.setBtcTransactionId("");
-        invite.setBtcState(BTCState.CANCELED);
-        invite.update();
-        invite.refresh();
-
-        addInviteToTransInvitesSummary(invite);
+        transInvitesDao.delete(transInvite);
     }
 
-    public List<InviteTransactionSummary> gatherUnfulfilledInviteTrans() {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+    private void updateInviteTimeCompleteTransactionInviteSummary(InviteTransactionSummary invite) {
+        TransactionsInvitesSummaryDao query = daoSessionManager.getTransactionsInvitesSummaryDao();
+        TransactionsInvitesSummary summary = query.queryBuilder()
+                .where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(invite.getId()))
+                .limit(1).unique();
 
-        return inviteDao.queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.getId()),
-                        InviteTransactionSummaryDao.Properties.Address.isNotNull(),
-                        InviteTransactionSummaryDao.Properties.Address.notEq(""))
-                .whereOr(
-                        InviteTransactionSummaryDao.Properties.BtcTransactionId.isNull(),
-                        InviteTransactionSummaryDao.Properties.BtcTransactionId.eq(""))
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
-                .list();
-
-    }
-
-    public InviteTransactionSummary getInviteTransactionSummary(String inviteServerID) {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        return inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
-                limit(1).unique();
-    }
-
-    public List<InviteTransactionSummary> getInvitesWithTxID() {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        return inviteDao.queryBuilder().where(
-                InviteTransactionSummaryDao.Properties.BtcTransactionId.isNotNull(),
-                InviteTransactionSummaryDao.Properties.BtcTransactionId.notEq("")).list();
-    }
-
-    public TransactionSummary getTransactionWithTxID(String txID) {
-        TransactionSummaryDao transactionTableDao = daoSessionManager.getTransactionSummaryDao();
-
-        return transactionTableDao.queryBuilder().where(
-                Properties.Txid.eq(txID)).limit(1).unique();
-    }
-
-    public void joinInviteToTx(@NonNull InviteTransactionSummary invite, @NonNull TransactionSummary transaction) {
-
-        TransactionsInvitesSummaryDao joinTableDao = daoSessionManager.getTransactionsInvitesSummaryDao();
-        TransactionsInvitesSummary joinContainingRealTX = joinTableDao.queryBuilder()
-                .where(TransactionsInvitesSummaryDao.Properties.TransactionSummaryID.eq(transaction.getId())).limit(1).unique();
-        TransactionsInvitesSummary joinContainingInvite = joinTableDao.queryBuilder()
-                .where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(invite.getId())).limit(1).unique();
-
-        if (joinContainingRealTX == joinContainingInvite) return;
-
-        dropEntry(joinContainingInvite);
-        dropEntry(joinContainingRealTX);
-
-
-        TransactionsInvitesSummary newJoinTable = daoSessionManager.newTransactionInviteSummary();
-        daoSessionManager.insert(newJoinTable);
-
-        newJoinTable.setInviteTransactionSummary(invite);
-        newJoinTable.setInviteTxID(invite.getBtcTransactionId());
-
-        newJoinTable.setTransactionTxID(transaction.getTxid());
-        newJoinTable.setTransactionSummary(transaction);
-
-        if (transaction.getTxTime() > 0) {
-            newJoinTable.setBtcTxTime(transaction.getTxTime());
-            newJoinTable.setInviteTime(0);
-        } else {
-            newJoinTable.setInviteTime(invite.getSentDate());
+        if (null != summary) {
+            summary.setInviteTime(0);
+            summary.setBtcTxTime(invite.getSentDate());
+            summary.update();
         }
-
-        newJoinTable.update();
-        newJoinTable.refresh();
-
-        invite.setTransactionsInvitesSummaryID(newJoinTable.getId());
-        invite.update();
-        invite.refresh();
-
-        transaction.setTransactionsInvitesSummaryID(newJoinTable.getId());
-        transaction.update();
-        transaction.refresh();
-    }
-
-
-    public List<InviteTransactionSummary> gatherPendingInviteTrans() {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        return inviteDao.queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.getId()))
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
-                .list();
-
-
-    }
-
-    public String markTransactionSummaryAsFailedToBroadcast(String txid) {
-        TransactionSummary transaction = getTransactionDao().queryBuilder().
-                where(Properties.Txid.eq(txid)).
-                limit(1).unique();
-
-        if (transaction == null) return null;
-
-        markTargetStatsAsCanceled(transaction.getReceiver());
-        markFundingStatsAsCanceled(transaction.getFunder());
-
-        transaction.setMemPoolState(MemPoolState.FAILED_TO_BROADCAST);
-        transaction.update();
-        transaction.refresh();
-
-        String newTxid = renameTXIDToFailed(txid);
-        return newTxid;
     }
 
     private void markTargetStatsAsCanceled(List<TargetStat> receivers) {
@@ -785,19 +839,6 @@ public class TransactionHelper {
         fundingStat.refresh();
     }
 
-    public void markTransactionSummaryAsAcknowledged(String txid) {
-        TransactionSummary transaction = getTransactionDao().queryBuilder().
-                where(Properties.Txid.eq(txid)).
-                limit(1).unique();
-
-        if (transaction == null) return;
-
-        transaction.setMemPoolState(MemPoolState.ACKNOWLEDGE);
-        transaction.update();
-        transaction.refresh();
-
-    }
-
     private String renameTXIDToFailed(String txid) {
         long currentTime = dateUtil.getCurrentTimeInMillis();
 
@@ -847,16 +888,8 @@ public class TransactionHelper {
         transactionsInvitesSummary.refresh();
     }
 
-
     private boolean transactionIsInABlock(String blockHash) {
         return blockHash != null && !blockHash.isEmpty();
-    }
-
-    protected long calculatePastTimeFromNow(long olderThanSeconds) {
-        long currentTimeInMillis = dateUtil.getCurrentTimeInMillis();
-        long olderThanTimeInMillis = TimeUnit.SECONDS.toMillis(olderThanSeconds);
-
-        return currentTimeInMillis - olderThanTimeInMillis;
     }
 
     @NonNull
@@ -873,46 +906,6 @@ public class TransactionHelper {
 
     private TransactionsInvitesSummary getTransactionInviteSummaryFor(InviteTransactionSummary summary) {
         return daoSessionManager.getTransactionsInvitesSummaryDao().queryBuilder().where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(summary.getId())).limit(1).unique();
-    }
-
-    public List<TransactionsInvitesSummary> getAllCanceledDropbits() {
-        List<InviteTransactionSummary> dropbits = daoSessionManager.getInviteTransactionSummaryDao()
-                .queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.CANCELED.getId()))
-                .list();
-        return getTransactionsInvitesSummaries(dropbits);
-    }
-
-    public List<TransactionsInvitesSummary> getAllExpiredDropbits() {
-        List<InviteTransactionSummary> dropbits = daoSessionManager.getInviteTransactionSummaryDao()
-                .queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.EXPIRED.getId()))
-                .list();
-        return getTransactionsInvitesSummaries(dropbits);
-    }
-
-    public List<InviteTransactionSummary> getAllUnfulfilledDropbits() {
-        return daoSessionManager.getInviteTransactionSummaryDao()
-                .queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
-                .list();
-    }
-
-    public void cancelPendingSentInvites() {
-        for (InviteTransactionSummary summary : getAllUnfulfilledDropbits()) {
-            if (Type.SENT == summary.getType()) {
-                summary.setBtcState(BTCState.CANCELED);
-                summary.update();
-            }
-        }
-    }
-
-    public TransactionSummary createInitialTransaction(String txid) {
-        return createInitialTransaction(txid, null);
-    }
-
-    public TransactionSummary createInitialTransactionForCompletedBroadcast(CompletedBroadcastDTO completedBroadcastActivityDTO) {
-        return createInitialTransaction(completedBroadcastActivityDTO.transactionId, completedBroadcastActivityDTO.getContact());
     }
 
     private TransactionSummary createInitialTransaction(String transactionId, Contact contact) {

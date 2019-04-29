@@ -4,7 +4,7 @@ import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.runner.InviteContactRunner;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
@@ -94,9 +94,9 @@ public class InviteContactPresenterTest {
     @Test
     public void onBroadcastError() {
 
-        inviteContactPresenter.onInviteError(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, "error");
+        inviteContactPresenter.onInviteError(DropbitIntents.ACTION_DROPBIT__ERROR_UNKNOWN, "error");
 
-        verify(view).showInviteFail(Intents.ACTION_DROPBIT__ERROR_UNKNOWN, "error");
+        verify(view).showInviteFail(DropbitIntents.ACTION_DROPBIT__ERROR_UNKNOWN, "error");
     }
 
     @Test

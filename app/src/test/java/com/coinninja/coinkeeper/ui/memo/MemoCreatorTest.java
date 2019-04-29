@@ -1,7 +1,8 @@
 package com.coinninja.coinkeeper.ui.memo;
 
-import android.app.AlertDialog;
 import android.widget.EditText;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.coinninja.coinkeeper.DumbActivity;
 import com.coinninja.coinkeeper.R;
@@ -14,14 +15,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.shadows.ShadowAlertDialog;
+import org.robolectric.shadows.ShadowDialog;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -112,6 +113,6 @@ public class MemoCreatorTest {
     }
 
     private AlertDialog getAlertDialog() {
-        return ShadowAlertDialog.getLatestAlertDialog();
+        return (AlertDialog) ShadowDialog.getLatestDialog();
     }
 }

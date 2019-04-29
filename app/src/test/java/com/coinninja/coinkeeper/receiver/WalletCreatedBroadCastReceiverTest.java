@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.receiver;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import org.junit.After;
@@ -28,7 +28,7 @@ public class WalletCreatedBroadCastReceiverTest {
     public void setUp() {
         app = (TestCoinKeeperApplication) RuntimeEnvironment.application;
         receiver = new WalletCreatedBroadCastReceiver();
-        receiver.onReceive(app, new Intent(Intents.ACTION_WALLET_CREATED));
+        receiver.onReceive(app, new Intent(DropbitIntents.ACTION_WALLET_CREATED));
     }
 
     @After

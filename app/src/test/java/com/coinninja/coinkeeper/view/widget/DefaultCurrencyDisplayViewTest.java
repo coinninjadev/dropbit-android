@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.view.widget;
 
 import android.graphics.drawable.Drawable;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -24,9 +23,9 @@ import org.robolectric.RobolectricTestRunner;
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)

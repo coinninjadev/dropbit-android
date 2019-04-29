@@ -11,7 +11,7 @@ import com.coinninja.coinkeeper.adapter.TrainingPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.TrainingModel;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.google.android.material.tabs.TabLayout;
@@ -133,16 +133,16 @@ public class TrainingActivity extends SecuredActivity implements ViewPager.OnPag
         Intent intent = new Intent(Intent.ACTION_VIEW);
         switch (trainingModel) {
             case WHATS_BITCOIN:
-                intent.setData(Intents.URI_LEARN_ABOUT_BITCOIN);
+                intent.setData(DropbitIntents.URI_LEARN_ABOUT_BITCOIN);
                 break;
             case SYSTEM_BROKEN:
-                intent.setData(Intents.URI_WHY_BITCOIN);
+                intent.setData(DropbitIntents.URI_WHY_BITCOIN);
                 break;
             case RECOVERY_WORDS:
-                intent.setData(Intents.URI_RECOVERY_WORDS);
+                intent.setData(DropbitIntents.URI_RECOVERY_WORDS);
                 break;
             case DROPBIT:
-                intent.setData(Intents.URI_WHAT_IS_DROPBIT);
+                intent.setData(DropbitIntents.URI_WHAT_IS_DROPBIT);
                 break;
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);

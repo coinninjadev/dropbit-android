@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsModel;
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
@@ -18,8 +20,6 @@ import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import java.util.List;
 import java.util.Locale;
-
-import androidx.annotation.Nullable;
 
 public class VerifyRecoverywordsFragment extends BaseFragment implements View.OnClickListener, DialogInterface.OnClickListener {
 
@@ -40,11 +40,15 @@ public class VerifyRecoverywordsFragment extends BaseFragment implements View.On
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
         view = inflater.inflate(R.layout.verify_recovery_words, container, false);
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
         recoveryWordsModel = presenter.startNewChallenge();
         presentChallenge();
-        return view;
     }
 
     public void presentChallenge() {

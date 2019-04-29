@@ -5,7 +5,7 @@ import android.content.Intent;
 
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.service.runner.SaveTransactionRunner;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import javax.inject.Inject;
 
@@ -34,8 +34,8 @@ public class BroadcastTransactionService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        if (intent.hasExtra(Intents.EXTRA_COMPLETED_BROADCAST_DTO)) {
-            CompletedBroadcastDTO completedBroadcastActivityDTO = intent.getParcelableExtra(Intents.EXTRA_COMPLETED_BROADCAST_DTO);
+        if (intent.hasExtra(DropbitIntents.EXTRA_COMPLETED_BROADCAST_DTO)) {
+            CompletedBroadcastDTO completedBroadcastActivityDTO = intent.getParcelableExtra(DropbitIntents.EXTRA_COMPLETED_BROADCAST_DTO);
             runner.setCompletedBroadcastActivityDTO(completedBroadcastActivityDTO);
             runner.run();
         }

@@ -36,9 +36,9 @@ public class NewWalletActivity_OnPinConfirmedTest {
         fingerprintManager.setIsHardwareDetected(true);
         fingerprintManager.setHasEnrolledFingerprints(true);
 
-        newWalletActivity.onPinConfirmedAndSaved(goodPin);
+        newWalletActivity.onPinConfirmed(goodPin);
 
-        assertNotNull(newWalletActivity.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
+        assertNotNull(newWalletActivity.getSupportFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class NewWalletActivity_OnPinConfirmedTest {
         CreatePinActivity newWalletActivity = Robolectric.setupActivity(CreatePinActivity.class);
         PrivateAccessor.setField(newWalletActivity, "pinFragmentPresenter", mockPinFragmentPresenter);
 
-        newWalletActivity.onPinConfirmedAndSaved(goodPin);
+        newWalletActivity.onPinConfirmed(goodPin);
 
         verify(mockPinFragmentPresenter).clearPin();
     }
@@ -56,7 +56,7 @@ public class NewWalletActivity_OnPinConfirmedTest {
     public void userGetsAuthenticatedWhenPinIsConfirmedAndSaved() {
         CreatePinActivity newWalletActivity = Robolectric.setupActivity(CreatePinActivity.class);
 
-        newWalletActivity.onPinConfirmedAndSaved(goodPin);
+        newWalletActivity.onPinConfirmed(goodPin);
 
         verify(application.authentication).setAuthenticated();
     }

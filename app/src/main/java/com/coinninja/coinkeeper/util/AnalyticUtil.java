@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.util;
 
 import android.app.Activity;
-import android.app.Fragment;
 
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
@@ -9,6 +8,7 @@ import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 public class AnalyticUtil implements Analytics {
 

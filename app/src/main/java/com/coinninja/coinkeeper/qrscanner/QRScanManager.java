@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.qrscanner;
 
-import android.app.Activity;
 import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
@@ -12,6 +11,8 @@ import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import java.util.EnumSet;
 import java.util.Set;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 public class QRScanManager extends CaptureManager {
     private static final String TAG = QRScanManager.class.getSimpleName();
 
@@ -19,7 +20,7 @@ public class QRScanManager extends CaptureManager {
     private final OnScanListener onScanListener;
     private boolean isTorchOn = false;
 
-    public QRScanManager(Activity activity, DecoratedBarcodeView barcodeScannerView, OnScanListener onScanListener) {
+    public QRScanManager(AppCompatActivity activity, DecoratedBarcodeView barcodeScannerView, OnScanListener onScanListener) {
         super(activity, barcodeScannerView);
         this.barcodeScannerView = barcodeScannerView;
         this.onScanListener = onScanListener;

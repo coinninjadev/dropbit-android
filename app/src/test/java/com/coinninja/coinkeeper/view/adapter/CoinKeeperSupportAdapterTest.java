@@ -3,6 +3,8 @@ package com.coinninja.coinkeeper.view.adapter;
 import android.net.Uri;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.view.adapter.CoinKeeperSupportAdapter.OnItemSelectedListener;
 
@@ -13,11 +15,9 @@ import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
-import androidx.recyclerview.widget.RecyclerView;
-
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 

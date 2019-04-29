@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/unverified_phone_group"
@@ -27,11 +27,12 @@
         android:layout_height="@dimen/tx_detail_send_state_icon_size"
         android:layout_marginBottom="100dp"
         android:tint="@color/font_gray"
-        android:src="@drawable/ic_phone"
+        app:srcCompat="@drawable/ic_phone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/verification_overview_text_view"
@@ -59,7 +60,7 @@
         android:layout_marginStart="46dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="46dp"
-        android:text="Verified number:"
+        android:text="@string/user_account_verified_verified_number_title"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance"
         app:layout_constraintEnd_toEndOf="parent"
@@ -73,23 +74,23 @@
         android:layout_marginStart="46dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="46dp"
-        android:text="(123) 123-1234"
+        tools:text="(123) 123-1234"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.Large"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/verified_number_title"/>
+        app:layout_constraintTop_toBottomOf="@+id/verified_number_title" />
 
-    <TextView
+    <Button
+        android:theme="@style/FlatButton.Warning"
         android:id="@+id/change_remove_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="40dp"
-        android:text="CHANGE/REMOVE"
+        android:text="@string/user_account_remove_button"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.Error"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/verified_number_text_view" />

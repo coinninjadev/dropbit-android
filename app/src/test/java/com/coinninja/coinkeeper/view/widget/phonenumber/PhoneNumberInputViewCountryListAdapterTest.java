@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.coinninja.matchers.TextViewMatcher.hasText;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 public class PhoneNumberInputViewCountryListAdapterTest {

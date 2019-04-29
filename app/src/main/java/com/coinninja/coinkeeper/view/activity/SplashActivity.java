@@ -9,11 +9,9 @@ import android.view.View;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.interfaces.Authentication;
-import com.coinninja.coinkeeper.model.helpers.CreateUserTask;
-import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.receiver.StartupCompleteReceiver;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
@@ -25,13 +23,9 @@ public class SplashActivity extends BaseActivity {
     Runnable displayDelayRunnable;
 
     @Inject
-    CreateUserTask createUserTask;
-    @Inject
     CNWalletManager cnWalletManager;
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
-    @Inject
-    UserHelper userHelper;
     @Inject
     Authentication authentication;
     @Inject
@@ -44,15 +38,13 @@ public class SplashActivity extends BaseActivity {
         setContentView(R.layout.activity_splash);
         getWindow().setExitTransition(null);
         getWindow().setEnterTransition(null);
-        displayDelayRunnable = () -> runOnUiThread(() -> onDelayComplete());
-        createUserTask.setOnUserCreatedListener(() -> onUserCreated());
+        displayDelayRunnable = () -> runOnUiThread(this::showNextActivity);
         authentication.forceDeAuthenticate();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        createUserTask.execute();
         findViewById(R.id.img_logo).postDelayed(displayDelayRunnable, 500);
     }
 
@@ -62,28 +54,15 @@ public class SplashActivity extends BaseActivity {
         findViewById(R.id.img_logo).removeCallbacks(displayDelayRunnable);
     }
 
-    void onUserCreated() {
-        createUserTask = null;
-        if (asynctaskscompleted()) {
-            showNextActivity();
-        }
-    }
-
-    void onDelayComplete() {
-        displayDelayRunnable = null;
-        if (asynctaskscompleted()) {
-            showNextActivity();
-        }
-    }
-
-    synchronized boolean asynctaskscompleted() {
-        return createUserTask == null && displayDelayRunnable == null;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        localBroadCastUtil.sendGlobalBroadcast(StartupCompleteReceiver.class,
+                DropbitIntents.ACTION_ON_APPLICATION_FOREGROUND_STARTUP);
     }
 
     @SuppressLint("NewApi")
     private void showNextActivity() {
-        localBroadCastUtil.sendGlobalBroadcast(StartupCompleteReceiver.class,
-                Intents.ACTION_ON_APPLICATION_FOREGROUND_STARTUP);
         if (cnWalletManager.hasWallet()) {
             activityNavigationUtil.navigateToHome(this);
         } else {
@@ -98,11 +77,6 @@ public class SplashActivity extends BaseActivity {
         View imgLogo = findViewById(R.id.img_logo);
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, imgLogo, getString(R.string.logo_slide));
         startActivity(intent, options.toBundle());
-    }
-
-
-    public CreateUserTask getCreateUserTask() {
-        return createUserTask;
     }
 
 }

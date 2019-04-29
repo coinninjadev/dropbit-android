@@ -12,7 +12,7 @@ import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.junit.After;
 import org.junit.Before;
@@ -77,7 +77,7 @@ public class SaveInviteServiceTest {
         service.transactionNotificationManager = transactionNotificationManager;
 
         intent = new Intent(service, SaveInviteService.class);
-        intent.putExtra(Intents.EXTRA_COMPLETED_INVITE_DTO, completedInviteDTO);
+        intent.putExtra(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO, completedInviteDTO);
     }
 
     @After
@@ -91,7 +91,7 @@ public class SaveInviteServiceTest {
 
     @Test
     public void does_nothing_when_intent_does_not_have_completed_dto() {
-        intent.removeExtra(Intents.EXTRA_COMPLETED_INVITE_DTO);
+        intent.removeExtra(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO);
 
         verify(inviteTransactionSummaryHelper, times(0)).saveTemporaryInvite(completedInviteDTO);
         verify(cnWalletManager, times(0)).updateBalances();

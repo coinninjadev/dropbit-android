@@ -39,7 +39,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/message_horizontal_padding"
         android:gravity="center"
-        android:src="@mipmap/ic_fingerprint_round"
+        app:srcCompat="@mipmap/ic_fingerprint_round"
         android:visibility="invisible"
         />
 

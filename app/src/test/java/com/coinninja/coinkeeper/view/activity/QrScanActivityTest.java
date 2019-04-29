@@ -1,11 +1,10 @@
 package com.coinninja.coinkeeper.view.activity;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 
 import org.junit.After;
@@ -19,6 +18,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -75,15 +76,15 @@ public class QrScanActivityTest {
 
         ShadowActivity shadowActivity = shadowOf(activity);
         Intent intent = shadowActivity.getResultIntent();
-        assertEquals(Intents.RESULT_SCAN_OK, shadowActivity.getResultCode());
-        assertEquals(qrString, intent.getStringExtra(Intents.EXTRA_SCANNED_DATA));
+        assertEquals(DropbitIntents.RESULT_SCAN_OK, shadowActivity.getResultCode());
+        assertEquals(qrString, intent.getStringExtra(DropbitIntents.EXTRA_SCANNED_DATA));
     }
 
 
     @Test
     public void when_clicking_the_x_to_exit___set_result_code_to_canceled() {
         startWithPermission(true);
-        int expectedResultCode = Activity.RESULT_CANCELED;
+        int expectedResultCode = AppCompatActivity.RESULT_CANCELED;
 
         activity.onCloseClicked();
 
@@ -121,7 +122,7 @@ public class QrScanActivityTest {
         startWithPermission(false);
 
         verify(permissionsUtil).requestPermissions(activity, new String[]{Manifest.permission.CAMERA},
-                Intents.REQUEST_PERMISSIONS_CAMERA);
+                DropbitIntents.REQUEST_PERMISSIONS_CAMERA);
     }
 
     @Test

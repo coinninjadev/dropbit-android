@@ -12,7 +12,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.After;
@@ -30,7 +30,7 @@ import org.robolectric.shadows.ShadowActivity;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -66,7 +66,7 @@ public class RecoverWalletActivityTest {
 
     private void mockWithWords(String[] words) {
         Intent intent = new Intent(RuntimeEnvironment.application, RecoverWalletActivity.class);
-        intent.putExtra(Intents.EXTRA_RECOVERY_WORDS, words);
+        intent.putExtra(DropbitIntents.EXTRA_RECOVERY_WORDS, words);
         activityController = Robolectric.buildActivity(RecoverWalletActivity.class, intent);
         activityController.newIntent(intent).create();
         activity = activityController.get();
@@ -77,7 +77,7 @@ public class RecoverWalletActivityTest {
 
     private void mockForBroadcastTest(String[] recoverWords) {
         Intent intent = new Intent(RuntimeEnvironment.application, RecoverWalletActivity.class);
-        intent.putExtra(Intents.EXTRA_RECOVERY_WORDS, recoverWords);
+        intent.putExtra(DropbitIntents.EXTRA_RECOVERY_WORDS, recoverWords);
         activityController = Robolectric.buildActivity(RecoverWalletActivity.class, intent);
         activity = activityController.get();
     }
@@ -189,9 +189,9 @@ public class RecoverWalletActivityTest {
         ArgumentCaptor<IntentFilter> argumentCaptor = ArgumentCaptor.forClass(IntentFilter.class);
         verify(application.localBroadCastUtil).registerReceiver(eq(activity.receiver), argumentCaptor.capture());
         IntentFilter filter = argumentCaptor.getValue();
-        assertThat(filter.getAction(0), equalTo(Intents.ACTION_ON_SERVICE_CONNECTION_BOUNDED));
-        assertThat(filter.getAction(1), equalTo(Intents.ACTION_SAVE_RECOVERY_WORDS));
-        assertThat(filter.getAction(2), equalTo(Intents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS));
+        assertThat(filter.getAction(0), equalTo(DropbitIntents.ACTION_ON_SERVICE_CONNECTION_BOUNDED));
+        assertThat(filter.getAction(1), equalTo(DropbitIntents.ACTION_SAVE_RECOVERY_WORDS));
+        assertThat(filter.getAction(2), equalTo(DropbitIntents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS));
     }
 
     @Test
@@ -252,7 +252,7 @@ public class RecoverWalletActivityTest {
         activityController.setup();
         LocalBroadCastUtil localBroadCastUtil = activity.localBroadCastUtil;
 
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_ON_SERVICE_CONNECTION_BOUNDED);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_ON_SERVICE_CONNECTION_BOUNDED);
 
         verify(cnServices).saveSeedWords(valid_words);
     }
@@ -274,7 +274,7 @@ public class RecoverWalletActivityTest {
         activity.registerForLocalBroadcast();
 
 
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_SAVE_RECOVERY_WORDS);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_SAVE_RECOVERY_WORDS);
 
 
         verify(mockIcon).setImageResource(R.drawable.ic_restore_success);
@@ -301,7 +301,7 @@ public class RecoverWalletActivityTest {
         activity.localBroadCastUtil = localBroadCastUtil;
         activity.registerForLocalBroadcast();
 
-        localBroadCastUtil.sendBroadcast(Intents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS);
+        localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS);
 
         verify(mockIcon).setImageResource(R.drawable.ic_restore_fail);
         verify(mockTitle).setText(activity.getText(R.string.recover_wallet_error_title));

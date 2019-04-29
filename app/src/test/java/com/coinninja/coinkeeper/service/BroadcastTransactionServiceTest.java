@@ -9,7 +9,7 @@ import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.runner.SaveTransactionRunner;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class BroadcastTransactionServiceTest {
     @Test
     public void saves_transaction_locally() {
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_COMPLETED_BROADCAST_DTO, completedBroadcastActivityDTO);
+        intent.putExtra(DropbitIntents.EXTRA_COMPLETED_BROADCAST_DTO, completedBroadcastActivityDTO);
 
         broadcastTransactionService.onHandleIntent(intent);
 

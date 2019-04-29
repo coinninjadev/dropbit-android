@@ -1,16 +1,19 @@
 package com.coinninja.coinkeeper.ui.settings;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.service.DeverifyAccountService;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import org.junit.After;
 import org.junit.Before;
@@ -22,10 +25,9 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowAlertDialog;
+import org.robolectric.shadows.ShadowDialog;
 
-import androidx.annotation.Nullable;
-
+import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertFalse;
@@ -77,9 +79,9 @@ public class RemoveCNPhoneNumberControllerTest {
 
     @Test
     public void explains_that_pending_dropbits_will_be_canceled() {
-        controller.onRemovePhoneNumber(activity.findViewById(R.id.change_remove_button));
+        controller.onRemovePhoneNumber(activity);
 
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
+        AlertDialog dialog = (AlertDialog) ShadowDialog.getLatestDialog();
         assertThat(((TextView) dialog.findViewById(R.id.warning)).getText().toString(),
                 equalTo(activity.getString(R.string.deverification_dialog_pending_dropbit_canceled_warning_message)));
         assertThat(((TextView) dialog.findViewById(R.id.message)).getText().toString(),
@@ -90,8 +92,8 @@ public class RemoveCNPhoneNumberControllerTest {
 
     @Test
     public void acknowledging_message_confirms_request() {
-        controller.onRemovePhoneNumber(activity.findViewById(R.id.change_remove_button));
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
+        controller.onRemovePhoneNumber(activity);
+        AlertDialog dialog = (AlertDialog) ShadowDialog.getLatestDialog();
 
         dialog.findViewById(R.id.ok).performClick();
 
@@ -103,13 +105,13 @@ public class RemoveCNPhoneNumberControllerTest {
         controller.activity = activity;
         controller.onConfirmedRemovePhoneNumber();
 
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(dialog);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+
+        GenericAlertDialog dialog = getDialog();
+        dialog.getAlertDialog().getButton(AlertDialog.BUTTON_POSITIVE).performClick();
 
         Intent intent = shadowActivity.getNextStartedService();
         assertThat(intent.getComponent().getClassName(), equalTo(DeverifyAccountService.class.getName()));
-        assertTrue(shadowAlertDialog.hasBeenDismissed());
+        assertTrue(shadowOf(dialog.getAlertDialog()).hasBeenDismissed());
     }
 
     @Test
@@ -117,12 +119,12 @@ public class RemoveCNPhoneNumberControllerTest {
         controller.activity = activity;
         controller.onConfirmedRemovePhoneNumber();
 
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(dialog);
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
+        GenericAlertDialog dialog = getDialog();
 
+        assertNotNull(dialog);
+        dialog.getAlertDialog().getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
         assertNull(shadowActivity.getNextStartedService());
-        assertTrue(shadowAlertDialog.hasBeenDismissed());
+        assertTrue(shadowOf(dialog.getAlertDialog()).hasBeenDismissed());
     }
 
     @Test
@@ -131,24 +133,24 @@ public class RemoveCNPhoneNumberControllerTest {
 
         controller.onConfirmedRemovePhoneNumber();
 
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(dialog);
-        assertThat(shadowAlertDialog.getMessage(), equalTo(activity.getString(R.string.deverification_message_are_you_sure)));
-        assertThat(dialog.getButton(AlertDialog.BUTTON_POSITIVE).getText(), equalTo(activity.getString(R.string.deverification_dialog_are_you_sure_positive)));
-        assertThat(dialog.getButton(AlertDialog.BUTTON_NEGATIVE).getText(), equalTo(activity.getString(R.string.deverification_dialog_are_you_sure_negative)));
-        assertFalse(shadowAlertDialog.isCancelableOnTouchOutside());
+        GenericAlertDialog dialog = getDialog();
+
+        assertNotNull(dialog);
+        assertThat(dialog.getMessage(), equalTo(activity.getString(R.string.deverification_message_are_you_sure)));
+        assertThat(dialog.getAlertDialog().getButton(AlertDialog.BUTTON_POSITIVE).getText(), equalTo(activity.getString(R.string.deverification_dialog_are_you_sure_positive)));
+        assertThat(dialog.getAlertDialog().getButton(AlertDialog.BUTTON_NEGATIVE).getText(), equalTo(activity.getString(R.string.deverification_dialog_are_you_sure_negative)));
+        assertFalse(shadowOf(dialog.getAlertDialog()).isCancelableOnTouchOutside());
     }
 
     @Test
     public void dismisses_visible_dialogs_when_stopped() {
         controller.activity = activity;
         controller.onConfirmedRemovePhoneNumber();
+        GenericAlertDialog dialog = getDialog();
 
         controller.onStop();
 
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(dialog);
-        assertTrue(shadowAlertDialog.hasBeenDismissed());
+        assertTrue(shadowOf(dialog.getAlertDialog()).hasBeenDismissed());
     }
 
     @Test
@@ -164,43 +166,47 @@ public class RemoveCNPhoneNumberControllerTest {
     public void observes_deverification_failure() {
         controller.activity = activity;
 
-        controller.receiver.onReceive(activity, new Intent(Intents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED));
+        controller.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED));
 
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(dialog);
-        assertThat(shadowAlertDialog.getMessage(), equalTo(activity.getString(R.string.deverification_dialog_failed_message)));
-        assertThat(dialog.getButton(AlertDialog.BUTTON_POSITIVE).getText(), equalTo(activity.getString(R.string.deverification_dialog_failed_positive_button)));
-        assertThat(dialog.getButton(AlertDialog.BUTTON_NEGATIVE).getText(), equalTo(activity.getString(R.string.deverification_dialog_failed_negative_button)));
-        assertFalse(shadowAlertDialog.isCancelableOnTouchOutside());
+        GenericAlertDialog dialog = getDialog();
+        assertThat(dialog.getMessage(), equalTo(activity.getString(R.string.deverification_dialog_failed_message)));
+        assertThat(dialog.getAlertDialog().getButton(AlertDialog.BUTTON_POSITIVE).getText(), equalTo(activity.getString(R.string.deverification_dialog_failed_positive_button)));
+        assertThat(dialog.getAlertDialog().getButton(AlertDialog.BUTTON_NEGATIVE).getText(), equalTo(activity.getString(R.string.deverification_dialog_failed_negative_button)));
+        assertFalse(shadowOf(dialog.getAlertDialog()).isCancelableOnTouchOutside());
     }
 
     @Test
     public void allows_user_to_try_again_when_failed() {
         controller.activity = activity;
-        controller.receiver.onReceive(activity, new Intent(Intents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED));
+        controller.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED));
 
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(dialog);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        GenericAlertDialog dialog = getDialog();
+        assertNotNull(dialog);
+
+        dialog.getAlertDialog().getButton(AlertDialog.BUTTON_POSITIVE).performClick();
 
         Intent intent = shadowActivity.getNextStartedService();
         assertThat(intent.getComponent().getClassName(), equalTo(DeverifyAccountService.class.getName()));
-        assertTrue(shadowAlertDialog.hasBeenDismissed());
+        assertTrue(shadowOf(dialog.getAlertDialog()).hasBeenDismissed());
     }
 
     @Test
     public void dismisses_visible_dialog_when_deverification_completed() {
         controller.activity = activity;
-        controller.receiver.onReceive(activity, new Intent(Intents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED));
+        controller.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED));
+        GenericAlertDialog dialog = getDialog();
 
-        controller.receiver.onReceive(activity, new Intent(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED));
+        controller.receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED));
 
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog shadowAlertDialog = shadowOf(dialog);
-        assertTrue(shadowAlertDialog.hasBeenDismissed());
+        assertTrue(shadowOf(dialog.getAlertDialog()).hasBeenDismissed());
     }
 
-    public static class TestActivity extends Activity {
+    private GenericAlertDialog getDialog() {
+        return (GenericAlertDialog) activity.getSupportFragmentManager()
+                .findFragmentByTag(RemovePhoneNumberController.TAG);
+    }
+
+    public static class TestActivity extends AppCompatActivity {
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);

@@ -6,7 +6,7 @@ import android.content.Intent;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.ResendPhoneVerificationRunner;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import javax.inject.Inject;
 
@@ -36,9 +36,9 @@ public class ResendPhoneVerificationService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        if (!intent.hasExtra(Intents.EXTRA_PHONE_NUMBER)) return;
+        if (!intent.hasExtra(DropbitIntents.EXTRA_PHONE_NUMBER)) return;
 
-        PhoneNumber phoneNumber = intent.getExtras().getParcelable(Intents.EXTRA_PHONE_NUMBER);
+        PhoneNumber phoneNumber = intent.getExtras().getParcelable(DropbitIntents.EXTRA_PHONE_NUMBER);
         CNPhoneNumber number = new CNPhoneNumber(phoneNumber);
         runner.setCNPhoneNumber(number);
         runner.run();

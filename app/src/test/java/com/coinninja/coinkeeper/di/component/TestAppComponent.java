@@ -11,18 +11,18 @@ import com.coinninja.coinkeeper.di.module.DaoSessionManagerTestModule;
 import com.coinninja.coinkeeper.di.module.TestAppModule;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
-import com.coinninja.coinkeeper.util.analytics.Analytics;
-
-import java.util.Locale;
 
 import dagger.BindsInstance;
 import dagger.Component;
 import dagger.android.AndroidInjectionModule;
+import dagger.android.AndroidInjector;
 
 @CoinkeeperApplicationScope
 @Component(modules = {AndroidInjectionModule.class, TestAppModule.class, ApiClientTestModule.class, DaoSessionManagerTestModule.class, AndroidServiceBuilder.class,
         AndroidBroadcastReceiverBuilder.class, AndroidFragmentBuilder.class, AndroidActivityBuilder.class})
-public interface TestAppComponent extends AppComponent {
+public interface TestAppComponent extends AndroidInjector, CoinKeeperComponent {
+
+    void inject(TestCoinKeeperApplication application);
 
     @Component.Builder
     interface Builder {
@@ -32,10 +32,4 @@ public interface TestAppComponent extends AppComponent {
         TestAppComponent build();
     }
 
-    @Override
-    Analytics getAnalytics();
-
-    void inject(TestCoinKeeperApplication application);
-
-    Locale getLocale();
 }

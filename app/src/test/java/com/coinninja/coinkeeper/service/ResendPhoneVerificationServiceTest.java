@@ -5,7 +5,7 @@ import android.content.Intent;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.runner.ResendPhoneVerificationRunner;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -35,7 +35,7 @@ public class ResendPhoneVerificationServiceTest {
         phoneNumber = new PhoneNumber(1, "3305555555");
 
         intent = new Intent(service, ResendPhoneVerificationService.class);
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER, phoneNumber);
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, phoneNumber);
         service.setRunner(runner);
     }
 

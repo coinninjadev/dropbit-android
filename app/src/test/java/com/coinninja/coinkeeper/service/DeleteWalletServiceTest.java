@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
@@ -132,13 +132,6 @@ public class DeleteWalletServiceTest {
     }
 
     @Test
-    public void creates_first_user_again() {
-        service.onHandleIntent(null);
-
-        verify(userHelper).createFirstUser();
-    }
-
-    @Test
     public void resets_all_data() {
         service.onHandleIntent(null);
 
@@ -149,7 +142,7 @@ public class DeleteWalletServiceTest {
     public void notifies_delete_completed() {
         service.onHandleIntent(null);
 
-        verify(localBroadCastUtil).sendBroadcast(Intents.ACTION_ON_WALLET_DELETED);
+        verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_ON_WALLET_DELETED);
     }
 
     @Test

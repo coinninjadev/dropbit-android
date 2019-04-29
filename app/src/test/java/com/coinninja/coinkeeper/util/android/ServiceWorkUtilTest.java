@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletAddressRequestService;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.RegisterUsersPhoneService;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.matchers.IntentMatcher;
 import com.google.i18n.phonenumbers.Phonenumber;
 
@@ -50,7 +50,7 @@ public class ServiceWorkUtilTest {
 
         Intent nextStartedService = shadowApplication.getNextStartedService();
         Intent intent = new Intent(application, CNWalletAddressRequestService.class);
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER_HASH, phoneNumberHash);
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_HASH, phoneNumberHash);
         assertThat(nextStartedService, IntentMatcher.equalTo(intent));
 
         Phonenumber.PhoneNumber phoneNumber = new Phonenumber.PhoneNumber();
@@ -58,7 +58,7 @@ public class ServiceWorkUtilTest {
         phoneNumber.setCountryCode(1);
 
         Intent serviceIntent = new Intent(application, RegisterUsersPhoneService.class);
-        serviceIntent.putExtra(Intents.EXTRA_PHONE_NUMBER, phoneNumber);
+        serviceIntent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, phoneNumber);
         assertThat(nextStartedService, IntentMatcher.equalTo(intent));
     }
 
@@ -74,7 +74,7 @@ public class ServiceWorkUtilTest {
         ShadowApplication shadowApplication = shadowOf(application);
         Intent nextStartedService = shadowApplication.getNextStartedService();
         Intent intent = new Intent(application, RegisterUsersPhoneService.class);
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER, number);
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, number);
         assertThat(nextStartedService, IntentMatcher.equalTo(intent));
     }
 

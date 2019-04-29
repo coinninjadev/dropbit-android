@@ -19,7 +19,7 @@ import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.BroadcastActivity.SendState;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
@@ -82,7 +82,7 @@ public class BroadcastActivityTest {
         broadcastActivityDTO.setMemo("memo");
 
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_BROADCAST_DTO, broadcastActivityDTO);
+        intent.putExtra(DropbitIntents.EXTRA_BROADCAST_DTO, broadcastActivityDTO);
         activityController = Robolectric.buildActivity(BroadcastActivity.class, intent);
         activityController.create();
         activity = activityController.get();
@@ -155,7 +155,7 @@ public class BroadcastActivityTest {
 
         Intent intent = new Intent(activity, BroadcastTransactionService.class);
         CompletedBroadcastDTO completedDto = new CompletedBroadcastDTO(broadcastActivityDTO, "--txid--");
-        intent.putExtra(Intents.EXTRA_COMPLETED_BROADCAST_DTO, completedDto);
+        intent.putExtra(DropbitIntents.EXTRA_COMPLETED_BROADCAST_DTO, completedDto);
 
         activity.showBroadcastSuccessful(mockTransactionBroadcastResult);
 

@@ -4,7 +4,7 @@ import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.service.runner.UserPhoneConfirmationRunner;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class UserPhoneConfirmationServiceTest {
         service = new UserPhoneConfirmationService();
         service.runner = runner;
         intent = new Intent();
-        intent.putExtra(Intents.EXTRA_PHONE_NUMBER_CODE, CODE);
+        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_CODE, CODE);
     }
 
     @Test

@@ -224,7 +224,7 @@ public class PaymentUtil {
         }
 
         isValid = !((paymentMethod == PaymentMethod.INVITE) &&
-                paymentHolder.getFiat().toLong() > Intents.MAX_DOLLARS_SENT_THROUGH_CONTACTS);
+                paymentHolder.getFiat().toLong() > DropbitIntents.MAX_DOLLARS_SENT_THROUGH_CONTACTS);
 
         if (!isValid) {
             errorMessage = getString(R.string.payment_error_too_much_sent_to_contact);

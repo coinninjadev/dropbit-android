@@ -2,6 +2,7 @@
 
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/capture_fingerprint"
     android:layout_width="match_parent"
@@ -16,7 +17,7 @@
         android:layout_height="50dp"
         android:contentDescription="@string/touch_icon"
         android:scaleType="fitXY"
-        android:src="@mipmap/ic_fingerprint_round" />
+        app:srcCompat="@mipmap/ic_fingerprint_round" />
 
 
     <TextView

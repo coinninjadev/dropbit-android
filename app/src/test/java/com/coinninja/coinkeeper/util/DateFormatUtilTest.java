@@ -5,8 +5,8 @@ import org.junit.Test;
 
 import java.text.ParseException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class DateFormatUtilTest {
     private DateFormatUtil dateFormatServer;

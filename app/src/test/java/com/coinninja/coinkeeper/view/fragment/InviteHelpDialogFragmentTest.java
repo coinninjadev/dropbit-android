@@ -3,32 +3,32 @@ package com.coinninja.coinkeeper.view.fragment;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
+import com.coinninja.coinkeeper.view.activity.SplashActivity;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.android.controller.FragmentController;
-import org.robolectric.annotation.Config;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static com.coinninja.android.helpers.Views.clickOn;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class InviteHelpDialogFragmentTest {
 
     private static final String PHONE_NUMBER_INTERNATIONAL = "+1 330-555-1111";
@@ -38,35 +38,43 @@ public class InviteHelpDialogFragmentTest {
 
     private InviteHelpDialogFragment dialog;
 
-    private FragmentController<InviteHelpDialogFragment> fragmentController;
-
     private Contact contact = new Contact(phoneNumber, DISPLAY_NAME, false);
 
-    private UserPreferences preferenceInteractor;
+    @Mock
+    private UserPreferences userPreferences;
 
+    @Mock
     private InviteHelpDialogFragment.OnInviteHelpAcceptedCallback onInviteHelpAcceptedCallback;
+    private ActivityScenario<SplashActivity> scenario;
 
     @Before
     public void setUp() {
-        preferenceInteractor = mock(UserPreferences.class);
-        onInviteHelpAcceptedCallback = mock(InviteHelpDialogFragment.OnInviteHelpAcceptedCallback.class);
-        fragmentController = Robolectric.buildFragment(InviteHelpDialogFragment.class);
-
-        dialog = fragmentController.get();
-
-        dialog.setContact(contact);
-        dialog.setOnInviteHelpAcceptedCallback(onInviteHelpAcceptedCallback);
-        dialog.setPreferenceInteractor(preferenceInteractor);
-
+        MockitoAnnotations.initMocks(this);
     }
 
-    private void showDialog() {
-        fragmentController.create().start().resume().visible();
+    @After
+    public void tearDown() {
+        dialog = null;
+        contact = null;
+        userPreferences = null;
+        scenario.close();
+    }
+
+
+    private void setupDialog() {
+        dialog = (InviteHelpDialogFragment) InviteHelpDialogFragment.newInstance(userPreferences, contact, onInviteHelpAcceptedCallback);
+        scenario = ActivityScenario.launch(SplashActivity.class);
+        scenario.onActivity(new ActivityScenario.ActivityAction<SplashActivity>() {
+            @Override
+            public void perform(SplashActivity activity) {
+                dialog.show(activity.getSupportFragmentManager(), InviteHelpDialogFragment.TAG);
+            }
+        });
     }
 
     @Test
     public void notifies_caller_that_user_acknowledged_invite_message_when_skipping() {
-        showDialog();
+        setupDialog();
         ((CheckBox) dialog.getView().findViewById(R.id.permission)).setChecked(true);
 
         dialog.onSkipPreferenceComplete();
@@ -76,8 +84,7 @@ public class InviteHelpDialogFragmentTest {
 
     @Test
     public void notifies_caller_that_user_acknowledged_invite_message_when_not_skipping() {
-        showDialog();
-
+        setupDialog();
         clickOn(dialog.getView(), R.id.done);
 
         verify(onInviteHelpAcceptedCallback).onInviteHelpAccepted();
@@ -85,26 +92,26 @@ public class InviteHelpDialogFragmentTest {
 
     @Test
     public void does_not_save_permission_when_permission_is_not_checked() {
-        showDialog();
+        setupDialog();
 
         clickOn(dialog.getView(), R.id.done);
 
-        verify(preferenceInteractor, times(0)).skipInviteHelpScreen(any(PreferencesUtil.Callback.class));
+        verify(userPreferences, times(0)).skipInviteHelpScreen(any(PreferencesUtil.Callback.class));
     }
 
     @Test
     public void saves_permission_to_skip_help() {
-        showDialog();
+        setupDialog();
         ((CheckBox) dialog.getView().findViewById(R.id.permission)).setChecked(true);
 
         clickOn(dialog.getView(), R.id.done);
 
-        verify(preferenceInteractor).skipInviteHelpScreen(any(PreferencesUtil.Callback.class));
+        verify(userPreferences).skipInviteHelpScreen(any(PreferencesUtil.Callback.class));
     }
 
     @Test
     public void permission_not_checked_initially() {
-        showDialog();
+        setupDialog();
 
         assertFalse(((CheckBox) dialog.getView().findViewById(R.id.permission)).isChecked());
     }
@@ -112,8 +119,7 @@ public class InviteHelpDialogFragmentTest {
     @Test
     public void shows_phone_number_when_name_is_not_available() {
         contact = new Contact(phoneNumber, "", false);
-        dialog.setContact(contact);
-        showDialog();
+        setupDialog();
 
         String message = ((TextView) dialog.getView().findViewById(R.id.message)).getText().toString();
 
@@ -122,7 +128,7 @@ public class InviteHelpDialogFragmentTest {
 
     @Test
     public void renders_message_with_contact_name() {
-        showDialog();
+        setupDialog();
 
         String message = ((TextView) dialog.getView().findViewById(R.id.message)).getText().toString();
 

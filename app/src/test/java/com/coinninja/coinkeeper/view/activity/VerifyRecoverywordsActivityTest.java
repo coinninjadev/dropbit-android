@@ -4,10 +4,15 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.widget.TextView;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
+import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.NotificationUtil;
+import com.coinninja.coinkeeper.util.Shuffler;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
@@ -25,9 +30,9 @@ import org.robolectric.shadows.ShadowActivity;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
@@ -52,7 +57,6 @@ public class VerifyRecoverywordsActivityTest {
     private VerifyRecoverywordsActivity activity;
     private Resources resources;
 
-    @Mock
     Analytics analytics;
 
     @Mock
@@ -66,6 +70,12 @@ public class VerifyRecoverywordsActivityTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        TestCoinKeeperApplication application = ApplicationProvider.getApplicationContext();
+        analytics = application.analytics;
+        application.notificationUtil = notificationUtil;
+        application.activityNavigationUtil = activityNavigationUtil;
+        application.verifyRecoveryWordsPresenter = new VerifyRecoveryWordsPresenter(mock(CNWalletManager.class), new Shuffler());
+
         initIntent = new Intent();
         initIntent.putExtra(VerifyRecoverywordsActivity.DATA_RECOVERY_WORDS, recoveryWords);
     }
@@ -81,11 +91,11 @@ public class VerifyRecoverywordsActivityTest {
     }
 
     private void start() {
-        start(Intents.EXTRA_CREATE);
+        start(DropbitIntents.EXTRA_CREATE);
     }
 
     private void start(int viewState) {
-        initIntent.putExtra(Intents.EXTRA_VIEW_STATE, viewState);
+        initIntent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, viewState);
         ActivityController<VerifyRecoverywordsActivity> activityController = Robolectric.buildActivity(VerifyRecoverywordsActivity.class, initIntent);
         activity = activityController.get();
         activityController.create();
@@ -103,12 +113,12 @@ public class VerifyRecoverywordsActivityTest {
 
         activity.onChallengeCompleted();
 
-        verify(notificationUtil, times(0)).dispatchInternal(anyString());
+        verifyZeroInteractions(notificationUtil);
     }
 
     @Test
     public void queues_notification_for_backing_up_words() {
-        start(Intents.EXTRA_BACKUP);
+        start(DropbitIntents.EXTRA_BACKUP);
 
         activity.onChallengeCompleted();
 
@@ -117,7 +127,7 @@ public class VerifyRecoverywordsActivityTest {
 
     @Test
     public void backing_up_wallet_navigates_to_home_screen() {
-        start(Intents.EXTRA_BACKUP);
+        start(DropbitIntents.EXTRA_BACKUP);
 
         activity.onChallengeCompleted();
 
@@ -128,14 +138,14 @@ public class VerifyRecoverywordsActivityTest {
 
     @Test
     public void failingTheChallengeHasUserRewriteTheirRecoveryWords__with_backup_view_state() {
-        start(Intents.EXTRA_BACKUP);
+        start(DropbitIntents.EXTRA_BACKUP);
 
         activity.showRecoveryWords();
 
         ShadowActivity shadowActivity = shadowOf(activity);
         Intent nextStartedActivity = shadowActivity.getNextStartedActivity();
         assertThat(nextStartedActivity.getComponent().getClassName(), equalTo(BackupActivity.class.getName()));
-        assertThat(nextStartedActivity.getIntExtra(Intents.EXTRA_VIEW_STATE, -1), equalTo(Intents.EXTRA_BACKUP));
+        assertThat(nextStartedActivity.getIntExtra(DropbitIntents.EXTRA_VIEW_STATE, -1), equalTo(DropbitIntents.EXTRA_BACKUP));
     }
 
     @Test
@@ -166,7 +176,7 @@ public class VerifyRecoverywordsActivityTest {
         ShadowActivity shadowActivity = shadowOf(activity);
         Intent nextStartedActivity = shadowActivity.getNextStartedActivity();
         assertThat(nextStartedActivity.getComponent().getClassName(), equalTo(BackupActivity.class.getName()));
-        assertThat(nextStartedActivity.getIntExtra(Intents.EXTRA_VIEW_STATE, -1), equalTo(Intents.EXTRA_CREATE));
+        assertThat(nextStartedActivity.getIntExtra(DropbitIntents.EXTRA_VIEW_STATE, -1), equalTo(DropbitIntents.EXTRA_CREATE));
     }
 
     @Test
@@ -177,7 +187,7 @@ public class VerifyRecoverywordsActivityTest {
 
         ShadowActivity shadowActivity = shadowOf(activity);
         Intent nextStartedActivity = shadowActivity.getNextStartedActivity();
-        assertThat(nextStartedActivity.getStringArrayExtra(Intents.EXTRA_RECOVERY_WORDS), equalTo(recoveryWords));
+        assertThat(nextStartedActivity.getStringArrayExtra(DropbitIntents.EXTRA_RECOVERY_WORDS), equalTo(recoveryWords));
     }
 
     @Test

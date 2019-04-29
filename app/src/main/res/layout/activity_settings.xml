@@ -36,21 +36,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/wallet_category" />
 
-    <Button
+    <TextView
         android:id="@+id/not_backed_up_message"
-        style="@style/FlatButton.Settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/not_backedup"
         android:textAppearance="@style/TextAppearance.Small.Error"
-        android:textColor="@color/color_error"
         app:layout_constraintBottom_toBottomOf="@+id/recover_wallet"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="@+id/recover_wallet"
-        app:layout_constraintTop_toTopOf="@+id/recover_wallet"
-        tools:ignore="UnknownId" />
+        app:layout_constraintTop_toTopOf="@+id/recover_wallet" />
 
     <TextView
         android:id="@+id/dust_protection_label"
@@ -72,7 +69,7 @@
         android:background="@drawable/question_mark_circle"
         android:text="?"
         android:textAlignment="center"
-        android:textSize="16dp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/dust_protection_toggle"
         app:layout_constraintStart_toEndOf="@+id/dust_protection_label"
         app:layout_constraintTop_toTopOf="@+id/dust_protection_toggle"
@@ -118,7 +115,7 @@
 
     <Button
         android:id="@+id/delete_wallet"
-        style="@style/FlatButton.Settings"
+        style="@style/FlatButton.Warning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

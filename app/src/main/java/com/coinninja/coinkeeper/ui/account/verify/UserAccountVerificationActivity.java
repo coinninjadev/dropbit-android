@@ -15,7 +15,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.account.UserServerAddressesFragment;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.RemovePhoneNumberController;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.RemoteAddressLocalCache;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
@@ -49,7 +49,7 @@ public class UserAccountVerificationActivity extends SecuredActivity {
     public BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED.equals(intent.getAction())) {
+            if (DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED.equals(intent.getAction())) {
                 setupPhoneVerification();
                 preferencesUtil.removePreference(LOCAL_ADDRESS_CACHE_KEY);
             }
@@ -60,7 +60,7 @@ public class UserAccountVerificationActivity extends SecuredActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_account_verification);
-        intentFilter = new IntentFilter(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
+        intentFilter = new IntentFilter(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class UserAccountVerificationActivity extends SecuredActivity {
     private void setupOnClickListeners() {
         findViewById(R.id.verify_phone_button).setOnClickListener(V -> verifyPhoneNumber());
         findViewById(R.id.view_dropbit_addresses).setOnClickListener(V -> showServerAddressFragment());
-        findViewById(R.id.change_remove_button).setOnClickListener(removePhoneNumberController::onRemovePhoneNumber);
+        findViewById(R.id.change_remove_button).setOnClickListener(v -> removePhoneNumberController.onRemovePhoneNumber(this));
     }
 
     private void setupVerifiedAccount() {
@@ -121,6 +121,6 @@ public class UserAccountVerificationActivity extends SecuredActivity {
 
     private void showServerAddressFragment() {
         UserServerAddressesFragment userServerAddressesFragment = UserServerAddressesFragment.newInstance(remoteAddressLocalCache.getLocalRemoteAddressCache());
-        userServerAddressesFragment.show(getFragmentManager(), UserServerAddressesFragment.class.getSimpleName());
+        userServerAddressesFragment.show(getSupportFragmentManager(), UserServerAddressesFragment.class.getSimpleName());
     }
 }

@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.service;
 
 import com.coinninja.coinkeeper.util.CNLogger;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +48,7 @@ public class DeverifyAccountServiceTest {
     public void communicates_that_account_deverification_has_completed() {
         service.onHandleIntent(null);
 
-        verify(service.localBroadCastUtil).sendBroadcast(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
+        verify(service.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class DeverifyAccountServiceTest {
         service.onHandleIntent(null);
 
         verify(service.cnWalletManager, times(0)).deverifyAccount();
-        verify(service.localBroadCastUtil, times(0)).sendBroadcast(Intents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
+        verify(service.localBroadCastUtil, times(0)).sendBroadcast(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class DeverifyAccountServiceTest {
 
         service.onHandleIntent(null);
 
-        verify(service.localBroadCastUtil).sendBroadcast(Intents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED);
+        verify(service.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_FAILED);
     }
 
     @Test

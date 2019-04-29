@@ -1,8 +1,6 @@
 package com.coinninja.coinkeeper.ui.base;
 
-import android.app.Fragment;
 import android.content.Context;
-import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,69 +18,23 @@ import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import dagger.android.AndroidInjection;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasFragmentInjector;
+import dagger.android.support.DaggerAppCompatActivity;
 
-public abstract class BaseActivity extends AppCompatActivity implements HasFragmentInjector, MenuItemClickListener {
-
-    @Inject
-    DispatchingAndroidInjector<Fragment> fragmentInjector;
-
-    @Inject
-    TypedValue actionBarType;
-
-    @Inject
-    CNWalletManager cnWalletManager;
-
-    @Inject
-    DrawerController drawerController;
+public abstract class BaseActivity extends DaggerAppCompatActivity implements MenuItemClickListener {
 
     @Inject
     public ActionBarController actionBarController;
-
+    @Inject
+    public Analytics analytics;
+    @Inject
+    TypedValue actionBarType;
+    @Inject
+    CNWalletManager cnWalletManager;
+    @Inject
+    DrawerController drawerController;
     @Inject
     ActivityNavigationUtil navigationUtil;
 
-    @Inject
-    public Analytics analytics;
-
-    @Override
-    public AndroidInjector<Fragment> fragmentInjector() {
-        return fragmentInjector;
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        AndroidInjection.inject(this);
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void setContentView(int layoutResID) {
-        super.setContentView(R.layout.cn_base_layout);
-        LayoutInflater.from(this).inflate(layoutResID, findViewById(R.id.cn_content_container));
-        setSupportActionBar(findViewById(R.id.toolbar));
-        getTheme().resolveAttribute(R.attr.actionBarMenuType, actionBarType, true);
-
-        actionBarController.setTheme(this, actionBarType);
-        drawerController.inflateDrawer(this, actionBarType);
-
-        actionBarController.displayTitle(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (cnWalletManager.hasSkippedBackup()) {
-            drawerController.showBackupNowDrawerActions();
-        }
-
-        drawerController.renderBadgeForUnverifiedDeviceIfNecessary();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,7 +61,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasFragm
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     public void onBackPressed() {
         if (drawerController.isDrawerOpen()) {
@@ -120,24 +71,12 @@ public abstract class BaseActivity extends AppCompatActivity implements HasFragm
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        drawerController.closeDrawerNoAnimation();
-    }
-
-
-    protected void onPriceReceived(USDCurrency price) {
-        drawerController.updatePriceOfBtcDisplay(price);
+    public void onCloseClicked() {
+        navigationUtil.navigateToHome(this);
     }
 
     @Override
     public void onSkipClicked() {
-        navigationUtil.navigateToHome(this);
-    }
-
-
-    @Override
-    public void onCloseClicked() {
         navigationUtil.navigateToHome(this);
     }
 
@@ -153,5 +92,38 @@ public abstract class BaseActivity extends AppCompatActivity implements HasFragm
 
     public void updateActivityLabel(String string) {
         actionBarController.updateTitle(string);
+    }
+
+    @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(R.layout.cn_base_layout);
+        LayoutInflater.from(this).inflate(layoutResID, findViewById(R.id.cn_content_container));
+        setSupportActionBar(findViewById(R.id.toolbar));
+        getTheme().resolveAttribute(R.attr.actionBarMenuType, actionBarType, true);
+
+        actionBarController.setTheme(this, actionBarType);
+        drawerController.inflateDrawer(this, actionBarType);
+
+        actionBarController.displayTitle(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        drawerController.closeDrawerNoAnimation();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (cnWalletManager.hasSkippedBackup()) {
+            drawerController.showBackupNowDrawerActions();
+        }
+
+        drawerController.renderBadgeForUnverifiedDeviceIfNecessary();
+    }
+
+    protected void onPriceReceived(USDCurrency price) {
+        drawerController.updatePriceOfBtcDisplay(price);
     }
 }

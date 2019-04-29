@@ -82,9 +82,9 @@ public abstract class PinFragment extends BaseFragment implements PinEditText.On
 
     @Override
     public void onDismissRequest() {
-        int index = getActivity().getFragmentManager().getBackStackEntryCount();
+        int index = getActivity().getSupportFragmentManager().getBackStackEntryCount();
         if (index > 0) {
-            getActivity().getFragmentManager().popBackStack();
+            getActivity().getSupportFragmentManager().popBackStack();
         } else {
             Activity activity = getActivity();
             if (activity != null && !activity.isFinishing()) {

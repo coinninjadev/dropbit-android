@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.BuildConfig;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Intents {
+public class DropbitIntents {
 
     /* CONSTS */
     public static final long DUST = 1000L;

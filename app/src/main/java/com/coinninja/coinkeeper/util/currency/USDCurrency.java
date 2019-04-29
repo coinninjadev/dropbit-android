@@ -10,7 +10,7 @@ public class USDCurrency extends BaseCurrency implements FiatCurrency, Parcelabl
     private static final int WHOLE_NUM_MAX = 10;
     private static final int SUB_NUM_MAX = 2;
     public static final String SYMBOL = "$";
-    static long MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
+    public static long MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
     private String currencyFormat = "$#,##0.00";
     private static final String incrementalFormat = "$#,##0.##";
 

@@ -1,9 +1,10 @@
 package com.coinninja.coinkeeper.view.widget.phonenumber;
 
-import android.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
@@ -28,7 +29,7 @@ import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;

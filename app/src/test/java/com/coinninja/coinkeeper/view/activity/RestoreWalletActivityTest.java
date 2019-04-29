@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.viewpager.widget.ViewPager;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.view.adapter.RestoreWalletPageAdapter;
 
@@ -20,14 +22,12 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
-import androidx.viewpager.widget.ViewPager;
-
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -99,10 +99,10 @@ public class RestoreWalletActivityTest {
         assertThat(intent.getComponent().getClassName(),
                 equalTo(CreatePinActivity.class.getName()));
         Bundle next_bundle = new Bundle();
-        next_bundle.putStringArray(Intents.EXTRA_RECOVERY_WORDS, activity.recovery_words);
-        assertThat(intent.getBundleExtra(Intents.EXTRA_NEXT_BUNDLE).getStringArray(Intents.EXTRA_RECOVERY_WORDS),
+        next_bundle.putStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS, activity.recovery_words);
+        assertThat(intent.getBundleExtra(DropbitIntents.EXTRA_NEXT_BUNDLE).getStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS),
                 equalTo(activity.recovery_words));
-        assertThat(intent.getStringExtra(Intents.EXTRA_NEXT), equalTo(RecoverWalletActivity.class.getName()));
+        assertThat(intent.getStringExtra(DropbitIntents.EXTRA_NEXT), equalTo(RecoverWalletActivity.class.getName()));
         assertThat(activity.recovery_words[11], equalTo("apple"));
         verify(mockAnalytics).trackEvent(Analytics.EVENT_WALLET_RESTORE);
     }

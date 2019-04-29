@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="android.widget.RelativeLayout">
+    tools:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout"
+    >
 
     <com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView
         android:id="@+id/phone_number_input"
-        style="?attr/phoneNumberInput"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignBottom="@+id/show_phone_input"
+        style="@style/PhoneNumberInputWidgetStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance" />
+        android:layout_alignBottom="@+id/show_phone_input"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:maxHeight="52dp"
+        android:textAppearance="@style/TextAppearance"
+        tools:text="+1 330-555-1111" />
 
     <Button
         android:id="@+id/show_phone_input"
-        style="@style/PayDialog.EditText"
+        style="@style/Button.InputBox"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:clickable="true"
-        android:focusable="true"
-        android:focusableInTouchMode="false"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:clickable="true"
         android:ellipsize="end"
+        android:focusable="true"
+        android:focusableInTouchMode="false"
         android:gravity="center_horizontal"
-        android:hint="@string/pay_address_hint" />
+        android:hint="@string/pay_address_hint"
+        android:visibility="visible"
+        tools:text="--address--" />
 
 </merge>

@@ -86,7 +86,7 @@ public class PinFragmentPresenterTest {
         presenter.pinEntered_Confirm(validPin);
 
         assertEquals(pinEntryModel.getPin_SavedInRam(), validPinHash);
-        verify(view).onPinConfirmedAndSaved(validPinHash);
+        verify(view).onPinConfirmed(validPinHash);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class PinFragmentPresenterTest {
         }
 
         assertEquals(pinEntryModel.getPin_SavedInRam(), validPinHash);
-        verify(view, never()).onPinConfirmedAndSaved(validPinHash);
+        verify(view, never()).onPinConfirmed(validPinHash);
         verify(view, times(oneLessThanMaxNumbersOfMismatches)).onPinMismatch();
         verify(view, never()).onPinMismatchFATAL();
     }
@@ -123,7 +123,7 @@ public class PinFragmentPresenterTest {
         }
 
         assertEquals(pinEntryModel.getPin_SavedInRam(), validPinHash);
-        verify(view, never()).onPinConfirmedAndSaved(validPinHash);
+        verify(view, never()).onPinConfirmed(validPinHash);
         verify(view, times(maxNumbersOfMismatches - 1)).onPinMismatch();
         verify(view).onPinMismatchFATAL();
     }
@@ -159,7 +159,7 @@ public class PinFragmentPresenterTest {
 
         pinFragmentPresenter.pinEntered_Confirm(validPin);
 
-        verify(mockPinEntryModel).savePin_ToKeystore(validPinHash);
+        verify(mockPinEntryModel).savePin(validPinHash);
     }
 
     private void enterPin(int[] validPin) {

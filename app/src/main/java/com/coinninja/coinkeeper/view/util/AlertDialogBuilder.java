@@ -1,12 +1,13 @@
 package com.coinninja.coinkeeper.view.util;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class AlertDialogBuilder {
     public static AlertDialog.Builder build(Context context, String msg) {
@@ -24,7 +25,7 @@ public class AlertDialogBuilder {
         return builder;
     }
 
-    public static AlertDialog buildIndefiniteProgress(Activity activity) {
+    public static AlertDialog buildIndefiniteProgress(AppCompatActivity activity) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setMessage(activity.getResources().getString(R.string.loading_dialog));
 

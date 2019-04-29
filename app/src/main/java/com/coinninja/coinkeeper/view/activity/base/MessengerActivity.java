@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.view.activity.base;
 
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -17,7 +15,7 @@ import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.InternetUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -31,6 +29,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 public class MessengerActivity extends BaseActivity implements CNHealthCheckTask.HealthCheckCallback {
 
@@ -131,7 +131,7 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     }
 
     private void checkForInternalNotifications() {
-        new LocalBroadCastUtil(getApplication()).sendBroadcast(new Intent(Intents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
+        new LocalBroadCastUtil(getApplication()).sendBroadcast(new Intent(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
     }
 
     private void checkInternet() {
@@ -215,7 +215,7 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     }
 
     private void scheduleHealthCheck() {
-        queue.postDelayed(healthCheckRunner, Intents.THIRTY_SECONDS);
+        queue.postDelayed(healthCheckRunner, DropbitIntents.THIRTY_SECONDS);
     }
 
     public boolean isForeGrounded() {

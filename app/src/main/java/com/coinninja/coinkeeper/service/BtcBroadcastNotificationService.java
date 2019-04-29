@@ -12,7 +12,7 @@ import com.coinninja.coinkeeper.model.db.ExternalNotification;
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import java.util.List;
 
@@ -82,7 +82,7 @@ public class BtcBroadcastNotificationService extends JobIntentService {
 
         Intent clickedIntent = new Intent(this, TransactionHistoryActivity.class);
         clickedIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        clickedIntent.putExtra(Intents.EXTRA_TRANSACTION_ID, txID);
+        clickedIntent.putExtra(DropbitIntents.EXTRA_TRANSACTION_ID, txID);
 
         show(clickedIntent, notification);
         externalNotificationHelper.removeNotification(notification);

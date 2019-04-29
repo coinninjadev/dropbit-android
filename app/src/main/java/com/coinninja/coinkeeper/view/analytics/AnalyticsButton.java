@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.coinninja.coinkeeper.CoinKeeperApplication;
+import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.view.analytics.listeners.AnalyticsClickListener;
 
 import androidx.annotation.Nullable;
@@ -32,8 +33,7 @@ public class AnalyticsButton extends androidx.appcompat.widget.AppCompatButton i
 
     private void init() {
         super.setOnClickListener(this);
-        CoinKeeperApplication application = (CoinKeeperApplication) getContext().getApplicationContext();
-        setAnalyticsClickListener(new AnalyticsClickListener(application.getAppComponent().getAnalytics()));
+        setAnalyticsClickListener(new AnalyticsClickListener(CoinKeeperApplication.appComponent.getAnalytics()));
     }
 
     @Override

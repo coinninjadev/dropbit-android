@@ -6,14 +6,12 @@ import android.net.Uri;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
-import com.coinninja.coinkeeper.util.Intents;
+import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +97,7 @@ public class BitcoinUtil {
             return "";
         }
 
-        Pattern pattern = Pattern.compile(Intents.BITCOIN_ADDRESS_PATTERN);
+        Pattern pattern = Pattern.compile(DropbitIntents.BITCOIN_ADDRESS_PATTERN);
 
         Matcher matcher = pattern.matcher(anyString);
         if (matcher.find()) {
@@ -114,7 +112,7 @@ public class BitcoinUtil {
             throw new UriException(NULL_ADDRESS);
         }
 
-        Pattern pattern = Pattern.compile(Intents.BITCOIN_URI_PATTERN);
+        Pattern pattern = Pattern.compile(DropbitIntents.BITCOIN_URI_PATTERN);
         Matcher matcher = pattern.matcher(textData);
 
         if (!matcher.find()) {
