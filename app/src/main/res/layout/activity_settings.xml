@@ -45,7 +45,7 @@
         android:textAppearance="@style/TextAppearance.Small.Error"
         app:layout_constraintBottom_toBottomOf="@+id/recover_wallet"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintHorizontal_bias="0.61"
         app:layout_constraintStart_toStartOf="@+id/recover_wallet"
         app:layout_constraintTop_toTopOf="@+id/recover_wallet" />
 

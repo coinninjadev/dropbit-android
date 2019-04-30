@@ -129,7 +129,6 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         dismissPayDialog();
         ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(phoneNumber, paymentHolder, this);
         confirmPayDialogFragment.setCancelable(false);
-        confirmPayDialogFragment.show(getFragmentManager(), ConfirmPayDialogFragment.class.getSimpleName());
         activityNavigationUtil.showDialogWithTag(getFragmentManager(), confirmPayDialogFragment, ConfirmPayDialogFragment.class.getSimpleName());
     }
 
