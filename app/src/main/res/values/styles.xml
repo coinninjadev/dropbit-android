@@ -528,7 +528,7 @@
         <item name="android:windowFrame">@null</item>
         <item name="android:windowTitleBackgroundStyle">@null</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
@@ -569,6 +569,10 @@
         <item name="android:buttonStyle">@style/Button</item>
         <item name="android:textAppearanceButton">@style/TextAppearance.Button</item>
         <item name="android:minHeight">565dp</item>
+    </style>
+
+    <style name="Dialog.Floating">
+        <item name="android:windowIsFloating">true</item>
     </style>
 
 
