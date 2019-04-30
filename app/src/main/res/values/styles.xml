@@ -216,7 +216,12 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
-    <style name="FlatButton.Settings" />
+    <style name="FlatButton.Settings">
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+    </style>
 
     <style name="FlatButton.Accent">
         <item name="colorAccent">@color/colorAccent</item>
