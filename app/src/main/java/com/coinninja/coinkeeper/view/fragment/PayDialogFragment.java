@@ -95,7 +95,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     Bip70Callback bip70Callback;
 
     boolean shouldShowScanOnAttach = false;
-    BitcoinUri injectedBitcoinUri = null;
+    BitcoinUri bitcoinUri = null;
 
     public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks, boolean shouldShowScanOnAttach) {
         PayDialogFragment payFragment = commonInit(paymentUtil, paymentBarCallbacks);
@@ -103,9 +103,9 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
         return payFragment;
     }
 
-    public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks, BitcoinUri injectedBitcoinUri) {
+    public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks, BitcoinUri bitcoinUri) {
         PayDialogFragment payFragment = commonInit(paymentUtil, paymentBarCallbacks);
-        payFragment.injectedBitcoinUri = injectedBitcoinUri;
+        payFragment.bitcoinUri = bitcoinUri;
         return payFragment;
     }
 
@@ -130,7 +130,6 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
         }
     }
 
-
     @Override
     protected int getContentViewLayoutId() {
         return R.layout.fragment_pay_dialog;
@@ -139,7 +138,6 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     @Override
     public void onResume() {
         super.onResume();
-        memoToggleView.render((AppCompatActivity) getActivity(), getView());
         paymentInputView.requestFocus();
     }
 
@@ -166,11 +164,12 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        memoToggleView.render((AppCompatActivity) getActivity(), getView());
         USDCurrency.setMaxLimit((USDCurrency) paymentHolder.getEvaluationCurrency());
         paymentHolder.setMaxLimitForFiat();
         setupView();
         setupBip70Callback();
-        processBitcoinUriIfNecessary(injectedBitcoinUri);
+        processBitcoinUriIfNecessary(bitcoinUri);
     }
 
     public void onPaymentAddressChange(String address) {
