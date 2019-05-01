@@ -105,7 +105,7 @@ production-debug:
     when: always
     expire_in: '1 week'
     paths:
-      - ./app/build/**/*.apk
+      - ./app/build/outputs/apk/production/release/*.apk
 
 staging-debug:
   stage: deploy
@@ -123,4 +123,4 @@ staging-debug:
     when: always
     expire_in: '1 week'
     paths:
-      - ./app/build/**/*.apk
+      - ./app/build/outputs/apk/production/debug/*.apk
