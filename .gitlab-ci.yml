@@ -71,7 +71,7 @@ build:
 release-candidate:
   stage: deploy
   script:
-    - ./gradlew publishApkProductionRelease
+    - ./gradlew assembleRelease publishApkProductionRelease
   #- ./gradlew publishProductionRelease # with listings
   environment:
     name: internal
@@ -82,11 +82,12 @@ release-candidate:
     when: always
     expire_in: '1 week'
     paths:
-      - ./app/build/**/*.apk
+      - ./app/build/outputs/apk/production/release/*.apk
   <<: *build_and_sign
   when: manual
   only:
     - develop@cn/dropbit-android
+    - /^[\d\.]+RC$/@cn/dropbit-android
     - /^[\d\.]+RC$/@cn/dropbit-android
 
 production-debug:
