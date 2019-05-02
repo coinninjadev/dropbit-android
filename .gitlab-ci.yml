@@ -71,7 +71,7 @@ build:
 release-candidate:
   stage: deploy
   script:
-    - ./gradlew assembleRelease publishApkProductionRelease
+    - ./gradlew assembleRelease publishApk
   #- ./gradlew publishProductionRelease # with listings
   environment:
     name: internal
