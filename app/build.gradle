@@ -14,7 +14,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 def versionMajor = 1
-def versionMinor = 6
+def versionMinor = 7
 def versionPatch = System.getenv("VERSION_PATCH") ? System.getenv("VERSION_PATCH") : 0
 def APP_VERSION = System.getenv("APP_VERSION") ? Integer.parseInt(System.getenv("APP_VERSION")) : 10480
 def hockeyAppApiToken = System.getenv("HOCKEY_APP_API_TOKEN") ? System.getenv("HOCKEY_APP_API_TOKEN") : HOCKEY_APP_API_TOKEN
@@ -28,10 +28,10 @@ def PROD_FCM_APP_KEY = System.getenv("PROD_FCM_APP_KEY") ? System.getenv("PROD_F
 def PHONE_HASH_SALT = System.getenv("PHONE_HASH_SALT") ? System.getenv("PHONE_HASH_SALT") : PHONE_HASH_SALT
 def PHONE_HASH_ITERATIONS = System.getenv("PHONE_HASH_ITERATIONS") ? System.getenv("PHONE_HASH_ITERATIONS") : PHONE_HASH_ITERATIONS
 
-def JVM_ARGS = project.hasProperty("JVM_ARGS") ?  JVM_ARGS : "-Xmx4g"
+def JVM_ARGS = project.hasProperty("JVM_ARGS") ?  JVM_ARGS : "-Xmx3g"
 JVM_ARGS = System.getenv("JVM_ARGS") ? System.getenv("JVM_ARGS") : JVM_ARGS
 JVM_ARGS = JVM_ARGS == null ? "-Xmx4g" : JVM_ARGS
-def MAX_PARALLEL_FORKS = project.hasProperty("MAX_PARALLEL_FORKS") ?  Integer.parseInt(MAX_PARALLEL_FORKS) : 2
+def MAX_PARALLEL_FORKS = project.hasProperty("MAX_PARALLEL_FORKS") ?  Integer.parseInt(MAX_PARALLEL_FORKS) : 1
 MAX_PARALLEL_FORKS = System.getenv("MAX_PARALLEL_FORKS") ? Integer.parseInt(System.getenv("MAX_PARALLEL_FORKS")) : MAX_PARALLEL_FORKS
 
 System.out.println("------ Run Configuration")

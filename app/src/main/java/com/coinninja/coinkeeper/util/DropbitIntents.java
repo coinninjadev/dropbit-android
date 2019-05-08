@@ -55,6 +55,7 @@ public class DropbitIntents {
     public static final String ACTION_ON_WALLET_DELETED = BuildConfig.APPLICATION_ID + ".ACTION_ON_WALLET_DELETED";
     public static final String ACTION_INTERNAL_NOTIFICATION_UPDATE = BuildConfig.APPLICATION_ID + ".ACTION_INTERNAL_NOTIFICATION_UPDATE";
     public static final String ACTION_CANCEL_DROPBIT = BuildConfig.APPLICATION_ID + ".ACTION_CANCEL_DROPBIT";
+    public static final String ACTION_CREATE_NOTIFICATION = BuildConfig.APPLICATION_ID + ".ACTION_CREATE_NOTIFICATION";
     public static final String ACTION_DROPBIT__ERROR_RATE_LIMIT = BuildConfig.APPLICATION_ID + "ACTION_DROPBIT__ERROR_RATE_LIMIT";
     public static final String ACTION_DROPBIT__ERROR_UNKNOWN = BuildConfig.APPLICATION_ID + "ACTION_DROPBIT__ERROR_UNKNOWN";
     public static final String ACTION_CN_USER_ACCOUNT_UPDATED = BuildConfig.APPLICATION_ID + "ACTION_CN_USER_ACCOUNT_UPDATED";
@@ -100,7 +101,11 @@ public class DropbitIntents {
     public static final String EXTRA_ADDRESS_LOOKUP_RESULT = "EXTRA_ADDRESS_LOOKUP_RESULT";
     public static final String EXTRA_PREFERENCE = "EXTRA_PREFERENCE";
     public static final String EXTRA_ON_COMPLETION = "EXTRA_ON_COMPLETION";
-    public static final String EXTRA_PENDING_INVITE_DTO = "EXTRA_PENDING_INVITE_DTO";
+
+    /* Dropbit Service Intents */
+    public static final String EXTRA_DROPBIT_TXID = "EXTRA_DROPBIT_TXID";
+    public static final String EXTRA_DROPBIT_MEMO = "EXTRA_DROPBIT_MEMO";
+
     /* CN Rest API KEYS */
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ALL = "all";
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID = "android";

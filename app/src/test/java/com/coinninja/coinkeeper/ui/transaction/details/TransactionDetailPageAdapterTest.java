@@ -3,10 +3,12 @@ package com.coinninja.coinkeeper.ui.transaction.details;
 import android.database.DataSetObserver;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
+import com.coinninja.coinkeeper.ui.memo.MemoCreator;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -44,6 +46,11 @@ public class TransactionDetailPageAdapterTest {
     @Mock
     private TransactionAdapterUtil adapterUtil;
 
+    @Mock
+    MemoCreator memoCreator;
+
+    @Mock
+    TransactionNotificationManager transactionNotificationManager;
 
     private TransactionDetailPageAdapter pageAdapter;
     private TestableActivity activity;
@@ -55,7 +62,8 @@ public class TransactionDetailPageAdapterTest {
         activity.appendLayout(R.layout.page_transaction_detail);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(100);
-        pageAdapter = new TransactionDetailPageAdapter(walletHelper, adapterUtil, new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
+        pageAdapter = new TransactionDetailPageAdapter(walletHelper, adapterUtil, new DefaultCurrencies(new USDCurrency(), new BTCCurrency()),
+                memoCreator, transactionNotificationManager);
         pageAdapter.refreshData();
     }
 
