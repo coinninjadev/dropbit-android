@@ -343,9 +343,15 @@ by using their mobile number</string>
     <string name="syncing">Syncing</string>
     <string name="user_account_remove_button">CHANGE/REMOVE</string>
     <string name="user_account_verified_verified_number_title">Verified number:</string>
+    <string name="share_string">The best way to help increase the price of Bitcoin is to spread awareness and adoption.</string>
+    <string name="share_awareness">Spread awareness by telling your friends you used Bitcoin.</string>
     <string name="add_memo">Add Memo</string>
     <string name="ok_get_bitcoin">OK, GET BITCOIN</string>
     <string name="clipboard_address">You will need a Bitcoin address so we went ahead and copied your DropBit Bitcoin address to your clipboard.</string>
     <string name="bitcoin_address_copy">Bitcoin address copied to clipboard</string>
+    <string name="twitter_share_non_memo_first">I just used #Bitcoin instead of fiat via @dropbitapp</string>
+    <string name="twitter_share_non_memo_second">I just sent #Bitcoin using @dropbitapp and wow was that easy!</string>
+    <string name="twitter_share_memo_first">I just used #Bitcoin for %s via @dropbitapp</string>
+    <string name="twitter_share_memo_second">Today I used #Bitcoin for %s via @dropbitapp</string>
 
 </resources>

@@ -223,7 +223,7 @@ public class ActivityNavigationUtilTest {
 
     @Test
     public void navigates_to_buy_gift_card() {
-        Uri uri = Uri.parse("https://www.bitrefill.com/buy");
+        Uri uri = Uri.parse("https://coinninja.com/spendbitcoin/giftcards");
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 
         activityNavigationUtil.navigateToBuyGiftCard(activity);

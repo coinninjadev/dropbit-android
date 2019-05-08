@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.util.TwitterUtil;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BackupActivity;
@@ -34,6 +35,10 @@ import dagger.android.ContributesAndroidInjector;
 
 @Module()
 public abstract class AndroidActivityBuilder {
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract TwitterUtil twitterUtil();
 
     @ActivityScope
     @ContributesAndroidInjector

@@ -46,12 +46,11 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.model.helpers.WordHelper;
 import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.WalletCreationIntentService;
-import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
-import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
+import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -82,6 +81,11 @@ public class AppModule {
     @Provides
     ErrorLoggingUtil errorLoggingUtil() {
         return new ErrorLoggingUtil();
+    }
+
+    @Provides
+    Analytics analyticUtil(MixpanelAPI analyticsProvider) {
+        return new AnalyticUtil(analyticsProvider).start();
     }
 
     @Provides
@@ -116,12 +120,6 @@ public class AppModule {
     @CoinkeeperApplicationScope
     BitcoinUriBuilder bitcoinUrlBuilder() {
         return new BitcoinUriBuilder();
-    }
-
-    @Provides
-    @CoinkeeperApplicationScope
-    Analytics analytics(MixpanelAPI analyticsProvider) {
-        return new AnalyticUtil(analyticsProvider).start();
     }
 
     @Provides

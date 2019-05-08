@@ -575,6 +575,10 @@
         <item name="android:minHeight">565dp</item>
     </style>
 
+    <style name="Dialog.Transparent">
+        <item name="android:windowBackground">@null</item>
+    </style>
+
     <style name="Dialog.Floating">
         <item name="android:windowIsFloating">true</item>
     </style>

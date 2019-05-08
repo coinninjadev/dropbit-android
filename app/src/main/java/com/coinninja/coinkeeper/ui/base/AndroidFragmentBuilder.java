@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.ui.base;
 
 import com.coinninja.coinkeeper.ui.account.UserServerAddressesFragment;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
+import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.view.fragment.AuthenticateFragment;
 import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
@@ -23,6 +24,9 @@ public abstract class AndroidFragmentBuilder {
     @ContributesAndroidInjector
     abstract BaseFragment baseFragment();
 
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract ShareTransactionDialog shareTransactionDialog();
 
     @ActivityScope
     @ContributesAndroidInjector

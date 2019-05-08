@@ -98,6 +98,11 @@ public interface Analytics {
     // Application
     String EVENT_APP_OPEN = "AppOpen";
 
+    // Sharing
+    String EVENT_SHARE_VIA_TWITTER = "ShareViaTwitter";
+    String EVENT_SHARE_NEXT_TIME = "ShareNextTime";
+    String EVENT_NEVER_SHARE = "ShareNever";
+
     // PROPERTIES
     String PROPERTY_HAS_WALLET = "Has Wallet";
     String PROPERTY_HAS_WALLET_BACKUP = "Has Backup";

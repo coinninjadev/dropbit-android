@@ -40,6 +40,7 @@ import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LON
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.ADDRESS;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.BUY_BITCOIN;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.NEWS;
+import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.SPEND_BITCOIN;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
 public class ActivityNavigationUtil {
@@ -135,7 +136,8 @@ public class ActivityNavigationUtil {
     }
 
     public void navigateToBuyGiftCard(Activity activity) {
-        UriUtil.openUrl(Uri.parse("https://www.bitrefill.com/buy"), activity);
+
+        UriUtil.openUrl(coinNinjaUriBuilder.build(SPEND_BITCOIN, "giftcards"), activity);
         analytics.trackEvent(Analytics.EVENT_SPEND_GIFT_CARDS);
     }
 
