@@ -414,4 +414,8 @@ public class WalletHelper {
     public long getBalance() {
         return getWallet().getBalance();
     }
+
+    public TransactionSummary getTransactionByTxid(String txid) {
+        return daoSessionManager.getTransactionSummaryDao().queryBuilder().where(TransactionSummaryDao.Properties.Txid.eq(txid)).unique();
+    }
 }

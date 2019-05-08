@@ -216,6 +216,10 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="FlatButton.Plain">
+        <item name="android:textColor">@color/medium_gray</item>
+    </style>
+
     <style name="FlatButton.Settings">
         <item name="android:paddingRight">0dp</item>
         <item name="android:paddingLeft">0dp</item>

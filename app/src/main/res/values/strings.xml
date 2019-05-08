@@ -343,6 +343,7 @@ by using their mobile number</string>
     <string name="syncing">Syncing</string>
     <string name="user_account_remove_button">CHANGE/REMOVE</string>
     <string name="user_account_verified_verified_number_title">Verified number:</string>
+    <string name="add_memo">Add Memo</string>
     <string name="ok_get_bitcoin">OK, GET BITCOIN</string>
     <string name="clipboard_address">You will need a Bitcoin address so we went ahead and copied your DropBit Bitcoin address to your clipboard.</string>
     <string name="bitcoin_address_copy">Bitcoin address copied to clipboard</string>

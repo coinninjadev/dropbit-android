@@ -12,8 +12,10 @@ import android.widget.TextView;
 import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
+import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.memo.MemoCreator;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.history.DefaultCurrencyChangeObserver;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -55,13 +57,15 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     private DropbitUriBuilder dropbitUriBuilder;
     private DropbitRoute tooltipId;
     private DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
+    private MemoCreator memoCreator;
 
     @Inject
-    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies) {
+    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies, MemoCreator memoCreator, TransactionNotificationManager transactionNotificationManager) {
         this.defaultCurrencies = defaultCurrencies;
         dropbitUriBuilder = new DropbitUriBuilder();
         this.walletHelper = walletHelper;
         this.transactionAdapterUtil = transactionAdapterUtil;
+        this.memoCreator = memoCreator;
     }
 
     public int lookupTransactionBy(String txid) {
@@ -149,6 +153,11 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     void bindTo(View page, BindableTransaction bindableTransaction, int position) {
         makeViewInvisible(page, R.id.call_to_action);
         withId(page, R.id.ic_close).setOnClickListener(this::close);
+
+        Button addMemoButton = withId(page, R.id.add_memo_button);
+        addMemoButton.setOnClickListener(v -> addMemoClicked((Button) v));
+        addMemoButton.setTag(position);
+
         renderIcon(page, bindableTransaction);
         renderConfirmations(page, bindableTransaction);
         renderContact(page, bindableTransaction);
@@ -161,6 +170,20 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         renderTooltip(page, bindableTransaction);
     }
 
+    private void addMemoClicked(Button view) {
+        int position = (int) view.getTag();
+        TransactionsInvitesSummary summary = transactions.get(position);
+        memoCreator.createMemo((AppCompatActivity) view.getContext(), memo -> { setupNewTransactionNotification(view, summary, memo); }, "");
+    }
+
+    private void setupNewTransactionNotification(View view, TransactionsInvitesSummary summary, String memo) {
+        Intent intent = new Intent(view.getContext(), DropBitService.class);
+        intent.setAction(DropbitIntents.ACTION_CREATE_NOTIFICATION);
+        intent.putExtra(DropbitIntents.EXTRA_DROPBIT_MEMO, memo);
+        intent.putExtra(DropbitIntents.EXTRA_DROPBIT_TXID, summary.getTransactionSummary().getTxid());
+        view.getContext().startService(intent);
+    }
+
     private void bindTransactionValue(View page, BindableTransaction bindableTransaction) {
         DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
         view.renderValues(defaultCurrencies, bindableTransaction.getBasicDirection(), bindableTransaction.totalCryptoForSendState(), bindableTransaction.totalFiatForSendState());
@@ -170,12 +193,19 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
 
     private void renderMemo(View page, BindableTransaction bindableTransaction) {
         View memoView = withId(page, R.id.shared_transaction_subview);
+        Button addMemoButton = withId(page, R.id.add_memo_button);
         String memo = bindableTransaction.getMemo();
         if (memo == null || "".equals(memo)) {
+            addMemoButton.setVisibility(View.VISIBLE);
             memoView.setVisibility(View.GONE);
         } else {
+            addMemoButton.setVisibility(View.GONE);
             memoView.setVisibility(View.VISIBLE);
             sharedMemoView = new SharedMemoView(memoView, bindableTransaction.getIsSharedMemo(), bindableTransaction.getMemo(), bindableTransaction.getContactOrPhoneNumber());
+        }
+
+        if (bindableTransaction.getInviteState() == BindableTransaction.InviteState.CANCELED) {
+            addMemoButton.setVisibility(View.GONE);
         }
     }
 
