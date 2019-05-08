@@ -70,7 +70,7 @@ public class UserAccountVerificationActivity extends SecuredActivity {
         removePhoneNumberController.onStart();
         setupOnClickListeners();
 
-        String viewDropbitString = new String("View DropBit Addresses");
+        String viewDropbitString = "View DropBit Addresses";
         SpannableString underlinedString = new SpannableString(viewDropbitString);
         underlinedString.setSpan(new UnderlineSpan(), 0, viewDropbitString.length(), 0);
         ((TextView) findViewById(R.id.view_dropbit_addresses)).setText(underlinedString);

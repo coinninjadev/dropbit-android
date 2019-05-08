@@ -1,14 +1,23 @@
 package com.coinninja.coinkeeper.ui.spending;
 
+import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.cn.account.AccountManager;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
+import com.coinninja.coinkeeper.ui.util.CallbackHandler;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
+import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import java.util.HashMap;
 
@@ -20,11 +29,24 @@ import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.TYPE;
 
 public class BuyBitcoinActivity extends BaseActivity {
+    public static final String COPY_BITCOIN_DIALOG_TAG = "COPY_BITCOIN_ADDRESS";
+
+    @Inject
+    UserPreferences userPreferences;
+
+    @Inject
+    AccountManager accountManager;
+
+    @Inject
+    ClipboardUtil clipboardUtil;
+
     @Inject
     ActivityNavigationUtil activityNavigationUtil;
 
     @Inject
     LocationUtil locationUtil;
+
+    private String receiveAddress;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -39,16 +61,66 @@ public class BuyBitcoinActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_buy_bitcoin);
+        receiveAddress = accountManager.getNextReceiveAddress();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         withId(this, R.id.buy_with_credit_card)
-                .setOnClickListener(v -> activityNavigationUtil.navigateToBuyBitcoinWithCreditCard(this));
+                .setOnClickListener(v -> setupNavigationToByBitcoinWithCreditCard(this));
         withId(this, R.id.buy_with_gift_card)
-                .setOnClickListener(v -> activityNavigationUtil.navigateToBuyBitcoinWithGiftCard(this));
+                .setOnClickListener(v -> setupNavigationToByBitcoinWithGiftCard(this));
         withId(this, R.id.buy_at_atm).setOnClickListener(v -> onBuyAtAtmClicked());
+    }
+
+    private void showNotice(CallbackHandler callbackHandler) {
+        View alertView = getLayoutInflater().inflate(R.layout.dialog_copy_bitcoin_address, null);
+        GenericAlertDialog.newInstance(
+                alertView,
+                false,
+                false
+        ).show(getSupportFragmentManager(), COPY_BITCOIN_DIALOG_TAG);
+        ((Button) alertView.findViewById(R.id.address_button)).setText(receiveAddress);
+        alertView.findViewById(R.id.ok).setOnClickListener(v -> navigateToRouteWithAddress(callbackHandler));
+    }
+
+    private void setupNavigationToByBitcoinWithCreditCard(Activity activity) {
+        CallbackHandler handler = () -> activityNavigationUtil.navigateToBuyBitcoinWithCreditCard(activity);
+        showCopyUI(handler);
+    }
+
+    private void setupNavigationToByBitcoinWithGiftCard(Activity activity) {
+        CallbackHandler handler = () -> activityNavigationUtil.navigateToBuyBitcoinWithGiftCard(activity);
+        showCopyUI(handler);
+    }
+
+    private void showCopyUI(CallbackHandler handler) {
+        if (!userPreferences.getDidUserSeeCopyAddressDialog()) {
+            showNotice(handler);
+            userPreferences.setDidUserSeeCopyAddressDialog();
+        } else {
+            navigateToRouteWithAddress(handler);
+        }
+    }
+
+    private void dismissCurrentNotice() {
+        GenericAlertDialog dialog = (GenericAlertDialog) getSupportFragmentManager().findFragmentByTag(COPY_BITCOIN_DIALOG_TAG);
+        if (dialog != null) { dialog.dismiss(); }
+    }
+
+    private void navigateToRouteWithAddress(CallbackHandler callbackHandler) {
+        dismissCurrentNotice();
+        copyBitcoinAddress();
+        callbackHandler.callback();
+    }
+
+    private void copyBitcoinAddress() {
+        clipboardUtil.setClipFromText("Bitcoin Address", receiveAddress);
+        Toast.makeText(this,
+                getString(R.string.bitcoin_address_copy),
+                Toast.LENGTH_SHORT)
+                .show();
     }
 
     private void onBuyAtAtmClicked() {
