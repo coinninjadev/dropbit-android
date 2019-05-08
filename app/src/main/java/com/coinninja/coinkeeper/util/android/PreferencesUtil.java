@@ -58,7 +58,11 @@ public class PreferencesUtil {
     }
 
     public boolean getBoolean(String key) {
-        return preferences.getBoolean(key, false);
+        return getBoolean(key, false);
+    }
+
+    public boolean getBoolean(String key, boolean defaultValue) {
+        return preferences.getBoolean(key, defaultValue);
     }
 
     public String getString(String key, String defaultValue) {

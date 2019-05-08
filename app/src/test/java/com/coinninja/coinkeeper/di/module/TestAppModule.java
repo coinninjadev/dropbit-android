@@ -52,6 +52,7 @@ import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
+import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
@@ -69,6 +70,7 @@ import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.messaging.MessageCryptor;
 import com.google.gson.Gson;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +83,11 @@ import static org.mockito.Mockito.mock;
 
 @Module
 public class TestAppModule {
+
+    @Provides
+    AnalyticUtil analyticUtil(MixpanelAPI analyticsProvider) {
+        return new AnalyticUtil(analyticsProvider);
+    }
 
     @Provides
     ErrorLoggingUtil errorLoggingUtil() {
