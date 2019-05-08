@@ -8,6 +8,7 @@ import javax.inject.Inject;
 public class UserPreferences {
     public static final String PREFERENCE_FINGERPRINT = "useFingerprintForAuth";
     public static final String PREFERENCE_SKIP_INVITE_HELP = "skipInviteHelp";
+    public static final String PREFERENCE_SHOW_BITCOIN_COPY_DIALOG = "skipShowBitcoinCopyDialog";
 
     private PreferencesUtil preferencesUtil;
 
@@ -24,4 +25,11 @@ public class UserPreferences {
         preferencesUtil.savePreference(PREFERENCE_SKIP_INVITE_HELP, true, callback);
     }
 
+    public boolean getDidUserSeeCopyAddressDialog() {
+        return preferencesUtil.getBoolean(PREFERENCE_SHOW_BITCOIN_COPY_DIALOG);
+    }
+
+    public void setDidUserSeeCopyAddressDialog() {
+        preferencesUtil.savePreference(PREFERENCE_SHOW_BITCOIN_COPY_DIALOG, true);
+    }
 }
