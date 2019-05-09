@@ -5,6 +5,7 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import org.junit.After;
@@ -31,6 +32,9 @@ public class DropBitMeServiceManagerTest {
     LocalBroadCastUtil localBroadCastUtil;
 
     @Mock
+    Analytics analytics;
+
+    @Mock
     DropbitAccountHelper dropbitAccountHelper;
 
     @Mock
@@ -46,6 +50,7 @@ public class DropBitMeServiceManagerTest {
         dropbitAccountHelper = null;
         localBroadCastUtil = null;
         apiClient = null;
+        analytics = null;
     }
 
     @Test
@@ -58,6 +63,8 @@ public class DropBitMeServiceManagerTest {
 
         verify(dropbitAccountHelper).updateUserAccount(cnUserPatch);
         verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_DROPBIT_ME_ACCOUNT_DISABLED);
+        verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_ME_DISABLED);
+        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
     }
 
     @Test
@@ -69,6 +76,7 @@ public class DropBitMeServiceManagerTest {
 
         verifyZeroInteractions(localBroadCastUtil);
         verify(cnLogger).logError(DropBitMeServiceManager.class.getName(), "-- Failed to disable account", response);
+        verifyZeroInteractions(analytics);
     }
 
     @Test
@@ -81,6 +89,8 @@ public class DropBitMeServiceManagerTest {
 
         verify(dropbitAccountHelper).updateUserAccount(cnUserPatch);
         verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_DROPBIT_ME_ACCOUNT_ENABLED);
+        verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_ME_ENABLED);
+        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, true);
     }
 
     @Test
@@ -92,6 +102,7 @@ public class DropBitMeServiceManagerTest {
 
         verifyZeroInteractions(localBroadCastUtil);
         verify(cnLogger).logError(DropBitMeServiceManager.class.getName(), "-- Failed to enable account", response);
+        verifyZeroInteractions(analytics);
     }
 
 }

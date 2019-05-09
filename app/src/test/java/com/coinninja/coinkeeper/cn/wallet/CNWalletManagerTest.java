@@ -302,6 +302,7 @@ public class CNWalletManagerTest {
         verify(walletHelper).removeCurrentCnUserRegistration();
         verify(transactionHelper).cancelPendingSentInvites();
         verify(analytics).setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
+        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
         verify(analytics).flush();
     }
 

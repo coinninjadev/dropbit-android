@@ -97,6 +97,13 @@ public class DeleteWalletServiceTest {
     }
 
     @Test
+    public void tracks_disabling_account() {
+        service.onHandleIntent(null);
+
+        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
+    }
+
+    @Test
     public void sets_property_for_user_to_no_longer_has_a_balance() {
         service.onHandleIntent(null);
 

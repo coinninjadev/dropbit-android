@@ -2,10 +2,10 @@ package com.coinninja.coinkeeper.util.analytics;
 
 import android.app.Activity;
 
-import org.json.JSONObject;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import org.json.JSONObject;
 
 public interface Analytics {
     // EVENTS
@@ -103,6 +103,10 @@ public interface Analytics {
     String EVENT_SHARE_NEXT_TIME = "ShareNextTime";
     String EVENT_NEVER_SHARE = "ShareNever";
 
+    // Dropbit Me
+    String EVENT_DROPBIT_ME_DISABLED = "DropBitMeDisabled";
+    String EVENT_DROPBIT_ME_ENABLED = "DropBitMeReenabled";
+
     // PROPERTIES
     String PROPERTY_HAS_WALLET = "Has Wallet";
     String PROPERTY_HAS_WALLET_BACKUP = "Has Backup";
@@ -112,6 +116,7 @@ public interface Analytics {
     String PROPERTY_HAS_SENT_ADDRESS = "Has Sent";
     String PROPERTY_HAS_RECEIVED_DROPBIT = "Has Received DropBit";
     String PROPERTY_HAS_RECEIVED_ADDRESS = "Has Received";
+    String PROPERTY_HAS_DROPBIT_ME_ENABLED = "DropBitMe Enabled";
 
     Analytics start();
 

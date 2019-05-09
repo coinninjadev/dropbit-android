@@ -98,6 +98,7 @@ public class UserPhoneConfirmationRunnerTest {
         verify(remoteAddressCache).cacheAddresses();
         verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS);
         verify(analytics).setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, true);
+        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, true);
         verify(analytics).flush();
     }
 

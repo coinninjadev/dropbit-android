@@ -76,6 +76,7 @@ public class UserPhoneConfirmationRunner implements Runnable {
         if (cnUserAccount != null && VERIFIED.equals(cnUserAccount.getStatus())) {
             dropbitAccountHelper.updateVerifiedAccount(cnUserAccount);
             localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS);
+            analytics.setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, true);
         } else if (cnUserAccount != null && EXPIRED.equals(cnUserAccount.getStatus())) {
             localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
             logger.debug(TAG, "----------API confirmAccount failed");
