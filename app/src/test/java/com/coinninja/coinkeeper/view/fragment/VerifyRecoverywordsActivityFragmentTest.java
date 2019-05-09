@@ -76,7 +76,7 @@ public class VerifyRecoverywordsActivityFragmentTest {
             }
         };
 
-        scenario = FragmentScenario.launchInContainer(VerifyRecoverywordsFragment.class, new Bundle(), R.style.CoinKeeperTheme_Dark_Toolbar, factory);
+        scenario = FragmentScenario.launchInContainer(VerifyRecoverywordsFragment.class, new Bundle(), R.style.CoinKeeperTheme, factory);
         scenario.onFragment(frag -> {
             fragment = frag;
         });

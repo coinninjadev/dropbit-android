@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.util.android;
 import android.content.Context;
 import android.content.Intent;
 
+import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletAddressRequestService;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.model.PhoneNumber;
@@ -28,6 +29,18 @@ public class ServiceWorkUtil {
     public void registerUsersPhone(PhoneNumber phoneNumber) {
         Intent intent = new Intent(context, RegisterUsersPhoneService.class);
         intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, phoneNumber);
+        context.startService(intent);
+    }
+
+    public void disableDropBitMe() {
+        Intent intent = new Intent(context, DropBitService.class);
+        intent.setAction(DropbitIntents.ACTION_DROPBIT_ME_DISABLE_ACCOUNT);
+        context.startService(intent);
+    }
+
+    public void enableDropBitMe() {
+        Intent intent = new Intent(context, DropBitService.class);
+        intent.setAction(DropbitIntents.ACTION_DROPBIT_ME_ENABLE_ACCOUNT);
         context.startService(intent);
     }
 }

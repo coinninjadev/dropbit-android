@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.db;
 import android.content.Context;
 
 import com.coinninja.coinkeeper.db.schema.V27_Schema;
+import com.coinninja.coinkeeper.db.schema.V31_Schema;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.model.db.DaoMaster;
 
@@ -23,8 +24,8 @@ class DatabaseOpenHelper extends DaoMaster.OpenHelper {
 
     @Override
     public void onCreate(Database db) {
-        new V27_Schema().create(db);
-        onUpgrade(db, 27, DaoMaster.SCHEMA_VERSION);
+        new V31_Schema().create(db);
+        onUpgrade(db, 31, DaoMaster.SCHEMA_VERSION);
     }
 
     @Override

@@ -100,10 +100,8 @@ public abstract class BaseActivity extends DaggerAppCompatActivity implements Me
         LayoutInflater.from(this).inflate(layoutResID, findViewById(R.id.cn_content_container));
         setSupportActionBar(findViewById(R.id.toolbar));
         getTheme().resolveAttribute(R.attr.actionBarMenuType, actionBarType, true);
-
         actionBarController.setTheme(this, actionBarType);
         drawerController.inflateDrawer(this, actionBarType);
-
         actionBarController.displayTitle(this);
     }
 

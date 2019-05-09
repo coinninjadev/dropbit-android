@@ -9,8 +9,11 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Property;
+import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.converter.PropertyConverter;
+
+import java.util.List;
 
 @Entity(active = true)
 public class Account {
@@ -28,7 +31,6 @@ public class Account {
         public int getId() {
             return id;
         }
-
     }
 
     public void populateStatus(String value) {
@@ -37,7 +39,6 @@ public class Account {
         else
             status = Status.UNVERIFIED;
     }
-
 
     @Id
     private Long id;
@@ -67,6 +68,13 @@ public class Account {
     @Property
     private long verification_ttl;
 
+    @ToMany(referencedJoinProperty = "accountId")
+    @Property
+    private List<DropbitMeIdentity> identities;
+
+    @Property
+    private boolean isPrivate;
+
     /**
      * Used to resolve relations
      */
@@ -80,9 +88,10 @@ public class Account {
     private transient AccountDao myDao;
 
 
-    @Generated(hash = 153492231)
+    @Generated(hash = 749345295)
     public Account(Long id, Long walletId, String cnWalletId, String cnUserId, Status status,
-                   String phoneNumberHash, PhoneNumber phoneNumber, long verification_ttl) {
+                   String phoneNumberHash, PhoneNumber phoneNumber, long verification_ttl,
+                   boolean isPrivate) {
         this.id = id;
         this.walletId = walletId;
         this.cnWalletId = cnWalletId;
@@ -91,6 +100,7 @@ public class Account {
         this.phoneNumberHash = phoneNumberHash;
         this.phoneNumber = phoneNumber;
         this.verification_ttl = verification_ttl;
+        this.isPrivate = isPrivate;
     }
 
 
@@ -251,6 +261,48 @@ public class Account {
 
     public PhoneNumber getPhoneNumber() {
         return phoneNumber;
+    }
+
+
+    public boolean getIsPrivate() {
+        return isPrivate;
+    }
+
+
+    public void setIsPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
+    }
+
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 188162726)
+    public List<DropbitMeIdentity> getIdentities() {
+        if (identities == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            DropbitMeIdentityDao targetDao = daoSession.getDropbitMeIdentityDao();
+            List<DropbitMeIdentity> identitiesNew = targetDao._queryAccount_Identities(id);
+            synchronized (this) {
+                if (identities == null) {
+                    identities = identitiesNew;
+                }
+            }
+        }
+        return identities;
+    }
+
+
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
+    @Generated(hash = 991003748)
+    public synchronized void resetIdentities() {
+        identities = null;
     }
 
 

@@ -1,5 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import android.provider.ContactsContract;
+
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
 import com.coinninja.coinkeeper.model.db.Address;
@@ -247,6 +249,7 @@ public class WalletHelper {
         account.setCnUserId("");
         account.setStatus(Account.Status.UNVERIFIED);
         account.update();
+        daoSessionManager.getDropbitMeIdentityDao().deleteAll();
     }
 
 

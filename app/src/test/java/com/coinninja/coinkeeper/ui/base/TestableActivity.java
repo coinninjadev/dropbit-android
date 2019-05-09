@@ -14,7 +14,7 @@ public class TestableActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.CoinKeeperTheme_Dark_Toolbar);
+        setTheme(R.style.CoinKeeperTheme);
         setContentView(R.layout.test__root_layout);
     }
 

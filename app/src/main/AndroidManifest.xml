@@ -21,7 +21,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_adaptive_dropbit_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/CoinKeeperTheme.Dark.Toolbar">
+        android:theme="@style/CoinKeeperTheme">
 
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
@@ -56,36 +56,36 @@
             android:label="@string/user_account_verification_title"
             android:noHistory="false"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff.CloseOn" />
+            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
         <activity
             android:name=".view.activity.TrainingActivity"
             android:label=""
             android:noHistory="false"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff" />
+            android:theme="@style/CoinKeeperTheme.UpOff" />
 
         <activity
             android:name=".view.activity.VerifyRecoverywordsActivity"
             android:label="@string/verify_recovery_words_header"
             android:noHistory="true"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn.SkipOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn.SkipOn" />
         <activity
             android:name=".view.activity.AuthenticateActivity"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff" />
+            android:theme="@style/CoinKeeperTheme.UpOff" />
         <activity
             android:name=".view.activity.CreatePinActivity"
             android:label="@string/set_pin_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn" />
         <activity
             android:name=".view.activity.BackupActivity"
             android:label="@string/backup_recovery_words_title"
             android:noHistory="true"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn.SkipOn"
+            android:theme="@style/CoinKeeperTheme.UpOn.SkipOn"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <activity
             android:name=".ui.transaction.history.TransactionHistoryActivity"
@@ -106,17 +106,17 @@
             android:name=".ui.transaction.details.TransactionDetailsActivity"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn" />
         <activity
             android:name=".view.activity.QrScanActivity"
             android:label="@string/scan_qr_label"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
+            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
         <activity
             android:name=".ui.phone.verification.VerifyPhoneNumberActivity"
             android:label="@string/activity_verify_phone_number_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff.SkipOnAccent"
+            android:theme="@style/CoinKeeperTheme.UpOff.SkipOnAccent"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible">
             <intent-filter
                 android:autoVerify="false"
@@ -136,80 +136,80 @@
             android:name=".view.activity.VerifyPhoneVerificationCodeActivity"
             android:label="@string/activity_verify_phone_code_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff.SkipOnAccent"
+            android:theme="@style/CoinKeeperTheme.UpOff.SkipOnAccent"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/settings_title"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn.CloseOn" />
         <activity
             android:name=".view.activity.BroadcastActivity"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff" />
+            android:theme="@style/CoinKeeperTheme.UpOff" />
         <activity
             android:name=".view.activity.InviteSendActivity"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff" />
+            android:theme="@style/CoinKeeperTheme.UpOff" />
 
         <activity
             android:name=".view.activity.PickContactActivity"
             android:label="@string/pay_contacts_label"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn" />
 
         <activity
             android:name=".view.activity.AuthorizedActionActivity"
             android:label=""
             android:noHistory="true"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff"
+            android:theme="@style/CoinKeeperTheme.UpOff"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
 
         <activity
             android:name=".view.activity.RestoreWalletActivity"
             android:label="@string/restore_wallet_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn"
+            android:theme="@style/CoinKeeperTheme.UpOn"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
 
         <activity
             android:name=".ui.spending.SpendBitcoinActivity"
             android:label="@string/spend_bitcoin_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn" />
 
         <activity
             android:name=".ui.spending.BuyBitcoinActivity"
             android:label="@string/get_bitcoin_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn" />
 
         <activity
             android:name=".view.activity.RecoverWalletActivity"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.LightActionBar.UpOff" />
+            android:theme="@style/CoinKeeperTheme.UpOff" />
 
         <activity
             android:name=".view.activity.CoinKeeperSupportActivity"
             android:label="@string/support_title"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn" />
+            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
         <activity
             android:name=".view.activity.LicensesActivity"
             android:label=""
             android:noHistory="true"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn" />
 
         <activity
             android:name=".ui.backup.BackupRecoveryWordsStartActivity"
             android:label="@string/backup_recovery_words_title"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.DarkActionBar.UpOff.CloseOn">
+            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

@@ -9,6 +9,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -19,36 +24,28 @@ import com.google.android.material.navigation.NavigationView;
 
 import javax.inject.Inject;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class DrawerController {
 
     private final WalletHelper walletHelper;
+    private final String versionName;
     DrawerLayout drawerLayout;
-    private NavigationView navigationView;
     private BadgeRenderer badgeRenderer;
     private ActivityNavigationUtil navigationUtil;
-    private DrawerProvider drawerProvider;
-    private final String versionName;
 
     @Inject
-    public DrawerController(BadgeRenderer badgeRenderer, ActivityNavigationUtil navigationUtil, DrawerProvider drawerProvider,
+    public DrawerController(BadgeRenderer badgeRenderer, ActivityNavigationUtil navigationUtil,
                             @BuildVersionName String versionName, WalletHelper walletHelper) {
         this.badgeRenderer = badgeRenderer;
         this.navigationUtil = navigationUtil;
-        this.drawerProvider = drawerProvider;
         this.versionName = versionName;
         this.walletHelper = walletHelper;
     }
 
     public void inflateDrawer(AppCompatActivity activity, TypedValue actionBarType) {
-        if (actionBarType.resourceId == R.id.actionbar_dark_up_on_with_nav_bar) {
+        if (actionBarType.resourceId == R.id.actionbar_up_on_with_nav_bar) {
             View root = activity.findViewById(R.id.cn_content_wrapper);
             wrapBaseLayoutWithDrawer(activity, root);
             inflate(activity);
@@ -56,19 +53,6 @@ public class DrawerController {
             setupDrawerButtons();
             displayAppVersion();
         }
-    }
-
-    private void wrapBaseLayoutWithDrawer(AppCompatActivity activity, View root) {
-        drawerLayout = new DrawerLayout(activity);
-        drawerLayout.setFitsSystemWindows(true);
-        ViewGroup screen = (ViewGroup) root.getParent();
-        screen.removeView(root);
-        screen.addView(drawerLayout);
-        drawerLayout.addView(root);
-    }
-
-    private void inflate(AppCompatActivity activity) {
-        activity.getLayoutInflater().inflate(R.layout.cn_drawer_layout, drawerLayout, true);
     }
 
     public void openDrawer() {
@@ -93,7 +77,9 @@ public class DrawerController {
     }
 
     public void renderBadgeForUnverifiedDeviceIfNecessary() {
-        if (drawerLayout == null) { return; }
+        if (drawerLayout == null) {
+            return;
+        }
 
         if (!walletHelper.hasVerifiedAccount()) {
             badgeRenderer.renderBadge((ImageView) drawerLayout.findViewById(R.id.contact_phone));
@@ -107,35 +93,6 @@ public class DrawerController {
         TextView drawerPriceTxtView = drawerLayout.findViewById(R.id.drawer_action_price_text);
 
         if (!price.isZero()) drawerPriceTxtView.setText(price.toFormattedCurrency());
-    }
-
-    private void setupDrawerButtons() {
-        drawerLayout.findViewById(R.id.drawer_setting).setOnClickListener(this::onSettingsClicked);
-        drawerLayout.findViewById(R.id.drawer_support).setOnClickListener(this::onSupportClicked);
-        drawerLayout.findViewById(R.id.drawer_where_to_buy).setOnClickListener(this::onWhereToSpendClicked);
-        drawerLayout.findViewById(R.id.drawer_phone).setOnClickListener(this::onPhoneClicked);
-        drawerLayout.findViewById(R.id.buy_bitcoin_drawer).setOnClickListener(this::onBuyBitcoinClicked);
-    }
-
-    private void onBuyBitcoinClicked(View view) {
-        navigationUtil.navigtateToBuyBitcoin(view.getContext());
-    }
-
-    private void onPhoneClicked(View view) {
-        Context context = view.getContext();
-
-        navigationUtil.navigateToUserVerification(context);
-    }
-
-    private void setupNavigationView() {
-        navigationView = drawerLayout.findViewById(R.id.drawer_action_view);
-        navigationView.setItemIconTintList(null);
-        navigationView.setNavigationItemSelectedListener(
-                menuItem -> {
-                    menuItem.setChecked(true);
-                    closeDrawer();
-                    return true;
-                });
     }
 
     public void displayAppVersion() {
@@ -153,6 +110,56 @@ public class DrawerController {
         Button backupNowButton = drawerLayout.findViewById(R.id.drawer_backup_now);
         backupNowButton.setVisibility(View.VISIBLE);
         backupNowButton.setOnClickListener(this::onBackupNowClicked);
+    }
+
+    public boolean onMenuItemClicked(MenuItem item) {
+        if (drawerLayout == null) return false;
+
+        if (item.getItemId() == android.R.id.home) {
+            openDrawer();
+            return true;
+        }
+        return false;
+    }
+
+    private void wrapBaseLayoutWithDrawer(AppCompatActivity activity, View root) {
+        drawerLayout = new DrawerLayout(activity);
+        drawerLayout.setFitsSystemWindows(true);
+        ViewGroup screen = (ViewGroup) root.getParent();
+        screen.removeView(root);
+        screen.addView(drawerLayout);
+        drawerLayout.addView(root);
+    }
+
+    private void inflate(AppCompatActivity activity) {
+        activity.getLayoutInflater().inflate(R.layout.cn_drawer_layout, drawerLayout, true);
+    }
+
+    private void setupDrawerButtons() {
+        drawerLayout.findViewById(R.id.drawer_setting).setOnClickListener(this::onSettingsClicked);
+        drawerLayout.findViewById(R.id.drawer_support).setOnClickListener(this::onSupportClicked);
+        drawerLayout.findViewById(R.id.drawer_where_to_buy).setOnClickListener(this::onWhereToSpendClicked);
+        drawerLayout.findViewById(R.id.drawer_phone).setOnClickListener(this::onPhoneClicked);
+        drawerLayout.findViewById(R.id.buy_bitcoin_drawer).setOnClickListener(this::onBuyBitcoinClicked);
+    }
+
+    private void onBuyBitcoinClicked(View view) {
+        navigationUtil.navigtateToBuyBitcoin(view.getContext());
+    }
+
+    private void onPhoneClicked(View view) {
+        navigationUtil.navigateToUserVerification(view.getContext());
+    }
+
+    private void setupNavigationView() {
+        NavigationView navigationView = drawerLayout.findViewById(R.id.drawer_action_view);
+        navigationView.setItemIconTintList(null);
+        navigationView.setNavigationItemSelectedListener(
+                menuItem -> {
+                    menuItem.setChecked(true);
+                    closeDrawer();
+                    return true;
+                });
     }
 
     private void onSettingsClicked(View view) {
@@ -175,15 +182,5 @@ public class DrawerController {
         Context context = view.getContext();
 
         navigationUtil.navigateToBackupRecoveryWords(context);
-    }
-
-    public boolean onMenuItemClicked(MenuItem item) {
-        if (drawerLayout == null) return false;
-
-        if (item.getItemId() == android.R.id.home) {
-            openDrawer();
-            return true;
-        }
-        return false;
     }
 }

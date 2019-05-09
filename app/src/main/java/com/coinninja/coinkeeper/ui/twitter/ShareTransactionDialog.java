@@ -53,8 +53,10 @@ public class ShareTransactionDialog extends BaseBottomDialogFragment {
     private void twitterShareClicked() {
         analytics.trackEvent(Analytics.EVENT_SHARE_VIA_TWITTER);
 
-        Intent intent = twitterUtil.createTwitterIntent(this.getContext(), memo);
-        if (intent != null) { startActivity(intent); }
+        Intent intent = twitterUtil.createTwitterIntent(getContext(), twitterUtil.getShareMessage(memo));
+        if (intent != null) {
+            startActivity(intent);
+        }
 
         dismiss();
     }

@@ -2,6 +2,8 @@ package com.coinninja.coinkeeper.ui.phone.verification;
 
 import android.view.MenuItem;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PhoneNumber;
@@ -27,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.coinninja.android.helpers.Views.withId;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -41,36 +45,31 @@ public class VerifyPhoneNumberActivityTest {
     private VerifyPhoneNumberActivity activity;
     private ActivityController<VerifyPhoneNumberActivity> activityController;
     @Mock
-    private Analytics analytics;
-    @Mock
     private ActivityNavigationUtil activityNavigationUtil;
     @Mock
     private ServiceWorkUtil serviceWorkUtil;
-    @Mock
-    private PhoneVerificationView phoneVerificationView;
+    private TestCoinKeeperApplication application;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        application = ApplicationProvider.getApplicationContext();
+        application.countryCodeLocales = countryCodeLocals;
+        application.activityNavigationUtil = activityNavigationUtil;
+        application.serviceWorkUtil = serviceWorkUtil;
         countryCodeLocals.add(new CountryCodeLocale(new Locale("en", "US"), 1));
+
         activityController = Robolectric.buildActivity(VerifyPhoneNumberActivity.class);
         activity = activityController.get();
-        activityController.create();
-        activity.analytics = analytics;
-        activity.countryCodeLocales = countryCodeLocals;
-        activity.activityNavigationUtil = activityNavigationUtil;
-        activity.serviceWorkUtil = serviceWorkUtil;
-        activity.phoneVerificationView = phoneVerificationView;
-        activityController.start().resume().visible();
+        activityController.setup();
     }
 
     @After
     public void tearDown() {
         activity = null;
         activityController = null;
-        analytics = null;
+        application = null;
         activityNavigationUtil = null;
-        phoneVerificationView = null;
     }
 
     @Test
@@ -78,20 +77,16 @@ public class VerifyPhoneNumberActivityTest {
         MenuItem closeMenuItem = mock(MenuItem.class);
         when(closeMenuItem.getItemId()).thenReturn(R.id.action_skip_btn);
 
-        activity.onOptionsItemSelected(closeMenuItem);
+        activity.onSkipClicked();
 
         verify(activityNavigationUtil).navigateToHome(activity);
-        verify(analytics).trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SKIPPED);
+        verify(application.analytics).trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SKIPPED);
     }
 
     @Test
     public void sets_country_code_locales_on_view() {
-        verify(phoneVerificationView).setCountryCodeLocals(countryCodeLocals);
-    }
-
-    @Test
-    public void observes_valid_entry() {
-        verify(phoneVerificationView).setCountryCodeLocals(countryCodeLocals);
+        PhoneVerificationView phoneVerificationView = withId(activity, R.id.phone_verification_view);
+        assertThat(phoneVerificationView.getCountryCodeLocales().size(), equalTo(1));
     }
 
     @Test
@@ -120,8 +115,10 @@ public class VerifyPhoneNumberActivityTest {
 
     @Test
     public void hides_error_on_pause() {
+        activity.phoneVerificationView = mock(PhoneVerificationView.class);
+
         activityController.pause();
 
-        verify(phoneVerificationView).resetView();
+        verify(activity.phoneVerificationView).resetView();
     }
 }

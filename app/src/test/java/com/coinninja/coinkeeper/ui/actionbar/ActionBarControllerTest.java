@@ -62,46 +62,17 @@ public class ActionBarControllerTest {
         controller.setTheme(context, actionBarTyped);
 
         assertTrue(controller.isActionBarGone);
-        assertNull(controller.isTitleUppercase);
+        assertFalse(controller.isTitleUppercase);
         assertNull(controller.isUpEnabled);
         assertNull(controller.optionMenuLayout);
     }
 
 
     @Test
-    public void actionbar_dark_up_on_configuration_test() {
-        
-        TypedValue actionBarTyped = new TypedValue();
-        actionBarTyped.resourceId = R.id.actionbar_dark_up_on;
-
-        controller.setTheme(context, actionBarTyped);
-
-        assertNull(controller.isActionBarGone);
-        assertTrue(controller.isUpEnabled);
-        assertFalse(controller.isTitleUppercase);
-        assertNull(controller.optionMenuLayout);
-    }
-
-
-    @Test
-    public void actionbar_dark_up_on_with_nav_bar_configuration_test() {
-        
-        TypedValue actionBarTyped = new TypedValue();
-        actionBarTyped.resourceId = R.id.actionbar_dark_up_on_with_nav_bar;
-
-        controller.setTheme(context, actionBarTyped);
-
-        assertNull(controller.isActionBarGone);
-        assertTrue(controller.isUpEnabled);
-        assertFalse(controller.isTitleUppercase);
-        assertNull(controller.optionMenuLayout);
-    }
-
-    @Test
     public void actionbar_light_up_on_configuration_test() {
         
         TypedValue actionBarTyped = new TypedValue();
-        actionBarTyped.resourceId = R.id.actionbar_light_up_on;
+        actionBarTyped.resourceId = R.id.actionbar_up_on;
 
         controller.setTheme(context, actionBarTyped);
 
@@ -109,33 +80,19 @@ public class ActionBarControllerTest {
         assertTrue(controller.isUpEnabled);
         assertFalse(controller.isTitleUppercase);
         assertNull(controller.optionMenuLayout);
-    }
-
-    @Test
-    public void actionbar_dark_up_off_close_on_configuration_test() {
-        
-        TypedValue actionBarTyped = new TypedValue();
-        actionBarTyped.resourceId = R.id.actionbar_dark_up_off_close_on;
-
-        controller.setTheme(context, actionBarTyped);
-
-        assertNull(controller.isActionBarGone);
-        assertFalse(controller.isUpEnabled);
-        assertFalse(controller.isTitleUppercase);
-        assertThat(controller.optionMenuLayout, equalTo(R.menu.actionbar_dark_close_menu));
     }
 
     @Test
     public void actionbar_light_up_off_configuration_test() {
         
         TypedValue actionBarTyped = new TypedValue();
-        actionBarTyped.resourceId = R.id.actionbar_light_up_off;
+        actionBarTyped.resourceId = R.id.actionbar_up_off;
 
         controller.setTheme(context, actionBarTyped);
 
         assertNull(controller.isActionBarGone);
         assertFalse(controller.isUpEnabled);
-        assertTrue(controller.isTitleUppercase);
+        assertFalse(controller.isTitleUppercase);
         assertNull(controller.optionMenuLayout);
     }
 
@@ -143,13 +100,13 @@ public class ActionBarControllerTest {
     public void actionbar_light_up_off_skip_on_configuration_test() {
         
         TypedValue actionBarTyped = new TypedValue();
-        actionBarTyped.resourceId = R.id.actionbar_light_up_off_skip_on;
+        actionBarTyped.resourceId = R.id.actionbar_up_off_skip_on;
 
         controller.setTheme(context, actionBarTyped);
 
         assertNull(controller.isActionBarGone);
         assertFalse(controller.isUpEnabled);
-        assertTrue(controller.isTitleUppercase);
+        assertFalse(controller.isTitleUppercase);
         assertThat(controller.optionMenuLayout, equalTo(R.menu.actionbar_light_skip_menu));
     }
 
@@ -157,13 +114,13 @@ public class ActionBarControllerTest {
     public void actionbar_light_up_on_skip_on_configuration_test() {
         
         TypedValue actionBarTyped = new TypedValue();
-        actionBarTyped.resourceId = R.id.actionbar_light_up_on_skip_on;
+        actionBarTyped.resourceId = R.id.actionbar_up_on_skip_on;
 
         controller.setTheme(context, actionBarTyped);
 
         assertNull(controller.isActionBarGone);
         assertTrue(controller.isUpEnabled);
-        assertTrue(controller.isTitleUppercase);
+        assertFalse(controller.isTitleUppercase);
         assertThat(controller.optionMenuLayout, equalTo(R.menu.actionbar_light_skip_menu));
     }
 
@@ -191,7 +148,7 @@ public class ActionBarControllerTest {
     @Test
     public void init_title_view_directly_after_setting_up_theme() {
         TypedValue actionBarTyped = new TypedValue();
-        actionBarTyped.resourceId = R.id.actionbar_light_up_on_skip_on;
+        actionBarTyped.resourceId = R.id.actionbar_up_on_skip_on;
         ActionBar supportActionBar = mock(ActionBar.class);
         TextView titleView = mock(TextView.class);
         when(context.getSupportActionBar()).thenReturn(supportActionBar);

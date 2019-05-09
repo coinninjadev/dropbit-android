@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class USDCurrency extends BaseCurrency implements FiatCurrency, Parcelable {
     private static final int WHOLE_NUM_MAX = 10;
@@ -117,4 +118,17 @@ public class USDCurrency extends BaseCurrency implements FiatCurrency, Parcelabl
         return SUB_NUM_MAX;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        USDCurrency that = (USDCurrency) o;
+        return Objects.equals(toLong(), that.toLong());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(toLong());
+    }
 }
