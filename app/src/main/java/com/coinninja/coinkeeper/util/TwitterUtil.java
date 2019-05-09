@@ -21,7 +21,7 @@ public class TwitterUtil {
     private final Shuffler shuffler;
 
     @Inject
-    TwitterUtil(@ApplicationContext Context context, Shuffler shuffler) {
+    public TwitterUtil(@ApplicationContext Context context, Shuffler shuffler) {
         this.context = context;
         this.shuffler = shuffler;
     }
@@ -37,25 +37,24 @@ public class TwitterUtil {
             }
         } else {
             if (random % 2 == 0) {
-                return getString(context, R.string.twitter_share_memo_first);
+                return getString(context, R.string.twitter_share_memo_first, memo);
             } else {
-                return getString(context, R.string.twitter_share_memo_second);
+                return getString(context, R.string.twitter_share_memo_second, memo);
             }
         }
     }
 
-    public Intent createTwitterIntent(Context context, String memo) {
+    public Intent createTwitterIntent(Context context, String tweet) {
         if (context == null) {
             return null;
         }
 
-        String memoString = getShareMessage(memo);
         Intent intent = new Intent();
-        intent.putExtra(Intent.EXTRA_TEXT, memoString);
+        intent.putExtra(Intent.EXTRA_TEXT, tweet);
         intent.setAction(Intent.ACTION_VIEW);
         Uri uri = Uri.parse("https://twitter.com/intent/tweet")
                 .buildUpon()
-                .appendQueryParameter("text", memoString)
+                .appendQueryParameter("text", tweet)
                 .build();
         intent.setData(uri);
         return intent;

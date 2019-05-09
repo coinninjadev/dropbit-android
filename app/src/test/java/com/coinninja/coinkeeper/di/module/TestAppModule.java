@@ -36,6 +36,7 @@ import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
 import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler;
 import com.coinninja.coinkeeper.di.interfaces.UUID;
+import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
@@ -52,6 +53,9 @@ import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
+import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
+import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
+import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -63,6 +67,7 @@ import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
+import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
@@ -539,4 +544,45 @@ public class TestAppModule {
         return app.notificationUtil;
     }
 
+    @Provides
+    DropbitMeConfiguration dropbitMeConfiguration(TestCoinKeeperApplication app) {
+        if (app.dropbitMeConfiguration == null) {
+            app.dropbitMeConfiguration = mock(DropbitMeConfiguration.class);
+        }
+        return app.dropbitMeConfiguration;
+
+    }
+
+    @Provides
+    InternalNotificationsInteractor internalNotificationsInteractor(TestCoinKeeperApplication app) {
+        if (app.internalNotificationsInteractor == null) {
+            app.internalNotificationsInteractor = mock(InternalNotificationsInteractor.class);
+        }
+        return app.internalNotificationsInteractor;
+    }
+
+    @Provides
+    ServiceWorkUtil serviceWorkUtil(TestCoinKeeperApplication app) {
+        if (app.serviceWorkUtil == null) {
+            app.serviceWorkUtil = mock(ServiceWorkUtil.class);
+        }
+        return app.serviceWorkUtil;
+    }
+
+
+    @Provides
+    ActionBarController actionBarController(TestCoinKeeperApplication app) {
+        if (app.actionBarController == null) {
+            app.actionBarController = mock(ActionBarController.class);
+        }
+        return app.actionBarController;
+    }
+
+    @Provides
+    DrawerController drawerController(TestCoinKeeperApplication app) {
+        if (app.drawerController == null) {
+            app.drawerController = mock(DrawerController.class);
+        }
+        return app.drawerController;
+    }
 }

@@ -10,7 +10,6 @@ import java.util.Map;
 public class DropbitIntents {
 
     /* CONSTS */
-    public static final long DUST = 1000L;
     public static final int QR_WIDTH = 300;
     public static final int QR_HEIGHT = 300;
     public static final long PENDING_TRANSITION_LIFE_LIMIT_SECONDS = 180;//180 secs = 3minuets
@@ -18,7 +17,6 @@ public class DropbitIntents {
     public static final long LOCK_DURRATION = 300000L;
     public static final long MAX_DOLLARS_SENT_THROUGH_CONTACTS = 10000L;
     public static final Map<String, String> SUPPORT_LINKS;
-    public static final Uri URI_WHERE_TO_BUY = Uri.parse("https://coinninja.com/news/where-can-i-spend-my-bitcoin");
     public static final Uri URI_WHAT_IS_DROPBIT = Uri.parse("https://dropbit.app/dropbit");
     public static final Uri URI_LEARN_ABOUT_BITCOIN = Uri.parse("https://coinninja.com/learnbitcoin");
     public static final Uri URI_WHY_BITCOIN = Uri.parse("https://coinninja.com/whybitcoin");
@@ -38,6 +36,10 @@ public class DropbitIntents {
     public static final int RESULT_SCAN_OK = 221;
     public static final int RESULT_SCAN_ERROR = 400;
     /* ACTIONS */
+    public static final String ACTION_DROPBIT_ME_DISABLE_ACCOUNT = BuildConfig.APPLICATION_ID + ".ACTION_DROPBIT_ME_DISABLE_ACCOUNT";
+    public static final String ACTION_DROPBIT_ME_ENABLE_ACCOUNT = BuildConfig.APPLICATION_ID + ".ACTION_DROPBIT_ME_ENABLE_ACCOUNT";
+    public static final String ACTION_DROPBIT_ME_ACCOUNT_DISABLED = BuildConfig.APPLICATION_ID + ".ACTION_DROPBIT_ME_ACCOUNT_DISABLED";
+    public static final String ACTION_DROPBIT_ME_ACCOUNT_ENABLED = BuildConfig.APPLICATION_ID + ".ACTION_DROPBIT_ME_ACCOUNT_ENABLED";
     public static final String ACTION_DEVERIFY_PHONE_NUMBER_FAILED = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_PHONE_NUMBER_FAILED";
     public static final String ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED";
     public static final String ACTION_BTC_PRICE_UPDATE = BuildConfig.APPLICATION_ID + ".ACTION_BTC_PRICE_UPDATE";
@@ -51,7 +53,6 @@ public class DropbitIntents {
     public static final String ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR";
 
     public static final String ACTION_PHONE_VERIFICATION__SUCCESS = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__SUCCESS";
-    public static final String ACTION_SAVE_TEMP_INVITE = BuildConfig.APPLICATION_ID + ".ACTION_SAVE_TEMP_INVITE";
     public static final String ACTION_ON_WALLET_DELETED = BuildConfig.APPLICATION_ID + ".ACTION_ON_WALLET_DELETED";
     public static final String ACTION_INTERNAL_NOTIFICATION_UPDATE = BuildConfig.APPLICATION_ID + ".ACTION_INTERNAL_NOTIFICATION_UPDATE";
     public static final String ACTION_CANCEL_DROPBIT = BuildConfig.APPLICATION_ID + ".ACTION_CANCEL_DROPBIT";
@@ -127,7 +128,6 @@ public class DropbitIntents {
     public static final String CN_API_CREATE_DEVICE_APPLICATION_NAME = "DropBit";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_ANDROID = "android";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_IOS = "ios";
-
 
 
     /* REQUESTS */

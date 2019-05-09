@@ -4,16 +4,17 @@ import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNDeviceEndpoint;
 import com.coinninja.coinkeeper.service.client.model.CNGlobalMessage;
+import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNPricing;
 import com.coinninja.coinkeeper.service.client.model.CNSharedMemo;
 import com.coinninja.coinkeeper.service.client.model.CNSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNSubscriptionState;
 import com.coinninja.coinkeeper.service.client.model.CNTransactionNotification;
+import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
-import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
@@ -93,7 +94,10 @@ public interface CoinKeeperClient {
 
     // USER ACCOUNT
     @GET("user")
-    Call<CNUserAccount> verifiyUserAccount();
+    Call<CNUserAccount> verifyUserAccount();
+
+    @PATCH("user")
+    Call<CNUserPatch> patchUserAccount(@Body CNUserPatch cnUserPatch);
 
     @POST("user")
     Call<CNUserAccount> createUserAccount(@Body CNPhoneNumber CNPhoneNumber);
@@ -154,4 +158,5 @@ public interface CoinKeeperClient {
 
     @GET("transaction/notification/{txid}")
     Call<List<CNSharedMemo>> getTransactionNotification(@Path("txid") String txid);
+
 }

@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
 import com.coinninja.coinkeeper.cn.account.RemoteAddressCache;
-import com.coinninja.coinkeeper.model.db.Account;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.util.CNLogger;
@@ -22,17 +22,17 @@ public class UserPhoneConfirmationRunner implements Runnable {
     private final RemoteAddressCache remoteAddressCache;
     private final Analytics analytics;
     private final CNLogger logger;
+    private final DropbitAccountHelper dropbitAccountHelper;
     private SignedCoinKeeperApiClient apiClient;
     private LocalBroadCastUtil localBroadCastUtil;
-    private Account userAccount;
     private String code;
 
     @Inject
-    public UserPhoneConfirmationRunner(SignedCoinKeeperApiClient apiClient, Account userAccount,
+    public UserPhoneConfirmationRunner(SignedCoinKeeperApiClient apiClient, DropbitAccountHelper dropbitAccountHelper,
                                        LocalBroadCastUtil localBroadCastUtil, RemoteAddressCache remoteAddressCache,
                                        Analytics analytics, CNLogger logger) {
-        this.userAccount = userAccount;
         this.apiClient = apiClient;
+        this.dropbitAccountHelper = dropbitAccountHelper;
         this.localBroadCastUtil = localBroadCastUtil;
         this.remoteAddressCache = remoteAddressCache;
         this.analytics = analytics;
@@ -45,7 +45,6 @@ public class UserPhoneConfirmationRunner implements Runnable {
 
     @Override
     public void run() {
-        if (userAccount.getStatus() != Account.Status.PENDING_VERIFICATION) return;
 
         Response response = apiClient.verifyPhoneCode(code);
         switch (response.code()) {
@@ -73,12 +72,11 @@ public class UserPhoneConfirmationRunner implements Runnable {
     }
 
     private void updateAccount(Response response) {
-        CNUserAccount account = (CNUserAccount) response.body();
-        if (account != null && VERIFIED.equals(account.getStatus())) {
-            userAccount.setStatus(Account.Status.VERIFIED);
-            userAccount.update();
+        CNUserAccount cnUserAccount = (CNUserAccount) response.body();
+        if (cnUserAccount != null && VERIFIED.equals(cnUserAccount.getStatus())) {
+            dropbitAccountHelper.updateVerifiedAccount(cnUserAccount);
             localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS);
-        } else if (account != null && EXPIRED.equals(account.getStatus())) {
+        } else if (cnUserAccount != null && EXPIRED.equals(cnUserAccount.getStatus())) {
             localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
             logger.debug(TAG, "----------API confirmAccount failed");
             logger.debug(TAG, "---------------    Code EXPIRED: ");

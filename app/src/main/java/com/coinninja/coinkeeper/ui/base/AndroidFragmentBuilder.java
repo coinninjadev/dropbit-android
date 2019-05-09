@@ -1,6 +1,11 @@
 package com.coinninja.coinkeeper.ui.base;
 
 import com.coinninja.coinkeeper.ui.account.UserServerAddressesFragment;
+import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog;
+import com.coinninja.coinkeeper.ui.dropbit.me.verified.DisabledDropbitMeDialog;
+import com.coinninja.coinkeeper.ui.dropbit.me.verified.NewlyVerifiedDropbitMeDialog;
+import com.coinninja.coinkeeper.ui.dropbit.me.verified.VerifiedDropbitMeDialog;
+import com.coinninja.coinkeeper.ui.dropbit.me.verify.VerifyDropBitMeDialog;
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment;
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.view.fragment.AuthenticateFragment;
@@ -23,6 +28,31 @@ public abstract class AndroidFragmentBuilder {
     @ActivityScope
     @ContributesAndroidInjector
     abstract BaseFragment baseFragment();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract DisabledDropbitMeDialog disabledDropbitMeDialog();
+
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract VerifiedDropbitMeDialog verifiedDropbitMeDialog();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract NewlyVerifiedDropbitMeDialog newlyVerifiedDropbitMeDialog();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract VerifyDropBitMeDialog verifyDropBitMeDialog();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract DropbitMeFragment dropbitMeFragment();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract DropBitMeDialog dropBitMeDialog();
 
     @ActivityScope
     @ContributesAndroidInjector

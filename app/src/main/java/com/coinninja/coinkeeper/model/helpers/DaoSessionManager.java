@@ -5,6 +5,8 @@ import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.BroadcastBtcInviteDao;
 import com.coinninja.coinkeeper.model.db.DaoMaster;
 import com.coinninja.coinkeeper.model.db.DaoSession;
+import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
+import com.coinninja.coinkeeper.model.db.DropbitMeIdentityDao;
 import com.coinninja.coinkeeper.model.db.ExternalNotificationDao;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.FundingStatDao;
@@ -210,6 +212,22 @@ public class DaoSessionManager {
 
     public BroadcastBtcInviteDao getBroadcastBtcInviteDao() {
         return session.getBroadcastBtcInviteDao();
+    }
+
+    // Dropbit Me Identity
+    public DropbitMeIdentityDao getDropbitMeIdentityDao() {
+        return session.getDropbitMeIdentityDao();
+    }
+
+    public DropbitMeIdentity newDropbitMeIdentity() {
+        return new DropbitMeIdentity();
+    }
+
+    public long insert(DropbitMeIdentity dropbitMeIdentity) {
+        long id = getDropbitMeIdentityDao().insert(dropbitMeIdentity);
+        dropbitMeIdentity.__setDaoSession(session);
+        dropbitMeIdentity.setId(id);
+        return id;
     }
 
     private void dropAllTables() {

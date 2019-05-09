@@ -133,5 +133,6 @@
     <color name="list_background">#fafafa</color>
     <color name="list_boarder">#e0e0e0</color>
     <color name="list_divider_color">#ffffff</color>
+
     <color name="medium_gray">#9b9b9b</color>
 </resources>

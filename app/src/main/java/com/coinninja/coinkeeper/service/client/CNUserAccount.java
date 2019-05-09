@@ -2,11 +2,18 @@ package com.coinninja.coinkeeper.service.client;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class CNUserAccount {
 
     private String id;
     private String status;
     private String wallet_id;
+
+    @SerializedName("private")
+    private boolean isPrivate;
+
+    private List<CNUserIdentity> identities;
 
     @SerializedName("phone_number_hash")
     private String phoneNumberHash;
@@ -37,5 +44,17 @@ public class CNUserAccount {
 
     public String getPhoneNumberHash() {
         return phoneNumberHash;
+    }
+
+    public List<CNUserIdentity> getIdentities() {
+        return identities;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setIsPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 }

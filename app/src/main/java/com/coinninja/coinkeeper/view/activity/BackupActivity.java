@@ -110,9 +110,9 @@ public class BackupActivity extends SecuredActivity implements ViewPager.OnPageC
         super.onCreate(savedInstanceState);
         viewState = getIntent().getIntExtra(DropbitIntents.EXTRA_VIEW_STATE, DropbitIntents.EXTRA_CREATE);
         if (DropbitIntents.EXTRA_VIEW == viewState || DropbitIntents.EXTRA_BACKUP == viewState) {
-            setTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff_CloseOn);
+            setTheme(R.style.CoinKeeperTheme_UpOff_CloseOn);
         } else {
-            setTheme(R.style.CoinKeeperTheme_LightActionBar_UpOn_SkipOn);
+            setTheme(R.style.CoinKeeperTheme_UpOn_SkipOn);
         }
 
         setContentView(R.layout.activity_backup);

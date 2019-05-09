@@ -8,10 +8,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
+
+import androidx.core.os.ConfigurationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.BuildConfig;
@@ -27,11 +31,13 @@ import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
 import com.coinninja.coinkeeper.di.interfaces.DebugBuild;
+import com.coinninja.coinkeeper.di.interfaces.DropbitMeUri;
 import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
 import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler;
 import com.coinninja.coinkeeper.di.interfaces.TransactionDust;
 import com.coinninja.coinkeeper.di.interfaces.UUID;
+import com.coinninja.coinkeeper.factory.DropBitMeUriProvider;
 import com.coinninja.coinkeeper.interactor.AuthenticationImpl;
 import com.coinninja.coinkeeper.interactor.PinEntryImpl;
 import com.coinninja.coinkeeper.interactor.PinInteractor;
@@ -50,7 +56,6 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
-import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -70,8 +75,6 @@ import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.core.os.ConfigurationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import dagger.Module;
 import dagger.Provides;
 
@@ -297,4 +300,9 @@ public class AppModule {
         return new Gson();
     }
 
+    @DropbitMeUri
+    @Provides
+    Uri dropbitMeUri(DropBitMeUriProvider dropBitMeUriProvider) {
+        return dropBitMeUriProvider.provideUri();
+    }
 }

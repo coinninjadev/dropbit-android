@@ -31,14 +31,12 @@ public class DefaultCurrencyDisplaySyncViewTest {
     public void updates_syncing_ui_correctly_when_shown() {
         defaultCurrencyDisplayView.showSyncingUI();
         assertThat(withId(defaultCurrencyDisplayView, R.id.syncing_image).getVisibility(), equalTo(View.VISIBLE));
-        assertThat(withId(defaultCurrencyDisplayView, R.id.syncing_text).getVisibility(), equalTo(View.VISIBLE));
     }
 
     @Test
     public void updates_syncing_ui_correctly_when_hiding() {
         defaultCurrencyDisplayView.hideSyncingUI();
         assertThat(withId(defaultCurrencyDisplayView, R.id.syncing_image).getVisibility(), equalTo(View.GONE));
-        assertThat(withId(defaultCurrencyDisplayView, R.id.syncing_text).getVisibility(), equalTo(View.GONE));
     }
 
 }

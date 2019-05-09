@@ -34,12 +34,11 @@ public abstract class BaseBottomDialogFragment extends BaseDialogFragment {
     public void onResume() {
         super.onResume();
         configureDialog();
-
     }
 
     abstract protected int getContentViewLayoutId();
 
-    private void configureDialog() {
+    protected void configureDialog() {
         Window window = getDialog().getWindow();
         LayoutParams params = window.getAttributes();
         params.width = ViewGroup.LayoutParams.WRAP_CONTENT;

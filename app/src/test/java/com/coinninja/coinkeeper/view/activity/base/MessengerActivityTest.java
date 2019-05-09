@@ -10,14 +10,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
-import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.android.InternetUtil;
 
+import org.greenrobot.greendao.query.LazyList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,32 +58,47 @@ public class MessengerActivityTest {
     @Mock
     private HealthCheckTimerRunner runner;
     @Mock
-    private Analytics analytics;
-    @Mock
     private InternetUtil internetUtil;
+    @Mock
+    private LazyList transactions;
+    @Mock
+    private WalletHelper walletHelper;
 
     private MessengerActivity activity;
-    private ActivityController<MessengerActivity> activityController;
+    private ActivityController<TransactionHistoryActivity> activityController;
     private ShadowActivity shadowActivity;
+    private TestCoinKeeperApplication application;
+
+    @After
+    public void tearDown() {
+        application = null;
+        shadowActivity = null;
+        activityController = null;
+        activity = null;
+        walletHelper = null;
+        transactions = null;
+        internetUtil = null;
+        runner = null;
+        notificationsInteractor = null;
+    }
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(internetUtil.hasInternet()).thenReturn(true);
-        activityController = Robolectric.buildActivity(MessengerActivity.class);
-        activity = activityController.get();
-        shadowActivity = shadowOf(activity);
-        activityController.create();
-        activity.setContentView(R.layout.cn_base_layout);
-        activity.healthCheckRunner = runner;
-        activity.analytics = analytics;
-        activity.notificationsInteractor = notificationsInteractor;
-        activityController.start();
-    }
+        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        when(transactions.size()).thenReturn(0);
+        application = ApplicationProvider.getApplicationContext();
+        application.healthCheckTimerRunner = runner;
+        application.internalNotificationsInteractor = notificationsInteractor;
+        application.walletHelper = walletHelper;
 
-    private void setupActivity() {
+        activityController = Robolectric.buildActivity(TransactionHistoryActivity.class);
+        activity = activityController.get();
+        activityController.create();
         activity.internetUtil = internetUtil;
         activityController.start().resume().visible();
+        shadowActivity = shadowOf(activity);
     }
 
     @Test
@@ -90,7 +110,6 @@ public class MessengerActivityTest {
 
     @Test
     public void only_shows_one_no_internet_message() {
-        activityController.resume().visible();
 
         activity.onHealthFail();
         activity.onHealthFail();
@@ -100,11 +119,6 @@ public class MessengerActivityTest {
 
     @Test
     public void runs_health_check_on_startup() {
-        ViewGroup parent = mock(ViewGroup.class);
-        activity.queue = parent;
-
-        activityController.resume().visible();
-
         verify(runner).run();
     }
 
@@ -120,7 +134,6 @@ public class MessengerActivityTest {
 
     @Test
     public void tracks_if_in_foreground() {
-        setupActivity();
         assertTrue(activity.isForeGrounded());
 
         activityController.pause().stop();
@@ -190,8 +203,6 @@ public class MessengerActivityTest {
 
     @Test
     public void mutes_with_message() {
-        setupActivity();
-
         activity.muteViewsWithMessage("foo my bar");
 
         TextView message = activity.findViewById(R.id.muted_message);
@@ -201,15 +212,16 @@ public class MessengerActivityTest {
 
     @Test
     public void tracks_activity_stop() {
-        setupActivity();
         activityController.pause().stop().destroy();
-        verify(analytics).onActivityStop(activity);
+
+        verify(application.analytics).onActivityStop(activity);
     }
 
     @Test
     public void mute_tears_down_on_stop() {
         when(internetUtil.hasInternet()).thenReturn(false);
-        setupActivity();
+        activityController.start().resume().visible();
+
         View muted_message = activity.findViewById(R.id.muted_message);
         muted_message.setVisibility(View.VISIBLE);
 
@@ -225,18 +237,14 @@ public class MessengerActivityTest {
     public void mutes_decendent_actions_when_required() {
         when(internetUtil.hasInternet()).thenReturn(false);
 
-        setupActivity();
-
         ViewGroup muted_view = activity.findViewById(R.id.message_queue);
         assertThat(muted_view.getVisibility(), equalTo(View.VISIBLE));
     }
 
     @Test
     public void removes_notifications_when_stopped() {
-        when(internetUtil.hasInternet()).thenReturn(false);
-        setupActivity();
-
         ViewGroup parent = activity.findViewById(R.id.message_queue);
+        parent.addView(new View(activity));
         assertThat(parent.getChildCount(), equalTo(1));
 
         activityController.pause().stop();
@@ -256,7 +264,7 @@ public class MessengerActivityTest {
         packageManager.addResolveInfoForIntent(new Intent(Settings.ACTION_WIFI_SETTINGS), Collections.singletonList(info));
 
         when(internetUtil.hasInternet()).thenReturn(false);
-        setupActivity();
+        activityController.start().resume().visible();
 
         activity.findViewById(R.id.component_message_action).performClick();
 
@@ -267,34 +275,31 @@ public class MessengerActivityTest {
     @Test
     public void show_error_message_when_no_internet() {
         when(internetUtil.hasInternet()).thenReturn(false);
-        setupActivity();
+
+        activityController.start().resume();
 
         assertNotNull(activity.findViewById(R.id.id_no_internet_message));
     }
 
     @Test
     public void does_not_add_message_when_internet_exists() {
-        setupActivity();
         assertNull(activity.findViewById(R.id.id_no_internet_message));
     }
 
     @Test
     public void test_wrappes_content_in_messenger_wrapper() {
-        setupActivity();
         assertNotNull(activity.findViewById(R.id.message_queue));
     }
 
-
     @Test
     public void check_for_notifications_on_start() {
-        setupActivity();
         verify(notificationsInteractor).startListeningForNotifications(activity, true);
     }
 
     @Test
     public void check_for_removing_notifications_on_pause() {
-        setupActivity();
         activityController.pause();
         verify(notificationsInteractor).stopListeningForNotifications();
     }
+
 }

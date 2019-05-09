@@ -354,4 +354,19 @@ by using their mobile number</string>
     <string name="twitter_share_memo_first">I just used #Bitcoin for %s via @dropbitapp</string>
     <string name="twitter_share_memo_second">Today I used #Bitcoin for %s via @dropbitapp</string>
 
+    <!-- DropBit.me -->
+    <string name="me">.me</string>
+    <string name="dropbit_me_unverified_paragraph_1">Verifying your account with phone or twitter will also allow you to send Bitcoin without an address.</string>
+    <string name="dropbit_me_unverified_paragraph_2">You will then be given a DropBit.me URL to safely request and receive Bitcoin.</string>
+    <string name="dropbit_me_verify_my_account_button">VERIFY MY ACCOUNT</string>
+    <string name="dropbit_me_verified_paragraph_1">DropBit.me is your personal URL created to safely request and receive Bitcoin. Keep this URL and share freely.</string>
+    <string name="dropbit_me_verified_account_button">SHARE ON TWITTER</string>
+    <string name="dropbit_me_share_on_twitter">Pay me in #Bitcoin using my Dropbit.me %1$s</string>
+    <string name="dropbit_me_you_have_been_verified_title">You’ve been verified!</string>
+    <string name="copied">Copied %1$s</string>
+    <string name="dropbit_me_disable_account_button_label">Disable my DropBit.me URL</string>
+    <string name="dropbit_me_disabled_paragraph_1">DropBit.me is a personal URL created to safely request and receive  Bitcoin directly to your wallet.</string>
+    <string name="dropbit_me_learn_more">Learn more</string>
+    <string name="dropbit_me_enable_account_button_label">ENABLE MY URL</string>
+
 </resources>

@@ -6,11 +6,14 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.widget.TextView;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
+import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -30,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
@@ -70,6 +72,9 @@ public class BalanceBarActivityTest {
     private WalletHelper walletHelper;
 
     @Mock
+    private DrawerController drawerController;
+
+    @Mock
     private LazyList<TransactionsInvitesSummary> transactions;
 
     @After
@@ -84,8 +89,12 @@ public class BalanceBarActivityTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        TestCoinKeeperApplication application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
+        TestCoinKeeperApplication application = ApplicationProvider.getApplicationContext();
         application.walletHelper = walletHelper;
+        application.localBroadCastUtil = localBroadCastUtil;
+        application.currencyPreference = currencyPreference;
+        application.drawerController = drawerController;
+
         binder = mock(BlockChainService.BlockChainBinder.class);
         shadowApplication = shadowOf(application);
 
@@ -99,11 +108,7 @@ public class BalanceBarActivityTest {
         activityController = Robolectric.buildActivity(TransactionHistoryActivity.class).create();
         activity = activityController.get();
         activity.serviceBinder = binder;
-        activity.localBroadCastUtil = localBroadCastUtil;
-        activity.currencyPreference = currencyPreference;
-        activity.walletHelper = walletHelper;
         shadowActivity = shadowOf(activity);
-        start();
     }
 
     @Test
@@ -148,15 +153,14 @@ public class BalanceBarActivityTest {
     }
 
     @Test
-    public void itUpdatesBTCPriceOnChange() {
+    public void updates_price_when_changed() {
         start();
-
         Intent intent = new Intent().setAction(DropbitIntents.ACTION_BTC_PRICE_UPDATE).
                 putExtra(DropbitIntents.EXTRA_BITCOIN_PRICE, 1200L);
+
         activity.receiver.onReceive(activity, intent);
 
-        assertThat(((TextView) activity.findViewById(R.id.drawer_action_price_text)).
-                getText().toString(), equalTo("$12.00"));
+        verify(drawerController).updatePriceOfBtcDisplay(new USDCurrency(1200L));
     }
 
     @Test
@@ -275,7 +279,7 @@ public class BalanceBarActivityTest {
     }
 
     private void start() {
-        activityController.start().resume();
+        activityController.start().resume().visible();
     }
 
 }
