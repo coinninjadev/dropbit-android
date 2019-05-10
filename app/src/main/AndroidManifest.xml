@@ -142,7 +142,7 @@
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/settings_title"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.UpOn.CloseOn" />
+            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
         <activity
             android:name=".view.activity.BroadcastActivity"
             android:label=""
@@ -156,7 +156,7 @@
 
         <activity
             android:name=".view.activity.PickContactActivity"
-            android:label="@string/pay_contacts_label"
+            android:label="@string/pay_contacts_title"
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOn" />
 
@@ -170,7 +170,7 @@
 
         <activity
             android:name=".view.activity.RestoreWalletActivity"
-            android:label="@string/restore_wallet_header"
+            android:label="@string/restore_wallet_title"
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOn"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />

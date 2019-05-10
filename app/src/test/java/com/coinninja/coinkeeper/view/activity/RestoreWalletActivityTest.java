@@ -191,7 +191,7 @@ public class RestoreWalletActivityTest {
 
     @Test
     public void instructed_to_restore_wallet() {
-        assertThat(activity.getTitle().toString(), equalTo(activity.getString(R.string.restore_wallet_header)));
+        assertThat(activity.getTitle().toString(), equalTo(activity.getString(R.string.restore_wallet_title)));
         assertThat(((TextView) activity.findViewById(R.id.headline)).getText().toString(),
                 equalTo(activity.getString(R.string.restore_wallet_subtitle)));
     }
