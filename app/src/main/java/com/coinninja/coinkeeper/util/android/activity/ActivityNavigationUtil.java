@@ -184,7 +184,7 @@ public class ActivityNavigationUtil {
     }
 
     public void learnMoreAboutDropbitMe(Activity activity) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://dropbit.me/learnmore"));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://dropbit.me"));
         activity.startActivity(intent);
     }
 }
