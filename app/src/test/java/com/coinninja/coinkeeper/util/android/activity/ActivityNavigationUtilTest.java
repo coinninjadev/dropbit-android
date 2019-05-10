@@ -293,7 +293,7 @@ public class ActivityNavigationUtilTest {
     public void navigates_to_learn_more_about_dropbit_dot_me() {
         activityNavigationUtil.learnMoreAboutDropbitMe(activity);
 
-        Uri uri = Uri.parse("https://dropbit.me/learnmore");
+        Uri uri = Uri.parse("https://dropbit.me");
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         assertThat(activity, activityWithIntentStarted(intent));
     }

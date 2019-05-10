@@ -365,7 +365,7 @@ by using their mobile number</string>
     <string name="dropbit_me_you_have_been_verified_title">You’ve been verified!</string>
     <string name="copied">Copied %1$s</string>
     <string name="dropbit_me_disable_account_button_label">Disable my DropBit.me URL</string>
-    <string name="dropbit_me_disabled_paragraph_1">DropBit.me is a personal URL created to safely request and receive  Bitcoin directly to your wallet.</string>
+    <string name="dropbit_me_disabled_paragraph_1">DropBit.me is a personal URL created to safely request and receive Bitcoin directly to your wallet.</string>
     <string name="dropbit_me_learn_more">Learn more</string>
     <string name="dropbit_me_enable_account_button_label">ENABLE MY URL</string>
 
