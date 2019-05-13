@@ -13,8 +13,8 @@ public class DropBitMeUriProviderTest {
 
     @Test
     public void provides_uri() {
-        assertThat(new DropBitMeUriProvider(true).provideUri().toString(), equalTo("https://test.dropbit.me"));
-        assertThat(new DropBitMeUriProvider(false).provideUri().toString(), equalTo("https://dropbit.me"));
+        assertThat(new DropBitMeUriProvider(true).provideUri().toString(), equalTo("https://dropbit.me"));
+        assertThat(new DropBitMeUriProvider(false).provideUri().toString(), equalTo("https://test.dropbit.me"));
     }
 
 }

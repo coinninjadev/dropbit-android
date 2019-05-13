@@ -32,6 +32,7 @@ import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
 import com.coinninja.coinkeeper.di.interfaces.DebugBuild;
 import com.coinninja.coinkeeper.di.interfaces.DropbitMeUri;
+import com.coinninja.coinkeeper.di.interfaces.IsProduction;
 import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
 import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler;
@@ -298,6 +299,12 @@ public class AppModule {
     @Provides
     Gson gson() {
         return new Gson();
+    }
+
+    @IsProduction
+    @Provides
+    boolean isProduction() {
+        return BuildConfig.IS_PRODUCTION;
     }
 
     @DropbitMeUri
