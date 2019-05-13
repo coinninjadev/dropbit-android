@@ -114,6 +114,7 @@ android {
             applicationId "com.coinninja.staging.coinkeeper"
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE__STAGING}\""
+            buildConfigField "boolean", "IS_PRODUCTION", "false"
             versionNameSuffix "-staging"
             buildConfigField "String", "FCM_APPLICATION_KEY", "\"${DEBUG_FCM_APP_KEY}\""
         }
@@ -123,6 +124,7 @@ android {
             applicationId "com.coinninja.coinkeeper"
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE}\""
+            buildConfigField "boolean", "IS_PRODUCTION", "true"
             buildConfigField "String", "FCM_APPLICATION_KEY", "\"${PROD_FCM_APP_KEY}\""
         }
 
