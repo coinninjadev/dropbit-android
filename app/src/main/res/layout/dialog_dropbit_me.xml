@@ -9,7 +9,7 @@
         android:id="@+id/dropbit_me"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="40dp"
         android:scaleType="fitXY"
         android:src="@drawable/ic_dropbit_me"
         app:layout_constraintEnd_toEndOf="parent"
