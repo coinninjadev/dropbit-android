@@ -1,19 +1,18 @@
 package com.coinninja.coinkeeper.service.client;
 
+import androidx.annotation.NonNull;
+
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNTopic;
+import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.util.uuid.UUIDGenerator;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
 import retrofit2.Response;
 
 import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_APPLICATION_KEY;
@@ -166,7 +165,7 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
     }
 
     public Response verifyAccount() {
-        return executeCall(getClient().verifiyUserAccount());
+        return executeCall(getClient().verifyUserAccount());
     }
 
     public Response getCNMessages(CNElasticSearch elasticSearch) {
@@ -243,6 +242,14 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         jsonObject.addProperty("encrypted_format", "1");
 
         return executeCall(getClient().postTransactionNotification(jsonObject));
+    }
+
+    public Response disableDropBitMeAccount() {
+        return executeCall(getClient().patchUserAccount(new CNUserPatch(true)));
+    }
+
+    public Response enableDropBitMeAccount() {
+        return executeCall(getClient().patchUserAccount(new CNUserPatch(false)));
     }
 
     @NonNull

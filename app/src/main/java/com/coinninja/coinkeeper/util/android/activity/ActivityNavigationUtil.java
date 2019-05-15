@@ -6,6 +6,11 @@ import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
@@ -16,8 +21,10 @@ import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.TwitterUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
+import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
@@ -29,28 +36,28 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
-
 import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LATITUDE;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LONGITUDE;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.ADDRESS;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.BUY_BITCOIN;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.NEWS;
+import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.SPEND_BITCOIN;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
 public class ActivityNavigationUtil {
 
+    private DropbitUriBuilder dropbitUriBuilder;
     private CoinNinjaUriBuilder coinNinjaUriBuilder;
     private final Analytics analytics;
+    private final TwitterUtil twitterUtil;
 
     @Inject
-    public ActivityNavigationUtil(CoinNinjaUriBuilder coinNinjaUriBuilder, Analytics analytics) {
+    public ActivityNavigationUtil(DropbitUriBuilder dropbitUriBuilder, CoinNinjaUriBuilder coinNinjaUriBuilder, Analytics analytics, TwitterUtil twitterUtil) {
+        this.dropbitUriBuilder = dropbitUriBuilder;
         this.coinNinjaUriBuilder = coinNinjaUriBuilder;
         this.analytics = analytics;
+        this.twitterUtil = twitterUtil;
     }
 
     public void navigateToSettings(Context context) {
@@ -135,7 +142,8 @@ public class ActivityNavigationUtil {
     }
 
     public void navigateToBuyGiftCard(Activity activity) {
-        UriUtil.openUrl(Uri.parse("https://www.bitrefill.com/buy"), activity);
+
+        UriUtil.openUrl(coinNinjaUriBuilder.build(SPEND_BITCOIN, "giftcards"), activity);
         analytics.trackEvent(Analytics.EVENT_SPEND_GIFT_CARDS);
     }
 
@@ -169,5 +177,14 @@ public class ActivityNavigationUtil {
 
     public void showDialogWithTag(FragmentManager fragmentManager, DialogFragment dialogFragment, String tag) {
         dialogFragment.show(fragmentManager, tag);
+    }
+
+    public void shareWithTwitter(Activity activity, String tweet) {
+        activity.startActivity(twitterUtil.createTwitterIntent(activity, tweet));
+    }
+
+    public void learnMoreAboutDropbitMe(Activity activity) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://dropbit.me"));
+        activity.startActivity(intent);
     }
 }

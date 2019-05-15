@@ -118,6 +118,21 @@
         app:layout_constraintTop_toBottomOf="@+id/default_currency_view"
         tools:text="$203 when received $200 at send" />
 
+    <Button
+        android:id="@+id/add_memo_button"
+        style="@style/FlatButton.Plain"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:drawableLeft="@drawable/plus_icon"
+        android:text="@string/add_memo"
+        app:layout_constraintBottom_toTopOf="@+id/shared_transaction_subview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/value_when_sent" />
+
     <include
         android:id="@+id/shared_transaction_subview"
         layout="@layout/shared_memo_container"

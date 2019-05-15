@@ -17,7 +17,7 @@ public class DropBitCancellationManager {
     private final CNWalletManager cnWalletManager;
 
     @Inject
-    public DropBitCancellationManager(SignedCoinKeeperApiClient client, TransactionHelper transactionHelper, CNWalletManager cnWalletManager) {
+    DropBitCancellationManager(SignedCoinKeeperApiClient client, TransactionHelper transactionHelper, CNWalletManager cnWalletManager) {
         this.client = client;
         this.transactionHelper = transactionHelper;
         this.cnWalletManager = cnWalletManager;

@@ -10,10 +10,13 @@ import org.json.JSONObject;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import javax.inject.Inject;
+
 public class AnalyticUtil implements Analytics {
 
     private MixpanelAPI analytics;
 
+    @Inject
     public AnalyticUtil(MixpanelAPI analytics) {
         this.analytics = analytics;
     }

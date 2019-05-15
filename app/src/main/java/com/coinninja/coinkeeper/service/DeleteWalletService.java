@@ -3,6 +3,8 @@ package com.coinninja.coinkeeper.service;
 import android.app.IntentService;
 import android.content.Intent;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.service.PushNotificationDeviceManager;
 import com.coinninja.coinkeeper.cn.service.PushNotificationEndpointManager;
@@ -16,7 +18,6 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
 import dagger.android.AndroidInjection;
 
 public class DeleteWalletService extends IntentService {
@@ -76,6 +77,7 @@ public class DeleteWalletService extends IntentService {
         analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
         analytics.setUserProperty(Analytics.PROPERTY_HAS_WALLET_BACKUP, false);
         analytics.setUserProperty(Analytics.PROPERTY_HAS_BTC_BALANCE, false);
+        analytics.setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
         analytics.flush();
     }
 

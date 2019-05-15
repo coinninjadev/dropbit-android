@@ -1,5 +1,6 @@
 package com.coinninja.android.helpers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Vibrator;
@@ -17,6 +18,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class Views {
 
+
+    @SuppressWarnings("unchecked")
+    public static <T extends View> T withId(Activity activity, int resourceId) {
+        return (T) activity.findViewById(resourceId);
+    }
 
     @SuppressWarnings("unchecked")
     public static <T extends View> T withId(AppCompatActivity activity, int resourceId) {

@@ -75,7 +75,7 @@ public class TransactionNotificationManager {
         transactionSummary.update();
     }
 
-    private TransactionNotification createTransactionNotification(String memo, boolean isShared) {
+    public TransactionNotification createTransactionNotification(String memo, boolean isShared) {
         TransactionNotification transactionNotification = daoSessionManager.newTransactionNotification();
         transactionNotification.setMemo(memo);
         transactionNotification.setIsShared(isShared);

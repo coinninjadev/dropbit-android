@@ -8,16 +8,18 @@ public enum DropbitRoute {
     DROPBIT_TRANSACTION,
     REGULAR_TRANSACTION,
     SERVER_ADDRESSES,
-    TRANSACTION_DETAILS;
+    TRANSACTION_DETAILS,
+    DROPBIT_ME_LEARN_MORE;
 
     private final String TOOLTIP_ROUTE = "tooltips";
 
-    DropbitRoute() {}
+    DropbitRoute() {
+    }
 
     public List<String> getPath() {
         List<String> paths = new ArrayList<String>();
         paths.add(TOOLTIP_ROUTE);
-        switch(this) {
+        switch (this) {
             case DUST_PROTECTION:
                 paths.add("dustprotection");
                 break;
@@ -32,6 +34,10 @@ public enum DropbitRoute {
                 break;
             case SERVER_ADDRESSES:
                 paths.add("myaddresses");
+                break;
+            case DROPBIT_ME_LEARN_MORE:
+                paths.clear();
+                paths.add("learnmore");
                 break;
         }
 

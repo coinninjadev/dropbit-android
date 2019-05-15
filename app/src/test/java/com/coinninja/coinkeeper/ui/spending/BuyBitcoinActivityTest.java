@@ -1,10 +1,12 @@
 package com.coinninja.coinkeeper.ui.spending;
 
+import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
@@ -17,34 +19,77 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
-import org.robolectric.android.controller.ActivityController;
+import org.robolectric.shadows.ShadowDialog;
 
 import java.util.HashMap;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.runner.AndroidJUnit4;
+
 
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(AndroidJUnit4.class)
 public class BuyBitcoinActivityTest {
     @Mock
+    private Location location;
+    @Mock
     private LocationUtil locationUtil;
     @Mock
     private ActivityNavigationUtil activityNavigationUtil;
-    private ActivityController<BuyBitcoinActivity> activityController;
-    private BuyBitcoinActivity activity;
-    private HashMap<CoinNinjaParameter, String> parameters;
     @Mock
-    private Location location;
+    UserPreferences userPreferences;
+
+    BuyBitcoinActivity activity;
+
+    private HashMap<CoinNinjaParameter, String> parameters;
+    private ActivityScenario<BuyBitcoinActivity> scenario;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        configureDI();
+        when(locationUtil.canReadLocation()).thenReturn(true);
+        when(locationUtil.getLastKnownLocation()).thenReturn(location);
+        parameters = new HashMap<>();
+        parameters.put(CoinNinjaParameter.TYPE, "atms");
+        scenario = ActivityScenario.launch(BuyBitcoinActivity.class);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        scenario.onActivity(activity -> {
+            this.activity = activity;
+        });
+    }
+
+    private void configureDI() {
+        TestCoinKeeperApplication testCoinKeeperApplication = ApplicationProvider.getApplicationContext();
+        testCoinKeeperApplication.activityNavigationUtil = activityNavigationUtil;
+        testCoinKeeperApplication.locationUtil = locationUtil;
+        testCoinKeeperApplication.userPreferences = userPreferences;
+    }
+
+    @After
+    public void tearDown() {
+        activity = null;
+        activityNavigationUtil = null;
+        locationUtil = null;
+        location = null;
+        scenario.close();
+    }
 
     @Test
     public void forwards_buy_with_credit_card() {
         clickOn(withId(activity, R.id.buy_with_credit_card));
+
+        Dialog alertDialog = ShadowDialog.getLatestDialog();
+        assert alertDialog != null;
+        ShadowDialog shadowDialog = shadowOf(alertDialog);
+        shadowDialog.clickOn(R.id.ok);
 
         verify(activityNavigationUtil).navigateToBuyBitcoinWithCreditCard(activity);
     }
@@ -52,6 +97,11 @@ public class BuyBitcoinActivityTest {
     @Test
     public void forwards_buy_with_gift_card() {
         clickOn(withId(activity, R.id.buy_with_gift_card));
+
+        Dialog alertDialog = ShadowDialog.getLatestDialog();
+        assert alertDialog != null;
+        ShadowDialog shadowDialog = shadowOf(alertDialog);
+        shadowDialog.clickOn(R.id.ok);
 
         verify(activityNavigationUtil).navigateToBuyBitcoinWithGiftCard(activity);
     }
@@ -96,30 +146,4 @@ public class BuyBitcoinActivityTest {
         verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.EVENT_BUY_BITCOIN_AT_ATM);
     }
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        configureDI();
-        activityController = Robolectric.buildActivity(BuyBitcoinActivity.class).setup();
-        activity = activityController.get();
-        when(locationUtil.canReadLocation()).thenReturn(true);
-        when(locationUtil.getLastKnownLocation()).thenReturn(location);
-        parameters = new HashMap<>();
-        parameters.put(CoinNinjaParameter.TYPE, "atms");
-    }
-
-    @After
-    public void tearDown() {
-        activityController = null;
-        activity = null;
-        activityNavigationUtil = null;
-        locationUtil = null;
-        location = null;
-    }
-
-    private void configureDI() {
-        TestCoinKeeperApplication testCoinKeeperApplication = ApplicationProvider.getApplicationContext();
-        testCoinKeeperApplication.activityNavigationUtil = activityNavigationUtil;
-        testCoinKeeperApplication.locationUtil = locationUtil;
-    }
 }

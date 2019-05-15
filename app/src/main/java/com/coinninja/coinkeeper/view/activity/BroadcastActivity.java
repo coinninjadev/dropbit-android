@@ -14,10 +14,12 @@ import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
+import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
@@ -43,7 +45,11 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     @Inject
     ActivityNavigationUtil activityNavigationUtil;
     @Inject
+    ShareTransactionDialog shareTransactionDialog;
+    @Inject
     BroadcastTransactionPresenter broadcastPresenter;
+    @Inject
+    UserPreferences userPreferences;
     @Inject
     SyncWalletManager syncWalletManager;
     SendingProgressView sendingProgressView;
@@ -167,6 +173,11 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         broadcastPresenter.broadcastTransaction(transactionData);
     }
 
+    private void showTwitterShareCardIfNecessary() {
+        if (!userPreferences.getShouldShareOnTwitter()) { return; }
+        shareTransactionDialog.show(getSupportFragmentManager(), ShareTransactionDialog.class.getName());
+    }
+
     private void genericFail() {
         sendState = SendState.COMPLETED_FAILED;
         showInitTransaction();
@@ -196,6 +207,7 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         transactionIdIcon.setOnClickListener(view -> exploreBlock(view.getContext(), transactionId));
         transactionActionBtn.setOnClickListener(view -> activityNavigationUtil.navigateToHome(this));
         sendState = SendState.COMPLETED_SUCCESS;
+        showTwitterShareCardIfNecessary();
     }
 
     private void finalizeTransaction(CompletedBroadcastDTO completedBroadcastActivityDTO) {

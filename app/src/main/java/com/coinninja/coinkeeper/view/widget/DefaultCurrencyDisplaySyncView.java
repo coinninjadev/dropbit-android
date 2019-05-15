@@ -26,9 +26,7 @@ public class DefaultCurrencyDisplaySyncView extends DefaultCurrencyDisplayView {
         super(context, attrs, defStyleAttr, defStyleRes);
         rotationImageView = findViewById(R.id.syncing_image);
         rotationImageView.setVisibility(View.GONE);
-        findViewById(R.id.syncing_text).setVisibility(View.GONE);
         styleTextView(secondaryCurrencyView, secondaryTextAppearance);
-        styleTextView(findViewById(R.id.syncing_text), secondaryTextAppearance);
         Views.rotate(rotationImageView);
     }
 
@@ -44,12 +42,10 @@ public class DefaultCurrencyDisplaySyncView extends DefaultCurrencyDisplayView {
     public void showSyncingUI() {
         rotationImageView.setVisibility(View.VISIBLE);
         Views.rotate(rotationImageView);
-        findViewById(R.id.syncing_text).setVisibility(View.VISIBLE);
     }
 
     public void hideSyncingUI() {
         rotationImageView.setVisibility(View.GONE);
-        findViewById(R.id.syncing_text).setVisibility(View.GONE);
         rotationImageView.clearAnimation();
     }
 }

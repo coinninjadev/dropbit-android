@@ -37,10 +37,6 @@ import org.greenrobot.greendao.query.LazyList;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class TransactionHistoryActivity extends BalanceBarActivity implements TransactionHistoryDataAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, SyncManagerChangeObserver{

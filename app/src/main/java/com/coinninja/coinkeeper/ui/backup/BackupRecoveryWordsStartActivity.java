@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -14,8 +16,6 @@ import com.coinninja.coinkeeper.view.activity.BackupActivity;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
 
 public class BackupRecoveryWordsStartActivity extends SecuredActivity {
 
@@ -40,9 +40,9 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
         super.onCreate(savedInstanceState);
 
         if (cnWalletManager.hasWallet()) {
-            setTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff_CloseOn);
+            setTheme(R.style.CoinKeeperTheme_UpOff_CloseOn);
         } else {
-            setTheme(R.style.CoinKeeperTheme_LightActionBar_UpOff);
+            setTheme(R.style.CoinKeeperTheme_UpOff);
         }
         setContentView(R.layout.layout_activity_backup_recovery_words);
     }
