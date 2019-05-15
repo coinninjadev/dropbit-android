@@ -1,9 +1,10 @@
 package com.coinninja.coinkeeper.util;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.CoinKeeperApplication;
-import com.coinninja.coinkeeper.di.component.AppComponent;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.Phonenumber;
 
@@ -12,12 +13,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 public class PhoneNumberUtil {
 
-    private final VariableLengthPhoneNumberUtil varianceUtil = new VariableLengthPhoneNumberUtil();
     private final com.google.i18n.phonenumbers.PhoneNumberUtil _util;
 
     public PhoneNumberUtil() {
@@ -32,17 +29,6 @@ public class PhoneNumberUtil {
     public String i18Formatted(Phonenumber.PhoneNumber phoneNumber) {
         if (phoneNumber == null) return null;
         return _util.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164);
-    }
-
-    private Phonenumber.PhoneNumber attemptToConvertStringIntoPhoneNumber(int countryCode, String phoneNumber) {
-        Phonenumber.PhoneNumber number = new Phonenumber.PhoneNumber();
-        number.setCountryCode(countryCode);
-
-        if (phoneNumber.contains("+1")) {
-            throw new RuntimeException("this shouldn't happen");
-        }
-
-        return number.setNationalNumber(Long.parseLong(phoneNumber));
     }
 
     public Phonenumber.PhoneNumber toPhoneNumber(CNPhoneNumber phoneNumber) {
@@ -87,6 +73,31 @@ public class PhoneNumberUtil {
         return _util.format(phoneNumber, com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     }
 
+    public boolean isValidNumber(String number) {
+        if (number == null || number.isEmpty() || _util == null) {
+            return false;
+        }
+
+        Phonenumber.PhoneNumber phoneNumber = toPhoneNumber(number);
+
+        if (phoneNumber == null) {
+            return false;
+        }
+
+        return _util.isValidNumber(phoneNumber);
+    }
+
+    Phonenumber.PhoneNumber attemptToConvertStringIntoPhoneNumber(int countryCode, String phoneNumber) {
+        Phonenumber.PhoneNumber number = new Phonenumber.PhoneNumber();
+        number.setCountryCode(countryCode);
+
+        if (phoneNumber.startsWith("+1")) {
+            phoneNumber = phoneNumber.replace("+1", "");
+        }
+
+        return number.setNationalNumber(Long.parseLong(phoneNumber));
+    }
+
     private String patchNumberWithCountryCode(String number) {
         if (number.startsWith("+")) return number;
         String temp;
@@ -108,15 +119,5 @@ public class PhoneNumberUtil {
         }
 
         return number;
-    }
-
-    public boolean isValidNumber(String number) {
-        if (number == null || number.isEmpty() || _util == null) { return false; }
-
-        Phonenumber.PhoneNumber phoneNumber = toPhoneNumber(number);
-
-        if (phoneNumber == null) { return false; }
-
-        return _util.isValidNumber(phoneNumber);
     }
 }

@@ -18,6 +18,7 @@ import com.coinninja.coinkeeper.service.ResendPhoneVerificationService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
 import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
 import com.coinninja.coinkeeper.text.TextInputNotifierWatcher;
+import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -40,6 +41,8 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     ActivityNavigationUtil activityNavigationUtil;
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
+    @Inject
+    DropbitMeConfiguration dropbitMeConfiguration;
 
     private TextInputNotifierWatcher watcher;
     private ViewGroup parent;
@@ -318,6 +321,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
             analytics.trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SUCCESSFUL);
         }
         startBTCInvitesService();
+        dropbitMeConfiguration.setNewlyVerified();
         activityNavigationUtil.navigateToHome(this);
     }
 

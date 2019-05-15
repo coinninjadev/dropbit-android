@@ -14,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
@@ -53,9 +54,6 @@ public class DrawerControllerTest {
     @Mock
     private WalletHelper walletHelper;
 
-    @Mock
-    private DrawerProvider drawerProvider;
-
     private AppCompatActivity activity;
 
     private DrawerController drawerController;
@@ -65,9 +63,9 @@ public class DrawerControllerTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        drawerController = new DrawerController(badgeRenderer, navigationUtil, drawerProvider, "1.1.1", walletHelper);
+        drawerController = new DrawerController(badgeRenderer, navigationUtil, "1.1.1", walletHelper);
         activity = Robolectric.setupActivity(A.class);
-        actionbarType.resourceId = R.id.actionbar_dark_up_on_with_nav_bar;
+        actionbarType.resourceId = R.id.actionbar_up_on_with_nav_bar;
     }
 
     @After
@@ -76,6 +74,8 @@ public class DrawerControllerTest {
         badgeRenderer = null;
         activity = null;
         navigationUtil = null;
+        walletHelper = null;
+        actionbarType = null;
     }
 
     @Test
@@ -87,7 +87,7 @@ public class DrawerControllerTest {
 
     @Test
     public void does_not_add_drawer_as_root_view__when_not_drawer_theme() {
-        actionbarType.resourceId = R.id.actionbar_dark_up_on;
+        actionbarType.resourceId = R.id.actionbar_up_on;
 
         drawerController.inflateDrawer(activity, actionbarType);
 
@@ -199,7 +199,7 @@ public class DrawerControllerTest {
 
     @Test
     public void display_app_version_protect_ageist_non_inflation() {
-        actionbarType.resourceId = R.id.actionbar_dark_up_on;
+        actionbarType.resourceId = R.id.actionbar_up_on;
 
         drawerController.inflateDrawer(activity, actionbarType);
 
@@ -244,9 +244,9 @@ public class DrawerControllerTest {
     }
 
     @Test
-    public void menu_item_clicked_for_user_verification() {
+    public void menu_item_clicked_for_user_verification_requests_dropbit_me_view() {
         drawerController.inflateDrawer(activity, actionbarType);
-        drawerController.showBackupNowDrawerActions();
+        drawerController.drawerLayout = mock(DrawerLayout.class);
 
         withId(activity, R.id.drawer_phone).performClick();
 
@@ -268,7 +268,7 @@ public class DrawerControllerTest {
     public void menu_item_clicked_protect_ageist_non_inflation() {
         MenuItem menuItem = mock(MenuItem.class);
         when(menuItem.getItemId()).thenReturn(android.R.id.home);
-        actionbarType.resourceId = R.id.actionbar_dark_up_on;
+        actionbarType.resourceId = R.id.actionbar_up_on;
 
         drawerController.inflateDrawer(activity, actionbarType);
 

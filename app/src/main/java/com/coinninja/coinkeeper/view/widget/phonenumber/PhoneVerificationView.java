@@ -11,6 +11,8 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
+import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -42,6 +44,7 @@ public class PhoneVerificationView extends ConstraintLayout {
         super(context, attrs, defStyleAttr);
         init(context);
     }
+
 
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.merge_phone_verification_view, this, true);
@@ -127,6 +130,10 @@ public class PhoneVerificationView extends ConstraintLayout {
 
     public void setCountryCodeLocals(List<CountryCodeLocale> countryCodeLocales) {
         phoneNumberInput.setCountryCodeLocals(countryCodeLocales);
+    }
+
+    public List<CountryCodeLocale> getCountryCodeLocales() {
+        return phoneNumberInput.getCountryCodeLocales();
     }
 
     public void setOnValidPhoneNumberObserver(PhoneNumberInputView.OnValidPhoneNumberObserver onPhoneNumberValidObserver) {

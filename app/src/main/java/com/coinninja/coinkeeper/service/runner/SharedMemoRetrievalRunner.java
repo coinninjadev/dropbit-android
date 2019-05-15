@@ -70,6 +70,8 @@ public class SharedMemoRetrievalRunner implements Runnable {
 
             TransactionNotificationV1 v1 = new Gson().fromJson(decrypted, TransactionNotificationV1.class);
 
+            if (v1 == null || v1.getInfo() == null || v1.getInfo().getMemo() == null || v1.getInfo().getMemo().equals("")) { return; }
+
             TransactionNotification transactionNotification = transactionNotificationMapper.fromV1(v1);
             long id = transactionNotificationDao.insert(transactionNotification);
             transaction.setTransactionNotificationId(id);

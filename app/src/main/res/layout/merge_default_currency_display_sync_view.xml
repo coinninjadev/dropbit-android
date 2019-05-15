@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="android.widget.LinearLayout">
+    tools:parentTag="android.widget.LinearLayout"
+    tools:showIn="@layout/appbar_layout">
 
     <TextView
         android:id="@+id/primary_currency"
         android:layout_width="wrap_content"
-        android:text="primary"
         android:layout_height="wrap_content"
         android:drawablePadding="10dp"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"
+        tools:text="primary" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        android:gravity="end|center_vertical"
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/syncing_image"
@@ -23,31 +26,17 @@
             android:layout_marginEnd="8dp"
             android:drawablePadding="10dp"
             android:src="@drawable/ic_refresh"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/syncing_text"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:tint="@color/colorPrimaryDark"
+            tools:ignore="ContentDescription" />
 
-        <TextView
-            android:id="@+id/syncing_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:drawablePadding="5dp"
-            android:text="@string/syncing"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/secondary_currency"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/secondary_currency"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="5dp"
-            android:text="secondary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            tools:text="secondary" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </merge>

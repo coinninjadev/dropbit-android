@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
@@ -16,6 +17,7 @@ import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.ResendPhoneVerificationService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
 import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
+import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -68,10 +70,17 @@ public class VerifyPhoneVerificationCodeActivityTest {
     private ActivityNavigationUtil activityNavigationUtil;
     @Mock
     private LocalBroadCastUtil localBroadCastUtil;
+    @Mock
+    private DropbitMeConfiguration dropbitMeConfiguration;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        TestCoinKeeperApplication application = ApplicationProvider.getApplicationContext();
+        application.dropbitMeConfiguration = dropbitMeConfiguration;
+        application.localBroadCastUtil = localBroadCastUtil;
+        application.activityNavigationUtil = activityNavigationUtil;
+
         phoneNumber = new PhoneNumber(1, "3305555555");
         Intent startingIntent = new Intent();
         startingIntent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, phoneNumber);
@@ -81,8 +90,6 @@ public class VerifyPhoneVerificationCodeActivityTest {
         shadowActivity = shadowOf(activity);
         activityController.create();
         receiver = activity.receiver;
-        activity.localBroadCastUtil = localBroadCastUtil;
-        activity.activityNavigationUtil = activityNavigationUtil;
         activityController.start().resume().visible();
         one = activity.findViewById(R.id.v_one);
         two = activity.findViewById(R.id.v_two);
@@ -111,12 +118,14 @@ public class VerifyPhoneVerificationCodeActivityTest {
         receiver = null;
         mockAnalytics = null;
         activityNavigationUtil = null;
+        dropbitMeConfiguration = null;
     }
 
     @Test
     public void navigate_to_home_on_success() {
         receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS));
 
+        verify(dropbitMeConfiguration).setNewlyVerified();
         verify(activityNavigationUtil).navigateToHome(activity);
     }
 

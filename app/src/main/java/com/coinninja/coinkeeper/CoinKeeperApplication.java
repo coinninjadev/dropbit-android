@@ -4,6 +4,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+
 import com.coinninja.coinkeeper.di.component.AppComponent;
 import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.di.component.DaggerAppComponent;
@@ -14,7 +16,6 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
 import javax.inject.Inject;
 
-import androidx.annotation.RequiresApi;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 

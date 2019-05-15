@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.view.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -11,13 +12,16 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
 import com.coinninja.coinkeeper.service.SaveInviteService;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
@@ -34,6 +38,12 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     @Inject
     InviteContactPresenter invitePresenter;
+
+    @Inject
+    UserPreferences userPreferences;
+
+    @Inject
+    ShareTransactionDialog shareTransactionDialog;
 
     SendingProgressView sendingProgressView;
     PendingInviteDTO pendingInviteDTO;
@@ -105,6 +115,12 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         saveInvite(inviteContact);
         showSuccessUI();
         reportSuccessful();
+        showTwitterShareCardIfNecessary();
+    }
+
+    private void showTwitterShareCardIfNecessary() {
+        if (!userPreferences.getShouldShareOnTwitter()) { return; }
+        shareTransactionDialog.show(getSupportFragmentManager(), ShareTransactionDialog.class.getName());
     }
 
     @Override

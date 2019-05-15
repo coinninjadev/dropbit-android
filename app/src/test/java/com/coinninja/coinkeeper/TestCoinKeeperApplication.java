@@ -19,6 +19,7 @@ import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.di.component.DaggerTestAppComponent;
 import com.coinninja.coinkeeper.di.component.TestAppComponent;
+import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
@@ -43,6 +44,8 @@ import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
+import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
+import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
@@ -53,6 +56,7 @@ import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
+import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
@@ -147,6 +151,10 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public InviteContactPresenter inviteContactPresenter;
     public VerifyRecoveryWordsPresenter verifyRecoveryWordsPresenter;
     public NotificationUtil notificationUtil;
+    public DropbitMeConfiguration dropbitMeConfiguration;
+    public InternalNotificationsInteractor internalNotificationsInteractor;
+    public DrawerController drawerController;
+    public ServiceWorkUtil serviceWorkUtil;
 
 
     @Override
@@ -193,6 +201,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         locationUtil = null;
         injector = null;
         appComponent = null;
+        dropbitMeConfiguration = null;
         notificationUtil = null;
         verifyRecoveryWordsPresenter = null;
         activityNavigationUtil = null;
@@ -246,8 +255,10 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         actionBarController = null;
         coinKeeperLifecycleListener = null;
         inviteContactPresenter = null;
+        internalNotificationsInteractor = null;
+        drawerController = null;
+        serviceWorkUtil = null;
     }
-
 }
 
 

@@ -157,6 +157,7 @@ public class CNWalletManager {
         walletHelper.removeCurrentCnUserRegistration();
         transactionHelper.cancelPendingSentInvites();
         analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
+        analytics.setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
         analytics.flush();
     }
 }

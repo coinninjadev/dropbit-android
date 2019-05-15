@@ -4,6 +4,8 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
@@ -21,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
@@ -47,74 +48,59 @@ public class BaseActivityTest {
     private DrawerController drawerController;
     @Mock
     private ActivityNavigationUtil activityNavigationUtil;
-    private BaseActivity activity;
 
+    private BaseActivity activity;
     private ActivityController<SettingsActivity> activityController;
+    private TestCoinKeeperApplication application;
 
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
+        application = ApplicationProvider.getApplicationContext();
+        application.actionBarController = actionBarController;
+        application.drawerController = drawerController;
+        application.activityNavigationUtil = activityNavigationUtil;
+        application.cnWalletManager = cnWalletManager;
+        activityController = Robolectric.buildActivity(SettingsActivity.class);
     }
 
     @After
     public void tearDown() {
         actionBarController = null;
         cnWalletManager = null;
-        actionBarController = null;
         activityNavigationUtil = null;
         activity = null;
         activityController = null;
+        application = null;
     }
 
     @Test
     public void during_setContentView_configure_action_bar_controller() {
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
-
-        activity.setContentView(R.layout.activity_transaction_history);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
 
         verify(actionBarController).setTheme(activity, activity.actionBarType);
     }
 
     @Test
     public void during_setContentView_set_the_resolveAttribute_on_injected_TypedValue() {
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_NoActionBar_BlockChain);
         TypedValue actionBarType = activity.actionBarType;
-
-        activity.setContentView(R.layout.activity_splash);
 
         assertThat(actionBarType.resourceId, equalTo(R.id.actionbar_gone));
     }
 
     @Test
     public void during_setContentView_display_title() {
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
-
-        activity.setContentView(R.layout.activity_splash);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
 
         verify(actionBarController).displayTitle(activity);
     }
 
     @Test
-    public void during_setContentView_inflate_drawer() {
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
-        ActionBarController actionBarController = mock(ActionBarController.class);
-
-
-        activity.setContentView(R.layout.activity_splash);
-
-        verify(drawerController).inflateDrawer(activity, activity.actionBarType);
-    }
-
-    @Test
     public void during_onResume_if_hasSkippedBackup_then_showBackupNowDrawerActions() {
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
-
         when(cnWalletManager.hasSkippedBackup()).thenReturn(true);
-
-
-        activity.onResume();
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
 
         verify(drawerController).showBackupNowDrawerActions();
     }
@@ -122,7 +108,7 @@ public class BaseActivityTest {
     @Test
     public void during_onCreateOptionsMenu_inflate_menu() {
         Menu menu = mock(Menu.class);
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
 
         activity.onCreateOptionsMenu(menu);
 
@@ -132,7 +118,7 @@ public class BaseActivityTest {
     @Test
     public void when_onOptionsItemSelected_call_onMenuItemClicked_and_return_boolean() {
         MenuItem item = mock(MenuItem.class);
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
         when(actionBarController.onMenuItemClicked(item)).thenReturn(true);
 
         boolean itemSelected = activity.onOptionsItemSelected(item);
@@ -144,7 +130,7 @@ public class BaseActivityTest {
     @Test
     public void when_onOptionsItemSelected_call_drawerController_onMenuItemClicked_and_return_boolean() {
         MenuItem item = mock(MenuItem.class);
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
         when(actionBarController.onMenuItemClicked(item)).thenReturn(false);
         when(drawerController.onMenuItemClicked(item)).thenReturn(true);
 
@@ -156,7 +142,7 @@ public class BaseActivityTest {
 
     @Test
     public void during_onBackPressed_close_drawer() {
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
         when(drawerController.isDrawerOpen()).thenReturn(true);
 
         activity.onBackPressed();
@@ -166,7 +152,7 @@ public class BaseActivityTest {
 
     @Test
     public void during_onPause_close_drawer() {
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
         when(drawerController.isDrawerOpen()).thenReturn(true);
 
         activity.onPause();
@@ -177,7 +163,7 @@ public class BaseActivityTest {
     @Test
     public void during_onPriceReceived_updatePriceOfBtcDisplay_of_drawer() {
         USDCurrency price = new USDCurrency("500");
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
 
         activity.onPriceReceived(price);
 
@@ -187,7 +173,7 @@ public class BaseActivityTest {
     @Test
     public void if_onOptionsItemSelected_returns_false_then_call_super() {
         MenuItem item = mock(MenuItem.class);
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
         when(actionBarController.onMenuItemClicked(item)).thenReturn(false);
 
         boolean itemSelected = activity.onOptionsItemSelected(item);
@@ -199,7 +185,7 @@ public class BaseActivityTest {
     @Test
     public void during_onCreateOptionsMenu_set_menu_item_click_listener() {
         Menu menu = mock(Menu.class);
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
         ActionBarController actionBarController = mock(ActionBarController.class);
         activity.actionBarController = actionBarController;
 
@@ -209,8 +195,8 @@ public class BaseActivityTest {
     }
 
     @Test
-    public void on_close_action_clicked_start_home_activity() throws Exception {
-        setupWithTheme(R.style.CoinKeeperTheme_LightActionBar);
+    public void on_close_action_clicked_start_home_activity() {
+        setupWithTheme(R.style.CoinKeeperTheme);
 
         activity.onCloseClicked();
 
@@ -219,7 +205,7 @@ public class BaseActivityTest {
 
     @Test
     public void navigate_to_home_activity_when_close_button_is_clicked() {
-        setupWithTheme(R.style.CoinKeeperTheme_LightActionBar);
+        setupWithTheme(R.style.CoinKeeperTheme);
         ShadowActivity shadowActivity = shadowOf(activity);
         shadowActivity.resetIsFinishing();
 
@@ -230,7 +216,7 @@ public class BaseActivityTest {
 
     @Test
     public void updateActivityLabel() {
-        setupWithTheme(R.style.CoinKeeperTheme_DarkActionBar_UpOff);
+        setupWithTheme(R.style.CoinKeeperTheme_UpOff);
         activity.actionBarController = actionBarController;
 
         activity.updateActivityLabel("-- some text");
@@ -239,15 +225,9 @@ public class BaseActivityTest {
     }
 
     private void setupWithTheme(int theme) {
-        activityController = Robolectric.buildActivity(SettingsActivity.class);
-        activity = activityController.get();
-        TestCoinKeeperApplication application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
         application.typedValue = mock(TypedValue.class);
+        activity = activityController.get();
         activity.setTheme(theme);
-        activityController.create().start().resume().visible();
-        activity.drawerController = drawerController;
-        activity.cnWalletManager = cnWalletManager;
-        activity.actionBarController = actionBarController;
-        activity.navigationUtil = activityNavigationUtil;
+        activityController.setup();
     }
 }

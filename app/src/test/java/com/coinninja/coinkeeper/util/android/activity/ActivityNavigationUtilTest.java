@@ -5,6 +5,11 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
@@ -12,8 +17,11 @@ import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.Shuffler;
+import com.coinninja.coinkeeper.util.TwitterUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
+import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
 import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
@@ -30,10 +38,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.HashMap;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.matchers.ActivityMatchers.activityWithIntentStarted;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,20 +53,17 @@ public class ActivityNavigationUtilTest {
     Analytics analytics;
 
     private CoinNinjaUriBuilder coinNinjaUriBuilder = new CoinNinjaUriBuilder();
+    private DropbitUriBuilder dropbitUriBuilder = new DropbitUriBuilder();
+    private TwitterUtil twitterUtil = new TwitterUtil(ApplicationProvider.getApplicationContext(), new Shuffler());
     private ActivityNavigationUtil activityNavigationUtil;
     private ActivityScenario<StartActivity> scenario;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        activityNavigationUtil = new ActivityNavigationUtil(coinNinjaUriBuilder, analytics);
+        activityNavigationUtil = new ActivityNavigationUtil(dropbitUriBuilder, coinNinjaUriBuilder, analytics, twitterUtil);
         scenario = ActivityScenario.launch(StartActivity.class);
-        scenario.onActivity(new ActivityScenario.ActivityAction<StartActivity>() {
-            @Override
-            public void perform(StartActivity instance) {
-                activity = instance;
-            }
-        });
+        scenario.onActivity(instance -> activity = instance);
     }
 
     @After
@@ -223,7 +224,7 @@ public class ActivityNavigationUtilTest {
 
     @Test
     public void navigates_to_buy_gift_card() {
-        Uri uri = Uri.parse("https://www.bitrefill.com/buy");
+        Uri uri = Uri.parse("https://coinninja.com/spendbitcoin/giftcards");
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 
         activityNavigationUtil.navigateToBuyGiftCard(activity);
@@ -269,5 +270,31 @@ public class ActivityNavigationUtilTest {
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         assertThat(activity, activityWithIntentStarted(intent));
         verify(analytics, times(1)).trackEvent(Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+    }
+
+    @Test
+    public void can_share_with_twitter() {
+        String tweet = "pay me #bitcoin";
+        Intent intent = new Intent();
+        intent.putExtra(Intent.EXTRA_TEXT, tweet);
+        intent.setAction(Intent.ACTION_VIEW);
+        Uri uri = Uri.parse("https://twitter.com/intent/tweet")
+                .buildUpon()
+                .appendQueryParameter("text", tweet)
+                .build();
+        intent.setData(uri);
+
+        activityNavigationUtil.shareWithTwitter(activity, tweet);
+
+        assertThat(activity, activityWithIntentStarted(intent));
+    }
+
+    @Test
+    public void navigates_to_learn_more_about_dropbit_dot_me() {
+        activityNavigationUtil.learnMoreAboutDropbitMe(activity);
+
+        Uri uri = Uri.parse("https://dropbit.me");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        assertThat(activity, activityWithIntentStarted(intent));
     }
 }

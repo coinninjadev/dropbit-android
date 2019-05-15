@@ -38,6 +38,12 @@ public class PhoneNumberUtilTest {
         phoneNumber = null;
     }
 
+    @Test(expected = Test.None.class)
+    public void graceful_parsing() {
+        PhoneNumber phoneNumber = util.attemptToConvertStringIntoPhoneNumber(1, "+13305551111");
+        assertThat(phoneNumber.getNationalNumber(), equalTo(3305551111L));
+    }
+
     @Test
     public void i18n_toPhoneNumber() {
         PhoneNumber phoneNumber = util.toPhoneNumber(I18N_PHONE);

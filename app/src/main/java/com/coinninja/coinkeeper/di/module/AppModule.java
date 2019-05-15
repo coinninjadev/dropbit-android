@@ -8,10 +8,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
+
+import androidx.core.os.ConfigurationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.BuildConfig;
@@ -27,11 +31,14 @@ import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
 import com.coinninja.coinkeeper.di.interfaces.DebugBuild;
+import com.coinninja.coinkeeper.di.interfaces.DropbitMeUri;
+import com.coinninja.coinkeeper.di.interfaces.IsProduction;
 import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
 import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler;
 import com.coinninja.coinkeeper.di.interfaces.TransactionDust;
 import com.coinninja.coinkeeper.di.interfaces.UUID;
+import com.coinninja.coinkeeper.factory.DropBitMeUriProvider;
 import com.coinninja.coinkeeper.interactor.AuthenticationImpl;
 import com.coinninja.coinkeeper.interactor.PinEntryImpl;
 import com.coinninja.coinkeeper.interactor.PinInteractor;
@@ -46,12 +53,10 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.model.helpers.WordHelper;
 import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.WalletCreationIntentService;
-import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
-import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -71,8 +76,6 @@ import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.core.os.ConfigurationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import dagger.Module;
 import dagger.Provides;
 
@@ -82,6 +85,11 @@ public class AppModule {
     @Provides
     ErrorLoggingUtil errorLoggingUtil() {
         return new ErrorLoggingUtil();
+    }
+
+    @Provides
+    Analytics analyticUtil(MixpanelAPI analyticsProvider) {
+        return new AnalyticUtil(analyticsProvider).start();
     }
 
     @Provides
@@ -116,12 +124,6 @@ public class AppModule {
     @CoinkeeperApplicationScope
     BitcoinUriBuilder bitcoinUrlBuilder() {
         return new BitcoinUriBuilder();
-    }
-
-    @Provides
-    @CoinkeeperApplicationScope
-    Analytics analytics(MixpanelAPI analyticsProvider) {
-        return new AnalyticUtil(analyticsProvider).start();
     }
 
     @Provides
@@ -299,4 +301,15 @@ public class AppModule {
         return new Gson();
     }
 
+    @IsProduction
+    @Provides
+    boolean isProduction() {
+        return BuildConfig.IS_PRODUCTION;
+    }
+
+    @DropbitMeUri
+    @Provides
+    Uri dropbitMeUri(DropBitMeUriProvider dropBitMeUriProvider) {
+        return dropBitMeUriProvider.provideUri();
+    }
 }

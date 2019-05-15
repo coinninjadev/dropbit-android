@@ -499,7 +499,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
     public static class A extends AppCompatActivity {
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
-            setTheme(R.style.CoinKeeperTheme_Dark_Toolbar);
+            setTheme(R.style.CoinKeeperTheme);
             super.onCreate(savedInstanceState);
             setContentView(R.layout.page_transaction_detail);
         }
