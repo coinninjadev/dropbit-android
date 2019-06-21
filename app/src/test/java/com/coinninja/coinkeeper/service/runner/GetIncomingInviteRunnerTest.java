@@ -1,5 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
+import androidx.annotation.NonNull;
+
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
@@ -10,12 +12,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;

@@ -107,6 +107,12 @@ public interface Analytics {
     String EVENT_DROPBIT_ME_DISABLED = "DropBitMeDisabled";
     String EVENT_DROPBIT_ME_ENABLED = "DropBitMeReenabled";
 
+    // TWITTER
+    String EVENT_TWEET_VIA_DROPBIT = "SendTweetViaDropBit";
+    String EVENT_TWEET_MANUALLY = "SendTweetViaDropBit";
+    String EVENT_TWITTER_SEND_SUCCESSFUL = "TwitterSendComplete";
+    String EVENT_TWITTER_VERIFIED = "TwitterVerified";
+
     // PROPERTIES
     String PROPERTY_HAS_WALLET = "Has Wallet";
     String PROPERTY_HAS_WALLET_BACKUP = "Has Backup";
@@ -117,6 +123,7 @@ public interface Analytics {
     String PROPERTY_HAS_RECEIVED_DROPBIT = "Has Received DropBit";
     String PROPERTY_HAS_RECEIVED_ADDRESS = "Has Received";
     String PROPERTY_HAS_DROPBIT_ME_ENABLED = "DropBitMe Enabled";
+    String PROPERTY_TWITTER_VERIFIED = "Twitter Verified";
 
     Analytics start();
 

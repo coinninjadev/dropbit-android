@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,8 +147,6 @@ public class PushNotificationEndpointManagerTest {
 
     @Test
     public void subscribes_to_all_available_topics_when_registering_as_endpoint() {
-        when(preferencesUtil.getString(PushNotificationEndpointManager.PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, null)).thenReturn(ENDPOINT_ID);
-
         pushNotificationEndpointManager.registersAsEndpoint();
 
         verify(pushNotificationSubscriptionManager).subscribeToChannels(CN_DEVICE_ID, ENDPOINT_ID);
@@ -196,12 +194,11 @@ public class PushNotificationEndpointManagerTest {
     public void returns_saved_endpoint() {
         String endpoint = "--endpoint";
         when(preferencesUtil.getString(
-                PushNotificationEndpointManager.PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, null))
+                PushNotificationEndpointManager.PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, ""))
                 .thenReturn(endpoint);
 
         assertThat(pushNotificationEndpointManager.getEndpoint(), equalTo(endpoint));
     }
-
 
     @Test
     public void provides_list_of_endpoints_from_the_server() {
@@ -239,7 +236,7 @@ public class PushNotificationEndpointManagerTest {
     @Test
     public void unregisters_endpoint() {
         String endpoint = "--endpoint";
-        when(preferencesUtil.getString(PushNotificationEndpointManager.PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, null)).thenReturn(endpoint);
+        when(preferencesUtil.getString(PushNotificationEndpointManager.PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, "")).thenReturn(endpoint);
         when(apiClient.unRegisterDeviceEndpoint(CN_DEVICE_ID, endpoint)).thenReturn(generateSuccessResponse(200, ""));
 
         pushNotificationEndpointManager.unRegister();

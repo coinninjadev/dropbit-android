@@ -1,5 +1,7 @@
 package com.coinninja.coinkeeper.util;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
@@ -10,9 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import androidx.appcompat.app.AppCompatActivity;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

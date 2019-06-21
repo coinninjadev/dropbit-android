@@ -14,9 +14,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
@@ -24,24 +25,23 @@ import com.google.android.material.navigation.NavigationView;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class DrawerController {
 
-    private final WalletHelper walletHelper;
     private final String versionName;
+    private final DropbitAccountHelper dropbitAccountHelper;
     DrawerLayout drawerLayout;
     private BadgeRenderer badgeRenderer;
     private ActivityNavigationUtil navigationUtil;
 
     @Inject
     public DrawerController(BadgeRenderer badgeRenderer, ActivityNavigationUtil navigationUtil,
-                            @BuildVersionName String versionName, WalletHelper walletHelper) {
+                            @BuildVersionName String versionName, DropbitAccountHelper dropbitAccountHelper) {
         this.badgeRenderer = badgeRenderer;
         this.navigationUtil = navigationUtil;
         this.versionName = versionName;
-        this.walletHelper = walletHelper;
+        this.dropbitAccountHelper = dropbitAccountHelper;
     }
 
     public void inflateDrawer(AppCompatActivity activity, TypedValue actionBarType) {
@@ -81,7 +81,7 @@ public class DrawerController {
             return;
         }
 
-        if (!walletHelper.hasVerifiedAccount()) {
+        if (!dropbitAccountHelper.getHasVerifiedAccount()) {
             badgeRenderer.renderBadge((ImageView) drawerLayout.findViewById(R.id.contact_phone));
             badgeRenderer.renderBadge((Toolbar) drawerLayout.findViewById(R.id.toolbar));
         }
@@ -99,7 +99,7 @@ public class DrawerController {
         if (drawerLayout == null) return;
 
         TextView version = withId(drawerLayout, R.id.drawer_action_footer_version);
-        version.setText(getString(version.getContext(), R.string.app_version_label, versionName));
+        version.setText(Resources.INSTANCE.getString(version.getContext(), R.string.app_version_label, versionName));
     }
 
     public void showBackupNowDrawerActions() {

@@ -8,8 +8,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.view.activity.SplashActivity;
 
@@ -38,7 +39,7 @@ public class InviteHelpDialogFragmentTest {
 
     private InviteHelpDialogFragment dialog;
 
-    private Contact contact = new Contact(phoneNumber, DISPLAY_NAME, false);
+    private Identity identity = new Identity(new Contact(phoneNumber, DISPLAY_NAME, false));
 
     @Mock
     private UserPreferences userPreferences;
@@ -55,21 +56,16 @@ public class InviteHelpDialogFragmentTest {
     @After
     public void tearDown() {
         dialog = null;
-        contact = null;
+        identity = null;
         userPreferences = null;
         scenario.close();
     }
 
 
     private void setupDialog() {
-        dialog = (InviteHelpDialogFragment) InviteHelpDialogFragment.newInstance(userPreferences, contact, onInviteHelpAcceptedCallback);
+        dialog = (InviteHelpDialogFragment) InviteHelpDialogFragment.newInstance(userPreferences, identity, onInviteHelpAcceptedCallback);
         scenario = ActivityScenario.launch(SplashActivity.class);
-        scenario.onActivity(new ActivityScenario.ActivityAction<SplashActivity>() {
-            @Override
-            public void perform(SplashActivity activity) {
-                dialog.show(activity.getSupportFragmentManager(), InviteHelpDialogFragment.TAG);
-            }
-        });
+        scenario.onActivity(activity -> dialog.show(activity.getSupportFragmentManager(), InviteHelpDialogFragment.TAG));
     }
 
     @Test
@@ -118,7 +114,7 @@ public class InviteHelpDialogFragmentTest {
 
     @Test
     public void shows_phone_number_when_name_is_not_available() {
-        contact = new Contact(phoneNumber, "", false);
+        identity = new Identity(new Contact(phoneNumber, PHONE_NUMBER_INTERNATIONAL, false));
         setupDialog();
 
         String message = ((TextView) dialog.getView().findViewById(R.id.message)).getText().toString();

@@ -9,11 +9,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.PagerAdapter;
+
 import com.coinninja.android.helpers.Resources;
+import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
 import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
+import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.memo.MemoCreator;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
@@ -36,12 +42,6 @@ import org.greenrobot.greendao.query.LazyList;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.PagerAdapter;
-
-import static com.coinninja.android.helpers.Resources.getDrawable;
-import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.android.helpers.Views.makeViewInvisible;
 import static com.coinninja.android.helpers.Views.makeViewVisible;
 import static com.coinninja.android.helpers.Views.withId;
@@ -160,7 +160,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
 
         renderIcon(page, bindableTransaction);
         renderConfirmations(page, bindableTransaction);
-        renderContact(page, bindableTransaction);
+        renderIdentity(page, bindableTransaction);
         renderHistoricalPricing(page, bindableTransaction);
         bindTransactionValue(page, bindableTransaction);
         renderTransactionTime(page, bindableTransaction.getTxTime());
@@ -173,7 +173,9 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     private void addMemoClicked(Button view) {
         int position = (int) view.getTag();
         TransactionsInvitesSummary summary = transactions.get(position);
-        memoCreator.createMemo((AppCompatActivity) view.getContext(), memo -> { setupNewTransactionNotification(view, summary, memo); }, "");
+        memoCreator.createMemo((AppCompatActivity) view.getContext(), memo -> {
+            setupNewTransactionNotification(view, summary, memo);
+        }, "");
     }
 
     private void setupNewTransactionNotification(View view, TransactionsInvitesSummary summary, String memo) {
@@ -201,7 +203,8 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         } else {
             addMemoButton.setVisibility(View.GONE);
             memoView.setVisibility(View.VISIBLE);
-            sharedMemoView = new SharedMemoView(memoView, bindableTransaction.getIsSharedMemo(), bindableTransaction.getMemo(), bindableTransaction.getContactOrPhoneNumber());
+            sharedMemoView = new SharedMemoView(memoView, bindableTransaction.isSharedMemo(), bindableTransaction.getMemo(),
+                    bindableTransaction.getIdentity());
         }
 
         if (bindableTransaction.getInviteState() == BindableTransaction.InviteState.CANCELED) {
@@ -355,18 +358,15 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         return currency.toUSD(historicPrice);
     }
 
-    private void renderContact(View page, BindableTransaction bindableTransaction) {
-        TextView contact = withId(page, R.id.contact);
-
-        String contactName = bindableTransaction.getContactName();
-        if (bindableTransaction.getSendState() == BindableTransaction.SendState.TRANSFER) {
-            contact.setText(getString(page.getContext(), R.string.send_to_self));
-        } else if (contactName == null || "".equals(contactName)) {
-            contact.setText(bindableTransaction.getContactPhoneNumber());
+    private void renderIdentity(View page, BindableTransaction bindableTransaction) {
+        TextView contact = withId(page, R.id.identity);
+        if (bindableTransaction.getIdentityType() == IdentityType.TWITTER) {
+            Views.setCompondDrawableOnStart(contact, R.drawable.twitter_icon_blue, .8F);
+            contact.setCompoundDrawablePadding(10);
         } else {
-            contact.setText(bindableTransaction.getContactName());
+            Views.clearCompoundDrawablesOn(contact);
         }
-
+        contact.setText(bindableTransaction.getIdentity());
     }
 
     private void renderIcon(View page, BindableTransaction bindableTransaction) {
@@ -376,17 +376,17 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         switch (bindableTransaction.getSendState()) {
             case TRANSFER:
             case SEND:
-                icon.setImageDrawable(getDrawable(context, R.drawable.ic_transaction_send));
+                icon.setImageDrawable(Resources.INSTANCE.getDrawable(context, R.drawable.ic_transaction_send));
                 icon.setTag(R.drawable.ic_transaction_send);
-                icon.setContentDescription(getString(context, R.string.transaction_detail_cd_send_state__dropbit_sent));
+                icon.setContentDescription(Resources.INSTANCE.getString(context, R.string.transaction_detail_cd_send_state__dropbit_sent));
                 break;
             case RECEIVE:
-                icon.setImageDrawable(getDrawable(context, R.drawable.ic_transaction_receive));
+                icon.setImageDrawable(Resources.INSTANCE.getDrawable(context, R.drawable.ic_transaction_receive));
                 icon.setTag(R.drawable.ic_transaction_receive);
-                icon.setContentDescription(getString(context, R.string.transaction_detail_cd_send_state__dropbit_received));
+                icon.setContentDescription(Resources.INSTANCE.getString(context, R.string.transaction_detail_cd_send_state__dropbit_received));
                 break;
             default:
-                icon.setImageDrawable(getDrawable(context, R.drawable.ic_transaction_canceled));
+                icon.setImageDrawable(Resources.INSTANCE.getDrawable(context, R.drawable.ic_transaction_canceled));
                 icon.setTag(R.drawable.ic_transaction_canceled);
                 break;
         }
@@ -435,12 +435,12 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
             case EXPIRED:
                 confirmationsView.setVisibility(View.GONE);
                 confirmationsLabel.setText(R.string.transaction_details_dropbit_expired);
-                confirmationsLabel.setTextColor(Resources.getColor(confirmationsLabel.getContext(), R.color.color_error));
+                confirmationsLabel.setTextColor(Resources.INSTANCE.getColor(confirmationsLabel.getContext(), R.color.color_error));
                 break;
             case CANCELED:
                 confirmationsView.setVisibility(View.GONE);
                 confirmationsLabel.setText(R.string.transaction_details_dropbit_canceled);
-                confirmationsLabel.setTextColor(Resources.getColor(confirmationsLabel.getContext(), R.color.color_error));
+                confirmationsLabel.setTextColor(Resources.INSTANCE.getColor(confirmationsLabel.getContext(), R.color.color_error));
                 break;
         }
     }

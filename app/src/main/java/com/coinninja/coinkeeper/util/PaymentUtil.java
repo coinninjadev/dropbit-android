@@ -6,8 +6,9 @@ import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -22,7 +23,7 @@ public class PaymentUtil {
     private final TransactionFundingManager transactionFundingManager;
     private TransactionFee transactionFee;
     private String address;
-    private Contact contact;
+    private Identity identity;
     private PaymentMethod paymentMethod;
     private String errorMessage;
     private PaymentHolder paymentHolder;
@@ -47,19 +48,19 @@ public class PaymentUtil {
 
     public void setAddress(String address) {
         errorMessage = "";
-        contact = null;
+        identity = null;
         this.address = address == null || address.isEmpty() ? null : address;
         setPaymentMethod();
     }
 
-    public Contact getContact() {
-        return contact;
+    public Identity getIdentity() {
+        return identity;
     }
 
-    public void setContact(Contact contact) {
+    public void setIdentity(Identity identity) {
         errorMessage = "";
         address = null;
-        this.contact = contact;
+        this.identity = identity;
         setPaymentMethod();
     }
 
@@ -145,7 +146,7 @@ public class PaymentUtil {
     }
 
     public boolean isVerifiedContact() {
-        return getContact().isVerified();
+        return getIdentity().isVerified();
     }
 
     public TransactionFee getTransactionFee() {
@@ -167,9 +168,9 @@ public class PaymentUtil {
         if (null != address) {
             paymentMethod = PaymentMethod.ADDRESS;
             paymentHolder.setPaymentAddress(address);
-        } else if (null != contact && contact.isVerified()) {
+        } else if (null != identity && identity.isVerified()) {
             paymentMethod = PaymentMethod.VERIFIED_CONTACT;
-        } else if (null != contact && !contact.isVerified()) {
+        } else if (null != identity && !identity.isVerified()) {
             paymentMethod = PaymentMethod.INVITE;
         } else {
             errorMessage = getString(R.string.pay_error_add_valid_bitcoin_address);

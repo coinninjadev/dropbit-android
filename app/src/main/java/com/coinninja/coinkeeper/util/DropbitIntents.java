@@ -36,12 +36,23 @@ public class DropbitIntents {
     public static final int RESULT_SCAN_OK = 221;
     public static final int RESULT_SCAN_ERROR = 400;
     /* ACTIONS */
+    public static final String ACTION_TWITTER_SELECTION = BuildConfig.APPLICATION_ID + ".ACTION_TWITTER_SELECTION";
+    public static final String ACTION_CONTACTS_SELECTION = BuildConfig.APPLICATION_ID + ".ACTION_CONTACTS_SELECTION ";
     public static final String ACTION_DROPBIT_ME_DISABLE_ACCOUNT = BuildConfig.APPLICATION_ID + ".ACTION_DROPBIT_ME_DISABLE_ACCOUNT";
     public static final String ACTION_DROPBIT_ME_ENABLE_ACCOUNT = BuildConfig.APPLICATION_ID + ".ACTION_DROPBIT_ME_ENABLE_ACCOUNT";
     public static final String ACTION_DROPBIT_ME_ACCOUNT_DISABLED = BuildConfig.APPLICATION_ID + ".ACTION_DROPBIT_ME_ACCOUNT_DISABLED";
     public static final String ACTION_DROPBIT_ME_ACCOUNT_ENABLED = BuildConfig.APPLICATION_ID + ".ACTION_DROPBIT_ME_ACCOUNT_ENABLED";
+    public static final String ACTION_VERIFY_PHONE_NUMBER = BuildConfig.APPLICATION_ID + ".ACTION_VERIFY_PHONE_NUMBER";
+    public static final String ACTION_VERIFY_PHONE_NUMBER_CODE = BuildConfig.APPLICATION_ID + ".ACTION_VERIFY_PHONE_NUMBER_CODE";
+    public static final String ACTION_RESEND_PHONE_CONFIRMATION = BuildConfig.APPLICATION_ID + ".ACTION_RESEND_PHONE_CONFIRMATION";
+    public static final String ACTION_DEVERIFY_PHONE_NUMBER = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_PHONE_NUMBER";
     public static final String ACTION_DEVERIFY_PHONE_NUMBER_FAILED = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_PHONE_NUMBER_FAILED";
     public static final String ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED";
+    public static final String ACTION_VERIFY_TWITTER = BuildConfig.APPLICATION_ID + ".ACTION_VERIFY_TWITTER";
+    public static final String ACTION_VERIFY_TWITTER_COMPLETED = BuildConfig.APPLICATION_ID + ".ACTION_VERIFY_TWITTER_COMPLETED";
+    public static final String ACTION_DEVERIFY_TWITTER = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_TWITTER";
+    public static final String ACTION_DEVERIFY_TWITTER_FAILED = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_TWITTER_FAILED";
+    public static final String ACTION_DEVERIFY_TWITTER_COMPLETED = BuildConfig.APPLICATION_ID + ".ACTION_DEVERIFY_TWITTER_COMPLETED";
     public static final String ACTION_BTC_PRICE_UPDATE = BuildConfig.APPLICATION_ID + ".ACTION_BTC_PRICE_UPDATE";
     public static final String ACTION_TRANSACTION_FEE_UPDATE = BuildConfig.APPLICATION_ID + ".ACTION_TRANSACTION_FEE_UPDATE";
     public static final String ACTION_WALLET_SYNC_COMPLETE = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_SYNC_COMPLETE";
@@ -53,6 +64,8 @@ public class DropbitIntents {
     public static final String ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR";
 
     public static final String ACTION_PHONE_VERIFICATION__SUCCESS = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__SUCCESS";
+    public static final String ACTION_LOCAL_ADDRESS_CACHE_POPULATED = BuildConfig.APPLICATION_ID + ".ACTION_LOCAL_ADDRESS_CACHE_POPULATED";
+    public static final String ACTION_LOCAL_ADDRESS_CACHE_CLEARED = BuildConfig.APPLICATION_ID + ".ACTION_LOCAL_ADDRESS_CACHE_CLEARED";
     public static final String ACTION_ON_WALLET_DELETED = BuildConfig.APPLICATION_ID + ".ACTION_ON_WALLET_DELETED";
     public static final String ACTION_INTERNAL_NOTIFICATION_UPDATE = BuildConfig.APPLICATION_ID + ".ACTION_INTERNAL_NOTIFICATION_UPDATE";
     public static final String ACTION_CANCEL_DROPBIT = BuildConfig.APPLICATION_ID + ".ACTION_CANCEL_DROPBIT";
@@ -77,7 +90,7 @@ public class DropbitIntents {
     /* EXTRAS */
     public static final String EXTRA_TRANSACTION_ID = "EXTRA_TRANSACTION_ID";
     public static final String EXTRA_TRANSACTION_RECORD_ID = "EXTRA_TRANSACTION_RECORD_ID";
-    public static final String EXTRA_CONTACT = "EXTRA_CONTACT";
+    public static final String EXTRA_IDENTITY = "EXTRA_IDENTITY";
     public static final String EXTRA_BITCOIN_PRICE = "EXTRA_BITCOIN_PRICE";
     public static final String EXTRA_TRANSACTION_FEE = "EXTRA_TRANSACTION_FEE";
     public static final String EXTRA_PHONE_NUMBER = "EXTRA_PHONE_NUMBER";
@@ -102,6 +115,9 @@ public class DropbitIntents {
     public static final String EXTRA_ADDRESS_LOOKUP_RESULT = "EXTRA_ADDRESS_LOOKUP_RESULT";
     public static final String EXTRA_PREFERENCE = "EXTRA_PREFERENCE";
     public static final String EXTRA_ON_COMPLETION = "EXTRA_ON_COMPLETION";
+    public static final String EXTRA_HIDE_SKIP_BUTTON = "EXTRA_HIDE_SKIP_BUTTON";
+    public static final String EXTRA_SHOW_TWITTER_VERIFY_BUTTON = "EXTRA_SHOW_TWITTER_VERIFY_BUTTON";
+    public static final String EXTRA_TWITTER_SNOWFLAKE = "EXTRA_TWITTER_SNOWFLAKE";
 
     /* Dropbit Service Intents */
     public static final String EXTRA_DROPBIT_TXID = "EXTRA_DROPBIT_TXID";
@@ -129,7 +145,6 @@ public class DropbitIntents {
     public static final String CN_API_CREATE_DEVICE_PLATFORM_ANDROID = "android";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_IOS = "ios";
 
-
     /* REQUESTS */
     public static final int REQUEST_QR_FRAGMENT_SCAN = 222;
     public static final int REQUEST_PERMISSIONS_CAMERA = 524;
@@ -143,4 +158,5 @@ public class DropbitIntents {
         aMap.put("Privacy Policy", "https://dropbit.app/privacypolicy");
         SUPPORT_LINKS = aMap;
     }
+
 }

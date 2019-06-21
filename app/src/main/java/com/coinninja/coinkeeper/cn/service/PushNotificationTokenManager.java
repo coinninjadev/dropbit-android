@@ -20,7 +20,7 @@ public class PushNotificationTokenManager {
     }
 
     public String getToken() {
-        return preferencesUtil.getString(PUSH_NOTIFICATION_DEVICE_TOKEN, null);
+        return preferencesUtil.getString(PUSH_NOTIFICATION_DEVICE_TOKEN, "");
     }
 
 }

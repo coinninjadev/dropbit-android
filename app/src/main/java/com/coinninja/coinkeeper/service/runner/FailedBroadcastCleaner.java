@@ -67,7 +67,7 @@ public class FailedBroadcastCleaner implements Runnable {
         HashMap<String, TransactionSummary> transactionsMap = transListToTxIDMap(oldPendingTransactions);
         Response response = coinKeeperApiClient.getTransactions(transactionsMap.keySet().toArray(new String[transactionsMap.size()]));
 
-        if (!response.isSuccessful()) {//stop everything, we might not have a internet connection!!!
+        if (!response.isSuccessful()) {//stop everything, we might not have a internet connection !
             return null;
         }
 
@@ -88,7 +88,7 @@ public class FailedBroadcastCleaner implements Runnable {
         HashMap<String, TransactionSummary> transactionsMap = transListToTxIDMap(oldPendingTransactions);
 
         List<TransactionDetail> details = blockChainInfoLoop(transactionsMap.keySet().toArray(new String[transactionsMap.size()]));
-        if (details == null) {//stop everything, we might not have a internet connection!!!
+        if (details == null) {//stop everything, we might not have a internet connection !
             return null;
         }
 

@@ -50,7 +50,7 @@ public class PushNotificationDeviceManager {
     }
 
     public String getDeviceId() {
-        return preferencesUtil.getString(PUSH_NOTIFICATION_SERVER_DEVICE_ID, null);
+        return preferencesUtil.getString(PUSH_NOTIFICATION_SERVER_DEVICE_ID, "");
     }
 
     public void removeCNDevice() {

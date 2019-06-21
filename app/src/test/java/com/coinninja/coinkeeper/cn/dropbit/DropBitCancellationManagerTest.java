@@ -1,5 +1,7 @@
 package com.coinninja.coinkeeper.cn.dropbit;
 
+import androidx.annotation.NonNull;
+
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
@@ -10,12 +12,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;
@@ -150,8 +151,6 @@ public class DropBitCancellationManagerTest {
     public void markAsCanceled_single() {
         InviteTransactionSummary tempInvite1 = mock(InviteTransactionSummary.class);
         when(tempInvite1.getServerId()).thenReturn("some invite id 1");
-        when(transactionHelper.getInviteTransactionSummary("some invite id 1")).thenReturn(tempInvite1);
-
         Response response = getResponse(sentInviteJSON);
 
         when(client.updateInviteStatusCanceled(anyString())).thenReturn(response);
@@ -201,7 +200,6 @@ public class DropBitCancellationManagerTest {
         when(tempInvite1.getServerId()).thenReturn(serverInviteId);
 
         Response badResponse = getBadResponse();
-        when(transactionHelper.getInviteTransactionSummary(serverInviteId)).thenReturn(tempInvite1);
         when(client.updateInviteStatusCanceled(anyString())).thenReturn(badResponse);
 
         service.markAsCanceled(tempInvite1);
@@ -212,11 +210,7 @@ public class DropBitCancellationManagerTest {
     @Test
     public void markAsCanceled_string_null() {
         String serverInviteId = "some invite id 1";
-
-        Response response = getResponse(sentInviteJSON);
-
         when(transactionHelper.getInviteTransactionSummary(serverInviteId)).thenReturn(null);
-        when(client.updateInviteStatusCanceled(anyString())).thenReturn(response);
 
         service.markAsCanceled(serverInviteId);
 

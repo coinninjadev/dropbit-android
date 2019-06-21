@@ -53,6 +53,7 @@ captures/
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
+google_play.json
 
 # Freeline
 freeline.py

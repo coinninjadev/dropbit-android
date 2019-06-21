@@ -7,13 +7,17 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.interactor.UserPreferences;
-import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.interactor.UserPreferences;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
+import com.coinninja.coinkeeper.ui.base.BaseDialogFragment;
+import com.coinninja.coinkeeper.util.android.PreferencesUtil;
+
+import org.greenrobot.greendao.annotation.Id;
 
 public class InviteHelpDialogFragment extends BaseDialogFragment {
 
@@ -21,14 +25,14 @@ public class InviteHelpDialogFragment extends BaseDialogFragment {
 
     private UserPreferences preferenceInteractor;
     private OnInviteHelpAcceptedCallback onInviteHelpAcceptedCallback;
-    private Contact contact;
+    private Identity identity;
 
     public static DialogFragment newInstance(UserPreferences preferenceInteractor,
-                                             Contact contact,
+                                             Identity identity,
                                              OnInviteHelpAcceptedCallback onInviteHelpAcceptedCallback) {
         InviteHelpDialogFragment fragment = new InviteHelpDialogFragment();
         fragment.setPreferenceInteractor(preferenceInteractor);
-        fragment.setContact(contact);
+        fragment.setIdentity(identity);
         fragment.setOnInviteHelpAcceptedCallback(onInviteHelpAcceptedCallback);
         return fragment;
     }
@@ -48,12 +52,22 @@ public class InviteHelpDialogFragment extends BaseDialogFragment {
     }
 
     private void setupDoneButton() {
-        getView().findViewById(R.id.done).setOnClickListener(v -> onDoneClick());
+        getView().findViewById(R.id.done).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDoneClick();
+            }
+        });
     }
 
     private void onDoneClick() {
         if (shouldSkipInviteHelp()) {
-            preferenceInteractor.skipInviteHelpScreen(() -> onSkipPreferenceComplete());
+            preferenceInteractor.skipInviteHelpScreen(new PreferencesUtil.Callback() {
+                @Override
+                public void onComplete() {
+                    onSkipPreferenceComplete();
+                }
+            });
         }
 
         acknowledgeMessage();
@@ -87,14 +101,14 @@ public class InviteHelpDialogFragment extends BaseDialogFragment {
         this.onInviteHelpAcceptedCallback = onInviteHelpAcceptedCallback;
     }
 
-    public void setContact(Contact contact) {
-        this.contact = contact;
+    public void setIdentity(Identity identity) {
+        this.identity = identity;
     }
 
     private String getMessage() {
         String mask = getView().getResources().getString(R.string.invite_help_message_mask);
         String message = getView().getResources().getString(R.string.invite_help_message);
-        return message.replace(mask, contact.toDisplayNameOrInternationalPhoneNumber());
+        return message.replace(mask, identity.getDisplayName());
     }
 
     public interface OnInviteHelpAcceptedCallback {

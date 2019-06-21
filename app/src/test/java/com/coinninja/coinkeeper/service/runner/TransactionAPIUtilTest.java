@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -148,11 +148,7 @@ public class TransactionAPIUtilTest {
 
     @Test
     public void does_not_fetch_transactions_when_none_are_provided() {
-        ResponseBody body = ResponseBody.create(MediaType.parse("application/json"),
-                "[]");
-        Response response = Response.error(404, body);
         transactions.clear();
-        when(apiClient.getTransactions(any())).thenReturn(response);
 
         apiUtil.fetchPartialTransactions(transactions);
 

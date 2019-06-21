@@ -9,14 +9,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.coinninja.android.helpers.Input;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.text.CurrencyFormattingTextWatcher;
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import static com.coinninja.android.helpers.Views.clearCompoundDrawablesOn;
 import static com.coinninja.android.helpers.Views.renderBTCIconOnCurrencyViewPair;
@@ -149,7 +149,7 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     }
 
     private boolean focusOnPrimary() {
-        primaryCurrency.postDelayed(() -> Input.showKeyboard(primaryCurrency), 100);
+        primaryCurrency.postDelayed(() -> Input.INSTANCE.showKeyboard(primaryCurrency), 100);
         boolean requestedFocus = primaryCurrency.requestFocus();
         if (requestedFocus) {
             primaryCurrency.setSelection(primaryCurrency.getText().length());

@@ -1,38 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/unverified_phone_group"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"
-        app:constraint_referenced_ids="verify_phone_button, privacy_text_view"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/verified_phone_group"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        app:constraint_referenced_ids="verified_number_title, verified_number_text_view, change_remove_button, view_dropbit_addresses"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/phone_image"
-        android:layout_width="@dimen/tx_detail_send_state_icon_size"
-        android:layout_height="@dimen/tx_detail_send_state_icon_size"
-        android:layout_marginBottom="100dp"
-        android:tint="@color/font_gray"
-        app:srcCompat="@drawable/ic_phone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/verification_overview_text_view"
@@ -40,60 +11,45 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="35dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="25dp"
         android:layout_marginEnd="35dp"
-        android:layout_marginBottom="8dp"
         android:text="@string/account_verification_overview"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance"
-        app:layout_constraintBottom_toTopOf="@+id/phone_image"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/unverified_phone_group" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/verified_number_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="46dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="46dp"
-        android:text="@string/user_account_verified_verified_number_title"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phone_image" />
-
-    <TextView
-        android:id="@+id/verified_number_text_view"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_marginStart="46dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="46dp"
-        tools:text="(123) 123-1234"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.Large"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/verified_number_title" />
-
-    <Button
-        android:theme="@style/FlatButton.Warning"
-        android:id="@+id/change_remove_button"
+    <fragment
+        android:id="@+id/phone_identity"
+        android:name="com.coinninja.coinkeeper.ui.account.verify.PhoneIdentityFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="10dp"
         android:layout_marginEnd="40dp"
-        android:text="@string/user_account_remove_button"
-        android:textAlignment="center"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/twitter_identity"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/verified_number_text_view" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:layout="@layout/fragment_identity_fragment" />
+
+    <fragment
+        android:id="@+id/twitter_identity"
+        android:name="com.coinninja.coinkeeper.ui.account.verify.TwitterIdentityFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/phone_identity"
+        tools:layout="@layout/fragment_identity_fragment" />
 
     <TextView
         android:id="@+id/privacy_text_view"
@@ -102,27 +58,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="46dp"
         android:layout_marginEnd="46dp"
-        android:layout_marginBottom="29dp"
+        android:layout_marginBottom="15dp"
         android:text="@string/privacy_disclaimer"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/verify_phone_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="40dp"
-        android:text="@string/verify_phone_button_title"
-        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@id/view_dropbit_addresses"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phone_image" />
+        tools:layout_editor_absoluteY="645dp" />
 
     <Button
         android:id="@+id/view_dropbit_addresses"
@@ -131,9 +74,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="15dp"
         android:text="@string/view_dropbit_addresses"
-        app:layout_constraintBottom_toBottomOf="@+id/unverified_phone_group"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

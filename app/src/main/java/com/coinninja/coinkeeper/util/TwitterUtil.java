@@ -4,21 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-import androidx.annotation.Nullable;
-
+import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 
-
 import javax.inject.Inject;
-
-import static com.coinninja.android.helpers.Resources.getString;
 
 
 public class TwitterUtil {
 
-    private Context context;
     private final Shuffler shuffler;
+    private Context context;
 
     @Inject
     public TwitterUtil(@ApplicationContext Context context, Shuffler shuffler) {
@@ -31,15 +27,15 @@ public class TwitterUtil {
 
         if (memo == null || memo.equals("")) {
             if (random % 2 == 0) {
-                return getString(context, R.string.twitter_share_non_memo_first);
+                return Resources.INSTANCE.getString(context, R.string.twitter_share_non_memo_first);
             } else {
-                return getString(context, R.string.twitter_share_non_memo_second);
+                return Resources.INSTANCE.getString(context, R.string.twitter_share_non_memo_second);
             }
         } else {
             if (random % 2 == 0) {
-                return getString(context, R.string.twitter_share_memo_first, memo);
+                return Resources.INSTANCE.getString(context, R.string.twitter_share_memo_first, memo);
             } else {
-                return getString(context, R.string.twitter_share_memo_second, memo);
+                return Resources.INSTANCE.getString(context, R.string.twitter_share_memo_second, memo);
             }
         }
     }

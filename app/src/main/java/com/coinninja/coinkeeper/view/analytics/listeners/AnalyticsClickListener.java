@@ -21,7 +21,7 @@ public class AnalyticsClickListener implements View.OnClickListener {
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.drawer_support, Analytics.EVENT_BUTTON_SUPPORT);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.request_funds, Analytics.EVENT_BUTTON_SEND_REQUEST);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.contacts_btn, Analytics.EVENT_BUTTON_CONTACTS);
-        BUTTON_ANALYTICS_EVENT_MAP.put(R.id.scan_btc_address_btn, Analytics.EVENT_BUTTON_SCAN);
+        BUTTON_ANALYTICS_EVENT_MAP.put(R.id.twitter_contacts_button, Analytics.EVENT_BUTTON_SCAN);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.paste_address_btn, Analytics.EVENT_BUTTON_PASTE);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.share_transaction, Analytics.EVENT_BUTTON_SHARE_TRANS_ID);
         BUTTON_ANALYTICS_EVENT_MAP.put(R.id.button_cancel_dropbit, Analytics.EVENT_CANCEL_DROPBIT_PRESSED);

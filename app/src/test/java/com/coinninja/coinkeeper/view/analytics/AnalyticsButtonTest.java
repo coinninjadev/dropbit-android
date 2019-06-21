@@ -30,8 +30,6 @@ public class AnalyticsButtonTest {
         analyticsButton = new AnalyticsButton(application);
     }
 
-    // TODO verify that analytics actually tracks button click
-
     @Test
     public void insure_analytics_click_event_and_original_click_event_is_engaged_test() {
         AnalyticsClickListener mockAnalyticsClickListener = mock(AnalyticsClickListener.class);

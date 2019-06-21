@@ -6,6 +6,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.core.app.ApplicationProvider;
+
+import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -28,10 +33,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.ConfirmationViewMatcher.configuredForTransaction;
 import static com.coinninja.matchers.ConfirmationViewMatcher.stageIs;
@@ -71,7 +72,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
         activity = Robolectric.setupActivity(A.class);
         page = withId(activity, R.id.page);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
-        bindableTransaction = new BindableTransaction(walletHelper);
+        bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.get(anyInt())).thenReturn(transaction);
@@ -116,7 +117,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
         assertThat(confirmationsView, configuredForTransaction());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_PENDING));
-        assertThat(confirmations, hasText(getString(confirmations.getContext(), R.string.confirmations_view_stage_4)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_4)));
     }
 
     @Test
@@ -130,7 +131,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
         assertThat(confirmationsView, configuredForTransaction());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_COMPLETE));
-        assertThat(confirmations, hasText(getString(confirmations.getContext(), R.string.confirmations_view_stage_5)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_5)));
     }
 
     @Test
@@ -153,16 +154,14 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     }
 
     @Test
-    public void renders_receivers_contact_when_sent__name_when_available() {
-        String phoneNumber = "(330) 555-1111";
+    public void renders_identity() {
         String name = "Joe Blow";
-        bindableTransaction.setContactName(name);
-        bindableTransaction.setContactPhoneNumber(phoneNumber);
+        bindableTransaction.setIdentity(name);
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView contact = withId(page, R.id.contact);
-        assertThat(contact, hasText(getString(activity, R.string.send_to_self)));
+        TextView contact = withId(page, R.id.identity);
+        assertThat(contact, hasText(bindableTransaction.getIdentity()));
     }
 
     @Test

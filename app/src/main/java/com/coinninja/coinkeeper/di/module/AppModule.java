@@ -21,6 +21,7 @@ import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.BuildConfig;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener;
+import com.coinninja.coinkeeper.cn.transaction.notification.TransactionNotificationMapper;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.di.component.AppComponent;
@@ -44,10 +45,10 @@ import com.coinninja.coinkeeper.interactor.PinEntryImpl;
 import com.coinninja.coinkeeper.interactor.PinInteractor;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
-import com.coinninja.coinkeeper.model.TransactionNotificationMapper;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.helpers.AddressHelper;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.model.helpers.WordHelper;
@@ -57,12 +58,16 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
+import com.coinninja.coinkeeper.ui.base.TransactionTweetDialog;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
+import com.coinninja.coinkeeper.util.CoinNinjaContactResolver;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
+import com.coinninja.coinkeeper.util.TwitterUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.encryption.MessageEncryptor;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
@@ -72,15 +77,25 @@ import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerat
 import com.coinninja.messaging.MessageCryptor;
 import com.google.gson.Gson;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Named;
+
+import app.dropbit.twitter.Twitter;
+import app.dropbit.twitter.TwitterProvider;
 import dagger.Module;
 import dagger.Provides;
 
 @Module(includes = {AndroidActivityBuilder.class, AndroidFragmentBuilder.class})
 public class AppModule {
+
+    @Provides
+    Picasso picasso() {
+        return Picasso.get();
+    }
 
     @Provides
     ErrorLoggingUtil errorLoggingUtil() {
@@ -132,20 +147,14 @@ public class AppModule {
     }
 
     @Provides
-    TransactionNotificationMapper transactionNotificationMapper(PhoneNumberUtil phoneNumberUtil) {
-        return new TransactionNotificationMapper(phoneNumberUtil);
-    }
-
-    @Provides
-    SharedMemoRetrievalRunner sharedMemoRetrievalRunner(Analytics analytics,
-                                                        TransactionHelper transactionHelper,
+    SharedMemoRetrievalRunner sharedMemoRetrievalRunner(TransactionHelper transactionHelper,
                                                         SignedCoinKeeperApiClient signedCoinKeeperApiClient,
                                                         MessageEncryptor messageEncryptor,
                                                         TransactionNotificationMapper transactionNotificationMapper,
-                                                        DaoSessionManager daoSessionManager, WalletHelper walletHelper) {
-        return new SharedMemoRetrievalRunner(analytics, transactionHelper,
+                                                        DaoSessionManager daoSessionManager, DropbitAccountHelper dropbitAccountHelper) {
+        return new SharedMemoRetrievalRunner(transactionHelper,
                 signedCoinKeeperApiClient, messageEncryptor, transactionNotificationMapper,
-                daoSessionManager, walletHelper);
+                daoSessionManager, dropbitAccountHelper);
     }
 
     @Provides
@@ -274,9 +283,16 @@ public class AppModule {
     }
 
     @CoinkeeperApplicationScope
-    @CountryCodeLocales
     @Provides
+    @CountryCodeLocales
     List<CountryCodeLocale> provideCountryCodeLocales(CountryCodeLocaleGenerator countryCodeLocaleGenerator) {
+        return countryCodeLocaleGenerator.generate();
+    }
+
+    @CoinkeeperApplicationScope
+    @Provides
+    @Named("countryCodeLocales")
+    List<CountryCodeLocale> provideCountryCodeLocalesNamed(CountryCodeLocaleGenerator countryCodeLocaleGenerator) {
         return countryCodeLocaleGenerator.generate();
     }
 
@@ -311,5 +327,10 @@ public class AppModule {
     @Provides
     Uri dropbitMeUri(DropBitMeUriProvider dropBitMeUriProvider) {
         return dropBitMeUriProvider.provideUri();
+    }
+
+    @Provides
+    Twitter twitter(@ApplicationContext Context context) {
+        return TwitterProvider.Companion.provide(context);
     }
 }

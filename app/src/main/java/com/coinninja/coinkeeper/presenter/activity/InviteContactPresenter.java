@@ -27,7 +27,7 @@ public class InviteContactPresenter implements InviteContactRunner.OnInviteListe
         inviteRunner.setOnInviteListener(this);
         inviteRunner.setPendingInviteDTO(pendingInviteDTO);
         inviteRunner = inviteRunner.clone();
-        inviteRunner.execute(pendingInviteDTO.getContact());
+        inviteRunner.execute(pendingInviteDTO.getIdentity());
     }
 
     @Override

@@ -71,7 +71,7 @@ public class PaymentHolder {
     }
 
     public String getMemo() {
-        return memo;
+        return memo == null ? "" : memo;
     }
 
     public void setMemo(String memo) {

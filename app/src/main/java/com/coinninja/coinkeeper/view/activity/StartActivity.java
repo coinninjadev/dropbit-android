@@ -20,9 +20,14 @@ public class StartActivity extends SecuredActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
-        findViewById(R.id.start_btn_new_wallet).setOnClickListener(v -> createWordsAndSkipBackup());
-        findViewById(R.id.start_btn_restore).setOnClickListener(v -> gotoRestoreWalletActivity());
+        findViewById(R.id.start_btn_new_wallet).setOnClickListener(v -> newWalletButtonClicked());
+        findViewById(R.id.start_btn_restore).setOnClickListener(v -> walletRestoreButtonClicked());
+        findViewById(R.id.start_bitcoin_invite).setOnClickListener(v -> inviteButtonClicked());
         setStartScreenAnimation(new StartScreenAnimation(this));
+    }
+
+    private void inviteButtonClicked() {
+        startInviteFlow();
     }
 
     @Override
@@ -35,19 +40,17 @@ public class StartActivity extends SecuredActivity {
     public void onBackPressed() {
         startScreenAnimation.animateOut();
         super.onBackPressed();
-        finish();
     }
 
     void setStartScreenAnimation(StartScreenAnimation startScreenAnimation) {
         this.startScreenAnimation = startScreenAnimation;
     }
 
-    private void createWordsAndSkipBackup() {
-        showCreatePinCreateWalletThenVerifyPhone();
+    private void newWalletButtonClicked() {
+        startNewWalletFlow();
     }
 
-    private void gotoRestoreWalletActivity() {
-        cnWalletManager.createWallet();
-        navigateTo(RestoreWalletActivity.class);
+    private void walletRestoreButtonClicked() {
+        startRecoveryFlow();
     }
 }

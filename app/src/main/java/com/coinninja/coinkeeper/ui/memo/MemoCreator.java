@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.coinninja.android.helpers.Input;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
@@ -13,7 +14,6 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import static com.coinninja.android.helpers.Input.showKeyboard;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class MemoCreator {
@@ -36,7 +36,7 @@ public class MemoCreator {
         memoView.setSelection(text.length());
         withId(view, R.id.done).setOnClickListener(v -> onDonePressed());
         memoView.postDelayed(() -> {
-            showKeyboard(memoView);
+            Input.INSTANCE.showKeyboard(memoView);
         }, 200);
 
     }

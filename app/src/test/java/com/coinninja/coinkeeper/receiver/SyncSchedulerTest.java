@@ -34,8 +34,6 @@ public class SyncSchedulerTest {
 
     private TestCoinKeeperApplication application;
 
-    //TODO have Sync Schedule be a result of a broadcast, this should all live in a broadcast receiver
-
     @Mock
     CNWalletManager cnWalletManager;
 

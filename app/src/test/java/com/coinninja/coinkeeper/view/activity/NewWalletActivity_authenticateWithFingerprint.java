@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.presenter.PreferencePresentor;
 import com.coinninja.coinkeeper.presenter.fragment.FingerprintAuthPresenter;
 import com.coinninja.coinkeeper.presenter.fragment.PinFragmentPresenter;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
 
@@ -43,7 +43,7 @@ public class NewWalletActivity_authenticateWithFingerprint {
 
     private String initWithNextIntent() {
         Intent intent = new Intent(application, CreatePinActivity.class);
-        String nextActivity = VerifyPhoneNumberActivity.class.getName();
+        String nextActivity = VerificationActivity.class.getName();
         intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
 
         initWithIntent(intent);

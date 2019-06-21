@@ -6,9 +6,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
+import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.FundingStatDao;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
@@ -20,12 +22,12 @@ import com.coinninja.coinkeeper.model.db.TransactionSummaryDao;
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao.Properties;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummaryDao;
+import com.coinninja.coinkeeper.model.db.UserIdentity;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
@@ -46,16 +48,21 @@ public class TransactionHelper {
     private static final String TAG = TransactionHelper.class.getSimpleName();
     private final WalletHelper walletHelper;
     private final TransactionInviteSummaryHelper transactionInviteSummaryHelper;
+    private final DropbitAccountHelper dropbitAccountHelper;
+    private final UserIdentityHelper userIdentityHelper;
     private DateUtil dateUtil;
     private DaoSessionManager daoSessionManager;
 
     @Inject
     public TransactionHelper(DaoSessionManager daoSessionManager, WalletHelper walletHelper,
                              TransactionInviteSummaryHelper transactionInviteSummaryHelper,
-                             DateUtil dateUtil) {
+                             DropbitAccountHelper dropbitAccountHelper,
+                             UserIdentityHelper userIdentityHelper, DateUtil dateUtil) {
         this.daoSessionManager = daoSessionManager;
         this.walletHelper = walletHelper;
         this.transactionInviteSummaryHelper = transactionInviteSummaryHelper;
+        this.dropbitAccountHelper = dropbitAccountHelper;
+        this.userIdentityHelper = userIdentityHelper;
         this.dateUtil = dateUtil;
     }
 
@@ -140,15 +147,14 @@ public class TransactionHelper {
     }
 
     public void saveReceivedInviteTransaction(Wallet wallet, ReceivedInvite receivedInvite) {
-        InviteMetadata.MetadataContact sender = receivedInvite.getMetadata().getSender();
-        InviteMetadata.MetadataContact receiver = receivedInvite.getMetadata().getReceiver();
+        UserIdentity fromUser = userIdentityHelper.updateFrom(receivedInvite.getMetadata().getSender());
+        UserIdentity toUser = userIdentityHelper.updateFrom(receivedInvite.getMetadata().getReceiver());
         saveInviteTransaction(
                 wallet.getId(),
                 receivedInvite.getId(),
                 Type.RECEIVED,
-                "",
-                sender.identityAsPhoneNumber(),
-                receiver.identityAsPhoneNumber(),
+                fromUser,
+                toUser,
                 receivedInvite.getMetadata().getAmount().getUsd(),
                 receivedInvite.getCreated_at(),
                 receivedInvite.getStatus(),
@@ -259,8 +265,8 @@ public class TransactionHelper {
         InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
 
         InviteTransactionSummary invite = inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
-                limit(1).unique();
+                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID))
+                .unique();
 
         if (invite == null) {
             Log.e(TAG, "unable to update invite: " + txID);
@@ -458,7 +464,7 @@ public class TransactionHelper {
     }
 
     public TransactionSummary createInitialTransactionForCompletedBroadcast(CompletedBroadcastDTO completedBroadcastActivityDTO) {
-        return createInitialTransaction(completedBroadcastActivityDTO.transactionId, completedBroadcastActivityDTO.getContact());
+        return createInitialTransaction(completedBroadcastActivityDTO.getTransactionId(), completedBroadcastActivityDTO.getIdentity());
     }
 
     void saveOut(TransactionSummary transaction, VOut out) {
@@ -619,9 +625,8 @@ public class TransactionHelper {
     InviteTransactionSummary saveInviteTransaction(long walletId,
                                                    String inviteServerID,
                                                    Type type,
-                                                   String contactDisplayName,
-                                                   PhoneNumber senderPhoneNumber,
-                                                   PhoneNumber receiverPhoneNumber,
+                                                   UserIdentity fromUser,
+                                                   UserIdentity toUser,
                                                    long historicUSAValue,
                                                    Long sentDate,
                                                    String inviteStatus,
@@ -655,10 +660,9 @@ public class TransactionHelper {
 
         BTCState state = BTCState.from(inviteStatus);
         invite.setBtcState(state);
-        invite.setInviteName(contactDisplayName);
         invite.setHistoricValue(historicUSAValue);
-        invite.setSenderPhoneNumber(senderPhoneNumber);
-        invite.setReceiverPhoneNumber(receiverPhoneNumber);
+        invite.setToUser(toUser);
+        invite.setFromUser(fromUser);
         invite.setSentDate(sentDate);
         invite.setValueSatoshis(valueSatoshis);
         invite.setValueFeesSatoshis(fee);
@@ -670,10 +674,14 @@ public class TransactionHelper {
         invite.update();
         invite.refresh();
 
-        // Todo This should happen when invite is first created
         if (invite.getTransactionsInvitesSummary() == null) {
             addInviteToTransInvitesSummary(invite);
         }
+
+        TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
+        summary.setToUser(toUser);
+        summary.setFromUser(fromUser);
+        summary.update();
 
         return invite;
     }
@@ -908,7 +916,7 @@ public class TransactionHelper {
         return daoSessionManager.getTransactionsInvitesSummaryDao().queryBuilder().where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(summary.getId())).limit(1).unique();
     }
 
-    private TransactionSummary createInitialTransaction(String transactionId, Contact contact) {
+    private TransactionSummary createInitialTransaction(String transactionId, Identity identity) {
         TransactionSummary transactionSummary = daoSessionManager.newTransactionSummary();
         transactionSummary.setTxid(transactionId);
         transactionSummary.setWallet(walletHelper.getWallet());
@@ -918,14 +926,22 @@ public class TransactionHelper {
         daoSessionManager.insert(transactionSummary);
 
         TransactionsInvitesSummary transactionInviteSummary = transactionInviteSummaryHelper.getOrCreateTransactionInviteSummaryFor(transactionSummary);
+        addUserIdentitiesToTransaction(identity, transactionInviteSummary);
+        transactionInviteSummary.update();
+        return transactionSummary;
+    }
 
-        if (contact != null) {
-            transactionInviteSummary.setToName(contact.getDisplayName());
-            transactionInviteSummary.setToPhoneNumber(contact.getPhoneNumber());
-            transactionInviteSummary.update();
+    private void addUserIdentitiesToTransaction(Identity identity, TransactionsInvitesSummary transactionInviteSummary) {
+        if (identity == null) return;
+
+        DropbitMeIdentity myIdentity = dropbitAccountHelper.identityForType(identity.getIdentityType());
+        if (myIdentity != null) {
+            UserIdentity fromUser = userIdentityHelper.updateFrom(myIdentity);
+            transactionInviteSummary.setFromUser(fromUser);
         }
 
-        return transactionSummary;
+        UserIdentity toUser = userIdentityHelper.updateFrom(identity);
+        transactionInviteSummary.setToUser(toUser);
     }
 
 }

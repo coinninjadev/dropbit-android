@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
@@ -87,7 +88,7 @@ public class TransactionHistoryActivityTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        bindableTransaction = new BindableTransaction(walletHelper);
+        bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         when(transactions.size()).thenReturn(12);
         when(transactions.get(anyInt())).thenReturn(transaction);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);

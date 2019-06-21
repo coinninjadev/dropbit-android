@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -73,7 +73,6 @@ public class BroadcastTransactionRunnerTest {
     @Before
     public void setUp() throws Exception {
         when(result.isSuccess()).thenReturn(true);
-        when(result.getTxId()).thenReturn("--txid--");
         when(apiClient.getCurrentState()).thenReturn(Response.success(null));
 
         task.setBroadcastListener(callback);

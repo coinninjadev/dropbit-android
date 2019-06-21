@@ -1,28 +1,30 @@
 package com.coinninja.coinkeeper.model.db;
 
-import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.db.converter.PhoneNumberConverter;
-
 import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Property;
+import org.greenrobot.greendao.annotation.ToOne;
 
 @Entity(active = true)
 public class TransactionNotification {
 
     @Id
     Long id;
-    String dropbitMeHandle;
-    String avatar;
-    String displayName;
     String memo;
     boolean isShared;
     long amount;
     String amountCurrency;
     String txid;
+
+    Long toUserIdentityId;
+    @ToOne(joinProperty = "toUserIdentityId")
+    UserIdentity toUser;
+
+    Long fromUserIdentityId;
+    @ToOne(joinProperty = "fromUserIdentityId")
+    UserIdentity fromUser;
+
     /**
      * Used to resolve relations
      */
@@ -33,25 +35,22 @@ public class TransactionNotification {
      */
     @Generated(hash = 222728965)
     private transient TransactionNotificationDao myDao;
+    @Generated(hash = 1661025460)
+    private transient Long toUser__resolvedKey;
+    @Generated(hash = 468263943)
+    private transient Long fromUser__resolvedKey;
 
-    @Convert(converter = PhoneNumberConverter.class, columnType = String.class)
-    @Property
-    private PhoneNumber phoneNumber;
-
-    @Generated(hash = 131708261)
-    public TransactionNotification(Long id, String dropbitMeHandle, String avatar, String displayName,
-                                   String memo, boolean isShared, long amount, String amountCurrency, String txid,
-                                   PhoneNumber phoneNumber) {
+    @Generated(hash = 1482331413)
+    public TransactionNotification(Long id, String memo, boolean isShared, long amount, String amountCurrency, String txid,
+                                   Long toUserIdentityId, Long fromUserIdentityId) {
         this.id = id;
-        this.dropbitMeHandle = dropbitMeHandle;
-        this.avatar = avatar;
-        this.displayName = displayName;
         this.memo = memo;
         this.isShared = isShared;
         this.amount = amount;
         this.amountCurrency = amountCurrency;
         this.txid = txid;
-        this.phoneNumber = phoneNumber;
+        this.toUserIdentityId = toUserIdentityId;
+        this.fromUserIdentityId = fromUserIdentityId;
     }
 
     @Generated(hash = 1638360505)
@@ -64,30 +63,6 @@ public class TransactionNotification {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getDropbitMeHandle() {
-        return dropbitMeHandle;
-    }
-
-    public void setDropbitMeHandle(String dropbitMeHandle) {
-        this.dropbitMeHandle = dropbitMeHandle;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
     }
 
     public String getMemo() {
@@ -167,12 +142,78 @@ public class TransactionNotification {
         this.txid = txid;
     }
 
-    public void setPhoneNumber(PhoneNumber phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public Long getToUserIdentityId() {
+        return toUserIdentityId;
     }
 
-    public PhoneNumber getPhoneNumber() {
-        return phoneNumber;
+    public void setToUserIdentityId(Long toUserIdentityId) {
+        this.toUserIdentityId = toUserIdentityId;
+    }
+
+    public Long getFromUserIdentityId() {
+        return fromUserIdentityId;
+    }
+
+    public void setFromUserIdentityId(Long fromUserIdentityId) {
+        this.fromUserIdentityId = fromUserIdentityId;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1597379521)
+    public UserIdentity getToUser() {
+        Long __key = this.toUserIdentityId;
+        if (toUser__resolvedKey == null || !toUser__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            UserIdentityDao targetDao = daoSession.getUserIdentityDao();
+            UserIdentity toUserNew = targetDao.load(__key);
+            synchronized (this) {
+                toUser = toUserNew;
+                toUser__resolvedKey = __key;
+            }
+        }
+        return toUser;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1187746829)
+    public void setToUser(UserIdentity toUser) {
+        synchronized (this) {
+            this.toUser = toUser;
+            toUserIdentityId = toUser == null ? null : toUser.getId();
+            toUser__resolvedKey = toUserIdentityId;
+        }
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1726127259)
+    public UserIdentity getFromUser() {
+        Long __key = this.fromUserIdentityId;
+        if (fromUser__resolvedKey == null || !fromUser__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            UserIdentityDao targetDao = daoSession.getUserIdentityDao();
+            UserIdentity fromUserNew = targetDao.load(__key);
+            synchronized (this) {
+                fromUser = fromUserNew;
+                fromUser__resolvedKey = __key;
+            }
+        }
+        return fromUser;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 938191438)
+    public void setFromUser(UserIdentity fromUser) {
+        synchronized (this) {
+            this.fromUser = fromUser;
+            fromUserIdentityId = fromUser == null ? null : fromUser.getId();
+            fromUser__resolvedKey = fromUserIdentityId;
+        }
     }
 
     /** called by internal mechanisms, do not call yourself. */

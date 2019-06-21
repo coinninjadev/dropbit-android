@@ -3,9 +3,9 @@ package com.coinninja.coinkeeper.cn.wallet.service;
 import android.content.Context;
 import android.content.Intent;
 
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -37,7 +37,8 @@ public class CNAddressLookupDelegateTest {
     private Hasher hasher;
 
     @Mock
-    private Contact contact;
+    private Identity identity;
+
     @Mock
     private CNAddressLookupDelegate.CNAddressLookupCompleteCallback callback;
 
@@ -56,7 +57,7 @@ public class CNAddressLookupDelegateTest {
         callback = null;
         cnAddressLookupDelegate = null;
         hasher = null;
-        contact = null;
+        identity = null;
         serviceWorkUtil = null;
         localBroadCastUtil = null;
         phoneNumberHash = null;
@@ -64,16 +65,16 @@ public class CNAddressLookupDelegateTest {
 
     @Test
     public void starts_observing_for_address_results_when_looking_up_contacts() {
-        when(contact.getHash()).thenReturn(phoneNumberHash);
+        when(identity.getHashForType()).thenReturn(phoneNumberHash);
 
-        cnAddressLookupDelegate.fetchAddressFor(contact, callback);
+        cnAddressLookupDelegate.fetchAddressFor(identity, callback);
 
         verify(serviceWorkUtil).lookupAddressForPhoneNumberHash(phoneNumberHash);
         verify(localBroadCastUtil).registerReceiver(cnAddressLookupDelegate, cnAddressLookupDelegate.intentFilter);
     }
 
     @Test
-    public void starts_observing_for_address_results_when_looking_up_by_phone_number() throws NumberParseException {
+    public void starts_observing_for_address_results_when_looking_up_by_phone_number() {
         PhoneNumber phoneNumber = new PhoneNumber("+13305551111");
         when(hasher.hash(phoneNumber)).thenReturn(phoneNumberHash);
 
@@ -98,7 +99,9 @@ public class CNAddressLookupDelegateTest {
 
     @Test
     public void invokes_callback_when_fetching_via_contact() {
-        cnAddressLookupDelegate.fetchAddressFor(contact, callback);
+        identity = mock(Identity.class);
+        when(identity.getHash()).thenReturn("");
+        cnAddressLookupDelegate.fetchAddressFor(identity, callback);
         AddressLookupResult result = new AddressLookupResult("hash", "address", "pubkey");
         Intent intent = new Intent(DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED);
         intent.putExtra(DropbitIntents.EXTRA_ADDRESS_LOOKUP_RESULT, result);

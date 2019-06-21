@@ -4,6 +4,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -12,8 +14,10 @@ import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.util.image.CircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
+import com.squareup.picasso.Picasso;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
@@ -49,6 +53,11 @@ public class TransactionHistoryDataAdapterTest {
     private LazyList transactions;
     @Mock
     WalletHelper walletHelper;
+    @Mock
+    private Picasso picasso;
+    @Mock
+    private CircleTransform circleTransform;
+
 
     private TransactionHistoryDataAdapter adapter;
     private TestableActivity activity;
@@ -57,12 +66,12 @@ public class TransactionHistoryDataAdapterTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        bindableTransaction = new BindableTransaction(walletHelper);
+        bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         when(transactions.isEmpty()).thenReturn(false);
         when(transactions.isClosed()).thenReturn(false);
         activity = Robolectric.setupActivity(TestableActivity.class);
         activity.appendLayout(R.layout.activity_transaction_history);
-        adapter = new TransactionHistoryDataAdapter(transactionUtil, defaultCurrencies);
+        adapter = new TransactionHistoryDataAdapter(transactionUtil, defaultCurrencies, picasso, circleTransform);
         adapter.setTransactions(transactions);
         adapter.setOnItemClickListener(listener);
     }
@@ -99,7 +108,7 @@ public class TransactionHistoryDataAdapterTest {
         TransactionHistoryDataAdapter.ViewHolder viewHolder = adapter.onCreateViewHolder(withId(activity, R.id.test_root), 0);
         viewHolder.setDefaultCurrencyChangeViewNotifier(notifier);
 
-        viewHolder.bindToTransaction(bindableTransaction, defaultCurrencies);
+        viewHolder.bindToTransaction(bindableTransaction, defaultCurrencies, picasso, circleTransform);
 
         verify(notifier).observeDefaultCurrencyChange(withId(viewHolder.itemView, R.id.default_currency_view));
     }

@@ -13,8 +13,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
@@ -52,7 +51,7 @@ public class DrawerControllerTest {
     private ActivityNavigationUtil navigationUtil;
 
     @Mock
-    private WalletHelper walletHelper;
+    private DropbitAccountHelper dropbitAccountHelper;
 
     private AppCompatActivity activity;
 
@@ -63,7 +62,7 @@ public class DrawerControllerTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        drawerController = new DrawerController(badgeRenderer, navigationUtil, "1.1.1", walletHelper);
+        drawerController = new DrawerController(badgeRenderer, navigationUtil, "1.1.1", dropbitAccountHelper);
         activity = Robolectric.setupActivity(A.class);
         actionbarType.resourceId = R.id.actionbar_up_on_with_nav_bar;
     }
@@ -74,7 +73,7 @@ public class DrawerControllerTest {
         badgeRenderer = null;
         activity = null;
         navigationUtil = null;
-        walletHelper = null;
+        dropbitAccountHelper = null;
         actionbarType = null;
     }
 

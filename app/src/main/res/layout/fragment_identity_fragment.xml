@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/verify_button"
+        style="@style/buttonCallToAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:visibility="visible"
+        tools:drawableStart="@drawable/ic_phone"
+        tools:text="@string/verify_phone_button_title" />
+
+    <com.coinninja.coinkeeper.view.widget.AccountIdentityView
+        android:id="@+id/verified_identity_view"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/remove_verification"
+        style="@style/FlatButton.Warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:text="@string/user_account_remove_button"
+        android:textAlignment="center"
+        android:visibility="gone" />
+
+</LinearLayout>

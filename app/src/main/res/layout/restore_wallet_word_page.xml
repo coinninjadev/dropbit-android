@@ -118,6 +118,13 @@
             app:autoSizeTextType="uniform"
             tools:ignore="MissingPrefix,UnusedAttribute" />
 
+        <Button
+            android:id="@+id/invalid_button"
+            style="@style/Button.Error"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_weight="1" />
+
     </LinearLayout>
 
     <Button

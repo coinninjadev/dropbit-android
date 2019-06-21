@@ -46,6 +46,12 @@
         </activity>
 
         <activity
+            android:name="app.dropbit.twitter.ui.login.TwitterLoginActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme" />
+
+        <activity
             android:name=".view.activity.StartActivity"
             android:label=""
             android:screenOrientation="portrait"
@@ -79,7 +85,7 @@
             android:name=".view.activity.CreatePinActivity"
             android:label="@string/set_pin_header"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOff" />
         <activity
             android:name=".view.activity.BackupActivity"
             android:label="@string/backup_recovery_words_title"
@@ -89,11 +95,11 @@
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <activity
             android:name=".ui.transaction.history.TransactionHistoryActivity"
+            android:configChanges=""
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan|adjustNothing"
-            android:configChanges=""
-            android:theme="@style/CoinKeeperTheme.Drawer">
+            android:theme="@style/CoinKeeperTheme.Drawer"
+            android:windowSoftInputMode="adjustPan|adjustNothing">
             <intent-filter>
                 <data android:scheme="bitcoin" />
                 <action android:name="android.intent.action.VIEW" />
@@ -113,8 +119,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
         <activity
-            android:name=".ui.phone.verification.VerifyPhoneNumberActivity"
-            android:label="@string/activity_verify_phone_number_header"
+            android:name=".ui.phone.verification.VerificationActivity"
+            android:label="@string/activity_verification_header"
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOff.SkipOnAccent"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible">
@@ -155,10 +161,10 @@
             android:theme="@style/CoinKeeperTheme.UpOff" />
 
         <activity
-            android:name=".view.activity.PickContactActivity"
-            android:label="@string/pay_contacts_title"
+            android:name=".view.activity.PickUserActivity"
+            android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
 
         <activity
             android:name=".view.activity.AuthorizedActionActivity"
@@ -174,6 +180,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOn"
             android:windowSoftInputMode="stateVisible|stateAlwaysVisible" />
+
+        <activity
+            android:name=".view.activity.SignUpSelectionActivity"
+            android:label="@string/how_were_you_sent_bitcoin"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.UpOff" />
 
         <activity
             android:name=".ui.spending.SpendBitcoinActivity"
@@ -217,8 +229,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:scheme="cn"
-                    android:host="recovery-words" />
+                    android:host="recovery-words"
+                    android:scheme="cn" />
             </intent-filter>
         </activity>
 
@@ -291,17 +303,7 @@
             android:exported="false" />
 
         <service
-            android:name=".service.RegisterUsersPhoneService"
-            android:exported="false" />
-
-        <service
-            android:name=".service.UserPhoneConfirmationService"
-            android:exported="false" />
-        <service
             android:name=".service.DeleteWalletService"
-            android:exported="false" />
-        <service
-            android:name=".service.ResendPhoneVerificationService"
             android:exported="false" />
         <service
             android:name=".service.BroadcastTransactionService"
@@ -362,10 +364,6 @@
 
         <service
             android:name=".service.blockchain.BlockChainService"
-            android:exported="false" />
-
-        <service
-            android:name=".service.DeverifyAccountService"
             android:exported="false" />
 
         <service

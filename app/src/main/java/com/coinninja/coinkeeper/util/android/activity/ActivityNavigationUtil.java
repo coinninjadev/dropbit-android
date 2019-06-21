@@ -11,11 +11,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
@@ -36,7 +37,6 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LATITUDE;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LONGITUDE;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.ADDRESS;
@@ -47,10 +47,10 @@ import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTIO
 
 public class ActivityNavigationUtil {
 
-    private DropbitUriBuilder dropbitUriBuilder;
-    private CoinNinjaUriBuilder coinNinjaUriBuilder;
     private final Analytics analytics;
     private final TwitterUtil twitterUtil;
+    private DropbitUriBuilder dropbitUriBuilder;
+    private CoinNinjaUriBuilder coinNinjaUriBuilder;
 
     @Inject
     public ActivityNavigationUtil(DropbitUriBuilder dropbitUriBuilder, CoinNinjaUriBuilder coinNinjaUriBuilder, Analytics analytics, TwitterUtil twitterUtil) {
@@ -81,7 +81,7 @@ public class ActivityNavigationUtil {
     }
 
     public void navigateToRegisterPhone(Context context) {
-        Intent intent = new Intent(context, VerifyPhoneNumberActivity.class);
+        Intent intent = new Intent(context, VerificationActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
@@ -97,7 +97,7 @@ public class ActivityNavigationUtil {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, uri.toString());
-        Intent chooser = Intent.createChooser(intent, getString(context, R.string.share_transaction_intent_title));
+        Intent chooser = Intent.createChooser(intent, Resources.INSTANCE.getString(context, R.string.share_transaction_intent_title));
         context.startActivity(chooser);
     }
 

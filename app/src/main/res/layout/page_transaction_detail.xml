@@ -76,7 +76,7 @@
         tools:text="@string/confirmations_view_stage_1" />
 
     <TextView
-        android:id="@+id/contact"
+        android:id="@+id/identity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"

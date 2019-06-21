@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -119,9 +119,6 @@ public class AccountManagerTest {
 
     @Test
     public void returns_next_receive_address_from_hd_wallet_when_cache_is_empty() {
-        List<Address> addresses = new ArrayList<>();
-        when(addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses);
-
         assertThat(accountManager.getNextChangeIndex(), equalTo(0));
     }
 

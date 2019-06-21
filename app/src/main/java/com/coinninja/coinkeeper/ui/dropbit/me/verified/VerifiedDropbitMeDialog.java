@@ -8,16 +8,20 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 
+import com.coinninja.android.helpers.Resources;
+import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
+import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
@@ -42,6 +46,8 @@ public class VerifiedDropbitMeDialog extends DropBitMeDialog {
     ServiceWorkUtil serviceWorkUtil;
     @Inject
     DropbitMeConfiguration dropbitMeConfiguration;
+    @Inject
+    Picasso picasso;
 
     public static DropBitMeDialog newInstance() {
         return new VerifiedDropbitMeDialog();
@@ -62,6 +68,19 @@ public class VerifiedDropbitMeDialog extends DropBitMeDialog {
         Button button = withId(view, R.id.dropbit_me_url);
         button.setText(dropbitMeConfiguration.getShareUrl());
         localBroadCastUtil.registerReceiver(receiver, intentFilter);
+        setupAvatarUI();
+    }
+
+    private void setupAvatarUI() {
+        String avatar = dropbitMeConfiguration.getAvatar();
+
+        if (avatar == null) {
+            withId(getView(), R.id.twitter_profile_picture).setVisibility(View.GONE);
+        } else {
+            withId(getView(), R.id.twitter_profile_picture).setVisibility(View.VISIBLE);
+            picasso.invalidate(avatar);
+            picasso.get().load(avatar).transform(CoinKeeperApplication.appComponent.provideCircleTransform()).into(((ImageView) getView().findViewById(R.id.twitter_profile_picture)));
+        }
     }
 
     @Override
@@ -78,7 +97,7 @@ public class VerifiedDropbitMeDialog extends DropBitMeDialog {
     @Override
     protected void configurePrimaryCallToAction(Button button) {
         button.setText(R.string.dropbit_me_verified_account_button);
-        Drawable drawable = AppCompatResources.getDrawable(getContext(), R.drawable.ic_twitter);
+        Drawable drawable = Resources.INSTANCE.getDrawable(getContext(), R.drawable.twitter_icon);
         button.setCompoundDrawables(drawable, null, null, null);
         button.setCompoundDrawablePadding(Math.round(getResources().getDimension(R.dimen.button_vertical_padding_small)));
         button.setOnClickListener(v -> onPrimaryButtonClick());

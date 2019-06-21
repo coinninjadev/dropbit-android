@@ -16,7 +16,7 @@ import dagger.android.AndroidInjection;
 public class WalletCreationIntentService extends IntentService {
 
     @Inject
-    CNWalletManager cnWalletManageer;
+    CNWalletManager cnWalletManager;
 
     @Inject
     NotificationUtil notificationUtil;
@@ -37,7 +37,7 @@ public class WalletCreationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        cnWalletManageer.skipBackup(cnWalletManageer.generateRecoveryWords());
+        cnWalletManager.skipBackup(cnWalletManager.generateRecoveryWords());
         notificationUtil.dispatchInternalError(getString(R.string.message_dont_forget_to_backup), Uri.parse("cn://recovery-words"));
     }
 }

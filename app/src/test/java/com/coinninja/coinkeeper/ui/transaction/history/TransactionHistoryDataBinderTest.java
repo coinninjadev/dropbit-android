@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
@@ -13,11 +15,13 @@ import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.util.image.CircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.SendState;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
 import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView;
+import com.squareup.picasso.Picasso;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
@@ -52,6 +56,10 @@ public class TransactionHistoryDataBinderTest {
     private TransactionHistoryDataAdapter.OnItemClickListener onClickListener;
     @Mock
     private TransactionAdapterUtil transactionAdapterUtil;
+    @Mock
+    private Picasso picasso;
+    @Mock
+    private CircleTransform circleTransform;
 
     private View view;
     private TransactionHistoryDataAdapter.ViewHolder viewHolder;
@@ -67,10 +75,10 @@ public class TransactionHistoryDataBinderTest {
         when(transactions.get(0)).thenReturn(transaction);
         TestableActivity activity = Robolectric.setupActivity(TestableActivity.class);
         ViewGroup parent = activity.findViewById(R.id.test_root);
-        bindableTransaction = new BindableTransaction(walletHelper);
+        bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         when(transactionAdapterUtil.translateTransaction(any(TransactionsInvitesSummary.class))).thenReturn(bindableTransaction);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
-        adapter = new TransactionHistoryDataAdapter(transactionAdapterUtil, defaultCurrencies);
+        adapter = new TransactionHistoryDataAdapter(transactionAdapterUtil, defaultCurrencies, picasso, circleTransform);
         adapter.setOnItemClickListener(onClickListener);
         adapter.setTransactions(transactions);
         bindableTransaction.setSendState(SendState.SEND);
@@ -99,10 +107,11 @@ public class TransactionHistoryDataBinderTest {
         String contactName = "Joe Blow";
         when(transactionAdapterUtil.translateTransaction(any(TransactionsInvitesSummary.class))).thenReturn(bindableTransaction);
         bindableTransaction.setSendState(SendState.SEND);
-        bindableTransaction.setContactName(contactName);
+        bindableTransaction.setIdentity(contactName);
         bindableTransaction.setInviteState(BindableTransaction.InviteState.SENT_PENDING);
         bindableTransaction.setValue(449893L);
         bindableTransaction.setFee(167L);
+
     }
 
     // Send
@@ -262,57 +271,6 @@ public class TransactionHistoryDataBinderTest {
     }
 
     // Send To Contact
-    @Test
-    public void shows_send_to_self_when_selfs_contact_Name() {
-        setupTransfer();
-        String contactName = "Joe Blow";
-        bindableTransaction.setContactName(contactName);
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView address = view.findViewById(R.id.address);
-        assertThat(address.getText().toString(), equalTo(view.getResources().getString(R.string.send_to_self)));
-    }
-
-    @Test
-    public void shows_send_to_self_when_selfs_contact_phone() {
-        setupTransfer();
-        String contactPhoneNumber = "+13305551111";
-        bindableTransaction.setContactName(null);
-        bindableTransaction.setContactPhoneNumber(contactPhoneNumber);
-
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView address = view.findViewById(R.id.address);
-        assertThat(address.getText().toString(), equalTo(view.getResources().getString(R.string.send_to_self)));
-    }
-
-    @Test
-    public void shows_contact_number_over_address() {
-        setupSend();
-        String contactPhoneNumber = "+13305551111";
-        bindableTransaction.setContactName(null);
-        bindableTransaction.setContactPhoneNumber(contactPhoneNumber);
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView address = view.findViewById(R.id.address);
-        assertThat(address.getText().toString(), equalTo("(330) 555-1111"));
-    }
-
-    @Test
-    public void shows_contact_name_over_address() {
-        setupSend();
-        String contactName = "Joe Blow";
-        bindableTransaction.setContactName(contactName);
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView address = view.findViewById(R.id.address);
-        assertThat(address.getText().toString(), equalTo(contactName));
-    }
-
     @Test
     public void sets_send_image_for_icon() {
         setupSend();
@@ -515,9 +473,7 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        String expected = view.getResources().getString(R.string.confirmations_view_stage_5);
         TextView confirmations = view.findViewById(R.id.confirmations);
-        assertThat(confirmations.getText().toString(), equalTo(expected));
         assertThat(confirmations, isGone());
     }
 
@@ -528,9 +484,7 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        String expected = view.getResources().getString(R.string.confirmations_view_stage_5);
         TextView confirmations = view.findViewById(R.id.confirmations);
-        assertThat(confirmations.getText().toString(), equalTo(expected));
         assertThat(confirmations, isGone());
     }
 
@@ -541,9 +495,7 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        String expected = view.getResources().getString(R.string.confirmations_view_stage_5);
         TextView confirmations = view.findViewById(R.id.confirmations);
-        assertThat(confirmations.getText().toString(), equalTo(expected));
         assertThat(confirmations, isGone());
     }
 
@@ -574,40 +526,8 @@ public class TransactionHistoryDataBinderTest {
     }
 
     @Test
-    public void show_phone_number_if_contact_name_is_null_test() {
-        bindableTransaction.setContactName(null);
-        bindableTransaction.setContactPhoneNumber("(222) 333-4444");
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        assertThat(withId(view, R.id.address), hasText("(222) 333-4444"));
-    }
-
-    @Test
-    @Config(qualifiers = "es-rAU")
-    public void show_phone_number_if_contact_name_is_empty_test__international_format() {
-        bindableTransaction.setContactName("");
-        bindableTransaction.setContactPhoneNumber("+12223334444");
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        assertThat(withId(view, R.id.address), hasText("+1 222-333-4444"));
-    }
-
-    @Test
-    public void show_phone_number_if_contact_name_is_empty_test() {
-        bindableTransaction.setContactName("");
-        bindableTransaction.setContactPhoneNumber("+12223334444");
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        assertThat(withId(view, R.id.address), hasText("(222) 333-4444"));
-    }
-
-    @Test
     public void show_contact_name_if_available_test() {
-        bindableTransaction.setContactName("Jeff");
-        bindableTransaction.setContactPhoneNumber("(222) 333-4444");
+        bindableTransaction.setIdentity("Jeff");
 
         adapter.onBindViewHolder(viewHolder, 0);
 

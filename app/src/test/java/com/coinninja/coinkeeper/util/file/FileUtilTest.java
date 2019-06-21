@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,7 +31,8 @@ public class FileUtilTest {
     @Mock
     ByteArrayOutputStream byteArrayOutputStream;
 
-    @Mock FileOutputUtil fileOutputUtil;
+    @Mock
+    FileOutputUtil fileOutputUtil;
 
     @Mock
     FileOutputStream fileOutputStream;
@@ -54,7 +55,6 @@ public class FileUtilTest {
     @Test
     public void closes_when_stream_even_when_file_not_written() throws IOException {
         byte[] bytes = "foo".getBytes();
-        when(file.exists()).thenReturn(true);
         when(byteArrayOutputStream.toByteArray()).thenReturn(bytes);
 
         doThrow(new IOException()).when(fileOutputStream).write(any());
@@ -67,7 +67,6 @@ public class FileUtilTest {
     @Test
     public void closes_byte_stream_when_write_completed() throws IOException {
         byte[] bytes = "foo".getBytes();
-        when(file.exists()).thenReturn(true);
         when(byteArrayOutputStream.toByteArray()).thenReturn(bytes);
 
         fileUtil.writeByteStream(byteArrayOutputStream, file);
@@ -78,18 +77,15 @@ public class FileUtilTest {
     @Test
     public void wrytes_bytes_to_file() throws IOException {
         byte[] bytes = "foo".getBytes();
-        when(file.exists()).thenReturn(true);
         when(byteArrayOutputStream.toByteArray()).thenReturn(bytes);
 
         fileUtil.writeByteStream(byteArrayOutputStream, file);
 
         verify(fileOutputStream).write(bytes);
     }
-    
+
     @Test()
     public void does_not_create_file_when_file_exits() throws IOException {
-        when(file.exists()).thenReturn(true);
-
         boolean created = fileUtil.createFile(file);
 
         assertFalse(created);
@@ -97,10 +93,9 @@ public class FileUtilTest {
 
     @Test
     public void creates_file_when_requests() throws IOException {
-        when(file.exists()).thenReturn(false);
         when(file.createNewFile()).thenReturn(true);
 
-        boolean created =fileUtil.createFile(file);
+        boolean created = fileUtil.createFile(file);
 
         assertTrue(created);
     }

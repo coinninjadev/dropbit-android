@@ -81,6 +81,8 @@ public class BuyBitcoinActivity extends BaseActivity {
                 false,
                 false
         ).show(getSupportFragmentManager(), COPY_BITCOIN_DIALOG_TAG);
+        alertView.findViewById(R.id.address_button).setOnClickListener(v -> copyBitcoinAddress(true));
+        alertView.findViewById(R.id.close).setOnClickListener(v -> dismissCurrentNotice());
         ((Button) alertView.findViewById(R.id.address_button)).setText(receiveAddress);
         alertView.findViewById(R.id.ok).setOnClickListener(v -> navigateToRouteWithAddress(callbackHandler));
     }
@@ -96,12 +98,7 @@ public class BuyBitcoinActivity extends BaseActivity {
     }
 
     private void showCopyUI(CallbackHandler handler) {
-        if (!userPreferences.getDidUserSeeCopyAddressDialog()) {
-            showNotice(handler);
-            userPreferences.setDidUserSeeCopyAddressDialog();
-        } else {
-            navigateToRouteWithAddress(handler);
-        }
+        showNotice(handler);
     }
 
     private void dismissCurrentNotice() {
@@ -110,17 +107,18 @@ public class BuyBitcoinActivity extends BaseActivity {
     }
 
     private void navigateToRouteWithAddress(CallbackHandler callbackHandler) {
-        dismissCurrentNotice();
-        copyBitcoinAddress();
+        copyBitcoinAddress(false);
         callbackHandler.callback();
     }
 
-    private void copyBitcoinAddress() {
+    private void copyBitcoinAddress(boolean showNotice) {
         clipboardUtil.setClipFromText("Bitcoin Address", receiveAddress);
-        Toast.makeText(this,
-                getString(R.string.bitcoin_address_copy),
-                Toast.LENGTH_SHORT)
-                .show();
+        if (showNotice) {
+            Toast.makeText(this,
+                    getString(R.string.bitcoin_address_copy),
+                    Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 
     private void onBuyAtAtmClicked() {

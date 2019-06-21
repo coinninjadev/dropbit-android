@@ -6,7 +6,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.presenter.fragment.PinFragmentPresenter;
 import com.coinninja.coinkeeper.service.WalletCreationIntentService;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
 import com.coinninja.coinkeeper.view.fragment.PinConfirmFragment;
@@ -28,10 +28,10 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
@@ -66,7 +66,7 @@ public class CreatePinActivityTest {
 
     private String initWithNextIntent() {
         Intent intent = new Intent(application, CreatePinActivity.class);
-        String nextActivity = VerifyPhoneNumberActivity.class.getName();
+        String nextActivity = VerificationActivity.class.getName();
         intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
 
         initWithIntent(intent);
@@ -75,7 +75,7 @@ public class CreatePinActivityTest {
 
     private Intent initWithCompletionAndNextIntents() {
         Intent intent = new Intent(application, CreatePinActivity.class);
-        String nextActivity = VerifyPhoneNumberActivity.class.getName();
+        String nextActivity = VerificationActivity.class.getName();
         intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
         intent.putExtra(DropbitIntents.EXTRA_ON_COMPLETION, new Intent(application, WalletCreationIntentService.class));
 

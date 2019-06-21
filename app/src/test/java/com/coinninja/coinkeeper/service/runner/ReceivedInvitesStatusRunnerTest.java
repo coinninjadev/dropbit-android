@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
@@ -177,12 +177,10 @@ public class ReceivedInvitesStatusRunnerTest {
 
     @Test
     public void received_invite_is_waiting_for_a_tx_id_return_null_test() {
-        String sampleTxID = "sample tx id";
         String sampleStatus = "waiting";
 
         ReceivedInvite invite = mock(ReceivedInvite.class);
         when(invite.getStatus()).thenReturn(sampleStatus);
-        when(invite.getTxid()).thenReturn(sampleTxID);
 
         String txID = receivedInvitesStatusRunner.getCompletedTxID(invite);
 
@@ -192,11 +190,8 @@ public class ReceivedInvitesStatusRunnerTest {
 
     @Test
     public void received_invite_is_null_return_null_without_crashing_test() {
-        String sampleTxID = "sample tx id";
-
         ReceivedInvite invite = mock(ReceivedInvite.class);
         when(invite.getStatus()).thenReturn(null);
-        when(invite.getTxid()).thenReturn(sampleTxID);
 
         String txID = receivedInvitesStatusRunner.getCompletedTxID(invite);
 

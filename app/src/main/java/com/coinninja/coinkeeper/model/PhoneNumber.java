@@ -4,11 +4,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
+import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.VariableLengthPhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -27,6 +29,7 @@ public class PhoneNumber implements Parcelable {
     };
     private Phonenumber.PhoneNumber _phoneNumber;
     private PhoneNumberUtil phoneNumberUtil = new PhoneNumberUtil();
+    private Hasher hasher = new Hasher();
     private VariableLengthPhoneNumberUtil variableLengthPhoneNumberUtil = new VariableLengthPhoneNumberUtil();
 
     PhoneNumber() {
@@ -37,7 +40,9 @@ public class PhoneNumber implements Parcelable {
     }
 
     public PhoneNumber(Phonenumber.PhoneNumber phoneNumber) {
-        if (phoneNumber == null) { return; }
+        if (phoneNumber == null) {
+            return;
+        }
         _phoneNumber = new Phonenumber.PhoneNumber();
         _phoneNumber.setNationalNumber(phoneNumber.getNationalNumber());
         _phoneNumber.setCountryCode(phoneNumber.getCountryCode());
@@ -119,5 +124,17 @@ public class PhoneNumber implements Parcelable {
 
     public String getHashReadyPhoneNumber() {
         return String.valueOf(variableLengthPhoneNumberUtil.spliceNationalPrefixIntoPhoneNumberIfNecessary(_phoneNumber).getNationalNumber());
+    }
+
+    @NotNull
+    public CNPhoneNumber toCNPhoneNumber() {
+        return new CNPhoneNumber(toString());
+    }
+
+    @Nullable
+    public String toHash() {
+        if (_phoneNumber.hasCountryCode() && _phoneNumber.hasNationalNumber())
+            return hasher.hash(this);
+        return null;
     }
 }

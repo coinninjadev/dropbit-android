@@ -3,14 +3,14 @@ package com.coinninja.coinkeeper.ui.actionbar.managers;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import androidx.appcompat.app.ActionBar;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -60,7 +60,6 @@ public class TitleViewManagerTest {
     public void set_title_to_app_bar_directly() {
         String title = " --- TITLE --";
         String titleWeDoNotWant = " --- TITLE BAD --";
-        when(actionBar.getTitle()).thenReturn(titleWeDoNotWant);
 
         titleViewManager.renderTitleView(title);
 

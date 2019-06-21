@@ -117,7 +117,7 @@ public class VerifiedDropbitMeDialogTest {
                 equalTo(application.getString(R.string.dropbit_me_verified_account_button)));
 
         Drawable[] altCompoundDrawables = button.getCompoundDrawables();
-        MatcherAssert.assertThat(shadowOf(altCompoundDrawables[0]).getCreatedFromResId(), equalTo(R.drawable.ic_twitter));
+        MatcherAssert.assertThat(shadowOf(altCompoundDrawables[0]).getCreatedFromResId(), equalTo(R.drawable.twitter_icon));
         assertNull(altCompoundDrawables[1]);
         assertNull(altCompoundDrawables[2]);
         assertNull(altCompoundDrawables[3]);

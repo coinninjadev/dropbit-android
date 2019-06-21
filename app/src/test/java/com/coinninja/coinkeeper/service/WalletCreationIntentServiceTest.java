@@ -1,37 +1,29 @@
 package com.coinninja.coinkeeper.service;
 
-import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.util.NotificationUtil;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.robolectric.Robolectric;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class WalletCreationIntentServiceTest {
 
-    @Mock
-    CNWalletManager cnWalletManager;
-
     @Test
-    public void creates_wallet(){
-        WalletCreationIntentService walletCreationIntentService = new WalletCreationIntentService();
-        walletCreationIntentService.cnWalletManageer = cnWalletManager;
-        walletCreationIntentService.notificationUtil = mock(NotificationUtil.class);
+    public void creates_wallet() {
+        WalletCreationIntentService service = Robolectric.setupService(WalletCreationIntentService.class);
 
-        String [] recoveryWords = new String[] {"some", "words"};
-        when(cnWalletManager.generateRecoveryWords()).thenReturn(recoveryWords);
+        String[] recoveryWords = new String[]{"some", "words"};
+        when(service.cnWalletManager.generateRecoveryWords()).thenReturn(recoveryWords);
 
-        walletCreationIntentService.onHandleIntent(null);
+        service.onHandleIntent(null);
 
-        verify(cnWalletManager).skipBackup(recoveryWords);
-        verify(walletCreationIntentService.notificationUtil).dispatchInternalError(anyString(), any());
+        verify(service.cnWalletManager).skipBackup(recoveryWords);
+        verify(service.notificationUtil).dispatchInternalError(anyString(), any());
     }
 }

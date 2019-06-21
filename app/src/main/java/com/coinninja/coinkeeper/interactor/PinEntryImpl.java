@@ -80,7 +80,7 @@ public class PinEntryImpl implements PinEntry {
         try {
             return pinInteractor.getSavedPin();
         } catch (Exception e) {
-            throw new RuntimeException("Unable to load saved pin");
+            throw new RuntimeException("Unable to start saved pin");
         }
     }
 

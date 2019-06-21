@@ -18,21 +18,24 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.callbacks.BasicCallbackHandler;
 import com.coinninja.coinkeeper.service.callbacks.Bip70Callback;
 import com.coinninja.coinkeeper.service.client.Bip70Client;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.MerchantPaymentRequestOutput;
 import com.coinninja.coinkeeper.service.client.model.MerchantResponse;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.ui.base.BaseBottomDialogFragment;
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -43,7 +46,7 @@ import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.view.activity.PickContactActivity;
+import com.coinninja.coinkeeper.view.activity.PickUserActivity;
 import com.coinninja.coinkeeper.view.activity.QrScanActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
@@ -70,6 +73,8 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     Analytics analytics;
     @Inject
     WalletHelper walletHelper;
+    @Inject
+    DropbitAccountHelper dropbitAccountHelper;
     @Inject
     BitcoinUtil bitcoinUtil;
     @Inject
@@ -120,7 +125,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PayDialogFragment.PICK_CONTACT_REQUEST && resultCode == RESULT_OK) {
-            onPickContactResult(data);
+            onPickUserResult(data);
         } else if (requestCode == DropbitIntents.REQUEST_QR_FRAGMENT_SCAN && resultCode == RESULT_CANCELED) {
             onCloseClicked();
         } else if (requestCode == DropbitIntents.REQUEST_QR_FRAGMENT_SCAN) {
@@ -131,14 +136,14 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     }
 
     @Override
-    protected int getContentViewLayoutId() {
-        return R.layout.fragment_pay_dialog;
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         paymentInputView.requestFocus();
+    }
+
+    @Override
+    protected int getContentViewLayoutId() {
+        return R.layout.fragment_pay_dialog;
     }
 
     @Override
@@ -189,13 +194,13 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
 
     public void onPhoneNumberValid(Phonenumber.PhoneNumber phoneNumber) {
         cnAddressLookupDelegate.fetchAddressFor(new PhoneNumber(phoneNumber), this::onFetchContactComplete);
-        paymentUtil.setContact(new Contact(new PhoneNumber(phoneNumber), "", false));
+        paymentUtil.setIdentity(new Identity(new Contact(new PhoneNumber(phoneNumber), "", false)));
         updateSharedMemosUI();
     }
 
     public void onPhoneNumberInvalid(String text) {
         paymentReceiverView.clear();
-        paymentUtil.setContact(null);
+        paymentUtil.setIdentity(null);
         shakeInError(paymentReceiverView);
     }
 
@@ -209,29 +214,29 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
         return paymentUtil;
     }
 
-    void startContactInviteFlow(Contact pickedContact) {
+    void startContactInviteFlow(Identity identity) {
         if (userPreferences.getShouldShowInviteHelp()) {
-            showInviteHelpScreen(pickedContact);
+            showInviteHelpScreen(identity);
         } else {
-            inviteContact(pickedContact);
+            inviteUnverifiedIdentity(identity);
         }
     }
 
-    void onInviteHelpAccepted(Contact pickedContact) {
+    void onInviteHelpAccepted(Identity identity) {
         DialogFragment fragment = (DialogFragment) getFragmentManager().findFragmentByTag(InviteHelpDialogFragment.TAG);
         if (fragment != null) {
             fragment.dismiss();
         }
 
-        inviteContact(pickedContact);
+        inviteUnverifiedIdentity(identity);
     }
 
-    void inviteContact(Contact pickedContact) {
-        paymentBarCallbacks.confirmInvite(pickedContact);
+    void inviteUnverifiedIdentity(Identity identity) {
+        paymentBarCallbacks.confirmInvite(identity);
     }
 
-    void sendPaymentTo(Contact phoneNumber) {
-        paymentBarCallbacks.confirmPaymentFor(paymentHolder, phoneNumber);
+    void sendPaymentTo(Identity identity) {
+        paymentBarCallbacks.confirmPaymentFor(paymentHolder, identity);
     }
 
     void sendPayment() {
@@ -248,10 +253,6 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
 
     }
 
-    private void showError(String message) {
-        GenericAlertDialog.newInstance(message).show(getActivity().getSupportFragmentManager(), "INVALID_PAYMENT");
-    }
-
     void onPasteClicked() {
         String cryptoUriString = clipboardUtil.getRaw();
         if (cryptoUriString == null || cryptoUriString.isEmpty()) {
@@ -262,9 +263,15 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
         }
     }
 
-    private void onPickContactResult(Intent data) {
-        Contact contact = data.getExtras().getParcelable(DropbitIntents.EXTRA_CONTACT);
-        setContactResult(contact);
+    private void onPickUserResult(Intent data) {
+        if (data.getExtras().getParcelable(DropbitIntents.EXTRA_IDENTITY) != null) {
+            Identity identity = data.getExtras().getParcelable(DropbitIntents.EXTRA_IDENTITY);
+            setIdentityResult(identity);
+        }
+    }
+
+    private void showError(String message) {
+        GenericAlertDialog.newInstance(message).show(getActivity().getSupportFragmentManager(), "INVALID_PAYMENT");
     }
 
     private void setupView() {
@@ -324,14 +331,14 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
 
     private void configureButtons(View base) {
         withId(base, R.id.pay_footer_send_btn).setOnClickListener(v -> onSendButtonClicked());
-        withId(base, R.id.scan_btc_address_btn).setOnClickListener(v -> onScanClicked());
+        withId(base, R.id.twitter_contacts_button).setOnClickListener(v -> onTwitterClicked());
         withId(base, R.id.pay_header_close_btn).setOnClickListener(v -> onCloseClicked());
         withId(base, R.id.paste_address_btn).setOnClickListener(v -> onPasteClicked());
         withId(base, R.id.contacts_btn).setOnClickListener(v -> onContactsClicked());
     }
 
     private void configureSharedMemo() {
-        if (!walletHelper.hasVerifiedAccount()) {
+        if (!dropbitAccountHelper.getHasVerifiedAccount()) {
             paymentHolder.setIsSharingMemo(false);
         }
     }
@@ -343,6 +350,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
         paymentReceiverView.setOnInvalidPhoneNumberObserver(this::onPhoneNumberInvalid);
         paymentReceiverView.setCountryCodeLocales(countryCodeLocales);
         paymentReceiverView.setPaymentAddress(initialSendTo);
+        paymentReceiverView.setOnScanObserver(v -> startScan());
     }
 
     private void onPaymentChange(Currency currency) {
@@ -375,15 +383,46 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     }
 
     private void onContactsClicked() {
-        if (walletHelper.hasVerifiedAccount()) {
-            startActivityForResult(new Intent(getActivity(), PickContactActivity.class), PICK_CONTACT_REQUEST);
+        if (dropbitAccountHelper.getHasVerifiedAccount()) {
+            startPickContactActivity(DropbitIntents.ACTION_CONTACTS_SELECTION);
         } else {
-            getActivity().startActivity(new Intent(getActivity(), VerifyPhoneNumberActivity.class));
+            showNonVerifiedAccountAlert();
         }
     }
 
-    private void onScanClicked() {
-        startScan();
+    private void onTwitterClicked() {
+        if (dropbitAccountHelper.isTwitterVerified()) {
+            startPickContactActivity(DropbitIntents.ACTION_TWITTER_SELECTION);
+        } else {
+            showNonTwitterVerifiedAccountAlert();
+        }
+    }
+
+    private void showNonVerifiedAccountAlert() {
+        AlertDialog.Builder alertDialog = AlertDialogBuilder.build(getView().getContext(), "You do not have a verified account, please verify.");
+        setupActionsForVerificationAlertBuilder(alertDialog);
+    }
+
+    private void showNonTwitterVerifiedAccountAlert() {
+        AlertDialog.Builder alertDialog = AlertDialogBuilder.build(getView().getContext(), "Your twitter account is not verified, please verify.");
+        setupActionsForVerificationAlertBuilder(alertDialog);
+    }
+
+    private void setupActionsForVerificationAlertBuilder(AlertDialog.Builder builder) {
+        builder.setNegativeButton("Not now", (dialog, which) -> {
+        });
+        builder.setPositiveButton("Verify", (dialog, which) -> showUserVerificationActivity()).show();
+    }
+
+    private void showUserVerificationActivity() {
+        Intent verificationActivity = new Intent(getActivity(), UserAccountVerificationActivity.class);
+        startActivity(verificationActivity);
+    }
+
+    private void startPickContactActivity(String action) {
+        Intent contactIntent = new Intent(getActivity(), PickUserActivity.class);
+        contactIntent.setAction(action);
+        startActivityForResult(contactIntent, PICK_CONTACT_REQUEST);
     }
 
     private void startScan() {
@@ -397,23 +436,23 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     }
 
     private void sendPaymentToContact() {
-        if (walletHelper.hasVerifiedAccount()) {
+        if (dropbitAccountHelper.getHasVerifiedAccount()) {
             if (paymentHolder.hasPaymentAddress()) {
-                sendPaymentTo(paymentUtil.getContact());
+                sendPaymentTo(paymentUtil.getIdentity());
             } else if (paymentUtil.isVerifiedContact()) {
-                inviteContact(paymentUtil.getContact());
+                inviteUnverifiedIdentity(paymentUtil.getIdentity());
             } else {
-                startContactInviteFlow(paymentUtil.getContact());
+                startContactInviteFlow(paymentUtil.getIdentity());
             }
         } else {
-            getActivity().startActivity(new Intent(getActivity(), VerifyPhoneNumberActivity.class));
+            getActivity().startActivity(new Intent(getActivity(), VerificationActivity.class));
         }
     }
 
-    private void showInviteHelpScreen(Contact contact) {
+    private void showInviteHelpScreen(Identity identity) {
         DialogFragment dialogFragment = InviteHelpDialogFragment.newInstance(userPreferences,
-                contact,
-                () -> onInviteHelpAccepted(contact));
+                identity,
+                () -> onInviteHelpAccepted(identity));
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag(InviteHelpDialogFragment.TAG);
@@ -430,17 +469,12 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
         paymentBarCallbacks.cancelPayment(this);
     }
 
-    private void setContactResult(Contact contact) {
-        paymentUtil.setContact(contact);
+    private void setIdentityResult(Identity identity) {
+        paymentUtil.setIdentity(identity);
         hideSendToInput();
-        ((TextView) getView().findViewById(R.id.contact_name)).setText(contact.getDisplayName());
-        ((TextView) getView().findViewById(R.id.contact_number)).setText(contact.getPhoneNumber().toInternationalDisplayText());
-
-        if (contact.isVerified()) {
-            cnAddressLookupDelegate.fetchAddressFor(contact, this::onFetchContactComplete);
-        } else {
-            updateSharedMemosUI();
-        }
+        ((TextView) getView().findViewById(R.id.contact_name)).setText(identity.getDisplayName());
+        ((TextView) getView().findViewById(R.id.contact_number)).setText(identity.getSecondaryDisplayName());
+        cnAddressLookupDelegate.fetchAddressFor(identity, this::onFetchContactComplete);
     }
 
     private void hideSendToInput() {

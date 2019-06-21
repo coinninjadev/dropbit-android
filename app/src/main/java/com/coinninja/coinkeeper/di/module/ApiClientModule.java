@@ -14,7 +14,6 @@ import com.coinninja.coinkeeper.service.interceptors.SignedRequestInterceptor;
 import dagger.Module;
 import dagger.Provides;
 import okhttp3.OkHttpClient;
-import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 

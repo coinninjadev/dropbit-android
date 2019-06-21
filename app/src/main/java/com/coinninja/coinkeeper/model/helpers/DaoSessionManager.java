@@ -23,6 +23,8 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummaryDao;
 import com.coinninja.coinkeeper.model.db.User;
 import com.coinninja.coinkeeper.model.db.UserDao;
+import com.coinninja.coinkeeper.model.db.UserIdentity;
+import com.coinninja.coinkeeper.model.db.UserIdentityDao;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.WalletDao;
 import com.coinninja.coinkeeper.model.db.WordDao;
@@ -173,11 +175,10 @@ public class DaoSessionManager {
         return getTransactionNotificationDao().insert(notification);
     }
 
-    // TRANSACTION
-
     public TransactionNotification newTransactionNotification() {
         return new TransactionNotification();
     }
+
 
     public TransactionNotificationDao getTransactionNotificationDao() {
         return session.getTransactionNotificationDao();
@@ -189,7 +190,10 @@ public class DaoSessionManager {
     }
 
     public long insert(InviteTransactionSummary inviteTransactionSummary) {
-        return session.getInviteTransactionSummaryDao().insert(inviteTransactionSummary);
+        long id =  session.getInviteTransactionSummaryDao().insert(inviteTransactionSummary);
+        inviteTransactionSummary.__setDaoSession(session);
+        inviteTransactionSummary.setId(id);
+        return id;
     }
 
     public InviteTransactionSummary newInviteTransactionSummary() {
@@ -227,6 +231,22 @@ public class DaoSessionManager {
         long id = getDropbitMeIdentityDao().insert(dropbitMeIdentity);
         dropbitMeIdentity.__setDaoSession(session);
         dropbitMeIdentity.setId(id);
+        return id;
+    }
+
+    // UserIdentity
+    public UserIdentity newUserIdentity() {
+        return new UserIdentity();
+    }
+
+    public UserIdentityDao getUserIdentityDao() {
+        return session.getUserIdentityDao();
+    }
+
+    public long insert(UserIdentity userIdentity) {
+        long id = session.insert(userIdentity);
+        userIdentity.setId(id);
+        userIdentity.__setDaoSession(session);
         return id;
     }
 

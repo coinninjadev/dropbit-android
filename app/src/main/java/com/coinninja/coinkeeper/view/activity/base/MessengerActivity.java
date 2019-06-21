@@ -9,17 +9,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.InternetUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
+import com.coinninja.coinkeeper.view.activity.SignUpSelectionActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 
 import java.lang.ref.WeakReference;
@@ -27,10 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 public class MessengerActivity extends BaseActivity implements CNHealthCheckTask.HealthCheckCallback {
 
@@ -44,8 +45,9 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     static {
         List<String> aList = new ArrayList<>();
         aList.add(VerifyPhoneVerificationCodeActivity.class.getName());
-        aList.add(VerifyPhoneNumberActivity.class.getName());
+        aList.add(VerificationActivity.class.getName());
         aList.add(AuthenticateActivity.class.getName());
+        aList.add(SignUpSelectionActivity.class.getName());
         MESSAGE_IGNORE_LIST = aList;
     }
 

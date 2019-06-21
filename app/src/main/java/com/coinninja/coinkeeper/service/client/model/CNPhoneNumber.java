@@ -3,8 +3,12 @@ package com.coinninja.coinkeeper.service.client.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Objects;
 
 public class CNPhoneNumber implements Parcelable {
 
@@ -77,5 +81,25 @@ public class CNPhoneNumber implements Parcelable {
 
     public PhoneNumber toPhoneNumber() {
         return new PhoneNumber(this);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format("%s%s", countryCode, phoneNumber);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CNPhoneNumber that = (CNPhoneNumber) o;
+        return countryCode == that.countryCode &&
+                phoneNumber.equals(that.phoneNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(countryCode, phoneNumber);
     }
 }

@@ -9,11 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.base.BaseFragment;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -28,10 +33,6 @@ import com.coinninja.coinkeeper.view.fragment.RequestDialogFragment;
 import com.coinninja.coinkeeper.view.widget.PaymentBarView;
 
 import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 
 import static com.coinninja.android.helpers.Views.withId;
 
@@ -116,18 +117,18 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     }
 
     @Override
-    public void confirmPaymentFor(PaymentHolder paymentHolder, Contact phoneNumber) {
+    public void confirmPaymentFor(PaymentHolder paymentHolder, Identity identity) {
         dismissPayDialog();
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(phoneNumber, paymentHolder, this);
+        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(identity, paymentHolder, this);
         confirmPayDialogFragment.setCancelable(false);
         activityNavigationUtil.showDialogWithTag(getFragmentManager(), confirmPayDialogFragment, ConfirmPayDialogFragment.class.getSimpleName());
     }
 
 
     @Override
-    public void confirmInvite(Contact phoneNumber) {
+    public void confirmInvite(Identity identity) {
         dismissPayDialog();
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(phoneNumber, paymentHolder, this);
+        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(identity, paymentHolder, this);
         confirmPayDialogFragment.setCancelable(false);
         activityNavigationUtil.showDialogWithTag(getFragmentManager(), confirmPayDialogFragment, ConfirmPayDialogFragment.class.getSimpleName());
     }

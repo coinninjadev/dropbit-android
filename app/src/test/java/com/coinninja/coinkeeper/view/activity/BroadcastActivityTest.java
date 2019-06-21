@@ -13,12 +13,12 @@ import com.coinninja.bindings.model.Transaction;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
-import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.Identity;
+import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.BroadcastActivity.SendState;
@@ -68,7 +68,7 @@ public class BroadcastActivityTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Contact contact = new Contact(new PhoneNumber("+13305551111"), "Bob", true);
+        Identity identity = new Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe", "", false, null);
         UnspentTransactionOutput[] outputs = new UnspentTransactionOutput[2];
         transactionData = new TransactionData(
                 outputs,
@@ -76,8 +76,7 @@ public class BroadcastActivityTest {
                 100L, 50000L,
                 new DerivationPath("m49/0/0/0/0/1"),
                 "--payment-address");
-        broadcastActivityDTO = new BroadcastTransactionDTO(transactionData, contact, true, "memo", "--pub-key--");
-        broadcastActivityDTO.setContact(contact);
+        broadcastActivityDTO = new BroadcastTransactionDTO(transactionData, true, "memo", identity, "--pub-key--");
         broadcastActivityDTO.setMemoShared(true);
         broadcastActivityDTO.setMemo("memo");
 
@@ -134,9 +133,10 @@ public class BroadcastActivityTest {
     @Test
     public void show_ui_elements_on_successful_broadcast() {
         activityController.start().resume().visible();
-        TransactionBroadcastResult mockTransactionBroadcastResult = mock(TransactionBroadcastResult.class);
+        TransactionBroadcastResult transactionBroadcastResult = mock(TransactionBroadcastResult.class);
+        when(transactionBroadcastResult.getTxId()).thenReturn("--txid--");
 
-        activity.showBroadcastSuccessful(mockTransactionBroadcastResult);
+        activity.showBroadcastSuccessful(transactionBroadcastResult);
 
         verify(sendingProgressView).setProgress(100);
         verify(sendingProgressView).completeSuccess();
@@ -216,11 +216,11 @@ public class BroadcastActivityTest {
 
     @Test
     public void transactionSuccessful() {
-
         activityController.start().resume().visible();
-        TransactionBroadcastResult mockTransactionBroadcastResult = mock(TransactionBroadcastResult.class);
+        TransactionBroadcastResult transactionBroadcastResult = mock(TransactionBroadcastResult.class);
+        when(transactionBroadcastResult.getTxId()).thenReturn("--txid--");
 
-        activity.showBroadcastSuccessful(mockTransactionBroadcastResult);
+        activity.showBroadcastSuccessful(transactionBroadcastResult);
 
         verify(sendingProgressView).setProgress(100);
         verify(sendingProgressView).completeSuccess();

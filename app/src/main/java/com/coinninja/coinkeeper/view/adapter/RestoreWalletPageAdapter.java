@@ -44,7 +44,6 @@ public class RestoreWalletPageAdapter extends PagerAdapter implements TextInputN
         return numPages;
     }
 
-
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
@@ -53,10 +52,21 @@ public class RestoreWalletPageAdapter extends PagerAdapter implements TextInputN
         View page = LayoutInflater.from(context).inflate(R.layout.restore_wallet_word_page, null);
         possiblities = Arrays.asList(context.getResources().getStringArray(R.array.recovery_words));
         this.page = page;
-        page.setTag("TAG-" + String.valueOf(position));
+        page.setTag("TAG-" + position);
+        setupInvalidButton();
         setup(position);
         container.addView(page);
         return page;
+    }
+
+    private void setupInvalidButton() {
+        Button button = page.findViewById(R.id.invalid_button);
+        button.setOnClickListener(v -> invalidWordClicked());
+        button.setText(page.getResources().getString(R.string.restore_wallet_invalid_word));
+    }
+
+    private void invalidWordClicked() {
+        resetPage();
     }
 
     @Override
@@ -71,7 +81,7 @@ public class RestoreWalletPageAdapter extends PagerAdapter implements TextInputN
 
     @Override
     public void onAfterChanged(String input) {
-        page = parent.findViewWithTag("TAG-" + String.valueOf(parent.getCurrentItem()));
+        page = parent.findViewWithTag("TAG-" + parent.getCurrentItem());
         if (input.isEmpty()) {
             resetPage();
         } else {
@@ -105,6 +115,7 @@ public class RestoreWalletPageAdapter extends PagerAdapter implements TextInputN
         page.findViewById(R.id.words).setVisibility(View.INVISIBLE);
         page.findViewById(R.id.back).setVisibility(View.INVISIBLE);
         page.findViewById(R.id.page_marker).setVisibility(View.VISIBLE);
+        page.findViewById(R.id.invalid_button).setVisibility(View.GONE);
         EditText input = page.findViewById(R.id.word);
         input.setFocusable(true);
         input.requestFocus();
@@ -130,17 +141,16 @@ public class RestoreWalletPageAdapter extends PagerAdapter implements TextInputN
     }
 
     private void showPossibleWordsFor(String input) {
-        createIntialWordListFrom(input);
+        createInitialWordListFrom(input);
         bindPossibleWords();
     }
 
     private void bindPossibleWords() {
         ViewGroup parent = page.findViewById(R.id.words);
-        for (int i = 0; i < parent.getChildCount(); i++) {
+        for (int i = 0; i < parent.getChildCount() - 1; i++) {
             Button button = (Button) parent.getChildAt(i);
             try {
                 button.setText(words.get(i));
-                button.setBackground(page.getResources().getDrawable(R.drawable.primary_button));
                 button.setVisibility(View.VISIBLE);
                 button.setOnClickListener(onPageForwardListener);
             } catch (IndexOutOfBoundsException e) {
@@ -150,15 +160,13 @@ public class RestoreWalletPageAdapter extends PagerAdapter implements TextInputN
         }
 
         if (words.size() == 0) {
-            Button button = (Button) parent.getChildAt(0);
-            button.setText(page.getResources().getString(R.string.restore_wallet_invalid_word));
-            button.setBackground(page.getResources().getDrawable(R.drawable.error_button));
-            button.setVisibility(View.VISIBLE);
-            button.setOnClickListener(null);
+            page.findViewById(R.id.invalid_button).setVisibility(View.VISIBLE);
+        } else {
+            page.findViewById(R.id.invalid_button).setVisibility(View.GONE);
         }
     }
 
-    private void createIntialWordListFrom(String input) {
+    private void createInitialWordListFrom(String input) {
         words.clear();
         for (String word : possiblities) {
             if (null != word && word.startsWith(input)) {
@@ -178,11 +186,10 @@ public class RestoreWalletPageAdapter extends PagerAdapter implements TextInputN
     }
 
     public void resetState() {
-        page = parent.findViewWithTag("TAG-" + String.valueOf(parent.getCurrentItem()));
+        page = parent.findViewWithTag("TAG-" + parent.getCurrentItem());
         if (page != null) {
             resetPage();
         }
-
     }
 
     private void showKeyboard(View view) {

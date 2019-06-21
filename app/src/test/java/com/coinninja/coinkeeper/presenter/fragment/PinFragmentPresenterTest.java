@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import junitx.util.PrivateAccessor;
 
@@ -77,9 +77,6 @@ public class PinFragmentPresenterTest {
         PrivateAccessor.setField(pinEntryModel, "pinInteractor", pinInteractor);
         int[] validPin = {4, 3, 5, 9, 7, 8};
         String validPinHash = PinEntryImpl.HASH_PIN(validPin);
-        when(pinInteractor.verifyPin(validPinHash)).thenReturn(true);
-        when(pinInteractor.getSavedPin()).thenReturn(validPinHash);
-
 
         presenter.attachView(view);
         enterPin(validPin);
@@ -145,8 +142,7 @@ public class PinFragmentPresenterTest {
     }
 
     @Test
-    public void pinSave() throws Exception {
-        PinInteractor keyStoreInteractor = mock(PinInteractor.class);
+    public void pinSave() {
         int[] validPin = {4, 3, 5, 9, 7, 8};
         String validPinHash = PinEntryImpl.HASH_PIN(validPin);
 
@@ -154,7 +150,6 @@ public class PinFragmentPresenterTest {
         PinFragmentPresenter pinFragmentPresenter = new PinFragmentPresenter(mockPinEntryModel);
         when(mockPinEntryModel.isPinValid(validPin)).thenReturn(true);
         when(mockPinEntryModel.comparePins_WithFailCountDown(eq(validPinHash), any())).thenReturn(PinEntry.PinCompare.MATCH);
-        when(keyStoreInteractor.verifyPin(validPinHash)).thenReturn(true);
         pinFragmentPresenter.attachView(view);
 
         pinFragmentPresenter.pinEntered_Confirm(validPin);

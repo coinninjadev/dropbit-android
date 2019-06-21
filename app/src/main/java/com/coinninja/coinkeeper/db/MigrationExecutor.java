@@ -23,6 +23,9 @@ import com.coinninja.coinkeeper.db.migrations.Migrate_V27_to_V28;
 import com.coinninja.coinkeeper.db.migrations.Migrate_V28_to_V29;
 import com.coinninja.coinkeeper.db.migrations.Migrate_V29_to_V30;
 import com.coinninja.coinkeeper.db.migrations.Migrate_V30_to_V31;
+import com.coinninja.coinkeeper.db.migrations.Migrate_V31_to_V32;
+import com.coinninja.coinkeeper.db.migrations.Migrate_V32_to_V33;
+import com.coinninja.coinkeeper.db.migrations.Migrate_V33_to_V34;
 
 import org.greenrobot.greendao.database.Database;
 
@@ -102,6 +105,15 @@ public class MigrationExecutor {
                 break;
             case 31:
                 new Migrate_V30_to_V31().runMigration(db, oldVersion);
+                break;
+            case 32:
+                new Migrate_V31_to_V32().runMigration(db, oldVersion);
+                break;
+            case 33:
+                new Migrate_V32_to_V33().runMigration(db, oldVersion);
+                break;
+            case 34:
+                new Migrate_V33_to_V34().runMigration(db, oldVersion);
                 break;
         }
     }

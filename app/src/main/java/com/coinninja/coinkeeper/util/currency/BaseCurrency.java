@@ -17,7 +17,6 @@ abstract class BaseCurrency implements Currency {
         value = value.stripTrailingZeros();
     }
 
-    //TODO: the string constructor is ambiguous and should be removed in favor of double or long
     BaseCurrency(String initialValue) {
         this();
         value = fromFormattedDecimalString(initialValue);

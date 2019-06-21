@@ -1,7 +1,9 @@
 package com.coinninja.coinkeeper.ui.base;
 
+import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserViewModel;
+import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
@@ -16,14 +18,14 @@ import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity;
 import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
 import com.coinninja.coinkeeper.view.activity.InviteSendActivity;
 import com.coinninja.coinkeeper.view.activity.LicensesActivity;
-import com.coinninja.coinkeeper.view.activity.PickContactActivity;
+import com.coinninja.coinkeeper.view.activity.PickUserActivity;
 import com.coinninja.coinkeeper.view.activity.QrScanActivity;
 import com.coinninja.coinkeeper.view.activity.RecoverWalletActivity;
 import com.coinninja.coinkeeper.view.activity.RestoreWalletActivity;
+import com.coinninja.coinkeeper.view.activity.SignUpSelectionActivity;
 import com.coinninja.coinkeeper.view.activity.SplashActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TrainingActivity;
-import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity;
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity;
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
@@ -35,6 +37,14 @@ import dagger.android.ContributesAndroidInjector;
 
 @Module()
 public abstract class AndroidActivityBuilder {
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract CoinNinjaUserViewModel coinNinjaUserViewModel();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract SignUpSelectionActivity signupSelectionActivity();
 
     @ActivityScope
     @ContributesAndroidInjector
@@ -98,7 +108,7 @@ public abstract class AndroidActivityBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector
-    abstract PickContactActivity pickContactActivity();
+    abstract PickUserActivity pickContactActivity();
 
     @ActivityScope
     @ContributesAndroidInjector
@@ -142,7 +152,7 @@ public abstract class AndroidActivityBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector
-    abstract VerifyPhoneNumberActivity verifyPhoneNumberActivity();
+    abstract VerificationActivity verifyPhoneNumberActivity();
 
     @ActivityScope
     @ContributesAndroidInjector

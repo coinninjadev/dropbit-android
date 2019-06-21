@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/message"
@@ -11,8 +11,19 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:text="@string/dropbit_me_verified_paragraph_1"
-        android:textAppearance="@style/TextAppearance.Strong.PrimaryColor" />
+        android:textAppearance="@style/TextAppearance.Strong.PrimaryColor"
+        app:layout_constraintBottom_toTopOf="@+id/twitter_profile_picture"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/twitter_profile_picture"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/dropbit_me_url"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/message" />
 
     <com.coinninja.coinkeeper.view.button.CopyToBufferButton
         android:id="@+id/dropbit_me_url"
@@ -20,7 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        tools:text="https://dropbit.me/lkdh80nex3"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/message"
+        app:layout_constraintTop_toBottomOf="@+id/twitter_profile_picture"
+        tools:text="https://dropbit.me/lkdh80nex3" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

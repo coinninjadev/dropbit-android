@@ -5,9 +5,7 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
-import com.coinninja.coinkeeper.model.helpers.AddressHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import org.json.JSONException;
@@ -17,7 +15,6 @@ import javax.inject.Inject;
 
 public class SaveTransactionRunner implements Runnable {
     private final TransactionHelper transactionHelper;
-    private final AddressHelper addressHelper;
     private final CNWalletManager cnWalletManager;
     private final TransactionNotificationManager transactionNotificationManager;
     private final Analytics analytics;
@@ -26,11 +23,10 @@ public class SaveTransactionRunner implements Runnable {
 
     @Inject
     SaveTransactionRunner(TransactionHelper transactionHelper,
-                          AddressHelper addressHelper, CNWalletManager cnWalletManager,
+                          CNWalletManager cnWalletManager,
                           TransactionNotificationManager transactionNotificationManager,
                           Analytics analytics, SyncWalletManager syncWalletManager) {
         this.transactionHelper = transactionHelper;
-        this.addressHelper = addressHelper;
         this.cnWalletManager = cnWalletManager;
         this.transactionNotificationManager = transactionNotificationManager;
         this.analytics = analytics;
@@ -45,6 +41,10 @@ public class SaveTransactionRunner implements Runnable {
         syncWalletManager.syncNow();
     }
 
+    public void setCompletedBroadcastActivityDTO(CompletedBroadcastDTO completedBroadcastActivityDTO) {
+        this.completedBroadcastActivityDTO = completedBroadcastActivityDTO;
+    }
+
     private void sendTransactionNotificationIfNecessary(TransactionSummary transactionSummary) {
         trackSharedPayloadEvent();
         createTransactionNotification(transactionSummary);
@@ -52,10 +52,7 @@ public class SaveTransactionRunner implements Runnable {
     }
 
     private void createTransactionNotification(TransactionSummary transactionSummary) {
-        if (!completedBroadcastActivityDTO.hasMemo()) return;
-
         transactionNotificationManager.saveTransactionNotificationLocally(transactionSummary, completedBroadcastActivityDTO);
-
     }
 
     private void updateWalletBalance() {
@@ -63,11 +60,8 @@ public class SaveTransactionRunner implements Runnable {
     }
 
     private void sendTransactionNotification() {
-        if (completedBroadcastActivityDTO.shouldShareMemo()) {
+        if (completedBroadcastActivityDTO.hasPublicKey())
             transactionNotificationManager.sendTransactionNotificationToReceiver(completedBroadcastActivityDTO);
-        } else if (completedBroadcastActivityDTO.hasPublicKey()) {
-            transactionNotificationManager.notifyOfPayment(completedBroadcastActivityDTO);
-        }
     }
 
     private void trackSharedPayloadEvent() {
@@ -86,13 +80,5 @@ public class SaveTransactionRunner implements Runnable {
         }
 
         analytics.trackEvent(Analytics.EVENT_SENT_SHARED_PAYLOAD, jsonObject);
-    }
-
-    public void setCompletedBroadcastActivityDTO(CompletedBroadcastDTO completedBroadcastActivityDTO) {
-        this.completedBroadcastActivityDTO = completedBroadcastActivityDTO;
-    }
-
-    public Contact getContact() {
-        return completedBroadcastActivityDTO.getContact();
     }
 }

@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/verify_twitter_group"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="or_splitter,verify_twitter_button" />
 
     <TextView
         android:id="@+id/headline"
@@ -15,17 +22,42 @@
         android:ems="20"
         android:gravity="center_horizontal"
         android:lines="4"
-        android:text="@string/activity_verify_phone_headline"
+        android:text="@string/activity_verify_headline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.coinninja.coinkeeper.view.widget.phonenumber.PhoneVerificationView
-        android:id="@+id/phone_verification_view"
+        android:id="@+id/verification_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/headline" />
+
+    <ImageView
+        android:id="@+id/or_splitter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/or_splitter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/verification_view"
+        tools:ignore="ContentDescription" />
+
+    <Button
+        android:id="@+id/verify_twitter_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="75dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="75dp"
+        android:drawableStart="@drawable/twitter_icon"
+        android:text="@string/verify_twitter_account"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/or_splitter" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

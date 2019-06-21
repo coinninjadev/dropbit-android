@@ -8,9 +8,10 @@ import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.PaymentUtil.PaymentMethod;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
@@ -59,7 +60,7 @@ public class PaymentUtilTest {
     private DefaultCurrencies defaultCurrencies;
     private PaymentUtil paymentUtil;
     private PaymentHolder paymentHolder;
-    private Contact contact;
+    private Identity identity;
     private Context context;
     @Mock
     private TransactionFundingManager transactionFundingManager;
@@ -78,7 +79,7 @@ public class PaymentUtilTest {
         defaultCurrencies = null;
         paymentHolder = null;
         paymentUtil = null;
-        contact = null;
+        identity = null;
         context = null;
         transactionFundingManager = null;
         bitcoinUtil = null;
@@ -92,7 +93,7 @@ public class PaymentUtilTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         defaultCurrencies = new DefaultCurrencies(usdCurrency, btcCurrency);
-        contact = new Contact(PHONE_NUMBER, DISPLAY_NAME, false);
+        identity = new Identity(new Contact(PHONE_NUMBER, DISPLAY_NAME, false));
         context = RuntimeEnvironment.application.getApplicationContext();
 
         when(bitcoinUtil.isValidBTCAddress(BTC_ADDRESS)).thenReturn(true);
@@ -177,7 +178,6 @@ public class PaymentUtilTest {
         assertTrue(paymentUtil.isFunded());
     }
 
-
     @Test
     public void can_send_more_than_limit_to_address() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d));
@@ -191,8 +191,8 @@ public class PaymentUtilTest {
     @Test
     public void will_not_limit_amount_can_send_to_verified_contact() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
-        contact.setVerified(true);
-        paymentUtil.setContact(contact);
+        identity = new Identity(identity.getIdentityType(), identity.getValue(), identity.getHash(), identity.getDisplayName(), "", true, identity.getAvatarUrl());
+        paymentUtil.setIdentity(identity);
         when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong()))
                 .thenReturn(validTransactionData);
 
@@ -204,7 +204,7 @@ public class PaymentUtilTest {
     @Test
     public void will_limit_amount_can_send_to_contact_invite() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
-        paymentUtil.setContact(contact);
+        paymentUtil.setIdentity(identity);
 
         assertFalse(paymentUtil.isValid());
 
@@ -261,7 +261,7 @@ public class PaymentUtilTest {
 
     @Test
     public void invalid_address_and_contact_message() {
-        paymentUtil.setContact(null);
+        paymentUtil.setIdentity(null);
 
         assertThat(paymentUtil.getErrorMessage(), equalTo(context.getResources()
                 .getString(R.string.pay_error_add_valid_bitcoin_address)));
@@ -289,7 +289,7 @@ public class PaymentUtilTest {
 
     @Test
     public void no_contact_is_invalid_method() {
-        paymentUtil.setContact(null);
+        paymentUtil.setIdentity(null);
         assertThat(paymentUtil.getPaymentMethod(), equalTo(PaymentMethod.INVALID));
     }
 
@@ -301,9 +301,9 @@ public class PaymentUtilTest {
 
     @Test
     public void setting_verified_contact_defines_payment_method() {
-        contact.setVerified(true);
+        identity = new Identity(identity.getIdentityType(), identity.getValue(), identity.getHash(), identity.getDisplayName(), "", true, identity.getAvatarUrl());
 
-        paymentUtil.setContact(contact);
+        paymentUtil.setIdentity(identity);
 
         assertThat(paymentUtil.getPaymentMethod(), equalTo(PaymentMethod.VERIFIED_CONTACT));
     }
@@ -312,14 +312,14 @@ public class PaymentUtilTest {
     public void setting_contact_defines_payment_method() {
         paymentUtil.setAddress(BTC_ADDRESS);
 
-        paymentUtil.setContact(contact);
+        paymentUtil.setIdentity(identity);
 
         assertThat(paymentUtil.getPaymentMethod(), equalTo(PaymentMethod.INVITE));
     }
 
     @Test
     public void setting_address_defines_payment_method() {
-        paymentUtil.setContact(contact);
+        paymentUtil.setIdentity(identity);
 
         paymentUtil.setAddress(BTC_ADDRESS);
 
@@ -328,16 +328,16 @@ public class PaymentUtilTest {
 
     @Test
     public void accepts_contact_for_receiving_payment() {
-        paymentUtil.setContact(contact);
+        paymentUtil.setIdentity(identity);
 
-        assertThat(paymentUtil.getContact(), equalTo(contact));
+        assertThat(paymentUtil.getIdentity(), equalTo(identity));
     }
 
     @Test
     public void accepts_null_contacts() {
-        paymentUtil.setContact(null);
+        paymentUtil.setIdentity(null);
 
-        assertNull(paymentUtil.getContact());
+        assertNull(paymentUtil.getIdentity());
     }
 
     @Test

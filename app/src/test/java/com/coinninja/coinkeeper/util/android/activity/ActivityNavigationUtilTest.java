@@ -10,10 +10,11 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -38,7 +39,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.HashMap;
 
-import static com.coinninja.android.helpers.Resources.getString;
+import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 import static com.coinninja.matchers.ActivityMatchers.activityWithIntentStarted;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.times;
@@ -79,7 +80,7 @@ public class ActivityNavigationUtilTest {
     public void navigates_to_verify_phone_number() {
         activityNavigationUtil.navigateToRegisterPhone(activity);
 
-        Intent intent = new Intent(activity, VerifyPhoneNumberActivity.class);
+        Intent intent = new Intent(activity, VerificationActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         assertThat(activity, activityWithIntentStarted(intent));
@@ -134,12 +135,12 @@ public class ActivityNavigationUtilTest {
     @Test
     public void shares_transaction_with_other_applications() {
         String txid = "--txid--";
+        Uri uri = coinNinjaUriBuilder.build(TRANSACTION, txid);
         Intent intent = new Intent(Intent.ACTION_SEND);
-        Uri uri = Uri.parse("https://coinninja.com/tx/--txid--");
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, uri.toString());
-        Intent chooser = Intent.createChooser(intent, getString(activity, R.string.share_transaction_intent_title));
-
+        intent.addFlags(1);
+        Intent chooser = Intent.createChooser(intent, Resources.INSTANCE.getString(activity, R.string.share_transaction_intent_title));
         activityNavigationUtil.shareTransaction(activity, txid);
 
         assertThat(activity, activityWithIntentStarted(chooser));
@@ -292,8 +293,8 @@ public class ActivityNavigationUtilTest {
     @Test
     public void navigates_to_learn_more_about_dropbit_dot_me() {
         activityNavigationUtil.learnMoreAboutDropbitMe(activity);
-
         Uri uri = Uri.parse("https://dropbit.me");
+
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         assertThat(activity, activityWithIntentStarted(intent));
     }

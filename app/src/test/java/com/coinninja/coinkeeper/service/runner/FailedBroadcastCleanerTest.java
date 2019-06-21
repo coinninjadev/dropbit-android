@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,10 +76,8 @@ public class FailedBroadcastCleanerTest {
         List<TransactionSummary> samplePendingTransactions = new ArrayList<>();
         when(transactionHelper.getPendingTransactionsOlderThan(anyLong())).thenReturn(samplePendingTransactions);
         TransactionSummary unAcknowledged = mock(TransactionSummary.class);
-        when(unAcknowledged.getTxid()).thenReturn("some transaction id");
         List<TransactionSummary> unAcknowledgedList = new ArrayList<>();
         unAcknowledgedList.add(unAcknowledged);
-        when(apiClient.getTransactions(any())).thenReturn(getBadResponse());
 
         cleaner.run();
 
@@ -97,7 +95,6 @@ public class FailedBroadcastCleanerTest {
         when(unAcknowledged.getTxid()).thenReturn("some transaction id");
         List<TransactionSummary> unAcknowledgedList = new ArrayList<>();
         unAcknowledgedList.add(unAcknowledged);
-        when(apiClient.getTransactions(any())).thenReturn(getBadResponse());
 
         cleaner.markAsFailedToBroadcast(unAcknowledgedList);
 
@@ -114,7 +111,6 @@ public class FailedBroadcastCleanerTest {
         when(unAcknowledged.getTxid()).thenReturn("some transaction id");
         List<TransactionSummary> unAcknowledgedList = new ArrayList<>();
         unAcknowledgedList.add(unAcknowledged);
-        when(apiClient.getTransactions(any())).thenReturn(getBadResponse());
 
         cleaner.markAsFailedToBroadcast(unAcknowledgedList);
 
@@ -130,7 +126,6 @@ public class FailedBroadcastCleanerTest {
         when(unAcknowledged.getTxid()).thenReturn("some transaction id");
         List<TransactionSummary> unAcknowledgedList = new ArrayList<>();
         unAcknowledgedList.add(unAcknowledged);
-        when(apiClient.getTransactions(any())).thenReturn(getBadResponse());
 
         cleaner.markAsFailedToBroadcast(unAcknowledgedList);
 

@@ -55,6 +55,10 @@ public class ActionBarController {
                 isUpEnabled = true;
                 optionMenuLayout = R.menu.actionbar_light_skip_menu;
                 break;
+            case R.id.actionbar_up_on_close_on:
+                isUpEnabled = true;
+                optionMenuLayout = R.menu.actionbar_light_close_menu;
+                break;
             default:
                 throw new IllegalStateException("R.attr.actionBarMenuType not set");
         }

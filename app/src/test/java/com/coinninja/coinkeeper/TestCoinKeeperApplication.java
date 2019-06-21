@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper;
 
 import android.content.ClipboardManager;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.util.TypedValue;
 
@@ -26,6 +27,7 @@ import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.Wallet;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
@@ -42,20 +44,24 @@ import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
-import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserQueryTask;
+import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
+import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
+import com.coinninja.coinkeeper.util.RemoteAddressLocalCache;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
+import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
@@ -63,30 +69,38 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
+import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
 
+import org.jetbrains.annotations.Nullable;
 import org.robolectric.TestLifecycleApplication;
+import org.robolectric.shadows.ShadowPackageManager;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import app.dropbit.twitter.Twitter;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 /**
  * http://robolectric.org/custom-test-runner/
  */
 public class TestCoinKeeperApplication extends CoinKeeperApplication implements TestLifecycleApplication {
+
     public static AndroidInjector<DaggerApplication> injector;
 
+    public PreferencesUtil preferencesUtil;
     public QRScanManager qrScanManager = mock(QRScanManager.class);
     public LocalContactQueryUtil localContactQueryUtil = mock(LocalContactQueryUtil.class);
-    public CoinNinjaUserQueryTask coinNinjaUserQueryTask = mock(CoinNinjaUserQueryTask.class);
+    public LocalContactQueryUtil coinNinjaUserQueryTask = mock(LocalContactQueryUtil.class);
+    public Hasher hasher;
     @Inject
     public Analytics analytics;
     public ClipboardManager clipboardManager;
@@ -155,7 +169,23 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public InternalNotificationsInteractor internalNotificationsInteractor;
     public DrawerController drawerController;
     public ServiceWorkUtil serviceWorkUtil;
+    public RemoteAddressLocalCache remoteAddressLocalCache;
+    public DropbitAccountHelper dropbitAccountHelper;
+    public Twitter twitter;
+    public TwitterVerificationController twitterVerificationController;
+    @Nullable
+    public CountryCodeLocaleGenerator countryCodeLocaleGenerator;
 
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ShadowPackageManager shadowPackageManager = shadowOf(getApplicationContext().getPackageManager());
+        ActivityInfo activityInfo = new ActivityInfo();
+        activityInfo.name = TestableActivity.class.getName();
+        activityInfo.packageName = getPackageName();
+        shadowPackageManager.addOrUpdateActivity(activityInfo);
+    }
 
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
@@ -198,6 +228,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
             // pass
         }
         USDCurrency.MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
+        twitter = null;
         locationUtil = null;
         injector = null;
         appComponent = null;
@@ -258,6 +289,13 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         internalNotificationsInteractor = null;
         drawerController = null;
         serviceWorkUtil = null;
+        remoteAddressLocalCache = null;
+        dropbitAccountHelper = null;
+        hasher = null;
+        twitterVerificationController = null;
+        preferencesUtil = null;
+        countryCodeLocales = null;
+        countryCodeLocaleGenerator = null;
     }
 }
 

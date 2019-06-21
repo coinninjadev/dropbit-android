@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+xmlns:tools="http://schemas.android.com/tools"
+android:padding="@dimen/vertical_padding">
+
+    <ImageView
+        android:id="@+id/twitter_profile_picture"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/twitter_linear_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/dropbit_icon"
+        app:layout_constraintStart_toEndOf="@+id/twitter_profile_picture"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/twitter_name_text_view"
+                android:textAppearance="@style/TextAppearance.Contact.Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Steve Williams" />
+
+            <ImageView
+                android:id="@+id/verified_checkmark"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/verified_checkmark" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/twitter_handle_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="/@TwitterUserHandle" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/dropbit_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="5dp"
+        android:src="@drawable/ic_dropbit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

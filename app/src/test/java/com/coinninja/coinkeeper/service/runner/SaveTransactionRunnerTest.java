@@ -1,17 +1,19 @@
 package com.coinninja.coinkeeper.service.runner;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
-import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.db.TransactionNotification;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
+import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import org.json.JSONException;
@@ -23,7 +25,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class SaveTransactionRunnerTest {
     @Mock
     TransactionData transactionData;
@@ -63,7 +64,7 @@ public class SaveTransactionRunnerTest {
         MockitoAnnotations.initMocks(this);
         sampleTransactionID = "---TXID---";
 
-        BroadcastTransactionDTO broadcastActivityDTO = new BroadcastTransactionDTO(transactionData, null, false, null, null);
+        BroadcastTransactionDTO broadcastActivityDTO = new BroadcastTransactionDTO(transactionData, false, null, null, null);
         completedBroadcastActivityDTO = new CompletedBroadcastDTO(broadcastActivityDTO, sampleTransactionID);
         runner.setCompletedBroadcastActivityDTO(completedBroadcastActivityDTO);
 
@@ -101,7 +102,8 @@ public class SaveTransactionRunnerTest {
         TransactionNotification transactionNotification = mock(TransactionNotification.class);
         when(daoManager.newTransactionNotification()).thenReturn(transactionNotification);
         completedBroadcastActivityDTO.setMemo("--memo--");
-        completedBroadcastActivityDTO.setContact(new Contact(new PhoneNumber("+12223334444"), "Joe", true));
+        Identity identity = new Identity(IdentityType.PHONE, "+13305554444", "--hash--", "Joe", "", false, null);
+        completedBroadcastActivityDTO.setIdentity(identity);
         completedBroadcastActivityDTO.setPublicKey("--pubkey--");
         completedBroadcastActivityDTO.setMemoShared(true);
 
@@ -111,7 +113,7 @@ public class SaveTransactionRunnerTest {
     }
 
     @Test
-    public void does_not_send_transaction_notification_when_memo_is_not_shared() {
+    public void sends_notification_to_receiver_when_empty_or_not_shared() {
         TransactionNotification transactionNotification = mock(TransactionNotification.class);
         when(daoManager.newTransactionNotification()).thenReturn(transactionNotification);
         completedBroadcastActivityDTO.setMemo("--memo--");
@@ -123,23 +125,8 @@ public class SaveTransactionRunnerTest {
         completedBroadcastActivityDTO.setMemo("");
         runner.run();
 
-        completedBroadcastActivityDTO.setPublicKey("");
-        runner.run();
-
         verify(transactionNotificationManager, times(2))
-                .notifyOfPayment(completedBroadcastActivityDTO);
-    }
-
-    @Test
-    public void does_not_save_transaction_notification_when_memo_does_not_exist() {
-        TransactionNotification transactionNotification = mock(TransactionNotification.class);
-        when(daoManager.newTransactionNotification()).thenReturn(transactionNotification);
-        completedBroadcastActivityDTO.setMemo("");
-        completedBroadcastActivityDTO.setPublicKey("");
-
-        runner.run();
-
-        verify(transactionNotificationManager, times(0)).saveTransactionNotificationLocally(any(TransactionSummary.class), any());
+                .sendTransactionNotificationToReceiver(completedBroadcastActivityDTO);
     }
 
     @Test

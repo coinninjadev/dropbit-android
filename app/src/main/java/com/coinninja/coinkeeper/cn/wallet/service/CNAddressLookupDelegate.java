@@ -5,15 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
-import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
+
+import app.dropbit.twitter.model.TwitterUser;
 
 public class CNAddressLookupDelegate extends BroadcastReceiver {
 
@@ -30,7 +35,6 @@ public class CNAddressLookupDelegate extends BroadcastReceiver {
         this.localBroadCastUtil = localBroadCastUtil;
         this.hasher = hasher;
         intentFilter = new IntentFilter(DropbitIntents.ACTION_WALLET_ADDRESS_RETRIEVED);
-
     }
 
     @Override
@@ -46,10 +50,10 @@ public class CNAddressLookupDelegate extends BroadcastReceiver {
         localBroadCastUtil.unregisterReceiver(this);
     }
 
-    public void fetchAddressFor(Contact contact, CNAddressLookupCompleteCallback callback) {
+    public void fetchAddressFor(Identity identity, CNAddressLookupCompleteCallback callback) {
         this.callback = callback;
         localBroadCastUtil.registerReceiver(this, intentFilter);
-        serviceWorkUtil.lookupAddressForPhoneNumberHash(contact.getHash());
+        serviceWorkUtil.lookupAddressForPhoneNumberHash(identity.getHashForType());
     }
 
     public void fetchAddressFor(PhoneNumber phoneNumber, CNAddressLookupCompleteCallback callback) {

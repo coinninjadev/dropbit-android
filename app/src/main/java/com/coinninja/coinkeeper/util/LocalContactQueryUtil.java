@@ -1,12 +1,6 @@
 package com.coinninja.coinkeeper.util;
 
-import android.Manifest;
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.provider.ContactsContract;
-
-import com.coinninja.coinkeeper.service.client.model.Contact;
-import com.coinninja.coinkeeper.util.android.PermissionsUtil;
+import com.coinninja.coinkeeper.model.Contact;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,47 +11,15 @@ import javax.inject.Inject;
 
 public class LocalContactQueryUtil {
 
-    private final ContentResolver contentResolver;
-    private PermissionsUtil permissionsUtil;
+    private final CoinNinjaContactResolver contentResolver;
 
     @Inject
-    public LocalContactQueryUtil(ContentResolver contentResolver, PermissionsUtil permissionsUtil) {
+    public LocalContactQueryUtil(CoinNinjaContactResolver contentResolver) {
         this.contentResolver = contentResolver;
-        this.permissionsUtil = permissionsUtil;
     }
 
     public List<Contact> getContacts() {
-        if (!permissionsUtil.hasPermission(Manifest.permission.READ_CONTACTS)) { return new ArrayList<>(); }
-        ArrayList<Contact> contacts = new ArrayList<>();
-        Cursor managedCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[]{
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-                        ContactsContract.CommonDataKinds.Phone.TYPE,
-                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                        ContactsContract.CommonDataKinds.Phone.NUMBER,
-                }, null, null,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
-        );
-
-        String number;
-
-        if (managedCursor.moveToFirst()) {
-            do {
-                number = managedCursor.getString(
-                        managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                if (null != number) {
-                    Contact contact = new Contact();
-                    contact.setDisplayName(managedCursor.getString(
-                            managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
-                    contact.setPhoneNumber(number);
-                    contacts.add(contact);
-                }
-            } while (managedCursor.moveToNext());
-        }
-
-        managedCursor.close();
-
-        return contacts;
+        return contentResolver.getContacts();
     }
 
     public List<List<Contact>> getContactsInChunks(Integer chunkSize) {
@@ -84,7 +46,7 @@ public class LocalContactQueryUtil {
         boolean duplicated = false;
         String hash;
 
-        for (Contact contact : getContacts()) {
+        for (Contact contact : contentResolver.getContacts()) {
             hash = contact.getHash();
             if (map.containsKey(hash)) {
                 for (Contact c : map.get(hash)) {
