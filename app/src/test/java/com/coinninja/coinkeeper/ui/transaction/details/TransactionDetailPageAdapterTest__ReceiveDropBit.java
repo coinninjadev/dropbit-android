@@ -6,6 +6,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.core.app.ApplicationProvider;
+
+import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -28,10 +33,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.ActivityMatchers.noServiceStarted;
 import static com.coinninja.matchers.ConfirmationViewMatcher.configuredForDropbit;
@@ -79,7 +80,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.get(anyInt())).thenReturn(transaction);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
-        bindableTransaction = new BindableTransaction(walletHelper);
+        bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         adapter.refreshData();
         adapter.setShowTransactionDetailRequestObserver(observer);
         adapter.onDefaultCurrencyChanged(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
@@ -122,7 +123,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
         assertThat(withId(page, R.id.confirmation_beads), isGone());
-        assertThat(withId(page, R.id.confirmations), hasText(getString(activity, R.string.transaction_details_dropbit_canceled)));
+        assertThat(withId(page, R.id.confirmations), hasText(Resources.INSTANCE.getString(activity, R.string.transaction_details_dropbit_canceled)));
     }
 
     @Test
@@ -135,7 +136,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
         assertThat(withId(page, R.id.confirmation_beads), isGone());
-        assertThat(withId(page, R.id.confirmations), hasText(getString(activity, R.string.transaction_details_dropbit_expired)));
+        assertThat(withId(page, R.id.confirmations), hasText(Resources.INSTANCE.getString(activity, R.string.transaction_details_dropbit_expired)));
     }
 
     @Test
@@ -143,7 +144,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         adapter.bindTo(page, bindableTransaction, 0);
 
         ImageView icon = withId(page, R.id.ic_send_state);
-        String contentDescription = getString(page.getContext(), R.string.transaction_detail_cd_send_state__dropbit_received);
+        String contentDescription = Resources.INSTANCE.getString(page.getContext(), R.string.transaction_detail_cd_send_state__dropbit_received);
         assertThat(icon, hasContentDescription(contentDescription));
     }
 
@@ -158,7 +159,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_DROPBIT_SENT));
-        assertThat(confirmations, hasText(getString(confirmations.getContext(), R.string.confirmations_view_stage_1)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_1)));
     }
 
     @Test
@@ -172,7 +173,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_ADDRESS_RECEIVED));
-        assertThat(confirmations, hasText(getString(confirmations.getContext(), R.string.confirmations_view_stage_2)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_2)));
     }
 
     @Test
@@ -187,7 +188,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_PENDING));
-        assertThat(confirmations, hasText(getString(confirmations.getContext(), R.string.confirmations_view_stage_4)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_4)));
     }
 
     @Test
@@ -202,7 +203,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_COMPLETE));
-        assertThat(confirmations, hasText(getString(confirmationsView.getContext(), R.string.confirmations_view_stage_5)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmationsView.getContext(), R.string.confirmations_view_stage_5)));
     }
 
     @Test
@@ -228,27 +229,13 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     }
 
     @Test
-    public void renders_receivers_contact_when_sent__phone_when_no_name_available() {
-        String phoneNumber = "(330) 555-1111";
-        bindableTransaction.setContactName(null);
-        bindableTransaction.setContactPhoneNumber(phoneNumber);
-
-        adapter.bindTo(page, bindableTransaction, 0);
-
-        TextView contact = withId(page, R.id.contact);
-        assertThat(contact, hasText(phoneNumber));
-    }
-
-    @Test
-    public void renders_receivers_contact_when_sent__name_when_available() {
-        String phoneNumber = "(330) 555-1111";
+    public void renders_receivers_identity() {
         String name = "Joe Blow";
-        bindableTransaction.setContactName(name);
-        bindableTransaction.setContactPhoneNumber(phoneNumber);
+        bindableTransaction.setIdentity(name);
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView contact = withId(page, R.id.contact);
+        TextView contact = withId(page, R.id.identity);
         assertThat(contact, hasText(name));
     }
 

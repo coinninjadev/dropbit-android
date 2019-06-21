@@ -3,7 +3,7 @@ DropBit is the easiest way to safely send and receive Bitcoin.  You can send Bit
 Key Features:
 &bull; Send Bitcoin to your contacts directly using just their mobile number - even if they don’t yet have a Bitcoin wallet!
 &bull; Clean and simple user experience for beginners to easily understand.
-&bull; Highly secure and contact information is not stored anywhere on our servers.
+&bull; Highly secure and identity information is not stored anywhere on our servers.
 &bull; Full Privacy - no sign up or authorization required.
 &bull; Segwit (BIP 49) address support.  Lightning support coming soon!
 

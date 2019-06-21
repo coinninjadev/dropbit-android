@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
@@ -129,7 +129,7 @@ public class AnalyticsClickListenerTest {
     @Test
     public void track_EVENT_BUTTON_SCAN_event_test() {
         String expectedAnalyticsEvent = Analytics.EVENT_BUTTON_SCAN;
-        int sampleEventID = R.id.scan_btc_address_btn;
+        int sampleEventID = R.id.twitter_contacts_button;
         setId(sampleEventID);
 
         analyticsClickListener.onClick(view);

@@ -30,7 +30,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -142,9 +141,7 @@ public class DropbitMeFragmentTest {
 
     @Test
     public void shows_dialog_when_observing_request() {
-        doCallRealMethod().when(dropbitMeConfiguration).setOnViewDropBitMeViewRequestedObserver(any());
-        doCallRealMethod().when(dropbitMeConfiguration).showWhenPossible();
-        doCallRealMethod().when(dropbitMeConfiguration).shouldShowWhenPossible();
+        when(dropbitMeConfiguration.shouldShowWhenPossible()).thenReturn(true);
         ActivityScenario<TransactionHistoryActivity> scenario = ActivityScenario.launch(TransactionHistoryActivity.class);
         scenario.moveToState(Lifecycle.State.RESUMED);
 
@@ -153,6 +150,16 @@ public class DropbitMeFragmentTest {
         scenario.onActivity(activity -> {
             assertNotNull(activity.getSupportFragmentManager().findFragmentByTag(DropBitMeDialog.TAG));
         });
+        scenario.close();
+    }
+
+    @Test
+    public void removes_observer_when_stopped() {
+        ActivityScenario<SettingsActivity> scenario = ActivityScenario.launch(SettingsActivity.class);
+
+        scenario.moveToState(Lifecycle.State.DESTROYED);
+
+        verify(dropbitMeConfiguration).setOnViewDropBitMeViewRequestedObserver(null);
         scenario.close();
     }
 }

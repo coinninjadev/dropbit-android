@@ -18,6 +18,7 @@ import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.WalletDao;
 import com.coinninja.coinkeeper.model.db.Word;
 import com.coinninja.coinkeeper.model.db.WordDao;
+import com.coinninja.coinkeeper.model.db.enums.AccountStatus;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
@@ -30,7 +31,6 @@ import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
-import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.LazyList;
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -204,15 +204,13 @@ public class WalletHelper {
         daoSessionManager.createWallet();
     }
 
-    private Account createAccount() {
-        Wallet wallet = getWallet();
-        Account account = new Account();
-        account.setWallet(wallet);
-        account.setStatus(Account.Status.UNVERIFIED);
-        daoSessionManager.getAccountDao().insert(account);
-        wallet = daoSessionManager.getWalletDao().queryBuilder().where(WalletDao.Properties.Id.eq(wallet.getId())).unique();
-        wallet.refresh();
-        return account;
+    public void saveAccountRegistration(CNUserAccount cnUserAccount) {
+        if (!hasAccount()) return;
+
+        Account account = getUserAccount();
+        account.populateStatus(cnUserAccount.getStatus());
+        account.setCnUserId(cnUserAccount.getId());
+        account.update();
     }
 
     public void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
@@ -234,25 +232,6 @@ public class WalletHelper {
         clearRegistration(false);
     }
 
-    private void clearRegistration(boolean clearId) {
-        if (!hasAccount()) return;
-
-        getWallet().refresh();
-        Account account = getUserAccount();
-        account.refresh();
-
-        if (clearId) {
-            account.setCnWalletId(null);
-        }
-        account.setPhoneNumber(null);
-        account.setPhoneNumberHash("");
-        account.setCnUserId("");
-        account.setStatus(Account.Status.UNVERIFIED);
-        account.update();
-        daoSessionManager.getDropbitMeIdentityDao().deleteAll();
-    }
-
-
     public boolean hasAccount() {
         Account account = getUserAccount();
         return account.getCnWalletId() != null;
@@ -269,18 +248,6 @@ public class WalletHelper {
             account = createAccount();
         }
         return account;
-    }
-
-    public boolean hasVerifiedAccount() {
-        return hasAccount() && getUserAccount().getStatus() == Account.Status.VERIFIED;
-    }
-
-    public void updateUserID(CNUserAccount cnUserAccount) {
-        if (!hasAccount()) return;
-        Account account = getUserAccount();
-        account.setCnUserId(cnUserAccount.getId());
-        account.setPhoneNumberHash(cnUserAccount.getPhoneNumberHash());
-        account.update();
     }
 
     public void updateBalances() {
@@ -341,23 +308,6 @@ public class WalletHelper {
         }
 
         return balance;
-    }
-
-    long calculateInviteValue(InviteTransactionSummary invite) {
-        String txID = invite.getBtcTransactionId();
-        if (txID != null && !txID.isEmpty()) {
-            return 0;//is invite has tx id its value is not used in user balance
-        }
-
-        Type type = invite.getType();
-        long value = invite.getValueSatoshis();
-        long fee = 0;
-
-        if (type == Type.SENT) {
-            fee = invite.getValueFeesSatoshis();
-        }
-
-        return value + fee;
     }
 
     public int getCurrentExternalIndex() {
@@ -421,4 +371,51 @@ public class WalletHelper {
     public TransactionSummary getTransactionByTxid(String txid) {
         return daoSessionManager.getTransactionSummaryDao().queryBuilder().where(TransactionSummaryDao.Properties.Txid.eq(txid)).unique();
     }
+
+    long calculateInviteValue(InviteTransactionSummary invite) {
+        String txID = invite.getBtcTransactionId();
+        if (txID != null && !txID.isEmpty()) {
+            return 0;//is invite has tx id its value is not used in user balance
+        }
+
+        Type type = invite.getType();
+        long value = invite.getValueSatoshis();
+        long fee = 0;
+
+        if (type == Type.SENT) {
+            fee = invite.getValueFeesSatoshis();
+        }
+
+        return value + fee;
+    }
+
+    private void clearRegistration(boolean clearId) {
+        if (!hasAccount()) return;
+
+        getWallet().refresh();
+        Account account = getUserAccount();
+        account.refresh();
+
+        if (clearId) {
+            account.setCnWalletId(null);
+        }
+        account.setPhoneNumber(null);
+        account.setPhoneNumberHash("");
+        account.setCnUserId("");
+        account.setStatus(AccountStatus.UNVERIFIED);
+        account.update();
+        daoSessionManager.getDropbitMeIdentityDao().deleteAll();
+    }
+
+    private Account createAccount() {
+        Wallet wallet = getWallet();
+        Account account = new Account();
+        account.setWallet(wallet);
+        account.setStatus(AccountStatus.UNVERIFIED);
+        daoSessionManager.getAccountDao().insert(account);
+        wallet = daoSessionManager.getWalletDao().queryBuilder().where(WalletDao.Properties.Id.eq(wallet.getId())).unique();
+        wallet.refresh();
+        return account;
+    }
+
 }

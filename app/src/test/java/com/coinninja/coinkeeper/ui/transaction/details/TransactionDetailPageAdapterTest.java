@@ -2,6 +2,8 @@ package com.coinninja.coinkeeper.ui.transaction.details;
 
 import android.database.DataSetObserver;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
@@ -153,7 +155,7 @@ public class TransactionDetailPageAdapterTest {
     public void sets_observer_on_view_when_rendering() {
         DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier = mock(DefaultCurrencyChangeViewNotifier.class);
         pageAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
-        BindableTransaction bindableTransaction = new BindableTransaction(mock(WalletHelper.class));
+        BindableTransaction bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), mock(WalletHelper.class));
         bindableTransaction.setSendState(BindableTransaction.SendState.SEND);
         bindableTransaction.setHistoricalInviteUSDValue(100L);
 

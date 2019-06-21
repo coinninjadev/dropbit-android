@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import okhttp3.MediaType;
 import okhttp3.Protocol;
@@ -92,7 +92,7 @@ public class PushNotificationDeviceManagerTest {
     @Test
     public void provides_device_id() {
         when(preferencesUtil.getString(
-                PushNotificationDeviceManager.PUSH_NOTIFICATION_SERVER_DEVICE_ID, null))
+                PushNotificationDeviceManager.PUSH_NOTIFICATION_SERVER_DEVICE_ID, ""))
                 .thenReturn(CN_DEVICE_ID);
 
         assertThat(pushNotificationDeviceManager.getDeviceId(), equalTo(CN_DEVICE_ID));

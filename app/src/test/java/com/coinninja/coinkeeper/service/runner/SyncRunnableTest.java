@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,8 +146,6 @@ public class SyncRunnableTest {
 
     @Test
     public void normalSyncUsesSmallerGap() {
-        when(wallet.getLastSync()).thenReturn(1524421469404L);
-
         syncRunner.run();
 
         verify(addressAPIUtil).setLookAhead(AddressAPIUtil.LOOK_AHEAD);
@@ -309,7 +307,6 @@ public class SyncRunnableTest {
 
     @Test
     public void doesNotSaveALowerExternalAddressForWallet() {
-        when(wallet.getExternalIndex()).thenReturn(4);
         when(addressAPIUtil.getLargestIndexConsumed()).thenReturn(1);
 
         syncRunner.run();

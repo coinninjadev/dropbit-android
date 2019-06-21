@@ -15,12 +15,14 @@ import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
+import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
@@ -96,6 +98,10 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         finalizeTransaction(completedBroadcastActivityDTO);
         showInitTransaction();
         showSuccess();
+
+        if (broadcastDTO.getIdentity() != null && broadcastDTO.getIdentity().getIdentityType() == IdentityType.TWITTER) {
+            analytics.trackEvent(Analytics.EVENT_TWITTER_SEND_SUCCESSFUL);
+        }
     }
 
     @Override

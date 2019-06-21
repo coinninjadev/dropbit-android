@@ -1,18 +1,21 @@
 package com.coinninja.coinkeeper.cn.wallet;
 
 import com.coinninja.coinkeeper.cn.account.AccountManager;
+import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver;
-import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.service.client.CNUserAccount;
+import com.coinninja.coinkeeper.twitter.MyTwitterProfile;
 import com.coinninja.coinkeeper.util.DateUtil;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
+import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 
 import java.util.Arrays;
@@ -23,7 +26,7 @@ import javax.inject.Inject;
 public class CNWalletManager {
 
     static final String PREFERENCE_SKIPPED_BACKUP = "preference_skipped_backup";
-
+    private final ServiceWorkUtil serviceWorkUtil;
     private WalletHelper walletHelper;
     private TransactionHelper transactionHelper;
     private BitcoinUtil bitcoinUtil;
@@ -34,11 +37,13 @@ public class CNWalletManager {
     private final DateUtil dateUtil;
     private final Analytics analytics;
     private PhoneNumberUtil phoneNumberUtil;
+    private MyTwitterProfile myTwitterProfile;
 
     @Inject
     public CNWalletManager(WalletHelper walletHelper, BitcoinUtil bitcoinUtil, AccountManager accountManager,
                            PreferencesUtil preferencesUtil, SeedWordGenerator seedWordGenerator, TransactionHelper transactionHelper,
-                           LocalBroadCastUtil localBroadCastUtil, DateUtil dateUtil, Analytics analytics, PhoneNumberUtil phoneNumberUtil) {
+                           LocalBroadCastUtil localBroadCastUtil, DateUtil dateUtil, Analytics analytics, PhoneNumberUtil phoneNumberUtil,
+                           MyTwitterProfile myTwitterProfile, ServiceWorkUtil serviceWorkUtil) {
         this.walletHelper = walletHelper;
         this.transactionHelper = transactionHelper;
         this.bitcoinUtil = bitcoinUtil;
@@ -49,6 +54,8 @@ public class CNWalletManager {
         this.dateUtil = dateUtil;
         this.analytics = analytics;
         this.phoneNumberUtil = phoneNumberUtil;
+        this.myTwitterProfile = myTwitterProfile;
+        this.serviceWorkUtil = serviceWorkUtil;
     }
 
     public static int calcConfirmations(int currentBlockHeight, int transactionBlock) {
@@ -61,6 +68,11 @@ public class CNWalletManager {
 
     public Account getAccount() {
         return walletHelper.getUserAccount();
+    }
+
+    public Account updateAccount(CNUserAccount userAccount) {
+        walletHelper.saveAccountRegistration(userAccount);
+        return getAccount();
     }
 
     boolean saveSeedWords(String[] recoveryWords) {
@@ -156,6 +168,8 @@ public class CNWalletManager {
     public void deverifyAccount() {
         walletHelper.removeCurrentCnUserRegistration();
         transactionHelper.cancelPendingSentInvites();
+        myTwitterProfile.clear();
+        analytics.setUserProperty(Analytics.PROPERTY_TWITTER_VERIFIED, false);
         analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
         analytics.setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
         analytics.flush();

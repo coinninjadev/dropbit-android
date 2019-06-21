@@ -7,6 +7,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.actionbar.managers.TitleViewManager;
 import com.coinninja.coinkeeper.ui.base.MenuItemClickListener;
@@ -16,10 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,13 +38,13 @@ import static org.mockito.Mockito.when;
 public class ActionBarControllerTest {
 
     @Mock
-    TitleViewManager titleViewManager;
+    private TitleViewManager titleViewManager;
 
     @Mock
-    AppCompatActivity context;
+    private AppCompatActivity context;
 
     @InjectMocks
-    ActionBarController controller;
+    private ActionBarController controller;
 
     @After
     public void tearDown() throws Exception {
@@ -55,7 +55,7 @@ public class ActionBarControllerTest {
 
     @Test
     public void actionbar_gone_configuration_test() {
-        
+
         TypedValue actionBarTyped = new TypedValue();
         actionBarTyped.resourceId = R.id.actionbar_gone;
 
@@ -70,7 +70,6 @@ public class ActionBarControllerTest {
 
     @Test
     public void actionbar_light_up_on_configuration_test() {
-        
         TypedValue actionBarTyped = new TypedValue();
         actionBarTyped.resourceId = R.id.actionbar_up_on;
 
@@ -84,7 +83,6 @@ public class ActionBarControllerTest {
 
     @Test
     public void actionbar_light_up_off_configuration_test() {
-        
         TypedValue actionBarTyped = new TypedValue();
         actionBarTyped.resourceId = R.id.actionbar_up_off;
 
@@ -98,7 +96,7 @@ public class ActionBarControllerTest {
 
     @Test
     public void actionbar_light_up_off_skip_on_configuration_test() {
-        
+
         TypedValue actionBarTyped = new TypedValue();
         actionBarTyped.resourceId = R.id.actionbar_up_off_skip_on;
 
@@ -112,7 +110,7 @@ public class ActionBarControllerTest {
 
     @Test
     public void actionbar_light_up_on_skip_on_configuration_test() {
-        
+
         TypedValue actionBarTyped = new TypedValue();
         actionBarTyped.resourceId = R.id.actionbar_up_on_skip_on;
 
@@ -126,7 +124,7 @@ public class ActionBarControllerTest {
 
     @Test(expected = IllegalStateException.class)
     public void throw_illegal_state_exception_when_theme_unknown() {
-        
+
         TypedValue actionBarTyped = new TypedValue();
         actionBarTyped.resourceId = -1;
 
@@ -168,15 +166,11 @@ public class ActionBarControllerTest {
         actionBarTyped.resourceId = R.id.actionbar_gone;
         ActionBar supportActionBar = mock(ActionBar.class);
         TextView titleView = mock(TextView.class);
-        when(context.getSupportActionBar()).thenReturn(supportActionBar);
-        when(context.findViewById(R.id.appbar_title)).thenReturn(titleView);
-
 
         controller.setTheme(context, actionBarTyped);
 
-
         verify(titleViewManager, never()).setActionBar(supportActionBar);
-        verify(titleViewManager,never()).setTitleView(titleView);
+        verify(titleViewManager, never()).setTitleView(titleView);
     }
 
     @Test
@@ -218,7 +212,6 @@ public class ActionBarControllerTest {
     public void if_up_is_null_then_do_nothing() {
         Menu menu = mock(Menu.class);
         ActionBar supportActionBar = mock(ActionBar.class);
-        when(context.getSupportActionBar()).thenReturn(supportActionBar);
         controller.isUpEnabled = null;
 
         controller.inflateActionBarMenu(context, menu);
@@ -243,7 +236,6 @@ public class ActionBarControllerTest {
     public void if_optionMenuLayout_is_null_then_do_nothing() {
         Menu menu = mock(Menu.class);
         MenuInflater menuInflater = mock(MenuInflater.class);
-        when(context.getMenuInflater()).thenReturn(menuInflater);
         controller.optionMenuLayout = null;
 
         controller.inflateActionBarMenu(context, menu);
@@ -292,7 +284,7 @@ public class ActionBarControllerTest {
 
         verify(menuItemClickListener).onCloseClicked();
         assertTrue(itemClicked);
-        verify(menuItemClickListener,never()).onSkipClicked();
+        verify(menuItemClickListener, never()).onSkipClicked();
     }
 
     @Test
@@ -306,8 +298,8 @@ public class ActionBarControllerTest {
         boolean itemClicked = controller.onMenuItemClicked(item);
 
         assertFalse(itemClicked);
-        verify(menuItemClickListener,never()).onCloseClicked();
-        verify(menuItemClickListener,never()).onSkipClicked();
+        verify(menuItemClickListener, never()).onCloseClicked();
+        verify(menuItemClickListener, never()).onSkipClicked();
     }
 
     @Test

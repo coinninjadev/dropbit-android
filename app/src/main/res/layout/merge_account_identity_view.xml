@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <ImageView
+        android:id="@+id/verified_identity_image"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent"
+        android:padding="10dp"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/twitter_icon" />
+
+    <TextView
+        android:id="@+id/verified_identity_title"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity=""
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_weight="1"
+        android:gravity="start|center_vertical"
+        android:textAppearance="@style/TextAppearance.VerifiedIdentity"
+        tools:text="(555) - 555 - 5555" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:gravity="center"
+        android:text="@string/verified_identity_status_verified"
+        android:textAppearance="@style/TextAppearance.VerifiedIdentity.Status" />
+
+</merge>

@@ -85,7 +85,7 @@ public class PushNotificationEndpointManager {
     }
 
     public String getEndpoint() {
-        return preferencesUtil.getString(PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, null);
+        return preferencesUtil.getString(PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, "");
     }
 
     public void unRegister() {

@@ -10,13 +10,12 @@ import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.service.ResendPhoneVerificationService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
-import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -33,9 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
-import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -48,8 +45,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class VerifyPhoneVerificationCodeActivityTest {
 
     private VerifyPhoneVerificationCodeActivity activity;
@@ -125,7 +121,7 @@ public class VerifyPhoneVerificationCodeActivityTest {
     public void navigate_to_home_on_success() {
         receiver.onReceive(activity, new Intent(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS));
 
-        verify(dropbitMeConfiguration).setNewlyVerified();
+        verify(dropbitMeConfiguration).setInitialVerification();
         verify(activityNavigationUtil).navigateToHome(activity);
     }
 
@@ -207,22 +203,14 @@ public class VerifyPhoneVerificationCodeActivityTest {
         activity.onFocusChange(five, true);
         six.setText("5");
 
-        Intent intent = shadowActivity.peekNextStartedService();
-        assertThat(intent.getComponent().getClassName(), equalTo(UserPhoneConfirmationService.class.getName()));
-        assertThat(intent.getExtras().getString(DropbitIntents.EXTRA_PHONE_NUMBER_CODE), equalTo("012345"));
+        verify(activity.serviceWorkUtil).validatePhoneNumberConfirmationCode("012345");
     }
 
     @Test
-    public void requests_new_verifiction_when_clicked() {
-
+    public void requests_new_verification_when_clicked() {
         activity.findViewById(R.id.resend_link).performClick();
 
-
-        Intent intent = shadowActivity.peekNextStartedService();
-        assertThat(intent.getComponent().getClassName(), equalTo(ResendPhoneVerificationService.class.getName()));
-        PhoneNumber phoneNumber = intent.getExtras().getParcelable(DropbitIntents.EXTRA_PHONE_NUMBER);
-        assertThat(phoneNumber.getNationalNumber(), equalTo(this.phoneNumber.getNationalNumber()));
-        assertThat(phoneNumber.getCountryCode(), equalTo(this.phoneNumber.getCountryCode()));
+        verify(activity.serviceWorkUtil).resendPhoneVerification(phoneNumber);
     }
 
     @Test
@@ -371,10 +359,7 @@ public class VerifyPhoneVerificationCodeActivityTest {
 
     @Test
     public void registers_for_broadcasts() {
-        ArgumentCaptor<IntentFilter> argumentCaptor = ArgumentCaptor.forClass(IntentFilter.class);
-        verify(localBroadCastUtil).registerReceiver(any(BroadcastReceiver.class), argumentCaptor.capture());
-
-        IntentFilter filter = argumentCaptor.getValue();
+        IntentFilter filter = activity.getIntentFilter();
 
         assertThat(filter.getAction(0), equalTo(DropbitIntents.ACTION_PHONE_VERIFICATION__INVALID_CODE));
         assertThat(filter.getAction(1), equalTo(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE));

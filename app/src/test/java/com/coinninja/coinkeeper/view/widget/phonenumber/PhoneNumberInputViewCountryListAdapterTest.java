@@ -68,6 +68,4 @@ public class PhoneNumberInputViewCountryListAdapterTest {
         assertThat(country, hasText(countryCodeLocale.getDisplayName()));
         assertThat(countryCode, hasText(countryCodeLocale.getDisplayCountryCode()));
     }
-
-
 }

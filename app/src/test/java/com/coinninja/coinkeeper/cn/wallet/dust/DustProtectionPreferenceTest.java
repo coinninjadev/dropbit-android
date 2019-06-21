@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -83,18 +83,12 @@ public class DustProtectionPreferenceTest {
 
     @Test
     public void set_protection__turn_off() {
-        when(preferencesUtil.contains(DustProtectionPreference.PREFERENCE_KEY)).thenReturn(true);
-        when(preferencesUtil.getBoolean(DustProtectionPreference.PREFERENCE_KEY)).thenReturn(true).thenReturn(false);
-
         dustProtectionPreference.setProtection(false);
         verify(preferencesUtil).savePreference(DustProtectionPreference.PREFERENCE_KEY, false);
     }
 
     @Test
     public void set_protection__turn_on() {
-        when(preferencesUtil.contains(DustProtectionPreference.PREFERENCE_KEY)).thenReturn(true);
-        when(preferencesUtil.getBoolean(DustProtectionPreference.PREFERENCE_KEY)).thenReturn(true).thenReturn(false);
-
         dustProtectionPreference.setProtection(true);
         verify(preferencesUtil).savePreference(DustProtectionPreference.PREFERENCE_KEY, true);
     }

@@ -187,12 +187,12 @@ public class TransactionDetailDialogControllerTest {
         when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.CONFIRMED);
         controller.showTransaction(activity, bindableTransaction);
         TextView confirmations = withId(getLastShownAlertDialog(), R.id.confirmations);
-        assertThat(confirmations, hasText(Resources.getString(activity, R.string.confirmations_view_stage_5)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(activity, R.string.confirmations_view_stage_5)));
 
         when(bindableTransaction.getConfirmationState()).thenReturn(BindableTransaction.ConfirmationState.UNCONFIRMED);
         controller.showTransaction(activity, bindableTransaction);
         confirmations = withId(getLastShownAlertDialog(), R.id.confirmations);
-        assertThat(confirmations, hasText(Resources.getString(activity, R.string.confirmations_view_stage_4)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(activity, R.string.confirmations_view_stage_4)));
     }
 
     @Test

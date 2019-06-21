@@ -4,6 +4,11 @@ import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.runner.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
@@ -22,12 +27,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.shadows.ShadowDialog;
 
 import java.util.HashMap;
-
-import androidx.lifecycle.Lifecycle;
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
-
 
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.coinninja.coinkeeper.view.activity.SplashActivity">
+
     <ImageView
         android:id="@+id/img_logo"
         android:layout_width="@dimen/dropbit_logo_width"

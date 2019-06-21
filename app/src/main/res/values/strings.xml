@@ -2,14 +2,14 @@
     <string name="hello_world">Hello %s</string>
     <string name="app_name">DropBit</string>
     <string name="btn_new_wallet">New Wallet</string>
-    <string name="btn_restore">Restore from backup</string>
+    <string name="btn_restore">Restore Wallet</string>
 
     <!-- Activity Titles -->
     <string name="settings_title">Settings</string>
     <string name="backup_recovery_words_title">Recovery Words</string>
+    <string name="spend_bitcoin_header">Spend Your Bitcoin</string>
     <string name="pay_contacts_title">Contacts</string>
     <string name="restore_wallet_title">Restore From Backup</string>
-    <string name="spend_bitcoin_header">Spend Your Bitcoin</string>
 
     <!-- Dialog Related Strings -->
     <string name="close">close</string>
@@ -28,8 +28,7 @@
 
     <!-- User Account Verification -->
     <string name="privacy_disclaimer">Privacy is important to us. Your number is securely hashed and encrypted before it is stored</string>
-    <string name="account_verification_overview">Verify your phone number to use the DropBit feature. DropBit allows you to send Bitcoin directly to your contacts 
-by using their mobile number</string>
+    <string name="account_verification_overview">Verify your phone number and twitter name to send Bitcoin to mobile and twitter contacts without an address</string>
     <string name="verify_phone_button_title">VERIFY PHONE NUMBER</string>
 
     <!-- Fingerprint Auth Related Strings -->
@@ -146,20 +145,19 @@ by using their mobile number</string>
 
 
     <!-- Verify Phone Number Activity -->
-    <string name="activity_verify_phone_number_header">Phone Number</string>
-    <string name="verify_phone_number_example">Example: %s</string>
-    <string name="activity_verify_phone_headline">
-        Please enter your phone number below to use the DropBit&#8482; feature.
-        DropBit allows you to send Bitcoin directly to your contacts by using their mobile number.
+    <string name="activity_verification_header">Verification</string>
+    <string name="verification_example">Example: %s</string>
+    <string name="activity_verify_headline">
+        To unlock all the features on DropBit please verify using your phone number or twitter account
     </string>
     <string name="activity_verify_phone_error_message">Invalid phone number. Please make sure you have entered the correct number.</string>
     <string name="preference_display_phone_number_label">Verified Number: </string>
     <string name="default_401_user_deverifcation_message">
-        The phone number associated with this device has been unregistered.
+        An account associated with this device has been unregistered.
     </string>
     <string name="mismatch_401_user_deverifcation_message">
-        The phone number associated with this device is no longer registered.
-        A new device has been registered with this phone number.
+        An account associated with this device is no longer registered.
+        A new device has been registered with that account.
     </string>
 
     <!-- Verify Phone Code Activity -->
@@ -207,7 +205,7 @@ by using their mobile number</string>
     <string name="pay_error_add_valid_bitcoin_address">Please add valid bitcoin address or phone number</string>
     <string name="pay_error_invalid_amount">Invalid amount</string>
     <string name="pay_error_too_little_transaction">Can not spend less than $1</string>
-    <string name="payment_error_too_much_sent_to_contact">Can not send more than $100.00 to a phone contact</string>
+    <string name="payment_error_too_much_sent_to_contact">Can not send more than $100.00 to a phone identity</string>
     <string name="payment_memo">What’s it for?</string>
     <string name="send_max">send max</string>
 
@@ -215,7 +213,7 @@ by using their mobile number</string>
     <string name="authorize_delete_message">Enter pin to confirm deletion of your wallet.</string>
 
     <!-- Contacts -->
-    <string name="search_contacts_hint">Contact name</string>
+    <string name="search_hint">Search</string>
     <string name="transaction_checksum_error">transaction checksum failed</string>
     <string name="send_and_invite_to_keeper_app">Send DropBit&#8482;</string>
     <string name="what_is_dropbit">What is DropBit?</string>
@@ -231,8 +229,8 @@ by using their mobile number</string>
     <string name="ok">OK</string>
 
     <!-- invite -->
-    <string name="history_invite_sent_pending">DropBit Sent - Pending</string>
-    <string name="history_invite_received_pending">DropBit Received - Pending</string>
+    <string name="history_invite_sent_pending">DropBit&#8482; Sent</string>
+    <string name="history_invite_received_pending">DropBit&#8482; Received</string>
     <string name="history_invite_expired">DropBit Expired</string>
     <string name="history_invite_canceled">DropBit Canceled</string>
     <string name="invite_sent_error_rate_limit">For security reasons we must limit the number of DropBits sent within 30 seconds. Please wait 30 seconds and try sending again.</string>
@@ -268,7 +266,7 @@ by using their mobile number</string>
     <string name="training_body_whats_bitcoin">Bitcoin is a currency that’s completely owned and controlled by you. It can be sent anywhere in the world, very quickly, cheaply and without the need for a 3rd party transmitter, like a bank.</string>
     <string name="training_body_system_broken">Banks charge you fees, your dollar is consistently being devalued and it’s extremely hard to exchange or send currency for global use.</string>
     <string name="training_body_recovery_words">Recovery words consist of <b>12 or 24</b> words that will allow you to restore your wallet if anything happens to your phone. <b>Treat this like your bank account password… they’re very important.</b></string>
-    <string name="training_body_dropbit">By adding your phone number it will allow you to transact Bitcoin with people in your contact list.</string>
+    <string name="training_body_dropbit">By adding your phone number it will allow you to transact Bitcoin with people in your identity list.</string>
 
     <string name="training_action_button_label">LET’S GO</string>
     <string name="training_footer_learn_whats_bitcoin"><u>Learn more about Bitcoin</u></string>
@@ -299,8 +297,18 @@ by using their mobile number</string>
     <string name="deverification_dialog_are_you_sure_positive">remove</string>
     <string name="deverification_dialog_are_you_sure_negative">cancel</string>
 
-    <string name="deverification_dialog_pending_dropbit_canceled_warning_message">If you change or remove your current phone number all pending DropBits will be canceled.</string>
+    <string name="deverification_dialog_pending_dropbit_canceled_warning_message">If you change or remove your current Twitter account, all pending DropBits will be canceled.</string>
     <string name="deverification_dialog_pending_dropbit_canceled_message">In order to change your phone number we must first remove it from your account.</string>
+
+    <string name="deverification_twitter_removed_warning_message">
+        If you change or remove your current Twitter account, all pending DropBits will be canceled.
+    </string>
+    <string name="deverification_twitter_removed_message">
+        In order to change your twitter account we must first remove it from your account.
+    </string>
+    <string name="deverification_twitter_removed_message_follow_up">
+        Are you sure you want to remove your twitter account? You will be able to add a new account after your current account is removed.
+    </string>
 
     <string name="deverification_dialog_failed_message">We are currently having trouble removing your phone number. Please try again.</string>
     <string name="deverification_dialog_failed_positive_button">try again</string>
@@ -329,7 +337,7 @@ by using their mobile number</string>
     <string name="phone_number_input_widget_country_selection_title">Select Country</string>
 
     <!-- User Phone Verification -->
-    <string name="user_account_verification_title">Phone Number Status</string>
+    <string name="user_account_verification_title">Verifications</string>
     <string name="get_bitcoin_title">Get Bitcoin</string>
     <string name="learn_bitcoin_title">Learn Bitcoin</string>
     <string name="spend_bitcoin_title">Spend Bitcoin</string>
@@ -344,6 +352,10 @@ by using their mobile number</string>
     <string name="syncing">Syncing</string>
     <string name="user_account_remove_button">CHANGE/REMOVE</string>
     <string name="user_account_verified_verified_number_title">Verified number:</string>
+    <string name="verify_twitter_account">VERIFY TWITTER ACCOUNT</string>
+    <string name="deverification_dialog_twitter">Are you sure you want to remove your twitter account? You will be able to add a new account after your current account is removed.</string>
+    <string name="deverification_twitter_failed">Could not deVerify Twitter at this time.</string>
+    <string name="deverification_phone_failed">Could not deVerify your phone at this time.</string>
     <string name="share_string">The best way to help increase the price of Bitcoin is to spread awareness and adoption.</string>
     <string name="share_awareness">Spread awareness by telling your friends you used Bitcoin.</string>
     <string name="add_memo">Add Memo</string>
@@ -354,6 +366,7 @@ by using their mobile number</string>
     <string name="twitter_share_non_memo_second">I just sent #Bitcoin using @dropbitapp and wow was that easy!</string>
     <string name="twitter_share_memo_first">I just used #Bitcoin for %s via @dropbitapp</string>
     <string name="twitter_share_memo_second">Today I used #Bitcoin for %s via @dropbitapp</string>
+    <string name="user_account_verification_view_addresses">View DropBit Addresses</string>
 
     <!-- DropBit.me -->
     <string name="me">.me</string>
@@ -369,5 +382,23 @@ by using their mobile number</string>
     <string name="dropbit_me_disabled_paragraph_1">DropBit.me is a personal URL created to safely request and receive Bitcoin directly to your wallet.</string>
     <string name="dropbit_me_learn_more">Learn more</string>
     <string name="dropbit_me_enable_account_button_label">ENABLE MY URL</string>
+    <string name="i_ll_send_the_tweet_myself">I\'ll send the tweet myself</string>
+    <string name="let_dropbit_send_the_tweet">Let dropbit send the tweet</string>
+    <string name="tweet_sent_bitcoin">You’ve sent Bitcoin to %1$s on twitter. You can notify the receiver with a tweet or to maintain privacy we can notify them with a tweet from our account.</string>
+    <string name="contacts_empty_state_string">Your contacts will be shown here once you allow DropBit to access</string>
+    <string name="allow_access_to_contacts">Allow Access To Contacts</string>
+    <string name="twitter_empty_search">Begin searching for people by using twitter names and/or handles</string>
+    <string name="claim_bitcoin_from_invite">CLAIM BITCOIN FROM INVITE</string>
+    <string name="i_got_a_tweet">I GOT A TWEET</string>
+    <string name="i_got_a_text_message">I GOT A SMS</string>
+    <string name="how_were_you_sent_bitcoin">How were you sent Bitcoin?</string>
+    <string name="just_sent_bitcoin_invite">%1$s I just sent you Bitcoin using DropBit. Download the app to claim it here: %2$s</string>
+    <string name="twitter_reminder">You\'ve sent bitcoin to %1$s on Twitter and they have been invited. You can remind them with a tweet.</string>
+
+    <!-- Account Verification -->
+    <string name="verified_identity_status_verified">Verified</string>
+    <string name="dropbit_download_url">https://dropbit.app/download</string>
+    <string name="ill_send_tweet">I\'ll Send A Tweet</string>
+    <string name="twitter">TWITTER</string>
 
 </resources>

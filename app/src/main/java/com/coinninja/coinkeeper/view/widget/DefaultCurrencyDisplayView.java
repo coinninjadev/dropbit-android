@@ -5,12 +5,10 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
@@ -19,8 +17,6 @@ import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.FiatCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
-
-import androidx.annotation.Nullable;
 
 public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultCurrencyChangeObserver {
 

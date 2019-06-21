@@ -14,7 +14,7 @@ import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
@@ -243,7 +243,7 @@ public class SecuredActivityTest {
         assertThat(intent.getComponent().getClassName(),
                 equalTo(CreatePinActivity.class.getName()));
         assertThat(intent.getStringExtra(DropbitIntents.EXTRA_NEXT),
-                equalTo(VerifyPhoneNumberActivity.class.getName()));
+                equalTo(VerificationActivity.class.getName()));
     }
 
     @Test

@@ -91,7 +91,7 @@ public class PhoneVerificationView extends ConstraintLayout {
 
     private void onExampleNumberChanged(String exampleNumber) {
         TextView exampleView = withId(this, R.id.example_number);
-        exampleView.setText(getContext().getString(R.string.verify_phone_number_example, exampleNumber));
+        exampleView.setText(getContext().getString(R.string.verification_example, exampleNumber));
     }
 
     private void onCountryCodeLocaleSelected(CountryCodeLocale countryCodeLocale) {

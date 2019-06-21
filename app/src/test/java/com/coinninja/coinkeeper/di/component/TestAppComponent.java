@@ -5,6 +5,7 @@ import android.app.Application;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.di.builder.AndroidBroadcastReceiverBuilder;
 import com.coinninja.coinkeeper.di.builder.AndroidServiceBuilder;
+import com.coinninja.coinkeeper.di.builder.AndroidViewModelBuilder;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.module.ApiClientTestModule;
 import com.coinninja.coinkeeper.di.module.DaoSessionManagerTestModule;
@@ -18,7 +19,8 @@ import dagger.android.AndroidInjectionModule;
 import dagger.android.AndroidInjector;
 
 @CoinkeeperApplicationScope
-@Component(modules = {AndroidInjectionModule.class, TestAppModule.class, ApiClientTestModule.class, DaoSessionManagerTestModule.class, AndroidServiceBuilder.class,
+@Component(modules = {AndroidInjectionModule.class, TestAppModule.class, ApiClientTestModule.class,
+        DaoSessionManagerTestModule.class, AndroidServiceBuilder.class, AndroidViewModelBuilder.class,
         AndroidBroadcastReceiverBuilder.class, AndroidFragmentBuilder.class, AndroidActivityBuilder.class})
 public interface TestAppComponent extends AndroidInjector, CoinKeeperComponent {
 

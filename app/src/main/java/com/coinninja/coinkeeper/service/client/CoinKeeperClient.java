@@ -9,11 +9,12 @@ import com.coinninja.coinkeeper.service.client.model.CNPricing;
 import com.coinninja.coinkeeper.service.client.model.CNSharedMemo;
 import com.coinninja.coinkeeper.service.client.model.CNSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNSubscriptionState;
-import com.coinninja.coinkeeper.service.client.model.CNTransactionNotification;
+import com.coinninja.coinkeeper.service.client.model.CNTransactionNotificationResponse;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
+import com.coinninja.coinkeeper.service.client.model.InviteUserPayload;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
@@ -75,7 +76,7 @@ public interface CoinKeeperClient {
     // WALLET - BTC VIA PHONE NUMBER
 
     @POST("wallet/address_requests")
-    Call<InvitedContact> invitePhoneNumber(@Body JsonObject query);
+    Call<InvitedContact> inviteUser(@Body InviteUserPayload inviteUserPayload);
 
     @GET("wallet/address_requests/received")
     Call<List<ReceivedInvite>> getAllIncomingInvites();
@@ -93,14 +94,19 @@ public interface CoinKeeperClient {
     Call<Void> resetWallet();
 
     // USER ACCOUNT
+    @Deprecated
     @GET("user")
     Call<CNUserAccount> verifyUserAccount();
 
     @PATCH("user")
     Call<CNUserPatch> patchUserAccount(@Body CNUserPatch cnUserPatch);
 
+    @Deprecated
     @POST("user")
     Call<CNUserAccount> createUserAccount(@Body CNPhoneNumber CNPhoneNumber);
+
+    @POST("user")
+    Call<CNUserAccount> createUserFrom(@Body CNUserIdentity identity);
 
     @POST("user/resend")
     Call<CNUserAccount> resendVerification(@Body CNPhoneNumber CNPhoneNumber);
@@ -108,8 +114,20 @@ public interface CoinKeeperClient {
     @POST("user/query")
     Call<Map<String, String>> queryUsers(@Body JsonObject json);
 
+    @DELETE("user/identity/{identity_id}")
+    Call<Void> deleteIdentity(@Path("identity_id") String serverId);
+
+    @GET("user/identity/{id}")
+    Call<CNUserIdentity> getIdentity(@Path("id") String id);
+
+    @GET("user/identity")
+    Call<List<CNUserIdentity>> getIdentities();
+
+    @POST("user/identity")
+    Call<CNUserIdentity> addIdentity(@Body CNUserIdentity identity);
+
     @POST("user/verify")
-    Call<CNUserAccount> confirmAccount(@Body JsonObject content);
+    Call<CNUserAccount> verifyIdentity(@Body CNUserIdentity identity);
 
     // PRICING
     @GET("wallet/check-in")
@@ -126,7 +144,10 @@ public interface CoinKeeperClient {
     Call<List<CNGlobalMessage>> getCNMessages(@Body JsonObject elasticSearch);
 
     @POST("transaction/notification")
-    Call<CNTransactionNotification> postTransactionNotification(@Body JsonObject transactionNotification);
+    Call<CNTransactionNotificationResponse> postTransactionNotification(@Body CNSharedMemo sharedMemo);
+
+    @GET("transaction/notification/{txid}")
+    Call<List<CNSharedMemo>> getTransactionNotification(@Path("txid") String txid);
 
     //CN Device
     @POST("devices")
@@ -155,8 +176,5 @@ public interface CoinKeeperClient {
 
     @PUT("wallet/subscribe")
     Call<CNSubscription> updateWalletSubscription(@Body JsonObject body);
-
-    @GET("transaction/notification/{txid}")
-    Call<List<CNSharedMemo>> getTransactionNotification(@Path("txid") String txid);
 
 }

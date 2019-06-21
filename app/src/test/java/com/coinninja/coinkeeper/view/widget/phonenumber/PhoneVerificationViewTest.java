@@ -49,7 +49,7 @@ public class PhoneVerificationViewTest {
     public void setUp() {
         activity = Robolectric.setupActivity(TestableActivity.class);
         activity.appendLayout(R.layout.activity_verify_phone);
-        phoneVerificationView = withId(activity, R.id.phone_verification_view);
+        phoneVerificationView = withId(activity, R.id.verification_view);
         phoneNumberInputView = withId(activity, R.id.phone_number_input);
         errorMessage = withId(activity, R.id.error_message);
         exampleNumber = withId(activity, R.id.example_number);

@@ -14,13 +14,15 @@ import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -138,8 +140,8 @@ public class ConfirmPayDialogFragmentTest {
 
     @Test
     public void successful_authorization_begins_broadcast() {
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", false);
-        show(contact, paymentHolder);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", false));
+        show(identity, paymentHolder);
 
         dialog.onHoldCompleteSuccessfully();
 
@@ -161,7 +163,7 @@ public class ConfirmPayDialogFragmentTest {
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
         BroadcastTransactionDTO broadcastDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(),
-                null, false, "--memo--", null);
+                false, "--memo--", null, null);
 
         Intents.intending(hasComponent(BroadcastActivity.class.getName()));
         Intents.intending(hasExtraWithKey(DropbitIntents.EXTRA_BROADCAST_DTO));
@@ -174,13 +176,15 @@ public class ConfirmPayDialogFragmentTest {
         paymentHolder.setPublicKey(publicKey);
         paymentHolder.setMemo("--memo--");
         paymentHolder.setTransactionData(transactionData);
-        Contact contact = new Contact(phoneNumber, "Joe", true);
-        show(contact, paymentHolder);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe", true));
+        show(identity, paymentHolder);
 
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
-        BroadcastTransactionDTO broadcastDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(), contact,
-                true, "--memo--", publicKey);
+        BroadcastTransactionDTO broadcastDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(),
+                true, "--memo--", new Identity(IdentityType.PHONE, identity.getValue(),
+                identity.getHash(), identity.getDisplayName(), "", false, null),
+                publicKey);
 
         Intents.intending(hasComponent(BroadcastActivity.class.getName()));
         Intents.intending(hasExtraWithKey(DropbitIntents.EXTRA_BROADCAST_DTO));
@@ -193,16 +197,16 @@ public class ConfirmPayDialogFragmentTest {
         paymentHolder.setMemo(memo);
         paymentHolder.setPaymentAddress("");
         paymentHolder.setIsSharingMemo(true);
-        Contact contact = new Contact(phoneNumber, "Joe", true);
-        show(contact, paymentHolder);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe", true));
+        show(identity, paymentHolder);
 
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
-        PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(contact,
+        PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(identity,
                 paymentHolder.getEvaluationCurrency().toLong(),
                 paymentHolder.getTransactionData().getAmount(),
                 paymentHolder.getTransactionData().getFeeAmount(),
-                memo, true);
+                memo, true, "");
 
         Intents.intending(hasComponent(InviteSendActivity.class.getName()));
         Intents.intending(hasExtraWithKey(DropbitIntents.EXTRA_INVITE_DTO));
@@ -214,18 +218,18 @@ public class ConfirmPayDialogFragmentTest {
     @Test
     public void sends_invite_without_memo() {
         paymentHolder.setPaymentAddress("");
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", false);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", false));
         paymentHolder.setMemo(null);
         paymentHolder.setIsSharingMemo(false);
-        show(contact, paymentHolder);
+        show(identity, paymentHolder);
 
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
-        PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(contact,
+        PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(identity,
                 paymentHolder.getEvaluationCurrency().toLong(),
                 paymentHolder.getTransactionData().getAmount(),
                 paymentHolder.getTransactionData().getFeeAmount(),
-                null, false);
+                "", false, "");
 
         Intents.intending(hasComponent(InviteSendActivity.class.getName()));
         Intents.intending(hasExtraWithKey(DropbitIntents.EXTRA_INVITE_DTO));
@@ -235,19 +239,19 @@ public class ConfirmPayDialogFragmentTest {
     @Test
     public void successful_authorizes_contact_sends_without_addresses() {
         paymentHolder.setPaymentAddress("");
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
         String memo = "for dinner and drinks";
         paymentHolder.setMemo(memo);
         paymentHolder.setIsSharingMemo(false);
-        show(contact, paymentHolder);
+        show(identity, paymentHolder);
 
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
-        PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(contact,
+        PendingInviteDTO inviteActivityDTO = new PendingInviteDTO(identity,
                 paymentHolder.getEvaluationCurrency().toLong(),
                 paymentHolder.getTransactionData().getAmount(),
                 paymentHolder.getTransactionData().getFeeAmount(),
-                memo, false);
+                memo, false, "");
 
         Intents.intending(hasComponent(InviteSendActivity.class.getName()));
         Intents.intending(hasExtraWithKey(DropbitIntents.EXTRA_INVITE_DTO));
@@ -284,8 +288,8 @@ public class ConfirmPayDialogFragmentTest {
     @Test
     public void showing_contact_shows_both_name_and_number() {
         paymentHolder.setPaymentAddress("");
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
-        show(contact, paymentHolder);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
+        show(identity, paymentHolder);
 
         assertThat(((TextView) dialog.getView().findViewById(R.id.confirm_pay_name)).getText().toString(),
                 equalTo("Joe Smoe"));
@@ -295,26 +299,26 @@ public class ConfirmPayDialogFragmentTest {
 
     @Test
     public void show_invite_phone_number() {
-        Contact contact = new Contact(phoneNumber, "", false);
-        show(contact, paymentHolder);
+        Identity identity = new Identity(new Contact(phoneNumber, "+1 330-555-1111", false));
+        show(identity, paymentHolder);
 
         TextView btcContactNameDisplay = dialog.getView().findViewById(R.id.confirm_pay_name);
         TextView btcSendAddressDisplay = dialog.getView().findViewById(R.id.confirm_pay_btc_address);
 
         assertThat(btcContactNameDisplay.getText().toString(), equalTo("+1 330-555-1111"));
-        assertThat(btcSendAddressDisplay.getText().toString(), equalTo(""));
+        assertThat(btcSendAddressDisplay.getText().toString(), equalTo("--send-address--"));
     }
 
     @Test
     public void show_invite_user() {
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", false);
-        show(contact, paymentHolder);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", false));
+        show(identity, paymentHolder);
 
         TextView btcContactNameDisplay = dialog.getView().findViewById(R.id.confirm_pay_name);
         TextView btcSendAddressDisplay = dialog.getView().findViewById(R.id.confirm_pay_btc_address);
 
         assertThat(btcContactNameDisplay.getText().toString(), equalTo("Joe Smoe"));
-        assertThat(btcSendAddressDisplay.getText().toString(), equalTo(""));
+        assertThat(btcSendAddressDisplay.getText().toString(), equalTo("--send-address--"));
     }
 
     @Test
@@ -326,8 +330,8 @@ public class ConfirmPayDialogFragmentTest {
 
     @Test
     public void send_analytics_EVENT_TRANSACTION_CONFIRMED_when_HoldCompleteSuccessfully() {
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", false);
-        show(contact, paymentHolder);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", false));
+        show(identity, paymentHolder);
 
         dialog.onHoldCompleteSuccessfully();
 
@@ -345,10 +349,10 @@ public class ConfirmPayDialogFragmentTest {
         assertThat(memoView, hasText(memo));
     }
 
-    private void show(Contact contact, PaymentHolder paymentHolder) {
+    private void show(Identity identity, PaymentHolder paymentHolder) {
         dialog = ConfirmPayDialogFragment.newInstance(paymentHolder, paymentBarCallbacks);
         dialog.setPaymentHolder(paymentHolder);
-        dialog.setContact(contact);
+        dialog.setIdentity(identity);
         scenario.onActivity(activity -> {
             dialog.show(activity.getSupportFragmentManager(), dialog.getTag());
         });

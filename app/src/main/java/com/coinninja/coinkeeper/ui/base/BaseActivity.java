@@ -8,6 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
@@ -15,6 +17,7 @@ import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 
 import javax.inject.Inject;
 
@@ -35,6 +38,7 @@ public abstract class BaseActivity extends DaggerAppCompatActivity implements Me
     @Inject
     ActivityNavigationUtil navigationUtil;
 
+    private AlertDialog loadingDialog;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,5 +127,23 @@ public abstract class BaseActivity extends DaggerAppCompatActivity implements Me
 
     protected void onPriceReceived(USDCurrency price) {
         drawerController.updatePriceOfBtcDisplay(price);
+    }
+
+    protected void showLoading() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            return;
+        }
+
+        loadingDialog = AlertDialogBuilder.buildIndefiniteProgress(this);
+        loadingDialog.show();
+    }
+
+    protected void removeLoading() {
+        if (loadingDialog == null) {
+            return;
+        }
+
+        loadingDialog.dismiss();
+        loadingDialog = null;
     }
 }

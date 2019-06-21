@@ -10,12 +10,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
 import com.coinninja.coinkeeper.service.SaveInviteService;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -77,12 +79,12 @@ public class InviteSendActivityTest {
         setupDI(application);
         contact = new Contact(new PhoneNumber("+13305551111"), "Joe Blow", false);
         long satoshisFee = 10108L;
-        pendingInviteDTO = new PendingInviteDTO(contact,
+        pendingInviteDTO = new PendingInviteDTO(new Identity(IdentityType.PHONE, contact.getPhoneNumber().toString(), contact.getHash(), contact.getDisplayName(), "", false, null),
                 bitcoinUSDPrice,
                 satoshisSpending,
                 satoshisFee,
                 "--memo--",
-                true
+                true, ""
         );
         Intent intent = new Intent(application, InviteSendActivity.class);
         intent.putExtra(DropbitIntents.EXTRA_INVITE_DTO, pendingInviteDTO);
@@ -97,9 +99,8 @@ public class InviteSendActivityTest {
         verify(inviteContactPresenter).requestInvite(argumentCaptor.capture());
 
         PendingInviteDTO inviteDTO = argumentCaptor.getValue();
-        assertThat(inviteDTO.getContact().getPhoneNumber().toNationalDisplayText(), equalTo(contact.getPhoneNumber().toNationalDisplayText()));
-        assertThat(inviteDTO.getContact().getDisplayName(), equalTo(contact.getDisplayName()));
-        assertThat(inviteDTO.getContact().isVerified(), equalTo(contact.isVerified()));
+        assertThat(inviteDTO.getIdentity().getValue(), equalTo(contact.getPhoneNumber().toString()));
+        assertThat(inviteDTO.getIdentity().getDisplayName(), equalTo(contact.getDisplayName()));
     }
 
     @Test
@@ -164,7 +165,7 @@ public class InviteSendActivityTest {
         verify(sendingProgressView).completeSuccess();
         verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_INITIATED);
 
-        CompletedInviteDTO completedInviteDTO = new CompletedInviteDTO(pendingInviteDTO, invitedContact);
+        CompletedInviteDTO completedInviteDTO = pendingInviteDTO.completeInviteWith(invitedContact);
         Intents.intending(hasComponent(SaveInviteService.class.getName()));
         Intents.intending(hasExtraWithKey(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO));
         Intents.intending(hasExtra(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO, completedInviteDTO));

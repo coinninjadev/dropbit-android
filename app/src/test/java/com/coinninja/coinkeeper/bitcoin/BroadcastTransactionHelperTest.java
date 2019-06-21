@@ -20,9 +20,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import io.fabric.sdk.android.Fabric;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import retrofit2.Response;

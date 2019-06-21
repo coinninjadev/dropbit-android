@@ -6,6 +6,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
 import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -19,10 +23,6 @@ import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.uri.routes.DropbitRoute.TRANSACTION_DETAILS;
@@ -165,10 +165,10 @@ public class TransactionDetailDialogController {
     private void bindConfirmations(TextView confirmations, BindableTransaction.ConfirmationState confirmationState) {
         switch (confirmationState) {
             case CONFIRMED:
-                confirmations.setText(Resources.getString(confirmations.getContext(), R.string.confirmations_view_stage_5));
+                confirmations.setText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_5));
                 break;
             case UNCONFIRMED:
-                confirmations.setText(Resources.getString(confirmations.getContext(), R.string.confirmations_view_stage_4));
+                confirmations.setText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_4));
                 break;
         }
     }

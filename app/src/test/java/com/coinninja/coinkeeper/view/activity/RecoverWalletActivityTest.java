@@ -11,7 +11,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
@@ -101,7 +101,7 @@ public class RecoverWalletActivityTest {
 
         assertThat(okButton.getText(), equalTo(activity.getText(R.string.recover_wallet_success_button_text)));
         Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getComponent().getClassName(), equalTo(VerifyPhoneNumberActivity.class.getName()));
+        assertThat(intent.getComponent().getClassName(), equalTo(VerificationActivity.class.getName()));
         assertTrue(shadowActivity.isFinishing());
     }
 
@@ -266,7 +266,7 @@ public class RecoverWalletActivityTest {
         ImageView mockIcon = mock(ImageView.class);
         TextView mockMessage = mock(TextView.class);
         activity.icon = mockIcon;
-        activity.button = mockButton;
+        activity.nextButton = mockButton;
         activity.title = mockTitle;
         activity.message = mockMessage;
         LocalBroadCastUtil localBroadCastUtil = new LocalBroadCastUtil(activity);
@@ -294,7 +294,7 @@ public class RecoverWalletActivityTest {
         ImageView mockIcon = mock(ImageView.class);
         TextView mockMessage = mock(TextView.class);
         activity.icon = mockIcon;
-        activity.button = mockButton;
+        activity.nextButton = mockButton;
         activity.title = mockTitle;
         activity.message = mockMessage;
         LocalBroadCastUtil localBroadCastUtil = new LocalBroadCastUtil(activity);
@@ -320,7 +320,7 @@ public class RecoverWalletActivityTest {
         ImageView mockIcon = mock(ImageView.class);
         TextView mockMessage = mock(TextView.class);
         activity.icon = mockIcon;
-        activity.button = mockButton;
+        activity.nextButton = mockButton;
         activity.title = mockTitle;
         activity.message = mockMessage;
 

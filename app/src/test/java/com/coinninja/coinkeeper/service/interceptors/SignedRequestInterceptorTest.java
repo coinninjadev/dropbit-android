@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 
@@ -25,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SignedRequestInterceptorTest {
@@ -39,25 +39,24 @@ public class SignedRequestInterceptorTest {
     private static final String CN_AUTH_DEVICE_UUID = "----96a5d785-c449-4fc2-a92f-9c7884b29b31---";
 
     @Mock
-    DataSigner dataSigner;
+    private DataSigner dataSigner;
 
     @Mock
-    Interceptor.Chain chain;
+    private Interceptor.Chain chain;
 
     @Mock
-    DateUtil dateUtil;
+    private DateUtil dateUtil;
 
     @Mock
-    Account account;
+    private Account account;
 
     @Mock
-    CNWalletManager cnWalletManager;
+    private CNWalletManager cnWalletManager;
 
-    Request origionalRequest;
+    private Request origionalRequest;
 
     private SignedRequestInterceptor interceptor;
     private String content;
-
 
     @Before
     public void setUp() {
@@ -66,7 +65,6 @@ public class SignedRequestInterceptorTest {
         when(account.getCnUserId()).thenReturn(CN_USER_ID);
         interceptor = new SignedRequestInterceptor(dateUtil, dataSigner, CN_AUTH_DEVICE_UUID, cnWalletManager);
         setupRequest();
-        when(dataSigner.getCoinNinjaVerificationKey()).thenReturn(SIGN_KEY);
         when(dataSigner.sign(any())).
                 thenReturn(SIGNED_CONTENT);
 

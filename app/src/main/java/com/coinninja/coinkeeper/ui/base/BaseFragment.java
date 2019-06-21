@@ -14,7 +14,6 @@ public class BaseFragment extends DaggerFragment {
     @Inject
     Analytics analytics;
 
-
     protected void forceDropKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);

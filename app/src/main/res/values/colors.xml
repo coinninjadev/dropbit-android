@@ -76,7 +76,10 @@
     <color name="flat_disabled">#40000000</color>
 
 
-    <!-- Navigation Icon -->
+    <!-- Send / receive -->
+    <color name="color_receive">#83CF1C</color>
+    <color name="color_transfer">#e76c6c</color>
+    <color name="color_send">#e76c6c</color>
 
 
     <!-- BTC Symbol Tint-->
@@ -89,6 +92,7 @@
     <color name="fontColor">#9b9b9b</color>
     <color name="light">#ffffffff</color>
     <color name="light_border">#D8D8D8</color>
+    <color name="dark">#DFDFDF</color>
 
 
     <color name="lighter_btn">#b8ffffff</color>
@@ -133,6 +137,8 @@
     <color name="list_background">#fafafa</color>
     <color name="list_boarder">#e0e0e0</color>
     <color name="list_divider_color">#ffffff</color>
-
     <color name="medium_gray">#9b9b9b</color>
+
+    <!-- Verification -->
+    <color name="verification_status_verified">#ff83cf1c</color>
 </resources>

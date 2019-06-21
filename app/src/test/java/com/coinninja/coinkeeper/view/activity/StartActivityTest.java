@@ -5,7 +5,7 @@ import android.content.Intent;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.service.WalletCreationIntentService;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.animation.StartScreenAnimation;
 
@@ -20,7 +20,7 @@ import org.robolectric.shadows.ShadowActivity;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
@@ -59,7 +59,7 @@ public class StartActivityTest {
         Intent intent = shadowActivity.getNextStartedActivity();
 
         assertThat(intent.getComponent().getClassName(), equalTo(CreatePinActivity.class.getName()));
-        assertThat(intent.getStringExtra(DropbitIntents.EXTRA_NEXT), equalTo(VerifyPhoneNumberActivity.class.getName()));
+        assertThat(intent.getStringExtra(DropbitIntents.EXTRA_NEXT), equalTo(VerificationActivity.class.getName()));
         Intent completionIntent = (Intent) intent.getExtras().get(DropbitIntents.EXTRA_ON_COMPLETION);
         assertThat(completionIntent.getComponent().getClassName(), equalTo(WalletCreationIntentService.class.getName()));
     }

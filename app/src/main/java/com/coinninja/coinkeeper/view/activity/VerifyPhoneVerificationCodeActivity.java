@@ -12,23 +12,22 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.service.ResendPhoneVerificationService;
 import com.coinninja.coinkeeper.service.SyncDropBitService;
-import com.coinninja.coinkeeper.service.UserPhoneConfirmationService;
 import com.coinninja.coinkeeper.text.TextInputNotifierWatcher;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
 
 public class VerifyPhoneVerificationCodeActivity extends SecuredActivity implements TextInputNotifierWatcher.OnInputEventListener, View.OnFocusChangeListener, DialogInterface.OnClickListener {
     public static final String EXPIRED_CODE_FRAGMENT_TAG = "EXPIRED_CODE_FRAGMENT_TAG";
@@ -43,7 +42,10 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     LocalBroadCastUtil localBroadCastUtil;
     @Inject
     DropbitMeConfiguration dropbitMeConfiguration;
-
+    @Inject
+    ServiceWorkUtil serviceWorkUtil;
+    BroadcastReceiver receiver;
+    IntentFilter intentFilter;
     private TextInputNotifierWatcher watcher;
     private ViewGroup parent;
     private int errorCount = 0;
@@ -52,68 +54,6 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     private GenericAlertDialog alertDialog;
     private GenericAlertDialog tooManyDialog;
     private PhoneNumber phoneNumber;
-    BroadcastReceiver receiver;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_verify_phone_code);
-        watcher = new TextInputNotifierWatcher(this);
-        parent = findViewById(R.id.pin_wrapper);
-        error_message = findViewById(R.id.error_message);
-
-        phoneNumber = getIntent().getParcelableExtra(DropbitIntents.EXTRA_PHONE_NUMBER);
-        TextView headline = findViewById(R.id.headline);
-        String headlineCopy = headline.getResources().
-                getString(R.string.activity_verify_phone_code_headline, phoneNumber.toInternationalDisplayText());
-        headline.setText(headlineCopy);
-
-        resend_link = findViewById(R.id.resend_link);
-        resend_link.setOnClickListener(V -> onResendClick());
-        resend_link.setPaintFlags(resend_link.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        receiver = new InvalidPhoneCodeReceiver();
-        setup();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__INVALID_CODE);
-        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
-        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS);
-        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
-        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
-        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
-        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT);
-        localBroadCastUtil.registerReceiver(receiver, intentFilter);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        parent.getChildAt(0).requestFocus();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (receiver != null) {
-            localBroadCastUtil.unregisterReceiver(receiver);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        clearAll();
-    }
-
-    private void setup() {
-        for (int i = 0; i < parent.getChildCount(); i++) {
-            parent.getChildAt(i).setOnFocusChangeListener(this);
-        }
-    }
 
     @Override
     public void onInput(int numValues) {
@@ -125,7 +65,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         } else if (numValues > 1) {
             handlePaste(focusedChild);
         } else {
-            validateCode(getCode());
+            serviceWorkUtil.validatePhoneNumberConfirmationCode(getCode());
         }
     }
 
@@ -163,11 +103,93 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         }
     }
 
+    public IntentFilter getIntentFilter() {
+        return intentFilter;
+    }
+
+    public void onInvalidCode() {
+        clearAll();
+
+        error_message.setVisibility(View.VISIBLE);
+        errorCount += 1;
+
+        if (errorCount > 2) {
+            hideErrors();
+            notifyOfToManyAttempts();
+        }
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        onResendClick();
+        dialog.dismiss();
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_verify_phone_code);
+        watcher = new TextInputNotifierWatcher(this);
+        parent = findViewById(R.id.pin_wrapper);
+        error_message = findViewById(R.id.error_message);
+
+        phoneNumber = getIntent().getParcelableExtra(DropbitIntents.EXTRA_PHONE_NUMBER);
+        TextView headline = findViewById(R.id.headline);
+        String headlineCopy = headline.getResources().
+                getString(R.string.activity_verify_phone_code_headline, phoneNumber.toInternationalDisplayText());
+        headline.setText(headlineCopy);
+
+        resend_link = findViewById(R.id.resend_link);
+        resend_link.setOnClickListener(V -> onResendClick());
+        resend_link.setPaintFlags(resend_link.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        receiver = new InvalidPhoneCodeReceiver();
+        setup();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        parent.getChildAt(0).requestFocus();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (receiver != null) {
+            localBroadCastUtil.unregisterReceiver(receiver);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        clearAll();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__INVALID_CODE);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__EXPIRED_CODE);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__SUCCESS);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR);
+        intentFilter.addAction(DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT);
+        localBroadCastUtil.registerReceiver(receiver, intentFilter);
+    }
+
+    private void setup() {
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            parent.getChildAt(i).setOnFocusChangeListener(this);
+        }
+    }
+
     private void addWatcher(EditText view) {
         view.addTextChangedListener(watcher);
         view.setOnKeyListener(watcher);
     }
-
 
     private void clearAll() {
         clearForward(0);
@@ -223,10 +245,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     }
 
     private void onResendClick() {
-        Intent intent = new Intent(this, ResendPhoneVerificationService.class);
-        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER, phoneNumber);
-
-        startService(intent);
+        serviceWorkUtil.resendPhoneVerification(phoneNumber);
     }
 
     private void onVerificationCodeSent() {
@@ -275,7 +294,6 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         alertDialog.show(getSupportFragmentManager(), TOO_FAST_SERVER_ATTEMPTS_FRAGMENT_TAG);
     }
 
-
     private void onServerErrorCode() {
         alertDialog = GenericAlertDialog.newInstance(
                 null,
@@ -304,31 +322,14 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         alertDialog.show(getSupportFragmentManager(), SERVER_ERROR_FRAGMENT_TAG);
     }
 
-    public void onInvalidCode() {
-        clearAll();
-
-        error_message.setVisibility(View.VISIBLE);
-        errorCount += 1;
-
-        if (errorCount > 2) {
-            hideErrors();
-            notifyOfToManyAttempts();
-        }
-    }
-
     private void onSuccess() {
         if (analytics != null) {
             analytics.trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SUCCESSFUL);
         }
-        startBTCInvitesService();
-        dropbitMeConfiguration.setNewlyVerified();
+        startService(new Intent(this, SyncDropBitService.class));
+        dropbitMeConfiguration.setInitialVerification();
         activityNavigationUtil.navigateToHome(this);
     }
-
-    private void startBTCInvitesService() {
-        startService(new Intent(this, SyncDropBitService.class));
-    }
-
 
     private void hideErrors() {
         error_message.setVisibility(View.GONE);
@@ -347,18 +348,6 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     private void removeWatcher(EditText view) {
         view.removeTextChangedListener(watcher);
         view.setOnKeyListener(null);
-    }
-
-    private void validateCode(String code) {
-        Intent serviceIntent = new Intent(this, UserPhoneConfirmationService.class);
-        serviceIntent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_CODE, code);
-        startService(serviceIntent);
-    }
-
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        onResendClick();
-        dialog.dismiss();
     }
 
     class InvalidPhoneCodeReceiver extends BroadcastReceiver {

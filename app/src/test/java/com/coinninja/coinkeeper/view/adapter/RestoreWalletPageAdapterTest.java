@@ -65,6 +65,18 @@ public class RestoreWalletPageAdapterTest {
     }
 
     @Test
+    public void reset_ui_on_invalid_word_button_pressed() {
+        View page = (View) adapter.instantiateItem(viewPager, 0);
+        ((EditText) page.findViewById(R.id.word)).setText("accen");
+
+        Button button = page.findViewById(R.id.invalid_button);
+        button.performClick();
+
+        assertThat(button.getVisibility(), equalTo(View.GONE));
+        assertThat(((EditText) page.findViewById(R.id.word)).getText().toString(), equalTo(""));
+    }
+
+    @Test
     public void invalid_word_shows_error_message() {
         View page = (View) adapter.instantiateItem(viewPager, 0);
         ((EditText) page.findViewById(R.id.word)).setText("accen");
@@ -72,9 +84,7 @@ public class RestoreWalletPageAdapterTest {
         Button button = (Button) ((ViewGroup) page.findViewById(R.id.words)).getChildAt(0);
         button.performClick();
 
-        assertThat(button.getVisibility(), equalTo(View.VISIBLE));
-        assertThat(button.getText(),
-                equalTo(viewPager.getResources().getText(R.string.restore_wallet_invalid_word)));
+        assertThat(button.getVisibility(), equalTo(View.GONE));
         verify(onPageForwardListener, times(0)).onClick(button);
     }
 

@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -44,7 +44,7 @@ public class PushNotificationTokenManagerTest {
     public void provides_access_to_push_token() {
         String token = "-- token";
         when(preferencesUtil
-                .getString(PushNotificationTokenManager.PUSH_NOTIFICATION_DEVICE_TOKEN, null))
+                .getString(PushNotificationTokenManager.PUSH_NOTIFICATION_DEVICE_TOKEN, ""))
                 .thenReturn(token);
 
         assertThat(pushNotificationTokenManager.getToken(), equalTo(token));

@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import junitx.util.PrivateAccessor;
 
@@ -65,7 +65,6 @@ public class AuthenticateFragmentPresenterTest {
     @Test
     public void instructs_view_to_lock_user_out_after_six_failed_attempts() {
         when(pinEntry.comparePins(anyString(), anyString())).thenReturn(PinCompare.NON_MATCH);
-        when(pinEntry.hasExistingPin()).thenReturn(true);
         when(pinEntry.getSavedPin()).thenReturn("--saved-pin--");
         presenter.attach(view);
 
@@ -89,7 +88,7 @@ public class AuthenticateFragmentPresenterTest {
     }
 
     @Test
-    public void startAuth_Already_Authenticated() throws Exception {
+    public void startAuth_Already_Authenticated() {
         presenter.attach(view);
         when(authentication.isAuthenticated()).thenReturn(true);
 
@@ -99,7 +98,7 @@ public class AuthenticateFragmentPresenterTest {
     }
 
     @Test
-    public void startAuth_hasFingerprint() throws Exception {
+    public void startAuth_hasFingerprint() {
         presenter.attach(view);
         when(authentication.isAuthenticated()).thenReturn(false);
         when(authentication.hasOptedIntoFingerprintAuth()).thenReturn(true);
@@ -111,9 +110,8 @@ public class AuthenticateFragmentPresenterTest {
     }
 
     @Test
-    public void force_user_auth_even_if_user_has_already_auth() throws Exception {
+    public void force_user_auth_even_if_user_has_already_auth() {
         presenter.attach(view);
-        when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.hasOptedIntoFingerprintAuth()).thenReturn(false);
         boolean forceAuth = true;
 
@@ -124,10 +122,9 @@ public class AuthenticateFragmentPresenterTest {
     }
 
     @Test
-    public void not_force_user_auth_even_if_user_has_already_auth() throws Exception {
+    public void not_force_user_auth_even_if_user_has_already_auth() {
         presenter.attach(view);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.hasOptedIntoFingerprintAuth()).thenReturn(false);
         boolean forceAuth = false;
 
         presenter.startAuth(forceAuth);
@@ -148,13 +145,11 @@ public class AuthenticateFragmentPresenterTest {
     }
 
     @Test
-    public void onSixDigits_MATCH() throws Exception {
+    public void onSixDigits_MATCH() {
         presenter.attach(view);
-
+        when(pinEntry.getSavedPin()).thenReturn("640237");
         int[] userPin = new int[]{6, 4, 0, 2, 3, 7};
-        when(pinEntry.hasExistingPin()).thenReturn(true);
         when(pinEntry.comparePins(anyString(), anyString())).thenReturn(PinCompare.MATCH);
-
 
         presenter.verifyPin(userPin);
         verify(authentication).setAuthenticated();
@@ -162,13 +157,11 @@ public class AuthenticateFragmentPresenterTest {
     }
 
     @Test
-    public void onSixDigits_NON_MATCH() throws Exception {
+    public void onSixDigits_NON_MATCH() {
         presenter.attach(view);
-
         int[] userPin = new int[]{6, 4, 0, 2, 3, 7};
-        when(pinEntry.hasExistingPin()).thenReturn(true);
+        when(pinEntry.getSavedPin()).thenReturn("123456");
         when(pinEntry.comparePins(anyString(), anyString())).thenReturn(PinCompare.NON_MATCH);
-
 
         presenter.verifyPin(userPin);
         verify(authentication, never()).setAuthenticated();

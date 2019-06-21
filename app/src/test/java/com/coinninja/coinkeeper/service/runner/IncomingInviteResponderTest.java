@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +74,7 @@ public class IncomingInviteResponderTest {
     private String addressTwo = "-- addr 2 --";
     private String addressTwoPubKey = "sv8h243098fhwq398fh2398rdfhwasduvfnbw9834rth";
 
-    private ArrayList<String> unusedAddresses = new ArrayList(Arrays.asList(new String[]{ addressOne, addressTwo }));
+    private ArrayList<String> unusedAddresses = new ArrayList(Arrays.asList(new String[]{addressOne, addressTwo}));
     private HashMap<String, AddressDTO> addresstoDTO = new HashMap<>();
     private List<InviteTransactionSummary> sampleInvites;
 
@@ -96,7 +96,6 @@ public class IncomingInviteResponderTest {
         sampleInvites = buildSampleInvites(sampleInviteServerID);
         when(accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, sampleInvites.size())).thenReturn(addresstoDTO);
         when(walletHelper.getIncompleteReceivedInvites()).thenReturn(sampleInvites);
-        when(apiClient.sendAddressForInvite(sampleInviteServerID, unusedAddresses.get(1), addresstoDTO.get(addressTwo).getUncompressedPublicKey())).thenReturn(getResponse(response));
     }
 
     @Test
@@ -143,8 +142,7 @@ public class IncomingInviteResponderTest {
 
         when(sampleInvite.getServerId()).thenReturn(sampleInviteServerID);
         when(sampleInvite.getValueSatoshis()).thenReturn(sampleValueSatoshis);
-        when(sampleInvite.getSenderPhoneNumber()).thenReturn(phoneNumber);
-        when(phoneNumber.displayTextForLocale()).thenReturn(FORMATTED_PHONE);
+        when(sampleInvite.getLocaleFriendlyDisplayIdentityForSender()).thenReturn(FORMATTED_PHONE);
         sampleInvites.add(sampleInvite);
         return sampleInvites;
     }

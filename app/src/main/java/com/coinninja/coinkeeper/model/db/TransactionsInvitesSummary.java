@@ -1,42 +1,54 @@
 package com.coinninja.coinkeeper.model.db;
 
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.db.converter.PhoneNumberConverter;
 
 import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.ToOne;
 
 @Entity(active = true)
 public class TransactionsInvitesSummary {
 
+    @Keep
+    public String getLocaleFriendlyDisplayIdentityForReceiver() {
+        if (getToUser() == null) return "";
+        return toUser.getLocaleFriendlyDisplayIdentityText();
+    }
+
+    @Keep
+    public String getLocaleFriendlyDisplayIdentityForSender() {
+        if (getFromUser() == null) return "";
+        return fromUser.getLocaleFriendlyDisplayIdentityText();
+    }
+
     @Id(autoincrement = true)
     private Long id;
 
     @Property
-    Long transactionSummaryID;
+    private Long transactionSummaryID;
 
-    @Property
-    String toName;
+    private Long toUserIdentityId;
+    @ToOne(joinProperty = "toUserIdentityId")
+    private UserIdentity toUser;
 
-    @Convert(converter = PhoneNumberConverter.class, columnType = String.class)
-    @Property
-    PhoneNumber toPhoneNumber;
+    private Long fromUserIdentityId;
+    @ToOne(joinProperty = "fromUserIdentityId")
+    private UserIdentity fromUser;
 
     @ToOne(joinProperty = "transactionSummaryID")
     @Property
-    TransactionSummary transactionSummary;
+    private TransactionSummary transactionSummary;
 
     @Property
-    Long inviteSummaryID;
+    private Long inviteSummaryID;
 
     @ToOne(joinProperty = "inviteSummaryID")
     @Property
-    InviteTransactionSummary inviteTransactionSummary;
+    private InviteTransactionSummary inviteTransactionSummary;
 
     @Property
     long inviteTime;
@@ -45,10 +57,10 @@ public class TransactionsInvitesSummary {
     long btcTxTime;
 
     @Property
-    String transactionTxID;
+    private String transactionTxID;
 
     @Property
-    String inviteTxID;
+    private String inviteTxID;
 
     /**
      * Used to resolve relations
@@ -68,13 +80,17 @@ public class TransactionsInvitesSummary {
     @Generated(hash = 803853178)
     private transient Long inviteTransactionSummary__resolvedKey;
 
+    @Generated(hash = 1661025460)
+    private transient Long toUser__resolvedKey;
+
+    @Generated(hash = 468263943)
+    private transient Long fromUser__resolvedKey;
+
     public TransactionsInvitesSummary(Long id, Long transactionSummaryID, Long transactionNotificationID,
                                       String toName, PhoneNumber toPhoneNumber, Long inviteSummaryID, long inviteTime, long btcTxTime,
                                       String transactionTxID, String inviteTxID) {
         this.id = id;
         this.transactionSummaryID = transactionSummaryID;
-        this.toName = toName;
-        this.toPhoneNumber = toPhoneNumber;
         this.inviteSummaryID = inviteSummaryID;
         this.inviteTime = inviteTime;
         this.btcTxTime = btcTxTime;
@@ -82,14 +98,13 @@ public class TransactionsInvitesSummary {
         this.inviteTxID = inviteTxID;
     }
 
-    @Generated(hash = 839588361)
-    public TransactionsInvitesSummary(Long id, Long transactionSummaryID, String toName,
-                                      PhoneNumber toPhoneNumber, Long inviteSummaryID, long inviteTime, long btcTxTime,
-                                      String transactionTxID, String inviteTxID) {
+    @Generated(hash = 801398858)
+    public TransactionsInvitesSummary(Long id, Long transactionSummaryID, Long toUserIdentityId, Long fromUserIdentityId,
+                                      Long inviteSummaryID, long inviteTime, long btcTxTime, String transactionTxID, String inviteTxID) {
         this.id = id;
         this.transactionSummaryID = transactionSummaryID;
-        this.toName = toName;
-        this.toPhoneNumber = toPhoneNumber;
+        this.toUserIdentityId = toUserIdentityId;
+        this.fromUserIdentityId = fromUserIdentityId;
         this.inviteSummaryID = inviteSummaryID;
         this.inviteTime = inviteTime;
         this.btcTxTime = btcTxTime;
@@ -115,14 +130,6 @@ public class TransactionsInvitesSummary {
 
     public void setTransactionSummaryID(Long transactionSummaryID) {
         this.transactionSummaryID = transactionSummaryID;
-    }
-
-    public String getToName() {
-        return toName;
-    }
-
-    public void setToName(String toName) {
-        this.toName = toName;
     }
 
     public Long getInviteSummaryID() {
@@ -215,9 +222,7 @@ public class TransactionsInvitesSummary {
         return inviteTransactionSummary;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 690463659)
     public void setInviteTransactionSummary(InviteTransactionSummary inviteTransactionSummary) {
         synchronized (this) {
@@ -263,13 +268,80 @@ public class TransactionsInvitesSummary {
         myDao.update(this);
     }
 
-    public PhoneNumber getToPhoneNumber() {
-        return toPhoneNumber;
+    public Long getToUserIdentityId() {
+        return toUserIdentityId;
     }
 
+    public void setToUserIdentityId(Long toUserIdentityId) {
+        this.toUserIdentityId = toUserIdentityId;
+    }
 
-    public void setToPhoneNumber(PhoneNumber toPhoneNumber) {
-        this.toPhoneNumber = toPhoneNumber;
+    public Long getFromUserIdentityId() {
+        return fromUserIdentityId;
+    }
+
+    public void setFromUserIdentityId(Long fromUserIdentityId) {
+        this.fromUserIdentityId = fromUserIdentityId;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1597379521)
+    public UserIdentity getToUser() {
+        Long __key = this.toUserIdentityId;
+        if (toUser__resolvedKey == null || !toUser__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            UserIdentityDao targetDao = daoSession.getUserIdentityDao();
+            UserIdentity toUserNew = targetDao.load(__key);
+            synchronized (this) {
+                toUser = toUserNew;
+                toUser__resolvedKey = __key;
+            }
+        }
+        return toUser;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1187746829)
+    public void setToUser(UserIdentity toUser) {
+        synchronized (this) {
+            this.toUser = toUser;
+            toUserIdentityId = toUser == null ? null : toUser.getId();
+            toUser__resolvedKey = toUserIdentityId;
+        }
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1726127259)
+    public UserIdentity getFromUser() {
+        Long __key = this.fromUserIdentityId;
+        if (fromUser__resolvedKey == null || !fromUser__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            UserIdentityDao targetDao = daoSession.getUserIdentityDao();
+            UserIdentity fromUserNew = targetDao.load(__key);
+            synchronized (this) {
+                fromUser = fromUserNew;
+                fromUser__resolvedKey = __key;
+            }
+        }
+        return fromUser;
+    }
+
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
+    @Generated(hash = 938191438)
+    public void setFromUser(UserIdentity fromUser) {
+        synchronized (this) {
+            this.fromUser = fromUser;
+            fromUserIdentityId = fromUser == null ? null : fromUser.getId();
+            fromUser__resolvedKey = fromUserIdentityId;
+        }
     }
 
     /** called by internal mechanisms, do not call yourself. */

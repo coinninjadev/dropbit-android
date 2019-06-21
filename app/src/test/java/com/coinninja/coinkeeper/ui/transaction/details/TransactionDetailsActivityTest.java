@@ -2,6 +2,8 @@ package com.coinninja.coinkeeper.ui.transaction.details;
 
 import android.content.Intent;
 
+import androidx.viewpager.widget.ViewPager;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -20,8 +22,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 
-import androidx.viewpager.widget.ViewPager;
-
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.ActivityMatchers.hasViewWithId;
 import static com.coinninja.matchers.IntentFilterMatchers.containsAction;
@@ -29,10 +29,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mock;
 
 @RunWith(RobolectricTestRunner.class)
 public class TransactionDetailsActivityTest {

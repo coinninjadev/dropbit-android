@@ -2,14 +2,19 @@ package com.coinninja.coinkeeper.service.client;
 
 import androidx.annotation.NonNull;
 
-import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
+import com.coinninja.coinkeeper.service.client.model.CNSharedMemo;
 import com.coinninja.coinkeeper.service.client.model.CNTopic;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
-import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.service.client.model.InviteUserPayload;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -41,12 +46,6 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         JsonObject json = new JsonObject();
         json.addProperty("public_key_string", publicVerificationKey);
         return executeCall(getClient().createWallet(json));
-    }
-
-    public Response verifyPhoneCode(String code) {
-        JsonObject json = new JsonObject();
-        json.addProperty("code", code);
-        return executeCall(getClient().confirmAccount(json));
     }
 
     public Response fetchContactStatus(List<Contact> contacts) {
@@ -87,28 +86,8 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         return executeCall(getClient().queryWalletAddress(request));
     }
 
-    public Response invitePhoneNumber(long centsAmountSendingUSD, long satoshisAmountSendingBTC,
-                                      PhoneNumber senderPhoneNumber, PhoneNumber receiverPhoneNumber,
-                                      String uuid) {
-        JsonObject query = new JsonObject();
-
-        JsonObject amount = new JsonObject();
-        amount.addProperty("btc", satoshisAmountSendingBTC);
-        amount.addProperty("usd", centsAmountSendingUSD);
-
-        JsonObject sender = new JsonObject();
-        sender.addProperty("country_code", senderPhoneNumber.getCountryCode());
-        sender.addProperty("phone_number", Long.toString(senderPhoneNumber.getNationalNumber()));
-
-        JsonObject receiver = new JsonObject();
-        receiver.addProperty("country_code", receiverPhoneNumber.getCountryCode());
-        receiver.addProperty("phone_number", Long.toString(receiverPhoneNumber.getNationalNumber()));
-
-        query.add("amount", amount);
-        query.add("sender", sender);
-        query.add("receiver", receiver);
-        query.addProperty("request_id", uuid);
-        return executeCall(getClient().invitePhoneNumber(query));
+    public Response inviteUser(InviteUserPayload inviteUserPayload) {
+       return executeCall(getClient().inviteUser(inviteUserPayload));
     }
 
     public Response getReceivedInvites() {
@@ -127,6 +106,13 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         query.addProperty("address_pubkey", addressPubKey);
 
         return executeCall(getClient().sendAddress(query));
+    }
+
+    public Response patchSuppressionForWalletAddressRequest(String inviteId) {
+        JsonObject query = new JsonObject();
+
+        query.addProperty("suppress", false);
+        return executeCall(getClient().patchInvite(inviteId, query));
     }
 
     public Response updateInviteStatusCompleted(String inviteId, String txID) {
@@ -233,15 +219,8 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         return executeCall(getClient().updateWalletSubscription(jsonObject));
     }
 
-    public Response postTransactionNotification(String txid, String address, String phoneNumberHash, String encryptedPayload) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("txid", txid);
-        jsonObject.addProperty("address", address);
-        jsonObject.addProperty("phone_number_hash", phoneNumberHash);
-        jsonObject.addProperty("encrypted_payload", encryptedPayload);
-        jsonObject.addProperty("encrypted_format", "1");
-
-        return executeCall(getClient().postTransactionNotification(jsonObject));
+    public Response postTransactionNotification(CNSharedMemo sharedMemo) {
+        return executeCall(getClient().postTransactionNotification(sharedMemo));
     }
 
     public Response disableDropBitMeAccount() {
@@ -252,10 +231,40 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         return executeCall(getClient().patchUserAccount(new CNUserPatch(false)));
     }
 
+    @NotNull
+    public Response getIdentity(@Nullable DropbitMeIdentity identity) {
+        return executeCall(getClient().getIdentity(identity.getServerId()));
+    }
+
+    @NotNull
+    public Response deleteIdentity(@Nullable DropbitMeIdentity identity) {
+        return executeCall(getClient().deleteIdentity(identity.getServerId()));
+    }
+
+    public Response getIdentities() {
+        return executeCall(getClient().getIdentities());
+    }
+
+    @NotNull
+    public Response addIdentity(@Nullable CNUserIdentity identity) {
+        return executeCall(getClient().addIdentity(identity));
+    }
+
+    @NotNull
+    public Response verifyIdentity(@Nullable CNUserIdentity identity) {
+        return executeCall(getClient().verifyIdentity(identity));
+    }
+
+    @NotNull
+    public Response createUserFromIdentity(@Nullable CNUserIdentity identity) {
+        return executeCall(getClient().createUserFrom(identity));
+    }
+
     @NonNull
     private JsonObject buildWalletSubscriptionBody(String deviceEndpoint) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("device_endpoint_id", deviceEndpoint);
         return jsonObject;
     }
+
 }

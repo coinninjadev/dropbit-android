@@ -71,7 +71,6 @@
         app:layout_constraintTop_toBottomOf="@+id/contact_name"
         tools:text="(330) 555-1111" />
 
-
     <com.coinninja.coinkeeper.view.widget.PaymentReceiverView
         android:id="@+id/payment_receiver"
         style="@style/PhoneNumberInputWidgetStyle"
@@ -89,34 +88,41 @@
         app:layout_constraintTop_toBottomOf="@+id/contact_number"
         app:layout_constraintVertical_bias="1.0" />
 
-
     <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
         android:id="@+id/contacts_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="8dp"
+        android:drawableStart="@drawable/ic_phone"
+        android:drawablePadding="4dp"
         android:text="@string/pay_contacts_label"
         android:textSize="12sp"
         app:layout_constrainedHeight="false"
-        app:layout_constraintBottom_toBottomOf="@+id/scan_btc_address_btn"
-        app:layout_constraintEnd_toStartOf="@+id/scan_btc_address_btn"
+        app:layout_constraintBottom_toBottomOf="@+id/twitter_contacts_button"
+        app:layout_constraintEnd_toStartOf="@+id/twitter_contacts_button"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_weight=".9"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/scan_btc_address_btn" />
+        app:layout_constraintTop_toTopOf="@+id/twitter_contacts_button" />
 
     <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
-        android:id="@+id/scan_btc_address_btn"
-        android:layout_width="wrap_content"
+        android:id="@+id/twitter_contacts_button"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
         android:layout_marginBottom="24dp"
-        android:text="@string/pay_scan_btn_label"
+        android:drawableStart="@drawable/twitter_icon"
+        android:drawablePadding="4dp"
+        android:text="@string/twitter"
         android:textSize="12sp"
         app:layout_constrainedHeight="false"
         app:layout_constraintBottom_toTopOf="@+id/transaction_memo"
         app:layout_constraintEnd_toStartOf="@+id/paste_address_btn"
         app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/contacts_btn"
         app:layout_constraintTop_toBottomOf="@+id/barrier"
         app:layout_constraintVertical_chainStyle="spread_inside"
@@ -125,17 +131,20 @@
 
     <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
         android:id="@+id/paste_address_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="8dp"
+        android:drawableStart="@drawable/edit_icon"
+        android:drawablePadding="4dp"
         android:text="@string/paste_btn_label"
         android:textSize="12sp"
         app:layout_constrainedHeight="false"
-        app:layout_constraintBottom_toBottomOf="@+id/scan_btc_address_btn"
+        app:layout_constraintBottom_toBottomOf="@+id/twitter_contacts_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/scan_btc_address_btn"
-        app:layout_constraintTop_toTopOf="@+id/scan_btc_address_btn" />
+        app:layout_constraintHorizontal_weight=".75"
+        app:layout_constraintStart_toEndOf="@+id/twitter_contacts_button"
+        app:layout_constraintTop_toTopOf="@+id/twitter_contacts_button" />
 
     <include
         android:id="@+id/transaction_memo"
@@ -152,7 +161,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scan_btc_address_btn"
+        app:layout_constraintTop_toBottomOf="@+id/twitter_contacts_button"
         tools:ignore="UnusedAttribute" />
 
     <Button
@@ -190,7 +199,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="256dp" />
-
+        app:layout_constraintGuide_end="401dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

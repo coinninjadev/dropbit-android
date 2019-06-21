@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
+
 public class TransactionNotificationV1 {
 
     private MetaV1 meta;
@@ -68,5 +70,21 @@ public class TransactionNotificationV1 {
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TransactionNotificationV1 that = (TransactionNotificationV1) o;
+        return Objects.equals(meta, that.meta) &&
+                Objects.equals(txid, that.txid) &&
+                Objects.equals(info, that.info) &&
+                Objects.equals(profile, that.profile);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(meta, txid, info, profile);
     }
 }

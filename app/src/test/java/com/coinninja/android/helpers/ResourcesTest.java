@@ -1,30 +1,28 @@
 package com.coinninja.android.helpers;
 
-import android.content.Context;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-import static com.coinninja.android.helpers.Resources.getString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ResourcesTest {
     @Test
     public void gets_string_for_given_resource() {
-        Context context = RuntimeEnvironment.application;
-        assertThat(getString(context, R.string.send_request), equalTo("Send Request"));
+        assertThat(Resources.INSTANCE.getString(ApplicationProvider.getApplicationContext(),
+                R.string.send_request), equalTo("Send Request"));
     }
 
     @Test
     public void gets_string_for_given_resource__with_formatting() {
-        Context context = RuntimeEnvironment.application;
-        assertThat(getString(context, R.string.hello_world, "World"), equalTo("Hello World"));
+        assertThat(Resources.INSTANCE.getString(ApplicationProvider.getApplicationContext(),
+                R.string.hello_world, "World"), equalTo("Hello World"));
     }
 
 }

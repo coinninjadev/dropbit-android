@@ -7,6 +7,8 @@ import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver;
+import com.coinninja.coinkeeper.service.client.CNUserAccount;
+import com.coinninja.coinkeeper.twitter.MyTwitterProfile;
 import com.coinninja.coinkeeper.util.DateUtil;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -21,7 +23,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -66,6 +68,9 @@ public class CNWalletManagerTest {
 
     @Mock
     private AccountManager accountManager;
+
+    @Mock
+    private MyTwitterProfile myTwitterProfile;
 
     @Mock
     private TransactionHelper transactionHelper;
@@ -303,6 +308,7 @@ public class CNWalletManagerTest {
         verify(transactionHelper).cancelPendingSentInvites();
         verify(analytics).setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
         verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
+        verify(analytics).setUserProperty(Analytics.PROPERTY_TWITTER_VERIFIED, false);
         verify(analytics).flush();
     }
 
@@ -313,5 +319,14 @@ public class CNWalletManagerTest {
         verify(walletHelper).updateBalances();
         verify(walletHelper).updateSpendableBalances();
         verify(localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
+    }
+
+    @Test
+    public void updates_account_from_cn_user_account() {
+        CNUserAccount account = new CNUserAccount();
+
+        cnWalletManager.updateAccount(account);
+
+        verify(walletHelper).saveAccountRegistration(account);
     }
 }

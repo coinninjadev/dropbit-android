@@ -5,9 +5,11 @@ import com.coinninja.coinkeeper.cn.service.CoinNinjaServiceCheck.DeverifiedCause
 import com.coinninja.coinkeeper.cn.service.UserVerificationServiceCheck;
 import com.coinninja.coinkeeper.cn.service.WalletVerificationServiceCheck;
 import com.coinninja.coinkeeper.cn.service.exception.base.CNServiceException;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -34,6 +36,9 @@ public class AccountDeverificationServiceRunnerTest {
     private WalletHelper walletHelper;
 
     @Mock
+    private DropbitAccountHelper dropbitAccountHelper;
+
+    @Mock
     private UserVerificationServiceCheck userVerificationServiceCheck;
 
     @Mock
@@ -45,23 +50,28 @@ public class AccountDeverificationServiceRunnerTest {
     @Mock
     private Analytics analytics;
 
+    @Mock
+    private ServiceWorkUtil serviceWorkUtil;
+
     @InjectMocks
     private AccountDeverificationServiceRunner runner;
 
     @Before
     public void setUp() {
-        when(walletHelper.hasVerifiedAccount()).thenReturn(false);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(false);
         when(walletHelper.hasAccount()).thenReturn(false);
     }
 
     @After
     public void tearDown() throws Exception {
         walletHelper = null;
+        dropbitAccountHelper = null;
         userVerificationServiceCheck = null;
         walletVerificationServiceCheck = null;
         notificationUtil = null;
         analytics = null;
         runner = null;
+        serviceWorkUtil = null;
     }
 
     @Test
@@ -69,9 +79,8 @@ public class AccountDeverificationServiceRunnerTest {
         String expectedMessage = String.format(runner.debugMessage, AccountDeverificationServiceRunner.WALLET, "JSON: error_message -- dropped");
         ArgumentCaptor<JSONObject> captor = ArgumentCaptor.forClass(JSONObject.class);
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(false);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(false);
         when(walletVerificationServiceCheck.isVerified()).thenReturn(false);
-        when(walletVerificationServiceCheck.deverificaitonReason()).thenReturn(DeverifiedCause.DROPPED);
         when(walletVerificationServiceCheck.getRaw()).thenReturn("JSON: error_message -- dropped");
 
         runner.run();
@@ -87,7 +96,7 @@ public class AccountDeverificationServiceRunnerTest {
         String expectedMessage = String.format(runner.debugMessage, AccountDeverificationServiceRunner.USER, "JSON: error_message -- mismatched");
         ArgumentCaptor<JSONObject> captor = ArgumentCaptor.forClass(JSONObject.class);
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(userVerificationServiceCheck.isVerified()).thenReturn(false);
         when(userVerificationServiceCheck.deverificaitonReason()).thenReturn(DeverifiedCause.MISMATCH);
         when(walletVerificationServiceCheck.isVerified()).thenReturn(true);
@@ -107,7 +116,7 @@ public class AccountDeverificationServiceRunnerTest {
         String expectedMessage = String.format(runner.debugMessage, AccountDeverificationServiceRunner.USER, "JSON: error_message -- dropped");
         ArgumentCaptor<JSONObject> captor = ArgumentCaptor.forClass(JSONObject.class);
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(userVerificationServiceCheck.isVerified()).thenReturn(false);
         when(userVerificationServiceCheck.deverificaitonReason()).thenReturn(DeverifiedCause.DROPPED);
         when(walletVerificationServiceCheck.isVerified()).thenReturn(true);
@@ -124,19 +133,21 @@ public class AccountDeverificationServiceRunnerTest {
     @Test
     public void notifies_of_account_mismatch() throws CNServiceException {
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(userVerificationServiceCheck.isVerified()).thenReturn(false);
         when(userVerificationServiceCheck.deverificaitonReason()).thenReturn(DeverifiedCause.MISMATCH);
 
         runner.run();
 
         verify(notificationUtil).dispatchInternal(R.string.mismatch_401_user_deverifcation_message);
+        verify(serviceWorkUtil).deVerifyPhoneNumber();
+        verify(serviceWorkUtil).deVerifyTwitter();
     }
 
     @Test
     public void notifies_of_dropped_accounts() throws CNServiceException {
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(userVerificationServiceCheck.isVerified()).thenReturn(false);
         when(userVerificationServiceCheck.deverificaitonReason()).thenReturn(DeverifiedCause.DROPPED);
 
@@ -148,7 +159,7 @@ public class AccountDeverificationServiceRunnerTest {
     @Test
     public void performs_deverification_of_wallet_when_account_and_wallet_are_not_verified() throws CNServiceException {
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(userVerificationServiceCheck.isVerified()).thenReturn(false);
         when(walletVerificationServiceCheck.isVerified()).thenReturn(false);
 
@@ -160,7 +171,7 @@ public class AccountDeverificationServiceRunnerTest {
     @Test
     public void performs_deverification_of_account_when_account_is_not_verified() throws CNServiceException {
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(userVerificationServiceCheck.isVerified()).thenReturn(false);
 
         runner.run();
@@ -171,7 +182,7 @@ public class AccountDeverificationServiceRunnerTest {
     @Test
     public void does_not_verify_wallet_when_account_is_verified() throws CNServiceException {
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(userVerificationServiceCheck.isVerified()).thenReturn(true);
 
         runner.run();
@@ -182,7 +193,7 @@ public class AccountDeverificationServiceRunnerTest {
     @Test
     public void verifies_wallet_when_account_is_not_verified() throws CNServiceException {
         when(walletHelper.hasAccount()).thenReturn(true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(userVerificationServiceCheck.isVerified()).thenReturn(false);
 
         runner.run();
@@ -211,7 +222,7 @@ public class AccountDeverificationServiceRunnerTest {
 
     @Test
     public void verifies_account_when_present() throws CNServiceException {
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         when(walletHelper.hasAccount()).thenReturn(true);
 
         runner.run();

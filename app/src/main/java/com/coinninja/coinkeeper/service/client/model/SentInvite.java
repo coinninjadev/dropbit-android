@@ -12,7 +12,11 @@ public class SentInvite {
     String txid;
     String wallet_id;
     String address_pubkey;
+    String delivery_id;
 
+    public String getDelivery_id() {
+        return delivery_id;
+    }
 
     public String getId() {
         return id;

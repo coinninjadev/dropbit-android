@@ -1,15 +1,26 @@
 package com.coinninja.coinkeeper.service.client.model;
 
-import com.coinninja.coinkeeper.model.PhoneNumber;
-
 public class InviteMetadata {
     MetadataAmount amount;
     MetadataContact sender;
     MetadataContact receiver;
+    Boolean suppress;
     String request_id;
+
+    public Boolean getSuppress() {
+        return suppress;
+    }
+
+    public void setSuppress(Boolean suppress) {
+        this.suppress = suppress;
+    }
 
     public String getRequest_id() {
         return request_id;
+    }
+
+    public void setRequest_id(String request_id) {
+        this.request_id = request_id;
     }
 
     public MetadataAmount getAmount() {
@@ -39,40 +50,43 @@ public class InviteMetadata {
     public static class MetadataContact {
         String type;
         String identity;
-        int country_code;
-        String phone_number;
+        String handle;
 
-        public MetadataContact() {
+        public MetadataContact(String type, String identity) {
+            this.type = type;
+            this.identity = identity;
         }
 
-        public MetadataContact(int country_code, String phone_number) {
-            this.country_code = country_code;
-            this.phone_number = phone_number;
-        }
-
-        @Deprecated
-        public int getCountry_code() {
-            return country_code;
-        }
-
-        @Deprecated()
-        public String getPhone_number() {
-            return phone_number;
+        public MetadataContact(String type, String identity, String handle) {
+            this.type = type;
+            this.identity = identity;
+            this.handle = handle;
         }
 
         public String getType() {
             return type;
         }
 
+        public void setType(String type) {
+            this.type = type;
+        }
+
         public String getIdentity() {
             return identity;
         }
 
-        public PhoneNumber identityAsPhoneNumber() {
-            if (null == phone_number) {
-                return new PhoneNumber(String.format("+%s", identity));
-            }
-            return new PhoneNumber(country_code, phone_number);
+        public void setIdentity(String identity) {
+            this.identity = identity;
+        }
+
+        public String getHandle() {
+            if (handle != null && handle.startsWith("@"))
+                handle = handle.replaceFirst("@", "");
+            return handle;
+        }
+
+        public void setHandle(String handle) {
+            this.handle = handle;
         }
     }
 

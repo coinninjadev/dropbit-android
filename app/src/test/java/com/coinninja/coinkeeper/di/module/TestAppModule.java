@@ -41,6 +41,7 @@ import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.model.db.Account;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
@@ -53,34 +54,43 @@ import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
+import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
+import com.coinninja.coinkeeper.ui.base.TransactionTweetDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
+import com.coinninja.coinkeeper.util.CoinNinjaContactResolver;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
+import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
+import com.coinninja.coinkeeper.util.RemoteAddressLocalCache;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.LocationUtil;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
+import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
+import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
 import com.google.gson.Gson;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import app.dropbit.twitter.Twitter;
 import dagger.Module;
 import dagger.Provides;
 
@@ -88,6 +98,16 @@ import static org.mockito.Mockito.mock;
 
 @Module
 public class TestAppModule {
+
+    @Provides
+    Picasso picasso() {
+        return mock(Picasso.class);
+    }
+
+    @Provides
+    CoinNinjaContactResolver coinNinjaContentResolver(PermissionsUtil permissionsUtil, ContentResolver resolver) {
+        return new CoinNinjaContactResolver(permissionsUtil, resolver);
+    }
 
     @Provides
     AnalyticUtil analyticUtil(MixpanelAPI analyticsProvider) {
@@ -327,8 +347,6 @@ public class TestAppModule {
         }
         return app.cnWalletManager;
     }
-
-    //TODO DELETE BELOW
 
     @Provides
     SyncIncomingInvitesRunner syncIncomingInvitesRunner(TestCoinKeeperApplication app) {
@@ -584,5 +602,61 @@ public class TestAppModule {
             app.drawerController = mock(DrawerController.class);
         }
         return app.drawerController;
+    }
+
+    @Provides
+    RemoteAddressLocalCache remoteAddressLocalCache(TestCoinKeeperApplication app) {
+        if (app.remoteAddressLocalCache == null) {
+            app.remoteAddressLocalCache = mock(RemoteAddressLocalCache.class);
+        }
+        return app.remoteAddressLocalCache;
+    }
+
+    @Provides
+    DropbitAccountHelper dropbitAccountHelper(TestCoinKeeperApplication app) {
+        if (app.dropbitAccountHelper == null) {
+            app.dropbitAccountHelper = mock(DropbitAccountHelper.class);
+        }
+        return app.dropbitAccountHelper;
+    }
+
+    @Provides
+    Twitter twitter(TestCoinKeeperApplication app) {
+        if (app.twitter == null) {
+            app.twitter = mock(Twitter.class);
+        }
+        return app.twitter;
+    }
+
+    @Provides
+    Hasher hasher(TestCoinKeeperApplication app) {
+        if (app.hasher == null) {
+            app.hasher = mock(Hasher.class);
+        }
+        return app.hasher;
+    }
+
+    @Provides
+    TwitterVerificationController twitterVerificationController(TestCoinKeeperApplication app) {
+        if (app.twitterVerificationController == null) {
+            app.twitterVerificationController = mock(TwitterVerificationController.class);
+        }
+        return app.twitterVerificationController;
+    }
+
+    @Provides
+    PreferencesUtil preferencesUtil(TestCoinKeeperApplication app) {
+        if (app.preferencesUtil == null) {
+            app.preferencesUtil = mock(PreferencesUtil.class);
+        }
+        return app.preferencesUtil;
+    }
+
+    @Provides
+    CountryCodeLocaleGenerator countryCodeLocaleGenerator(TestCoinKeeperApplication app) {
+        if (app.countryCodeLocaleGenerator == null) {
+            app.countryCodeLocaleGenerator = mock(CountryCodeLocaleGenerator.class);
+        }
+        return app.countryCodeLocaleGenerator;
     }
 }

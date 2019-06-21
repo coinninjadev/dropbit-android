@@ -3,27 +3,28 @@ package com.coinninja.coinkeeper.view.activity.base;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
 import com.coinninja.coinkeeper.service.WalletCreationIntentService;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
 import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
 import com.coinninja.coinkeeper.view.activity.RecoverWalletActivity;
 import com.coinninja.coinkeeper.view.activity.RestoreWalletActivity;
+import com.coinninja.coinkeeper.view.activity.SignUpSelectionActivity;
 import com.coinninja.coinkeeper.view.activity.StartActivity;
 import com.coinninja.coinkeeper.view.activity.TrainingActivity;
 
 import java.util.Arrays;
 
 import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 public abstract class SecuredActivity extends MessengerActivity {
 
@@ -41,6 +42,7 @@ public abstract class SecuredActivity extends MessengerActivity {
     private static final String[] PIN_IGNORE_LIST = {
             CreatePinActivity.class.getName(),
             StartActivity.class.getName(),
+            SignUpSelectionActivity.class.getName(),
             RestoreWalletActivity.class.getName(),
             RecoverWalletActivity.class.getName(),
             AuthenticateActivity.class.getName(),
@@ -88,7 +90,7 @@ public abstract class SecuredActivity extends MessengerActivity {
                 showStartActivity();
             } else if (!pinEntry.hasExistingPin() && hasWallet
                     && !(getClass().getName().equals(CreatePinActivity.class.getName()))) {
-                showCreatePinCreateWalletThenVerifyPhone();
+                startNewWalletFlow();
             } else if (pinEntry.hasExistingPin() && hasWallet) {
                 authenticate();
             }
@@ -110,15 +112,34 @@ public abstract class SecuredActivity extends MessengerActivity {
         finish();
     }
 
-    protected void showCreatePinCreateWalletThenVerifyPhone() {
+    protected void startRecoveryFlow() {
+        cnWalletManager.createWallet();
+        navigateTo(RestoreWalletActivity.class);
+    }
+
+    protected void startInviteFlow() {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(DropbitIntents.EXTRA_HIDE_SKIP_BUTTON, true);
+        startSignupFlow(SignUpSelectionActivity.class.getName(), bundle);
+    }
+
+    protected void startNewWalletFlow() {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, true);
+        startSignupFlow(VerificationActivity.class.getName(), bundle);
+    }
+
+    private void startSignupFlow(String className, Bundle bundle) {
         cnWalletManager.createWallet();
         Intent intent = new Intent(this, CreatePinActivity.class);
-        intent.putExtra(DropbitIntents.EXTRA_NEXT, VerifyPhoneNumberActivity.class.getName());
         intent.putExtra(DropbitIntents.EXTRA_ON_COMPLETION, new Intent(this, WalletCreationIntentService.class));
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, className);
+        if (bundle != null) {
+            intent.putExtra(DropbitIntents.EXTRA_NEXT_BUNDLE, bundle);
+        }
         navigateTo(intent);
         finish();
     }
-
 
     protected void navigateTo(Intent intent) {
         startActivity(intent);
@@ -130,39 +151,39 @@ public abstract class SecuredActivity extends MessengerActivity {
 
     protected void showNext() {
         onCompletion();
-        if (getIntent().hasExtra(DropbitIntents.EXTRA_NEXT)) {
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(DropbitIntents.EXTRA_NEXT)) {
             try {
                 Class<?> nextClass = Class.forName(getIntent().getStringExtra(DropbitIntents.EXTRA_NEXT));
-                showNext(nextClass);
-
+                showNext(new Intent(this, nextClass));
             } catch (ClassNotFoundException e) {
-                showNext(StartActivity.class);
+                showNext(new Intent(this, StartActivity.class));
             }
         } else {
-            showNext(StartActivity.class);
+            showNext(new Intent(this, StartActivity.class));
         }
     }
 
-
     protected void onCompletion() {
-        if (getIntent() == null || getIntent().getExtras() == null) {
+        if (getIntent() == null || getIntent().getExtras() == null || !getIntent().hasExtra(DropbitIntents.EXTRA_ON_COMPLETION)) {
             return;
         }
+
         Intent completionIntent = (Intent) getIntent().getExtras().get(DropbitIntents.EXTRA_ON_COMPLETION);
         if (completionIntent != null) {
             startService(completionIntent);
         }
     }
 
-    protected void showNext(@NonNull Class nextClass) {
+    protected void showNext(@NonNull Intent nextIntent) {
         finish();
-        Intent intent = new Intent(this, nextClass);
+
         if (getIntent().hasExtra(DropbitIntents.EXTRA_NEXT_BUNDLE)) {
             Bundle bundle = getIntent().getBundleExtra(DropbitIntents.EXTRA_NEXT_BUNDLE);
-            intent.replaceExtras(bundle);
+            nextIntent.replaceExtras(bundle);
         }
 
-        startActivity(intent);
+        startActivity(nextIntent);
     }
 
     protected PinEntry getPinEntry() {

@@ -86,7 +86,7 @@ public class IncomingInviteResponder implements Runnable {
     private void saveNotificationFor(InviteTransactionSummary invite) {
         String notificationMessage =
                 "We have sent a Bitcoin address to "
-                        + invite.getSenderPhoneNumber().displayTextForLocale()
+                        + invite.getLocaleFriendlyDisplayIdentityForSender()
                         + " for "
                         + new BTCCurrency(invite.getValueSatoshis()).toFormattedCurrency()
                         + " to be sent.";

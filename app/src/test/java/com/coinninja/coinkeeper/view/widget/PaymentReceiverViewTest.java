@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.view.widget;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
@@ -42,6 +43,7 @@ public class PaymentReceiverViewTest {
     private List<CountryCodeLocale> countryCodeLocales;
     private PhoneNumberInputView phoneNumberInputView;
     private Button showPhoneInput;
+    private ImageView scanButton;
 
     @Before
     public void setUp() {
@@ -49,6 +51,7 @@ public class PaymentReceiverViewTest {
         activity.appendLayout(R.layout.fragment_pay_dialog);
         phoneNumberInputView = withId(activity, R.id.phone_number_input);
         showPhoneInput = withId(activity, R.id.show_phone_input);
+        scanButton = withId(activity, R.id.scan_button);
         paymentReceiverView = (PaymentReceiverView) showPhoneInput.getParent();
         countryCodeLocales = new ArrayList<>();
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "GB"), 44));
@@ -62,6 +65,7 @@ public class PaymentReceiverViewTest {
         countryCodeLocales = null;
         phoneNumberInputView = null;
         showPhoneInput = null;
+        scanButton = null;
     }
 
     @Test
@@ -109,6 +113,7 @@ public class PaymentReceiverViewTest {
 
         assertThat(phoneNumberInputView, isGone());
         assertThat(showPhoneInput, isVisible());
+        assertThat(scanButton, isVisible());
     }
 
     @Test
@@ -207,6 +212,17 @@ public class PaymentReceiverViewTest {
         assertThat(phoneNumberInputView, isVisible());
         assertThat(showPhoneInput, hasText(""));
         assertThat(showPhoneInput, isGone());
+        assertThat(scanButton, isGone());
         verify(phoneInputClick).onClick(any());
+    }
+
+    @Test
+    public void clicking_scan_bubbles_event() {
+        View.OnClickListener clickListener = mock(View.OnClickListener.class);
+        paymentReceiverView.setOnScanObserver(clickListener);
+
+        scanButton.performClick();
+
+        verify(clickListener).onClick(scanButton);
     }
 }

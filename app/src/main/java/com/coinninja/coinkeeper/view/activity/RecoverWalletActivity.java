@@ -14,7 +14,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
@@ -27,7 +27,7 @@ import androidx.annotation.Nullable;
 public class RecoverWalletActivity extends SecuredActivity {
 
     private String[] recoveryWords;
-    Button button;
+    Button nextButton;
     ImageView icon;
     TextView title;
     TextView message;
@@ -48,7 +48,7 @@ public class RecoverWalletActivity extends SecuredActivity {
             recoveryWords = getIntent().getExtras().getStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS);
         }
 
-        button = findViewById(R.id.ok);
+        nextButton = findViewById(R.id.ok);
         title = findViewById(R.id.title);
         icon = findViewById(R.id.icon);
         message = findViewById(R.id.message);
@@ -117,39 +117,40 @@ public class RecoverWalletActivity extends SecuredActivity {
     private void showSuccess() {
         icon.setImageResource(R.drawable.ic_restore_success);
         title.setText(getText(R.string.recover_wallet_success_title));
-        button.setBackground(getResources().getDrawable(R.drawable.primary_button));
+        nextButton.setBackground(getResources().getDrawable(R.drawable.primary_button));
         message.setTextColor(getResources().getColor(R.color.font_default));
         message.setText(R.string.recover_wallet_success_message);
         findViewById(R.id.close).setVisibility(View.INVISIBLE);
-        button.setOnClickListener(this::showNext);
-        button.setText(R.string.recover_wallet_success_button_text);
+        nextButton.setOnClickListener(v -> showVerificationActivity());
+        nextButton.setText(R.string.recover_wallet_success_button_text);
     }
 
     private void showFail() {
         title.setText(getText(R.string.recover_wallet_error_title));
         icon.setImageResource(R.drawable.ic_restore_fail);
-        button.setText(R.string.recover_wallet_error_button_text);
-        button.setBackground(getResources().getDrawable(R.drawable.error_button));
-        button.setOnClickListener(this::onErrorOk);
+        nextButton.setText(R.string.recover_wallet_error_button_text);
+        nextButton.setBackground(getResources().getDrawable(R.drawable.error_button));
+        nextButton.setOnClickListener(v -> showNextWordUI());
         View close = findViewById(R.id.close);
         close.setVisibility(View.VISIBLE);
-        close.setOnClickListener(this::onClose);
+        close.setOnClickListener(v -> onClose());
         message.setText(R.string.recover_wallet_error_message);
         message.setTextColor(getResources().getColor(R.color.color_error));
     }
 
-    private void onClose(View view) {
+    private void onClose() {
         navigateTo(StartActivity.class);
         finish();
     }
 
-    private void showNext(View view) {
-        Intent intent = new Intent(this, VerifyPhoneNumberActivity.class);
+    private void showVerificationActivity() {
+        Intent intent = new Intent(this, VerificationActivity.class);
+        intent.putExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, true);
         navigateTo(intent);
         finish();
     }
 
-    private void onErrorOk(View view) {
+    private void showNextWordUI() {
         navigateTo(RestoreWalletActivity.class);
         finish();
     }

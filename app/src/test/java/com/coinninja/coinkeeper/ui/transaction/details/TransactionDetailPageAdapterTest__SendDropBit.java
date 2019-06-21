@@ -1,14 +1,12 @@
 package com.coinninja.coinkeeper.ui.transaction.details;
 
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -17,6 +15,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -39,7 +38,6 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtraWithKey;
-import static com.coinninja.android.helpers.Resources.getString;
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.ConfirmationViewMatcher.configuredForDropbit;
 import static com.coinninja.matchers.ConfirmationViewMatcher.stageIs;
@@ -62,28 +60,29 @@ import static org.mockito.Mockito.when;
 public class TransactionDetailPageAdapterTest__SendDropBit {
 
     @Mock
-    TransactionAdapterUtil adapterUtil;
+    private TransactionAdapterUtil adapterUtil;
     @Mock
-    LazyList<TransactionsInvitesSummary> transactions;
+    private LazyList<TransactionsInvitesSummary> transactions;
     @Mock
-    TransactionsInvitesSummary transaction;
+    private TransactionsInvitesSummary transaction;
     @Mock
-    TransactionDetailObserver observer;
+    private TransactionDetailObserver observer;
     private View page;
     private BindableTransaction bindableTransaction;
     @Mock
     private WalletHelper walletHelper;
     @InjectMocks
     private TransactionDetailPageAdapter adapter;
-    private A activity;
-    private ActivityScenario<A> scenario;
+    private TestableActivity activity;
+    private ActivityScenario<TestableActivity> scenario;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        scenario = ActivityScenario.launch(A.class);
+        scenario = ActivityScenario.launch(TestableActivity.class);
         scenario.onActivity(a -> {
             activity = a;
+            activity.appendLayout(R.layout.page_transaction_detail);
         });
 
         page = withId(activity, R.id.page);
@@ -92,7 +91,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.get(anyInt())).thenReturn(transaction);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
-        bindableTransaction = new BindableTransaction(walletHelper);
+        bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         adapter.refreshData();
         adapter.setShowTransactionDetailRequestObserver(observer);
         adapter.onDefaultCurrencyChanged(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
@@ -111,9 +110,12 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         bindableTransaction = null;
         walletHelper = null;
         adapter = null;
+        observer = null;
+        activity = null;
         transaction = null;
         transactions = null;
         scenario.close();
+        scenario = null;
     }
 
     @Test
@@ -177,7 +179,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
         assertThat(withId(page, R.id.confirmation_beads), isGone());
-        assertThat(withId(page, R.id.confirmations), hasText(getString(activity, R.string.transaction_details_dropbit_canceled)));
+        assertThat(withId(page, R.id.confirmations), hasText(Resources.INSTANCE.getString(activity, R.string.transaction_details_dropbit_canceled)));
     }
 
     @Test
@@ -190,7 +192,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         ImageView icon = withId(page, R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
         assertThat(withId(page, R.id.confirmation_beads), isGone());
-        assertThat(withId(page, R.id.confirmations), hasText(getString(activity, R.string.transaction_details_dropbit_expired)));
+        assertThat(withId(page, R.id.confirmations), hasText(Resources.INSTANCE.getString(activity, R.string.transaction_details_dropbit_expired)));
     }
 
     @Test
@@ -198,7 +200,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         adapter.bindTo(page, bindableTransaction, 0);
 
         ImageView icon = withId(page, R.id.ic_send_state);
-        String contentDescription = getString(page.getContext(), R.string.transaction_detail_cd_send_state__dropbit_sent);
+        String contentDescription = Resources.INSTANCE.getString(page.getContext(), R.string.transaction_detail_cd_send_state__dropbit_sent);
         assertThat(icon, hasContentDescription(contentDescription));
     }
 
@@ -288,7 +290,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_DROPBIT_SENT));
-        assertThat(confirmations, hasText(getString(confirmations.getContext(), R.string.confirmations_view_stage_1)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_1)));
     }
 
     @Test
@@ -302,7 +304,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_ADDRESS_RECEIVED));
-        assertThat(confirmations, hasText(getString(confirmations.getContext(), R.string.confirmations_view_stage_2)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_2)));
     }
 
     @Test
@@ -317,7 +319,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_PENDING));
-        assertThat(confirmations, hasText(getString(confirmations.getContext(), R.string.confirmations_view_stage_4)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_4)));
     }
 
     @Test
@@ -332,7 +334,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_COMPLETE));
-        assertThat(confirmations, hasText(getString(confirmationsView.getContext(), R.string.confirmations_view_stage_5)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmationsView.getContext(), R.string.confirmations_view_stage_5)));
     }
 
     @Test
@@ -356,31 +358,17 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         verify(observer, times(2)).onTransactionDetailsRequested(bindableTransaction);
     }
 
-    @Test
-    public void renders_receivers_contact_when_sent__phone_when_no_name_available() {
-        String phoneNumber = "(330) 555-1111";
-        bindableTransaction.setContactName(null);
-        bindableTransaction.setContactPhoneNumber(phoneNumber);
-
-        adapter.bindTo(page, bindableTransaction, 0);
-
-        TextView contact = withId(page, R.id.contact);
-        assertThat(contact, hasText(phoneNumber));
-    }
 
     @Test
-    public void renders_receivers_contact_when_sent__name_when_available() {
-        String phoneNumber = "(330) 555-1111";
+    public void renders_receivers_identity() {
         String name = "Joe Blow";
-        bindableTransaction.setContactName(name);
-        bindableTransaction.setContactPhoneNumber(phoneNumber);
+        bindableTransaction.setIdentity(name);
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView contact = withId(page, R.id.contact);
+        TextView contact = withId(page, R.id.identity);
         assertThat(contact, hasText(name));
     }
-
 
     @Test
     public void renders_value_of_dropbit_in_users_base_currency__receivers_do_not_see_fees_when_canceled() {
@@ -469,7 +457,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         adapter.bindTo(page, bindableTransaction, 0);
 
         Button cancelButton = withId(page, R.id.button_cancel_dropbit);
-        assertThat(cancelButton, hasText(Resources.getString(cancelButton.getContext(), R.string.cancel_dropbit)));
+        assertThat(cancelButton, hasText(Resources.INSTANCE.getString(cancelButton.getContext(), R.string.cancel_dropbit)));
         assertThat(cancelButton, isVisible());
         assertThat(cancelButton, hasTag(inviteId));
     }
@@ -494,14 +482,5 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         adapter.bindTo(page, bindableTransaction, 0);
 
         assertThat(withId(page, R.id.call_to_action), isInvisible());
-    }
-
-    public static class A extends AppCompatActivity {
-        @Override
-        protected void onCreate(@Nullable Bundle savedInstanceState) {
-            setTheme(R.style.CoinKeeperTheme);
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.page_transaction_detail);
-        }
     }
 }

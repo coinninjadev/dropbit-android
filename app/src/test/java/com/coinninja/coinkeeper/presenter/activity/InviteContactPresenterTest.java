@@ -1,12 +1,12 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
-import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.runner.InviteContactRunner;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,13 +14,12 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import junitx.util.PrivateAccessor;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,12 +49,8 @@ public class InviteContactPresenterTest {
 
     @Test
     public void inviteContact() {
-        Contact contact = mock(Contact.class);
-        Long satoshisSending = 5985454L;
-        Long bitcoinUSDPrice = 506200L;
-        when(pendingInviteDTO.getInviteAmount()).thenReturn(satoshisSending);
-        when(pendingInviteDTO.getBitcoinPrice()).thenReturn(bitcoinUSDPrice);
-        when(pendingInviteDTO.getContact()).thenReturn(contact);
+        Identity identity = mock(Identity.class);
+        when(pendingInviteDTO.getIdentity()).thenReturn(identity);
         InOrder inOrder = inOrder(inviteRunner);
 
         when(inviteRunner.clone()).thenReturn(inviteRunner);
@@ -63,7 +58,7 @@ public class InviteContactPresenterTest {
 
         inOrder.verify(inviteRunner).setOnInviteListener(inviteContactPresenter);
         inOrder.verify(inviteRunner).clone();
-        inOrder.verify(inviteRunner).execute(contact);
+        inOrder.verify(inviteRunner).execute(identity);
     }
 
     @Test

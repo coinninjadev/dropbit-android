@@ -30,18 +30,18 @@ public class AlertDialogBuilder {
         alertDialogBuilder.setMessage(activity.getResources().getString(R.string.loading_dialog));
 
         AlertDialog alertDialog = alertDialogBuilder.show();
+        alertDialog.setCancelable(false);
         alertDialog.setOnDismissListener(new LoadingAnimation(alertDialog));
         alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.setCancelable(false);
         return alertDialog;
     }
 
     private static class LoadingAnimation implements DialogInterface.OnDismissListener {
         private static final int MAX_DOT_COUNT = 6;
         private static final long ANIMATION_DELAY_MS = 100;
+        private AlertDialog alertDialog;
 
-
-        private final TextView messageView;
+        private TextView messageView;
         private int loopCount = 0;
         private final Runnable animationRunner = () -> {
             if (loopCount > MAX_DOT_COUNT) {
@@ -54,12 +54,11 @@ public class AlertDialogBuilder {
         };
 
         public LoadingAnimation(AlertDialog alertDialog) {
-            messageView = alertDialog.findViewById(android.R.id.message);
-            initDots();
-            loopAnimation();
+            this.alertDialog = alertDialog;
         }
 
         private void initDots() {
+            messageView = alertDialog.findViewById(android.R.id.message);
             loopCount = 0;
             String currentMessage = messageView.getText().toString();
 
@@ -85,6 +84,7 @@ public class AlertDialogBuilder {
 
         @Override
         public void onDismiss(DialogInterface dialogInterface) {
+            if (messageView == null) { return; }
             messageView.removeCallbacks(animationRunner);
         }
     }

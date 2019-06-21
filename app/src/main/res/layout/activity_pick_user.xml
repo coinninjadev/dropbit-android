@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/verification_tab_layout"
+        android:layout_width="match_parent"
+        app:tabInlineLabel="true"
+        android:layout_height="40dp">
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/contacts_tab"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:icon="@drawable/ic_phone_dark_gray"
+            android:text="Contacts"/>
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/twitter_tab"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:icon="@drawable/twitter_icon_dark_gray"
+            android:text="Twitter"/>
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:queryHint="@string/search_hint"
+        android:layout_centerVertical="true" />
+
+    <com.coinninja.coinkeeper.view.widget.ContactsEmptyStateView
+        android:id="@+id/contacts_empty_state_view"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.coinninja.coinkeeper.view.widget.TwitterEmptyStateView
+        android:id="@+id/twitter_empty_state_view"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_contacts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+</LinearLayout>

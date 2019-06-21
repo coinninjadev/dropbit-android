@@ -17,8 +17,8 @@ import org.robolectric.shadows.ShadowFingerprintManager;
 import junitx.util.PrivateAccessor;
 
 import static junit.framework.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)

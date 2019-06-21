@@ -1,38 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:orientation="vertical"
-    tools:parentTag="android.widget.LinearLayout"
-    >
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView
         android:id="@+id/phone_number_input"
         style="@style/PhoneNumberInputWidgetStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="52dp"
         android:layout_alignBottom="@+id/show_phone_input"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:maxHeight="52dp"
         android:textAppearance="@style/TextAppearance"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         tools:text="+1 330-555-1111" />
 
     <Button
         android:id="@+id/show_phone_input"
-        style="@style/Button.InputBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
+        style="@style/Button.InputBox.FlatEnd"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
         android:layout_gravity="center_horizontal|center_vertical"
         android:clickable="true"
         android:ellipsize="end"
         android:focusable="true"
         android:focusableInTouchMode="false"
-        android:gravity="center_horizontal"
+        android:gravity="center_horizontal|center_vertical"
         android:hint="@string/pay_address_hint"
+        android:maxHeight="52dp"
         android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/scan_button"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toStartOf="@+id/phone_number_input"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:text="--address--" />
+
+    <ImageView
+        android:id="@+id/scan_button"
+        style="@style/Button.Input.Scan"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:clickable="true"
+        android:scaleType="fitXY"
+        android:focusable="true"
+        android:maxHeight="52dp"
+        android:src="@drawable/qrcode_static"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/show_phone_input"
+        app:layout_constraintEnd_toEndOf="@+id/phone_number_input"
+        app:layout_constraintStart_toEndOf="@+id/show_phone_input"
+        app:layout_constraintTop_toTopOf="@+id/show_phone_input"
+        tools:ignore="ContentDescription" />
 
 </merge>

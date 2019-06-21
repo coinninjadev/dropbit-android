@@ -77,6 +77,7 @@ public class RestoreWalletActivity extends SecuredActivity {
         Intent intent = new Intent(this, CreatePinActivity.class);
         Bundle bundle = new Bundle();
         bundle.putStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS, recovery_words);
+        if (getIntent() != null && getIntent().hasExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON)) { intent.putExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, getIntent().getStringExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON)); }
         intent.putExtra(DropbitIntents.EXTRA_NEXT_BUNDLE, bundle);
         intent.putExtra(DropbitIntents.EXTRA_NEXT, RecoverWalletActivity.class.getName());
         startActivity(intent);

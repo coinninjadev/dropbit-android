@@ -2,15 +2,17 @@ package com.coinninja.coinkeeper.view.fragment;
 
 import android.content.Intent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.coinninja.android.helpers.Resources;
+import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.ui.base.BaseBottomDialogFragment;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -20,6 +22,7 @@ import com.coinninja.coinkeeper.view.activity.BroadcastActivity;
 import com.coinninja.coinkeeper.view.activity.InviteSendActivity;
 import com.coinninja.coinkeeper.view.button.ConfirmHoldButton;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoView;
+import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
@@ -32,12 +35,12 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     @Inject
     Analytics analytics;
     PaymentBarCallbacks paymentBarCallbacks;
-    private Contact contact;
+    private Identity identity;
     private PaymentHolder paymentHolder;
 
-    public static ConfirmPayDialogFragment newInstance(Contact contact, PaymentHolder paymentHolder, PaymentBarCallbacks paymentBarCallbacks) {
+    public static ConfirmPayDialogFragment newInstance(Identity identity, PaymentHolder paymentHolder, PaymentBarCallbacks paymentBarCallbacks) {
         ConfirmPayDialogFragment fragment = new ConfirmPayDialogFragment();
-        fragment.setContact(contact);
+        fragment.setIdentity(identity);
         fragment.commonInit(paymentHolder, paymentBarCallbacks);
         return fragment;
     }
@@ -53,12 +56,12 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         setPaymentBarCallbacks(paymentBarCallbacks);
     }
 
-    public Contact getContact() {
-        return contact;
+    public Identity getIdentity() {
+        return identity;
     }
 
-    public void setContact(Contact phoneNumberSendTo) {
-        contact = phoneNumberSendTo;
+    public void setIdentity(Identity identityToSendTo) {
+        identity = identityToSendTo;
     }
 
     public void setPaymentHolder(PaymentHolder paymentHolder) {
@@ -88,26 +91,24 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         analytics.flush();
 
         switch (getDisplayState()) {
-            case INVITE_CONTACT:
-                showContact();
+            case INVITE:
+                showIdentity();
                 analytics.trackEvent(Analytics.EVENT_DROPBIT_SEND);
                 break;
             case CONTACT:
-                showContact();
-                showSendAddress();
+                showIdentity();
                 analytics.trackEvent(Analytics.EVENT_CONTACT_SEND);
                 break;
             case PHONE_NUMBER_ONLY:
-                showContact();
-                showSendAddress();
+                showIdentity();
                 analytics.trackEvent(Analytics.EVENT_CONTACT_SEND);
                 break;
             case BTC_ADDRESS_ONLY:
-                showSendAddress();
                 analytics.trackEvent(Analytics.EVENT_BROADCAST_TO_ADDRESS);
                 break;
         }
 
+        showSendAddressIfNecessary();
         setupSharedMemoFragment();
         setupConfirmButton();
         showFees(new BTCCurrency(paymentHolder.getTransactionData().getFeeAmount()));
@@ -144,7 +145,7 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
 
     private void setupSharedMemoFragment() {
         View sharedMemo = getView().findViewById(R.id.shared_transaction_subview);
-        String displayText = contact == null ? "" : contact.toDisplayNameOrInternationalPhoneNumber();
+        String displayText = identity == null ? "" : identity.getDisplayName();
         SharedMemoView sharedMemoView = new SharedMemoView(sharedMemo, paymentHolder.getIsSharingMemo(), paymentHolder.getMemo(), displayText);
         sharedMemoView.render();
     }
@@ -153,22 +154,25 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         withId(getView(), R.id.confirm_pay_header_close_btn).setOnClickListener(v -> onCloseClicked());
     }
 
-    private void showSendAddress() {
-        if (paymentHolder.hasPaymentAddress()) {
-            TextView view = getView().findViewById(R.id.confirm_pay_btc_address);
-            view.setText(paymentHolder.getPaymentAddress());
-        }
+    private void showSendAddressIfNecessary() {
+        if (!paymentHolder.hasPaymentAddress()) { return; }
+        TextView view = getView().findViewById(R.id.confirm_pay_btc_address);
+        view.setText(paymentHolder.getPaymentAddress());
     }
 
-    private void showContact() {
-        TextView view = getView().findViewById(R.id.confirm_pay_name);
+    private void showIdentity() {
+        TextView nameTextView = getView().findViewById(R.id.confirm_pay_name);
 
-        view.setText(contact.toDisplayNameOrInternationalPhoneNumber());
+        if (identity.getAvatarUrl() != null) {
+            Picasso.get().load(identity.getAvatarUrl()).transform(CoinKeeperApplication.appComponent.provideCircleTransform()).into(((ImageView) getView().findViewById(R.id.avatar_image_view)));
+        }
+
+        nameTextView.setText(identity.getDisplayName());
     }
 
     private void showFees(BTCCurrency feeAmount) {
         TextView fee = withId(getView(), R.id.network_fee);
-        fee.setText(Resources.getString(fee.getContext(),
+        fee.setText(Resources.INSTANCE.getString(fee.getContext(),
                 R.string.confirm_pay_fee,
                 feeAmount.toFormattedString(),
                 feeAmount.toUSD(paymentHolder.getEvaluationCurrency()).toFormattedCurrency())
@@ -188,16 +192,17 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     }
 
     private boolean shouldSendInvite() {
-        return contact != null && !paymentHolder.hasPaymentAddress();
+        return identity != null && !paymentHolder.hasPaymentAddress();
     }
 
     private void sendInvite() {
-        PendingInviteDTO inviteDto = new PendingInviteDTO(contact,
+        PendingInviteDTO inviteDto = new PendingInviteDTO(identity,
                 paymentHolder.getEvaluationCurrency().toLong(),
                 paymentHolder.getTransactionData().getAmount(),
                 paymentHolder.getTransactionData().getFeeAmount(),
                 paymentHolder.getMemo(),
-                paymentHolder.getIsSharingMemo()
+                paymentHolder.getIsSharingMemo(),
+                ""
         );
         Intent intent = new Intent(getActivity(), InviteSendActivity.class);
         intent.putExtra(DropbitIntents.EXTRA_INVITE_DTO, inviteDto);
@@ -207,7 +212,8 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
 
     private void broadcastTransaction() {
         Intent intent = new Intent(getActivity(), BroadcastActivity.class);
-        BroadcastTransactionDTO broadcastTransactionDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(), contact, paymentHolder.getIsSharingMemo(), paymentHolder.getMemo(), paymentHolder.getPublicKey());
+        BroadcastTransactionDTO broadcastTransactionDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(),
+                paymentHolder.getIsSharingMemo(), paymentHolder.getMemo(), identity, paymentHolder.getPublicKey());
         intent.putExtra(DropbitIntents.EXTRA_BROADCAST_DTO, broadcastTransactionDTO);
         startActivity(intent);
         dismiss();
@@ -215,17 +221,16 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
 
 
     private DisplayState getDisplayState() {
-        boolean hasPhoneNumber = contact != null && contact.getPhoneNumber() != null;
+        boolean hasIdentity = identity != null;
 
-        if (!hasPhoneNumber) {
+        if (!hasIdentity) {
             return DisplayState.BTC_ADDRESS_ONLY;
         }
 
-        String displayName = contact.getDisplayName();
-        if (!contact.isVerified()) {
-            return DisplayState.INVITE_CONTACT;
+        String displayName = identity.getDisplayName();
+        if (!identity.isVerified()) {
+            return DisplayState.INVITE;
         }
-
 
         boolean hasDisplayName = displayName != null && !displayName.isEmpty();
         if (hasDisplayName) {
@@ -237,7 +242,7 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     }
 
     public enum DisplayState {
-        CONTACT, INVITE_CONTACT, PHONE_NUMBER_ONLY, BTC_ADDRESS_ONLY
+        CONTACT, INVITE, PHONE_NUMBER_ONLY, BTC_ADDRESS_ONLY
     }
 }
 

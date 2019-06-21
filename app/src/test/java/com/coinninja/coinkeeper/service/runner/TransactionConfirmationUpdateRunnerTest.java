@@ -3,14 +3,13 @@ package com.coinninja.coinkeeper.service.runner;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,13 +51,8 @@ public class TransactionConfirmationUpdateRunnerTest {
     @Test
     public void skips_transactions_that_are_not_in_a_block() {
         when(t1.getBlockhash()).thenReturn("");
-        when(t1.getNumConfirmations()).thenReturn(0);
-        when(t1.getBlockheight()).thenReturn(0);
-
         when(t2.getBlockhash()).thenReturn("----hash---");
-        when(t2.getNumConfirmations()).thenReturn(1);
         when(t2.getBlockheight()).thenReturn(52113);
-
         runner.run();
 
         verify(t1, times(0)).update();

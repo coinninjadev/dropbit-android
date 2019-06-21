@@ -1,6 +1,8 @@
 package com.coinninja.coinkeeper.ui.base;
 
 import com.coinninja.coinkeeper.ui.account.UserServerAddressesFragment;
+import com.coinninja.coinkeeper.ui.account.verify.PhoneIdentityFragment;
+import com.coinninja.coinkeeper.ui.account.verify.TwitterIdentityFragment;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.DisabledDropbitMeDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.NewlyVerifiedDropbitMeDialog;
@@ -27,12 +29,15 @@ public abstract class AndroidFragmentBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector
+    abstract TransactionTweetDialog transactionTweetDialog();
+
+    @ActivityScope
+    @ContributesAndroidInjector
     abstract BaseFragment baseFragment();
 
     @ActivityScope
     @ContributesAndroidInjector
     abstract DisabledDropbitMeDialog disabledDropbitMeDialog();
-
 
     @ActivityScope
     @ContributesAndroidInjector
@@ -105,5 +110,13 @@ public abstract class AndroidFragmentBuilder {
     @ActivityScope
     @ContributesAndroidInjector
     abstract PaymentBarFragment paymentBarFragment();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract PhoneIdentityFragment phoneIdentityFragment();
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract TwitterIdentityFragment twitterIdentityFragment();
 
 }

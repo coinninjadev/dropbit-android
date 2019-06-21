@@ -1,15 +1,18 @@
 package com.coinninja.coinkeeper.model.db;
 
+import com.coinninja.coinkeeper.model.db.converter.AccountStatusConverter;
 import com.coinninja.coinkeeper.model.db.converter.IdentityTypeConverter;
+import com.coinninja.coinkeeper.model.db.enums.AccountStatus;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Unique;
 
 @Entity(active = true)
 public class DropbitMeIdentity {
@@ -23,11 +26,18 @@ public class DropbitMeIdentity {
     @Property
     private String identity;
 
+    @Unique
+    @Property
+    private String serverId;
+
     @Property
     private String handle;
 
     @Property
     private String hash;
+
+    @Convert(converter = AccountStatusConverter.class, columnType = Integer.class)
+    private AccountStatus status;
 
     @Property
     private Long accountId;
@@ -35,31 +45,38 @@ public class DropbitMeIdentity {
     @ToOne(joinProperty = "accountId")
     private Account account;
 
-    /** Used to resolve relations */
+    /**
+     * Used to resolve relations
+     */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
-    /** Used for active entity operations. */
+    /**
+     * Used for active entity operations.
+     */
     @Generated(hash = 1708066102)
     private transient DropbitMeIdentityDao myDao;
 
-    @Generated(hash = 764786037)
-    public DropbitMeIdentity(Long id, IdentityType type, String identity,
-            String handle, String hash, Long accountId) {
-        this.id = id;
-        this.type = type;
-        this.identity = identity;
-        this.handle = handle;
-        this.hash = hash;
-        this.accountId = accountId;
-    }
 
     @Generated(hash = 285794710)
     public DropbitMeIdentity() {
     }
 
+    @Generated(hash = 288467611)
+    public DropbitMeIdentity(Long id, IdentityType type, String identity, String serverId,
+            String handle, String hash, AccountStatus status, Long accountId) {
+        this.id = id;
+        this.type = type;
+        this.identity = identity;
+        this.serverId = serverId;
+        this.handle = handle;
+        this.hash = hash;
+        this.status = status;
+        this.accountId = accountId;
+    }
+
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
@@ -67,7 +84,7 @@ public class DropbitMeIdentity {
     }
 
     public IdentityType getType() {
-        return this.type;
+        return type;
     }
 
     public void setType(IdentityType type) {
@@ -75,7 +92,7 @@ public class DropbitMeIdentity {
     }
 
     public String getIdentity() {
-        return this.identity;
+        return identity;
     }
 
     public void setIdentity(String identity) {
@@ -83,7 +100,7 @@ public class DropbitMeIdentity {
     }
 
     public String getHandle() {
-        return this.handle;
+        return handle;
     }
 
     public void setHandle(String handle) {
@@ -91,7 +108,7 @@ public class DropbitMeIdentity {
     }
 
     public String getHash() {
-        return this.hash;
+        return hash;
     }
 
     public void setHash(String hash) {
@@ -99,7 +116,7 @@ public class DropbitMeIdentity {
     }
 
     public Long getAccountId() {
-        return this.accountId;
+        return accountId;
     }
 
     public void setAccountId(Long accountId) {
@@ -128,7 +145,9 @@ public class DropbitMeIdentity {
         return account;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 1910176546)
     public void setAccount(Account account) {
         synchronized (this) {
@@ -172,6 +191,22 @@ public class DropbitMeIdentity {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
+    }
+
+    public String getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
     }
 
     /** called by internal mechanisms, do not call yourself. */

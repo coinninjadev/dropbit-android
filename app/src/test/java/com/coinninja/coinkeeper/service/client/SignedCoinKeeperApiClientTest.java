@@ -1,7 +1,10 @@
 package com.coinninja.coinkeeper.service.client;
 
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
+import com.coinninja.coinkeeper.service.client.model.Amount;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNDeviceEndpoint;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
@@ -12,10 +15,11 @@ import com.coinninja.coinkeeper.service.client.model.CNTopic;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
-import com.coinninja.coinkeeper.service.client.model.Contact;
+import com.coinninja.coinkeeper.service.client.model.InviteUserPayload;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
+import com.coinninja.coinkeeper.service.client.model.Receiver;
+import com.coinninja.coinkeeper.service.client.model.Sender;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
-import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -26,16 +30,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -53,6 +55,7 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -138,8 +141,6 @@ public class SignedCoinKeeperApiClientTest {
     @Test
     public void deletes_users_wallet() {
         webServer.enqueue(new MockResponse().setResponseCode(204).setBody(""));
-
-        when(client.resetWallet()).thenReturn(mock(Call.class));
 
         assertTrue(signedCoinKeeperApiClient.resetWallet().isSuccessful());
     }
@@ -292,7 +293,11 @@ public class SignedCoinKeeperApiClientTest {
                 "}";
 
         webServer.enqueue(new MockResponse().setResponseCode(200).setBody(json));
-        Response response = signedCoinKeeperApiClient.verifyPhoneCode(code);
+        CNUserIdentity identity = new CNUserIdentity();
+        identity.setCode(code);
+        identity.setType("phone");
+        identity.setIdentity("13305551111");
+        Response response = signedCoinKeeperApiClient.verifyIdentity(identity);
         assertThat(response.code(), equalTo(200));
         CNUserAccount account = (CNUserAccount) response.body();
         assertThat(account.getStatus(), equalTo("verified"));
@@ -312,33 +317,6 @@ public class SignedCoinKeeperApiClientTest {
         apiClient.resendVerification(CNPhoneNumber);
 
         verify(client).resendVerification(CNPhoneNumber);
-    }
-
-    @Test
-    public void posts_phone_number_to_api_for_resend_verification() {
-        String json = "{\n" +
-                "  \"id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\",\n" +
-                "  \"phone_number_hash\": \"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\",\n" +
-                "  \"created_at\": 1531921356,\n" +
-                "  \"updated_at\": 1531921356,\n" +
-                "  \"status\": \"verified\",\n" +
-                "  \"verification_ttl\": 1531921356,\n" +
-                "  \"verified_at\": 1531921356,\n" +
-                "  \"user_id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\"\n" +
-                "}";
-        when(client.confirmAccount(any(JsonObject.class))).thenReturn(mock(Call.class));
-        SignedCoinKeeperApiClient apiClient = new SignedCoinKeeperApiClient(client, FCM_APP_ID);
-
-        String code = "012045";
-        apiClient.verifyPhoneCode(code);
-
-        JsonObject body = new JsonObject();
-        body.addProperty("code", "012045");
-        verify(client).confirmAccount(body);
-        CNPhoneNumber CNPhoneNumber = new CNPhoneNumber();
-        webServer.enqueue(new MockResponse().setResponseCode(200).setBody(json));
-        Response response = signedCoinKeeperApiClient.resendVerification(CNPhoneNumber);
-        assertThat(response.code(), equalTo(200));
     }
 
     @Test
@@ -397,6 +375,56 @@ public class SignedCoinKeeperApiClientTest {
         CNWallet cnWallet = (CNWallet) response.body();
         assertThat(response.code(), equalTo(200));
         assertThat(cnWallet.getId(), equalTo("f8e8c20e-ba44-4bac-9a96-44f3b7ae955d"));
+    }
+
+    @Test
+    public void invites_phone_based_user_identity() throws InterruptedException {
+        String json = "{\n" +
+                "  \"id\": \"a1bb1d88-bfc8-4085-8966-e0062278237c\",\n" +
+                "  \"created_at\": 1531921356,\n" +
+                "  \"updated_at\": 1531921356,\n" +
+                "  \"address\": \"1JbJbAkCXtxpko39nby44hpPenpC1xKGYw\",\n" +
+                "  \"metadata\": {\n" +
+                "    \"amount\": {\n" +
+                "      \"btc\": 120000000,\n" +
+                "      \"usd\": 8292280\n" +
+                "    },\n" +
+                "    \"sender\": {\n" +
+                "      \"type\": \"phone\",\n" +
+                "      \"identity\": \"15554441234\"\n" +
+                "    },\n" +
+                "    \"receiver\": {\n" +
+                "      \"type\": \"twitter\",\n" +
+                "      \"identity\": \"3215789654\",\n" +
+                "      \"handle\": \"@someuser\"\n" +
+                "    },\n" +
+                "    \"request_id\": \"3fbdc415-8789-490a-ad32-0c6fa3590182\"\n" +
+                "  },\n" +
+                "  \"identity_hash\": \"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\",\n" +
+                "  \"request_ttl\": 1531921356,\n" +
+                "  \"status\": \"new\",\n" +
+                "  \"txid\": \"7f3a2790d59853fdc620b8cd23c8f68158f8bbdcd337a5f2451620d6f76d4e03\",\n" +
+                "  \"address_pubkey\": \"04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc\",\n" +
+                "  \"wallet_id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\",\n" +
+                "  \"delivery_status\": \"received\"\n" +
+                "}";
+
+        webServer.enqueue(new MockResponse().setResponseCode(201).setBody(json));
+
+        InviteUserPayload payload = new InviteUserPayload(
+                new Amount(120000000L, 8292280L),
+                new Sender("phone", "15554441234", null),
+                new Receiver("phone", "15554440000", null), "--request-id--");
+
+        Response response = signedCoinKeeperApiClient.inviteUser(payload);
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/wallet/address_requests"));
+        assertThat(response.code(), equalTo(201));
+        assertThat(recordedRequest.getBody().readUtf8(), equalTo("{\"amount\":{\"btc\":120000000,\"usd\":8292280}," +
+                "\"sender\":{\"type\":\"phone\",\"identity\":\"15554441234\"}," +
+                "\"receiver\":{\"type\":\"phone\",\"identity\":\"15554440000\"}," +
+                "\"request_id\":\"--request-id--\"}"));
     }
 
     @Test
@@ -475,12 +503,13 @@ public class SignedCoinKeeperApiClientTest {
                 "      \"usd\": 8292280\n" +
                 "    },\n" +
                 "    \"sender\": {\n" +
-                "      \"country_code\": 1,\n" +
-                "      \"phone_number\": \"5554441234\"\n" +
+                "      \"type\": \"phone\",\n" +
+                "      \"identity\": \"15554441234\"\n" +
                 "    },\n" +
                 "    \"receiver\": {\n" +
-                "      \"country_code\": 1,\n" +
-                "      \"phone_number\": \"5554441233\"\n" +
+                "      \"type\": \"twitter\",\n" +
+                "      \"identity\": \"15554441234\",\n" +
+                "      \"handle\": \"myTwitterHandle\"\n" +
                 "    }\n" +
                 "  },\n" +
                 "  \"phone_number_hash\": \"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\",\n" +
@@ -498,8 +527,12 @@ public class SignedCoinKeeperApiClientTest {
         assertThat(sentInvite.getStatus(), equalTo("completed"));
         assertThat(sentInvite.getId(), equalTo("a1bb1d88-bfc8-4085-8966-e0062278237c"));
         assertThat(sentInvite.getTxid(), equalTo("7f3a2790d59853fdc620b8cd23c8f68158f8bbdcd337a5f2451620d6f76d4e03"));
-        assertThat(sentInvite.getMetadata().getReceiver().getPhone_number(), equalTo("5554441233"));
-        assertThat(sentInvite.getMetadata().getSender().getPhone_number(), equalTo("5554441234"));
+        assertThat(sentInvite.getMetadata().getSender().getType(), equalTo("phone"));
+        assertThat(sentInvite.getMetadata().getSender().getIdentity(), equalTo("15554441234"));
+        assertNull(sentInvite.getMetadata().getSender().getHandle());
+        assertThat(sentInvite.getMetadata().getReceiver().getType(), equalTo("twitter"));
+        assertThat(sentInvite.getMetadata().getReceiver().getIdentity(), equalTo("15554441234"));
+        assertThat(sentInvite.getMetadata().getReceiver().getHandle(), equalTo("myTwitterHandle"));
     }
 
     @Test
@@ -1022,28 +1055,7 @@ public class SignedCoinKeeperApiClientTest {
     }
 
     @Test
-    public void posts_transaction_notification() {
-        ArgumentCaptor<JsonObject> captor = ArgumentCaptor.forClass(JsonObject.class);
-
-        String json = "{\"txid\":\"42\",\"address\":\"q\",\"phone_number_hash\":\"sau4yre6zto8uhj430a8jtw497ethyu39q78hyta908puyth89sa4ht893shyts98e45y\",\"encrypted_payload\":\"ENCReYaw54987thq3Ptyer9t8hga35g87h98ae54yhg9ert85u0q9834ty80\",\"encrypted_format\":\"1\"}";
-
-        String encryptedPayload = "ENCReYaw54987thq3Ptyer9t8hga35g87h98ae54yhg9ert85u0q9834ty80";
-        String phoneNumberHash = "sau4yre6zto8uhj430a8jtw497ethyu39q78hyta908puyth89sa4ht893shyts98e45y";
-        String address = "q";
-        String txid = "42";
-
-        when(client.postTransactionNotification(any(JsonObject.class))).thenReturn(mock(Call.class));
-
-        SignedCoinKeeperApiClient apiClient = new SignedCoinKeeperApiClient(client, FCM_APP_ID);
-
-        apiClient.postTransactionNotification(txid, address, phoneNumberHash, encryptedPayload);
-
-        verify(client).postTransactionNotification(captor.capture());
-        assertThat(captor.getValue().toString(), equalTo(json));
-    }
-
-    @Test
-    public void posts_transaction_notification_passes_response_through() {
+    public void posts_transaction_notification_passes_response_through() throws InterruptedException {
 
         String json = "{}";
         MockResponse expectedResponse = new MockResponse().setResponseCode(200).setBody(json);
@@ -1054,8 +1066,11 @@ public class SignedCoinKeeperApiClientTest {
         String address = "q";
         String txid = "42";
 
-        Response response = signedCoinKeeperApiClient.postTransactionNotification(txid, address, phoneNumberHash, encryptedPayload);
+        Response response = signedCoinKeeperApiClient.postTransactionNotification(new CNSharedMemo(txid, address, phoneNumberHash, encryptedPayload, "2"));
+        RecordedRequest recordedRequest = webServer.takeRequest();
 
+        assertThat(recordedRequest.getPath(), equalTo("/transaction/notification"));
+        assertThat(recordedRequest.getBody().readUtf8(), equalTo("{\"txid\":\"42\",\"address\":\"q\",\"identity_hash\":\"sau4yre6zto8uhj430a8jtw497ethyu39q78hyta908puyth89sa4ht893shyts98e45y\",\"encrypted_payload\":\"ENCReYaw54987thq3Ptyer9t8hga35g87h98ae54yhg9ert85u0q9834ty80\",\"encrypted_format\":\"2\"}"));
         assertThat(response.code(), equalTo(200));
     }
 
@@ -1084,7 +1099,7 @@ public class SignedCoinKeeperApiClientTest {
         assertThat(memo.getTxid(), equalTo(txid));
         assertThat(memo.getAddress(), equalTo(address));
         assertThat(memo.getEncrypted_payload(), equalTo(encryptedPayload));
-        assertThat(memo.getEncrypted_format(), equalTo(Integer.valueOf(format)));
+        assertThat(memo.getEncrypted_format(), equalTo(format));
         RecordedRequest recordedRequest = webServer.takeRequest();
         assertThat(recordedRequest.getPath(), equalTo("/transaction/notification/" + txid));
     }
@@ -1135,6 +1150,146 @@ public class SignedCoinKeeperApiClientTest {
         assertTrue(userPatch.isPrivate());
     }
 
+    @Test
+    public void deletes_user_identity() throws InterruptedException {
+        MockResponse expectedResponse = new MockResponse().setResponseCode(204).setBody("");
+        webServer.enqueue(expectedResponse);
+        DropbitMeIdentity identity = mock(DropbitMeIdentity.class);
+        when(identity.getServerId()).thenReturn("--server-id--");
+
+        Response response = signedCoinKeeperApiClient.deleteIdentity(identity);
+
+        RecordedRequest recordedRequest = webServer.takeRequest();
+        assertThat(recordedRequest.getPath(), equalTo("/user/identity/--server-id--"));
+        assertThat(response.code(), equalTo(204));
+    }
+
+    @Test
+    public void fetches_identities() throws InterruptedException {
+        String json = "[\n" +
+                "  {\n" +
+                "    \"id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\",\n" +
+                "    \"created_at\": 1531921356,\n" +
+                "    \"updated_at\": 1531921356,\n" +
+                "    \"type\": \"phone\",\n" +
+                "    \"identity\": \"13305551212\",\n" +
+                "    \"handle\": \"498803d5964a\",\n" +
+                "    \"hash\": \"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\",\n" +
+                "    \"status\": \"pending-verification\"\n" +
+                "  }\n" +
+                "]";
+        MockResponse expectedResponse = new MockResponse().setResponseCode(200).setBody(json);
+        webServer.enqueue(expectedResponse);
+
+        Response response = signedCoinKeeperApiClient.getIdentities();
+        List<CNUserIdentity> identities = (List<CNUserIdentity>) response.body();
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/user/identity"));
+        assertThat(response.code(), equalTo(200));
+        assertThat(identities.size(), equalTo(1));
+        assertThat(identities.get(0).getId(), equalTo("ad983e63-526d-4679-a682-c4ab052b20e1"));
+        assertThat(identities.get(0).getType(), equalTo("phone"));
+        assertThat(identities.get(0).getIdentity(), equalTo("13305551212"));
+        assertThat(identities.get(0).getHash(), equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"));
+    }
+
+    @Test
+    public void adds_identity() throws InterruptedException {
+        String json = "  {\n" +
+                "    \"id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\",\n" +
+                "    \"created_at\": 1531921356,\n" +
+                "    \"updated_at\": 1531921356,\n" +
+                "    \"type\": \"phone\",\n" +
+                "    \"identity\": \"13305551212\",\n" +
+                "    \"handle\": \"498803d5964a\",\n" +
+                "    \"hash\": \"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\",\n" +
+                "    \"status\": \"pending-verification\"\n" +
+                "  }\n";
+        MockResponse expectedResponse = new MockResponse().setResponseCode(200).setBody(json);
+        webServer.enqueue(expectedResponse);
+        CNUserIdentity identity = new CNUserIdentity();
+
+        Response response = signedCoinKeeperApiClient.addIdentity(identity);
+        identity = (CNUserIdentity) response.body();
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/user/identity"));
+        assertThat(recordedRequest.getMethod(), equalTo("POST"));
+        assertThat(response.code(), equalTo(200));
+        assertThat(identity.getId(), equalTo("ad983e63-526d-4679-a682-c4ab052b20e1"));
+        assertThat(identity.getType(), equalTo("phone"));
+        assertThat(identity.getIdentity(), equalTo("13305551212"));
+        assertThat(identity.getHash(), equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"));
+    }
+
+    @Test
+    public void verifies_identity() throws InterruptedException {
+        String json = "{\n" +
+                "  \"id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\",\n" +
+                "  \"created_at\": 1531921356,\n" +
+                "  \"updated_at\": 1531921356,\n" +
+                "  \"status\": \"pending-verification\",\n" +
+                "  \"private\": true,\n" +
+                "  \"identities\": [\n" +
+                "    {\n" +
+                "      \"id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\",\n" +
+                "      \"created_at\": 1531921356,\n" +
+                "      \"updated_at\": 1531921356,\n" +
+                "      \"type\": \"phone\",\n" +
+                "      \"identity\": \"13305551212\",\n" +
+                "      \"hash\": \"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\",\n" +
+                "      \"status\": \"pending-verification\"\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"wallet_id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\"\n" +
+                "}";
+
+        MockResponse expectedResponse = new MockResponse().setResponseCode(200).setBody(json);
+        webServer.enqueue(expectedResponse);
+        CNUserIdentity identity = new CNUserIdentity();
+
+        Response response = signedCoinKeeperApiClient.verifyIdentity(identity);
+        CNUserAccount account = (CNUserAccount) response.body();
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/user/verify"));
+        assertThat(recordedRequest.getMethod(), equalTo("POST"));
+        assertThat(response.code(), equalTo(200));
+        assertThat(account.getIdentities().get(0).getId(), equalTo("ad983e63-526d-4679-a682-c4ab052b20e1"));
+        assertThat(account.getIdentities().get(0).getType(), equalTo("phone"));
+        assertThat(account.getIdentities().get(0).getIdentity(), equalTo("13305551212"));
+        assertThat(account.getIdentities().get(0).getHash(), equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"));
+    }
+
+    @Test
+    public void create_user_from_identity() throws InterruptedException {
+        String json = "{\n" +
+                "  \"id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\",\n" +
+                "  \"created_at\": 1531921356,\n" +
+                "  \"updated_at\": 1531921356,\n" +
+                "  \"status\": \"pending-verification\",\n" +
+                "  \"private\": true,\n" +
+                "  \"wallet_id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\"\n" +
+                "}";
+
+        MockResponse expectedResponse = new MockResponse().setResponseCode(200).setBody(json);
+        webServer.enqueue(expectedResponse);
+        CNUserIdentity identity = new CNUserIdentity();
+
+        Response response = signedCoinKeeperApiClient.createUserFromIdentity(identity);
+        CNUserAccount account = (CNUserAccount) response.body();
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/user"));
+        assertThat(recordedRequest.getMethod(), equalTo("POST"));
+        assertThat(response.code(), equalTo(200));
+        assertThat(account.getId(), equalTo("ad983e63-526d-4679-a682-c4ab052b20e1"));
+        assertThat(account.getStatus(), equalTo("pending-verification"));
+        assertThat(account.isPrivate(), equalTo(true));
+        assertThat(account.getWallet_id(), equalTo("f8e8c20e-ba44-4bac-9a96-44f3b7ae955d"));
+    }
+
     private SignedCoinKeeperApiClient createClient(String host) {
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
         clientBuilder.connectTimeout(100, TimeUnit.MILLISECONDS)
@@ -1149,4 +1304,5 @@ public class SignedCoinKeeperApiClientTest {
 
         return new SignedCoinKeeperApiClient(client, FCM_APP_ID);
     }
+
 }

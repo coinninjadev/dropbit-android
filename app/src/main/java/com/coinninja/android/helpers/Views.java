@@ -15,6 +15,7 @@ import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 public class Views {
 
@@ -96,6 +97,14 @@ public class Views {
                 (int) (drawable.getIntrinsicHeight() * scale));
         viewToDraw.setCompoundDrawables(drawable, null, null, null);
         viewToClear.setCompoundDrawables(null, null, null, null);
+    }
+
+    public static void setCompondDrawableOnStart(TextView view, int drawableId, float scale) {
+        Drawable drawable = ResourcesCompat.getDrawable(view.getResources(), drawableId, null);
+        drawable.setBounds(0, 0,
+                (int) (drawable.getIntrinsicWidth() * scale),
+                (int) (drawable.getIntrinsicHeight() * scale));
+        view.setCompoundDrawables(drawable, null, null, null);
     }
 
     public static void clearCompoundDrawablesOn(TextView view) {

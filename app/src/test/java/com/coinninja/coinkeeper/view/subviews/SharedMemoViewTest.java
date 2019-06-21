@@ -51,6 +51,6 @@ public class SharedMemoViewTest {
 
         TextView textView = withId(view, R.id.shared_memo_status_text_view);
 
-        assertThat(textView, hasText(Resources.getString(context, R.string.shared_memo, "Jon Doe")));
+        assertThat(textView, hasText(Resources.INSTANCE.getString(context, R.string.shared_memo, "Jon Doe")));
     }
 }

@@ -20,15 +20,17 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
-import com.coinninja.coinkeeper.ui.phone.verification.VerifyPhoneNumberActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -42,7 +44,7 @@ import com.coinninja.coinkeeper.util.crypto.uri.UriException;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.view.activity.PickContactActivity;
+import com.coinninja.coinkeeper.view.activity.PickUserActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView;
@@ -52,8 +54,10 @@ import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView;
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.shadows.ShadowActivity;
@@ -101,13 +105,15 @@ public class PayDialogFragmentTest {
     @Mock
     private Analytics analytics;
     @Mock
-    private WalletHelper walletHelper;
+    private DropbitAccountHelper dropbitAccountHelper;
     @Mock
     private ClipboardUtil clipboardUtil;
     @Mock
     private BitcoinUtil bitcoinUtil;
     @Mock
     private UserPreferences userPreferences;
+    @Mock
+    private WalletHelper walletHelper;
     @Mock
     private PaymentBarCallbacks paymentBarCallbacks;
     @Mock
@@ -144,6 +150,7 @@ public class PayDialogFragmentTest {
         shadowActivity = null;
         paymentHolder = null;
         walletHelper = null;
+        dropbitAccountHelper = null;
         clipboardUtil = null;
         paymentUtil = null;
         bitcoinUtil = null;
@@ -189,17 +196,17 @@ public class PayDialogFragmentTest {
 
     @Test
     public void contact_sends_get_confirmed() {
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
         when(transactionFundingManger.buildFundedTransactionData(any(), anyLong())).thenReturn(validTransactionData);
-        paymentUtil.setContact(contact);
+        paymentUtil.setIdentity(identity);
         paymentHolder.setPublicKey("-pub-key-");
         paymentHolder.setPaymentAddress("-pay-address-");
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         start();
 
         clickOn(withId(dialog.getView(), R.id.pay_footer_send_btn));
 
-        verify(paymentBarCallbacks).confirmPaymentFor(paymentHolder, contact);
+        verify(paymentBarCallbacks).confirmPaymentFor(paymentHolder, identity);
     }
 
     // CHECK FUNDED
@@ -208,16 +215,16 @@ public class PayDialogFragmentTest {
     public void verified_contacts_with_out_addresses_get_invited_without_help_confirmation() {
         when(userPreferences.getShouldShowInviteHelp()).thenReturn(true);
         when(transactionFundingManger.buildFundedTransactionData(any(), anyLong())).thenReturn(validTransactionData);
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
         paymentHolder.setPaymentAddress("");
         paymentHolder.updateValue(new USDCurrency(1.00d));
-        paymentUtil.setContact(contact);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        paymentUtil.setIdentity(identity);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         start();
 
         clickOn(withId(dialog.getView(), R.id.pay_footer_send_btn));
 
-        verify(paymentBarCallbacks).confirmInvite(contact);
+        verify(paymentBarCallbacks).confirmInvite(identity);
     }
 
     @Test
@@ -274,7 +281,7 @@ public class PayDialogFragmentTest {
 
     @Test
     public void sending_adds_memo_and_sharing_to_payment_holder() {
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         start();
         dialog.memoToggleView = mock(SharedMemoToggleView.class);
         when(dialog.memoToggleView.isSharing()).thenReturn(false);
@@ -289,7 +296,7 @@ public class PayDialogFragmentTest {
         paymentHolder.setIsSharingMemo(true);
         paymentHolder.setMemo("");
         paymentHolder.setPaymentAddress("--address--");
-        paymentUtil.setContact(new Contact(phoneNumber, "Joe Dirt", true));
+        paymentUtil.setIdentity(new Identity(new Contact(phoneNumber, "Joe Dirt", true)));
 
         dialog.sendPayment();
         assertThat(paymentHolder.getMemo(), equalTo("--memo--"));
@@ -297,7 +304,7 @@ public class PayDialogFragmentTest {
 
         paymentHolder.setMemo("");
         paymentHolder.setIsSharingMemo(true);
-        paymentUtil.setContact(new Contact());
+        paymentUtil.setIdentity(new Identity(new Contact(phoneNumber, "", true)));
         dialog.sendPayment();
         assertThat(paymentHolder.getMemo(), equalTo("--memo--"));
         assertThat(paymentHolder.getIsSharingMemo(), equalTo(false));
@@ -312,7 +319,7 @@ public class PayDialogFragmentTest {
 
         withId(dialog.getView(), R.id.pay_header_close_btn).performClick();
 
-        assertNull(paymentHolder.getMemo());
+        assertThat(paymentHolder.getMemo(), equalTo(""));
     }
 
 
@@ -320,23 +327,27 @@ public class PayDialogFragmentTest {
 
     @Test
     public void allows_user_to_share_memo_for_invite_phone_number_entry__simulate_non_verified_user_lookup() {
-        Contact contact = new Contact(phoneNumber, "Joe Dirt", false);
-        paymentUtil.setContact(contact);
+        ArgumentCaptor<CNAddressLookupDelegate.CNAddressLookupCompleteCallback> argumentCaptor = ArgumentCaptor.forClass(CNAddressLookupDelegate.CNAddressLookupCompleteCallback.class);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Dirt", false));
+        paymentUtil.setIdentity(identity);
         Intent intent = new Intent();
-        intent.putExtra(DropbitIntents.EXTRA_CONTACT, contact);
+        intent.putExtra(DropbitIntents.EXTRA_IDENTITY, identity);
         start();
         dialog.memoToggleView = mock(SharedMemoToggleView.class);
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent);
+        verify(cnAddressLookupDelegate).fetchAddressFor(eq(identity), argumentCaptor.capture());
+        CNAddressLookupDelegate.CNAddressLookupCompleteCallback callback = argumentCaptor.getValue();
+        callback.onAddressLookupComplete(mock(AddressLookupResult.class));
 
         verify(dialog.memoToggleView).showSharedMemoViews();
     }
 
     @Test
     public void shows_shared_memos_when_valid_number_returns_with_pub_key() {
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
-        paymentUtil.setContact(contact);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
+        paymentUtil.setIdentity(identity);
         AddressLookupResult addressLookupResult = new AddressLookupResult(
                 "-phone-hash-",
                 "-payment-address-",
@@ -351,8 +362,8 @@ public class PayDialogFragmentTest {
 
     @Test
     public void hides_shared_memos_when_valid_number_does_not_return_with_pub_key() {
-        Contact contact = new Contact(phoneNumber, "Joe Smoe", true);
-        paymentUtil.setContact(contact);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
+        paymentUtil.setIdentity(identity);
 
         AddressLookupResult addressLookupResult = new AddressLookupResult(
                 "-phone-hash-",
@@ -461,9 +472,9 @@ public class PayDialogFragmentTest {
     public void pasting_address_over_contact_clears_contact_and_shows_address() throws UriException {
         String address = "3EqhexhZ2cuBCPMq9kPpqj9m3R6aFzCKoo";
         mockClipboardWithData(address);
-        Contact contact = new Contact(phoneNumber, "Joe Dirt", true);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Dirt", true));
         Intent intent = new Intent();
-        intent.putExtra(DropbitIntents.EXTRA_CONTACT, contact);
+        intent.putExtra(DropbitIntents.EXTRA_IDENTITY, identity);
         start();
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent);
@@ -555,7 +566,7 @@ public class PayDialogFragmentTest {
         phoneNumberInputView.setText(text);
 
         assertThat(phoneNumberInputView.getText(), equalTo("+1"));
-        assertNull(paymentUtil.getContact());
+        assertNull(paymentUtil.getIdentity());
     }
 
     @Test
@@ -567,26 +578,26 @@ public class PayDialogFragmentTest {
         PhoneNumberInputView phoneNumberInputView = withId(paymentReceiverView, R.id.phone_number_input);
         phoneNumberInputView.setText("3305551111");
 
-        assertThat(paymentUtil.getContact().getPhoneNumber(), equalTo(phoneNumber));
+        assertThat(paymentUtil.getIdentity().getValue(), equalTo(phoneNumber.toString()));
     }
 
     @Test
     public void picks_contact_to_send() {
-        when(walletHelper.hasVerifiedAccount()).thenReturn(true);
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         start();
 
         clickOn(withId(dialog.getView(), R.id.contacts_btn));
 
-        Intents.intending(hasComponent(PickContactActivity.class.getName()));
+        Intents.intending(hasComponent(PickUserActivity.class.getName()));
         //TODO verify request code passed
     }
 
     @Test
     public void picking_contact_hides_payment_receiver_view() {
         start();
-        Contact contact = new Contact(phoneNumber, "Joe Dirt", true);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Dirt", true));
         Intent intent = new Intent();
-        intent.putExtra(DropbitIntents.EXTRA_CONTACT, contact);
+        intent.putExtra(DropbitIntents.EXTRA_IDENTITY, identity);
         PaymentReceiverView paymentReceiverView = withId(dialog.getView(), R.id.payment_receiver);
         paymentReceiverView.setPaymentAddress(EXTERNAL_ADDRESSES[0]);
 
@@ -602,59 +613,60 @@ public class PayDialogFragmentTest {
         when(userPreferences.getShouldShowInviteHelp()).thenReturn(false);
         start();
 
-        Contact contact = new Contact(phoneNumber, "Joe Blow", false);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Blow", false));
 
-        dialog.startContactInviteFlow(contact);
+        dialog.startContactInviteFlow(identity);
 
-        verify(paymentBarCallbacks).confirmInvite(contact);
+        verify(paymentBarCallbacks).confirmInvite(identity);
     }
 
     @Test
     public void fetches_address_for_verified_contact_when_user_picks_one() {
-        Contact contact = new Contact(phoneNumber, "Joe Blow", true);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Blow", true));
         Intent intent = new Intent();
-        intent.putExtra(DropbitIntents.EXTRA_CONTACT, contact);
+        intent.putExtra(DropbitIntents.EXTRA_IDENTITY, identity);
         start();
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent);
 
         assertThat(withId(dialog.getView(), R.id.contact_name), hasText("Joe Blow"));
         assertThat(withId(dialog.getView(), R.id.contact_number), hasText(phoneNumber.toInternationalDisplayText()));
-        verify(cnAddressLookupDelegate).fetchAddressFor(eq(contact),
+        verify(cnAddressLookupDelegate).fetchAddressFor(eq(identity),
                 any(CNAddressLookupDelegate.CNAddressLookupCompleteCallback.class));
     }
 
     @Test
-    public void does_not_fetch_address_for_non_verified_contact_when_user_picks_one() {
-        Contact contact = new Contact(phoneNumber, "Joe Dirt", false);
+    public void does_fetch_address_for_non_verified_contact_when_user_picks_one() {
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Dirt", false));
         Intent intent = new Intent();
-        intent.putExtra(DropbitIntents.EXTRA_CONTACT, contact);
+        intent.putExtra(DropbitIntents.EXTRA_IDENTITY, identity);
         start();
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent);
 
-        verify(cnAddressLookupDelegate, times(0)).
-                fetchAddressFor(any(Contact.class), any(CNAddressLookupDelegate.CNAddressLookupCompleteCallback.class));
+        verify(cnAddressLookupDelegate).
+                fetchAddressFor(any(Identity.class), any(CNAddressLookupDelegate.CNAddressLookupCompleteCallback.class));
     }
 
     @Test
     public void invites_unverified_contact_after_confirming_help_screen() {
-        Contact contact = new Contact(phoneNumber, "Joe Blow", false);
+        Identity identity = new Identity(new Contact(phoneNumber, "Joe Blow", false));
         start();
 
-        dialog.onInviteHelpAccepted(contact);
+        dialog.onInviteHelpAccepted(identity);
 
-        verify(paymentBarCallbacks).confirmInvite(contact);
+        verify(paymentBarCallbacks).confirmInvite(identity);
     }
 
+    @Ignore //Changing this flow in the next story, ignoring for now
     @Test
     public void directs_user_to_verify_phone_when_selecting_contacts() {
+        when(dropbitAccountHelper.getHasVerifiedAccount()).thenReturn(true);
         start();
 
         dialog.getView().findViewById(R.id.contacts_btn).performClick();
-
         Intent intent = shadowActivity.peekNextStartedActivity();
-        assertThat(intent.getComponent().getClassName(), equalTo(VerifyPhoneNumberActivity.class.getName()));
+        assertThat(intent.getComponent().getClassName(), equalTo(VerificationActivity.class.getName()));
     }
 
     @Test
@@ -726,6 +738,7 @@ public class PayDialogFragmentTest {
         application.clipboardUtil = clipboardUtil;
         application.userPreferences = userPreferences;
         application.countryCodeLocales = countryCodeLocales;
+        application.dropbitAccountHelper = dropbitAccountHelper;
 
         defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);

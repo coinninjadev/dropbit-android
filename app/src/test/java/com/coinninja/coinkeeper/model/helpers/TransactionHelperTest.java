@@ -1,11 +1,14 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.bindings.TransactionData;
-import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.BroadcastBtcInviteDao;
 import com.coinninja.coinkeeper.model.db.DaoSession;
+import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.FundingStatDao;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
@@ -16,12 +19,13 @@ import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummaryDao;
+import com.coinninja.coinkeeper.model.db.UserIdentity;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
+import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
-import com.coinninja.coinkeeper.service.client.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey;
@@ -39,7 +43,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,11 +59,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class TransactionHelperTest {
 
-    private static final String SENDER_PHONE_STRING = "3305550000";
-    private static final String RECEIVER_PHONE_STRING = "3305551111";
+    private static final String SENDER_PHONE_STRING = "13305550000";
+    private static final String RECEIVER_PHONE_STRING = "13305551111";
     private static final int COUNTRY_CODE = 1;
 
     @Mock
@@ -90,12 +93,12 @@ public class TransactionHelperTest {
     private TransactionsInvitesSummaryDao transactionInviteSummaryDao;
     @Mock
     private TransactionsInvitesSummary transactionsInvitesSummary;
-    private long currentTimeInMillsec = 654654L;
+    @Mock
+    private UserIdentityHelper userIdentityHelper;
+    @Mock
+    private DropbitAccountHelper dropbitAccountHelper;
 
-    @Mock
-    private PhoneNumber receiverPhoneNumber;
-    @Mock
-    private PhoneNumber senderPhoneNumber;
+    private long currentTimeInMillsec = 654654L;
 
     @Before
     public void setUp() throws Exception {
@@ -108,8 +111,6 @@ public class TransactionHelperTest {
         when(transactionSummaryDao.queryBuilder()).thenReturn(tsQuery);
         when(transactionInviteSummaryDao.queryBuilder()).thenReturn(tsInviteQuery);
         when(inviteDao.queryBuilder()).thenReturn(inviteQuery);
-        when(receiverPhoneNumber.toString()).thenReturn(RECEIVER_PHONE_STRING);
-        when(senderPhoneNumber.toString()).thenReturn(RECEIVER_PHONE_STRING);
     }
 
     @Test
@@ -444,47 +445,6 @@ public class TransactionHelperTest {
         verify(summary3).setBtcState(BTCState.CANCELED);
         verify(summary3).update();
         verify(summary2, times(0)).update();
-    }
-
-    @Test
-    public void new_invite_state_string_to_state_test() {
-        BTCState expectedState = BTCState.UNFULFILLED;
-        String sampleState = "new";
-
-        BTCState state = BTCState.from(sampleState);
-
-        assertThat(state, equalTo(expectedState));
-    }
-
-    @Test
-    public void completed_invite_state_string_to_state_test() {
-        BTCState expectedState = BTCState.FULFILLED;
-        String sampleState = "completed";
-
-        BTCState state = BTCState.from(sampleState);
-
-        assertThat(state, equalTo(expectedState));
-    }
-
-    @Test
-    public void canceled_invite_state_string_to_state_test() {
-        BTCState expectedState = BTCState.CANCELED;
-        String sampleState = "canceled";
-
-        BTCState state = BTCState.from(sampleState);
-
-        assertThat(state, equalTo(expectedState));
-    }
-
-
-    @Test
-    public void expired_invite_state_string_to_state_test() {
-        BTCState expectedState = BTCState.EXPIRED;
-        String sampleState = "expired";
-
-        BTCState state = BTCState.from(sampleState);
-
-        assertThat(state, equalTo(expectedState));
     }
 
     @Test
@@ -823,8 +783,10 @@ public class TransactionHelperTest {
         receivedInvite.setStatus("completed");
         receivedInvite.setTxid("--txid--");
         InviteMetadata inviteMetadata = new InviteMetadata();
-        inviteMetadata.setSender(new InviteMetadata.MetadataContact(COUNTRY_CODE, SENDER_PHONE_STRING));
-        inviteMetadata.setReceiver(new InviteMetadata.MetadataContact(COUNTRY_CODE, RECEIVER_PHONE_STRING));
+        InviteMetadata.MetadataContact sender = new InviteMetadata.MetadataContact("phone", SENDER_PHONE_STRING);
+        InviteMetadata.MetadataContact receiver = new InviteMetadata.MetadataContact("phone", RECEIVER_PHONE_STRING);
+        inviteMetadata.setSender(sender);
+        inviteMetadata.setReceiver(receiver);
         inviteMetadata.setAmount(new InviteMetadata.MetadataAmount(26236L, 100L));
         receivedInvite.setMetadata(inviteMetadata);
 
@@ -841,9 +803,12 @@ public class TransactionHelperTest {
         when(invite.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
         when(transactionsInvitesSummary.getTransactionSummary()).thenReturn(mock(TransactionSummary.class));
 
-        helper.saveReceivedInviteTransaction(wallet, receivedInvite);
+        UserIdentity fromUser = mock(UserIdentity.class);
+        UserIdentity toUser = mock(UserIdentity.class);
+        when(userIdentityHelper.updateFrom(sender)).thenReturn(fromUser);
+        when(userIdentityHelper.updateFrom(receiver)).thenReturn(toUser);
 
-        verify(invite).setInviteName("");
+        helper.saveReceivedInviteTransaction(wallet, receivedInvite);
 
         verify(invite).setHistoricValue(100L);
         verify(invite).setValueSatoshis(26236L);
@@ -853,11 +818,14 @@ public class TransactionHelperTest {
         verify(invite).setWalletId(1L);
         verify(invite).setBtcTransactionId("--txid--");
         verify(invite).setAddress("--address--");
-        verify(invite).setSenderPhoneNumber(any());
-        verify(invite).setReceiverPhoneNumber(any());
         verify(invite).setSentDate(when * 1000);
-
+        verify(invite).setToUser(toUser);
+        verify(invite).setFromUser(fromUser);
         verify(invite).update();
+
+        verify(transactionsInvitesSummary).setFromUser(fromUser);
+        verify(transactionsInvitesSummary).setToUser(toUser);
+        verify(transactionsInvitesSummary).update();
 
     }
 
@@ -878,28 +846,22 @@ public class TransactionHelperTest {
         when(transactionSummary.getTransactionSummary()).thenReturn(tx);
         when(tx.getMemPoolState()).thenReturn(MemPoolState.FAILED_TO_BROADCAST);
 
-
         Type type = Type.RECEIVED;
-        String contactDisplayName = "some name";
         long historicUSAValue = 150;
-        Long sentDate = 54981324l;
+        Long sentDate = 54981324L;
         String inviteStatus = "complete";
-        Long valueSatoshis = 8795l;
-        Long fee = 50l;
+        Long valueSatoshis = 8795L;
+        Long fee = 50L;
         String address = "some address";
-        long wallet = 1l;
+        long wallet = 1L;
 
         helper.saveInviteTransaction(
-                wallet, inviteServerID, type, contactDisplayName, senderPhoneNumber, receiverPhoneNumber,
+                wallet, inviteServerID, type, mock(UserIdentity.class), mock(UserIdentity.class),
                 historicUSAValue, sentDate, inviteStatus, valueSatoshis, fee, address, btcTxID);
 
 
         verify(invite, times(0)).setAddress(any());
         verify(invite, times(0)).setValueFeesSatoshis(any());
-        verify(invite, times(0)).setInviteName(any());
-        verify(invite, times(0)).setHistoricUSDValue(any());
-        verify(invite, times(0)).setSenderPhoneNumber(any());
-        verify(invite, times(0)).setReceiverPhoneNumber(any());
         verify(invite, times(0)).setSentDate(any());
         verify(invite, times(0)).setBtcState(any());
         verify(invite, times(0)).setValueSatoshis(any());
@@ -908,6 +870,8 @@ public class TransactionHelperTest {
         verify(invite, times(0)).setAddress(any());
         verify(invite, times(0)).setBtcTransactionId(any());
         verify(invite, times(0)).setType(any());
+        verify(invite, times(0)).setToUser(any());
+        verify(invite, times(0)).setFromUser(any());
 
     }
 
@@ -922,7 +886,6 @@ public class TransactionHelperTest {
         when(daoSessionMock.getInviteTransactionSummaryDao()).thenReturn(inviteDao);
         when(inviteDao.queryBuilder()).thenReturn(inviteQuery);
         when(inviteQuery.where(any())).thenReturn(inviteQuery);
-        when(inviteQuery.limit(1)).thenReturn(inviteQuery);
         when(inviteQuery.unique()).thenReturn(invite);
         TransactionsInvitesSummary transactionSummary = mock(TransactionsInvitesSummary.class);
         when(invite.getTransactionsInvitesSummary()).thenReturn(transactionSummary);
@@ -939,10 +902,6 @@ public class TransactionHelperTest {
 
         verify(invite, times(0)).setAddress(any());
         verify(invite, times(0)).setValueFeesSatoshis(any());
-        verify(invite, times(0)).setInviteName(any());
-        verify(invite, times(0)).setHistoricUSDValue(any());
-        verify(invite, times(0)).setSenderPhoneNumber(any());
-        verify(invite, times(0)).setReceiverPhoneNumber(any());
         verify(invite, times(0)).setSentDate(any());
         verify(invite, times(0)).setBtcState(any());
         verify(invite, times(0)).setValueSatoshis(any());
@@ -951,7 +910,6 @@ public class TransactionHelperTest {
         verify(invite, times(0)).setAddress(any());
         verify(invite, times(0)).setBtcTransactionId(any());
         verify(invite, times(0)).setType(any());
-
     }
 
     @Test
@@ -999,13 +957,20 @@ public class TransactionHelperTest {
         when(transactionInviteSummaryHelper.getOrCreateTransactionInviteSummaryFor(transaction)).thenReturn(transactionsInvitesSummary);
         TransactionData transactionData = mock(TransactionData.class);
         String toName = "Joe Smoe";
-        Contact contact = new Contact(receiverPhoneNumber, toName, true);
+        Identity identity = new Identity(IdentityType.PHONE, RECEIVER_PHONE_STRING, "--hash--", toName, "", false, null);
         String txid = "--txid--";
-        CompletedBroadcastDTO completedBroadcastDTO = new CompletedBroadcastDTO(transactionData, txid, contact);
+        CompletedBroadcastDTO completedBroadcastDTO = new CompletedBroadcastDTO(transactionData, txid, identity);
         Wallet wallet = mock(Wallet.class);
         when(walletHelper.getWallet()).thenReturn(wallet);
         when(daoSessionManager.newTransactionSummary()).thenReturn(transaction);
         when(daoSessionManager.insert(transaction)).thenReturn(1L);
+
+        DropbitMeIdentity myIdentity = mock(DropbitMeIdentity.class);
+        when(dropbitAccountHelper.identityForType(identity.getIdentityType())).thenReturn(myIdentity);
+        UserIdentity toUser = mock(UserIdentity.class);
+        when(userIdentityHelper.updateFrom(identity)).thenReturn(toUser);
+        UserIdentity fromUser = mock(UserIdentity.class);
+        when(userIdentityHelper.updateFrom(myIdentity)).thenReturn(fromUser);
 
         TransactionSummary summary = helper.createInitialTransactionForCompletedBroadcast(completedBroadcastDTO);
 
@@ -1015,11 +980,10 @@ public class TransactionHelperTest {
         verify(transaction).setTxid(txid);
         verify(transaction).setMemPoolState(MemPoolState.PENDING);
         verify(transaction).setNumConfirmations(0);
-        verify(transaction.getTransactionsInvitesSummary()).setToPhoneNumber(receiverPhoneNumber);
-        verify(transaction.getTransactionsInvitesSummary()).setToName(toName);
         verify(daoSessionManager).insert(transaction);
         verify(transactionsInvitesSummary).update();
-        verify(transactionsInvitesSummary).setToPhoneNumber(contact.getPhoneNumber());
+        verify(transactionsInvitesSummary).setToUser(toUser);
+        verify(transactionsInvitesSummary).setFromUser(fromUser);
 
         assertThat(summary, equalTo(transaction));
 

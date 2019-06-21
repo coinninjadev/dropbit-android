@@ -5,10 +5,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
-
-import androidx.annotation.Nullable;
 
 public class DefaultCurrencyDisplaySyncView extends DefaultCurrencyDisplayView {
 

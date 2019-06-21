@@ -27,4 +27,15 @@ public enum IdentityType {
     public int getId() {
         return id;
     }
+
+    public String asString() {
+        switch (this) {
+            case PHONE:
+                return "phone";
+            case TWITTER:
+                return "twitter";
+            default:
+                return "unknown";
+        }
+    }
 }

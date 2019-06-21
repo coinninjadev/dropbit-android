@@ -5,9 +5,11 @@ import com.coinninja.coinkeeper.cn.service.CoinNinjaServiceCheck;
 import com.coinninja.coinkeeper.cn.service.UserVerificationServiceCheck;
 import com.coinninja.coinkeeper.cn.service.WalletVerificationServiceCheck;
 import com.coinninja.coinkeeper.cn.service.exception.base.CNServiceException;
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,22 +22,28 @@ public class AccountDeverificationServiceRunner implements Runnable {
 
     private static final String TAG = AccountDeverificationServiceRunner.class.getName();
     private final WalletHelper walletHelper;
+    private final DropbitAccountHelper dropbitAccountHelper;
     private final UserVerificationServiceCheck userVerificationService;
     private final WalletVerificationServiceCheck walletVerificationService;
     private final NotificationUtil notificationUtil;
     private final Analytics analytics;
+    private ServiceWorkUtil serviceWorkUtil;
     String debugMessage = "Failed to get %s: %s";
 
 
     @Inject
     public AccountDeverificationServiceRunner(WalletHelper walletHelper, UserVerificationServiceCheck userVerificationService,
                                               WalletVerificationServiceCheck walletVerificationService,
-                                              NotificationUtil notificationUtil, Analytics analytics) {
+                                              DropbitAccountHelper dropbitAccountHelper,
+                                              NotificationUtil notificationUtil, Analytics analytics,
+                                              ServiceWorkUtil serviceWorkUtil) {
         this.walletHelper = walletHelper;
+        this.dropbitAccountHelper = dropbitAccountHelper;
         this.userVerificationService = userVerificationService;
         this.walletVerificationService = walletVerificationService;
         this.notificationUtil = notificationUtil;
         this.analytics = analytics;
+        this.serviceWorkUtil = serviceWorkUtil;
     }
 
     @Override
@@ -50,7 +58,7 @@ public class AccountDeverificationServiceRunner implements Runnable {
     }
 
     private void verifyAccount() throws CNServiceException {
-        if (walletHelper.hasVerifiedAccount()) {
+        if (dropbitAccountHelper.getHasVerifiedAccount()) {
             verifyUser();
         } else {
             verifyWallet();
@@ -68,6 +76,8 @@ public class AccountDeverificationServiceRunner implements Runnable {
         JSONObject json = getJSONToReport(String.format(debugMessage, USER, userVerificationService.getRaw()));
         if (userVerificationService.deverificaitonReason() == CoinNinjaServiceCheck.DeverifiedCause.MISMATCH) {
             notificationUtil.dispatchInternal(R.string.mismatch_401_user_deverifcation_message);
+            serviceWorkUtil.deVerifyTwitter();
+            serviceWorkUtil.deVerifyPhoneNumber();
             analytics.trackEvent(Analytics.EVENT_PHONE_AUTO_DEVERIFIED, json);
         } else {
             notificationUtil.dispatchInternal(R.string.default_401_user_deverifcation_message);
@@ -90,7 +100,6 @@ public class AccountDeverificationServiceRunner implements Runnable {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        ;
         return json;
     }
 

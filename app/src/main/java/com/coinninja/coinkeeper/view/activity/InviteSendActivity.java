@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.view.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -13,15 +12,17 @@ import androidx.annotation.Nullable;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
+import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
 import com.coinninja.coinkeeper.service.SaveInviteService;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.ui.base.TransactionTweetCallback;
+import com.coinninja.coinkeeper.ui.base.TransactionTweetDialog;
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
@@ -29,7 +30,7 @@ import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
 import javax.inject.Inject;
 
-public class InviteSendActivity extends SecuredActivity implements InviteContactPresenter.View {
+public class InviteSendActivity extends SecuredActivity implements InviteContactPresenter.View, TransactionTweetCallback {
     public static final String RATE_LIMIT_DROPBIT_FRAGMENT_TAG = "EXPIRED_CODE_FRAGMENT_TAG";
     static final String RESTORE_STATE = "RESTORE_STATE";
 
@@ -44,6 +45,9 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     @Inject
     ShareTransactionDialog shareTransactionDialog;
+
+    @Inject
+    TransactionTweetDialog transactionTweetDialog;
 
     SendingProgressView sendingProgressView;
     PendingInviteDTO pendingInviteDTO;
@@ -111,16 +115,28 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     @Override
     public void showInviteSuccessful(InvitedContact inviteContact) {
+        if (pendingInviteDTO.getIdentity().getIdentityType() == IdentityType.TWITTER) {
+            analytics.trackEvent(Analytics.EVENT_TWITTER_SEND_SUCCESSFUL);
+        }
+
         sendState = SendState.COMPLETED_SUCCESS;
         saveInvite(inviteContact);
         showSuccessUI();
         reportSuccessful();
-        showTwitterShareCardIfNecessary();
+        showTwitterShareCardIfNecessary(inviteContact);
     }
 
-    private void showTwitterShareCardIfNecessary() {
-        if (!userPreferences.getShouldShareOnTwitter()) { return; }
-        shareTransactionDialog.show(getSupportFragmentManager(), ShareTransactionDialog.class.getName());
+    private void showTwitterShareCardIfNecessary(InvitedContact invitedContact) {
+        if (pendingInviteDTO.getIdentity().getIdentityType() == IdentityType.TWITTER) {
+            transactionTweetDialog.setReceivingIdentity(pendingInviteDTO.getIdentity());
+            transactionTweetDialog.setInviteId(invitedContact.getId());
+            transactionTweetDialog.setCallbackHandler(this);
+            transactionTweetDialog.setActivity(this);
+            transactionTweetDialog.show(getSupportFragmentManager(), TransactionTweetDialog.class.getName());
+        } else {
+            if (!userPreferences.getShouldShareOnTwitter()) { return; }
+            shareTransactionDialog.show(getSupportFragmentManager(), ShareTransactionDialog.class.getName());
+        }
     }
 
     @Override
@@ -238,8 +254,14 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     private void saveInvite(InvitedContact invitedContact) {
         Intent intent = new Intent(this, SaveInviteService.class);
-        intent.putExtra(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO, new CompletedInviteDTO(pendingInviteDTO, invitedContact));
+        CompletedInviteDTO completedInviteDTO = pendingInviteDTO.completeInviteWith(invitedContact);
+        intent.putExtra(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO, completedInviteDTO);
         startService(intent);
+    }
+
+    @Override
+    public void tweetWasSuccessful(String id) {
+        ((TextView) findViewById(R.id.transaction_id_link)).setText("https://twitter.com/i/web/status/" + id);
     }
 
     enum SendState {

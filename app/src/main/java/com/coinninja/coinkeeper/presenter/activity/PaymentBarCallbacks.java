@@ -1,10 +1,11 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
 
-import com.coinninja.coinkeeper.model.PaymentHolder;
-import com.coinninja.coinkeeper.service.client.model.Contact;
-
 import androidx.fragment.app.DialogFragment;
+
+import com.coinninja.coinkeeper.model.Contact;
+import com.coinninja.coinkeeper.model.Identity;
+import com.coinninja.coinkeeper.model.PaymentHolder;
 
 public interface PaymentBarCallbacks {
 
@@ -12,9 +13,9 @@ public interface PaymentBarCallbacks {
 
     void confirmPaymentFor(PaymentHolder paymentHolder);
 
-    void confirmPaymentFor(PaymentHolder paymentHolder, Contact phoneNumber);
+    void confirmPaymentFor(PaymentHolder paymentHolder, Identity identity);
 
-    void confirmInvite(Contact phoneNumber);
+    void confirmInvite(Identity identity);
 
     void cancelPayment(DialogFragment dialogFragment);
 }

@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.model.helpers;
 
 import com.coinninja.coinkeeper.model.db.DaoMaster;
 import com.coinninja.coinkeeper.model.db.DaoSession;
-import com.coinninja.coinkeeper.model.db.User;
 import com.coinninja.coinkeeper.model.db.UserDao;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.WalletDao;
@@ -13,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
