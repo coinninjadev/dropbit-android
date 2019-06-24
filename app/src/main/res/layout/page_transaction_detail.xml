@@ -12,8 +12,6 @@
         android:id="@+id/ic_close"
         android:layout_width="68dp"
         android:layout_height="68dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:padding="20dp"
         app:srcCompat="@drawable/ic_close"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,18 +36,15 @@
         android:id="@+id/tooltip"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:layout_marginVertical="25dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/question_mark_circle"
         android:text="?"
         android:textAlignment="center"
         android:textSize="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        cn:layout_constraintTop_toTopOf="parent"
-        tools:targetApi="o" />
-
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/share_twitter_button"
+         />
 
     <com.coinninja.coinkeeper.view.ConfirmationsView
         android:id="@+id/confirmation_beads"
@@ -197,6 +192,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="October 3, 2017 12:20pm" />
+
+    <Button
+        android:id="@+id/share_twitter_button"
+        android:layout_width="63dp"
+        android:layout_height="25dp"
+        android:drawableLeft="@drawable/twitter_icon_small"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="25dp"
+        android:padding="5dp"
+        style="@style/Button.Small"
+        android:text="SHARE"
+        app:layout_constraintStart_toStartOf="parent"
+        cn:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

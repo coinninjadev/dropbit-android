@@ -128,7 +128,11 @@ class Authorization constructor(val dateUtil: DateUtil, val configuration: Confi
     }
 
     private fun percentEncodeString(value: String): String {
-        return URLEncoder.encode(value, Charsets.UTF_8.toString())
+        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.M) {
+            return URLEncoder.encode(value, "UTF-8")
+        } else {
+            return URLEncoder.encode(value, Charsets.UTF_8.toString())
+        }
     }
 
     internal fun sign(data: String): String {

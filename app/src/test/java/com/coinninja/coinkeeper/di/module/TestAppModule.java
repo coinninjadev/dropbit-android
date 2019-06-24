@@ -18,10 +18,12 @@ import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
+import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
@@ -57,8 +59,8 @@ import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
-import com.coinninja.coinkeeper.ui.base.TransactionTweetDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
+import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CoinNinjaContactResolver;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
@@ -82,6 +84,7 @@ import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.squareup.picasso.Picasso;
@@ -90,6 +93,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import app.dropbit.commons.util.CoroutineContextProvider;
+import app.dropbit.commons.util.TestCoroutineContextProvider;
 import app.dropbit.twitter.Twitter;
 import dagger.Module;
 import dagger.Provides;
@@ -99,15 +104,27 @@ import static org.mockito.Mockito.mock;
 @Module
 public class TestAppModule {
 
+
     @Provides
-    Picasso picasso() {
-        return mock(Picasso.class);
+    CoroutineContextProvider coroutineContextProvider() {
+        return new TestCoroutineContextProvider();
+    }
+
+    @Provides
+    FirebaseInstanceId firebaseInstanceId() {
+        return mock(FirebaseInstanceId.class);
     }
 
     @Provides
     CoinNinjaContactResolver coinNinjaContentResolver(PermissionsUtil permissionsUtil, ContentResolver resolver) {
         return new CoinNinjaContactResolver(permissionsUtil, resolver);
     }
+
+    @Provides
+    Picasso picasso() {
+        return mock(Picasso.class);
+    }
+
 
     @Provides
     AnalyticUtil analyticUtil(MixpanelAPI analyticsProvider) {
@@ -658,5 +675,29 @@ public class TestAppModule {
             app.countryCodeLocaleGenerator = mock(CountryCodeLocaleGenerator.class);
         }
         return app.countryCodeLocaleGenerator;
+    }
+
+    @Provides
+    DustProtectionPreference dustProtectionPreference(TestCoinKeeperApplication app) {
+        if (app.dustProtectionPreference == null) {
+            app.dustProtectionPreference = mock(DustProtectionPreference.class);
+        }
+        return app.dustProtectionPreference;
+    }
+
+    @Provides
+    DeleteWalletPresenter deleteWalletPresenter(TestCoinKeeperApplication app) {
+        if (app.deleteWalletPresenter == null) {
+            app.deleteWalletPresenter = mock(DeleteWalletPresenter.class);
+        }
+        return app.deleteWalletPresenter;
+    }
+
+    @Provides
+    YearlyHighViewModel yearlyHighViewModel(TestCoinKeeperApplication app) {
+        if (app.yearlyHighViewModel == null) {
+            app.yearlyHighViewModel = mock(YearlyHighViewModel.class);
+        }
+        return app.yearlyHighViewModel;
     }
 }

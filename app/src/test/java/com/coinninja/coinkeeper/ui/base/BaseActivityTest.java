@@ -4,10 +4,12 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
@@ -63,6 +65,9 @@ public class BaseActivityTest {
         application.activityNavigationUtil = activityNavigationUtil;
         application.cnWalletManager = cnWalletManager;
         activityController = Robolectric.buildActivity(SettingsActivity.class);
+        application.yearlyHighViewModel = mock(YearlyHighViewModel.class);
+        MutableLiveData<Boolean> liveData = mock(MutableLiveData.class);
+        when(application.yearlyHighViewModel.isSubscribedToYearlyHigh()).thenReturn(liveData);
     }
 
     @After

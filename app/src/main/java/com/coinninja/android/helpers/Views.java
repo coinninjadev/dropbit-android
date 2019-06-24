@@ -65,12 +65,7 @@ public class Views {
         Animation animation = AnimationUtils.loadAnimation(view.getContext(), R.anim.shake_view);
         Vibrator vibrator = (Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE);
         view.startAnimation(animation);
-        view.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                vibrator.cancel();
-            }
-        }, 250);
+        view.postDelayed(() -> vibrator.cancel(), 250);
         long[] pattern = {25, 100, 25, 100};
         vibrator.vibrate(pattern, 0);
     }
@@ -85,13 +80,13 @@ public class Views {
                                                        double primaryScale, TextView secondaryCurrencyView, double secondaryScale) {
         Drawable drawable = defaultCurrencies.getCrypto().getSymbolDrawable(context);
         if (defaultCurrencies.getPrimaryCurrency().isCrypto()) {
-            drawSymbol(context, primaryCurrencyView, secondaryCurrencyView, primaryScale, drawable);
+            drawSymbol(primaryCurrencyView, secondaryCurrencyView, primaryScale, drawable);
         } else {
-            drawSymbol(context, secondaryCurrencyView, primaryCurrencyView, secondaryScale, drawable);
+            drawSymbol(secondaryCurrencyView, primaryCurrencyView, secondaryScale, drawable);
         }
     }
 
-    private static void drawSymbol(Context context, TextView viewToDraw, TextView viewToClear, double scale, Drawable drawable) {
+    private static void drawSymbol(TextView viewToDraw, TextView viewToClear, double scale, Drawable drawable) {
         drawable.setBounds(0, 0,
                 (int) (drawable.getIntrinsicWidth() * scale),
                 (int) (drawable.getIntrinsicHeight() * scale));

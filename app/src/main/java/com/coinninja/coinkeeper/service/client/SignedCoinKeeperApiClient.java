@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNSharedMemo;
-import com.coinninja.coinkeeper.service.client.model.CNTopic;
+import com.coinninja.coinkeeper.service.client.model.CNTopicSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.InviteUserPayload;
 import com.google.gson.JsonArray;
@@ -87,7 +87,7 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
     }
 
     public Response inviteUser(InviteUserPayload inviteUserPayload) {
-       return executeCall(getClient().inviteUser(inviteUserPayload));
+        return executeCall(getClient().inviteUser(inviteUserPayload));
     }
 
     public Response getReceivedInvites() {
@@ -196,17 +196,8 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         return executeCall(getClient().fetchDeviceEndpointSubscriptions(devicesId, deviceEndpoint));
     }
 
-    public Response subscribeToTopics(String deviceId, String endpointId, List<CNTopic> topics) {
-        JsonObject jsonObject = new JsonObject();
-
-        JsonArray ids = new JsonArray();
-        for (CNTopic cnTopic : topics) {
-            ids.add(cnTopic.getId());
-        }
-
-        jsonObject.add("topic_ids", ids);
-
-        return executeCall(getClient().subscribeToTopics(deviceId, endpointId, jsonObject));
+    public Response subscribeToTopics(String deviceId, String endpointId, CNTopicSubscription topics) {
+        return executeCall(getClient().subscribeToTopics(deviceId, endpointId, topics));
     }
 
     public Response subscribeToWalletNotifications(String deviceEndpoint) {
@@ -258,6 +249,11 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
     @NotNull
     public Response createUserFromIdentity(@Nullable CNUserIdentity identity) {
         return executeCall(getClient().createUserFrom(identity));
+    }
+
+    @NotNull
+    public Response unsubscribeFromTopic(@NotNull String devicesId, @NotNull String deviceEndpoint, @NotNull String topicId) {
+        return executeCall(getClient().unsubscribeFromTopic(devicesId, deviceEndpoint, topicId));
     }
 
     @NonNull

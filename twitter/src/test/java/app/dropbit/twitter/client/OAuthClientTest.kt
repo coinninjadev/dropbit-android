@@ -57,4 +57,18 @@ class OAuthClientTest {
         verify(callback).onAuthComplete(uri)
         verifyZeroInteractions(webView)
     }
+
+    @Test
+    fun `intercepts callback route and notifies legacy observer`() {
+        val uri = "http://example.com"
+        val callback = mock(OAuthClient.Callback::class.java)
+        val webView: WebView = mock(WebView::class.java)
+        val oAuthClient = OAuthClient(callbackUrl)
+        oAuthClient.observeAuthorization(callback)
+
+        oAuthClient.shouldOverrideUrlLoading(webView, uri)
+
+        verify(webView).loadUrl(uri)
+        verifyZeroInteractions(callback)
+    }
 }

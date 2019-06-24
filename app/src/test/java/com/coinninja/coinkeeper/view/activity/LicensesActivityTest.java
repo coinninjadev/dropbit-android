@@ -35,7 +35,7 @@ public class LicensesActivityTest {
         ShadowWebView shadowWebView = shadowOf((WebView) activity.findViewById(R.id.license_webview));
         String url = shadowWebView.getLastLoadedUrl();
 
-        assertThat(url.toString(), equalTo("file:///android_res/raw/licensing.html"));
+        assertThat(url.toString(), equalTo("file:///android_asset/licensing.html"));
     }
 
     @Test

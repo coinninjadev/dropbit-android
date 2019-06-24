@@ -47,8 +47,7 @@ public class CoinKeeperApplication extends DaggerApplication {
 
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
-        AppComponent build = DaggerAppComponent.builder().application(this).build();
-        appComponent = build;
+        appComponent = DaggerAppComponent.builder().application(this).build();
         ((AppComponent) appComponent).inject(this);
         return (AndroidInjector<? extends DaggerApplication>) appComponent;
     }

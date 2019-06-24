@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/preference_wallet_label"
         android:textAppearance="@style/TextAppearance.Strong.PrimaryColor.Caps"
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="24dp"
         android:drawableEnd="@drawable/preference_arrow"
         android:gravity="start|center_vertical"
         android:text="@string/recover_wallet_label"
@@ -48,6 +48,18 @@
         app:layout_constraintHorizontal_bias="0.61"
         app:layout_constraintStart_toStartOf="@+id/recover_wallet"
         app:layout_constraintTop_toTopOf="@+id/recover_wallet" />
+
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@color/list_divider_color_dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recover_wallet" />
 
     <TextView
         android:id="@+id/dust_protection_label"
@@ -75,27 +87,60 @@
         app:layout_constraintTop_toTopOf="@+id/dust_protection_toggle"
         tools:targetApi="o" />
 
+
     <Switch
         android:id="@+id/dust_protection_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recover_wallet" />
+        app:layout_constraintTop_toBottomOf="@+id/divider1" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@color/list_divider_color_dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dust_protection_toggle" />
+
+    <TextView
+        android:id="@+id/yearly_high_subscription_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="@string/settings_bitcoin_yearly_high_price_notification"
+        android:textAppearance="@style/TextAppearance.Settings"
+        app:layout_constraintBottom_toBottomOf="@+id/yearly_high_subscription"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/yearly_high_subscription" />
+
+    <Switch
+        android:id="@+id/yearly_high_subscription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
     <TextView
         android:id="@+id/license_category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:text="@string/licenses"
         android:textAppearance="@style/TextAppearance.Strong.PrimaryColor.Caps"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dust_protection_toggle" />
+        app:layout_constraintTop_toBottomOf="@+id/yearly_high_subscription" />
 
     <Button
         android:id="@+id/open_source"
@@ -104,7 +149,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="24dp"
         android:drawableEnd="@drawable/preference_arrow"
         android:gravity="start|center_vertical"
         android:text="@string/open_source"

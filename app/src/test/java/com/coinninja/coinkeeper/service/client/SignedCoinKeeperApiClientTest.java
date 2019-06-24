@@ -11,7 +11,7 @@ import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNSharedMemo;
 import com.coinninja.coinkeeper.service.client.model.CNSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNSubscriptionState;
-import com.coinninja.coinkeeper.service.client.model.CNTopic;
+import com.coinninja.coinkeeper.service.client.model.CNTopicSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
@@ -20,7 +20,6 @@ import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.Receiver;
 import com.coinninja.coinkeeper.service.client.model.Sender;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -925,38 +924,7 @@ public class SignedCoinKeeperApiClientTest {
     }
 
     @Test
-    public void builds_subscription_request() {
-        ArgumentCaptor<JsonObject> captor = ArgumentCaptor.forClass(JsonObject.class);
-        CoinKeeperClient client = mock(CoinKeeperClient.class);
-        SignedCoinKeeperApiClient apiClient = new SignedCoinKeeperApiClient(client, FCM_APP_ID);
-        String cnDeviceId = "-- cn device id";
-        String endpointId = "-- endpoint ";
-
-        List<CNTopic> topics = new ArrayList<>();
-        CNTopic topic = new CNTopic();
-        topic.setId("--topic id 1");
-        topics.add(topic);
-
-        CNTopic topic2 = new CNTopic();
-        topic2.setId("--topic id 2");
-        topics.add(topic2);
-
-        when(client.subscribeToTopics(eq(cnDeviceId), eq(endpointId), any())).thenReturn(mock(Call.class));
-
-        apiClient.subscribeToTopics(cnDeviceId, endpointId, topics);
-
-        verify(client).subscribeToTopics(eq(cnDeviceId), eq(endpointId), captor.capture());
-
-        JsonObject body = captor.getValue();
-
-        JsonArray topic_ids = body.getAsJsonArray("topic_ids");
-        assertThat(topic_ids.size(), equalTo(2));
-        assertThat(topic_ids.get(0).getAsString(), equalTo("--topic id 1"));
-        assertThat(topic_ids.get(1).getAsString(), equalTo("--topic id 2"));
-    }
-
-    @Test
-    public void subscribes_to_generic_topics() throws IOException {
+    public void subscribes_to_generic_topics() throws InterruptedException {
         String json = "[{\n" +
                 "\"id\": \"--topic id 1\",\n" +
                 "\"created_at\": 1531921356,\n" +
@@ -977,17 +945,37 @@ public class SignedCoinKeeperApiClientTest {
 
         webServer.enqueue(new MockResponse().setResponseCode(200).setBody(json));
 
-        String deviceId = "--device id";
-        String endpointId = "--endpoint id";
+        String deviceId = "--device-id";
+        String endpointId = "--endpoint-id";
 
-        List<CNTopic> topics = new ArrayList<>();
-        CNTopic topic = new CNTopic();
-        topic.setId("--topic id 1");
-        topics.add(topic);
+        List<String> topics = new ArrayList<>();
+        topics.add("--topic id 1");
+        topics.add("--topic id 2");
+        CNTopicSubscription topicSubscription = new CNTopicSubscription(topics);
 
-        Response response = signedCoinKeeperApiClient.subscribeToTopics(deviceId, endpointId, topics);
+        Response response = signedCoinKeeperApiClient.subscribeToTopics(deviceId, endpointId, topicSubscription);
+        RecordedRequest recordedRequest = webServer.takeRequest();
 
+        assertThat(recordedRequest.getPath(), equalTo("/devices/--device-id/endpoints/--endpoint-id/subscriptions"));
+        assertThat(recordedRequest.getMethod(), equalTo("POST"));
         assertThat(response.code(), equalTo(200));
+        assertThat(recordedRequest.getBody().readUtf8(), equalTo("{\"topic_ids\":[\"--topic id 1\",\"--topic id 2\"]}"));
+    }
+
+    @Test
+    public void unsubscribe_from_topic() throws InterruptedException {
+        String deviceId = "--device-id--";
+        String endpointId = "--endpoint-id--";
+        String topicId = "--topic-id--";
+        webServer.enqueue(new MockResponse().setResponseCode(200));
+
+        Response response = signedCoinKeeperApiClient.unsubscribeFromTopic(deviceId, endpointId, topicId);
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/devices/--device-id--/endpoints/--endpoint-id--/subscriptions/--topic-id--"));
+        assertThat(recordedRequest.getMethod(), equalTo("DELETE"));
+        assertThat(response.code(), equalTo(200));
+        assertThat(recordedRequest.getBody().readUtf8(), equalTo(""));
     }
 
     @Test
