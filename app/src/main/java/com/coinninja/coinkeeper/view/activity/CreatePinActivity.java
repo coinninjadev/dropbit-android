@@ -97,9 +97,11 @@ public class CreatePinActivity extends SecuredActivity implements PinFragmentPre
     public void onPinMismatchFATAL() {
         pinFragmentPresenter.clearPin();
         confirmFragment.onDismissRequest();
+        updateActivityLabel(getString(R.string.set_pin_header));
 
         AlertDialog.Builder alertDialogBuilder = AlertDialogBuilder
                 .build(this, getResources().getString(R.string.pin_mismatch_error_fatal));
+
         AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.setCancelable(false);

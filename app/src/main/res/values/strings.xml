@@ -188,6 +188,7 @@
     <string name="open_source">Open Source</string>
     <string name="recover_wallet_label">Recovery Words</string>
     <string name="dust_protection">Dust Protection</string>
+    <string name="settings_bitcoin_yearly_high_price_notification">Bitcoin Yearly High Price Notification</string>
 
     <!-- Message System -->
     <string name="message_system_no_internet">Not connected. Please refresh to try again</string>
@@ -252,7 +253,7 @@
     <string name="recover_wallet_error_message">Failed to import your wallet. Please try again.</string>
     <string name="recover_wallet_success_message">Your wallet is being imported</string>
     <string name="recover_wallet_success_button_text">Go to my Wallet</string>
-    <string name="invite_send_expired_message">For security purposes we can only allow 24 hours for a DropBit to be completed. Your DropBit sent to %1$s has expired. Please try sending again.</string>
+    <string name="invite_send_expired_message">For security purposes we can only allow 48 hours for a DropBit to be completed. Your DropBit sent to %1$s has expired. Please try sending again.</string>
     <string name="invite_send_canceled_message">%1$s has canceled the DropBit for %2$s.</string>
     <string name="invite_broadcast_real_btc_message">%1$s was sent to %2$s</string>
     <string name="invite_broadcast_canceled_message">DropBit to %1$s has been canceled</string>
@@ -384,7 +385,7 @@
     <string name="dropbit_me_enable_account_button_label">ENABLE MY URL</string>
     <string name="i_ll_send_the_tweet_myself">I\'ll send the tweet myself</string>
     <string name="let_dropbit_send_the_tweet">Let dropbit send the tweet</string>
-    <string name="tweet_sent_bitcoin">You’ve sent Bitcoin to %1$s on twitter. You can notify the receiver with a tweet or to maintain privacy we can notify them with a tweet from our account.</string>
+    <string name="tweet_sent_bitcoin">You’ve sent Bitcoin to %1$s on Twitter. You can notify the receiver with a tweet or to maintain privacy we can notify them with a tweet from our account.</string>
     <string name="contacts_empty_state_string">Your contacts will be shown here once you allow DropBit to access</string>
     <string name="allow_access_to_contacts">Allow Access To Contacts</string>
     <string name="twitter_empty_search">Begin searching for people by using twitter names and/or handles</string>

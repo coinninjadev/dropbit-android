@@ -13,6 +13,8 @@ import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.ui.memo.MemoCreator;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.TwitterUtil;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
@@ -52,7 +54,10 @@ public class TransactionDetailPageAdapterTest {
     MemoCreator memoCreator;
 
     @Mock
-    TransactionNotificationManager transactionNotificationManager;
+    TwitterUtil twitterUtil;
+
+    @Mock
+    Analytics analytics;
 
     private TransactionDetailPageAdapter pageAdapter;
     private TestableActivity activity;
@@ -65,7 +70,7 @@ public class TransactionDetailPageAdapterTest {
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(100);
         pageAdapter = new TransactionDetailPageAdapter(walletHelper, adapterUtil, new DefaultCurrencies(new USDCurrency(), new BTCCurrency()),
-                memoCreator, transactionNotificationManager);
+                memoCreator, twitterUtil, analytics);
         pageAdapter.refreshData();
     }
 

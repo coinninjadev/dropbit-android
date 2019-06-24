@@ -7,6 +7,7 @@ apply plugin: 'de.felixschulze.gradle.hockeyapp'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'de.mannodermaus.android-junit5'
 
 // Create a variable called keystorePropertiesFile, and initialize it to your
 // keystore.properties file, in the projectDir folder.
@@ -17,7 +18,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 def versionMajor = 2
-def versionMinor = 0
+def versionMinor = 1
 def versionPatch = System.getenv("VERSION_PATCH") ? System.getenv("VERSION_PATCH") : 0
 def APP_VERSION = System.getenv("APP_VERSION") ? Integer.parseInt(System.getenv("APP_VERSION")) : 10480
 def hockeyAppApiToken = System.getenv("HOCKEY_APP_API_TOKEN") ? System.getenv("HOCKEY_APP_API_TOKEN") : HOCKEY_APP_API_TOKEN
@@ -218,7 +219,6 @@ dependencies {
     testImplementation "org.json:json:20180130"
     testImplementation "com.squareup.okhttp3:mockwebserver:3.10.0"
 
-    testImplementation "junit:junit:$rootProject.junit_version"
     testImplementation "androidx.test:core:$rootProject.androidx_test_version"
     testImplementation "androidx.test.ext:junit:$rootProject.androidx_test_version"
     testImplementation "androidx.test.ext:truth:$rootProject.androidx_test_version"
@@ -230,4 +230,10 @@ dependencies {
     //--https://issuetracker.google.com/issues/122321150
     testImplementation "org.robolectric:robolectric:$rootProject.robolectric_version"
     testImplementation "androidx.test.espresso:espresso-intents:3.1.1"
+
+    testImplementation "junit:junit:$rootProject.junit_version"
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.3.2"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.3.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.2"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:5.3.2"
 }

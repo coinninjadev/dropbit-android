@@ -32,6 +32,7 @@ public interface AppComponent extends AndroidInjector, CoinKeeperComponent {
         @BindsInstance
         Builder application(Application application);
 
+
         AppComponent build();
     }
 

@@ -58,16 +58,12 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
-import com.coinninja.coinkeeper.ui.base.TransactionTweetDialog;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
-import com.coinninja.coinkeeper.util.CoinNinjaContactResolver;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
-import com.coinninja.coinkeeper.util.TwitterUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.encryption.MessageEncryptor;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
@@ -75,6 +71,7 @@ import com.coinninja.coinkeeper.util.uuid.UuidFactory;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.squareup.picasso.Picasso;
@@ -84,6 +81,7 @@ import java.util.Locale;
 
 import javax.inject.Named;
 
+import app.dropbit.commons.util.CoroutineContextProvider;
 import app.dropbit.twitter.Twitter;
 import app.dropbit.twitter.TwitterProvider;
 import dagger.Module;
@@ -93,8 +91,18 @@ import dagger.Provides;
 public class AppModule {
 
     @Provides
+    CoroutineContextProvider coroutineContextProvider() {
+        return new CoroutineContextProvider();
+    }
+
+    @Provides
     Picasso picasso() {
         return Picasso.get();
+    }
+
+    @Provides
+    FirebaseInstanceId firebaseInstanceId() {
+        return FirebaseInstanceId.getInstance();
     }
 
     @Provides

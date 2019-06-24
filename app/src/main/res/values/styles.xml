@@ -169,6 +169,11 @@
         <item name="android:gravity">center_vertical|center_horizontal</item>
     </style>
 
+    <style name="Button.Small" parent="Button">
+        <item name="android:textAppearance">@style/TextAppearance.Button.Small</item>
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+    </style>
+
     <style name="Button.Payment" />
 
     <style name="Button.Payment.SendMax">

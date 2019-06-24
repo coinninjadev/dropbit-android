@@ -18,6 +18,7 @@ import com.coinninja.coinkeeper.util.TwitterUtil
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -77,16 +78,16 @@ class TransactionTweetDialog @Inject internal constructor(var analytics: Analyti
     }
 
     private fun dropBitTweetClicked() {
-        analytics.trackEvent(Analytics.EVENT_TWEET_VIA_DROPBIT);
+        analytics.trackEvent(Analytics.EVENT_TWEET_VIA_DROPBIT)
         activity?.showLoading()
-        GlobalScope.async {
-            withContext(Dispatchers.IO) {
+        GlobalScope.launch {
+            val invite = signedCoinKeeperApiClient.patchSuppressionForWalletAddressRequest(inviteId) as Response<SentInvite>
+            withContext(Dispatchers.Main) {
                 activity?.removeLoading()
-                val invite = signedCoinKeeperApiClient.patchSuppressionForWalletAddressRequest(inviteId) as Response<SentInvite>
 
                 if (invite.isSuccessful && invite.body()?.delivery_id != "duplicate") {
-                    invite.body().let {
-                        callbackHandler?.tweetWasSuccessful(it!!.delivery_id)
+                    invite.body()?.let {
+                        callbackHandler?.tweetWasSuccessful(it.delivery_id)
                     }
 
                     dismiss()

@@ -1,12 +1,14 @@
 package com.coinninja.coinkeeper.ui.base;
 
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
@@ -30,6 +32,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -52,6 +55,9 @@ public class DropbitMeFragmentTest {
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(0);
         when(dropbitMeConfiguration.hasVerifiedAccount()).thenReturn(false);
+        application.yearlyHighViewModel = mock(YearlyHighViewModel.class);
+        MutableLiveData<Boolean> liveData = mock(MutableLiveData.class);
+        when(application.yearlyHighViewModel.isSubscribedToYearlyHigh()).thenReturn(liveData);
     }
 
     @After

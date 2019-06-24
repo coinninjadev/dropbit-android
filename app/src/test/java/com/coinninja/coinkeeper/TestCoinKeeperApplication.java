@@ -10,10 +10,12 @@ import androidx.test.espresso.intent.Intents;
 
 import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
+import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.DataSigner;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
+import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
@@ -49,6 +51,7 @@ import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
+import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.Hasher;
@@ -96,6 +99,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
 
     public static AndroidInjector<DaggerApplication> injector;
 
+    public YearlyHighViewModel yearlyHighViewModel;
     public PreferencesUtil preferencesUtil;
     public QRScanManager qrScanManager = mock(QRScanManager.class);
     public LocalContactQueryUtil localContactQueryUtil = mock(LocalContactQueryUtil.class);
@@ -171,11 +175,12 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public ServiceWorkUtil serviceWorkUtil;
     public RemoteAddressLocalCache remoteAddressLocalCache;
     public DropbitAccountHelper dropbitAccountHelper;
+    public DustProtectionPreference dustProtectionPreference;
     public Twitter twitter;
     public TwitterVerificationController twitterVerificationController;
     @Nullable
     public CountryCodeLocaleGenerator countryCodeLocaleGenerator;
-
+    public DeleteWalletPresenter deleteWalletPresenter;
 
     @Override
     public void onCreate() {
@@ -225,6 +230,8 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         try {
             Intents.release();
         } catch (IllegalStateException e) {
+            // pass
+        } catch (NullPointerException e) {
             // pass
         }
         USDCurrency.MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
@@ -296,6 +303,9 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         preferencesUtil = null;
         countryCodeLocales = null;
         countryCodeLocaleGenerator = null;
+        deleteWalletPresenter = null;
+        dustProtectionPreference = null;
+        yearlyHighViewModel = null;
     }
 }
 

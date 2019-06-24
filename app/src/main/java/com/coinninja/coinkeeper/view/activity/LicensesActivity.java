@@ -14,6 +14,6 @@ public class LicensesActivity extends SecuredActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_licenses);
-        ((WebView) findViewById(R.id.license_webview)).loadUrl("file:///android_res/raw/licensing.html");
+        ((WebView) findViewById(R.id.license_webview)).loadUrl("file:///android_asset/licensing.html");
     }
 }

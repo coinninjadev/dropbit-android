@@ -31,7 +31,7 @@ public abstract class SecuredActivity extends MessengerActivity {
     static final int AUTHENTICATION_REQUEST_CODE = 9999;
 
     @Inject
-    protected CNWalletManager cnWalletManager;
+    public CNWalletManager cnWalletManager;
     @Inject
     PinEntry pinEntry;
     @Inject

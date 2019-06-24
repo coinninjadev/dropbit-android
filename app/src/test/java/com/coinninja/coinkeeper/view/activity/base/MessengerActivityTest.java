@@ -10,10 +10,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel;
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
@@ -95,6 +97,9 @@ public class MessengerActivityTest {
 
         activityController = Robolectric.buildActivity(TransactionHistoryActivity.class);
         activity = activityController.get();
+        application.yearlyHighViewModel = mock(YearlyHighViewModel.class);
+        MutableLiveData<Boolean> liveData = mock(MutableLiveData.class);
+        when(application.yearlyHighViewModel.isSubscribedToYearlyHigh()).thenReturn(liveData);
         activityController.create();
         activity.internetUtil = internetUtil;
         activityController.start().resume().visible();

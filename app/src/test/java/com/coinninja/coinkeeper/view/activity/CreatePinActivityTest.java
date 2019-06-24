@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.view.activity;
 
 import android.content.Intent;
 
+import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.presenter.fragment.PinFragmentPresenter;
@@ -38,14 +39,13 @@ import static org.robolectric.Shadows.shadowOf;
 @Config(application = TestCoinKeeperApplication.class)
 public class CreatePinActivityTest {
 
+    @Mock
+    PinEntry pinEntry;
     private ActivityController<CreatePinActivity> activityController;
     private CreatePinActivity activity;
     private PinFragmentPresenter pinFragmentPresenter;
     private ShadowActivity shadowActivity;
     private TestCoinKeeperApplication application;
-
-    @Mock
-    PinEntry pinEntry;
 
     @Before
     public void setUp() {
@@ -53,34 +53,6 @@ public class CreatePinActivityTest {
         application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
         application.pinEntry = pinEntry;
         pinFragmentPresenter = mock(PinFragmentPresenter.class);
-    }
-
-    private void initWithIntent(Intent intent) {
-        activityController = Robolectric.buildActivity(CreatePinActivity.class, intent);
-        activity = activityController.get();
-        activityController.newIntent(intent).create();
-        activity.setPinFragmentPresenter(pinFragmentPresenter);
-        activityController.start().resume().visible();
-        shadowActivity = shadowOf(activity);
-    }
-
-    private String initWithNextIntent() {
-        Intent intent = new Intent(application, CreatePinActivity.class);
-        String nextActivity = VerificationActivity.class.getName();
-        intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
-
-        initWithIntent(intent);
-        return nextActivity;
-    }
-
-    private Intent initWithCompletionAndNextIntents() {
-        Intent intent = new Intent(application, CreatePinActivity.class);
-        String nextActivity = VerificationActivity.class.getName();
-        intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
-        intent.putExtra(DropbitIntents.EXTRA_ON_COMPLETION, new Intent(application, WalletCreationIntentService.class));
-
-        initWithIntent(intent);
-        return intent;
     }
 
     @Test
@@ -109,7 +81,6 @@ public class CreatePinActivityTest {
                 equalTo(completionIntent.getComponent().getClassName()));
         assertTrue(shadowActivity.isFinishing());
     }
-
 
     @Test
     public void activity_attaches_to_controllers() {
@@ -234,5 +205,34 @@ public class CreatePinActivityTest {
         verify(activity.confirmFragment, never()).showPinMismatch();
         verify(activity.confirmFragment).onDismissRequest();
         verify(pinFragmentPresenter).clearPin();
+        verify(activity.actionBarController).updateTitle(activity.getString(R.string.set_pin_header));
+    }
+
+    private void initWithIntent(Intent intent) {
+        activityController = Robolectric.buildActivity(CreatePinActivity.class, intent);
+        activity = activityController.get();
+        activityController.newIntent(intent).create();
+        activity.setPinFragmentPresenter(pinFragmentPresenter);
+        activityController.start().resume().visible();
+        shadowActivity = shadowOf(activity);
+    }
+
+    private String initWithNextIntent() {
+        Intent intent = new Intent(application, CreatePinActivity.class);
+        String nextActivity = VerificationActivity.class.getName();
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
+
+        initWithIntent(intent);
+        return nextActivity;
+    }
+
+    private Intent initWithCompletionAndNextIntents() {
+        Intent intent = new Intent(application, CreatePinActivity.class);
+        String nextActivity = VerificationActivity.class.getName();
+        intent.putExtra(DropbitIntents.EXTRA_NEXT, nextActivity);
+        intent.putExtra(DropbitIntents.EXTRA_ON_COMPLETION, new Intent(application, WalletCreationIntentService.class));
+
+        initWithIntent(intent);
+        return intent;
     }
 }

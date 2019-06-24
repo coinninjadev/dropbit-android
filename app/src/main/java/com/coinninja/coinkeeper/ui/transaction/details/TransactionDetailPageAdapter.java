@@ -17,7 +17,6 @@ import com.coinninja.android.helpers.Resources;
 import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
-import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -26,6 +25,8 @@ import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.history.DefaultCurrencyChangeObserver;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.TwitterUtil;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -52,6 +53,8 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     private final TransactionAdapterUtil transactionAdapterUtil;
     LazyList<TransactionsInvitesSummary> transactions;
     private DefaultCurrencies defaultCurrencies;
+    private TwitterUtil twitterUtil;
+    private Analytics analytics;
     private TransactionDetailObserver transactionDetailObserver;
     private SharedMemoView sharedMemoView;
     private DropbitUriBuilder dropbitUriBuilder;
@@ -60,8 +63,10 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     private MemoCreator memoCreator;
 
     @Inject
-    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies, MemoCreator memoCreator, TransactionNotificationManager transactionNotificationManager) {
+    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies, MemoCreator memoCreator, TwitterUtil twitterUtil, Analytics analytics) {
         this.defaultCurrencies = defaultCurrencies;
+        this.twitterUtil = twitterUtil;
+        this.analytics = analytics;
         dropbitUriBuilder = new DropbitUriBuilder();
         this.walletHelper = walletHelper;
         this.transactionAdapterUtil = transactionAdapterUtil;
@@ -153,6 +158,9 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     void bindTo(View page, BindableTransaction bindableTransaction, int position) {
         makeViewInvisible(page, R.id.call_to_action);
         withId(page, R.id.ic_close).setOnClickListener(this::close);
+        Button twitterShareButton = withId(page, R.id.share_twitter_button);
+        twitterShareButton.setTag(position);
+        withId(page, R.id.share_twitter_button).setOnClickListener(v -> shareButtonClicked(v));
 
         Button addMemoButton = withId(page, R.id.add_memo_button);
         addMemoButton.setOnClickListener(v -> addMemoClicked((Button) v));
@@ -168,11 +176,37 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         renderShowDetails(page, bindableTransaction, position);
         renderMemo(page, bindableTransaction);
         renderTooltip(page, bindableTransaction);
+        renderTwitterShare(page, bindableTransaction);
+    }
+
+    private void renderTwitterShare(View page, BindableTransaction bindableTransaction) {
+       if (bindableTransaction.getTxID() == null || bindableTransaction.getTxID() == "") {
+           withId(page, R.id.share_twitter_button).setVisibility(View.GONE);
+       } else {
+           withId(page, R.id.share_twitter_button).setVisibility(View.VISIBLE);
+       }
+    }
+
+    private TransactionsInvitesSummary getTransactionSummaryWithTaggedView(View view) {
+        int position = view.getTag() == null ? 0 : (int) view.getTag();
+        return transactions.get(position);
+    }
+
+    private void shareButtonClicked(View view) {
+        TransactionsInvitesSummary transactionsInvitesSummary = getTransactionSummaryWithTaggedView(view);
+        analytics.trackEvent(Analytics.EVENT_SHARE_VIA_TWITTER);
+
+        String memo = transactionsInvitesSummary.getTransactionSummary() == null ||
+                transactionsInvitesSummary.getTransactionSummary().getTransactionNotification() == null ||
+                transactionsInvitesSummary.getTransactionSummary().getTransactionNotification().getMemo() == null ? "" : transactionsInvitesSummary.getTransactionSummary().getTransactionNotification().getMemo();
+        Intent intent = twitterUtil.createTwitterIntent(view.getContext(), twitterUtil.getShareMessage(memo));
+        if (intent != null) {
+            view.getContext().startActivity(intent);
+        }
     }
 
     private void addMemoClicked(Button view) {
-        int position = (int) view.getTag();
-        TransactionsInvitesSummary summary = transactions.get(position);
+        TransactionsInvitesSummary summary = getTransactionSummaryWithTaggedView(view);
         memoCreator.createMemo((AppCompatActivity) view.getContext(), memo -> {
             setupNewTransactionNotification(view, summary, memo);
         }, "");

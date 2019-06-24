@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
 
 @RunWith(AndroidJUnit4::class)
 class LoginViewModelTest {
@@ -27,6 +28,7 @@ class LoginViewModelTest {
 
             loginViewModel.requestToken(callback)
 
+            verify(callback, times(2)).onRequestTokenReceived(requestToken)
             verify(callback).onRequestTokenReceived(requestToken)
         }
     }

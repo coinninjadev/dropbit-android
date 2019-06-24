@@ -9,6 +9,7 @@ import com.coinninja.coinkeeper.service.client.model.CNPricing;
 import com.coinninja.coinkeeper.service.client.model.CNSharedMemo;
 import com.coinninja.coinkeeper.service.client.model.CNSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNSubscriptionState;
+import com.coinninja.coinkeeper.service.client.model.CNTopicSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNTransactionNotificationResponse;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
@@ -168,7 +169,7 @@ public interface CoinKeeperClient {
     @POST("devices/{deviceID}/endpoints/{endpointID}/subscriptions")
     Call<Void> subscribeToTopics(@Path("deviceID") String cnDeviceId,
                                  @Path("endpointID") String endpoint,
-                                 @Body JsonObject json);
+                                 @Body CNTopicSubscription cnTopicSubscription);
 
 
     @POST("wallet/subscribe")
@@ -177,4 +178,6 @@ public interface CoinKeeperClient {
     @PUT("wallet/subscribe")
     Call<CNSubscription> updateWalletSubscription(@Body JsonObject body);
 
+    @DELETE("devices/{deviceID}/endpoints/{endpointID}/subscriptions/{topicID}")
+    Call<Void> unsubscribeFromTopic(@Path("deviceID") String devicesId, @Path("endpointID") String deviceEndpoint, @Path("topicID") String topicId);
 }
