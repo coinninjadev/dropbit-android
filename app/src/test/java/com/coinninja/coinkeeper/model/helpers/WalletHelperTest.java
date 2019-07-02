@@ -91,22 +91,6 @@ public class WalletHelperTest {
     }
 
     @Test
-    public void getLastFee_null() {
-        when(wallet.getLastFee()).thenReturn(null);
-        assertThat(walletHelper.getLatestFee().getAvg(), equalTo(0D));
-        assertThat(walletHelper.getLatestFee().getMax(), equalTo(0D));
-        assertThat(walletHelper.getLatestFee().getMin(), equalTo(0D));
-    }
-
-    @Test
-    public void getLastFee() {
-        when(wallet.getLastFee()).thenReturn("3.0");
-        assertThat(walletHelper.getLatestFee().getAvg(), equalTo(3D));
-        assertThat(walletHelper.getLatestFee().getMax(), equalTo(3D));
-        assertThat(walletHelper.getLatestFee().getMin(), equalTo(3D));
-    }
-
-    @Test
     public void itSavesRecoveryWordsToWallet() {
         String[] recoveryWords = {"word1", "word2", "word3", "word4", "word5", "word6",
                 "word7", "word8", "word9", "word10", "word11", "word12"};
@@ -547,14 +531,6 @@ public class WalletHelperTest {
         walletHelper.setLatestFee(new TransactionFee(-1.0, -1.0, -1.0));
 
         verifyZeroInteractions(wallet);
-    }
-
-    @Test
-    public void assert_that_setting_a_positive_fee_sets_the_fee_correctly() {
-        walletHelper.setLatestFee(new TransactionFee(10.0, 10.0, 10.0));
-
-        verify(wallet).setLastFee("10.0");
-        verify(wallet).update();
     }
 
     @Test

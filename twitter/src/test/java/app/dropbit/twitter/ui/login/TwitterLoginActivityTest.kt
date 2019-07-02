@@ -118,6 +118,20 @@ class TwitterLoginActivityTest {
             assertThat(user.screenName, equalTo(twitterUser.screenName))
             assertThat(user.userId, equalTo(twitterUser.userId))
         }
+    }
+
+    @Test
+    fun `retains uri state when leaving`() {
+        val url = "http://twitter.com/step/one"
+        scenario.onActivity { activity ->
+            activity.authView.loadUrl(url)
+        }
+
+        scenario.recreate()
+
+        scenario.onActivity { activity ->
+            assertThat(shadowOf(activity.authView).lastLoadedUrl, equalTo(url))
+        }
 
     }
 }

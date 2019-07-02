@@ -17,8 +17,10 @@ import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
+import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -53,6 +55,8 @@ public class PaymentBarFragmentTest {
     PaymentUtil paymentUtil;
     @Mock
     ActivityNavigationUtil activityNavigationUtil;
+    @Mock
+    FeesManager feesManager;
 
     @Mock
     BitcoinUtil bitcoinUtil;
@@ -81,13 +85,10 @@ public class PaymentBarFragmentTest {
     public void setUp() {
         configureDI();
         fragmentScenario = FragmentScenario.launch(PaymentBarFragment.class);
-        fragmentScenario.onFragment(new FragmentScenario.FragmentAction<PaymentBarFragment>() {
-            @Override
-            public void perform(@NonNull PaymentBarFragment frag) {
-                fragment = frag;
-                fragment.paymentHolder = paymentHolder;
-                fragment.paymentUtil = paymentUtil;
-            }
+        fragmentScenario.onFragment(frag -> {
+            fragment = frag;
+            fragment.paymentHolder = paymentHolder;
+            fragment.paymentUtil = paymentUtil;
         });
 
         sendButton = withId(fragment.getView(), R.id.send_btn);
@@ -149,7 +150,7 @@ public class PaymentBarFragmentTest {
         PayDialogFragment payDialogFragment = argumentCaptor.getValue();
         assertThat(paymentHolder.getEvaluationCurrency().toLong(), equalTo(initialUSDValue));
         assertThat(paymentHolder.getSpendableBalance().toLong(), equalTo(walletHelper.getSpendableBalance().toLong()));
-        verify(paymentUtil).setTransactionFee(initialFee);
+        verify(paymentUtil).setFee(initialFee.getSlow());
         verify(fragment.paymentUtil).setPaymentHolder(fragment.paymentHolder);
         when(paymentUtil.getPaymentHolder()).thenReturn(fragment.paymentHolder);
         assertThat(payDialogFragment.getPaymentUtil(), equalTo(fragment.paymentUtil));
@@ -177,7 +178,6 @@ public class PaymentBarFragmentTest {
         assertThat(fragment.paymentHolder.getPaymentAddress(), equalTo(""));
         verify(payDialog).dismiss();
     }
-
 
     private void configureDI() {
         MockitoAnnotations.initMocks(this);

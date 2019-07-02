@@ -21,7 +21,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class Migrate_V33_to_V34Test {
 
-
     @Before
     fun setUp() {
     }

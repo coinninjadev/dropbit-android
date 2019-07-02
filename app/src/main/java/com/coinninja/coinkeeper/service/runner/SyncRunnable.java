@@ -9,7 +9,6 @@ import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.helpers.AddressHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.service.ContactLookupService;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.TransactionStats;

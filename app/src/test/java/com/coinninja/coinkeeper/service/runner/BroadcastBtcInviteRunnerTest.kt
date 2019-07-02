@@ -67,7 +67,7 @@ class BroadcastBtcInviteRunnerTest {
                 ""
         )
 
-        whenever(runner.transactionFundingManager.buildFundedTransactionDataForDropBit(
+        whenever(runner.transactionFundingManager.buildFundedTransactionDataForDropBit(runner.invite!!.address,
                 runner.invite!!.valueSatoshis, runner.invite!!.valueFeesSatoshis)).thenReturn(transactionData)
 
         runner.run()
@@ -96,7 +96,7 @@ class BroadcastBtcInviteRunnerTest {
                 mock(DerivationPath::class.java),
                 ""
         )
-        whenever(runner.transactionFundingManager.buildFundedTransactionDataForDropBit(
+        whenever(runner.transactionFundingManager.buildFundedTransactionDataForDropBit(runner.invite!!.address,
                 runner.invite!!.valueSatoshis, runner.invite!!.valueFeesSatoshis)).thenReturn(transactionData)
 
         val result = mock(TransactionBroadcastResult::class.java)
@@ -125,7 +125,7 @@ class BroadcastBtcInviteRunnerTest {
                 mock(DerivationPath::class.java),
                 ""
         )
-        whenever(runner.transactionFundingManager.buildFundedTransactionDataForDropBit(
+        whenever(runner.transactionFundingManager.buildFundedTransactionDataForDropBit(runner.invite!!.address,
                 runner.invite!!.valueSatoshis, runner.invite!!.valueFeesSatoshis)).thenReturn(transactionData)
 
         whenever(runner.invite!!.localeFriendlyDisplayIdentityForReceiver).thenReturn("2565245258")

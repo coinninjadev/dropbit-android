@@ -27,6 +27,8 @@ class TwitterLoginActivity : AppCompatActivity() {
 
     internal lateinit var authView: WebView
 
+    internal var requestedAuth = false
+
     internal var loginViewModelCallback = object : LoginViewModel.AuthCallback {
         override fun onAuthorizationTokenReceived(twitterUser: TwitterUser?) {
             if (twitterUser != null) {
@@ -50,10 +52,25 @@ class TwitterLoginActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(HAS_REQUSTED_AUTH, requestedAuth)
+        authView.saveState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        savedInstanceState?.let {
+            super.onRestoreInstanceState(savedInstanceState)
+            requestedAuth = savedInstanceState.getBoolean(HAS_REQUSTED_AUTH, false)
+            authView.restoreState(savedInstanceState)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         DaggerComponent.builder().appModule(AppModule(this)).build().inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_twitter_login)
+        authView = findViewById(R.id.auth_view)
     }
 
     override fun onResume() {
@@ -68,7 +85,6 @@ class TwitterLoginActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureAuthView() {
-        authView = findViewById(R.id.auth_view)
         authView.apply {
             webViewClient = oAuthClient
             settings.apply {
@@ -79,6 +95,13 @@ class TwitterLoginActivity : AppCompatActivity() {
     }
 
     private fun authorize(requestToken: RequestToken) {
-        oAuthClient.performAuth(authView, requestToken.oAuthToken)
+        if (!requestedAuth) {
+            oAuthClient.performAuth(authView, requestToken.oAuthToken)
+            requestedAuth = true
+        }
+    }
+
+    companion object {
+        const val HAS_REQUSTED_AUTH = "HAS_REQUESTED_AUTH"
     }
 }

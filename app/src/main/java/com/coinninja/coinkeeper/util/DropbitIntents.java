@@ -13,7 +13,6 @@ public class DropbitIntents {
     public static final int QR_WIDTH = 300;
     public static final int QR_HEIGHT = 300;
     public static final long PENDING_TRANSITION_LIFE_LIMIT_SECONDS = 180;//180 secs = 3minuets
-    public static final double MIN_FEE_FLOOR = 5d;
     public static final long LOCK_DURRATION = 300000L;
     public static final long MAX_DOLLARS_SENT_THROUGH_CONTACTS = 10000L;
     public static final Map<String, String> SUPPORT_LINKS;
@@ -27,6 +26,8 @@ public class DropbitIntents {
 
     /* PREFERENCES */
     public static final String PREFERENCES_LAST_CN_MESSAGES_TIME = "PREFERENCES_LAST_CN_MESSAGES_TIME";
+    public static final String PREFERENCES_ADJUSTABLE_FEES_ENABLED = "PREFERENCES_ADJUSTABLE_FEES_ENABLED";
+    public static final String PREFERENCES_ADJUSTABLE_FEES_TYPE = "PREFERENCES_ADJUSTABLE_FEES_TYPE";
     public static final long PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME = 0l;
     /* PATTERNS */
     public static final String BITCOIN_ADDRESS_PATTERN = "((?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";

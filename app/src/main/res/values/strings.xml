@@ -402,4 +402,10 @@
     <string name="ill_send_tweet">I\'ll Send A Tweet</string>
     <string name="twitter">TWITTER</string>
 
+    <!-- Adjustable fees -->
+    <string name="adjustable_fees_description">Select the default fee you would like for your transactions. You will still be able to change the fee for each transaction on the send screen.</string>
+    <string name="estimate_description">*These time are estimates and may change based on the size of the mempool at the time of a transaction.</string>
+    <string name="adjustable_fees">Adjustable Fees</string>
+    <string name="approximate_wait_time">Approximate wait time:</string>
+    <string name="fee_too_high_error">In order to use this fee option you must adjust the amount you are sending. The current amount you are sending with the cost of this fee is more than you have in your wallet.</string>
 </resources>

@@ -7,6 +7,7 @@ public enum DropbitRoute {
     DUST_PROTECTION,
     DROPBIT_TRANSACTION,
     REGULAR_TRANSACTION,
+    ADJUSTABLE_FEES,
     SERVER_ADDRESSES,
     TRANSACTION_DETAILS,
     DROPBIT_ME_LEARN_MORE;
@@ -20,6 +21,9 @@ public enum DropbitRoute {
         List<String> paths = new ArrayList<String>();
         paths.add(TOOLTIP_ROUTE);
         switch (this) {
+            case ADJUSTABLE_FEES:
+                paths.add("fees");
+                break;
             case DUST_PROTECTION:
                 paths.add("dustprotection");
                 break;

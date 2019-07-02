@@ -28,7 +28,7 @@ class YearlyHighViewModelTest {
             whenever(yearlyHighViewModel.yearlyHighSubscription.isSubscribed()).thenReturn(false)
             yearlyHighViewModel.isSubscribedToYearlyHigh.value = true
 
-            yearlyHighViewModel.toggleSubscription()
+            yearlyHighViewModel.toggleSubscription(false)
 
             verify(yearlyHighViewModel.yearlyHighSubscription).unsubscribe()
             assertFalse(yearlyHighViewModel.isSubscribedToYearlyHigh.value!!)
@@ -42,7 +42,7 @@ class YearlyHighViewModelTest {
             whenever(yearlyHighViewModel.yearlyHighSubscription.isSubscribed()).thenReturn(true)
             yearlyHighViewModel.isSubscribedToYearlyHigh.value = false
 
-            yearlyHighViewModel.toggleSubscription()
+            yearlyHighViewModel.toggleSubscription(false)
 
             verify(yearlyHighViewModel.yearlyHighSubscription).subscribe()
             assertTrue(yearlyHighViewModel.isSubscribedToYearlyHigh.value!!)

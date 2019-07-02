@@ -83,7 +83,7 @@ internal constructor(@ApplicationContext internal val context: Context,
 
     private fun fundInvite(invite: InviteTransactionSummary): TransactionData {
         val transactionData = transactionFundingManager
-                .buildFundedTransactionDataForDropBit(invite.valueSatoshis, invite.valueFeesSatoshis)
+                .buildFundedTransactionDataForDropBit(invite.address, invite.valueSatoshis, invite.valueFeesSatoshis)
 
 
         transactionData.paymentAddress = invite.address

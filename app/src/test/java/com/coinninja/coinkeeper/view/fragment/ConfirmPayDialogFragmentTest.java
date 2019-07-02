@@ -27,6 +27,7 @@ import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivit
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.Currency;
@@ -62,6 +63,8 @@ import static org.robolectric.Shadows.shadowOf;
 public class ConfirmPayDialogFragmentTest {
 
     private static final String PHONE_NUMBER_STRING = "+13305551111";
+    @Mock
+    PaymentUtil paymentUtil;
     @Mock
     private PaymentBarCallbacks paymentBarCallbacks;
     @Mock
@@ -350,8 +353,8 @@ public class ConfirmPayDialogFragmentTest {
     }
 
     private void show(Identity identity, PaymentHolder paymentHolder) {
-        dialog = ConfirmPayDialogFragment.newInstance(paymentHolder, paymentBarCallbacks);
-        dialog.setPaymentHolder(paymentHolder);
+        when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
+        dialog = ConfirmPayDialogFragment.newInstance(paymentUtil, paymentBarCallbacks);
         dialog.setIdentity(identity);
         scenario.onActivity(activity -> {
             dialog.show(activity.getSupportFragmentManager(), dialog.getTag());
@@ -359,8 +362,8 @@ public class ConfirmPayDialogFragmentTest {
     }
 
     private void show(PaymentHolder paymentHolder) {
-        dialog = ConfirmPayDialogFragment.newInstance(paymentHolder, paymentBarCallbacks);
-        dialog.setPaymentHolder(paymentHolder);
+        when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
+        dialog = ConfirmPayDialogFragment.newInstance(paymentUtil, paymentBarCallbacks);
         scenario.onActivity(activity -> {
             dialog.show(activity.getSupportFragmentManager(), dialog.getTag());
         });

@@ -37,6 +37,7 @@ import com.coinninja.coinkeeper.ui.base.BaseBottomDialogFragment;
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
@@ -67,6 +68,8 @@ import static com.coinninja.android.helpers.Views.withId;
 public class PayDialogFragment extends BaseBottomDialogFragment {
     public static final int PICK_CONTACT_REQUEST = 1001;
 
+    @Inject
+    FeesManager feesManager;
     @Inject
     CNAddressLookupDelegate cnAddressLookupDelegate;
     @Inject
@@ -232,18 +235,18 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     }
 
     void inviteUnverifiedIdentity(Identity identity) {
-        paymentBarCallbacks.confirmInvite(identity);
+        paymentBarCallbacks.confirmInvite(paymentUtil, identity);
     }
 
     void sendPaymentTo(Identity identity) {
-        paymentBarCallbacks.confirmPaymentFor(paymentHolder, identity);
+        paymentBarCallbacks.confirmPaymentFor(paymentUtil, identity);
     }
 
     void sendPayment() {
         setMemoOnPayment();
         switch (paymentUtil.getPaymentMethod()) {
             case ADDRESS:
-                paymentBarCallbacks.confirmPaymentFor(paymentHolder);
+                paymentBarCallbacks.confirmPaymentFor(paymentUtil);
                 break;
             case INVITE:
             case VERIFIED_CONTACT:
@@ -516,7 +519,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     }
 
     private void resetPaymentHolderIfNecessary() {
-        paymentUtil.setTransactionFee(walletHelper.getLatestFee());
+        paymentUtil.setFee(feesManager.currentFee());
         memoToggleView.setText("");
         paymentHolder.setMemo(null);
     }
@@ -549,8 +552,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
 
         if (merchantResponse.getRequiredFeeRate() != 0L) {
             double roundedUpFeeRate = Math.ceil(merchantResponse.getRequiredFeeRate());
-            TransactionFee transactionFee = new TransactionFee(roundedUpFeeRate, roundedUpFeeRate, roundedUpFeeRate);
-            paymentUtil.setTransactionFee(transactionFee);
+            paymentUtil.setFee(roundedUpFeeRate);
         }
     }
 

@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.model.helpers;
 
-import android.provider.ContactsContract;
-
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
 import com.coinninja.coinkeeper.model.db.Address;
@@ -28,6 +26,7 @@ import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
@@ -45,10 +44,12 @@ public class WalletHelper {
     private final WalletDao walletDao;
 
     private final WalletQueryManager walletQueryManager;
+    private final FeesManager feesManager;
     private WordHelper wordHelper;
 
-    public WalletHelper(DaoSessionManager daoSessionManager, WalletQueryManager walletQueryManager, WordHelper wordHelper) {
+    public WalletHelper(DaoSessionManager daoSessionManager, WalletQueryManager walletQueryManager, WordHelper wordHelper, FeesManager feesManager) {
         this.daoSessionManager = daoSessionManager;
+        this.feesManager = feesManager;
         walletDao = daoSessionManager.getWalletDao();
         this.walletQueryManager = walletQueryManager;
         this.wordHelper = wordHelper;
@@ -92,22 +93,15 @@ public class WalletHelper {
     }
 
     public TransactionFee getLatestFee() {
-        double lastFee = 0D;
-
-        String lastFeeString = getWallet().getLastFee();
-        if (lastFeeString != null) {
-            lastFee = Double.parseDouble(lastFeeString);
-        }
-        return new TransactionFee(lastFee, lastFee, lastFee);
+        return feesManager.fees();
     }
 
     public void setLatestFee(TransactionFee transactionFee) {
-        if (getWallet() == null || transactionFee == null || transactionFee.getMin() <= 0.0D) {
+        if (getWallet() == null || transactionFee == null || transactionFee.getSlow() <= 0.0D) {
             return;
         }
-        Wallet wallet = getWallet();
-        wallet.setLastFee(String.valueOf(transactionFee.getMin()));
-        wallet.update();
+
+        feesManager.setFees(transactionFee);
     }
 
     public Wallet getWallet() {

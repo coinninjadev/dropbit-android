@@ -4,9 +4,9 @@ public class MockAPIData {
     public static final String PRICING = "{\n" +
             "\"blockheight\": 518631,\n" +
             "\"fees\": {\n" +
-            "\"min\": 40.1,\n" +
-            "\"avg\": 20.1,\n" +
-            "\"max\": 10\n" +
+            "\"slow\": 40.1,\n" +
+            "\"med\": 20.1,\n" +
+            "\"fast\": 10\n" +
             "},\n" +
             "\"pricing\": {\n" +
             "\"ask\": 418.79,\n" +

@@ -6,7 +6,6 @@ import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
-import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
@@ -21,7 +20,7 @@ public class PaymentUtil {
     private final Context context;
     private final BitcoinUtil bitcoinUtil;
     private final TransactionFundingManager transactionFundingManager;
-    private TransactionFee transactionFee;
+    private Double fee;
     private String address;
     private Identity identity;
     private PaymentMethod paymentMethod;
@@ -74,7 +73,7 @@ public class PaymentUtil {
 
     public boolean fundMax() {
         isFudningMax = true;
-        TransactionData transactionData = transactionFundingManager.buildFundedTransactionData(transactionFee);
+        TransactionData transactionData = transactionFundingManager.buildFundedTransactionData(address, fee);
         paymentHolder.setTransactionData(transactionData);
         return isFunded();
     }
@@ -105,11 +104,14 @@ public class PaymentUtil {
     public boolean checkFunding() {
         if (!isSendingMax()) {
             TransactionData transactionData = transactionFundingManager
-                    .buildFundedTransactionData(transactionFee,
-                            paymentHolder.getCryptoCurrency().toLong());
+                    .buildFundedTransactionData(address, fee, paymentHolder.getCryptoCurrency().toLong());
             paymentHolder.setTransactionData(transactionData);
         }
         return isFunded();
+    }
+
+    public boolean isTransactionFundableWithFee(Double fee, long amountToSend) {
+        return transactionFundingManager.isTransactionFundableWithFee(address, amountToSend, fee);
     }
 
     public boolean isFunded() {
@@ -149,12 +151,8 @@ public class PaymentUtil {
         return getIdentity().isVerified();
     }
 
-    public TransactionFee getTransactionFee() {
-        return transactionFee;
-    }
-
-    public void setTransactionFee(TransactionFee transactionFee) {
-        this.transactionFee = transactionFee;
+    public void setFee(Double fee) {
+        this.fee = fee;
     }
 
     protected boolean isValidPaymentMethod() {
@@ -175,6 +173,9 @@ public class PaymentUtil {
         } else {
             errorMessage = getString(R.string.pay_error_add_valid_bitcoin_address);
             paymentMethod = PaymentMethod.INVALID;
+        }
+        if (isSendingMax()) {
+            fundMax();
         }
     }
 

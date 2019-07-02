@@ -5,6 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/adjustable_fee_configuration_group"
+        android:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="adjustable_fees_fragment, estimated_delivery_time" />
+
     <TextView
         android:id="@+id/confirm_pay_header_label"
         style="@style/Dialog.Header"
@@ -76,18 +83,44 @@
         app:layout_constraintTop_toBottomOf="@+id/secondary_currency"
         tools:text="network fee 0.00026 ($0.06)" />
 
+    <com.coinninja.coinkeeper.view.widget.TripleButtonView
+        android:id="@+id/adjustable_fees_fragment"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/network_fee"
+        tools:layout="@layout/merge_triple_button_view" />
+
+    <TextView
+        android:id="@+id/estimated_delivery_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/approximate_wait_time"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/adjustable_fees_fragment"
+        tools:text="Approximate wait time: 10 minutes" />
+
     <ImageView
         android:id="@+id/avatar_image_view"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/confirm_pay_name"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/network_fee" />
+        app:layout_constraintTop_toBottomOf="@+id/estimated_delivery_time" />
 
     <TextView
         android:id="@+id/confirm_pay_name"

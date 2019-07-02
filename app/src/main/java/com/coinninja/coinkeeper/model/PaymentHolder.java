@@ -58,8 +58,7 @@ public class PaymentHolder {
     }
 
     public void toggleCurrencies() {
-        DefaultCurrencies newDefaults = new DefaultCurrencies(defaultCurrencies.getSecondaryCurrency(), defaultCurrencies.getPrimaryCurrency());
-        defaultCurrencies = newDefaults;
+        defaultCurrencies = new DefaultCurrencies(defaultCurrencies.getSecondaryCurrency(), defaultCurrencies.getPrimaryCurrency());
     }
 
     public Currency getEvaluationCurrency() {

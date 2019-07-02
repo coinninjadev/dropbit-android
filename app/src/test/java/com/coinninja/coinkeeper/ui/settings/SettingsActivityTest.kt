@@ -258,7 +258,7 @@ class SettingsActivityTest {
 
             clickOn(activity.findViewById<Switch>(R.id.yearly_high_subscription))
 
-            verify(activity.yearlyHighViewModel).toggleSubscription()
+            verify(activity.yearlyHighViewModel).toggleSubscription(true)
         }
     }
 
