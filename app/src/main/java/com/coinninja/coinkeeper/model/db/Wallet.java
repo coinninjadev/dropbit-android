@@ -15,7 +15,6 @@ public class Wallet {
     @Id(autoincrement = true)
     private Long id;
 
-
     @ToMany(referencedJoinProperty = "walletId")
     @Property
     private List<Word> words;
@@ -70,9 +69,6 @@ public class Wallet {
     @Property
     private long lastUSDPrice;
 
-    @Property
-    private String lastFee;
-
 
     /**
      * Used to resolve relations
@@ -87,7 +83,6 @@ public class Wallet {
     @Generated(hash = 741381941)
     private transient WalletDao myDao;
 
-    @Generated(hash = 1445821116)
     public Wallet(Long id, int hdIndex, Long userId, long lastSync,
                   int internalIndex, int externalIndex, long balance,
                   long spendableBalance, int blockTip, long lastUSDPrice,
@@ -102,11 +97,26 @@ public class Wallet {
         this.spendableBalance = spendableBalance;
         this.blockTip = blockTip;
         this.lastUSDPrice = lastUSDPrice;
-        this.lastFee = lastFee;
     }
 
     @Generated(hash = 1197745249)
     public Wallet() {
+    }
+
+    @Generated(hash = 2008094963)
+    public Wallet(Long id, int hdIndex, Long userId, long lastSync,
+            int internalIndex, int externalIndex, long balance,
+            long spendableBalance, int blockTip, long lastUSDPrice) {
+        this.id = id;
+        this.hdIndex = hdIndex;
+        this.userId = userId;
+        this.lastSync = lastSync;
+        this.internalIndex = internalIndex;
+        this.externalIndex = externalIndex;
+        this.balance = balance;
+        this.spendableBalance = spendableBalance;
+        this.blockTip = blockTip;
+        this.lastUSDPrice = lastUSDPrice;
     }
 
     public Long getId() {
@@ -189,14 +199,6 @@ public class Wallet {
         this.lastUSDPrice = lastUSDPrice;
     }
 
-    public String getLastFee() {
-        return lastFee;
-    }
-
-    public void setLastFee(String lastFee) {
-        this.lastFee = lastFee;
-    }
-
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
@@ -219,9 +221,7 @@ public class Wallet {
         return words;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 1954400333)
     public synchronized void resetWords() {
         words = null;
@@ -250,9 +250,7 @@ public class Wallet {
         return fundingStats;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 242399275)
     public synchronized void resetFundingStats() {
         fundingStats = null;
@@ -282,9 +280,7 @@ public class Wallet {
         return inviteTransactionSummaries;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 159423227)
     public synchronized void resetInviteTransactionSummaries() {
         inviteTransactionSummaries = null;
@@ -313,9 +309,7 @@ public class Wallet {
         return targetStats;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 1351823693)
     public synchronized void resetTargetStats() {
         targetStats = null;
@@ -343,9 +337,7 @@ public class Wallet {
         return addressses;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 621404480)
     public synchronized void resetAddressses() {
         addressses = null;
@@ -374,9 +366,7 @@ public class Wallet {
         return transactions;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 1751056821)
     public synchronized void resetTransactions() {
         transactions = null;
@@ -404,9 +394,7 @@ public class Wallet {
         return accounts;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 121514453)
     public synchronized void resetAccounts() {
         accounts = null;

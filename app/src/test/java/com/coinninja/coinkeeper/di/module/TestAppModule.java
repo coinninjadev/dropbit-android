@@ -66,6 +66,7 @@ import com.coinninja.coinkeeper.util.CoinNinjaContactResolver;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
@@ -104,6 +105,10 @@ import static org.mockito.Mockito.mock;
 @Module
 public class TestAppModule {
 
+    @Provides
+    FeesManager feesManager(PreferencesUtil preferencesUtil) {
+        return new FeesManager(preferencesUtil);
+    }
 
     @Provides
     CoroutineContextProvider coroutineContextProvider() {

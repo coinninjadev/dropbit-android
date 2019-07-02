@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
@@ -22,6 +21,7 @@ import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.ui.base.BaseFragment;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
@@ -37,6 +37,9 @@ import javax.inject.Inject;
 import static com.coinninja.android.helpers.Views.withId;
 
 public class PaymentBarFragment extends BaseFragment implements PaymentBarCallbacks {
+
+    @Inject
+    FeesManager feesManager;
 
     @Inject
     LocalBroadCastUtil localBroadcastUtil;
@@ -109,26 +112,26 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
     }
 
     @Override
-    public void confirmPaymentFor(PaymentHolder paymentHolder) {
+    public void confirmPaymentFor(PaymentUtil paymentUtil) {
         dismissPayDialog();
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(paymentHolder, this);
+        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(paymentUtil, this);
         confirmPayDialogFragment.setCancelable(false);
         activityNavigationUtil.showDialogWithTag(getFragmentManager(), confirmPayDialogFragment, ConfirmPayDialogFragment.class.getSimpleName());
     }
 
     @Override
-    public void confirmPaymentFor(PaymentHolder paymentHolder, Identity identity) {
+    public void confirmPaymentFor(PaymentUtil paymentUtil, Identity identity) {
         dismissPayDialog();
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(identity, paymentHolder, this);
+        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(identity, paymentUtil, this);
         confirmPayDialogFragment.setCancelable(false);
         activityNavigationUtil.showDialogWithTag(getFragmentManager(), confirmPayDialogFragment, ConfirmPayDialogFragment.class.getSimpleName());
     }
 
 
     @Override
-    public void confirmInvite(Identity identity) {
+    public void confirmInvite(PaymentUtil paymentUtil, Identity identity) {
         dismissPayDialog();
-        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(identity, paymentHolder, this);
+        ConfirmPayDialogFragment confirmPayDialogFragment = ConfirmPayDialogFragment.newInstance(identity, paymentUtil, this);
         confirmPayDialogFragment.setCancelable(false);
         activityNavigationUtil.showDialogWithTag(getFragmentManager(), confirmPayDialogFragment, ConfirmPayDialogFragment.class.getSimpleName());
     }
@@ -140,7 +143,7 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
         paymentUtil.setAddress(null);
         paymentHolder.clearPayment();
-
+        paymentUtil.clearFunding();
     }
 
     public void showPayDialogWithBitcoinUri(BitcoinUri uri) {
@@ -181,7 +184,7 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         paymentHolder.setDefaultCurrencies(currencyPreference.getCurrenciesPreference());
         paymentHolder.setEvaluationCurrency(walletHelper.getLatestPrice());
         paymentHolder.setSpendableBalance(walletHelper.getSpendableBalance());
-        paymentUtil.setTransactionFee(walletHelper.getLatestFee());
+        paymentUtil.setFee(feesManager.currentFee());
         paymentUtil.setPaymentHolder(paymentHolder);
         paymentHolder.clearPayment();
     }

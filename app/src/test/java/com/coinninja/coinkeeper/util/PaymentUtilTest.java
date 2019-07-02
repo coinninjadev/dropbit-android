@@ -2,16 +2,18 @@ package com.coinninja.coinkeeper.util;
 
 import android.content.Context;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
+import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.PhoneNumber;
-import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.PaymentUtil.PaymentMethod;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
@@ -24,9 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.IS_BC1;
 import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58;
@@ -36,6 +35,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -46,8 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class PaymentUtilTest {
 
     private static final String BTC_ADDRESS = "3PxEH5t91Cio4B7LCZCEWQEGGxaqGW5HkX";
@@ -94,7 +93,7 @@ public class PaymentUtilTest {
         MockitoAnnotations.initMocks(this);
         defaultCurrencies = new DefaultCurrencies(usdCurrency, btcCurrency);
         identity = new Identity(new Contact(PHONE_NUMBER, DISPLAY_NAME, false));
-        context = RuntimeEnvironment.application.getApplicationContext();
+        context = ApplicationProvider.getApplicationContext();
 
         when(bitcoinUtil.isValidBTCAddress(BTC_ADDRESS)).thenReturn(true);
         when(bitcoinUtil.isValidBTCAddress(BASE58_BAD_ADDRESS)).thenReturn(false);
@@ -107,7 +106,7 @@ public class PaymentUtilTest {
         paymentHolder.setSpendableBalance(new BTCCurrency("1.0"));
         paymentHolder.updateValue(new USDCurrency(25d));
         transactionFee = new TransactionFee(5, 10, 15);
-        paymentUtil.setTransactionFee(transactionFee);
+        paymentUtil.setFee(transactionFee.getSlow());
         paymentUtil.setPaymentHolder(paymentHolder);
         when(bitcoinUtil.isValidBase58Address(anyString())).thenReturn(true);
     }
@@ -158,7 +157,7 @@ public class PaymentUtilTest {
         long spendableBalance = btcCurrency.toSatoshis() - 100L;
         paymentHolder.setSpendableBalance(new BTCCurrency(spendableBalance));
 
-        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong())).
+        when(transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.getSlow()), anyLong())).
                 thenReturn(invalidTransactionData);
 
         assertFalse(paymentUtil.checkFunding());
@@ -171,7 +170,7 @@ public class PaymentUtilTest {
     public void confirms_funding_with_given_fees() {
         paymentUtil.setAddress(BTC_ADDRESS);
         paymentHolder.setSpendableBalance((BTCCurrency) paymentUtil.getPaymentHolder().updateValue(new USDCurrency(50d)));
-        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong())).
+        when(transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.getSlow()), anyLong())).
                 thenReturn(validTransactionData);
 
         assertTrue(paymentUtil.checkFunding());
@@ -182,7 +181,7 @@ public class PaymentUtilTest {
     public void can_send_more_than_limit_to_address() {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(25d));
         paymentUtil.setAddress(BTC_ADDRESS);
-        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong())).thenReturn(validTransactionData);
+        when(transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.getSlow()), anyLong())).thenReturn(validTransactionData);
 
         assertTrue(paymentUtil.checkFunding());
         assertTrue(paymentUtil.isValid());
@@ -193,7 +192,7 @@ public class PaymentUtilTest {
         paymentUtil.getPaymentHolder().updateValue(new USDCurrency(101.d));
         identity = new Identity(identity.getIdentityType(), identity.getValue(), identity.getHash(), identity.getDisplayName(), "", true, identity.getAvatarUrl());
         paymentUtil.setIdentity(identity);
-        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong()))
+        when(transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.getSlow()), anyLong()))
                 .thenReturn(validTransactionData);
 
         assertTrue(paymentUtil.checkFunding());
@@ -237,7 +236,7 @@ public class PaymentUtilTest {
     @Test
     public void valid_payment_is_valid() {
         paymentUtil.setAddress(BTC_ADDRESS);
-        when(transactionFundingManager.buildFundedTransactionData(any(), anyLong())).thenReturn(validTransactionData);
+        when(transactionFundingManager.buildFundedTransactionData(anyString(), anyDouble(), anyLong())).thenReturn(validTransactionData);
 
         paymentUtil.checkFunding();
 
@@ -373,7 +372,7 @@ public class PaymentUtilTest {
 
     @Test
     public void check_funding_validates_funding() {
-        when(transactionFundingManager.buildFundedTransactionData(eq(transactionFee), anyLong()))
+        when(transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.getSlow()), anyLong()))
                 .thenReturn(validTransactionData);
 
         assertTrue(paymentUtil.checkFunding());
@@ -403,7 +402,7 @@ public class PaymentUtilTest {
 
     @Test
     public void funding_max_calculates_max() {
-        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
+        when(transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), anyDouble())).thenReturn(validTransactionData);
 
         assertTrue(paymentUtil.fundMax());
 
@@ -412,7 +411,7 @@ public class PaymentUtilTest {
 
     @Test
     public void can_clear_funding() {
-        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
+        when(transactionFundingManager.buildFundedTransactionData(anyString(), anyDouble())).thenReturn(validTransactionData);
         paymentUtil.setAddress(BTC_ADDRESS);
         paymentUtil.fundMax();
 
@@ -431,7 +430,7 @@ public class PaymentUtilTest {
     public void ignores_floor_amount_when_sending_max() {
         paymentHolder.setEvaluationCurrency(new USDCurrency(1000.00d));
         paymentHolder.updateValue(new USDCurrency(.99d));
-        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
+        when(transactionFundingManager.buildFundedTransactionData(anyString(), anyDouble())).thenReturn(validTransactionData);
         paymentUtil.setAddress(BTC_ADDRESS);
         paymentUtil.fundMax();
 
@@ -444,33 +443,40 @@ public class PaymentUtilTest {
         paymentHolder.setEvaluationCurrency(new USDCurrency(1000.00d));
         paymentHolder.updateValue(new USDCurrency(5.99d));
         paymentUtil.setAddress(BTC_ADDRESS);
-        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
-        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class), anyLong())).thenReturn(invalidTransactionData);
+        when(transactionFundingManager.buildFundedTransactionData(anyString(), anyDouble())).thenReturn(validTransactionData);
+        when(transactionFundingManager.buildFundedTransactionData(anyString(), anyDouble(), anyLong())).thenReturn(invalidTransactionData);
         paymentUtil.fundMax();
 
         paymentUtil.checkFunding();
 
         assertTrue(paymentUtil.isValid());
         assertTrue(paymentUtil.isFunded());
-        verify(transactionFundingManager).buildFundedTransactionData(any());
+        verify(transactionFundingManager).buildFundedTransactionData(anyString(), anyDouble());
         verify(transactionFundingManager, times(0)).buildFundedTransactionData(any(), anyLong());
     }
 
     @Test
-    public void keeps_values_when_setting() {
-        when(transactionFundingManager.buildFundedTransactionData(any(TransactionFee.class))).thenReturn(validTransactionData);
+    public void recalculates_when_address_set() {
+        TransactionData txData1 = new TransactionData(new UnspentTransactionOutput[1],
+                10000L, 1000L, 0, mock(DerivationPath.class), "");
 
+        TransactionData txData2 = new TransactionData(new UnspentTransactionOutput[2],
+                10000L, 1500L, 0, mock(DerivationPath.class), "");
+
+        when(transactionFundingManager.buildFundedTransactionData(eq(null), anyDouble())).thenReturn(txData1);
+        when(transactionFundingManager.buildFundedTransactionData(eq(BTC_ADDRESS), anyDouble())).thenReturn(txData2);
         paymentUtil.fundMax();
-        paymentUtil.setAddress(BTC_ADDRESS);
+        assertThat(paymentHolder.getTransactionData(), equalTo(txData1));
 
-        assertThat(paymentHolder.getTransactionData(), equalTo(validTransactionData));
+        paymentUtil.setAddress(BTC_ADDRESS);
         assertThat(paymentHolder.getPaymentAddress(), equalTo(BTC_ADDRESS));
+        assertThat(paymentHolder.getTransactionData(), equalTo(txData2));
 
         paymentHolder.clearPayment();
 
         paymentUtil.setAddress(BTC_ADDRESS);
         paymentUtil.fundMax();
-        assertThat(paymentHolder.getTransactionData(), equalTo(validTransactionData));
+        assertThat(paymentHolder.getTransactionData(), equalTo(txData2));
         assertThat(paymentHolder.getPaymentAddress(), equalTo(BTC_ADDRESS));
     }
 }

@@ -8,6 +8,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'de.mannodermaus.android-junit5'
+apply plugin: 'com.adarshr.test-logger'
+
 
 // Create a variable called keystorePropertiesFile, and initialize it to your
 // keystore.properties file, in the projectDir folder.
@@ -18,7 +20,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 def versionMajor = 2
-def versionMinor = 1
+def versionMinor = 2
 def versionPatch = System.getenv("VERSION_PATCH") ? System.getenv("VERSION_PATCH") : 0
 def APP_VERSION = System.getenv("APP_VERSION") ? Integer.parseInt(System.getenv("APP_VERSION")) : 10480
 def hockeyAppApiToken = System.getenv("HOCKEY_APP_API_TOKEN") ? System.getenv("HOCKEY_APP_API_TOKEN") : HOCKEY_APP_API_TOKEN
@@ -37,7 +39,7 @@ kapt {
 }
 
 greendao {
-    schemaVersion 34
+    schemaVersion 35
 }
 
 hockeyapp {
@@ -49,6 +51,17 @@ play {
     resolutionStrategy = "auto"
     serviceAccountCredentials file("${project.rootDir}/google_play.json")
 }
+
+testlogger {
+    //https://github.com/radarsh/gradle-test-logger-plugin
+    theme 'mocha'
+    slowThreshold 5000
+    showPassed false
+    showSkipped false
+    showPassedStandardStreams false
+    showSkippedStandardStreams false
+}
+
 
 android {
     androidExtensions {
@@ -155,9 +168,11 @@ android {
                 jvmArgs rootProject.jvmArgs
             }
         }
+        testlogger {
+            theme 'standard-parallel' // task level
+        }
     }
 }
-
 
 android.applicationVariants.all { variant ->
     if (variant.buildType.name == "debug") {
@@ -186,7 +201,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation group: 'org.cryptonode.jncryptor', name: 'jncryptor', version: '1.0.1'
-    implementation 'com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.44514'
+    implementation "com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.51693"
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
 
     implementation "androidx.appcompat:appcompat:$rootProject.appcompat_version"
@@ -209,16 +224,16 @@ dependencies {
     implementation "com.madgag.spongycastle:core:1.58.0.0"
     implementation "com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0"
     implementation 'com.mixpanel.android:mixpanel-android:5.6.0'
-    implementation 'com.google.firebase:firebase-messaging:18.0.0'
-    implementation 'com.google.firebase:firebase-core:16.0.9'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.0'
+    implementation 'com.google.firebase:firebase-messaging:19.0.1'
+    implementation 'com.google.firebase:firebase-core:17.0.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.squareup.picasso:picasso:2.71828"
 
-    testImplementation 'org.mockito4kotlin:annotation:0.3.0'
-    testImplementation "org.json:json:20180130"
-    testImplementation "com.squareup.okhttp3:mockwebserver:3.10.0"
+    testImplementation "org.json:json:20180813"
+    testImplementation "com.squareup.okhttp3:mockwebserver:3.14.1"
 
+    testImplementation 'org.mockito4kotlin:annotation:0.3.0'
     testImplementation "androidx.test:core:$rootProject.androidx_test_version"
     testImplementation "androidx.test.ext:junit:$rootProject.androidx_test_version"
     testImplementation "androidx.test.ext:truth:$rootProject.androidx_test_version"
@@ -229,7 +244,7 @@ dependencies {
     implementation "androidx.fragment:fragment-testing:$rootProject.androidx_fragment_testing_version"
     //--https://issuetracker.google.com/issues/122321150
     testImplementation "org.robolectric:robolectric:$rootProject.robolectric_version"
-    testImplementation "androidx.test.espresso:espresso-intents:3.1.1"
+    testImplementation "androidx.test.espresso:espresso-intents:3.2.0"
 
     testImplementation "junit:junit:$rootProject.junit_version"
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.3.2"

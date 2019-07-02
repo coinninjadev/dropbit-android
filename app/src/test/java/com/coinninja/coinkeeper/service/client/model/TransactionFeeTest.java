@@ -37,10 +37,10 @@ public class TransactionFeeTest {
         parcel.writeDouble(avgFee);
         parcel.writeDouble(maxFee);
         parcel.setDataPosition(0);
-        TransactionFee transactionFee = new TransactionFee(parcel);
+        TransactionFee transactionFee = (TransactionFee) TransactionFee.CREATOR.createFromParcel(parcel);
 
-        assertThat(transactionFee.getMin(), equalTo(minFee));
-        assertThat(transactionFee.getAvg(), equalTo(avgFee));
-        assertThat(transactionFee.getMax(), equalTo(maxFee));
+        assertThat(transactionFee.getSlow(), equalTo(minFee));
+        assertThat(transactionFee.getMed(), equalTo(avgFee));
+        assertThat(transactionFee.getFast(), equalTo(maxFee));
     }
 }

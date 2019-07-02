@@ -54,6 +54,7 @@ import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.NotificationUtil;

@@ -46,8 +46,14 @@
         </activity>
 
         <activity
-            android:name="app.dropbit.twitter.ui.login.TwitterLoginActivity"
+            android:name=".ui.settings.AdjustableFeesActivity"
+            android:label="@string/adjustable_fees"
             android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme" />
+
+        <activity
+            android:name="app.dropbit.twitter.ui.login.TwitterLoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme" />
 

@@ -4,6 +4,7 @@ import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserViewModel;
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity;
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
+import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivity;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity;
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity;
@@ -37,6 +38,10 @@ import dagger.android.ContributesAndroidInjector;
 
 @Module()
 public abstract class AndroidActivityBuilder {
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract AdjustableFeesActivity adjustableFeesActivity();
 
     @ActivityScope
     @ContributesAndroidInjector

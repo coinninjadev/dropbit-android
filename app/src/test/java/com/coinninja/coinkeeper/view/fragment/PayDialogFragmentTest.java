@@ -79,12 +79,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
@@ -185,19 +185,20 @@ public class PayDialogFragmentTest {
         when(bitcoinUtil.isValidBTCAddress(address)).thenReturn(true);
         paymentHolder.updateValue(new USDCurrency(1.00d));
         paymentUtil.setAddress(address);
-        when(transactionFundingManger.buildFundedTransactionData(any(), anyLong()))
+        when(transactionFundingManger.buildFundedTransactionData(anyString(), anyDouble(), anyLong()))
                 .thenReturn(validTransactionData);
         start();
 
         clickOn(withId(dialog.getView(), R.id.pay_footer_send_btn));
 
-        verify(paymentBarCallbacks).confirmPaymentFor(paymentHolder);
+        verify(paymentBarCallbacks).confirmPaymentFor(paymentUtil);
     }
 
     @Test
     public void contact_sends_get_confirmed() {
         Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
-        when(transactionFundingManger.buildFundedTransactionData(any(), anyLong())).thenReturn(validTransactionData);
+        when(transactionFundingManger.buildFundedTransactionData(anyString(), anyDouble(), anyLong())).thenReturn(validTransactionData);
+        when(transactionFundingManger.buildFundedTransactionData(eq(null), anyDouble(), anyLong())).thenReturn(validTransactionData);
         paymentUtil.setIdentity(identity);
         paymentHolder.setPublicKey("-pub-key-");
         paymentHolder.setPaymentAddress("-pay-address-");
@@ -206,7 +207,7 @@ public class PayDialogFragmentTest {
 
         clickOn(withId(dialog.getView(), R.id.pay_footer_send_btn));
 
-        verify(paymentBarCallbacks).confirmPaymentFor(paymentHolder, identity);
+        verify(paymentBarCallbacks).confirmPaymentFor(paymentUtil, identity);
     }
 
     // CHECK FUNDED
@@ -214,7 +215,8 @@ public class PayDialogFragmentTest {
     @Test
     public void verified_contacts_with_out_addresses_get_invited_without_help_confirmation() {
         when(userPreferences.getShouldShowInviteHelp()).thenReturn(true);
-        when(transactionFundingManger.buildFundedTransactionData(any(), anyLong())).thenReturn(validTransactionData);
+        when(transactionFundingManger.buildFundedTransactionData(anyString(), anyDouble(), anyLong())).thenReturn(validTransactionData);
+        when(transactionFundingManger.buildFundedTransactionData(eq(null), anyDouble(), anyLong())).thenReturn(validTransactionData);
         Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
         paymentHolder.setPaymentAddress("");
         paymentHolder.updateValue(new USDCurrency(1.00d));
@@ -224,7 +226,7 @@ public class PayDialogFragmentTest {
 
         clickOn(withId(dialog.getView(), R.id.pay_footer_send_btn));
 
-        verify(paymentBarCallbacks).confirmInvite(identity);
+        verify(paymentBarCallbacks).confirmInvite(paymentUtil, identity);
     }
 
     @Test
@@ -617,7 +619,7 @@ public class PayDialogFragmentTest {
 
         dialog.startContactInviteFlow(identity);
 
-        verify(paymentBarCallbacks).confirmInvite(identity);
+        verify(paymentBarCallbacks).confirmInvite(paymentUtil, identity);
     }
 
     @Test
@@ -655,7 +657,7 @@ public class PayDialogFragmentTest {
 
         dialog.onInviteHelpAccepted(identity);
 
-        verify(paymentBarCallbacks).confirmInvite(identity);
+        verify(paymentBarCallbacks).confirmInvite(paymentUtil, identity);
     }
 
     @Ignore //Changing this flow in the next story, ignoring for now
@@ -694,7 +696,7 @@ public class PayDialogFragmentTest {
 
     @Test
     public void observes_sending_max() {
-        when(transactionFundingManger.buildFundedTransactionData(any())).thenReturn(validTransactionData);
+        when(transactionFundingManger.buildFundedTransactionData(eq(null), anyDouble())).thenReturn(validTransactionData);
         start();
 
         clickOn(withId(dialog.getView(), R.id.send_max));
@@ -705,7 +707,7 @@ public class PayDialogFragmentTest {
 
     @Test
     public void observes_send_max_cleared() {
-        when(transactionFundingManger.buildFundedTransactionData(any())).thenReturn(validTransactionData);
+        when(transactionFundingManger.buildFundedTransactionData(eq(null), anyDouble())).thenReturn(validTransactionData);
         start();
 
         clickOn(withId(dialog.getView(), R.id.send_max));
@@ -751,7 +753,7 @@ public class PayDialogFragmentTest {
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "US"), 1));
         paymentUtil = new PaymentUtil(context, bitcoinUtil, transactionFundingManger);
         paymentUtil.setPaymentHolder(paymentHolder);
-        paymentUtil.setTransactionFee(new TransactionFee(5, 10, 15));
+        paymentUtil.setFee(new TransactionFee(5, 10, 15).getSlow());
     }
 
     private void mockClipboardWithData(String rawString) throws UriException {

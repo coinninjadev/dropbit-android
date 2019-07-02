@@ -37,7 +37,6 @@ import com.coinninja.coinkeeper.di.interfaces.IsProduction;
 import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache;
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler;
 import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler;
-import com.coinninja.coinkeeper.di.interfaces.TransactionDust;
 import com.coinninja.coinkeeper.di.interfaces.UUID;
 import com.coinninja.coinkeeper.factory.DropBitMeUriProvider;
 import com.coinninja.coinkeeper.interactor.AuthenticationImpl;
@@ -58,6 +57,7 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
 import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
 import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -89,6 +89,10 @@ import dagger.Provides;
 
 @Module(includes = {AndroidActivityBuilder.class, AndroidFragmentBuilder.class})
 public class AppModule {
+
+    @Provides
+    @CoinkeeperApplicationScope
+    FeesManager adjustableFeesManager(PreferencesUtil preferencesUtil) { return new FeesManager(preferencesUtil); }
 
     @Provides
     CoroutineContextProvider coroutineContextProvider() {
@@ -210,8 +214,8 @@ public class AppModule {
 
     @Provides
     @CoinkeeperApplicationScope
-    WalletHelper walletHelper(DaoSessionManager daoSessionManager, WordHelper wordHelper, WalletQueryManager walletQueryManager) {
-        return new WalletHelper(daoSessionManager, walletQueryManager, wordHelper);
+    WalletHelper walletHelper(DaoSessionManager daoSessionManager, WordHelper wordHelper, WalletQueryManager walletQueryManager, FeesManager feesManager) {
+    return new WalletHelper(daoSessionManager, walletQueryManager, wordHelper, feesManager);
     }
 
     @Provides
@@ -228,12 +232,6 @@ public class AppModule {
     @Provides
     Authentication authentication(@ApplicationContext Context context, PreferencesUtil preferencesUtil, SyncWalletManager syncWalletManager, @TimeOutHandler Handler handler, CoinKeeperLifecycleListener coinKeeperLifecycleListener) {
         return new AuthenticationImpl(context, preferencesUtil, handler, syncWalletManager, coinKeeperLifecycleListener);
-    }
-
-    @TransactionDust
-    @Provides
-    long provideDustAmountSatoshis() {
-        return BuildConfig.DUST_AMOUNT_SATOSHIS;
     }
 
     @BuildVersionName

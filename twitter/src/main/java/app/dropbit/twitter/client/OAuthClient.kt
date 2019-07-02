@@ -43,6 +43,7 @@ class OAuthClient @Inject constructor(@TwitterCallbackUrl val uri: Uri) : WebVie
         view?.loadUrl(TwitterApiClient.authRoute(oAuthToken).toString())
     }
 
+
     fun observeAuthorization(onAuthorizeCallback: Callback) {
         this.onAuthorizeCallback = onAuthorizeCallback
     }

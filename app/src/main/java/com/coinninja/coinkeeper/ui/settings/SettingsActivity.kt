@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.Switch
 import androidx.lifecycle.Observer
@@ -41,7 +42,6 @@ class SettingsActivity : SecuredActivity(), DialogInterface.OnClickListener {
         onYearlyHighSubscriptionChanged(isSubscribed)
     }
 
-
     override fun onClick(dialog: DialogInterface, which: Int) {
         if (which == DialogInterface.BUTTON_POSITIVE && supportFragmentManager.findFragmentByTag(TAG_CONFIRM_DELETE_WALLET) != null) {
             authorizeDelete()
@@ -71,8 +71,16 @@ class SettingsActivity : SecuredActivity(), DialogInterface.OnClickListener {
         setupLicenses()
         setupDustProtection()
         setupYearlyHighSubscription()
+        setupAdjustableFees()
     }
 
+    private fun setupAdjustableFees() {
+        findViewById<Button>(R.id.adjustable_fees).setOnClickListener { adjustableFeesClicked() }
+    }
+
+    private fun adjustableFeesClicked() {
+        startActivity(Intent(this, AdjustableFeesActivity::class.java))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,11 +147,11 @@ class SettingsActivity : SecuredActivity(), DialogInterface.OnClickListener {
         } else {
             findViewById<View>(R.id.not_backed_up_message).visibility = View.GONE
         }
-        findViewById<View>(R.id.recover_wallet).setOnClickListener { v -> onRecoverWalletClicked() }
+        findViewById<View>(R.id.recover_wallet).setOnClickListener { onRecoverWalletClicked() }
     }
 
     private fun setupDeleteWallet() {
-        findViewById<View>(R.id.delete_wallet).setOnClickListener { V -> deleteWallet() }
+        findViewById<View>(R.id.delete_wallet).setOnClickListener { deleteWallet() }
         deleteWalletPresenter.setCallback { this.onDeleted() }
     }
 
@@ -151,10 +159,11 @@ class SettingsActivity : SecuredActivity(), DialogInterface.OnClickListener {
         val switch = findViewById<Switch>(R.id.yearly_high_subscription)
         if (switch.isChecked != isSubscribed) {
             switch.isChecked = isSubscribed
+
+            switch.setOnCheckedChangeListener { button, value ->
+                yearlyHighViewModel.toggleSubscription(isSubscribed)
+            }
         }
-        switch.setOnCheckedChangeListener { button, value ->
-                    yearlyHighViewModel.toggleSubscription()
-                }
     }
 
     private fun setupYearlyHighSubscription() {

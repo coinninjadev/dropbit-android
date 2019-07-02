@@ -113,9 +113,9 @@ public class CoinKeeperApiClientTest {
 
         CurrentState state = (CurrentState) response.body();
         assertThat(state.getBlockheight(), equalTo(518631));
-        assertThat(state.getFees().getMin(), equalTo(40.1));
-        assertThat(state.getFees().getAvg(), equalTo(20.1));
-        assertThat(state.getFees().getMax(), equalTo(10.0));
+        assertThat(state.getFees().getSlow(), equalTo(40.1));
+        assertThat(state.getFees().getMed(), equalTo(20.1));
+        assertThat(state.getFees().getFast(), equalTo(10.0));
         assertThat(state.getLatestPrice().toFormattedCurrency(), equalTo("$418.66"));
     }
 

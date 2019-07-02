@@ -5,13 +5,11 @@ import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.EncryptionKeys;
 import com.coinninja.bindings.Libbitcoin;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
-import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.util.DropbitIntents;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 
 import javax.inject.Inject;
 
 @CoinkeeperApplicationScope
+@Deprecated
 public class HDWallet {
 
     public static final int EXTERNAL = 0;
@@ -44,12 +42,6 @@ public class HDWallet {
         return libBitcoinProvider.provide().getUncompressedPublicKeyHex(path);
     }
 
-    public long getFeeInSatoshis(TransactionFee transactionFee, int numInsOuts) {
-        int currentTransactionByteSize = numInsOuts * 100;
-        double fee = calcMinMinerFee(transactionFee) * currentTransactionByteSize;
-        return Math.round(fee);
-    }
-
     public String getExternalAddress(int index) {
         return libBitcoinProvider.provide().getExternalChangeAddress(index);
     }
@@ -75,13 +67,5 @@ public class HDWallet {
 
     public DecryptionKeys generateDecryptionKeys(DerivationPath derivationPath, byte[] ephemeralPublicKey) {
         return libBitcoinProvider.provide().getDecryptionKeys(derivationPath, ephemeralPublicKey);
-    }
-
-    public double calcMinMinerFee(TransactionFee transactionFee) {
-        return Math.max(transactionFee.getMin(), DropbitIntents.MIN_FEE_FLOOR);
-    }
-
-    private BTCCurrency satoshisToBTC(long satoshis) {
-        return new BTCCurrency(satoshis);
     }
 }
