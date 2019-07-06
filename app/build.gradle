@@ -201,7 +201,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation group: 'org.cryptonode.jncryptor', name: 'jncryptor', version: '1.0.1'
-    implementation "com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.51693"
+    implementation "com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.52090"
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
 
     implementation "androidx.appcompat:appcompat:$rootProject.appcompat_version"
