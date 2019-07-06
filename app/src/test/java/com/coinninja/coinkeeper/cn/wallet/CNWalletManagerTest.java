@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.cn.wallet;
 
+import com.coinninja.bindings.SeedWordGenerator;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;

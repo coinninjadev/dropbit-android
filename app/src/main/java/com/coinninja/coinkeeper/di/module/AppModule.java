@@ -17,6 +17,7 @@ import android.util.TypedValue;
 import androidx.core.os.ConfigurationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.coinninja.bindings.SeedWordGenerator;
 import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.coinkeeper.BuildConfig;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
@@ -89,6 +90,12 @@ import dagger.Provides;
 
 @Module(includes = {AndroidActivityBuilder.class, AndroidFragmentBuilder.class})
 public class AppModule {
+
+    @Provides
+    @CoinkeeperApplicationScope
+    SeedWordGenerator seedWordGenerator() {
+        return new SeedWordGenerator();
+    }
 
     @Provides
     @CoinkeeperApplicationScope
