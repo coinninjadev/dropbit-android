@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.ui.actionbar.managers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.MenuItem;
@@ -9,18 +10,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
+import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
+import com.coinninja.coinkeeper.view.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 
 import javax.inject.Inject;
@@ -34,6 +37,7 @@ public class DrawerController {
     DrawerLayout drawerLayout;
     private BadgeRenderer badgeRenderer;
     private ActivityNavigationUtil navigationUtil;
+    private OnMarketSelectionObserver onMarketSelectionObserver;
 
     @Inject
     public DrawerController(BadgeRenderer badgeRenderer, ActivityNavigationUtil navigationUtil,
@@ -122,8 +126,12 @@ public class DrawerController {
         return false;
     }
 
+    public void observeMarketSelection(OnMarketSelectionObserver onMarketSelectionObserver) {
+        this.onMarketSelectionObserver = onMarketSelectionObserver;
+    }
+
     private void wrapBaseLayoutWithDrawer(AppCompatActivity activity, View root) {
-        drawerLayout = new DrawerLayout(activity);
+        drawerLayout = new DrawerLayout(activity, false);
         drawerLayout.setFitsSystemWindows(true);
         ViewGroup screen = (ViewGroup) root.getParent();
         screen.removeView(root);
@@ -141,10 +149,29 @@ public class DrawerController {
         drawerLayout.findViewById(R.id.drawer_where_to_buy).setOnClickListener(this::onWhereToSpendClicked);
         drawerLayout.findViewById(R.id.drawer_phone).setOnClickListener(this::onPhoneClicked);
         drawerLayout.findViewById(R.id.buy_bitcoin_drawer).setOnClickListener(this::onBuyBitcoinClicked);
+        drawerLayout.findViewById(R.id.drawer_action_price_text).setOnClickListener(v -> onShowMarket());
+    }
+
+    private void onShowMarket() {
+        if (drawerLayout == null) return;
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle((Activity) drawerLayout.getContext(), drawerLayout,
+                drawerLayout.findViewById(R.id.toolbar), R.string.drawer_open_descritpion, R.string.drawer_close_descritpion) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                if (onMarketSelectionObserver != null) {
+                    onMarketSelectionObserver.onShowMarket();
+                }
+                drawerLayout.removeDrawerListener(this);
+            }
+        };
+
+        drawerLayout.addDrawerListener(drawerToggle);
+        closeDrawer();
     }
 
     private void onBuyBitcoinClicked(View view) {
-        navigationUtil.navigtateToBuyBitcoin(view.getContext());
+        navigationUtil.navigateToBuyBitcoin(view.getContext());
     }
 
     private void onPhoneClicked(View view) {

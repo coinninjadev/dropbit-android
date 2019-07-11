@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="marketGranularityButtonBarButtonStyle" />
     <attr name="actionBarTitleStyle" format="reference" />
     <attr name="actionBarMenuType" format="reference" />
     <attr name="confirmations" format="reference" />

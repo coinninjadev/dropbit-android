@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.ui.payment;
 import android.content.Intent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
@@ -14,19 +13,18 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.util.android.PreferencesUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.fragment.PayDialogFragment;
-import com.coinninja.coinkeeper.view.fragment.RequestDialogFragment;
 import com.coinninja.matchers.IntentFilterMatchers;
 
 import org.junit.After;

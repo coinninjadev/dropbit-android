@@ -23,7 +23,7 @@ import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -82,7 +82,7 @@ public class ConfirmPayDialogFragmentTest {
     private Currency eval = new USDCurrency(5000d);
     private PaymentHolder paymentHolder = new PaymentHolder(eval);
     private ShadowActivity shadowActivity;
-    private ActivityScenario<TransactionHistoryActivity> scenario;
+    private ActivityScenario<HomeActivity> scenario;
 
     @After
     public void tearDown() {
@@ -129,7 +129,7 @@ public class ConfirmPayDialogFragmentTest {
         when(transactions.size()).thenReturn(0);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
 
-        scenario = ActivityScenario.launch(TransactionHistoryActivity.class);
+        scenario = ActivityScenario.launch(HomeActivity.class);
         scenario.moveToState(Lifecycle.State.RESUMED);
     }
 

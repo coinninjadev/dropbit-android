@@ -12,36 +12,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserViewModel;
 import com.coinninja.coinkeeper.service.tasks.TwitterUserViewModel;
 import com.coinninja.coinkeeper.ui.util.OnItemClickListener;
-import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.view.adapter.PickContactRecycleViewAdapter;
 import com.coinninja.coinkeeper.view.adapter.PickTwitterRecycleViewAdapter;
 import com.coinninja.coinkeeper.view.adapter.RecycleViewAdapterFilterable;
 
-import java.util.List;
-
 import javax.inject.Inject;
-
-import app.dropbit.twitter.model.TwitterUser;
 
 public class PickUserViewModel extends ViewModel {
 
-    private Analytics analytics;
     private CoinNinjaUserViewModel coinNinjaUserViewModel;
     private TwitterUserViewModel twitterUserViewModel;
-    protected PickContactRecycleViewAdapter contactAdapter;
-    protected PickTwitterRecycleViewAdapter twitterAdapter;
+    private PickContactRecycleViewAdapter contactAdapter;
+    private PickTwitterRecycleViewAdapter twitterAdapter;
 
     private UserType primaryType = UserType.PHONE_NUMBER;
 
     public MutableLiveData<Boolean> dataLoaded;
 
     @Inject
-    PickUserViewModel(Analytics analytics, CoinNinjaUserViewModel coinNinjaUserViewModel, TwitterUserViewModel twitterUserViewModel) {
+    PickUserViewModel(CoinNinjaUserViewModel coinNinjaUserViewModel, TwitterUserViewModel twitterUserViewModel) {
         contactAdapter = new PickContactRecycleViewAdapter();
         twitterAdapter = new PickTwitterRecycleViewAdapter();
-        this.analytics = analytics;
-        this.dataLoaded = new MutableLiveData<>();
-        this.dataLoaded.setValue(false);
+        dataLoaded = new MutableLiveData<>();
+        dataLoaded.setValue(false);
         this.twitterUserViewModel = twitterUserViewModel;
         this.coinNinjaUserViewModel = coinNinjaUserViewModel;
     }
@@ -54,17 +47,23 @@ public class PickUserViewModel extends ViewModel {
     public void start(AppCompatActivity activity) {
         coinNinjaUserViewModel.getContacts().observe(activity, contacts -> {
             contactAdapter.setContacts(contacts);
-            if (twitterAdapter.getTwitterUsers() != null) { dataLoaded.setValue(true); }
+            if (twitterAdapter.getTwitterUsers() != null) {
+                dataLoaded.setValue(true);
+            }
         });
 
         twitterUserViewModel.getFollowingTwitterUsers().observe(activity, twitterUsers -> {
             twitterAdapter.setTwitterUsers(twitterUsers);
-           if (contactAdapter.getContacts() != null) { dataLoaded.setValue(true); }
+            if (contactAdapter.getContacts() != null) {
+                dataLoaded.setValue(true);
+            }
         });
 
         twitterUserViewModel.getSearchTwitterUsers().observe(activity, twitterUsers -> {
             twitterAdapter.setSearchTwitterUsers(twitterUsers);
-            if (contactAdapter.getContacts() != null) { dataLoaded.setValue(true); }
+            if (contactAdapter.getContacts() != null) {
+                dataLoaded.setValue(true);
+            }
         });
 
         loadData();
@@ -73,10 +72,14 @@ public class PickUserViewModel extends ViewModel {
     public boolean isDataSetEmpty() {
         switch (primaryType) {
             case TWITTER:
-                if (twitterAdapter.getTwitterUsers() == null) { return true; }
+                if (twitterAdapter.getTwitterUsers() == null) {
+                    return true;
+                }
                 return twitterAdapter.getTwitterUsers().isEmpty();
             case PHONE_NUMBER:
-                if (contactAdapter.getContacts() == null) { return true; }
+                if (contactAdapter.getContacts() == null) {
+                    return true;
+                }
                 return contactAdapter.getContacts().isEmpty();
         }
 

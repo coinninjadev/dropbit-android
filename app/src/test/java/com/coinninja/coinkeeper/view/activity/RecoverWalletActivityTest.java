@@ -85,7 +85,7 @@ public class RecoverWalletActivityTest {
     @Before
     public void setUp() {
         application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
-        when(application.cnServiceConnection.getCNWalletServicesInterface()).thenReturn(cnWalletService);
+        when(application.cnServiceConnection.getCnWalletServicesInterface()).thenReturn(cnWalletService);
         when(application.bitcoinUtil.isValidBIP39Words(eq(valid_words))).thenReturn(true);
         when(application.bitcoinUtil.isValidBIP39Words(eq(invalid_words))).thenReturn(false);
         mockWithWords(null);
@@ -219,7 +219,7 @@ public class RecoverWalletActivityTest {
     public void onResume_startSaveRecoveryWordsService_test() {
         CNWalletServicesInterface cnServices = mock(CNWalletServicesInterface.class);
         when(activity.cnServiceConnection.isBounded()).thenReturn(true);
-        when(activity.cnServiceConnection.getCNWalletServicesInterface()).thenReturn(cnServices);
+        when(activity.cnServiceConnection.getCnWalletServicesInterface()).thenReturn(cnServices);
         mockForBroadcastTest(valid_words);
         activityController.create();
         shadowActivity = shadowOf(activity);
@@ -233,7 +233,7 @@ public class RecoverWalletActivityTest {
     public void onResume_dont_do_anything_if_not_bonded_test() {
         CNWalletServicesInterface cnServices = mock(CNWalletServicesInterface.class);
         when(activity.cnServiceConnection.isBounded()).thenReturn(false);
-        when(activity.cnServiceConnection.getCNWalletServicesInterface()).thenReturn(cnServices);
+        when(activity.cnServiceConnection.getCnWalletServicesInterface()).thenReturn(cnServices);
         mockForBroadcastTest(valid_words);
         activityController.create();
         shadowActivity = shadowOf(activity);
@@ -247,7 +247,7 @@ public class RecoverWalletActivityTest {
     public void on_local_broadcast_CONNECTION_BOUNDED_startSaveRecoveryWordsService_test() {
         CNWalletServicesInterface cnServices = mock(CNWalletServicesInterface.class);
         when(activity.cnServiceConnection.isBounded()).thenReturn(true);
-        when(activity.cnServiceConnection.getCNWalletServicesInterface()).thenReturn(cnServices);
+        when(activity.cnServiceConnection.getCnWalletServicesInterface()).thenReturn(cnServices);
         mockForBroadcastTest(valid_words);
         activityController.setup();
         LocalBroadCastUtil localBroadCastUtil = activity.localBroadCastUtil;

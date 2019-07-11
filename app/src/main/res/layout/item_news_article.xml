@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/vertical_margin"
+    android:paddingBottom="@dimen/vertical_margin">
+
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="105dp"
+        android:layout_height="105dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/source"
+        tools:src="@drawable/ic_btc_icon"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/source"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.News.Source"
+        app:layout_constraintBottom_toTopOf="@+id/headline"
+        app:layout_constraintStart_toEndOf="@+id/thumbnail"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Reddit" />
+
+    <TextView
+        android:id="@+id/separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="@string/news_source_published_separator"
+        android:textAppearance="@style/TextAppearance.News.Published"
+        app:layout_constraintBottom_toBottomOf="@+id/source"
+        app:layout_constraintStart_toEndOf="@+id/source"
+        app:layout_constraintTop_toTopOf="@+id/source" />
+
+    <TextView
+        android:id="@+id/published"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textAppearance="@style/TextAppearance.News.Published"
+        app:layout_constraintBottom_toBottomOf="@+id/separator"
+        app:layout_constraintStart_toEndOf="@+id/separator"
+        app:layout_constraintTop_toTopOf="@+id/separator"
+        tools:text="1 hour ago" />
+
+    <TextView
+        android:id="@+id/headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textAppearance="@style/TextAppearance.News.Headline"
+        app:layout_constraintBottom_toTopOf="@+id/description"
+        app:layout_constraintStart_toStartOf="@+id/source"
+        app:layout_constraintTop_toBottomOf="@+id/source"
+        tools:text="Bitcoin News Headline  1" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:maxLines="5"
+        android:textAppearance="@style/TextAppearance.News.Description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/headline"
+        app:layout_constraintTop_toBottomOf="@+id/headline"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at diam ac nibh rhoncus sodales…." />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

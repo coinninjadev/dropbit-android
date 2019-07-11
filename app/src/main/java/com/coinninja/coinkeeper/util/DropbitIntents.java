@@ -10,8 +10,6 @@ import java.util.Map;
 public class DropbitIntents {
 
     /* CONSTS */
-    public static final int QR_WIDTH = 300;
-    public static final int QR_HEIGHT = 300;
     public static final long PENDING_TRANSITION_LIFE_LIMIT_SECONDS = 180;//180 secs = 3minuets
     public static final long LOCK_DURRATION = 300000L;
     public static final long MAX_DOLLARS_SENT_THROUGH_CONTACTS = 10000L;
@@ -78,7 +76,6 @@ public class DropbitIntents {
     public static final String ACTION_SAVE_RECOVERY_WORDS = BuildConfig.APPLICATION_ID + ".ACTION_SAVE_RECOVERY_WORDS";
     public static final String ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS = BuildConfig.APPLICATION_ID + ".ACTION_UNABLE_TO_SAVE_RECOVERY_WORDS";
     public static final String ACTION_ON_SERVICE_CONNECTION_BOUNDED = BuildConfig.APPLICATION_ID + ".ACTION_ON_SERVICE_CONNECTION_BOUNDED";
-    public static final String ACTION_VIEW_QR_CODE = BuildConfig.APPLICATION_ID + ".ACTION_VIEW_QR_CODE";
     public static final String ACTION_ON_USER_AUTH_SUCCESSFULLY = BuildConfig.APPLICATION_ID + ".ACTION_ON_USER_AUTH_SUCCESSFULLY";
     public static final String ACTION_WALLET_REGISTRATION_COMPLETE = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_REGISTRATION_COMPLETE";
     public static final String ACTION_ON_APPLICATION_START = BuildConfig.APPLICATION_ID + ".ACTION_ON_APPLICATION_START";
@@ -100,8 +97,6 @@ public class DropbitIntents {
     public static final String EXTRA_RECOVERY_WORDS = "EXTRA_RECOVERY_WORDS";
     public static final String EXTRA_NEXT = "EXTRA_NEXT";
     public static final String EXTRA_NEXT_BUNDLE = "EXTRA_NEXT_BUNDLE";
-    public static final String EXTRA_QR_CODE_LOCATION = "EXTRA_QR_CODE_LOCATION";
-    public static final String EXTRA_TEMP_QR_SCAN = "EXTRA_TEMP_QR_SCAN";
     public static final String EXTRA_SCANNED_DATA = "EXTRA_SCANNED_DATA";
     public static final String EXTRA_VIEW_STATE = "VIEW_STATE";
     public static final int EXTRA_VIEW = 1;

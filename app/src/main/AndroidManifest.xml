@@ -100,9 +100,9 @@
             android:theme="@style/CoinKeeperTheme.UpOn.SkipOn"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <activity
-            android:name=".ui.transaction.history.TransactionHistoryActivity"
+            android:name=".ui.home.HomeActivity"
             android:configChanges=""
-            android:label="@string/app_name"
+            android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.Drawer"
             android:windowSoftInputMode="adjustPan|adjustNothing">
@@ -303,10 +303,6 @@
                 <action android:name="${applicationId}.ACTION_ON_APPLICATION_START" />
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".service.QRCodeService"
-            android:exported="false" />
 
         <service
             android:name=".service.DeleteWalletService"

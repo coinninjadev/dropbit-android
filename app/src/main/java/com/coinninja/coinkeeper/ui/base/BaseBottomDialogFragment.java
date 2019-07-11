@@ -25,7 +25,7 @@ public abstract class BaseBottomDialogFragment extends BaseDialogFragment {
 
     @Nullable
     @Override
-    final public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return getActivity().getLayoutInflater().
                 inflate(getContentViewLayoutId(), container, false);
     }

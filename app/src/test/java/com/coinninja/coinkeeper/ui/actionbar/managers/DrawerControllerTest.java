@@ -10,13 +10,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
+import com.coinninja.coinkeeper.view.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 
 import org.junit.After;
@@ -283,6 +283,7 @@ public class DrawerControllerTest {
 
         assertFalse(drawerController.onMenuItemClicked(menuItem));
     }
+
 
     public static class A extends AppCompatActivity {
         @Override
