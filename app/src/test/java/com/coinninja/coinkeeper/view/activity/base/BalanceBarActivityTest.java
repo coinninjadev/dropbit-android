@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -14,7 +13,7 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -58,7 +57,7 @@ public class BalanceBarActivityTest {
 
     private BalanceBarActivity activity;
     private ShadowActivity shadowActivity;
-    private ActivityController<TransactionHistoryActivity> activityController;
+    private ActivityController<HomeActivity> activityController;
     private BlockChainService.BlockChainBinder binder;
     private ShadowApplication shadowApplication;
 
@@ -105,7 +104,7 @@ public class BalanceBarActivityTest {
         DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
 
-        activityController = Robolectric.buildActivity(TransactionHistoryActivity.class).create();
+        activityController = Robolectric.buildActivity(HomeActivity.class).create();
         activity = activityController.get();
         activity.serviceBinder = binder;
         shadowActivity = shadowOf(activity);
@@ -181,7 +180,7 @@ public class BalanceBarActivityTest {
 
         start();
 
-        ActivityController<TransactionHistoryActivity> activityCreate = Robolectric.buildActivity(TransactionHistoryActivity.class).create();
+        ActivityController<HomeActivity> activityCreate = Robolectric.buildActivity(HomeActivity.class).create();
         BalanceBarActivity activity = activityCreate.get();
         activity.serviceBinder = binder;
 

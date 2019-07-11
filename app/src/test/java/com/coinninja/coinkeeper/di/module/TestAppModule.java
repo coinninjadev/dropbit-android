@@ -61,6 +61,9 @@ import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryDataAdapter;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CoinNinjaContactResolver;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
@@ -164,8 +167,8 @@ public class TestAppModule {
 
 
     @Provides
-    CoinKeeperComponent coinKeeperComponent(TestAppComponent appComponent) {
-        return appComponent;
+    CoinKeeperComponent coinKeeperComponent() {
+        return mock(CoinKeeperComponent.class);
     }
 
     @Provides
@@ -704,5 +707,29 @@ public class TestAppModule {
             app.yearlyHighViewModel = mock(YearlyHighViewModel.class);
         }
         return app.yearlyHighViewModel;
+    }
+
+    @Provides
+    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier(TestCoinKeeperApplication app) {
+        if (app.defaultCurrencyChangeViewNotifier == null) {
+            app.defaultCurrencyChangeViewNotifier = mock(DefaultCurrencyChangeViewNotifier.class);
+        }
+        return app.defaultCurrencyChangeViewNotifier;
+    }
+
+    @Provides
+    TransactionHistoryDataAdapter transactionHistoryDataAdapter(TestCoinKeeperApplication app) {
+        if (app.transactionHistoryDataAdapter == null) {
+            app.transactionHistoryDataAdapter = mock(TransactionHistoryDataAdapter.class);
+        }
+        return app.transactionHistoryDataAdapter;
+    }
+
+    @Provides
+    SyncManagerViewNotifier syncManagerViewNotifier(TestCoinKeeperApplication app) {
+        if (app.syncManagerViewNotifier == null) {
+            app.syncManagerViewNotifier = mock(SyncManagerViewNotifier.class);
+        }
+        return app.syncManagerViewNotifier;
     }
 }

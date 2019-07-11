@@ -9,6 +9,7 @@ import org.hamcrest.Matcher;
 import java.util.Iterator;
 
 public class IntentFilterMatchers {
+
     public static final Matcher<IntentFilter> containsAction(String action) {
         return new BaseMatcher<IntentFilter>() {
             @Override

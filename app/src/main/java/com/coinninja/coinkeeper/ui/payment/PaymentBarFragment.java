@@ -19,6 +19,7 @@ import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.ui.base.BaseFragment;
+import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.FeesManager;
@@ -29,7 +30,6 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment;
 import com.coinninja.coinkeeper.view.fragment.PayDialogFragment;
-import com.coinninja.coinkeeper.view.fragment.RequestDialogFragment;
 import com.coinninja.coinkeeper.view.widget.PaymentBarView;
 
 import javax.inject.Inject;
@@ -150,20 +150,19 @@ public class PaymentBarFragment extends BaseFragment implements PaymentBarCallba
         showPayDialog(uri);
     }
 
+    void showPayDialogWithDefault() {
+        showPayDialog(false);
+    }
+
     private void onRequestButtonPressed() {
         RequestDialogFragment requestDialog = new RequestDialogFragment();
         activityNavigationUtil.showDialogWithTag(getFragmentManager(), requestDialog, RequestDialogFragment.class.getSimpleName());
     }
 
-
     private void dismissPayDialog() {
         PayDialogFragment dialog = (PayDialogFragment) getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
         getFragmentManager().findFragmentByTag(PayDialogFragment.class.getSimpleName());
         dialog.dismiss();
-    }
-
-    void showPayDialogWithDefault() {
-        showPayDialog(false);
     }
 
     private void showPayDialog(boolean shouldShowScan) {

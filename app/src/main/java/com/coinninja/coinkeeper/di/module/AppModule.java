@@ -56,13 +56,13 @@ import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.WalletCreationIntentService;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner;
-import com.coinninja.coinkeeper.ui.base.AndroidActivityBuilder;
-import com.coinninja.coinkeeper.ui.base.AndroidFragmentBuilder;
-import com.coinninja.coinkeeper.util.FeesManager;
+import com.coinninja.coinkeeper.di.builder.AndroidActivityBuilder;
+import com.coinninja.coinkeeper.di.builder.AndroidFragmentBuilder;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
@@ -88,7 +88,7 @@ import app.dropbit.twitter.TwitterProvider;
 import dagger.Module;
 import dagger.Provides;
 
-@Module(includes = {AndroidActivityBuilder.class, AndroidFragmentBuilder.class})
+@Module()
 public class AppModule {
 
     @Provides
@@ -222,7 +222,7 @@ public class AppModule {
     @Provides
     @CoinkeeperApplicationScope
     WalletHelper walletHelper(DaoSessionManager daoSessionManager, WordHelper wordHelper, WalletQueryManager walletQueryManager, FeesManager feesManager) {
-    return new WalletHelper(daoSessionManager, walletQueryManager, wordHelper, feesManager);
+        return new WalletHelper(daoSessionManager, walletQueryManager, wordHelper, feesManager);
     }
 
     @Provides

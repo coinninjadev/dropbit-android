@@ -43,9 +43,6 @@ class TwitterIdentityFragment : BaseIdentityFragment() {
     lateinit var twitterVerificationController: TwitterVerificationController
 
     @Inject
-    lateinit var analytics: Analytics
-
-    @Inject
     lateinit var myTwitterProfile: MyTwitterProfile
 
     internal val receiver = object : BroadcastReceiver() {

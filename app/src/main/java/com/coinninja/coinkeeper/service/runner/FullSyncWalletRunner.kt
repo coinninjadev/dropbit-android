@@ -7,7 +7,6 @@ import com.coinninja.coinkeeper.cn.service.runner.AccountDeverificationServiceRu
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.receiver.WalletSyncCompletedReceiver
-import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import org.greenrobot.greendao.DaoException
@@ -29,16 +28,10 @@ internal constructor(internal val cnWalletManager: CNWalletManager,
                      internal val dropbitAccountHelper: DropbitAccountHelper,
                      internal val localBroadCastUtil: LocalBroadCastUtil,
                      internal val remoteAddressCache: RemoteAddressCache,
-                     internal val syncManagerViewNotifier: SyncManagerViewNotifier,
                      internal val dropBitMeServiceManager: DropBitMeServiceManager
 ) : Runnable {
 
     override fun run() {
-        if (syncManagerViewNotifier.isSyncing) {
-            return
-        }
-        syncManagerViewNotifier.isSyncing = true
-
         if (!cnWalletManager.hasWallet())
             return
 
@@ -54,8 +47,6 @@ internal constructor(internal val cnWalletManager: CNWalletManager,
 
         localBroadCastUtil.sendGlobalBroadcast(WalletSyncCompletedReceiver::class.java,
                 DropbitIntents.ACTION_WALLET_SYNC_COMPLETE)
-
-        syncManagerViewNotifier.isSyncing = false
     }
 
     private fun syncTransactions() {

@@ -41,14 +41,12 @@ public class ApiClientModule {
 
     @Provides
     CoinKeeperClient signedCoinKeeperClient(SignedRequestInterceptor signedRequestInterceptor) {
-        CoinKeeperClient client = new Retrofit.Builder().
+        return new Retrofit.Builder().
                 baseUrl(CoinKeeperApiClient.API_BASE_ROUTE).
                 client(new OkHttpClient.Builder().
                         addInterceptor(signedRequestInterceptor).build()).
                 addConverterFactory(GsonConverterFactory.create()).
                 build().create(CoinKeeperClient.class);
-
-        return client;
     }
 
     @Provides

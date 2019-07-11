@@ -15,11 +15,14 @@ import com.coinninja.coinkeeper.service.client.model.CNTopicSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
+import com.coinninja.coinkeeper.service.client.model.HistoricalPriceRecord;
 import com.coinninja.coinkeeper.service.client.model.InviteUserPayload;
+import com.coinninja.coinkeeper.service.client.model.NewsArticle;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.Receiver;
 import com.coinninja.coinkeeper.service.client.model.Sender;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
+import com.coinninja.coinkeeper.ui.market.Granularity;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -1276,6 +1279,68 @@ public class SignedCoinKeeperApiClientTest {
         assertThat(account.getStatus(), equalTo("pending-verification"));
         assertThat(account.isPrivate(), equalTo(true));
         assertThat(account.getWallet_id(), equalTo("f8e8c20e-ba44-4bac-9a96-44f3b7ae955d"));
+    }
+
+    @Test
+    public void fetches_pricing_for_granularity() throws InterruptedException {
+        String json = TEST_DATA_PRICING.pricing;
+        MockResponse expectedResponse = new MockResponse().setResponseCode(200).setBody(json);
+        webServer.enqueue(expectedResponse);
+
+        Response response = signedCoinKeeperApiClient.loadHistoricPricing(Granularity.DAY);
+        List<HistoricalPriceRecord> priceRecords = (List<HistoricalPriceRecord>) response.body();
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/pricing/historic?period=daily"));
+        assertThat(recordedRequest.getMethod(), equalTo("GET"));
+        assertThat(response.code(), equalTo(200));
+        assert priceRecords != null;
+        assertThat(priceRecords.size(), equalTo(2));
+        assertThat(priceRecords.get(0).getAverage(), equalTo(12186.82F));
+
+    }
+
+    @Test
+    public void fetchesNews() throws InterruptedException {
+        String json = TEST_DATA_PRICING.news;
+        MockResponse expectedResponse = new MockResponse().setResponseCode(200).setBody(json);
+        webServer.enqueue(expectedResponse);
+
+        Response response = signedCoinKeeperApiClient.loadNews(4, 0);
+        List<NewsArticle> articles = (List<NewsArticle>) response.body();
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/news/feed/items?count=4"));
+        assertThat(recordedRequest.getMethod(), equalTo("GET"));
+        assertThat(response.code(), equalTo(200));
+        assert articles != null;
+        assertThat(articles.size(), equalTo(4));
+        assertThat(articles.get(0).getId(), equalTo("https://www.coindesk.com/?p=408236"));
+        assertThat(articles.get(0).getTitle(), equalTo("tZERO Tokenizes Atari Founder’s Biopic"));
+        assertThat(articles.get(0).getLink(), equalTo("https://www.coindesk.com/tzero-tokenizes-atari-founders-biopic"));
+        assertThat(articles.get(0).getDescription(), equalTo("The subsidiary of Overstock is attempting to break into the movie business."));
+        assertThat(articles.get(0).getSource(), equalTo("coindesk"));
+        assertThat(articles.get(0).getAuthor(), equalTo("Daniel Kuhn"));
+        assertThat(articles.get(0).getPubTime(), equalTo(1562704225L));
+        assertThat(articles.get(0).getAdded(), equalTo(1562704492L));
+    }
+
+    @Test
+    public void fetchingNewsWithOffsetTrimsList() throws InterruptedException {
+        String json = TEST_DATA_PRICING.news;
+        MockResponse expectedResponse = new MockResponse().setResponseCode(200).setBody(json);
+        webServer.enqueue(expectedResponse);
+
+        Response response = signedCoinKeeperApiClient.loadNews(2, 2);
+        List<NewsArticle> articles = (List<NewsArticle>) response.body();
+        RecordedRequest recordedRequest = webServer.takeRequest();
+
+        assertThat(recordedRequest.getPath(), equalTo("/news/feed/items?count=4"));
+        assertThat(recordedRequest.getMethod(), equalTo("GET"));
+        assertThat(response.code(), equalTo(200));
+        assert articles != null;
+        assertThat(articles.size(), equalTo(2));
+        assertThat(articles.get(0).getTitle(), equalTo("Italy to Lead European Blockchain Partnership Until July 2020"));
     }
 
     private SignedCoinKeeperApiClient createClient(String host) {

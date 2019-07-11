@@ -29,9 +29,9 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -130,7 +130,7 @@ public class PayDialogFragmentTest {
     private TransactionData invalidTransactionData = new TransactionData(new UnspentTransactionOutput[0],
             0, 0, 0, mock(DerivationPath.class), "");
 
-    private ActivityScenario<TransactionHistoryActivity> scenario;
+    private ActivityScenario<HomeActivity> scenario;
     private Context context;
 
     @Before
@@ -722,7 +722,7 @@ public class PayDialogFragmentTest {
     }
 
     private void start() {
-        scenario = ActivityScenario.launch(TransactionHistoryActivity.class);
+        scenario = ActivityScenario.launch(HomeActivity.class);
         scenario.onActivity(activity -> {
             dialog.show(activity.getSupportFragmentManager(), "tag");
             shadowActivity = shadowOf(activity);
