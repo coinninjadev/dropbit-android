@@ -462,6 +462,9 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
                 confirmationsLabel.setText(R.string.confirmations_view_stage_1);
                 break;
             case RECEIVED_ADDRESS_PROVIDED:
+                confirmationsView.setStage(ConfirmationsView.STAGE_ADDRESS_RECEIVED);
+                confirmationsLabel.setText(R.string.received_confirmations_view_stage_2);
+                break;
             case SENT_ADDRESS_PROVIDED:
                 confirmationsView.setStage(ConfirmationsView.STAGE_ADDRESS_RECEIVED);
                 confirmationsLabel.setText(R.string.confirmations_view_stage_2);

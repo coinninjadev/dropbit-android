@@ -320,6 +320,7 @@
     <!-- Confirmations View -->
     <string name="confirmations_view_stage_1">Dropbit Sent</string>
     <string name="confirmations_view_stage_2">Address Received</string>
+    <string name="received_confirmations_view_stage_2">Address Sent</string>
     <string name="confirmations_view_stage_3">Broadcasting</string>
     <string name="confirmations_view_stage_4">Pending</string>
     <string name="confirmations_view_stage_5">Complete</string>
