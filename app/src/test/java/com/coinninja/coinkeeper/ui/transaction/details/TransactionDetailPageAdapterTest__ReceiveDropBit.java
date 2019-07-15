@@ -173,7 +173,7 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_ADDRESS_RECEIVED));
-        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_2)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.received_confirmations_view_stage_2)));
     }
 
     @Test
