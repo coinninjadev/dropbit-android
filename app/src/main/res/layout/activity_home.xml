@@ -7,17 +7,17 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/pager_tabs"
         android:layout_width="match_parent"
-        android:layout_height="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:focusable="false"
         app:layout_constraintBottom_toTopOf="@+id/home_pager"
         app:layout_constraintTop_toTopOf="parent"
         app:tabBackground="@drawable/page_tabs_selector"
         app:tabGravity="center"
-        app:tabIndicator="@drawable/page_tab_indicator"
-        app:tabIndicatorFullWidth="false"
-        app:tabIndicatorHeight="0dp"
-        android:layout_marginBottom="8dp"
+        app:tabIndicator="@null"
         app:tabMaxWidth="16dp"
+        app:tabPaddingEnd="6dp"
+        app:tabPaddingStart="6dp"
         app:tabRippleColor="@color/colorTransparent" />
 
     <androidx.viewpager.widget.ViewPager
