@@ -31,6 +31,14 @@ class HomeActivity : BalanceBarActivity() {
                 showMarketPage()
             }
         })
+        findViewById<ViewPager>(R.id.home_pager)?.apply {
+            adapter = homePagerAdapterProvider.provide(supportFragmentManager, lifecycle.currentState)
+            setCurrentItem(currentPage, false)
+        }.also {
+            findViewById<TabLayout>(R.id.pager_tabs)?.apply {
+                setupWithViewPager(it)
+            }
+        }
     }
 
     internal fun showMarketPage() {
@@ -42,14 +50,6 @@ class HomeActivity : BalanceBarActivity() {
     override fun onResume() {
         super.onResume()
         showDetailWithInitialIntent()
-        findViewById<ViewPager>(R.id.home_pager).apply {
-            adapter = homePagerAdapterProvider.provide(supportFragmentManager, lifecycle.currentState)
-            setCurrentItem(currentPage, false)
-        }.also {
-            findViewById<TabLayout>(R.id.pager_tabs).apply {
-                setupWithViewPager(it, true)
-            }
-        }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
