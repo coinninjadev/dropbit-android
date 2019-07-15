@@ -255,10 +255,14 @@ class SettingsActivityTest {
         scenario.moveToState(Lifecycle.State.RESUMED)
         scenario.onActivity { activity ->
             activity.yearlyHighObserver.onChanged(true)
-
             clickOn(activity.findViewById<Switch>(R.id.yearly_high_subscription))
-
             verify(activity.yearlyHighViewModel).toggleSubscription(true)
+
+            scenario.recreate()
+
+            activity.yearlyHighObserver.onChanged(false)
+            clickOn(activity.findViewById<Switch>(R.id.yearly_high_subscription))
+            verify(activity.yearlyHighViewModel).toggleSubscription(false)
         }
     }
 
