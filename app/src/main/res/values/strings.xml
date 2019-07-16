@@ -339,6 +339,10 @@
     <string name="transaction_details_see_transaction_details">transaction details</string>
     <string name="done">done</string>
     <string name="phone_number_input_widget_country_selection_title">Select Country</string>
+    <string name="tx_details_when_sent">%s when sent</string>
+    <string name="tx_details_at_send">%s at send</string>
+    <string name="tx_details_when_received">%s when received</string>
+    <string name="tx_details_when_both">%s %s</string>
 
     <!-- User Phone Verification -->
     <string name="user_account_verification_title">Verifications</string>

@@ -59,18 +59,18 @@ public class TransactionAPIUtil {
     }
 
     public void updateHistoricPricingIfNecessary(List<TransactionSummary> transactions) {
-        if (transactions.size() < 1) return;
+        if (transactions.isEmpty()) return;
 
         for(TransactionSummary transaction : transactions) {
             CNPricing pricing = getTransactionHistoricalPricing(transaction.getTxid());
-            if (pricing == null) { continue; }
+            if (pricing == null || pricing.getAverage() < 100) { continue; }
             transaction.setHistoricPrice(pricing.getAverage());
             transaction.update();
         }
     }
 
     private CNPricing getTransactionHistoricalPricing(String txid) {
-        if ("".equals(txid)) return null;
+        if (txid == null || "".equals(txid)) return null;
 
         CNPricing results = null;
         Response response = apiClient.getHistoricPrice(txid);
