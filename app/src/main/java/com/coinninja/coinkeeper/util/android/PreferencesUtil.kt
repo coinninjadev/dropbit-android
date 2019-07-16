@@ -51,8 +51,8 @@ constructor(internal val preferences: SharedPreferences) {
         return preferences.getBoolean(key, defaultValue)
     }
 
-    fun getString(key: String, defaultValue: String): String? {
-        return preferences.getString(key, defaultValue)
+    fun getString(key: String, defaultValue: String): String {
+        return preferences.getString(key, defaultValue) ?: ""
     }
 
     operator fun contains(key: String): Boolean {

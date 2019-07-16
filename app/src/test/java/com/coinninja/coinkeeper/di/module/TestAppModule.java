@@ -109,11 +109,6 @@ import static org.mockito.Mockito.mock;
 public class TestAppModule {
 
     @Provides
-    FeesManager feesManager(PreferencesUtil preferencesUtil) {
-        return new FeesManager(preferencesUtil);
-    }
-
-    @Provides
     CoroutineContextProvider coroutineContextProvider() {
         return new TestCoroutineContextProvider();
     }

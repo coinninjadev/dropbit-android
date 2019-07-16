@@ -330,10 +330,6 @@
             android:name=".cn.wallet.service.CNWalletService"
             android:exported="false" />
         <service
-            android:name=".service.DeviceRegistrationService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        <service
             android:name=".cn.service.CNGlobalMessagingService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />

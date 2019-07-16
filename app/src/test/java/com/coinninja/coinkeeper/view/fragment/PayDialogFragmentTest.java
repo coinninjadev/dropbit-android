@@ -35,6 +35,7 @@ import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
@@ -67,6 +68,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import dagger.Module;
+import dagger.Provides;
+
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
@@ -88,6 +92,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
+
 
 
 @RunWith(AndroidJUnit4.class)
@@ -763,4 +768,11 @@ public class PayDialogFragmentTest {
         when(bitcoinUtil.parse(rawString)).thenReturn(bitcoinUri);
     }
 
+    @Module
+    public static class TestPayDialogFragmentModule {
+        @Provides
+        public FeesManager feesManager() {
+            return mock(FeesManager.class);
+        }
+    }
 }
