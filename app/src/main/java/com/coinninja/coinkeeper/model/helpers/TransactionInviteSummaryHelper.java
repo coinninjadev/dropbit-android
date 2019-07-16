@@ -35,14 +35,4 @@ public class TransactionInviteSummaryHelper {
 
         return transactionsInvitesSummary;
     }
-
-    @Nullable
-    public TransactionsInvitesSummary getTransactionsInvitesSummaryFor(String requestId) {
-        List<TransactionsInvitesSummary> transactionsInvitesSummaryList = daoSessionManager.getTransactionsInvitesSummaryDao()
-                .queryBuilder().where(TransactionsInvitesSummaryDao.Properties.Id.eq(requestId)).list();
-
-        if (transactionsInvitesSummaryList.isEmpty()) { return null; }
-
-        return transactionsInvitesSummaryList.get(0);
-    }
 }

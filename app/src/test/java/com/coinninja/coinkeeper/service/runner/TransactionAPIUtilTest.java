@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -31,6 +32,7 @@ import retrofit2.Response;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -79,8 +81,8 @@ public class TransactionAPIUtilTest {
         transactions.add(t2);
         transactionIds[1] = t2.getTxid();
 
-        txResponse1 = buildTransactionResposne(TestData.TRANSACTIONS_ONE);
-        txResponse2 = buildTransactionResposne(TestData.TRANSACTIONS_TWO);
+        txResponse1 = buildTransactionResponse(TestData.TRANSACTIONS_ONE);
+        txResponse2 = buildTransactionResponse(TestData.TRANSACTIONS_TWO);
 
         error = Response.error(ResponseBody.create(null, ""), new okhttp3.Response.Builder()
                 .code(404)
@@ -89,21 +91,21 @@ public class TransactionAPIUtilTest {
                 .request(new Request.Builder().url("https://someuri.com").build())
                 .build());
 
-        txStatsResponse1 = buildTransactionStatsResposne(TestData.TRANSACTION_ONE_STATS);
-        txStatsResponse2 = buildTransactionStatsResposne(TestData.TRANSACTION_TWO_STATS);
+        txStatsResponse1 = buildTransactionStatsResponse(TestData.TRANSACTION_ONE_STATS);
+        txStatsResponse2 = buildTransactionStatsResponse(TestData.TRANSACTION_TWO_STATS);
 
         txConfirmationResponse1 = buildTransactionConfirmationResponse(TestData.TRANSACTION_ONE_CONFIRMATION);
         txConfirmationResponse2 = buildTransactionConfirmationResponse(TestData.TRANSACTION_ONE_CONFIRMATION);
 
     }
 
-    private Response buildTransactionResposne(String data) {
+    private Response buildTransactionResponse(String data) {
         TransactionDetail block = new Gson().fromJson(data, new TypeToken<TransactionDetail>() {
         }.getType());
         return Response.success(block);
     }
 
-    private Response buildTransactionStatsResposne(String data) {
+    private Response buildTransactionStatsResponse(String data) {
         TransactionStats block = new Gson().fromJson(data, new TypeToken<TransactionStats>() {
         }.getType());
         return Response.success(block);
@@ -144,6 +146,23 @@ public class TransactionAPIUtilTest {
         verify(apiClient, times(1)).getHistoricPrice(transactionOneId);
         verify(transactionSummary).setHistoricPrice(30000L);
         verify(transactionSummary).update();
+    }
+
+    @Test
+    public void does_not_save_unexpected_data_fetch_historic_pricing_from_client() {
+        transactions.clear();
+        TransactionSummary transactionSummary = mock(TransactionSummary.class);
+        transactions.add(transactionSummary);
+        when(transactionSummary.getTxid()).thenReturn(transactionOneId);
+        CNPricing pricing = new CNPricing();
+        pricing.setAverage(new BigDecimal(0.01));
+        when(apiClient.getHistoricPrice(transactionOneId)).thenReturn(Response.success(pricing));
+
+        apiUtil.updateHistoricPricingIfNecessary(transactions);
+
+        verify(apiClient, times(1)).getHistoricPrice(transactionOneId);
+        verify(transactionSummary, times(0)).setHistoricPrice(anyLong());
+        verify(transactionSummary, times(0)).update();
     }
 
     @Test

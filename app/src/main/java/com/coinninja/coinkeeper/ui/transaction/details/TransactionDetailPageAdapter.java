@@ -50,7 +50,7 @@ import static com.coinninja.android.helpers.Views.withId;
 public class TransactionDetailPageAdapter extends PagerAdapter implements DefaultCurrencyChangeObserver {
 
     final WalletHelper walletHelper;
-    private final TransactionAdapterUtil transactionAdapterUtil;
+    TransactionAdapterUtil transactionAdapterUtil;
     LazyList<TransactionsInvitesSummary> transactions;
     private DefaultCurrencies defaultCurrencies;
     private TwitterUtil twitterUtil;
@@ -63,7 +63,8 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     private MemoCreator memoCreator;
 
     @Inject
-    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies, MemoCreator memoCreator, TwitterUtil twitterUtil, Analytics analytics) {
+    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies,
+                                 MemoCreator memoCreator, TwitterUtil twitterUtil, Analytics analytics) {
         this.defaultCurrencies = defaultCurrencies;
         this.twitterUtil = twitterUtil;
         this.analytics = analytics;
@@ -180,11 +181,11 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     }
 
     private void renderTwitterShare(View page, BindableTransaction bindableTransaction) {
-       if (bindableTransaction.getTxID() == null || bindableTransaction.getTxID() == "") {
-           withId(page, R.id.share_twitter_button).setVisibility(View.GONE);
-       } else {
-           withId(page, R.id.share_twitter_button).setVisibility(View.VISIBLE);
-       }
+        if (bindableTransaction.getTxID() == null || bindableTransaction.getTxID() == "") {
+            withId(page, R.id.share_twitter_button).setVisibility(View.GONE);
+        } else {
+            withId(page, R.id.share_twitter_button).setVisibility(View.VISIBLE);
+        }
     }
 
     private TransactionsInvitesSummary getTransactionSummaryWithTaggedView(View view) {
@@ -287,56 +288,50 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
 
     private void renderHistoricalPricing(View page, BindableTransaction bindableTransaction) {
         TextView historyTextView = page.findViewById(R.id.value_when_sent);
+        long txTimeValue = calculateHistoricUSDPrice(bindableTransaction).toLong();
+        long inviteValue = bindableTransaction.getHistoricalInviteUSDValue();
+        String text = "";
 
-        Currency value = calculateHistoricUSDPrice(bindableTransaction);
-        String atSend = " at send";
-        String atSendFinalString = "";
-        String whenReceived = " when received";
-        String whenReceivedFinalString = "";
-
-        if (bindableTransaction.getInviteState() != null && bindableTransaction.getTxID() != null) {
-            Currency inviteValue = calculateHistoricUSDInvitePrice(bindableTransaction);
-            switch (bindableTransaction.getSendState()) {
-                case SEND_CANCELED:
-                    if (!inviteValue.isZero()) {
-                        atSendFinalString = inviteValue.toFormattedCurrency() + atSend;
-                    }
-                    break;
-                case SEND:
-                case TRANSFER:
-                case RECEIVE_CANCELED:
-                case RECEIVE:
-                    if (!value.isZero()) {
-                        atSendFinalString = value.toFormattedCurrency() + atSend;
-                    }
-
-                    if (!inviteValue.isZero()) {
-                        whenReceivedFinalString = inviteValue.toFormattedCurrency() + whenReceived + " ";
-                    }
-                    break;
-            }
-        } else if (bindableTransaction.getTxID() == null) {
-            Currency inviteValue = calculateHistoricUSDInvitePrice(bindableTransaction);
-            if (!inviteValue.isZero()) {
-                whenReceivedFinalString = inviteValue.toFormattedCurrency() + whenReceived;
-            }
-        } else {
-            if (!value.isZero()) {
-                switch (bindableTransaction.getSendState()) {
-                    case SEND_CANCELED:
-                    case SEND:
-                        atSendFinalString = value.toFormattedCurrency() + atSend;
-                        break;
-                    case TRANSFER:
-                    case RECEIVE_CANCELED:
-                    case RECEIVE:
-                        whenReceivedFinalString = value.toFormattedCurrency() + whenReceived;
-                        break;
-                }
-            }
+        switch (bindableTransaction.getBasicDirection()) {
+            case SEND:
+                text = getHistoricalPriceForSentTransaction(historyTextView.getContext(), inviteValue, txTimeValue);
+                break;
+            case RECEIVE:
+                text = getHistoricalPriceForReceivedTransaction(historyTextView.getContext(), inviteValue, txTimeValue);
+                break;
         }
 
-        historyTextView.setText(whenReceivedFinalString + atSendFinalString);
+        historyTextView.setText(text);
+    }
+
+    private String getHistoricalPriceForReceivedTransaction(Context context, long inviteValue, long txTimeValue) {
+        String text = "";
+        if (inviteValue > 0 && txTimeValue > 0) {
+            text = context.getString(R.string.tx_details_when_both,
+                    context.getString(R.string.tx_details_when_received, new USDCurrency(inviteValue).toFormattedCurrency()),
+                    context.getString(R.string.tx_details_at_send, new USDCurrency(txTimeValue).toFormattedCurrency()));
+        } else if (inviteValue > 0) {
+            text = context.getString(R.string.tx_details_when_received, new USDCurrency(inviteValue).toFormattedCurrency());
+        } else if (txTimeValue > 0) {
+            text = context.getString(R.string.tx_details_when_received, new USDCurrency(txTimeValue).toFormattedCurrency());
+        }
+
+        return text;
+    }
+
+    private String getHistoricalPriceForSentTransaction(Context context, long inviteValue, long txTimeValue) {
+        String text = "";
+        if (inviteValue > 0 && txTimeValue > 0) {
+            text = context.getString(R.string.tx_details_when_both,
+                    context.getString(R.string.tx_details_when_received, new USDCurrency(inviteValue).toFormattedCurrency()),
+                    context.getString(R.string.tx_details_when_sent, new USDCurrency(txTimeValue).toFormattedCurrency()));
+        } else if (inviteValue > 0) {
+            text = context.getString(R.string.tx_details_when_sent, new USDCurrency(inviteValue).toFormattedCurrency());
+        } else if (txTimeValue > 0) {
+            text = context.getString(R.string.tx_details_when_sent, new USDCurrency(txTimeValue).toFormattedCurrency());
+        }
+
+        return text;
     }
 
     private void renderDropBitState(View page, BindableTransaction bindableTransaction) {
@@ -346,8 +341,6 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
             case SENT_PENDING:
                 setupCancelDropbit(page, bindableTransaction);
                 break;
-            default:
-                return;
         }
     }
 
@@ -371,25 +364,11 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         ((TextView) withId(page, R.id.transaction_date)).setText(txTime);
     }
 
-    private USDCurrency calculateHistoricUSDInvitePrice(BindableTransaction bindableTransaction) {
-        if (bindableTransaction.getValueCurrency() == null) {
-            return null;
-        }
-        USDCurrency usd = new USDCurrency(bindableTransaction.getHistoricalInviteUSDValue());
-        BTCCurrency btc = (BTCCurrency) bindableTransaction.getValueCurrency();
-
-        return convertToUSD(btc, usd);
-    }
-
     private USDCurrency calculateHistoricUSDPrice(BindableTransaction bindableTransaction) {
         USDCurrency usd = new USDCurrency(bindableTransaction.getHistoricalTransactionUSDValue());
         BTCCurrency btc = (BTCCurrency) bindableTransaction.getValueCurrency();
 
-        return convertToUSD(btc, usd);
-    }
-
-    private USDCurrency convertToUSD(Currency currency, USDCurrency historicPrice) {
-        return currency.toUSD(historicPrice);
+        return btc.toUSD(usd);
     }
 
     private void renderIdentity(View page, BindableTransaction bindableTransaction) {
