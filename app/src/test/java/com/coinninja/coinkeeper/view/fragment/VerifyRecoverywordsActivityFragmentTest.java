@@ -104,7 +104,7 @@ public class VerifyRecoverywordsActivityFragmentTest {
 
         clickOn(view);
 
-        assertThat(view, hasText("WORD12"));
+        assertThat(view, hasText("word12"));
         verify(presenter).onSelection("word12");
     }
 
@@ -115,14 +115,14 @@ public class VerifyRecoverywordsActivityFragmentTest {
 
         clickOn(view);
 
-        assertThat(view, hasText("WORD6"));
+        assertThat(view, hasText("word6"));
         verify(presenter).onSelection("word6");
     }
 
     @Test
     public void itPopulatesThirdRandomWord() {
         Button choice = fragment.getView().findViewById(R.id.challenge_3);
-        assertThat(choice.getText().toString(), equalTo("word8".toUpperCase(Locale.ENGLISH)));
+        assertThat(choice.getText().toString(), equalTo("word8"));
         ShadowView shadow = shadowOf(choice);
         assertNotNull(shadow.getOnClickListener());
     }
@@ -130,7 +130,7 @@ public class VerifyRecoverywordsActivityFragmentTest {
     @Test
     public void itPopulatesFourthRandomWord() {
         Button choice = fragment.getView().findViewById(R.id.challenge_4);
-        assertThat(choice.getText().toString(), equalTo("word1".toUpperCase(Locale.ENGLISH)));
+        assertThat(choice.getText().toString(), equalTo("word1"));
         ShadowView shadow = shadowOf(choice);
         assertNotNull(shadow.getOnClickListener());
     }
@@ -138,7 +138,7 @@ public class VerifyRecoverywordsActivityFragmentTest {
     @Test
     public void itPopulatesFifthRandomWord() {
         Button choice = fragment.getView().findViewById(R.id.challenge_5);
-        assertThat(choice.getText().toString(), equalTo("word10".toUpperCase(Locale.ENGLISH)));
+        assertThat(choice.getText().toString(), equalTo("word10"));
         ShadowView shadow = shadowOf(choice);
         assertNotNull(shadow.getOnClickListener());
     }

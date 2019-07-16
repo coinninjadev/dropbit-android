@@ -56,7 +56,7 @@
     <!-- Recovery Words -->
     <string name="recovery_words_body">Be sure to write your words \ndown on a piece of paper.</string>
     <string name="word_0_of_0">word 0 of 0</string>
-    <string name="back">back</string>
+    <string name="back">BACK</string>
     <string name="next">NEXT</string>
     <string name="verify">VERIFY</string>
 
