@@ -56,15 +56,15 @@ public class VerifyRecoverywordsFragment extends BaseFragment implements View.On
         ((TextView) view.findViewById(R.id.which_word)).
                 setText(Integer.toString(recoveryWordsModel.getWordNumber()));
 
-        ((Button) view.findViewById(R.id.challenge_1)).setText(choices.get(0).toUpperCase(Locale.ENGLISH));
+        ((Button) view.findViewById(R.id.challenge_1)).setText(choices.get(0));
         (view.findViewById(R.id.challenge_1)).setOnClickListener(this);
-        ((Button) view.findViewById(R.id.challenge_2)).setText(choices.get(1).toUpperCase(Locale.ENGLISH));
+        ((Button) view.findViewById(R.id.challenge_2)).setText(choices.get(1));
         (view.findViewById(R.id.challenge_2)).setOnClickListener(this);
-        ((Button) view.findViewById(R.id.challenge_3)).setText(choices.get(2).toUpperCase(Locale.ENGLISH));
+        ((Button) view.findViewById(R.id.challenge_3)).setText(choices.get(2));
         (view.findViewById(R.id.challenge_3)).setOnClickListener(this);
-        ((Button) view.findViewById(R.id.challenge_4)).setText(choices.get(3).toUpperCase(Locale.ENGLISH));
+        ((Button) view.findViewById(R.id.challenge_4)).setText(choices.get(3));
         (view.findViewById(R.id.challenge_4)).setOnClickListener(this);
-        ((Button) view.findViewById(R.id.challenge_5)).setText(choices.get(4).toUpperCase(Locale.ENGLISH));
+        ((Button) view.findViewById(R.id.challenge_5)).setText(choices.get(4));
         (view.findViewById(R.id.challenge_5)).setOnClickListener(this);
     }
 

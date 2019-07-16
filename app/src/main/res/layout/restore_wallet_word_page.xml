@@ -52,7 +52,7 @@
         android:layout_marginTop="@dimen/vertical_margin_small">
 
         <Button
-            style="@style/TextAppearance.Button.Small"
+            style="@style/TextAppearance.Button.Small.RecoverWords"
             android:layout_width="0dp"
             android:layout_height="35dp"
             android:layout_weight="1"
@@ -68,24 +68,7 @@
             tools:ignore="MissingPrefix,UnusedAttribute" />
 
         <Button
-            style="@style/TextAppearance.Button.Small"
-            android:layout_width="0dp"
-            android:layout_height="35dp"
-            android:layout_marginStart="@dimen/horizontal_margin_small"
-            android:layout_weight="1"
-            android:autoSizeMaxTextSize="14sp"
-            android:autoSizeMinTextSize="6sp"
-            android:autoSizeStepGranularity="2sp"
-            android:autoSizeTextType="uniform"
-            android:textAlignment="center"
-            app:autoSizeMaxTextSize="12sp"
-            app:autoSizeMinTextSize="6sp"
-            app:autoSizeStepGranularity="2sp"
-            app:autoSizeTextType="uniform"
-            tools:ignore="MissingPrefix,UnusedAttribute" />
-
-        <Button
-            style="@style/TextAppearance.Button.Small"
+            style="@style/TextAppearance.Button.Small.RecoverWords"
             android:layout_width="0dp"
             android:layout_height="35dp"
             android:layout_marginStart="@dimen/horizontal_margin_small"
@@ -102,7 +85,24 @@
             tools:ignore="MissingPrefix,UnusedAttribute" />
 
         <Button
-            style="@style/TextAppearance.Button.Small"
+            style="@style/TextAppearance.Button.Small.RecoverWords"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="@dimen/horizontal_margin_small"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="6sp"
+            android:autoSizeStepGranularity="2sp"
+            android:autoSizeTextType="uniform"
+            android:textAlignment="center"
+            app:autoSizeMaxTextSize="12sp"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            tools:ignore="MissingPrefix,UnusedAttribute" />
+
+        <Button
+            style="@style/TextAppearance.Button.Small.RecoverWords"
             android:layout_width="0dp"
             android:layout_height="35dp"
             android:layout_marginStart="@dimen/horizontal_margin_small"
