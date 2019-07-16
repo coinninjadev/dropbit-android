@@ -1,11 +1,13 @@
 package com.coinninja.coinkeeper.util
 
+import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.service.client.model.TransactionFee
 import com.coinninja.coinkeeper.util.android.PreferencesUtil
 import javax.inject.Inject
 
 
-open class FeesManager @Inject constructor(val preferencesUtil: PreferencesUtil) {
+@Mockable
+class FeesManager @Inject constructor(internal val preferencesUtil: PreferencesUtil) {
 
     companion object {
         const val FAST_FEE_STRING = "ADJUSTABLE_FEE_TYPE_FAST"
@@ -21,7 +23,7 @@ open class FeesManager @Inject constructor(val preferencesUtil: PreferencesUtil)
 
     var feePreference: FeeType
         get() {
-            return when(preferencesUtil.getString(DropbitIntents.PREFERENCES_ADJUSTABLE_FEES_TYPE, FAST_FEE_STRING) ?: FAST_FEE_STRING) {
+            return when (preferencesUtil.getString(DropbitIntents.PREFERENCES_ADJUSTABLE_FEES_TYPE, FAST_FEE_STRING)) {
                 FAST_FEE_STRING -> {
                     FeeType.FAST
                 }
@@ -48,32 +50,28 @@ open class FeesManager @Inject constructor(val preferencesUtil: PreferencesUtil)
             preferencesUtil.savePreference(DropbitIntents.PREFERENCES_ADJUSTABLE_FEES_ENABLED, isAdjustableFeesEnabled)
         }
 
-    fun fees() : TransactionFee {
+    fun fees(): TransactionFee {
         return TransactionFee(fee(FeeType.CHEAP), fee(FeeType.SLOW), fee(FeeType.FAST))
     }
 
-    fun currentFee() : Double {
+    fun currentFee(): Double {
         return fee(feePreference)
     }
 
-    fun fee(type: FeeType) : Double {
-        val fee = when(type) {
-            FeeType.FAST -> {
-                preferencesUtil.getString(FAST_FEE_STRING, "0.0") ?: "0.0"
-            }
-            FeeType.SLOW -> {
-                preferencesUtil.getString(SLOW_FEE_STRING, "0.0") ?: "0.0"
-            }
-            FeeType.CHEAP -> {
-                preferencesUtil.getString(CHEAP_FEE_STRING, "0.0") ?: "0.0"
-            }
+    fun fee(type: FeeType): Double = when (type) {
+        FeeType.FAST -> {
+            preferencesUtil.getString(FAST_FEE_STRING, "0.0")
         }
-
-        return fee.toDouble()
-    }
+        FeeType.SLOW -> {
+            preferencesUtil.getString(SLOW_FEE_STRING, "0.0")
+        }
+        FeeType.CHEAP -> {
+            preferencesUtil.getString(CHEAP_FEE_STRING, "0.0")
+        }
+    }.toDouble()
 
     fun setFee(type: FeeType, amount: Double) {
-        when(type) {
+        when (type) {
             FeeType.FAST -> {
                 preferencesUtil.savePreference(FAST_FEE_STRING, amount.toString())
             }

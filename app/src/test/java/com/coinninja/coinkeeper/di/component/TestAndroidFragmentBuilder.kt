@@ -104,7 +104,7 @@ abstract class TestAndroidFragmentBuilder {
     internal abstract fun baseDialogFragment(): BaseDialogFragment
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector()
     internal abstract fun confirmPayDialogFragment(): ConfirmPayDialogFragment
 
     @ActivityScope
@@ -116,7 +116,7 @@ abstract class TestAndroidFragmentBuilder {
     internal abstract fun inviteHelpDialogFragment(): InviteHelpDialogFragment
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [PayDialogFragmentTest.TestPayDialogFragmentModule::class])
     internal abstract fun payDialogFragment(): PayDialogFragment
 
     @ActivityScope

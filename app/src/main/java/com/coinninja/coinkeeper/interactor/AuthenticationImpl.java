@@ -52,7 +52,7 @@ public class AuthenticationImpl implements Authentication, ForegroundStatusChang
     public void setAuthenticated() {
         cancelDeAuthentication();
         isAuthenticated = true;
-        syncWalletManager.schedule30SecondSync();
+        syncWalletManager.schedule60SecondSync();
     }
 
     @Override

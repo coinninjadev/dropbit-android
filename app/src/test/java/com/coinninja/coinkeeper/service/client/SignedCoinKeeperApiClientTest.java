@@ -795,7 +795,7 @@ public class SignedCoinKeeperApiClientTest {
         CNDeviceEndpoint cnDeviceEndpoint = (CNDeviceEndpoint) response.body();
 
         assertThat(response.code(), equalTo(201));
-        assertThat(cnDeviceEndpoint.getID(), equalTo("5805b3a0-ed99-4073-ad18-72adff181b9e"));
+        assertThat(cnDeviceEndpoint.getId(), equalTo("5805b3a0-ed99-4073-ad18-72adff181b9e"));
     }
 
     @Test
@@ -831,7 +831,7 @@ public class SignedCoinKeeperApiClientTest {
         List<CNDeviceEndpoint> endpoints = (List<CNDeviceEndpoint>) response.body();
 
         assertThat(endpoints.size(), equalTo(1));
-        assertThat(endpoints.get(0).getID(), equalTo("5805b3a0-ed99-4073-ad18-72adff181b9e"));
+        assertThat(endpoints.get(0).getId(), equalTo("5805b3a0-ed99-4073-ad18-72adff181b9e"));
     }
 
     @Test

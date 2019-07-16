@@ -17,11 +17,6 @@ internal constructor(internal val pushNotificationTokenManager: PushNotification
         pushNotificationEndpointManager.removeEndpoint()
     }
 
-    fun registerDevice(uuid: String) {
-        if (pushNotificationDeviceManager.createDevice(uuid)) {
-            pushNotificationEndpointManager.registersAsEndpoint(pushNotificationDeviceManager.deviceId)
-        }
-    }
 
     fun registerAsEndpoint() {
         if (pushNotificationEndpointManager.hasEndpoint()) {
@@ -82,11 +77,9 @@ internal constructor(internal val pushNotificationTokenManager: PushNotification
         )
     }
 
-    fun verifyToken() {
-        pushNotificationTokenManager.retrieveTokenIfNecessary()
-    }
-
-    fun isRegisteredEndpoint(): Boolean {
-        return pushNotificationEndpointManager.hasEndpoint()
-    }
+    fun hasPushToken(): Boolean  = pushNotificationTokenManager.token.isNotEmpty()
+    fun acquireToken(observer: PushTokenVerifiedObserver? = null) = pushNotificationTokenManager.retrieveTokenIfNecessary(observer)
+    fun isRegisteredEndpoint(): Boolean = pushNotificationEndpointManager.hasEndpoint()
+    fun isRegisteredDevice(): Boolean = pushNotificationDeviceManager.deviceId.isNotEmpty()
+    fun registerDevice(uuid: String): Boolean = pushNotificationDeviceManager.createDevice(uuid)
 }

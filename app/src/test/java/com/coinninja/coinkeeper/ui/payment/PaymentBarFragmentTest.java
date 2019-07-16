@@ -87,7 +87,9 @@ public class PaymentBarFragmentTest {
             fragment = frag;
             fragment.paymentHolder = paymentHolder;
             fragment.paymentUtil = paymentUtil;
+            fragment.feesManager = feesManager;
         });
+        when(feesManager.currentFee()).thenReturn(initialFee.getSlow());
 
         sendButton = withId(fragment.getView(), R.id.send_btn);
         requestButton = withId(fragment.getView(), R.id.request_btn);

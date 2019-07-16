@@ -127,7 +127,7 @@ public class BroadcastActivityTest {
 
         activityController.pause().stop().destroy();
 
-        verify(syncWalletManager).schedule30SecondSync();
+        verify(syncWalletManager).schedule60SecondSync();
     }
 
     @Test
