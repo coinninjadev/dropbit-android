@@ -58,7 +58,7 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     internal val intentFilter = IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED)
     internal val paymentBarFragment: PaymentBarFragment?
         get() {
-            return fragmentManager?.findFragmentById(R.id.payment_bar_fragment) as PaymentBarFragment?
+            return childFragmentManager.findFragmentByTag("paymentBarFragment") as PaymentBarFragment?
         }
 
     internal lateinit var transactions: LazyList<TransactionsInvitesSummary>
@@ -86,6 +86,7 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         intentFilter.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED)
+
         syncManagerViewNotifier.observeSyncManagerChange(this)
     }
 
@@ -98,6 +99,7 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         creationIntent.data?.let { uri ->
             launchPayScreenWithBitcoinUriIfNecessary(uri)
         }
+
         transactions = walletHelper.transactionsLazily
         transactionHistoryDataAdapter.setOnItemClickListener(this)
         transactionHistoryDataAdapter.setTransactions(transactions)
@@ -112,6 +114,7 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         setupSwipeToRefresh()
         transactionHistoryDataAdapter.defaultCurrencies = currencyPreference.currenciesPreference
         localBroadCastUtil.registerReceiver(receiver, intentFilter)
+
     }
 
     override fun onPause() {
