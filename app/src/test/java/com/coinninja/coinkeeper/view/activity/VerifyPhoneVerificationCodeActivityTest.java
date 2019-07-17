@@ -243,6 +243,15 @@ public class VerifyPhoneVerificationCodeActivityTest {
     }
 
     @Test
+    public void verify_code_after_paste() {
+        one.requestFocus();
+        one.setText("123456");
+
+        verify(activity.serviceWorkUtil).validatePhoneNumberConfirmationCode("123456");
+    }
+
+
+    @Test
     public void clears_all_on_stop() {
         one.setText("012345");
 
