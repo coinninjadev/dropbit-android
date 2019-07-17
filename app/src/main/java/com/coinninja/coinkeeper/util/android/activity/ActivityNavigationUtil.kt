@@ -34,6 +34,7 @@ import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity
 import com.coinninja.coinkeeper.view.activity.TrainingActivity
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity
+import com.coinninja.coinkeeper.view.fragment.PayDialogFragment
 import java.util.*
 import javax.inject.Inject
 
