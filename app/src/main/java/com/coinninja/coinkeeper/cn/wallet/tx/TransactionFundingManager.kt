@@ -64,6 +64,7 @@ class TransactionFundingManager @Inject internal constructor(
                 feeAmount = explicitFee
                 changeAmount = calculateChange(totalTransactionCost)
                 utxos = unspentTransactionOutputs.toTypedArray()
+                isReplaceable = true
             }
         }
 
@@ -112,7 +113,7 @@ class TransactionFundingManager @Inject internal constructor(
 
     protected fun createTransactionData(): TransactionData {
         return TransactionData(emptyArray<UnspentTransactionOutput>(), 0, 0, 0,
-                fundingModel.nextChangePath, null)
+                fundingModel.nextChangePath, "")
     }
 
     protected fun calculateChange(totalTransactionCost: Long, fees: Long = 0): Long {

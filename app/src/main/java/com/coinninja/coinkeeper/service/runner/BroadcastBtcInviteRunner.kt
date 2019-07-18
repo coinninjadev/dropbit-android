@@ -42,7 +42,7 @@ internal constructor(@ApplicationContext internal val context: Context,
         invite?.let { invite ->
             val transactionData = fundInvite(invite)
 
-            if (transactionData.utxos.size == 0) {
+            if (transactionData.utxos.isEmpty()) {
                 cancelInvite(invite)
             } else {
                 val transactionBroadcastResult = fulfillInvite(transactionData)
@@ -55,7 +55,8 @@ internal constructor(@ApplicationContext internal val context: Context,
 
     private fun broadcastTXToBtcNetwork(transactionData: TransactionData): TransactionBroadcastResult {
         val result: TransactionBroadcastResult
-        if (transactionData.paymentAddress.isNotEmpty()) {
+        val paymentAddress = transactionData.paymentAddress ?: ""
+        if (paymentAddress.isNotEmpty()) {
             result = broadcastHelper.broadcast(transactionData)
             analytics.trackEvent(Analytics.EVENT_DROPBIT_COMPLETED)
         } else {

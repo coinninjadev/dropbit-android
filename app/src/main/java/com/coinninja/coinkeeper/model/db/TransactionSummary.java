@@ -19,7 +19,7 @@ import java.util.List;
 
 @Entity(active = true)
 public class TransactionSummary {
-    private static final int REQUIRED_CONFIRMATIONS = 3;
+    private static final int REQUIRED_CONFIRMATIONS = 1;
 
     @Id
     Long id;

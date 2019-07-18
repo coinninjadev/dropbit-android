@@ -14,7 +14,7 @@ public class TransactionSummaryTest {
     public void is_replaceable_with_2_confirmations() {
         TransactionSummary transactionSummary = new TransactionSummary();
 
-        transactionSummary.setNumConfirmations(2);
+        transactionSummary.setNumConfirmations(0);
         assertTrue(transactionSummary.isReplaceable());
 
         transactionSummary.setNumConfirmations(3);

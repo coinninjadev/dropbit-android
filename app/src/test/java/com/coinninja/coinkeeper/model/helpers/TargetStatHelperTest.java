@@ -67,7 +67,7 @@ public class TargetStatHelperTest {
     @Test
     public void convertsToUnspentTransactionOutput() {
         TargetStat targetStat = mock(TargetStat.class);
-        when(targetStat.toUnspentTranasactionOutput()).thenCallRealMethod();
+        when(targetStat.toUnspentTransactionOutput()).thenCallRealMethod();
         when(targetStat.getValue()).thenReturn(1000L);
         when(targetStat.getPosition()).thenReturn(1);
         TransactionSummary transactionSummary = mock(TransactionSummary.class);
@@ -79,7 +79,7 @@ public class TargetStatHelperTest {
         when(targetStat.getTransaction()).thenReturn(transactionSummary);
         when(targetStat.getAddress()).thenReturn(address);
 
-        UnspentTransactionOutput unspentTransactionOutput = targetStat.toUnspentTranasactionOutput();
+        UnspentTransactionOutput unspentTransactionOutput = targetStat.toUnspentTransactionOutput();
 
         assertThat(unspentTransactionOutput.getAmount(), equalTo(1000L));
         assertThat(unspentTransactionOutput.getIndex(), equalTo(1));

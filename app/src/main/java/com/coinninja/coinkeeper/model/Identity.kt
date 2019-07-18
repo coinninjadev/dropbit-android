@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.model
 
-import android.os.Parcel
 import android.os.Parcelable
 import app.dropbit.annotations.Mockable
 import app.dropbit.twitter.model.TwitterUser
@@ -12,7 +11,15 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class Identity(val identityType: IdentityType, val value: String, val hash: String? = null, val displayName: String? = "", val handle: String? = null, val isVerified: Boolean = false, var avatarUrl: String? = null) : Parcelable {
 
-    constructor(contact: Contact) : this(IdentityType.PHONE, contact.getPhoneNumber().toString(), contact.hash, contact.displayName, null, contact.isVerified)
+    constructor(contact: Contact) : this(
+            IdentityType.PHONE,
+            contact.getPhoneNumber().toString(),
+            contact.hash,
+            contact.displayName,
+            null,
+            contact.isVerified
+    )
+
     constructor(twitterUser: TwitterUser) : this(identityType = IdentityType.TWITTER, value = twitterUser.userId.toString(), displayName = twitterUser.name, handle = twitterUser.displayScreenName(), isVerified = false, avatarUrl = twitterUser.profileImage)
 
     val hashForType: String
