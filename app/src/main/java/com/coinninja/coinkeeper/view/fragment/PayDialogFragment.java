@@ -103,7 +103,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     Bip70Callback bip70Callback;
 
     boolean shouldShowScanOnAttach = false;
-    BitcoinUri bitcoinUri = null;
+    public BitcoinUri bitcoinUri = null;
 
     public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks, boolean shouldShowScanOnAttach) {
         PayDialogFragment payFragment = commonInit(paymentUtil, paymentBarCallbacks);

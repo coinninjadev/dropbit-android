@@ -3,11 +3,10 @@ package com.coinninja.coinkeeper.util
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.service.client.model.TransactionFee
 import com.coinninja.coinkeeper.util.android.PreferencesUtil
-import javax.inject.Inject
 
 
 @Mockable
-class FeesManager @Inject constructor(internal val preferencesUtil: PreferencesUtil) {
+class FeesManager constructor(internal val preferencesUtil: PreferencesUtil) {
 
     companion object {
         const val FAST_FEE_STRING = "ADJUSTABLE_FEE_TYPE_FAST"

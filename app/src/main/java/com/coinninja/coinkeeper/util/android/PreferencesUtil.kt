@@ -6,10 +6,9 @@ import android.os.AsyncTask
 import app.dropbit.annotations.Mockable
 import javax.inject.Inject
 
+@SuppressLint("CommitPrefEdits")
 @Mockable
-class PreferencesUtil @SuppressLint("CommitPrefEdits")
-@Inject
-constructor(internal val preferences: SharedPreferences) {
+class PreferencesUtil @Inject constructor(internal val preferences: SharedPreferences) {
     internal var preferenceWriter: PreferenceWriter? = null
     internal val editor: SharedPreferences.Editor
 

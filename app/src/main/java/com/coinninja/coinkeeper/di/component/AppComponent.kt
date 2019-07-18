@@ -12,6 +12,7 @@ import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope
 import com.coinninja.coinkeeper.di.module.ApiClientModule
 import com.coinninja.coinkeeper.di.module.AppModule
 import com.coinninja.coinkeeper.di.module.DaoSessionManagerModule
+import com.coinninja.coinkeeper.di.module.FeeManagerModule
 
 import dagger.BindsInstance
 import dagger.Component
@@ -22,6 +23,7 @@ import dagger.android.DaggerApplication
 @CoinkeeperApplicationScope
 @Component(modules = [
     AndroidInjectionModule::class,
+    FeeManagerModule::class,
     AppModule::class,
     ApiClientModule::class,
     DaoSessionManagerModule::class,

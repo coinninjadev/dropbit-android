@@ -20,6 +20,7 @@ import com.coinninja.coinkeeper.ui.market.TestMarketChartModule
 import com.coinninja.coinkeeper.ui.news.MarketNewsFragment
 import com.coinninja.coinkeeper.ui.news.TestMarketNewsModule
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
+import com.coinninja.coinkeeper.ui.payment.PaymentBarFragmentTest
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestFragment
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragment
 import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
@@ -104,7 +105,7 @@ abstract class TestAndroidFragmentBuilder {
     internal abstract fun baseDialogFragment(): BaseDialogFragment
 
     @ActivityScope
-    @ContributesAndroidInjector()
+    @ContributesAndroidInjector(modules = [ConfirmPayDialogFragmentTest.TestConfirmPayDialogModule::class])
     internal abstract fun confirmPayDialogFragment(): ConfirmPayDialogFragment
 
     @ActivityScope
@@ -136,7 +137,7 @@ abstract class TestAndroidFragmentBuilder {
     internal abstract fun pinCreateFragment(): PinCreateFragment
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [PaymentBarFragmentTest.TestPaymentBarModule::class])
     internal abstract fun paymentBarFragment(): PaymentBarFragment
 
     @ActivityScope
