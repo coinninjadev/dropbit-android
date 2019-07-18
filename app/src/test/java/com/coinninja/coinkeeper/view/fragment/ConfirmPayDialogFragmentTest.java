@@ -27,6 +27,7 @@ import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -45,6 +46,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.shadows.ShadowActivity;
+
+import dagger.Module;
+import dagger.Provides;
 
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
@@ -367,5 +371,14 @@ public class ConfirmPayDialogFragmentTest {
         scenario.onActivity(activity -> {
             dialog.show(activity.getSupportFragmentManager(), dialog.getTag());
         });
+    }
+
+    @Module
+    public static class TestConfirmPayDialogModule {
+        @Provides
+        public FeesManager feesManager() {
+            return mock(FeesManager.class);
+        }
+
     }
 }

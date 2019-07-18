@@ -75,12 +75,6 @@ class AppModule {
     }
 
     @Provides
-    @CoinkeeperApplicationScope
-    internal fun adjustableFeesManager(preferencesUtil: PreferencesUtil): FeesManager {
-        return FeesManager(preferencesUtil)
-    }
-
-    @Provides
     internal fun coroutineContextProvider(): CoroutineContextProvider {
         return CoroutineContextProvider()
     }

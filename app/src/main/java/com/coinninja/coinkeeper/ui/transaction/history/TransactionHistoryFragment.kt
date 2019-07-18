@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +17,6 @@ import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.ui.base.BaseFragment
-import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.util.CurrencyPreference
@@ -27,9 +25,7 @@ import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.crypto.uri.UriException
 import com.coinninja.coinkeeper.util.currency.USDCurrency
-import com.coinninja.coinkeeper.view.util.AlertDialogBuilder
 import com.coinninja.coinkeeper.view.widget.TransactionEmptyStateView
 import org.greenrobot.greendao.query.LazyList
 import javax.inject.Inject
@@ -56,10 +52,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     internal lateinit var syncManagerViewNotifier: SyncManagerViewNotifier
 
     internal val intentFilter = IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED)
-    internal val paymentBarFragment: PaymentBarFragment?
-        get() {
-            return childFragmentManager.findFragmentByTag("paymentBarFragment") as PaymentBarFragment?
-        }
 
     internal lateinit var transactions: LazyList<TransactionsInvitesSummary>
 
@@ -96,10 +88,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
 
     override fun onStart() {
         super.onStart()
-        creationIntent.data?.let { uri ->
-            launchPayScreenWithBitcoinUriIfNecessary(uri)
-        }
-
         transactions = walletHelper.transactionsLazily
         transactionHistoryDataAdapter.setOnItemClickListener(this)
         transactionHistoryDataAdapter.setTransactions(transactions)
@@ -159,14 +147,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         }
     }
 
-    private fun launchPayScreenWithBitcoinUriIfNecessary(uri: Uri) {
-        try {
-            val bitcoinUri = bitcoinUtil.parse(uri.toString())
-            paymentBarFragment?.showPayDialogWithBitcoinUri(bitcoinUri)
-        } catch (e: UriException) {
-            AlertDialogBuilder.build(context, "Invalid bitcoin request received. Please try again").show()
-        }
-    }
 
     private fun refreshTransactions() {
         transactions.close()
