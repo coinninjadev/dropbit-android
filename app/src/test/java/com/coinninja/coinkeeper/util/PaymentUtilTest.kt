@@ -37,10 +37,8 @@ class PaymentUtilTest {
 
     private val usdCurrency: USDCurrency get() = USDCurrency(2.0)
     private val btcCurrency: BTCCurrency get() = BTCCurrency(1.0)
-    private val validTransactionData: TransactionData = TransactionData(arrayOfNulls(1),
-            10000L, 1000L, 0, mock(), "")
-    private val invalidTransactionData: TransactionData = TransactionData(arrayOfNulls(0),
-                0, 0, 0, mock(), "")
+    private val validTransactionData: TransactionData = TransactionData(arrayOf(mock()), 10000, 100, 500, mock(), "--payment-address--")
+    private val invalidTransactionData: TransactionData = TransactionData(emptyArray())
     private val transactionFee: TransactionFee = TransactionFee(5.0, 10.0, 15.0)
     private val identity: Identity get() = Identity(Contact(PHONE_NUMBER, DISPLAY_NAME, false))
 
@@ -122,7 +120,7 @@ class PaymentUtilTest {
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.slow), any())).thenReturn(validTransactionData)
 
         assertTrue(paymentUtil.checkFunding())
-        assertTrue(paymentUtil.isFunded)
+        assertTrue(paymentUtil.isFunded())
     }
 
     @Test
@@ -359,17 +357,17 @@ class PaymentUtilTest {
 
         validTransactionData.amount = -1
         paymentUtil.paymentHolder!!.transactionData = validTransactionData
-        assertFalse(paymentUtil.isFunded)
+        assertFalse(paymentUtil.isFunded())
 
         validTransactionData.amount = 1
         validTransactionData.feeAmount = -1
         paymentUtil.paymentHolder!!.transactionData = validTransactionData
-        assertFalse(paymentUtil.isFunded)
+        assertFalse(paymentUtil.isFunded())
 
         validTransactionData.feeAmount = 1
         validTransactionData.changeAmount = -1
         paymentUtil.paymentHolder!!.transactionData = validTransactionData
-        assertFalse(paymentUtil.isFunded)
+        assertFalse(paymentUtil.isFunded())
     }
 
     @Test
@@ -393,7 +391,7 @@ class PaymentUtilTest {
 
         paymentUtil.clearFunding()
 
-        assertFalse(paymentUtil.isFunded)
+        assertFalse(paymentUtil.isFunded())
         val transactionData = paymentUtil.paymentHolder!!.transactionData
         assertThat(transactionData.utxos.size, equalTo(0))
         assertThat(transactionData.amount, equalTo(0L))
@@ -412,7 +410,7 @@ class PaymentUtilTest {
         paymentUtil.fundMax()
 
         assertTrue(paymentUtil.isValid)
-        assertTrue(paymentUtil.isFunded)
+        assertTrue(paymentUtil.isFunded())
     }
 
     @Test
@@ -428,7 +426,7 @@ class PaymentUtilTest {
         paymentUtil.checkFunding()
 
         assertTrue(paymentUtil.isValid)
-        assertTrue(paymentUtil.isFunded)
+        assertTrue(paymentUtil.isFunded())
         verify(paymentUtil.transactionFundingManager).buildFundedTransactionData(any(), any())
         verify(paymentUtil.transactionFundingManager, times(0)).buildFundedTransactionData(any(), any(), any())
     }
@@ -436,11 +434,9 @@ class PaymentUtilTest {
     @Test
     fun recalculates_when_address_set() {
         val paymentUtil = createUtil()
-        val txData1 = TransactionData(arrayOfNulls(1),
-                10000L, 1000L, 0, mock(), "")
+        val txData1 = TransactionData(arrayOf(mock()))
 
-        val txData2 = TransactionData(arrayOfNulls(2),
-                10000L, 1500L, 0, mock(), "")
+        val txData2 = TransactionData(arrayOf(mock(), mock()))
 
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(null), any())).thenReturn(txData1)
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(BTC_ADDRESS), any())).thenReturn(txData2)

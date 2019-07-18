@@ -13,28 +13,29 @@ import com.coinninja.coinkeeper.util.currency.USDCurrency
 import javax.inject.Inject
 
 @Mockable
-class PaymentUtil @Inject constructor(@ApplicationContext internal val context: Context,
-            internal val bitcoinUtil: BitcoinUtil,
-            internal val transactionFundingManager: TransactionFundingManager) {
+class PaymentUtil @Inject constructor(
+        @ApplicationContext internal val context: Context,
+        internal val bitcoinUtil: BitcoinUtil,
+        internal val transactionFundingManager: TransactionFundingManager) {
 
 
     internal var fee: Double = 0.0
     internal var address: String? = null
     internal var identity: Identity? = null
+
     var paymentMethod: PaymentMethod? = null
     var errorMessage: String? = null
     var paymentHolder: PaymentHolder? = null
     var isSendingMax = false
 
-    val isValid: Boolean
-        get() = isValidPaymentMethod && isValidPaymentAmount
+    val isValid: Boolean get() = isValidPaymentMethod && isValidPaymentAmount
 
-    val isFunded: Boolean
-        get() {
-            val spendableBalance = paymentHolder!!.spendableBalance
-            val transactionData = paymentHolder!!.transactionData
+    fun isFunded(): Boolean {
+        paymentHolder?.let { holder ->
+            val spendableBalance = holder.spendableBalance
+            val transactionData = holder.transactionData
             val funded = isValidFunding && transactionData.utxos.isNotEmpty() && transactionData.amount > 0
-            val total = paymentHolder!!.btcCurrency.toFormattedCurrency()
+            val total = holder.btcCurrency.toFormattedCurrency()
 
             if (!funded) {
                 val builder = StringBuilder()
@@ -51,9 +52,10 @@ class PaymentUtil @Inject constructor(@ApplicationContext internal val context: 
                 builder.append(spendableBalance.toUSD(paymentHolder!!.evaluationCurrency).toFormattedCurrency())
                 errorMessage = builder.toString()
             }
-
             return funded
         }
+        return false
+    }
 
     val isVerifiedContact: Boolean
         get() = getIdentity()!!.isVerified
@@ -127,7 +129,7 @@ class PaymentUtil @Inject constructor(@ApplicationContext internal val context: 
         isSendingMax = true
         val transactionData = transactionFundingManager.buildFundedTransactionData(address, fee)
         paymentHolder!!.transactionData = transactionData
-        return isFunded
+        return isFunded()
     }
 
     fun clearFunding() {
@@ -144,7 +146,7 @@ class PaymentUtil @Inject constructor(@ApplicationContext internal val context: 
                             ?: 0)
             paymentHolder!!.transactionData = transactionData
         }
-        return isFunded
+        return isFunded()
     }
 
     fun isTransactionFundableWithFee(fee: Double?, amountToSend: Long): Boolean {
@@ -166,10 +168,10 @@ class PaymentUtil @Inject constructor(@ApplicationContext internal val context: 
     private fun setPaymentMethod() {
         if (null != address) {
             paymentMethod = PaymentMethod.ADDRESS
-            paymentHolder!!.paymentAddress = address
-        } else if (null != identity && identity!!.isVerified) {
+            paymentHolder?.paymentAddress = address
+        } else if (identity != null && identity?.isVerified == true) {
             paymentMethod = PaymentMethod.VERIFIED_CONTACT
-        } else if (null != identity && !identity!!.isVerified) {
+        } else if (identity != null && identity?.isVerified == false) {
             paymentMethod = PaymentMethod.INVITE
         } else {
             errorMessage = getString(R.string.pay_error_add_valid_bitcoin_address)

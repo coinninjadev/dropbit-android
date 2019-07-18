@@ -209,7 +209,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
 
     public void onFetchContactComplete(AddressLookupResult addressLookupResult) {
         paymentHolder.setPublicKey(addressLookupResult.getAddressPubKey());
-        paymentHolder.setPaymentAddress(addressLookupResult.getAddress());
+        paymentHolder.setPaymentAddress(addressLookupResult.getAddress() == null ? "" : addressLookupResult.getAddress());
         updateSharedMemosUI();
     }
 

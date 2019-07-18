@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.cn.transaction.notification
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.bindings.DerivationPath
 import com.coinninja.bindings.TransactionData
-import com.coinninja.bindings.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
@@ -71,7 +70,7 @@ class TransactionNotificationMapperTest {
     fun `converts V2 messages to TransactionNotifications -- TWITTER`() {
         val mapper = setUpMapper()
         val fromUser = mock(UserIdentity::class.java)
- //       whenever(fromUser.handle).thenReturn("aliceandbob")
+        //       whenever(fromUser.handle).thenReturn("aliceandbob")
         val twitterIdentity = mock(DropbitMeIdentity::class.java)
         val toUser = mock(UserIdentity::class.java)
         val transactionNotification = mock(TransactionNotification::class.java)
@@ -141,13 +140,12 @@ class TransactionNotificationMapperTest {
     @Test
     fun `clears memo when not shared -- Transaction`() {
         val mapper = setUpMapper()
-        val outputs = arrayOfNulls<UnspentTransactionOutput>(0)
         val toUser = Identity(identityType = IdentityType.TWITTER,
                 value = "12345321",
                 displayName = "Mr. Anderson",
                 handle = "neo")
         val transactionData = TransactionData(
-                outputs,
+                emptyArray(),
                 10000000L,
                 100L,
                 400000L,
@@ -183,13 +181,12 @@ class TransactionNotificationMapperTest {
     @Test
     fun `test to V2 from completed broadcast`() {
         val mapper = setUpMapper()
-        val outputs = arrayOfNulls<UnspentTransactionOutput>(0)
         val toUser = Identity(identityType = IdentityType.TWITTER,
                 value = "12345321",
                 displayName = "Mr. Anderson",
                 handle = "neo")
         val transactionData = TransactionData(
-                outputs,
+                emptyArray(),
                 10000000L,
                 100L,
                 400000L,

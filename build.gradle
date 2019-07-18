@@ -79,7 +79,7 @@ allprojects {
     apply plugin: 'kotlin-allopen'
 
     allOpen {
-        annotation('app.dropbit.annotations.Mockable')
+        annotations("app.dropbit.annotations.Mockable", "app.coinninja.annotations.Mockable")
     }
 }
 
