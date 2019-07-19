@@ -4,18 +4,22 @@ import app.dropbit.annotations.Mockable
 import app.dropbit.twitter.Twitter
 import app.dropbit.twitter.model.TwitterUser
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope
+import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Mockable
 @CoinkeeperApplicationScope
-class MyTwitterProfile @Inject constructor(val twitter: Twitter) {
+class MyTwitterProfile @Inject constructor(
+        internal val twitter: Twitter,
+        internal val dropbitAccountHelper: DropbitAccountHelper
+) {
 
     internal var myUser: TwitterUser? = null
 
     suspend fun loadMyProfile(): TwitterUser? {
-        if (twitter.hasTwitterEnabled) {
+        if (twitter.hasTwitterEnabled && dropbitAccountHelper.isTwitterVerified) {
             withContext(Dispatchers.IO) {
                 if (myUser == null) {
                     myUser = twitter.me()
