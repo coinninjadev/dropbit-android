@@ -49,6 +49,7 @@ class PhoneIdentityFragment : BaseIdentityFragment() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED -> {
+                    analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false)
                     configureNotVerified()
                     activity?.let {
                         if (it is UserAccountVerificationActivity) {
@@ -80,7 +81,6 @@ class PhoneIdentityFragment : BaseIdentityFragment() {
     }
 
     override fun onDeVerify() {
-        analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false)
         localBroadCastUtil.registerReceiver(receiver, intentFilter)
         serviceWorkUtil.deVerifyPhoneNumber()
     }

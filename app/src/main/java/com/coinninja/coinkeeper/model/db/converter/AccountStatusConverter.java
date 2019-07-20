@@ -12,7 +12,7 @@ public class AccountStatusConverter implements PropertyConverter<AccountStatus, 
         }
 
         for (AccountStatus status : AccountStatus.values()) {
-            if (status.id == databaseValue) {
+            if (status.getId() == databaseValue) {
                 return status;
             }
         }
@@ -22,6 +22,6 @@ public class AccountStatusConverter implements PropertyConverter<AccountStatus, 
 
     @Override
     public Integer convertToDatabaseValue(AccountStatus status) {
-        return status == null ? null : status.id;
+        return status == null ? null : status.getId();
     }
 }

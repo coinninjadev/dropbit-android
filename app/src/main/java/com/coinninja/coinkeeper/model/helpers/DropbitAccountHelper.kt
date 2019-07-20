@@ -154,11 +154,6 @@ internal constructor(internal val daoSessionManager: DaoSessionManager,
         }
     }
 
-    fun identityWithServerId(id: String): DropbitMeIdentity? {
-        return daoSessionManager.dropbitMeIdentityDao.queryBuilder()
-                .where(DropbitMeIdentityDao.Properties.ServerId.eq(id)).unique()
-    }
-
     fun profileForIdentity(toUser: UserIdentity): DropbitMeIdentity? {
         if (toUser.type == IdentityType.PHONE && isPhoneVerified) {
             return phoneIdentity()
