@@ -49,14 +49,20 @@ class TwitterIdentityFragment : BaseIdentityFragment() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 DropbitIntents.ACTION_DEVERIFY_TWITTER_COMPLETED -> {
-                    configureNotVerified()
-                    activity?.let {
-                        if (it is UserAccountVerificationActivity) {
-                            it.invalidateCacheView()
-                        }
-                    }
+                    onDeVerificationCompleted()
                 }
                 DropbitIntents.ACTION_DEVERIFY_TWITTER_FAILED -> Toast.makeText(context, getString(R.string.deverification_twitter_failed), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun onDeVerificationCompleted() {
+        configureNotVerified()
+        analytics.setUserProperty(Analytics.PROPERTY_TWITTER_VERIFIED, false);
+        myTwitterProfile.clear()
+        activity?.let { it ->
+            if (it is UserAccountVerificationActivity) {
+                it.invalidateCacheView()
             }
         }
     }
@@ -86,15 +92,8 @@ class TwitterIdentityFragment : BaseIdentityFragment() {
     }
 
     override fun onDeVerify() {
-        analytics.setUserProperty(Analytics.PROPERTY_TWITTER_VERIFIED, false);
         localBroadCastUtil.registerReceiver(receiver, intentFilter)
         serviceWorkUtil.deVerifyTwitter()
-        myTwitterProfile.clear()
-        activity?.let { it ->
-            if (it is UserAccountVerificationActivity) {
-                it.invalidateCacheView()
-            }
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
