@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
@@ -28,6 +30,7 @@ import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
+import com.coinninja.coinkeeper.service.client.model.MerchantResponse;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
@@ -62,6 +65,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowAlertDialog;
+import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowToast;
 
 import java.util.ArrayList;
@@ -70,6 +75,7 @@ import java.util.Locale;
 
 import dagger.Module;
 import dagger.Provides;
+import retrofit2.Call;
 
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static com.coinninja.android.helpers.Views.clickOn;
@@ -92,7 +98,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
-
 
 
 @RunWith(AndroidJUnit4.class)
@@ -724,6 +729,17 @@ public class PayDialogFragmentTest {
         assertThat(paymentHolder.getTransactionData().getAmount(), equalTo(0L));
         assertThat(paymentHolder.getTransactionData().getUtxos().length, equalTo(0));
         assertFalse(paymentUtil.isFunded());
+    }
+
+    @Test
+    public void shows_invalid_btc_address_when_pasting_dropbitme_url_in_payment_request() {
+        start();
+
+        dialog.bip70Callback.onFailure(mock(Call.class), new RuntimeException("garbage"));
+
+        String errorMessage = ShadowToast.getTextOfLatestToast();
+
+        assertThat(errorMessage, equalTo(dialog.getString(R.string.invalid_bitcoin_address_error)));
     }
 
     private void start() {

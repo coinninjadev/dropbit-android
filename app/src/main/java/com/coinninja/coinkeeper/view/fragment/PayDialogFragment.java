@@ -317,7 +317,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
             @Override
             public void failure(String message) {
                 commonCompletion();
-                AlertDialogBuilder.build(getView().getContext(), message).show();
+                showPasteAttemptFail(getString(R.string.invalid_bitcoin_address_error));
             }
 
             private void commonCompletion() {
