@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.Identity;
-import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
@@ -28,7 +27,6 @@ import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
-import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
@@ -922,6 +920,7 @@ public class TransactionHelper {
         transactionSummary.setWallet(walletHelper.getWallet());
         transactionSummary.setMemPoolState(MemPoolState.PENDING);
         transactionSummary.setNumConfirmations(0);
+        transactionSummary.setTxTime(dateUtil.getCurrentTimeInMillis());
 
         daoSessionManager.insert(transactionSummary);
 
