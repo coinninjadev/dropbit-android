@@ -30,7 +30,6 @@ class TransactionInviteSummaryHelperTest {
         verify(transactionsInvitesSummary).transactionSummary = transactionSummary
         verify(transactionInviteSummaryHelper.daoSessionManager).insert(transactionsInvitesSummary)
         verify(summary).btcTxTime = now
-
         // check order
         orderedOperation.verify(transactionInviteSummaryHelper.daoSessionManager).newTransactionInviteSummary()
         orderedOperation.verify(transactionsInvitesSummary).transactionSummary = transactionSummary
@@ -38,5 +37,4 @@ class TransactionInviteSummaryHelperTest {
 
         assertThat(summary).isNotNull()
     }
-
 }

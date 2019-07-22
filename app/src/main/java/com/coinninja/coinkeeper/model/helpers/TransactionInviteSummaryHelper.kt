@@ -22,6 +22,5 @@ class TransactionInviteSummaryHelper @Inject internal constructor(
                             daoSessionManager.insert(it)
                         }
 
-
     }
 }
