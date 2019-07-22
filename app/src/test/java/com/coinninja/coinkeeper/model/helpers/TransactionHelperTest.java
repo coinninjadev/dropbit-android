@@ -64,7 +64,6 @@ public class TransactionHelperTest {
 
     private static final String SENDER_PHONE_STRING = "13305550000";
     private static final String RECEIVER_PHONE_STRING = "13305551111";
-    private static final int COUNTRY_CODE = 1;
 
     @Mock
     private WalletHelper walletHelper;
