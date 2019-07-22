@@ -61,15 +61,17 @@ class FullSyncWalletRunnerTest {
 
         inOrder.verify(runner.accountDeverificationServiceRunner).run()
         inOrder.verify(runner.walletRegistrationRunner).run()
-        inOrder.verify(runner.dropBitMeServiceManager).syncIdentities()
         inOrder.verify(runner.currentBTCStateRunner).run()
-        inOrder.verify(runner.syncRunnable).run()
-        inOrder.verify(runner.transactionConfirmationUpdateRunner).run()
+        inOrder.verify(runner.dropBitMeServiceManager).syncIdentities()
+
         inOrder.verify(runner.syncIncomingInvitesRunner).run()
-        inOrder.verify(runner.fulfillSentInvitesRunner).run()
         inOrder.verify(runner.receivedInvitesStatusRunner).run()
         inOrder.verify(runner.negativeBalanceRunner).run()
+        inOrder.verify(runner.fulfillSentInvitesRunner).run()
         inOrder.verify(runner.remoteAddressCache).cacheAddresses()
+
+        inOrder.verify(runner.syncRunnable).run()
+        inOrder.verify(runner.transactionConfirmationUpdateRunner).run()
         inOrder.verify(runner.failedBroadcastCleaner).run()
         inOrder.verify(runner.cnWalletManager).updateBalances()
         inOrder.verify(runner.localBroadCastUtil).sendGlobalBroadcast(

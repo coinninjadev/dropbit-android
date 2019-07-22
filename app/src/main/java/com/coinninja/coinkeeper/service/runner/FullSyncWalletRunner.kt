@@ -36,11 +36,17 @@ internal constructor(internal val cnWalletManager: CNWalletManager,
             return
 
         try {
-            syncTransactions()
-            if (dropbitAccountHelper.hasVerifiedAccount) {
-                syncDropbits()
-            }
-            updateWallet()
+            accountDeverificationServiceRunner.run()
+            walletRegistrationRunner.run()
+            currentBTCStateRunner.run()
+            dropBitMeServiceManager.syncIdentities()
+
+            syncDropbits()
+
+            syncRunnable.run()
+            transactionConfirmationUpdateRunner.run()
+            failedBroadcastCleaner.run()
+            cnWalletManager.updateBalances()
         } catch (e: DaoException) {
             e.printStackTrace()
         }
@@ -49,27 +55,13 @@ internal constructor(internal val cnWalletManager: CNWalletManager,
                 DropbitIntents.ACTION_WALLET_SYNC_COMPLETE)
     }
 
-    private fun syncTransactions() {
-        accountDeverificationServiceRunner.run()
-        walletRegistrationRunner.run()
-        dropBitMeServiceManager.syncIdentities()
-        currentBTCStateRunner.run()
-        syncRunnable.run()
-        transactionConfirmationUpdateRunner.run()
-    }
-
     private fun syncDropbits() {
         if (!dropbitAccountHelper.hasVerifiedAccount) return
 
         syncIncomingInvitesRunner.run()
-        fulfillSentInvitesRunner.run()
         receivedInvitesStatusRunner.run()
         negativeBalanceRunner.run()
+        fulfillSentInvitesRunner.run()
         remoteAddressCache.cacheAddresses()
-    }
-
-    private fun updateWallet() {
-        failedBroadcastCleaner.run()
-        cnWalletManager.updateBalances()
     }
 }
