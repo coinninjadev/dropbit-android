@@ -35,7 +35,6 @@ import com.coinninja.coinkeeper.service.client.model.VIn;
 import com.coinninja.coinkeeper.service.client.model.VOut;
 import com.coinninja.coinkeeper.util.DateUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -425,21 +424,6 @@ public class TransactionHelper {
 
     }
 
-    public List<TransactionsInvitesSummary> getAllCanceledDropbits() {
-        List<InviteTransactionSummary> dropbits = daoSessionManager.getInviteTransactionSummaryDao()
-                .queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.CANCELED.getId()))
-                .list();
-        return getTransactionsInvitesSummaries(dropbits);
-    }
-
-    public List<TransactionsInvitesSummary> getAllExpiredDropbits() {
-        List<InviteTransactionSummary> dropbits = daoSessionManager.getInviteTransactionSummaryDao()
-                .queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.EXPIRED.getId()))
-                .list();
-        return getTransactionsInvitesSummaries(dropbits);
-    }
 
     public List<InviteTransactionSummary> getAllUnfulfilledDropbits() {
         return daoSessionManager.getInviteTransactionSummaryDao()
@@ -582,7 +566,7 @@ public class TransactionHelper {
         }
 
         String blockHash = detail.getBlockhash();
-        if (transactionIsInABlock(blockHash)) {
+        if (transaction.isInBlock()) {
             transaction.setMemPoolState(MemPoolState.MINED);
         }
         transaction.setBlockhash(blockHash);
@@ -894,25 +878,6 @@ public class TransactionHelper {
         transactionsInvitesSummary.refresh();
     }
 
-    private boolean transactionIsInABlock(String blockHash) {
-        return blockHash != null && !blockHash.isEmpty();
-    }
-
-    @NonNull
-    private List<TransactionsInvitesSummary> getTransactionsInvitesSummaries(List<InviteTransactionSummary> dropbits) {
-        List<TransactionsInvitesSummary> summaries = new ArrayList<>();
-        for (InviteTransactionSummary summary : dropbits) {
-            TransactionsInvitesSummary transactionInviteSummary = getTransactionInviteSummaryFor(summary);
-            if (null != transactionInviteSummary) {
-                summaries.add(transactionInviteSummary);
-            }
-        }
-        return summaries;
-    }
-
-    private TransactionsInvitesSummary getTransactionInviteSummaryFor(InviteTransactionSummary summary) {
-        return daoSessionManager.getTransactionsInvitesSummaryDao().queryBuilder().where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(summary.getId())).limit(1).unique();
-    }
 
     private TransactionSummary createInitialTransaction(String transactionId, Identity identity) {
         TransactionSummary transactionSummary = daoSessionManager.newTransactionSummary();

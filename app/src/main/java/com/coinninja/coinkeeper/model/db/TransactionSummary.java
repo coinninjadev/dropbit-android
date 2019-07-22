@@ -67,6 +67,11 @@ public class TransactionSummary {
     private MemPoolState memPoolState;
 
     @Keep
+    public boolean isInBlock() {
+        return getBlockhash() != null && !getBlockhash().isEmpty();
+    }
+
+    @Keep
     public boolean isReplaceable() {
         return getNumConfirmations() < REQUIRED_CONFIRMATIONS;
     }

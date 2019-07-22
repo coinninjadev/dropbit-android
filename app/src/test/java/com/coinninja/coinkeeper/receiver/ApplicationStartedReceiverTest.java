@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.receiver;
 import android.content.Intent;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.service.DropbitServicePatchService;
 import com.coinninja.coinkeeper.service.PushNotificationEndpointRegistrationService;
 
 import org.junit.After;
@@ -56,21 +55,6 @@ public class ApplicationStartedReceiverTest {
                 eq(100), captor.capture());
         Intent intent = captor.getValue();
         assertThat(intent.getComponent().getClassName(), equalTo(PushNotificationEndpointRegistrationService.class.getName()));
-    }
-
-    @Test
-    public void runs_dropbit_state_patch() {
-        when(application.cnWalletManager.hasWallet()).thenReturn(true);
-        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
-
-        appStartedReceiver.onReceive(application, null);
-
-        verify(application.jobServiceScheduler).enqueueWork(eq(application),
-                eq(DropbitServicePatchService.class),
-                eq(103), captor.capture());
-        Intent intent = captor.getValue();
-        assertThat(intent.getComponent().getClassName(), equalTo(DropbitServicePatchService.class.getName()));
-
     }
 
     @Test

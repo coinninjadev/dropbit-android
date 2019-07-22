@@ -21,5 +21,15 @@ public class TransactionSummaryTest {
         assertFalse(transactionSummary.isReplaceable());
     }
 
+    @Test
+    public void false_when_not_in_a_block() {
+        TransactionSummary transactionSummary = new TransactionSummary();
+        assertFalse(transactionSummary.isInBlock());
 
+        transactionSummary.setBlockhash("--block-hash--");
+
+        assertTrue(transactionSummary.isInBlock());
+
+
+    }
 }
