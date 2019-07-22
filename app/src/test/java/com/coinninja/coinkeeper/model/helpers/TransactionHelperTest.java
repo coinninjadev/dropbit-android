@@ -925,6 +925,7 @@ public class TransactionHelperTest {
         verify(transaction).setTxid(txid);
         verify(transaction).setMemPoolState(MemPoolState.PENDING);
         verify(transaction).setNumConfirmations(0);
+        verify(transaction).setTxTime(currentTimeInMillsec);
         verify(daoSessionManager).insert(transaction);
 
         assertThat(summary, equalTo(transaction));
@@ -944,6 +945,7 @@ public class TransactionHelperTest {
         verify(transaction).setTxid(txid);
         verify(transaction).setMemPoolState(MemPoolState.PENDING);
         verify(transaction).setNumConfirmations(0);
+        verify(transaction).setTxTime(currentTimeInMillsec);
         verify(daoSessionManager).insert(transaction);
 
         assertThat(summary, equalTo(transaction));
@@ -951,8 +953,6 @@ public class TransactionHelperTest {
 
     @Test
     public void records_contact_name_and_number_to_give_transaction() {
-        long now = System.currentTimeMillis();
-        when(dateUtil.getCurrentTimeInMillis()).thenReturn(now);
         when(transactionInviteSummaryHelper.getOrCreateTransactionInviteSummaryFor(transaction)).thenReturn(transactionsInvitesSummary);
         TransactionData transactionData = mock(TransactionData.class);
         String toName = "Joe Smoe";
@@ -979,6 +979,7 @@ public class TransactionHelperTest {
         verify(transaction).setTxid(txid);
         verify(transaction).setMemPoolState(MemPoolState.PENDING);
         verify(transaction).setNumConfirmations(0);
+        verify(transaction).setTxTime(currentTimeInMillsec);
         verify(daoSessionManager).insert(transaction);
         verify(transactionsInvitesSummary).update();
         verify(transactionsInvitesSummary).setToUser(toUser);
