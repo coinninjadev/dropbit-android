@@ -17,6 +17,8 @@ class TransactionInviteSummaryHelperTest {
         val transactionSummary: TransactionSummary = mock()
         val transactionsInvitesSummary: TransactionsInvitesSummary = mock()
         val transactionInviteSummaryHelper = TransactionInviteSummaryHelper(mock(), mock())
+        val now = System.currentTimeMillis()
+        whenever(transactionSummary.txTime).thenReturn(now)
         whenever(transactionInviteSummaryHelper.transactionInviteSummaryQueryManager.getTransactionInviteSummaryByTransactionSummary(transactionSummary)).thenReturn(null)
         whenever(transactionInviteSummaryHelper.daoSessionManager.newTransactionInviteSummary()).thenReturn(transactionsInvitesSummary)
 
@@ -27,6 +29,7 @@ class TransactionInviteSummaryHelperTest {
         // check values
         verify(transactionsInvitesSummary).transactionSummary = transactionSummary
         verify(transactionInviteSummaryHelper.daoSessionManager).insert(transactionsInvitesSummary)
+        verify(summary).btcTxTime = now
 
         // check order
         orderedOperation.verify(transactionInviteSummaryHelper.daoSessionManager).newTransactionInviteSummary()
@@ -35,6 +38,5 @@ class TransactionInviteSummaryHelperTest {
 
         assertThat(summary).isNotNull()
     }
-
 
 }

@@ -14,17 +14,14 @@ class TransactionInviteSummaryHelper @Inject internal constructor(
 
 
     fun getOrCreateTransactionInviteSummaryFor(transaction: TransactionSummary): TransactionsInvitesSummary {
-        var summary: TransactionsInvitesSummary? =
-                transactionInviteSummaryQueryManager
+        return transactionInviteSummaryQueryManager
                         .getTransactionInviteSummaryByTransactionSummary(transaction)
+                        ?: daoSessionManager.newTransactionInviteSummary().also {
+                            it.transactionSummary = transaction
+                            it.btcTxTime = transaction.txTime
+                            daoSessionManager.insert(it)
+                        }
 
-        return if (summary == null) {
-            summary = daoSessionManager.newTransactionInviteSummary()
-            summary.transactionSummary = transaction
-            daoSessionManager.insert(summary)
-            summary
-        } else {
-            summary
-        }
+
     }
 }
