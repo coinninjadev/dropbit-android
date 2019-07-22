@@ -75,9 +75,6 @@ public class CNWalletManagerTest {
     private MyTwitterProfile myTwitterProfile;
 
     @Mock
-    private TransactionHelper transactionHelper;
-
-    @Mock
     private InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
 
     @Mock
@@ -314,6 +311,7 @@ public class CNWalletManagerTest {
         verify(analytics).setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
         verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
         verify(analytics).setUserProperty(Analytics.PROPERTY_TWITTER_VERIFIED, false);
+        verify(myTwitterProfile).clear();
         verify(analytics).flush();
     }
 

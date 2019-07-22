@@ -28,28 +28,24 @@ import javax.inject.Inject;
 public class CNWalletManager {
 
     static final String PREFERENCE_SKIPPED_BACKUP = "preference_skipped_backup";
-    private final ServiceWorkUtil serviceWorkUtil;
     private final AccountManager accountManager;
     private final DateUtil dateUtil;
     private final Analytics analytics;
     private WalletHelper walletHelper;
-    private TransactionHelper transactionHelper;
     private BitcoinUtil bitcoinUtil;
     private PreferencesUtil preferencesUtil;
     private SeedWordGenerator seedWordGenerator;
     private final InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
     private LocalBroadCastUtil localBroadCastUtil;
-    private PhoneNumberUtil phoneNumberUtil;
     private MyTwitterProfile myTwitterProfile;
 
     @Inject
     public CNWalletManager(WalletHelper walletHelper, BitcoinUtil bitcoinUtil, AccountManager accountManager,
-                           PreferencesUtil preferencesUtil, SeedWordGenerator seedWordGenerator, TransactionHelper transactionHelper,
+                           PreferencesUtil preferencesUtil, SeedWordGenerator seedWordGenerator,
                            InviteTransactionSummaryHelper inviteTransactionSummaryHelper, LocalBroadCastUtil localBroadCastUtil,
-                           DateUtil dateUtil, Analytics analytics, PhoneNumberUtil phoneNumberUtil,
-                           MyTwitterProfile myTwitterProfile, ServiceWorkUtil serviceWorkUtil) {
+                           DateUtil dateUtil, Analytics analytics, MyTwitterProfile myTwitterProfile
+    ) {
         this.walletHelper = walletHelper;
-        this.transactionHelper = transactionHelper;
         this.bitcoinUtil = bitcoinUtil;
         this.accountManager = accountManager;
         this.preferencesUtil = preferencesUtil;
@@ -58,9 +54,7 @@ public class CNWalletManager {
         this.localBroadCastUtil = localBroadCastUtil;
         this.dateUtil = dateUtil;
         this.analytics = analytics;
-        this.phoneNumberUtil = phoneNumberUtil;
         this.myTwitterProfile = myTwitterProfile;
-        this.serviceWorkUtil = serviceWorkUtil;
     }
 
     public static int calcConfirmations(int currentBlockHeight, int transactionBlock) {

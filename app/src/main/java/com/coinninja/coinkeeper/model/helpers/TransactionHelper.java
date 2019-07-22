@@ -413,15 +413,6 @@ public class TransactionHelper {
 
     }
 
-
-    private List<InviteTransactionSummary> getAllUnfulfilledDropbits() {
-        return daoSessionManager.getInviteTransactionSummaryDao()
-                .queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
-                .list();
-    }
-
-
     public TransactionSummary createInitialTransaction(String txid) {
         return createInitialTransaction(txid, null);
     }
