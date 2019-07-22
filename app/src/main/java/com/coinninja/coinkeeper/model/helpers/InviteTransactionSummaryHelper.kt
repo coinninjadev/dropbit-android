@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.model.helpers
 import app.dropbit.annotations.Mockable
 import com.coinninja.bindings.TransactionBroadcastResult
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
-import com.coinninja.coinkeeper.model.db.InviteTransactionSummaryDao
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.BTCState.UNACKNOWLEDGED
@@ -28,28 +27,12 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
             internal val dateUtil: DateUtil
 ) {
 
-    val allUnacknowledgedInvitations: List<InviteTransactionSummary>
-        get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder().where(InviteTransactionSummaryDao.Properties.BtcState.eq(UNACKNOWLEDGED.id)).list()
-
-    val unfulfilledSentInvites: List<InviteTransactionSummary>
-        get() {
-            val inviteTransactionSummaryQueryBuilder = daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
-            return inviteTransactionSummaryQueryBuilder
-                    .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.id),
-                            InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.id))
-                    .list()
-
-        }
+    val allUnacknowledgedInvitations: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.allUnacknowledgedInvitations
+    val unfulfilledSentInvites: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.unfulfilledSentInvites
 
     internal fun getOrCreateInviteSummaryWithServerId(cnId: String): TransactionsInvitesSummary {
         val inviteTransactionSummary = inviteSummaryQueryManager.getInviteSummaryByCnId(cnId)
                 ?: return createInviteTransactionSummaryWithParent(cnId)
-        return inviteTransactionSummary.transactionsInvitesSummary
-    }
-
-    internal fun getInviteSummaryWithServerId(cnId: String): TransactionsInvitesSummary? {
-        val inviteTransactionSummary = inviteSummaryQueryManager.getInviteSummaryByCnId(cnId)
-                ?: return null
         return inviteTransactionSummary.transactionsInvitesSummary
     }
 

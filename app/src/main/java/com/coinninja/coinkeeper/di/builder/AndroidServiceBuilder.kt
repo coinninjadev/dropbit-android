@@ -41,9 +41,6 @@ abstract class AndroidServiceBuilder {
     internal abstract fun cnGlobalMessagingService(): CNGlobalMessagingService
 
     @ContributesAndroidInjector
-    internal abstract fun dropbitServicePatchService(): DropbitServicePatchService
-
-    @ContributesAndroidInjector
     internal abstract fun blockChainService(): BlockChainService
 
     @ContributesAndroidInjector
