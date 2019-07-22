@@ -80,7 +80,7 @@ public class TransactionHelper {
     public List<TransactionSummary> getTransactionsWithoutHistoricPricing() {
         TransactionSummaryDao dao = getTransactionDao();
         return dao.queryBuilder()
-                .where(Properties.HistoricPrice.eq(0l)
+                .where(Properties.HistoricPrice.eq(0L)
                 ).list();
     }
 
@@ -106,6 +106,7 @@ public class TransactionHelper {
         return dao.queryBuilder().where(Properties.Fee.eq(0L)).list();
     }
 
+    @SuppressWarnings("UnnecessaryContinue")
     public void updateTransactions(List<TransactionDetail> fetchedTransactions, int currentBlockHeight) {
         for (TransactionDetail detail : fetchedTransactions) {
             TransactionSummary transaction = getTransactionDao().queryBuilder().
@@ -161,7 +162,7 @@ public class TransactionHelper {
                 receivedInvite.getTxid());
     }
 
-    public void addInviteToTransInvitesSummary(InviteTransactionSummary invite) {
+    void addInviteToTransInvitesSummary(InviteTransactionSummary invite) {
         TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
 
         TransactionsInvitesSummary transactionsInvitesSummary = transInvitesDao.queryBuilder().
@@ -382,17 +383,6 @@ public class TransactionHelper {
         transaction.refresh();
     }
 
-    public List<InviteTransactionSummary> gatherPendingInviteTrans() {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        return inviteDao.queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.getId()))
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
-                .list();
-
-
-    }
-
     public String markTransactionSummaryAsFailedToBroadcast(String txid) {
         TransactionSummary transaction = getTransactionDao().queryBuilder().
                 where(Properties.Txid.eq(txid)).
@@ -424,21 +414,13 @@ public class TransactionHelper {
     }
 
 
-    public List<InviteTransactionSummary> getAllUnfulfilledDropbits() {
+    private List<InviteTransactionSummary> getAllUnfulfilledDropbits() {
         return daoSessionManager.getInviteTransactionSummaryDao()
                 .queryBuilder()
                 .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
                 .list();
     }
 
-    public void cancelPendingSentInvites() {
-        for (InviteTransactionSummary summary : getAllUnfulfilledDropbits()) {
-            if (Type.SENT == summary.getType()) {
-                summary.setBtcState(BTCState.CANCELED);
-                summary.update();
-            }
-        }
-    }
 
     public TransactionSummary createInitialTransaction(String txid) {
         return createInitialTransaction(txid, null);

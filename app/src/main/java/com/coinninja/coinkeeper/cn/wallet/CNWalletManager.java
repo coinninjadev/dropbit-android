@@ -5,6 +5,7 @@ import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.Wallet;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver;
@@ -28,22 +29,24 @@ public class CNWalletManager {
 
     static final String PREFERENCE_SKIPPED_BACKUP = "preference_skipped_backup";
     private final ServiceWorkUtil serviceWorkUtil;
+    private final AccountManager accountManager;
+    private final DateUtil dateUtil;
+    private final Analytics analytics;
     private WalletHelper walletHelper;
     private TransactionHelper transactionHelper;
     private BitcoinUtil bitcoinUtil;
-    private final AccountManager accountManager;
     private PreferencesUtil preferencesUtil;
     private SeedWordGenerator seedWordGenerator;
+    private final InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
     private LocalBroadCastUtil localBroadCastUtil;
-    private final DateUtil dateUtil;
-    private final Analytics analytics;
     private PhoneNumberUtil phoneNumberUtil;
     private MyTwitterProfile myTwitterProfile;
 
     @Inject
     public CNWalletManager(WalletHelper walletHelper, BitcoinUtil bitcoinUtil, AccountManager accountManager,
                            PreferencesUtil preferencesUtil, SeedWordGenerator seedWordGenerator, TransactionHelper transactionHelper,
-                           LocalBroadCastUtil localBroadCastUtil, DateUtil dateUtil, Analytics analytics, PhoneNumberUtil phoneNumberUtil,
+                           InviteTransactionSummaryHelper inviteTransactionSummaryHelper, LocalBroadCastUtil localBroadCastUtil,
+                           DateUtil dateUtil, Analytics analytics, PhoneNumberUtil phoneNumberUtil,
                            MyTwitterProfile myTwitterProfile, ServiceWorkUtil serviceWorkUtil) {
         this.walletHelper = walletHelper;
         this.transactionHelper = transactionHelper;
@@ -51,6 +54,7 @@ public class CNWalletManager {
         this.accountManager = accountManager;
         this.preferencesUtil = preferencesUtil;
         this.seedWordGenerator = seedWordGenerator;
+        this.inviteTransactionSummaryHelper = inviteTransactionSummaryHelper;
         this.localBroadCastUtil = localBroadCastUtil;
         this.dateUtil = dateUtil;
         this.analytics = analytics;
@@ -74,22 +78,6 @@ public class CNWalletManager {
     public Account updateAccount(CNUserAccount userAccount) {
         walletHelper.saveAccountRegistration(userAccount);
         return getAccount();
-    }
-
-    boolean saveSeedWords(String[] recoveryWords) {
-        boolean savedSuccessfully;
-        if (!isValid(recoveryWords)) {
-            savedSuccessfully = false;
-        } else if (isAlreadySaved(recoveryWords)) {
-            savedSuccessfully = true;
-        } else {
-            walletHelper.saveWords(recoveryWords);
-            accountManager.cacheAddresses();
-            localBroadCastUtil.sendGlobalBroadcast(WalletCreatedBroadCastReceiver.class, DropbitIntents.ACTION_WALLET_CREATED);
-            savedSuccessfully = true;
-        }
-
-        return savedSuccessfully;
     }
 
     public String[] getRecoveryWords() {
@@ -117,24 +105,6 @@ public class CNWalletManager {
 
     public boolean hasWallet() {
         return walletHelper.getSeedWords() != null && walletHelper.getSeedWords().length == 12;
-    }
-
-    private boolean isAlreadySaved(String[] recoveryWords) {
-        if (!hasWallet()) return false;
-
-        List<String> words = Arrays.asList(recoveryWords);
-
-        String[] savedSeedWords = walletHelper.getSeedWords();
-
-        if (words.containsAll(Arrays.asList(savedSeedWords))) {
-            return true;
-        } else {
-            throw new RuntimeException("There are words already saved but do not match the words you are currently trying to save");
-        }
-    }
-
-    private boolean isValid(String[] recoveryWords) {
-        return bitcoinUtil.isValidBIP39Words(recoveryWords);
     }
 
     public String[] generateRecoveryWords() {
@@ -168,11 +138,45 @@ public class CNWalletManager {
 
     public void deverifyAccount() {
         walletHelper.removeCurrentCnUserRegistration();
-        transactionHelper.cancelPendingSentInvites();
+        inviteTransactionSummaryHelper.cancelPendingSentInvites();
         myTwitterProfile.clear();
         analytics.setUserProperty(Analytics.PROPERTY_TWITTER_VERIFIED, false);
         analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
         analytics.setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
         analytics.flush();
+    }
+
+    boolean saveSeedWords(String[] recoveryWords) {
+        boolean savedSuccessfully;
+        if (!isValid(recoveryWords)) {
+            savedSuccessfully = false;
+        } else if (isAlreadySaved(recoveryWords)) {
+            savedSuccessfully = true;
+        } else {
+            walletHelper.saveWords(recoveryWords);
+            accountManager.cacheAddresses();
+            localBroadCastUtil.sendGlobalBroadcast(WalletCreatedBroadCastReceiver.class, DropbitIntents.ACTION_WALLET_CREATED);
+            savedSuccessfully = true;
+        }
+
+        return savedSuccessfully;
+    }
+
+    private boolean isAlreadySaved(String[] recoveryWords) {
+        if (!hasWallet()) return false;
+
+        List<String> words = Arrays.asList(recoveryWords);
+
+        String[] savedSeedWords = walletHelper.getSeedWords();
+
+        if (words.containsAll(Arrays.asList(savedSeedWords))) {
+            return true;
+        } else {
+            throw new RuntimeException("There are words already saved but do not match the words you are currently trying to save");
+        }
+    }
+
+    private boolean isValid(String[] recoveryWords) {
+        return bitcoinUtil.isValidBIP39Words(recoveryWords);
     }
 }

@@ -150,4 +150,11 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
     fun getInviteSummaryById(id: String): InviteTransactionSummary? {
         return inviteSummaryQueryManager.getInviteSummaryByCnId(id)
     }
+
+    fun cancelPendingSentInvites() {
+        unfulfilledSentInvites.forEach {
+            it.btcState = BTCState.CANCELED
+            it.update()
+        }
+    }
 }

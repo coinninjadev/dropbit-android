@@ -420,33 +420,6 @@ public class TransactionHelperTest {
     }
 
     @Test
-    public void cancelPendingSentInvites_test() {
-
-        when(inviteQuery.where(any())).thenReturn(inviteQuery);
-        ArrayList<InviteTransactionSummary> summaries = new ArrayList();
-        InviteTransactionSummary summary1 = mock(InviteTransactionSummary.class);
-        summaries.add(summary1);
-        InviteTransactionSummary summary2 = mock(InviteTransactionSummary.class);
-        summaries.add(summary2);
-        InviteTransactionSummary summary3 = mock(InviteTransactionSummary.class);
-        summaries.add(summary3);
-
-        when(summary1.getType()).thenReturn(Type.SENT);
-        when(summary2.getType()).thenReturn(Type.RECEIVED);
-        when(summary3.getType()).thenReturn(Type.SENT);
-
-        when(inviteQuery.list()).thenReturn(summaries);
-
-        helper.cancelPendingSentInvites();
-
-        verify(summary1).setBtcState(BTCState.CANCELED);
-        verify(summary1).update();
-        verify(summary3).setBtcState(BTCState.CANCELED);
-        verify(summary3).update();
-        verify(summary2, times(0)).update();
-    }
-
-    @Test
     public void set_transaction_to_ACKNOWLEDGE_if_seen_by_coin_ninja_server_test() {
         TransactionSummary sampleTransaction = mock(TransactionSummary.class);
         String sampleTransactionID = "some tx id";
