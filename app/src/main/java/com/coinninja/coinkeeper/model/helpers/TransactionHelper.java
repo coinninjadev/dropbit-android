@@ -407,8 +407,7 @@ public class TransactionHelper {
         transaction.update();
         transaction.refresh();
 
-        String newTxid = renameTXIDToFailed(txid);
-        return newTxid;
+        return renameTXIDToFailed(txid);
     }
 
     public void markTransactionSummaryAsAcknowledged(String txid) {
@@ -557,29 +556,28 @@ public class TransactionHelper {
     }
 
     void saveTransaction(TransactionSummary transaction, TransactionDetail detail) {
-        if (detail.getBlocktime() > 0L) {
-            transaction.setTxTime(detail.getBlocktime());
-        } else if (detail.getTime() > 0L) {
-            transaction.setTxTime(detail.getTime());
+        if (detail.getBlocktimeMillis() > 0L) {
+            transaction.setTxTime(detail.getBlocktimeMillis());
+        } else if (detail.getTimeMillis() > 0L) {
+            transaction.setTxTime(detail.getTimeMillis());
         } else {
-            transaction.setTxTime(detail.getReceivedTime());
+            transaction.setTxTime(detail.getReceivedTimeMillis());
         }
 
-        String blockHash = detail.getBlockhash();
-        if (transaction.isInBlock()) {
+        transaction.setBlockhash(detail.getBlockhash());
+        transaction.setBlockheight(detail.getBlockheight());
+        if (detail.isInBlock()) {
             transaction.setMemPoolState(MemPoolState.MINED);
         }
-        transaction.setBlockhash(blockHash);
-        transaction.setBlockheight(detail.getBlockheight());
         transaction.update();
         transaction.refresh();
 
         try {
-            for (VIn in : detail.getvInList()) {
+            for (VIn in : detail.getVInList()) {
                 saveIn(transaction, in);
             }
 
-            for (VOut out : detail.getvOutList()) {
+            for (VOut out : detail.getVOutList()) {
                 saveOut(transaction, out);
             }
         } catch (IllegalArgumentException e) {
@@ -588,10 +586,7 @@ public class TransactionHelper {
         }
 
 
-        //Clear cache of to-many relations
-        transaction.resetFunder();
-        transaction.resetReceiver();
-
+        daoSessionManager.clearCacheFor(transaction);
         transaction.setNumInputs(transaction.getFunder().size());
         transaction.setNumOutputs(transaction.getReceiver().size());
         transaction.update();
@@ -831,14 +826,10 @@ public class TransactionHelper {
 
     private String renameTXIDToFailed(String txid) {
         long currentTime = dateUtil.getCurrentTimeInMillis();
-
-        String originalTxId = txid;
-        String newTxId = "failedToBroadcast" + "_" + Long.toString(currentTime) + "_" + originalTxId;
-
-        renameTransSummary(originalTxId, newTxId);
-        renameInviteSummary(originalTxId, newTxId);
-        renameTransInviteSummary(originalTxId, newTxId);
-
+        String newTxId = String.format("failedToBroadcast_%s_%s", currentTime, txid);
+        renameTransSummary(txid, newTxId);
+        renameInviteSummary(txid, newTxId);
+        renameTransInviteSummary(txid, newTxId);
         return newTxId;
     }
 

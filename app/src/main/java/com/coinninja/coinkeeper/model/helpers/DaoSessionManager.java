@@ -190,7 +190,7 @@ public class DaoSessionManager {
     }
 
     public long insert(InviteTransactionSummary inviteTransactionSummary) {
-        long id =  session.getInviteTransactionSummaryDao().insert(inviteTransactionSummary);
+        long id = session.getInviteTransactionSummaryDao().insert(inviteTransactionSummary);
         inviteTransactionSummary.__setDaoSession(session);
         inviteTransactionSummary.setId(id);
         return id;
@@ -248,6 +248,12 @@ public class DaoSessionManager {
         userIdentity.setId(id);
         userIdentity.__setDaoSession(session);
         return id;
+    }
+
+    public void clearCacheFor(TransactionSummary transaction) {
+        //Clear cache of to-many relations
+        transaction.resetFunder();
+        transaction.resetReceiver();
     }
 
     private void dropAllTables() {

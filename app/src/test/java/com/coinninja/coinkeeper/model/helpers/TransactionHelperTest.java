@@ -290,13 +290,13 @@ public class TransactionHelperTest {
 
     @Test
     public void saves_block_time_on_transaction() {
-        long rTime = 10000000L;
-        long txTime = 20000000L;
-        long blockTime = 30000000L;
+        long rTime = 1;
+        long txTime = 2;
+        long blockTime = 3;
         TransactionDetail td = mock(TransactionDetail.class);
-        when(td.getReceivedTime()).thenReturn(rTime);
-        when(td.getTime()).thenReturn(txTime);
-        when(td.getBlocktime()).thenReturn(blockTime);
+        when(td.getReceivedTimeMillis()).thenReturn(rTime);
+        when(td.getTimeMillis()).thenReturn(txTime);
+        when(td.getBlocktimeMillis()).thenReturn(blockTime);
         TransactionSummary ts = mock(TransactionSummary.class);
 
         helper.saveTransaction(ts, td);
@@ -306,11 +306,11 @@ public class TransactionHelperTest {
 
     @Test
     public void saves_tx_time_on_transaction_when_block_time_absent() {
-        long rTime = 10000000L;
-        long txTime = 20000000L;
+        long rTime = 1;
+        long txTime = 2;
         TransactionDetail td = mock(TransactionDetail.class);
-        when(td.getReceivedTime()).thenReturn(rTime);
-        when(td.getTime()).thenReturn(txTime);
+        when(td.getReceivedTimeMillis()).thenReturn(rTime);
+        when(td.getTimeMillis()).thenReturn(txTime);
         TransactionSummary ts = mock(TransactionSummary.class);
 
         helper.saveTransaction(ts, td);
@@ -320,9 +320,9 @@ public class TransactionHelperTest {
 
     @Test
     public void saves_recieve_time_on_transaction_when_tx_time_and_block_time_absent() {
-        long txTime = 10000000L;
+        long txTime = 1L;
         TransactionDetail td = mock(TransactionDetail.class);
-        when(td.getReceivedTime()).thenReturn(txTime);
+        when(td.getReceivedTimeMillis()).thenReturn(txTime);
         TransactionSummary ts = mock(TransactionSummary.class);
 
         helper.saveTransaction(ts, td);
@@ -641,6 +641,7 @@ public class TransactionHelperTest {
     public void if_transaction_is_in_a_block_set_its_TransactionMemPoolState_to_MINED_test() {
         TransactionDetail detail = mock(TransactionDetail.class);
         when(detail.getBlockhash()).thenReturn("Some block hash");
+        when(detail.isInBlock()).thenCallRealMethod();
 
         helper.saveTransaction(transaction, detail);
 
