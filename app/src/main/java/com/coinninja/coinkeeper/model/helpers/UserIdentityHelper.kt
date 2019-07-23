@@ -7,8 +7,7 @@ import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.model.db.UserIdentity
 import com.coinninja.coinkeeper.model.db.UserIdentityDao
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
-import com.coinninja.coinkeeper.model.encryptedpayload.v2.TransactionNotificationV2
-import com.coinninja.coinkeeper.service.client.model.InviteMetadata
+import com.coinninja.coinkeeper.service.client.model.MetadataContact
 import javax.inject.Inject
 
 @Mockable
@@ -47,7 +46,7 @@ class UserIdentityHelper @Inject constructor(internal val daoSessionManager: Dao
         return userIdentity
     }
 
-    fun updateFrom(inviteContact: InviteMetadata.MetadataContact): UserIdentity {
+    fun updateFrom(inviteContact: MetadataContact): UserIdentity {
         val type = IdentityType.from(inviteContact.type)
         var identity = inviteContact.identity
         var hash: String? = null
@@ -95,7 +94,9 @@ class UserIdentityHelper @Inject constructor(internal val daoSessionManager: Dao
 
     fun stripAtSymbolFromHandleIfNecessary(handle: String?): String {
         handle?.let { handle ->
-            if (!handle.startsWith("@")) { return handle }
+            if (!handle.startsWith("@")) {
+                return handle
+            }
             return handle.replaceFirst("@", "")
         }
 

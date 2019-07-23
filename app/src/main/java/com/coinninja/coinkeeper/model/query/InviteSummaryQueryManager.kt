@@ -28,8 +28,13 @@ class InviteSummaryQueryManager @Inject internal constructor(
 
         }
 
-    fun getInviteSummaryByCnId(cnId: String): InviteTransactionSummary? {
-        return daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.ServerId.eq(cnId)).unique()
-    }
+    fun getInviteSummaryByCnId(cnId: String): InviteTransactionSummary? =
+            daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
+                    .where(InviteTransactionSummaryDao.Properties.ServerId.eq(cnId)).unique()
+
+    fun getOrCreate(cnId: String): InviteTransactionSummary =
+            getInviteSummaryByCnId(cnId) ?: daoSessionManager.newInviteTransactionSummary().also {
+                it.serverId = cnId;
+                daoSessionManager.insert(it)
+            }
 }

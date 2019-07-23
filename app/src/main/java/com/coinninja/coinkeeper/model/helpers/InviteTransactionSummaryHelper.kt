@@ -10,6 +10,7 @@ import com.coinninja.coinkeeper.model.db.enums.Type
 import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
 import com.coinninja.coinkeeper.model.query.InviteSummaryQueryManager
+import com.coinninja.coinkeeper.service.client.model.ReceivedInvite
 import com.coinninja.coinkeeper.service.client.model.SentInvite
 import com.coinninja.coinkeeper.util.DateUtil
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @Mockable
 class InviteTransactionSummaryHelper @Inject internal
 constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
+            internal val transactionInviteSummaryHelper: TransactionInviteSummaryHelper,
             internal val daoSessionManager: DaoSessionManager,
             internal val transactionHelper: TransactionHelper,
             internal val dropbitAccountHelper: DropbitAccountHelper,
@@ -157,4 +159,21 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
             it.update()
         }
     }
+
+    fun saveReceivedInviteTransaction(receivedInvite: ReceivedInvite) =
+            inviteSummaryQueryManager.getOrCreate(receivedInvite.id).also {
+                it.btcState = BTCState.from(receivedInvite.status)
+                it.historicValue = receivedInvite.metadata.amount.usd
+                it.toUser = userIdentityHelper.updateFrom(receivedInvite.metadata.receiver)
+                it.fromUser = userIdentityHelper.updateFrom(receivedInvite.metadata.sender)
+                it.sentDate = receivedInvite.created_at_millis
+                it.valueSatoshis = receivedInvite.metadata.amount.btc
+                it.valueFeesSatoshis = 0L
+                it.wallet = walletHelper.wallet
+                it.address = receivedInvite.address
+                it.btcTransactionId = receivedInvite.txid
+                it.type = Type.RECEIVED
+                it.update()
+                transactionInviteSummaryHelper.getOrCreateParentSettlementFor(it)
+            }
 }

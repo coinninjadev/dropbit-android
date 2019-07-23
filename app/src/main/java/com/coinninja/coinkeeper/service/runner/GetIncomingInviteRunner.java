@@ -2,8 +2,7 @@ package com.coinninja.coinkeeper.service.runner;
 
 import android.util.Log;
 
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 
@@ -18,13 +17,13 @@ public class GetIncomingInviteRunner implements Runnable {
     private static final String TAG = InviteContactRunner.class.getSimpleName();
 
     private final SignedCoinKeeperApiClient client;
-    private final TransactionHelper transactionHelper;
+    private final InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
 
     @Inject
     public GetIncomingInviteRunner(SignedCoinKeeperApiClient client,
-                                   TransactionHelper transactionHelper) {
+                                   InviteTransactionSummaryHelper inviteTransactionSummaryHelper) {
         this.client = client;
-        this.transactionHelper = transactionHelper;
+        this.inviteTransactionSummaryHelper = inviteTransactionSummaryHelper;
     }
 
     @Override
@@ -39,7 +38,7 @@ public class GetIncomingInviteRunner implements Runnable {
 
     private void writeInvitesToDatabase(List<ReceivedInvite> receivedInvites) {
         for (ReceivedInvite invite : receivedInvites) {
-            transactionHelper.saveReceivedInviteTransaction(invite);
+            inviteTransactionSummaryHelper.saveReceivedInviteTransaction(invite);
         }
     }
 

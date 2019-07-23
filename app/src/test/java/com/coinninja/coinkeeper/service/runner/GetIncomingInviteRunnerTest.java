@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.service.runner;
 
 import androidx.annotation.NonNull;
 
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
@@ -34,14 +35,14 @@ public class GetIncomingInviteRunnerTest {
     @Mock
     private SignedCoinKeeperApiClient apiClient;
     @Mock
-    private TransactionHelper transactionHelper;
+    private InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
     @InjectMocks
     private GetIncomingInviteRunner runner;
 
     @After
     public void tearDown() {
         runner = null;
-        transactionHelper = null;
+        inviteTransactionSummaryHelper = null;
         apiClient = null;
         testData = null;
     }
@@ -56,7 +57,7 @@ public class GetIncomingInviteRunnerTest {
 
         runner.run();
 
-        verify(transactionHelper, times(2)).saveReceivedInviteTransaction(any());
+        verify(inviteTransactionSummaryHelper, times(2)).saveReceivedInviteTransaction(any());
     }
 
     @Test
@@ -66,7 +67,7 @@ public class GetIncomingInviteRunnerTest {
 
         runner.run();
 
-        verify(transactionHelper, times(0)).saveReceivedInviteTransaction(any());
+        verify(inviteTransactionSummaryHelper, times(0)).saveReceivedInviteTransaction(any());
     }
 
     @Test
@@ -77,7 +78,7 @@ public class GetIncomingInviteRunnerTest {
 
         runner.run();
 
-        verify(transactionHelper, times(0)).saveReceivedInviteTransaction(any());
+        verify(inviteTransactionSummaryHelper, times(0)).saveReceivedInviteTransaction(any());
     }
 
     @NonNull

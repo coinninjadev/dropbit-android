@@ -8,8 +8,7 @@ import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.db.enums.Type
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
-import com.coinninja.coinkeeper.service.client.model.InviteMetadata
-import com.coinninja.coinkeeper.service.client.model.SentInvite
+import com.coinninja.coinkeeper.service.client.model.*
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.equalTo
@@ -23,7 +22,7 @@ import org.mockito.Mockito.verify
 class InviteTransactionSummaryHelperTest {
 
     private fun createInviteTransactionSumamaryHelper(): InviteTransactionSummaryHelper {
-        val helper = InviteTransactionSummaryHelper(mock(), mock(), mock(), mock(),
+        val helper = InviteTransactionSummaryHelper(mock(), mock(), mock(), mock(), mock(),
                 mock(), mock(), mock()
         )
 
@@ -66,7 +65,7 @@ class InviteTransactionSummaryHelperTest {
     }
 
     @Test
-    fun creates_new_temp_invite_when_server_id_absent_from_records() {
+    fun creates_new_temp_invite_whenever_server_id_absent_from_records() {
         val helper = createInviteTransactionSumamaryHelper()
         val invite = mock<InviteTransactionSummary>()
         val transactionJoin = mock<TransactionsInvitesSummary>()
@@ -86,7 +85,7 @@ class InviteTransactionSummaryHelperTest {
     }
 
     @Test
-    fun returns_existing_invite_join_record_when_server_id_exists_in_records() {
+    fun returns_existing_invite_join_record_whenever_server_id_exists_in_records() {
         val invite = mock<InviteTransactionSummary>()
         val transactionJoin = mock<TransactionsInvitesSummary>()
         val helper = createInviteTransactionSumamaryHelper()
@@ -128,7 +127,7 @@ class InviteTransactionSummaryHelperTest {
     }
 
     @Test
-    fun updates_sent_invite_when_transaction_is_fulfilled() {
+    fun updates_sent_invite_whenever_transaction_is_fulfilled() {
         val invite = mock<InviteTransactionSummary>()
         val transactionsInvitesSummary = mock<TransactionsInvitesSummary>()
         val helper = createInviteTransactionSumamaryHelper()
@@ -167,9 +166,56 @@ class InviteTransactionSummaryHelperTest {
 
         verify(invite1).btcState = BTCState.CANCELED
         verify(invite1).update()
-       
+
         verify(invite2).btcState = BTCState.CANCELED
         verify(invite2).update()
+    }
+
+    @Test
+    fun saves_received_invite() {
+        val helper = createInviteTransactionSumamaryHelper()
+        val createdAt = System.currentTimeMillis() / 1000
+        val receivedInvite = ReceivedInvite(
+                id = "--server-id--",
+                created_at = createdAt,
+                updated_at = createdAt,
+                address = "--address--",
+                request_ttl = "--ttl--",
+                sender = "--sender--",
+                status = "completed",
+                txid = "--txid--",
+                metadata = InviteMetadata(
+                        MetadataAmount(26236L, 100L),
+                        MetadataContact("phone", "--sender-phone--"),
+                        MetadataContact("phone", "--receiver-phone--")
+                )
+        )
+
+        val invite: InviteTransactionSummary = mock()
+        val wallet: Wallet = mock()
+        whenever(helper.walletHelper.wallet).thenReturn(wallet)
+        whenever(helper.inviteSummaryQueryManager.getOrCreate("--server-id--")).thenReturn(invite)
+        val fromUser: UserIdentity = mock()
+        val toUser: UserIdentity = mock()
+        whenever(helper.userIdentityHelper.updateFrom(receivedInvite.metadata.sender)).thenReturn(fromUser)
+        whenever(helper.userIdentityHelper.updateFrom(receivedInvite.metadata.receiver)).thenReturn(toUser)
+
+        helper.saveReceivedInviteTransaction(receivedInvite)
+
+        verify(invite).historicValue = 100L
+        verify(invite).valueSatoshis = 26236L
+        verify(invite).valueFeesSatoshis = 0L
+        verify(invite).btcState = BTCState.FULFILLED
+        verify(invite).type = Type.RECEIVED
+        verify(invite).wallet = wallet
+        verify(invite).btcTransactionId = "--txid--"
+        verify(invite).address = "--address--"
+        verify(invite).sentDate = createdAt * 1000
+        verify(invite).toUser = toUser
+        verify(invite).fromUser = fromUser
+        verify(invite).update()
+
+        verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(invite)
     }
 
     private fun createPendingToPhoneInviteDTO(): PendingInviteDTO {

@@ -29,7 +29,6 @@ import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
-import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.TransactionStats;
@@ -157,63 +156,6 @@ public class TransactionHelper {
         }
     }
 
-    public void saveReceivedInviteTransaction(ReceivedInvite receivedInvite) {
-        UserIdentity fromUser = userIdentityHelper.updateFrom(receivedInvite.getMetadata().getSender());
-        UserIdentity toUser = userIdentityHelper.updateFrom(receivedInvite.getMetadata().getReceiver());
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-        String serverId = receivedInvite.getId();
-        BTCState state = BTCState.from(receivedInvite.getStatus());
-        long historicValue = receivedInvite.getMetadata().getAmount().getUsd();
-        long sentDate = receivedInvite.getCreated_at();
-        long valueSatoshis = receivedInvite.getMetadata().getAmount().getBtc();
-        String address = receivedInvite.getAddress();
-        String txid = receivedInvite.getTxid();
-
-        InviteTransactionSummary invite = inviteDao.
-                queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(serverId)).
-                limit(1)
-                .unique();
-
-        if (invite == null) {
-            invite = new InviteTransactionSummary();
-            invite.setServerId(serverId);
-            inviteDao.insert(invite);
-        } else {
-            TransactionsInvitesSummary transactionsInvitesSummary = invite.getTransactionsInvitesSummary();
-            if (transactionsInvitesSummary != null) {
-                TransactionSummary tx = transactionsInvitesSummary.getTransactionSummary();
-                if (tx != null && tx.getMemPoolState() == MemPoolState.FAILED_TO_BROADCAST) {
-                    return;
-                }
-            }
-        }
-
-        invite.setBtcState(state);
-        invite.setHistoricValue(historicValue);
-        invite.setToUser(toUser);
-        invite.setFromUser(fromUser);
-        invite.setSentDate(sentDate);
-        invite.setValueSatoshis(valueSatoshis);
-        invite.setValueFeesSatoshis(0L);
-        invite.setWallet(walletHelper.getWallet());
-        invite.setAddress(address);
-        invite.setBtcTransactionId(txid);
-        invite.setType(Type.RECEIVED);
-
-        invite.update();
-        invite.refresh();
-
-        if (invite.getTransactionsInvitesSummary() == null) {
-            addInviteToTransInvitesSummary(invite);
-        }
-
-        TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
-        summary.setToUser(toUser);
-        summary.setFromUser(fromUser);
-        summary.update();
-
-    }
 
     public void updateInviteAddressTransaction(String id, String address) {
         InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
@@ -449,7 +391,6 @@ public class TransactionHelper {
         }
 
         transactionsInvitesSummary.setInviteTransactionSummary(invite);
-        transactionsInvitesSummary.setInviteSummaryID(invite.getId());
 
         if (transactionsInvitesSummary.getBtcTxTime() > 0) {
             transactionsInvitesSummary.setInviteTime(0);

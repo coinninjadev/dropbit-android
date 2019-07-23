@@ -16,7 +16,7 @@ class TransactionInviteSummaryHelperTest {
     fun inserts_new_join_record_for_provided_transaction_summary_when_one_does_not_exist() {
         val transactionSummary: TransactionSummary = mock()
         val transactionsInvitesSummary: TransactionsInvitesSummary = mock()
-        val transactionInviteSummaryHelper = TransactionInviteSummaryHelper(mock(), mock())
+        val transactionInviteSummaryHelper = TransactionInviteSummaryHelper(mock(), mock(), mock())
         val now = System.currentTimeMillis()
         whenever(transactionSummary.txTime).thenReturn(now)
         whenever(transactionInviteSummaryHelper.transactionInviteSummaryQueryManager.getTransactionInviteSummaryByTransactionSummary(transactionSummary)).thenReturn(null)

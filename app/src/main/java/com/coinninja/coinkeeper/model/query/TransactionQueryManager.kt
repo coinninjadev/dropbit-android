@@ -59,4 +59,11 @@ class TransactionQueryManager @Inject constructor(
 
     private fun calculatePastTimeFromNow(olderThanSeconds: Long): Long =
             dateUtil.getCurrentTimeInMillis() - TimeUnit.SECONDS.toMillis(olderThanSeconds)
+
+    fun transactionByTxid(txid: String?): TransactionSummary? {
+        if (txid.isNullOrEmpty()) return null
+        return daoSessionManager.transactionSummaryDao.queryBuilder()
+                .where(Properties.Txid.eq(txid)).limit(1).unique()
+
+    }
 }
