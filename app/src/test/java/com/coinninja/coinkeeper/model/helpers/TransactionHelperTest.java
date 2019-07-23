@@ -26,6 +26,7 @@ import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
+import com.coinninja.coinkeeper.model.query.TransactionQueryManager;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
@@ -95,6 +96,8 @@ public class TransactionHelperTest {
     private TransactionsInvitesSummaryDao transactionInviteSummaryDao;
     @Mock
     private TransactionsInvitesSummary transactionsInvitesSummary;
+    @Mock
+    private TransactionQueryManager transactionQueryManager;
     @Mock
     private UserIdentityHelper userIdentityHelper;
     @Mock
@@ -178,9 +181,7 @@ public class TransactionHelperTest {
         when(inviteQuery.unique()).thenReturn(inviteTransactionSummary);
         when(inviteTransactionSummary.getSentDate()).thenReturn(time);
         TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        when(tsInviteQuery.where(any())).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.limit(1)).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.unique()).thenReturn(transactionsInvitesSummary);
+        when(inviteTransactionSummary.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
 
         helper.updateInviteAddressTransaction(sentInvite);
 
@@ -202,9 +203,7 @@ public class TransactionHelperTest {
         when(inviteQuery.unique()).thenReturn(inviteTransactionSummary);
         when(inviteTransactionSummary.getSentDate()).thenReturn(time);
         TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        when(tsInviteQuery.where(any())).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.limit(1)).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.unique()).thenReturn(transactionsInvitesSummary);
+        when(inviteTransactionSummary.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
 
         helper.updateInviteAddressTransaction(sentInvite);
 
@@ -679,34 +678,11 @@ public class TransactionHelperTest {
         TransactionSummary sampleTransactionSummary = mock(TransactionSummary.class);
         List<TransactionSummary> sampleList = new ArrayList<>();
         sampleList.add(sampleTransactionSummary);
-
-        when(tsQuery.whereOr(
-                TransactionSummaryDao.Properties.MemPoolState.eq(MemPoolState.INIT.getId()),
-                TransactionSummaryDao.Properties.MemPoolState.eq(MemPoolState.PENDING.getId()),
-                TransactionSummaryDao.Properties.MemPoolState.eq(MemPoolState.ACKNOWLEDGE.getId())
-        )).thenReturn(tsQuery);
-
-        when(tsQuery.whereOr(
-                TransactionSummaryDao.Properties.MemPoolState.eq(any()),
-                TransactionSummaryDao.Properties.MemPoolState.eq(any()),
-                TransactionSummaryDao.Properties.MemPoolState.eq(any())
-        )).thenReturn(tsQuery);
-
-        when(tsQuery.list()).thenReturn(sampleList);
+        when(transactionQueryManager.getIncompleteTransactions()).thenReturn(sampleList);
 
         List<TransactionSummary> transactions = helper.getIncompleteTransactions();
 
-        assertThat(transactions.size(), equalTo(1));
-        assertThat(transactions.get(0), equalTo(sampleTransactionSummary));
-    }
-
-    @Test
-    public void calculate_PastedTime_test() {
-        long olderThanSeconds = 300;//5 minutes = 300 seconds
-
-        long olderThanToMillis = helper.calculatePastTimeFromNow(olderThanSeconds);
-
-        assertThat(olderThanToMillis, equalTo(354654L));
+        assertThat(transactions, equalTo(sampleList));
     }
 
     @Test

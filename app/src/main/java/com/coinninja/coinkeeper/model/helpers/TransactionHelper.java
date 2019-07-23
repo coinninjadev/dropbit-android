@@ -27,6 +27,7 @@ import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
+import com.coinninja.coinkeeper.model.query.TransactionQueryManager;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
@@ -38,7 +39,6 @@ import com.coinninja.coinkeeper.util.DateUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -48,6 +48,7 @@ public class TransactionHelper {
     private final WalletHelper walletHelper;
     private final TransactionInviteSummaryHelper transactionInviteSummaryHelper;
     private final DropbitAccountHelper dropbitAccountHelper;
+    private final TransactionQueryManager transactionQueryManager;
     private final UserIdentityHelper userIdentityHelper;
     private DateUtil dateUtil;
     private DaoSessionManager daoSessionManager;
@@ -55,57 +56,39 @@ public class TransactionHelper {
     @Inject
     public TransactionHelper(DaoSessionManager daoSessionManager, WalletHelper walletHelper,
                              TransactionInviteSummaryHelper transactionInviteSummaryHelper,
-                             DropbitAccountHelper dropbitAccountHelper,
+                             DropbitAccountHelper dropbitAccountHelper, TransactionQueryManager transactionQueryManager,
                              UserIdentityHelper userIdentityHelper, DateUtil dateUtil) {
         this.daoSessionManager = daoSessionManager;
         this.walletHelper = walletHelper;
         this.transactionInviteSummaryHelper = transactionInviteSummaryHelper;
         this.dropbitAccountHelper = dropbitAccountHelper;
+        this.transactionQueryManager = transactionQueryManager;
         this.userIdentityHelper = userIdentityHelper;
         this.dateUtil = dateUtil;
     }
 
-    public List<TransactionSummary> getIncompleteTransactions() {
-        TransactionSummaryDao dao = getTransactionDao();
-        return dao.queryBuilder()
-                .whereOr(Properties.MemPoolState.eq(MemPoolState.INIT.getId()),
-                        Properties.MemPoolState.eq(MemPoolState.PENDING.getId()),
-                        Properties.MemPoolState.eq(MemPoolState.ACKNOWLEDGE.getId())
-                ).list();
-    }
-
-    public List<TransactionSummary> getRequiringNotificationCheck() {
-        TransactionSummaryDao dao = getTransactionDao();
-        return dao.queryBuilder().where(Properties.SoughtNotification.eq(false)).list();
-    }
-
-    public List<TransactionSummary> getTransactionsWithoutHistoricPricing() {
-        TransactionSummaryDao dao = getTransactionDao();
-        return dao.queryBuilder()
-                .where(Properties.HistoricPrice.eq(0L)
-                ).list();
-    }
-
-    public List<TransactionSummary> getPendingMindedTransactions() {
-        TransactionSummaryDao dao = getTransactionDao();
-        return dao.queryBuilder().where(
-                Properties.MemPoolState.eq(MemPoolState.MINED.getId()),
-                Properties.NumConfirmations.lt(6)).list();
-    }
-
-    public List<TransactionSummary> getPendingTransactionsOlderThan(long olderThanSeconds) {
-        TransactionSummaryDao dao = getTransactionDao();
-        long timeInThePast = calculatePastTimeFromNow(olderThanSeconds);
-
-        return dao.queryBuilder().whereOr(
-                Properties.MemPoolState.eq(MemPoolState.PENDING.getId()),
-                Properties.MemPoolState.eq(MemPoolState.INIT.getId()))
-                .where(Properties.TxTime.le(timeInThePast)).list();
+    public List<TransactionSummary> getPendingTransactionsOlderThan(long olderThanMillis) {
+        return transactionQueryManager.pendingTransactionsOlderThan(olderThanMillis);
     }
 
     public List<TransactionSummary> getTransactionsWithoutFees() {
-        TransactionSummaryDao dao = getTransactionDao();
-        return dao.queryBuilder().where(Properties.Fee.eq(0L)).list();
+        return transactionQueryManager.getTransactionsWithoutFees();
+    }
+
+    public List<TransactionSummary> getTransactionsWithoutHistoricPricing() {
+        return transactionQueryManager.getTransactionsWithoutHistoricPricing();
+    }
+
+    public List<TransactionSummary> getIncompleteTransactions() {
+        return transactionQueryManager.getIncompleteTransactions();
+    }
+
+    public List<TransactionSummary> getPendingMindedTransactions() {
+        return transactionQueryManager.getPendingMindedTransactions();
+    }
+
+    public List<TransactionSummary> getRequiringNotificationCheck() {
+        return transactionQueryManager.getRequiringNotificationCheck();
     }
 
     public void initTransactions(List<GsonAddress> addresses) {
@@ -225,6 +208,7 @@ public class TransactionHelper {
             updateInviteTimeCompleteTransactionInviteSummary(invite);
         } else if ("completed".equals(status)) {
             invite.setBtcState(BTCState.FULFILLED);
+            updateInviteTimeCompleteTransactionInviteSummary(invite);
         }
 
         invite.setPubkey(sentInvite.getAddressPubKey());
@@ -737,12 +721,6 @@ public class TransactionHelper {
         }
     }
 
-    protected long calculatePastTimeFromNow(long olderThanSeconds) {
-        long currentTimeInMillis = dateUtil.getCurrentTimeInMillis();
-        long olderThanTimeInMillis = TimeUnit.SECONDS.toMillis(olderThanSeconds);
-
-        return currentTimeInMillis - olderThanTimeInMillis;
-    }
 
     private void updateInviteTimeCompleteTransactionInviteSummary(InviteTransactionSummary invite) {
         TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
