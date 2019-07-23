@@ -19,14 +19,12 @@ public class GetIncomingInviteRunner implements Runnable {
 
     private final SignedCoinKeeperApiClient client;
     private final TransactionHelper transactionHelper;
-    private final WalletHelper walletHelper;
 
     @Inject
-    public GetIncomingInviteRunner(SignedCoinKeeperApiClient client, WalletHelper walletHelper,
+    public GetIncomingInviteRunner(SignedCoinKeeperApiClient client,
                                    TransactionHelper transactionHelper) {
         this.client = client;
         this.transactionHelper = transactionHelper;
-        this.walletHelper = walletHelper;
     }
 
     @Override
@@ -41,14 +39,8 @@ public class GetIncomingInviteRunner implements Runnable {
 
     private void writeInvitesToDatabase(List<ReceivedInvite> receivedInvites) {
         for (ReceivedInvite invite : receivedInvites) {
-            transactionHelper.saveReceivedInviteTransaction(walletHelper.getWallet(), invite);
+            transactionHelper.saveReceivedInviteTransaction(invite);
         }
-        updateWalletBalance();
-    }
-
-    private void updateWalletBalance() {
-        walletHelper.updateBalances();
-        walletHelper.updateSpendableBalances();
     }
 
     private void logError(Response response) {

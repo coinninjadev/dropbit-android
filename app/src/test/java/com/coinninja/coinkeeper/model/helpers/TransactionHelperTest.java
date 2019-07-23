@@ -774,12 +774,12 @@ public class TransactionHelperTest {
 
         InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
         Wallet wallet = mock(Wallet.class);
+        when(walletHelper.getWallet()).thenReturn(wallet);
         when(daoSessionManager.getInviteTransactionSummaryDao()).thenReturn(inviteDao);
         when(inviteDao.queryBuilder()).thenReturn(inviteQuery);
         when(inviteQuery.where(any())).thenReturn(inviteQuery);
         when(inviteQuery.limit(1)).thenReturn(inviteQuery);
         when(inviteQuery.unique()).thenReturn(invite);
-        when(wallet.getId()).thenReturn(1L);
 
         TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
         when(invite.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
@@ -790,14 +790,14 @@ public class TransactionHelperTest {
         when(userIdentityHelper.updateFrom(sender)).thenReturn(fromUser);
         when(userIdentityHelper.updateFrom(receiver)).thenReturn(toUser);
 
-        helper.saveReceivedInviteTransaction(wallet, receivedInvite);
+        helper.saveReceivedInviteTransaction(receivedInvite);
 
         verify(invite).setHistoricValue(100L);
         verify(invite).setValueSatoshis(26236L);
         verify(invite).setValueFeesSatoshis(0L);
         verify(invite).setBtcState(BTCState.FULFILLED);
         verify(invite).setType(Type.RECEIVED);
-        verify(invite).setWalletId(1L);
+        verify(invite).setWallet(wallet);
         verify(invite).setBtcTransactionId("--txid--");
         verify(invite).setAddress("--address--");
         verify(invite).setSentDate(when * 1000);
@@ -813,41 +813,52 @@ public class TransactionHelperTest {
 
     @Test
     public void do_not_update_failed_to_broadcast_transactions_test() {
-        InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
-        String btcTxID = "BTC TX ID";
-        String inviteServerID = "some address";
+        long when = System.currentTimeMillis() / 1000;
+        ReceivedInvite receivedInvite = new ReceivedInvite();
+        receivedInvite.setId("--server-id--");
+        receivedInvite.setCreated_at(when);
+        receivedInvite.setUpdated_at(when);
+        receivedInvite.setAddress("--address--");
+        receivedInvite.setRequest_ttl("1551463318");
+        receivedInvite.setSender("--sender--");
+        receivedInvite.setStatus("completed");
+        receivedInvite.setTxid("--txid--");
+        InviteMetadata inviteMetadata = new InviteMetadata();
+        InviteMetadata.MetadataContact sender = new InviteMetadata.MetadataContact("phone", SENDER_PHONE_STRING);
+        InviteMetadata.MetadataContact receiver = new InviteMetadata.MetadataContact("phone", RECEIVER_PHONE_STRING);
+        inviteMetadata.setSender(sender);
+        inviteMetadata.setReceiver(receiver);
+        inviteMetadata.setAmount(new InviteMetadata.MetadataAmount(26236L, 100L));
+        receivedInvite.setMetadata(inviteMetadata);
 
+        InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
+        Wallet wallet = mock(Wallet.class);
         when(daoSessionManager.getInviteTransactionSummaryDao()).thenReturn(inviteDao);
         when(inviteDao.queryBuilder()).thenReturn(inviteQuery);
         when(inviteQuery.where(any())).thenReturn(inviteQuery);
         when(inviteQuery.limit(1)).thenReturn(inviteQuery);
         when(inviteQuery.unique()).thenReturn(invite);
-        TransactionsInvitesSummary transactionSummary = mock(TransactionsInvitesSummary.class);
-        when(invite.getTransactionsInvitesSummary()).thenReturn(transactionSummary);
-        TransactionSummary tx = mock(TransactionSummary.class);
-        when(transactionSummary.getTransactionSummary()).thenReturn(tx);
-        when(tx.getMemPoolState()).thenReturn(MemPoolState.FAILED_TO_BROADCAST);
+        when(wallet.getId()).thenReturn(1L);
 
-        Type type = Type.RECEIVED;
-        long historicUSAValue = 150;
-        Long sentDate = 54981324L;
-        String inviteStatus = "complete";
-        Long valueSatoshis = 8795L;
-        Long fee = 50L;
-        String address = "some address";
-        long wallet = 1L;
+        TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
+        when(invite.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
+        TransactionSummary transactionSummary = mock(TransactionSummary.class);
+        when(transactionSummary.getMemPoolState()).thenReturn(MemPoolState.FAILED_TO_BROADCAST);
+        when(transactionsInvitesSummary.getTransactionSummary()).thenReturn(transactionSummary);
 
-        helper.saveInviteTransaction(
-                wallet, inviteServerID, type, mock(UserIdentity.class), mock(UserIdentity.class),
-                historicUSAValue, sentDate, inviteStatus, valueSatoshis, fee, address, btcTxID);
+        UserIdentity fromUser = mock(UserIdentity.class);
+        UserIdentity toUser = mock(UserIdentity.class);
+        when(userIdentityHelper.updateFrom(sender)).thenReturn(fromUser);
+        when(userIdentityHelper.updateFrom(receiver)).thenReturn(toUser);
 
+        helper.saveReceivedInviteTransaction(receivedInvite);
 
         verify(invite, times(0)).setAddress(any());
         verify(invite, times(0)).setValueFeesSatoshis(any());
         verify(invite, times(0)).setSentDate(any());
         verify(invite, times(0)).setBtcState(any());
         verify(invite, times(0)).setValueSatoshis(any());
-        verify(invite, times(0)).setValueFeesSatoshis(fee);
+        verify(invite, times(0)).setValueFeesSatoshis(any());
         verify(invite, times(0)).setWalletId(any());
         verify(invite, times(0)).setAddress(any());
         verify(invite, times(0)).setBtcTransactionId(any());

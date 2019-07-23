@@ -157,22 +157,62 @@ public class TransactionHelper {
         }
     }
 
-    public void saveReceivedInviteTransaction(Wallet wallet, ReceivedInvite receivedInvite) {
+    public void saveReceivedInviteTransaction(ReceivedInvite receivedInvite) {
         UserIdentity fromUser = userIdentityHelper.updateFrom(receivedInvite.getMetadata().getSender());
         UserIdentity toUser = userIdentityHelper.updateFrom(receivedInvite.getMetadata().getReceiver());
-        saveInviteTransaction(
-                wallet.getId(),
-                receivedInvite.getId(),
-                Type.RECEIVED,
-                fromUser,
-                toUser,
-                receivedInvite.getMetadata().getAmount().getUsd(),
-                receivedInvite.getCreated_at(),
-                receivedInvite.getStatus(),
-                receivedInvite.getMetadata().getAmount().getBtc(),
-                0L,
-                receivedInvite.getAddress(),
-                receivedInvite.getTxid());
+        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
+        String serverId = receivedInvite.getId();
+        BTCState state = BTCState.from(receivedInvite.getStatus());
+        long historicValue = receivedInvite.getMetadata().getAmount().getUsd();
+        long sentDate = receivedInvite.getCreated_at();
+        long valueSatoshis = receivedInvite.getMetadata().getAmount().getBtc();
+        String address = receivedInvite.getAddress();
+        String txid = receivedInvite.getTxid();
+
+        InviteTransactionSummary invite = inviteDao.
+                queryBuilder().
+                where(InviteTransactionSummaryDao.Properties.ServerId.eq(serverId)).
+                limit(1)
+                .unique();
+
+        if (invite == null) {
+            invite = new InviteTransactionSummary();
+            invite.setServerId(serverId);
+            inviteDao.insert(invite);
+        } else {
+            TransactionsInvitesSummary transactionsInvitesSummary = invite.getTransactionsInvitesSummary();
+            if (transactionsInvitesSummary != null) {
+                TransactionSummary tx = transactionsInvitesSummary.getTransactionSummary();
+                if (tx != null && tx.getMemPoolState() == MemPoolState.FAILED_TO_BROADCAST) {
+                    return;
+                }
+            }
+        }
+
+        invite.setBtcState(state);
+        invite.setHistoricValue(historicValue);
+        invite.setToUser(toUser);
+        invite.setFromUser(fromUser);
+        invite.setSentDate(sentDate);
+        invite.setValueSatoshis(valueSatoshis);
+        invite.setValueFeesSatoshis(0L);
+        invite.setWallet(walletHelper.getWallet());
+        invite.setAddress(address);
+        invite.setBtcTransactionId(txid);
+        invite.setType(Type.RECEIVED);
+
+        invite.update();
+        invite.refresh();
+
+        if (invite.getTransactionsInvitesSummary() == null) {
+            addInviteToTransInvitesSummary(invite);
+        }
+
+        TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
+        summary.setToUser(toUser);
+        summary.setFromUser(fromUser);
+        summary.update();
+
     }
 
     public void updateInviteAddressTransaction(String id, String address) {
@@ -582,70 +622,6 @@ public class TransactionHelper {
         } catch (Exception ex) {
             Log.e(TAG, "Transaction To InvitesSummary for txID: " + transaction.getTxid());
         }
-    }
-
-    InviteTransactionSummary saveInviteTransaction(long walletId,
-                                                   String inviteServerID,
-                                                   Type type,
-                                                   UserIdentity fromUser,
-                                                   UserIdentity toUser,
-                                                   long historicUSAValue,
-                                                   Long sentDate,
-                                                   String inviteStatus,
-                                                   Long valueSatoshis,
-                                                   Long fee,
-                                                   String address,
-                                                   String btcTxID) {
-
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-
-        InviteTransactionSummary invite = inviteDao.
-                queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
-                limit(1)
-                .unique();
-
-        if (invite == null) {
-            invite = new InviteTransactionSummary();
-            invite.setServerId(inviteServerID);
-            inviteDao.insert(invite);
-        } else {
-            TransactionsInvitesSummary transactionsInvitesSummary = invite.getTransactionsInvitesSummary();
-            if (transactionsInvitesSummary != null) {
-                TransactionSummary tx = transactionsInvitesSummary.getTransactionSummary();
-                if (tx != null && tx.getMemPoolState() == MemPoolState.FAILED_TO_BROADCAST) {
-                    return null;
-                }
-            }
-        }
-
-        BTCState state = BTCState.from(inviteStatus);
-        invite.setBtcState(state);
-        invite.setHistoricValue(historicUSAValue);
-        invite.setToUser(toUser);
-        invite.setFromUser(fromUser);
-        invite.setSentDate(sentDate);
-        invite.setValueSatoshis(valueSatoshis);
-        invite.setValueFeesSatoshis(fee);
-        invite.setWalletId(walletId);
-        invite.setAddress(address);
-        invite.setBtcTransactionId(btcTxID);
-        invite.setType(type);
-
-        invite.update();
-        invite.refresh();
-
-        if (invite.getTransactionsInvitesSummary() == null) {
-            addInviteToTransInvitesSummary(invite);
-        }
-
-        TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
-        summary.setToUser(toUser);
-        summary.setFromUser(fromUser);
-        summary.update();
-
-        return invite;
     }
 
     @Deprecated()

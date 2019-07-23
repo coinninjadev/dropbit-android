@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.service.runner;
 import androidx.annotation.NonNull;
 
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 
@@ -35,8 +34,6 @@ public class GetIncomingInviteRunnerTest {
     @Mock
     private SignedCoinKeeperApiClient apiClient;
     @Mock
-    private WalletHelper walletHelper;
-    @Mock
     private TransactionHelper transactionHelper;
     @InjectMocks
     private GetIncomingInviteRunner runner;
@@ -44,7 +41,6 @@ public class GetIncomingInviteRunnerTest {
     @After
     public void tearDown() {
         runner = null;
-        walletHelper = null;
         transactionHelper = null;
         apiClient = null;
         testData = null;
@@ -60,7 +56,7 @@ public class GetIncomingInviteRunnerTest {
 
         runner.run();
 
-        verify(transactionHelper, times(2)).saveReceivedInviteTransaction(any(), any());
+        verify(transactionHelper, times(2)).saveReceivedInviteTransaction(any());
     }
 
     @Test
@@ -70,7 +66,7 @@ public class GetIncomingInviteRunnerTest {
 
         runner.run();
 
-        verify(transactionHelper, times(0)).saveReceivedInviteTransaction(any(), any());
+        verify(transactionHelper, times(0)).saveReceivedInviteTransaction(any());
     }
 
     @Test
@@ -81,19 +77,7 @@ public class GetIncomingInviteRunnerTest {
 
         runner.run();
 
-        verify(transactionHelper, times(0)).saveReceivedInviteTransaction(any(), any());
-    }
-
-    @Test
-    public void update_balance_test() {
-        testData = new ArrayList<>();
-        Response response = getResponse(testData);
-        when(apiClient.getReceivedInvites()).thenReturn(response);
-
-        runner.run();
-
-        verify(walletHelper).updateBalances();
-        verify(walletHelper).updateSpendableBalances();
+        verify(transactionHelper, times(0)).saveReceivedInviteTransaction(any());
     }
 
     @NonNull
