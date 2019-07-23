@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.db.enums.Type
+import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
 import com.coinninja.coinkeeper.service.client.model.*
 import com.nhaarman.mockitokotlin2.mock
@@ -21,7 +22,7 @@ import org.mockito.Mockito.verify
 @RunWith(AndroidJUnit4::class)
 class InviteTransactionSummaryHelperTest {
 
-    private fun createInviteTransactionSumamaryHelper(): InviteTransactionSummaryHelper {
+    private fun createHelper(): InviteTransactionSummaryHelper {
         val helper = InviteTransactionSummaryHelper(mock(), mock(), mock(), mock(), mock(),
                 mock(), mock(), mock()
         )
@@ -32,41 +33,100 @@ class InviteTransactionSummaryHelperTest {
     }
 
     @Test
-    fun `acknowledging invite creates join reference and copies some values`() {
-        val helper = createInviteTransactionSumamaryHelper()
-        val sentInvite: SentInvite = mock()
-        val metaData = InviteMetadata()
-        metaData.request_id = "--request-id--"
-        whenever(sentInvite.metadata).thenReturn(metaData)
-        whenever(sentInvite.created_at).thenReturn(1000000)
-        whenever(sentInvite.id).thenReturn("--server-id--")
-        whenever(sentInvite.status).thenReturn("new")
+    fun cancels_invite() {
+        val helper = createHelper()
         val invite: InviteTransactionSummary = mock()
-        val toUser = mock<UserIdentity>()
-        val fromUser = mock<UserIdentity>()
-        whenever(invite.toUser).thenReturn(toUser)
-        whenever(invite.fromUser).thenReturn(fromUser)
-        whenever(invite.btcState).thenReturn(BTCState.UNACKNOWLEDGED)
-        whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId(metaData.request_id)).thenReturn(invite)
-        val transactionsInvitesSummary = mock<TransactionsInvitesSummary>()
-        whenever(helper.daoSessionManager.newTransactionInviteSummary()).thenReturn(transactionsInvitesSummary)
+
+        helper.cancelInvite(invite)
+
+        val ordered = inOrder(invite)
+        ordered.verify(invite).btcState = BTCState.CANCELED
+        ordered.verify(invite).update()
+    }
+
+    @Test
+    fun cancels_al_pending_invites() {
+        val helper = createHelper()
+        val invite: InviteTransactionSummary = mock()
+        val invite2: InviteTransactionSummary = mock()
+        val pendingInvites = listOf(invite, invite2)
+        whenever(helper.inviteSummaryQueryManager.unfulfilledSentInvites).thenReturn(pendingInvites)
+
+        helper.cancelPendingSentInvites()
+
+        verify(invite).btcState = BTCState.CANCELED
+        verify(invite).update()
+        verify(invite2).btcState = BTCState.CANCELED
+        verify(invite2).update()
+    }
+
+    @Test
+    fun acknowledging_from_invite_DTO_invite_creates_join_reference_and_copies_some_values() {
+        val helper = createHelper()
+        val invite: InviteTransactionSummary = mock()
+        whenever(invite.toUser).thenReturn(mock())
+        whenever(invite.fromUser).thenReturn(mock())
+        whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId("--request-id--")).thenReturn(invite)
+
+        val createdAt = System.currentTimeMillis()
+        whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(createdAt)
+        val completedInviteDTO = CompletedInviteDTO(mock(),
+                requestId = "--request-id--",
+                invitedContact = InvitedContact("--server-id--", 0, 0,
+                        null, null, "new", "1")
+        )
+
+        helper.acknowledgeInviteTransactionSummary(completedInviteDTO)
+
+        verify(invite).sentDate = createdAt
+        verify(invite).btcState = BTCState.UNFULFILLED
+        verify(invite).update()
+        verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(invite)
+
+        val ordered = inOrder(invite, helper.transactionInviteSummaryHelper)
+        ordered.verify(invite).serverId = "--server-id--"
+        ordered.verify(invite).sentDate = createdAt
+        ordered.verify(invite).btcState = BTCState.UNFULFILLED
+        ordered.verify(invite).update()
+        ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(invite)
+    }
+
+    @Test
+    fun acknowledging_observed_invite_creates_join_reference_and_copies_some_values() {
+        val helper = createHelper()
+        val invite: InviteTransactionSummary = mock()
+        whenever(invite.toUser).thenReturn(mock())
+        whenever(invite.fromUser).thenReturn(mock())
+        whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId("--request-id--")).thenReturn(invite)
+
+        val createdAt = System.currentTimeMillis()
+        whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(createdAt)
+        val sentInvite = SentInvite().apply {
+            id = "--server-id--"
+            metadata = InviteMetadata().apply {
+                request_id = "--request-id--"
+
+            }
+        }
 
         helper.acknowledgeInviteTransactionSummary(sentInvite)
 
-        verify(transactionsInvitesSummary).inviteTime = sentInvite.created_at
-        verify(transactionsInvitesSummary).toUser = toUser
-        verify(transactionsInvitesSummary).fromUser = fromUser
-        verify(helper.daoSessionManager).insert(transactionsInvitesSummary)
-
-        verify(invite).serverId = sentInvite.id
+        verify(invite).sentDate = createdAt
         verify(invite).btcState = BTCState.UNFULFILLED
-        verify(invite).sentDate = sentInvite.created_at
         verify(invite).update()
+        verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(invite)
+
+        val ordered = inOrder(invite, helper.transactionInviteSummaryHelper)
+        ordered.verify(invite).serverId = sentInvite.id
+        ordered.verify(invite).sentDate = createdAt
+        ordered.verify(invite).btcState = BTCState.UNFULFILLED
+        ordered.verify(invite).update()
+        ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(invite)
     }
 
     @Test
     fun creates_new_temp_invite_whenever_server_id_absent_from_records() {
-        val helper = createInviteTransactionSumamaryHelper()
+        val helper = createHelper()
         val invite = mock<InviteTransactionSummary>()
         val transactionJoin = mock<TransactionsInvitesSummary>()
         val orderedOperations = inOrder(helper.daoSessionManager, invite, transactionJoin)
@@ -88,7 +148,7 @@ class InviteTransactionSummaryHelperTest {
     fun returns_existing_invite_join_record_whenever_server_id_exists_in_records() {
         val invite = mock<InviteTransactionSummary>()
         val transactionJoin = mock<TransactionsInvitesSummary>()
-        val helper = createInviteTransactionSumamaryHelper()
+        val helper = createHelper()
         val requestId = "--request-id--"
 
         whenever(invite.transactionsInvitesSummary).thenReturn(transactionJoin)
@@ -100,7 +160,7 @@ class InviteTransactionSummaryHelperTest {
     @Test
     fun saves_temporary_sent_invite() {
         val invite = mock<InviteTransactionSummary>()
-        val helper = createInviteTransactionSumamaryHelper()
+        val helper = createHelper()
         val pendingInviteDTO = createPendingToPhoneInviteDTO()
         val phoneIdentity = mock<DropbitMeIdentity>()
         val toUser = mock<UserIdentity>()
@@ -128,36 +188,26 @@ class InviteTransactionSummaryHelperTest {
 
     @Test
     fun updates_sent_invite_whenever_transaction_is_fulfilled() {
+        val txid = "--txid--"
+        val helper = createHelper()
         val invite = mock<InviteTransactionSummary>()
         val transactionsInvitesSummary = mock<TransactionsInvitesSummary>()
-        val helper = createInviteTransactionSumamaryHelper()
-        val currentTimeMillis = System.currentTimeMillis()
-        val transactionSummary = mock<TransactionSummary>()
-        val txid = "--txid--"
         val transactionBroadcastResult = mock<TransactionBroadcastResult>()
         whenever(transactionBroadcastResult.txId).thenReturn(txid)
-        whenever(transactionsInvitesSummary.inviteTransactionSummary).thenReturn(invite)
-        whenever(helper.transactionHelper.createInitialTransaction(txid)).thenReturn(transactionSummary)
-        whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(currentTimeMillis)
-        val orderedOperations = inOrder(transactionsInvitesSummary, invite, transactionSummary)
+        whenever(invite.transactionsInvitesSummary).thenReturn(transactionsInvitesSummary)
+        val orderedOperations = inOrder(invite, helper.transactionInviteSummaryHelper)
 
-        helper.updateFulfilledInvite(transactionsInvitesSummary, transactionBroadcastResult)
+        helper.updateFulfilledInvite(invite, transactionBroadcastResult)
 
         orderedOperations.verify(invite).btcTransactionId = txid
         orderedOperations.verify(invite).btcState = BTCState.FULFILLED
         orderedOperations.verify(invite).update()
-        orderedOperations.verify(transactionsInvitesSummary).inviteTxID = txid
-        orderedOperations.verify(transactionsInvitesSummary).transactionTxID = txid
-        orderedOperations.verify(transactionsInvitesSummary).inviteTime = 0L
-        orderedOperations.verify(transactionsInvitesSummary).btcTxTime = currentTimeMillis
-        orderedOperations.verify(transactionsInvitesSummary).update()
-        orderedOperations.verify(transactionsInvitesSummary).transactionSummary = transactionSummary
-
+        orderedOperations.verify(helper.transactionInviteSummaryHelper).populateWith(transactionsInvitesSummary, invite)
     }
 
     @Test
     fun cancels_pending_sent_invites() {
-        val helper = createInviteTransactionSumamaryHelper()
+        val helper = createHelper()
         val invite1: InviteTransactionSummary = mock()
         val invite2: InviteTransactionSummary = mock()
         whenever(helper.unfulfilledSentInvites).thenReturn(listOf(invite1, invite2))
@@ -173,7 +223,7 @@ class InviteTransactionSummaryHelperTest {
 
     @Test
     fun saves_received_invite() {
-        val helper = createInviteTransactionSumamaryHelper()
+        val helper = createHelper()
         val createdAt = System.currentTimeMillis() / 1000
         val receivedInvite = ReceivedInvite(
                 id = "--server-id--",
@@ -220,7 +270,7 @@ class InviteTransactionSummaryHelperTest {
 
     @Test
     fun updates_invite_with_address() {
-        val helper = createInviteTransactionSumamaryHelper()
+        val helper = createHelper()
         val invite: InviteTransactionSummary = mock()
         whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId("--server-id--")).thenReturn(invite)
 
@@ -228,6 +278,26 @@ class InviteTransactionSummaryHelperTest {
 
         verify(invite).address = "--address--"
         verify(invite).update()
+    }
+
+    @Test
+    fun updates_with_sent_invite_state() {
+        val helper = createHelper()
+        val sentInvite = SentInvite().apply {
+            id = "--cn-id--"
+            addressPubKey = "--pub-key--"
+            address = "--address--"
+        }
+        val invite: InviteTransactionSummary = mock()
+        whenever(helper.getInviteSummaryById("--cn-id--")).thenReturn(invite)
+
+        helper.updateInviteAddressTransaction(sentInvite)
+
+        verify(invite).btcState = BTCState.UNFULFILLED
+        verify(invite).address = "--address--"
+        verify(invite).pubkey = "--pub-key--"
+        verify(invite).update()
+        verify(helper.transactionInviteSummaryHelper).updateSentTimeFrom(invite)
     }
 
     private fun createPendingToPhoneInviteDTO(): PendingInviteDTO {

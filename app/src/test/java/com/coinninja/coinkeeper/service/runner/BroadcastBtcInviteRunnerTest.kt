@@ -55,8 +55,6 @@ class BroadcastBtcInviteRunnerTest {
         runner.invite = mock(InviteTransactionSummary::class.java)
         whenever(runner.invite!!.valueFeesSatoshis).thenReturn(100)
         whenever(runner.invite!!.valueSatoshis).thenReturn(10000)
-        val transactionsInvitesSummary = mock(TransactionsInvitesSummary::class.java)
-        whenever(runner.invite!!.transactionsInvitesSummary).thenReturn(transactionsInvitesSummary)
         whenever(runner.invite!!.address).thenReturn("--address--")
         val transactionData = TransactionData(
                 arrayOf(mock(UnspentTransactionOutput::class.java)),
@@ -74,7 +72,7 @@ class BroadcastBtcInviteRunnerTest {
 
         assertThat(transactionData.paymentAddress, equalTo<String>("--address--"))
         verify(runner.broadcastHelper).broadcast(transactionData)
-        verify(runner.inviteTransactionSummaryHelper).updateFulfilledInvite(transactionsInvitesSummary, transactionBroadcastResult)
+        verify(runner.inviteTransactionSummaryHelper).updateFulfilledInvite(runner.invite!!, transactionBroadcastResult)
         verify(runner.transactionNotificationManager).notifyCnOfFundedInvite(runner.invite!!)
         verify(runner.syncWalletManager).syncNow()
         verify(runner.analytics).trackEvent(Analytics.EVENT_DROPBIT_COMPLETED)

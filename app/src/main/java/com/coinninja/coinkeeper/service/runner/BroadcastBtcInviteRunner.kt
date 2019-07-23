@@ -67,7 +67,7 @@ internal constructor(@ApplicationContext internal val context: Context,
     }
 
     private fun updateFulfilledInvite(invite: InviteTransactionSummary, transactionBroadcastResult: TransactionBroadcastResult) {
-        inviteTransactionSummaryHelper.updateFulfilledInvite(invite.transactionsInvitesSummary, transactionBroadcastResult)
+        inviteTransactionSummaryHelper.updateFulfilledInvite(invite, transactionBroadcastResult)
         saveToBroadcastBtcDatabaseMarkAsFunded(invite, transactionBroadcastResult)
         saveToExternalNotificationsDatabase(transactionBroadcastResult, invite)
         transactionNotificationManager.notifyCnOfFundedInvite(invite)

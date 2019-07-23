@@ -32,11 +32,15 @@ class TransactionInviteSummaryHelper @Inject internal constructor(
             invite.transactionsInvitesSummary
 
                     ?: transactionQueryManager.transactionByTxid(invite.btcTransactionId)?.transactionsInvitesSummary?.also {
+                        invite.transactionsInvitesSummary = it
+                        invite.update()
                         populateWith(it, invite)
                         it.update()
                     }
 
                     ?: daoSessionManager.newTransactionInviteSummary().also {
+                        invite.transactionsInvitesSummary = it
+                        invite.update()
                         populateWith(it, invite)
                         daoSessionManager.insert(it)
                     }
@@ -46,12 +50,25 @@ class TransactionInviteSummaryHelper @Inject internal constructor(
         settlement.inviteTransactionSummary = invite
         settlement.fromUser = invite.fromUser
         settlement.toUser = invite.toUser
+        settlement.transactionTxID = invite.btcTransactionId
+        settlement.update()
+        updateSentTimeFrom(invite)
+    }
 
+    fun updateSentTimeFrom(invite: InviteTransactionSummary) {
+        val transactionsInvitesSummary = invite.transactionsInvitesSummary
         when (invite.btcState) {
             BTCState.CANCELED,
             BTCState.FULFILLED,
-            BTCState.EXPIRED -> settlement.btcTxTime = invite.sentDate
-            else -> settlement.inviteTime = invite.sentDate
+            BTCState.EXPIRED -> {
+                transactionsInvitesSummary.btcTxTime = invite.sentDate
+                transactionsInvitesSummary.inviteTime = 0
+            }
+            else -> {
+                transactionsInvitesSummary.btcTxTime = 0
+                transactionsInvitesSummary.inviteTime = invite.sentDate
+            }
         }
+        transactionsInvitesSummary.update()
     }
 }

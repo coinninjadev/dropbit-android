@@ -157,31 +157,6 @@ public class TransactionHelper {
     }
 
 
-    public InviteTransactionSummary updateInviteAddressTransaction(SentInvite sentInvite) {
-        InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite);
-        if (invite == null) return null;
-
-        invite.refresh();
-        BTCState status = BTCState.from(sentInvite.getStatus());
-        switch (status) {
-            case UNFULFILLED:
-                invite.setBtcState(status);
-                break;
-            case FULFILLED:
-            case CANCELED:
-            case EXPIRED:
-                invite.setBtcState(status);
-                updateInviteTimeCompleteTransactionInviteSummary(invite);
-                break;
-        }
-
-        invite.setPubkey(sentInvite.getAddressPubKey());
-        invite.setAddress(sentInvite.getAddress());
-        invite.update();
-        invite.refresh();
-        return invite;
-    }
-
     @Nullable
     public InviteTransactionSummary getInviteTransactionSummary(SentInvite sentInvite) {
         InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite.getId());

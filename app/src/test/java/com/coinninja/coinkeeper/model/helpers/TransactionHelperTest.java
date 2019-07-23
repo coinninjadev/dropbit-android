@@ -63,7 +63,6 @@ import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 @RunWith(AndroidJUnit4.class)
 public class TransactionHelperTest {
 
-    private static final String SENDER_PHONE_STRING = "13305550000";
     private static final String RECEIVER_PHONE_STRING = "13305551111";
 
     @Mock
@@ -143,70 +142,6 @@ public class TransactionHelperTest {
         helper.initTransactions(addresses);
 
         verify(dao, VerificationModeFactory.times(0)).insert(transaction);
-    }
-
-    @Test
-    public void updates_invite_summary_with_pubkey() {
-        long time = 1542311567000L;
-        SentInvite sentInvite = mock(SentInvite.class);
-        when(sentInvite.getCreated_at()).thenReturn(time);
-        when(sentInvite.getId()).thenReturn("--server-id");
-        when(sentInvite.getStatus()).thenReturn("new");
-        when(sentInvite.getAddressPubKey()).thenReturn("--pub-key--");
-        InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
-        when(inviteQuery.where(any())).thenReturn(inviteQuery);
-        when(inviteQuery.limit(1)).thenReturn(inviteQuery);
-        when(inviteQuery.unique()).thenReturn(invite);
-
-        helper.updateInviteAddressTransaction(sentInvite);
-
-        verify(invite).setBtcState(BTCState.UNFULFILLED);
-        verify(invite).setPubkey("--pub-key--");
-        verify(invite).update();
-    }
-
-    @Test
-    public void updates_tx_time_for_canceled_dropbits() {
-        long time = 1542311567000L;
-        SentInvite sentInvite = mock(SentInvite.class);
-        when(sentInvite.getCreated_at()).thenReturn(time);
-        when(sentInvite.getId()).thenReturn("--server-id");
-        when(sentInvite.getStatus()).thenReturn("canceled");
-        InviteTransactionSummary inviteTransactionSummary = mock(InviteTransactionSummary.class);
-        when(inviteQuery.where(any())).thenReturn(inviteQuery);
-        when(inviteQuery.limit(1)).thenReturn(inviteQuery);
-        when(inviteQuery.unique()).thenReturn(inviteTransactionSummary);
-        when(inviteTransactionSummary.getSentDate()).thenReturn(time);
-        TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        when(inviteTransactionSummary.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
-
-        helper.updateInviteAddressTransaction(sentInvite);
-
-        verify(transactionsInvitesSummary).setInviteTime(0);
-        verify(transactionsInvitesSummary).setBtcTxTime(time);
-        verify(transactionsInvitesSummary).update();
-    }
-
-    @Test
-    public void updates_tx_time_for_expired_dropbits() {
-        long time = 1542311567000L;
-        SentInvite sentInvite = mock(SentInvite.class);
-        when(sentInvite.getCreated_at()).thenReturn(time);
-        when(sentInvite.getId()).thenReturn("--server-id");
-        when(sentInvite.getStatus()).thenReturn("expired");
-        InviteTransactionSummary inviteTransactionSummary = mock(InviteTransactionSummary.class);
-        when(inviteQuery.where(any())).thenReturn(inviteQuery);
-        when(inviteQuery.limit(1)).thenReturn(inviteQuery);
-        when(inviteQuery.unique()).thenReturn(inviteTransactionSummary);
-        when(inviteTransactionSummary.getSentDate()).thenReturn(time);
-        TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        when(inviteTransactionSummary.getTransactionsInvitesSummary()).thenReturn(transactionsInvitesSummary);
-
-        helper.updateInviteAddressTransaction(sentInvite);
-
-        verify(transactionsInvitesSummary).setInviteTime(0);
-        verify(transactionsInvitesSummary).setBtcTxTime(time);
-        verify(transactionsInvitesSummary).update();
     }
 
     @Test

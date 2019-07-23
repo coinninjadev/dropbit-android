@@ -22,7 +22,6 @@ class SentInvitesStatusGetter @Inject
 internal constructor(@ApplicationContext internal val context: Context,
                      internal val internalNotificationHelper: InternalNotificationHelper,
                      internal val client: SignedCoinKeeperApiClient,
-                     internal val transactionHelper: TransactionHelper,
                      internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
                      internal val cnLogger: CNLogger
 ) : Runnable {
@@ -47,14 +46,14 @@ internal constructor(@ApplicationContext internal val context: Context,
         for (sentInvite in sentInvites) {
             if (BTCState.from(sentInvite.status) == BTCState.UNFULFILLED) {
                 acknowledgeLocalInvitationIfNecessary(sentInvite)
-                transactionHelper.updateInviteAddressTransaction(sentInvite)
+                inviteTransactionSummaryHelper.updateInviteAddressTransaction(sentInvite)
                 continue
             }
 
-            val oldInvite = transactionHelper.getInviteTransactionSummary(sentInvite)
+            val oldInvite = inviteTransactionSummaryHelper.getInviteSummaryById(sentInvite.id)
             oldInvite?.let {
                 val oldInviteBtcState = oldInvite.btcState
-                val newInvite = transactionHelper.updateInviteAddressTransaction(sentInvite)
+                val newInvite = inviteTransactionSummaryHelper.updateInviteAddressTransaction(sentInvite)
                 newInvite?.let {
                     if (hasStateChanged(oldInviteBtcState, newInvite)) {
                         notifyUser(newInvite)

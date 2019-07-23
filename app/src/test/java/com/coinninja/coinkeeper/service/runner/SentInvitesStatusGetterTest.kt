@@ -6,22 +6,15 @@ import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.Type
-import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper
-import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper
-import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.SentInvite
-import com.coinninja.coinkeeper.util.CNLogger
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.*
 import retrofit2.Response
 
 @RunWith(AndroidJUnit4::class)
@@ -57,9 +50,9 @@ class SentInvitesStatusGetterTest {
                 "]"
     }
 
-    private var invite = mock(SentInvite::class.java)
-    private var newSummary = mock(InviteTransactionSummary::class.java)
-    private var oldSummary = mock(InviteTransactionSummary::class.java)
+    private var invite: SentInvite = mock()
+    private var newSummary: InviteTransactionSummary = mock()
+    private var oldSummary: InviteTransactionSummary = mock()
 
     private val badResponse: Response<*>
         get() = Response.error<Any>(500,
@@ -69,12 +62,7 @@ class SentInvitesStatusGetterTest {
     private fun createRunner(): SentInvitesStatusGetter {
         return SentInvitesStatusGetter(
                 ApplicationProvider.getApplicationContext(),
-                mock(InternalNotificationHelper::class.java),
-                mock(SignedCoinKeeperApiClient::class.java),
-                mock(TransactionHelper::class.java),
-                mock(InviteTransactionSummaryHelper::class.java),
-                mock(CNLogger::class.java)
-        )
+                mock(), mock(), mock(), mock())
     }
 
     @Test
@@ -88,7 +76,7 @@ class SentInvitesStatusGetterTest {
 
         runner.run()
 
-        verify(runner.transactionHelper).updateInviteAddressTransaction(invite)
+        verify(runner.inviteTransactionSummaryHelper).updateInviteAddressTransaction(invite)
         verify(runner.inviteTransactionSummaryHelper).acknowledgeInviteTransactionSummary(invite)
     }
 
@@ -99,7 +87,7 @@ class SentInvitesStatusGetterTest {
 
         runner.run()
 
-        verify(runner.transactionHelper, never()).updateInviteAddressTransaction(ArgumentMatchers.any(SentInvite::class.java))
+        verify(runner.inviteTransactionSummaryHelper, never()).updateInviteAddressTransaction(any())
     }
 
     @Test
@@ -111,7 +99,7 @@ class SentInvitesStatusGetterTest {
 
         runner.run()
 
-        verify(runner.transactionHelper).updateInviteAddressTransaction(invite)
+        verify(runner.inviteTransactionSummaryHelper).updateInviteAddressTransaction(invite)
     }
 
     @Test
@@ -122,7 +110,7 @@ class SentInvitesStatusGetterTest {
 
         runner.run()
 
-        verify(runner.transactionHelper).updateInviteAddressTransaction(invite)
+        verify(runner.inviteTransactionSummaryHelper).updateInviteAddressTransaction(invite)
     }
 
     @Test
@@ -135,7 +123,7 @@ class SentInvitesStatusGetterTest {
 
         runner.run()
 
-        verify(runner.transactionHelper).updateInviteAddressTransaction(invite)
+        verify(runner.inviteTransactionSummaryHelper).updateInviteAddressTransaction(invite)
     }
 
     @Test
@@ -144,7 +132,6 @@ class SentInvitesStatusGetterTest {
         val formattedPhone = "(330) 555-1111"
         val status = "expired"
         mockSendForStatus(runner, status, true)
-        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryById(invite.id)).thenReturn(newSummary)
         whenever(newSummary.localeFriendlyDisplayIdentityForReceiver).thenReturn(formattedPhone)
 
         runner.run()
@@ -173,21 +160,22 @@ class SentInvitesStatusGetterTest {
     private fun mockSendForStatus(runner: SentInvitesStatusGetter, status: String, simulateChange: Boolean) {
         val response = getResponse(status)
         invite = (response.body() as List<*>)[0] as SentInvite
-        newSummary = mock(InviteTransactionSummary::class.java)
-        oldSummary = mock(InviteTransactionSummary::class.java)
+        newSummary = mock()
+        oldSummary = mock()
         whenever(newSummary.btcState).thenReturn(BTCState.from(status))
         whenever(newSummary.type).thenReturn(Type.SENT)
         whenever(newSummary.valueSatoshis).thenReturn(1000L)
         whenever(oldSummary.type).thenReturn(Type.SENT)
-        whenever(oldSummary.btcState).thenReturn(BTCState.from(status))
 
         if (simulateChange) {
             whenever(oldSummary.btcState).thenReturn(BTCState.UNFULFILLED)
+        } else {
+            whenever(oldSummary.btcState).thenReturn(BTCState.from(status))
         }
 
         whenever(runner.client.sentInvites).thenReturn(response)
-        whenever(runner.transactionHelper.getInviteTransactionSummary(invite)).thenReturn(oldSummary)
-        whenever(runner.transactionHelper.updateInviteAddressTransaction(invite)).thenReturn(newSummary)
+        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryById(invite.id)).thenReturn(oldSummary)
+        whenever(runner.inviteTransactionSummaryHelper.updateInviteAddressTransaction(invite)).thenReturn(newSummary)
     }
 
     private fun getResponse(status: String): Response<*> {
