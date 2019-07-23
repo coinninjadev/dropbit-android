@@ -186,38 +186,6 @@ public class TransactionHelperTest {
     }
 
     @Test
-    public void uses_invite_txtime_when_tx_time_is_unavailable() {
-        InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
-        when(invite.getSentDate()).thenReturn(1000000000L);
-        TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        when(transactionsInvitesSummary.getBtcTxTime()).thenReturn(0L);
-        when(tsInviteQuery.limit(1)).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.where(any())).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.unique()).thenReturn(transactionsInvitesSummary);
-
-
-        helper.addInviteToTransInvitesSummary(invite);
-
-        verify(transactionsInvitesSummary).setInviteTime(1000000000L);
-    }
-
-    @Test
-    public void uses_transactions_txtime_when_available() {
-        InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
-        when(invite.getSentDate()).thenReturn(1000000000L);
-        TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        when(transactionsInvitesSummary.getBtcTxTime()).thenReturn(1000000L);
-        when(tsInviteQuery.limit(1)).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.where(any())).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.unique()).thenReturn(transactionsInvitesSummary);
-
-
-        helper.addInviteToTransInvitesSummary(invite);
-
-        verify(transactionsInvitesSummary).setInviteTime(0);
-    }
-
-    @Test
     public void does_not_update_transaction_time_when_not_avaialable() {
         TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
         when(transaction.getTxTime()).thenReturn(0L);
