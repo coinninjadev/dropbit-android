@@ -117,7 +117,7 @@ public class CNGlobalMessagesRunnerTest {
 
         cnGlobalMessagesRunner.run();
 
-        verify(mockCNLogger).logError(CNGlobalMessagesRunner.TAG, "|---- Unable to get CN Global Messages", badResponse);
+        verify(mockCNLogger).logError(CNGlobalMessagesRunner.TAG, "|---- Unable to addressForPubKey CN Global Messages", badResponse);
         verify(mockNotificationHelper, times(0)).addNotifications(any(), any(), any(), any(), any());
     }
 

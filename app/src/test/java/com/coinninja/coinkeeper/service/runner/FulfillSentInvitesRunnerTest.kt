@@ -32,7 +32,7 @@ class FulfillSentInvitesRunnerTest {
         //Step 1. grab all sent invites from server, save/update the ones that now have an address
         ordered.verify(runner.sentInvitesStatusGetter).run()
 
-        //Step 2. get any sent invites that do not have a tx id but have an address
+        //Step 2. addressForPubKey any sent invites that do not have a tx id but have an address
         ordered.verify(runner.transactionHelper).gatherUnfulfilledInviteTrans()
 
         //Step 3. report to coinninja server of any invites that have been newly fulfilled (with TX ID)

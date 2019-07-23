@@ -1,9 +1,9 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import androidx.annotation.NonNull;
+
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
-import com.coinninja.coinkeeper.model.db.Address;
-import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummaryDao;
@@ -108,36 +108,6 @@ public class WalletHelper {
         return walletQueryManager.getWallet();
     }
 
-    public boolean containsAddress(String address) {
-        return daoSessionManager.getAddressDao().queryBuilder().
-                where(AddressDao.Properties.Address.eq(address)).
-                list().size() > 0;
-    }
-
-    public List<Address> addAddresses(List<GsonAddress> addresses, int changeIndex) {
-        AddressDao addressDao = daoSessionManager.getAddressDao();
-        List<String> savedAddresses = new ArrayList<>();
-
-        for (GsonAddress address : addresses) {
-            String addr = address.getAddress();
-
-            if (savedAddresses.indexOf(addr) >= 0 || containsAddress(addr)) {
-                savedAddresses.add(addr);
-                continue;
-            }
-            savedAddresses.add(addr);
-
-            Address dbAddress = new Address();
-            dbAddress.setWalletId(getWallet().getId());
-            dbAddress.setAddress(addr);
-            dbAddress.setChangeIndex(changeIndex);
-            dbAddress.setIndex(address.getDerivationIndex());
-            addressDao.insert(dbAddress);
-        }
-
-        return addressDao.queryBuilder().
-                where(AddressDao.Properties.Address.in(savedAddresses)).list();
-    }
 
     public void linkStatsWithAddressBook() {
         daoSessionManager.runRaw("update TARGET_STAT set ADDRESS_ID = (select _id from ADDRESS where address = TARGET_STAT.ADDR)");
@@ -207,7 +177,7 @@ public class WalletHelper {
         account.update();
     }
 
-    public void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
+    void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
         if (!hasAccount()) return;
 
         Account account = getUserAccount();

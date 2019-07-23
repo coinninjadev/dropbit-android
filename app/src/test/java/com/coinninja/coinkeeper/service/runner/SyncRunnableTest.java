@@ -99,7 +99,7 @@ public class SyncRunnableTest {
     public void setUp() {
         gsonAddresses = new ArrayList<>();
         when(addressAPIUtil.fetchAddresses(any(HDWallet.class), anyInt(), anyInt(), anyInt())).thenReturn(gsonAddresses);
-        when(walletHelper.addAddresses(any(), anyInt())).thenReturn(addresses);
+        when(addressHelper.addAddresses(any(), anyInt())).thenReturn(addresses);
         when(cnWalletManager.hasWallet()).thenReturn(true);
     }
 
@@ -265,7 +265,7 @@ public class SyncRunnableTest {
 
         syncRunner.run();
 
-        verify(walletHelper).addAddresses(responseAddresses, HDWallet.EXTERNAL);
+        verify(addressHelper).addAddresses(responseAddresses, HDWallet.EXTERNAL);
     }
 
     @Test
@@ -277,7 +277,7 @@ public class SyncRunnableTest {
 
         syncRunner.run();
 
-        verify(walletHelper).addAddresses(responseAddresses, HDWallet.INTERNAL);
+        verify(addressHelper).addAddresses(responseAddresses, HDWallet.INTERNAL);
     }
 
     @Test

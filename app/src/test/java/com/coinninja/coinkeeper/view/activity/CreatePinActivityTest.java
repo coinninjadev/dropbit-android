@@ -165,7 +165,7 @@ public class CreatePinActivityTest {
         when(pinEntry.hasExistingPin()).thenReturn(true);
 
         Intent intent = new Intent();
-        intent.putExtra(Intent.ACTION_BATTERY_LOW, "dummy-extra-so-get-extra-is-not-null");
+        intent.putExtra(Intent.ACTION_BATTERY_LOW, "dummy-extra-so-addressForPubKey-extra-is-not-null");
         initWithIntent(intent);
 
         Intent startedIntent = shadowActivity.getNextStartedActivity();

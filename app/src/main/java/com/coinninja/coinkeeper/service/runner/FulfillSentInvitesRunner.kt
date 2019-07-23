@@ -18,7 +18,7 @@ internal constructor(internal val transactionHelper: TransactionHelper,
         //Step 1. grab all sent invites from server, save/update the ones that now have an address
         sentInvitesStatusGetter.run()
 
-        //Step 2. get any sent invites that do not have a tx id but have an address
+        //Step 2. addressForPubKey any sent invites that do not have a tx id but have an address
         val unfulfilledTransactions = transactionHelper.gatherUnfulfilledInviteTrans()
         broadcastRealTxForInvites(unfulfilledTransactions)
 

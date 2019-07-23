@@ -132,7 +132,7 @@ public class SyncRunnable implements Runnable {
                 fetchAddresses(hdWallet, change, 0, currentIndex);
 
         // Save Fetched Addresses
-        walletHelper.addAddresses(addresses, change);
+        addressHelper.addAddresses(addresses, change);
 
         // save reference transactions
         walletHelper.initTransactions(addresses);
