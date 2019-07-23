@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.model.helpers;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.Identity;
@@ -29,7 +28,6 @@ import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
-import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.TransactionStats;
 import com.coinninja.coinkeeper.service.client.model.VIn;
@@ -154,18 +152,6 @@ public class TransactionHelper {
                 transaction.update();
             }
         }
-    }
-
-
-    @Nullable
-    public InviteTransactionSummary getInviteTransactionSummary(SentInvite sentInvite) {
-        InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite.getId());
-
-        if (invite == null) {
-            Log.e(TAG, "unable to update invite: " + sentInvite.getAddress());
-            return null;
-        }
-        return invite;
     }
 
     public void updateInviteTxIDTransaction(Wallet wallet, String inviteServerID, String txID) {
@@ -717,7 +703,6 @@ public class TransactionHelper {
         transactionsInvitesSummary.update();
         transactionsInvitesSummary.refresh();
     }
-
 
     private TransactionSummary createInitialTransaction(String transactionId, Identity identity) {
         TransactionSummary transactionSummary = daoSessionManager.newTransactionSummary();
