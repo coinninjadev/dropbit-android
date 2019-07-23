@@ -71,8 +71,8 @@ class SentInvitesStatusGetterTest {
         val runner = createRunner()
         mockSendForStatus(runner, status, false)
 
-        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryById(invite.id)).thenReturn(newSummary)
-        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryById(invite.metadata.request_id)).thenReturn(oldSummary)
+        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryByCnId(invite.id)).thenReturn(newSummary)
+        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryByCnId(invite.metadata.request_id)).thenReturn(oldSummary)
 
         runner.run()
 
@@ -95,7 +95,7 @@ class SentInvitesStatusGetterTest {
         val runner = createRunner()
         val status = "completed"
         mockSendForStatus(runner, status, false)
-        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryById(invite.id)).thenReturn(newSummary)
+        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryByCnId(invite.id)).thenReturn(newSummary)
 
         runner.run()
 
@@ -119,7 +119,7 @@ class SentInvitesStatusGetterTest {
         val status = "expired"
         mockSendForStatus(runner, status, false)
 
-        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryById(invite.id)).thenReturn(newSummary)
+        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryByCnId(invite.id)).thenReturn(newSummary)
 
         runner.run()
 
@@ -174,7 +174,7 @@ class SentInvitesStatusGetterTest {
         }
 
         whenever(runner.client.sentInvites).thenReturn(response)
-        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryById(invite.id)).thenReturn(oldSummary)
+        whenever(runner.inviteTransactionSummaryHelper.getInviteSummaryByCnId(invite.id)).thenReturn(oldSummary)
         whenever(runner.inviteTransactionSummaryHelper.updateInviteAddressTransaction(invite)).thenReturn(newSummary)
     }
 

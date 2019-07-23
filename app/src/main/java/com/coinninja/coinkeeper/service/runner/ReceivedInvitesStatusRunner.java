@@ -2,14 +2,15 @@ package com.coinninja.coinkeeper.service.runner;
 
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -22,16 +23,17 @@ public class ReceivedInvitesStatusRunner implements Runnable {
 
     private final SignedCoinKeeperApiClient client;
     private final TransactionHelper transactionHelper;
-    private final WalletHelper walletHelper;
+    private final InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
     private final Analytics analytics;
     private final CNLogger logger;
 
     @Inject
     public ReceivedInvitesStatusRunner(SignedCoinKeeperApiClient client, TransactionHelper transactionHelper,
-                                       WalletHelper walletHelper, Analytics analytics, CNLogger logger) {
+                                       InviteTransactionSummaryHelper inviteTransactionSummaryHelper,
+                                       Analytics analytics, CNLogger logger) {
         this.client = client;
         this.transactionHelper = transactionHelper;
-        this.walletHelper = walletHelper;
+        this.inviteTransactionSummaryHelper = inviteTransactionSummaryHelper;
         this.analytics = analytics;
         this.logger = logger;
     }
@@ -48,6 +50,17 @@ public class ReceivedInvitesStatusRunner implements Runnable {
         cleanInviteJoinTable();
     }
 
+    String getCompletedTxID(ReceivedInvite invite) {
+        String currentStatus = invite.getStatus();
+        if (currentStatus == null) return null;
+
+        if ("completed".contentEquals(currentStatus)) {
+            return invite.getTxid();
+        }
+
+        return null;
+    }
+
     private void saveCompletedInvites(List<ReceivedInvite> invites) {
         for (ReceivedInvite invite : invites) {
             String completedTxID = getCompletedTxID(invite);
@@ -60,21 +73,14 @@ public class ReceivedInvitesStatusRunner implements Runnable {
     }
 
     private void saveFulfilledInvite(ReceivedInvite invite) {
-        transactionHelper.updateInviteTxIDTransaction(walletHelper.getWallet(), invite.getId(), invite.getTxid());
-        analytics.setUserProperty(Analytics.PROPERTY_HAS_RECEIVED_DROPBIT, true);
-    }
-
-    String getCompletedTxID(ReceivedInvite invite) {
-        String currentStatus = invite.getStatus();
-        if (currentStatus == null) return null;
-
-        if ("completed".contentEquals(currentStatus)) {
-            return invite.getTxid();
+        String txid = invite.getTxid();
+        if (txid != null && !txid.isEmpty()) {
+            inviteTransactionSummaryHelper.updateFulfilledInviteByCnId(invite.getId(), txid);
+            analytics.setUserProperty(Analytics.PROPERTY_HAS_RECEIVED_DROPBIT, true);
         }
-
-        return null;
     }
 
+    //TODO Remove HACK
     private void cleanInviteJoinTable() {
         List<InviteTransactionSummary> invites = transactionHelper.getInvitesWithTxID();
         for (InviteTransactionSummary invite : invites) {

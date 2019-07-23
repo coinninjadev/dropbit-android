@@ -154,30 +154,6 @@ public class TransactionHelper {
         }
     }
 
-    public void updateInviteTxIDTransaction(Wallet wallet, String inviteServerID, String txID) {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        InviteTransactionSummary invite = inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID))
-                .unique();
-
-        if (invite == null) {
-            Log.e(TAG, "unable to update invite: " + txID);
-            return;
-        }
-
-        if (invite.getBtcState() == null || invite.getBtcState() == BTCState.UNFULFILLED) {
-
-            invite.setBtcTransactionId(txID);
-            invite.setBtcState(BTCState.FULFILLED);
-            invite.update();
-            invite.refresh();
-
-            addInviteToTransInvitesSummary(invite);
-
-            saveLocalTransaction(wallet, txID, invite);
-        }
-    }
 
     public void updateInviteAsCanceled(String inviteServerID) {
         InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
@@ -578,17 +554,6 @@ public class TransactionHelper {
 
             dao.insert(transaction);
             dao.refresh(transaction);
-        }
-    }
-
-
-    private void updateInviteTimeCompleteTransactionInviteSummary(InviteTransactionSummary invite) {
-        TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
-
-        if (null != summary) {
-            summary.setInviteTime(0);
-            summary.setBtcTxTime(invite.getSentDate());
-            summary.update();
         }
     }
 

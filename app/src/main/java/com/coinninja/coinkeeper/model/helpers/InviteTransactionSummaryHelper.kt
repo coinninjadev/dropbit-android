@@ -31,7 +31,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
     val allUnacknowledgedInvitations: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.allUnacknowledgedInvitations
     val unfulfilledSentInvites: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.unfulfilledSentInvites
 
-    fun getInviteSummaryById(id: String): InviteTransactionSummary? {
+    fun getInviteSummaryByCnId(id: String): InviteTransactionSummary? {
         return inviteSummaryQueryManager.getInviteSummaryByCnId(id)
     }
 
@@ -115,14 +115,22 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         }
     }
 
+    private fun updateInviteAsFulfilled(txid: String, invite: InviteTransactionSummary) {
+        invite.btcTransactionId = txid
+        invite.btcState = BTCState.FULFILLED
+        invite.update()
+        transactionInviteSummaryHelper.populateWith(invite.transactionsInvitesSummary, invite)
+    }
+
     fun updateFulfilledInvite(invite: InviteTransactionSummary, transactionBroadcastResult: TransactionBroadcastResult) {
         val txid = transactionBroadcastResult.txId
-        invite.apply {
-            btcTransactionId = txid
-            btcState = BTCState.FULFILLED
-            update()
+        updateInviteAsFulfilled(txid, invite)
+    }
+
+    fun updateFulfilledInviteByCnId(cnId: String, txid: String) {
+        getInviteSummaryByCnId(cnId)?.let {
+            updateInviteAsFulfilled(txid, it)
         }
-        transactionInviteSummaryHelper.populateWith(invite.transactionsInvitesSummary, invite)
     }
 
     fun cancelInvite(invite: InviteTransactionSummary) {

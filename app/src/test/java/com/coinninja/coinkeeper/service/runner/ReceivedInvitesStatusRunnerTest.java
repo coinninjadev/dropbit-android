@@ -1,8 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
-import com.coinninja.coinkeeper.model.db.Wallet;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.util.CNLogger;
@@ -11,7 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -29,7 +27,6 @@ import retrofit2.Response;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -38,7 +35,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReceivedInvitesStatusRunnerTest {
-    String fulfilledReceivedRequest = "[\n" +
+    private String fulfilledReceivedRequest = "[\n" +
             "  {\n" +
             "    \"id\": \"a1bb1d88-bfc8-4085-8966-e0062278237c\",\n" +
             "    \"created_at\": 1531921356,\n" +
@@ -65,7 +62,7 @@ public class ReceivedInvitesStatusRunnerTest {
             "    \"wallet_id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\"\n" +
             "  }\n" +
             "]";
-    String un_fulfilledReceivedRequest = "[\n" +
+    private String un_fulfilledReceivedRequest = "[\n" +
             "  {\n" +
             "    \"id\": \"a1bb1d88-bfc8-4085-8966-e0062278237c\",\n" +
             "    \"created_at\": 1531921356,\n" +
@@ -93,31 +90,22 @@ public class ReceivedInvitesStatusRunnerTest {
             "  }\n" +
             "]";
     @Mock
+    CNLogger logger;
+    @Mock
     private SignedCoinKeeperApiClient apiClient;
+    @Mock
+    private InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
     @Mock
     private TransactionHelper transactionHelper;
     @Mock
-    private WalletHelper walletHelper;
-    @Mock
-    private Wallet wallet;
-    @Mock
     private Analytics analytics;
-    @Mock
-    CNLogger logger;
-
     @InjectMocks
     private ReceivedInvitesStatusRunner receivedInvitesStatusRunner;
-
-    @Before
-    public void setUp() {
-        when(walletHelper.getWallet()).thenReturn(wallet);
-    }
 
     @After
     public void tearDown() {
         apiClient = null;
         transactionHelper = null;
-        walletHelper = null;
         receivedInvitesStatusRunner = null;
     }
 
@@ -136,7 +124,7 @@ public class ReceivedInvitesStatusRunnerTest {
 
         receivedInvitesStatusRunner.run();
 
-        verify(transactionHelper).updateInviteTxIDTransaction(wallet, "a1bb1d88-bfc8-4085-8966-e0062278237c", "7f3a2790d59853fdc620b8cd23c8f68158f8bbdcd337a5f2451620d6f76d4e03");
+        verify(inviteTransactionSummaryHelper).updateFulfilledInviteByCnId("a1bb1d88-bfc8-4085-8966-e0062278237c", "7f3a2790d59853fdc620b8cd23c8f68158f8bbdcd337a5f2451620d6f76d4e03");
     }
 
     @Test
@@ -146,7 +134,7 @@ public class ReceivedInvitesStatusRunnerTest {
 
         receivedInvitesStatusRunner.run();
 
-        verify(transactionHelper, times(0)).updateInviteTxIDTransaction(any(), anyString(), anyString());
+        verify(inviteTransactionSummaryHelper, times(0)).updateFulfilledInviteByCnId(anyString(), anyString());
     }
 
     @Test
@@ -156,7 +144,7 @@ public class ReceivedInvitesStatusRunnerTest {
 
         receivedInvitesStatusRunner.run();
 
-        verify(transactionHelper, times(0)).updateInviteTxIDTransaction(any(), anyString(), anyString());
+        verify(inviteTransactionSummaryHelper, times(0)).updateFulfilledInviteByCnId(anyString(), anyString());
         verify(logger).logError(ReceivedInvitesStatusRunner.TAG, ReceivedInvitesStatusRunner.RECEIVED_INVITE_FAILED, response);
     }
 

@@ -206,6 +206,25 @@ class InviteTransactionSummaryHelperTest {
     }
 
     @Test
+    fun updates_received_invites_as_fulfilled() {
+        val cnId = "--cn-id--"
+        val txid = "--txid--"
+        val helper = createHelper()
+        val invite: InviteTransactionSummary = mock()
+        whenever(helper.getInviteSummaryByCnId(cnId)).thenReturn(invite)
+        val settlement: TransactionsInvitesSummary = mock()
+        whenever(invite.transactionsInvitesSummary).thenReturn(settlement)
+
+        helper.updateFulfilledInviteByCnId(cnId, txid)
+
+        val orderedOperations = inOrder(invite, helper.transactionInviteSummaryHelper)
+        orderedOperations.verify(invite).btcTransactionId = txid
+        orderedOperations.verify(invite).btcState = BTCState.FULFILLED
+        orderedOperations.verify(invite).update()
+        orderedOperations.verify(helper.transactionInviteSummaryHelper).populateWith(settlement, invite)
+    }
+
+    @Test
     fun cancels_pending_sent_invites() {
         val helper = createHelper()
         val invite1: InviteTransactionSummary = mock()
@@ -289,7 +308,7 @@ class InviteTransactionSummaryHelperTest {
             address = "--address--"
         }
         val invite: InviteTransactionSummary = mock()
-        whenever(helper.getInviteSummaryById("--cn-id--")).thenReturn(invite)
+        whenever(helper.getInviteSummaryByCnId("--cn-id--")).thenReturn(invite)
 
         helper.updateInviteAddressTransaction(sentInvite)
 

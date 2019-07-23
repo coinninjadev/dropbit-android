@@ -7,7 +7,6 @@ import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.BroadcastBtcInviteDao;
-import com.coinninja.coinkeeper.model.db.DaoSession;
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.FundingStatDao;
@@ -21,14 +20,12 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummaryDao;
 import com.coinninja.coinkeeper.model.db.UserIdentity;
 import com.coinninja.coinkeeper.model.db.Wallet;
-import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey;
-import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.VIn;
 import com.coinninja.coinkeeper.service.client.model.VOut;
@@ -684,42 +681,6 @@ public class TransactionHelperTest {
 
     }
 
-    @Test
-    public void do_NOT_update_FULFILLED_invites_test() {
-        DaoSession daoSessionMock = mock(DaoSession.class);
-
-        InviteTransactionSummary invite = mock(InviteTransactionSummary.class);
-        String inviteServerID = "some address";
-
-
-        when(daoSessionMock.getInviteTransactionSummaryDao()).thenReturn(inviteDao);
-        when(inviteDao.queryBuilder()).thenReturn(inviteQuery);
-        when(inviteQuery.where(any())).thenReturn(inviteQuery);
-        when(inviteQuery.unique()).thenReturn(invite);
-        TransactionsInvitesSummary transactionSummary = mock(TransactionsInvitesSummary.class);
-        when(invite.getTransactionsInvitesSummary()).thenReturn(transactionSummary);
-        TransactionSummary tx = mock(TransactionSummary.class);
-        when(transactionSummary.getTransactionSummary()).thenReturn(tx);
-        when(tx.getMemPoolState()).thenReturn(MemPoolState.FAILED_TO_BROADCAST);
-        when(invite.getBtcState()).thenReturn(BTCState.FULFILLED);
-
-
-        Wallet wallet = mock(Wallet.class);
-        String txID = "some tx iD";
-        helper.updateInviteTxIDTransaction(wallet, inviteServerID, txID);
-
-
-        verify(invite, times(0)).setAddress(any());
-        verify(invite, times(0)).setValueFeesSatoshis(any());
-        verify(invite, times(0)).setSentDate(any());
-        verify(invite, times(0)).setBtcState(any());
-        verify(invite, times(0)).setValueSatoshis(any());
-        verify(invite, times(0)).setValueFeesSatoshis(any());
-        verify(invite, times(0)).setWalletId(any());
-        verify(invite, times(0)).setAddress(any());
-        verify(invite, times(0)).setBtcTransactionId(any());
-        verify(invite, times(0)).setType(any());
-    }
 
     @Test
     public void creates_partial_transaction_for_sync_to_populate_when_fulfilling_an_invite() {

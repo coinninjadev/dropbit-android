@@ -10,7 +10,6 @@ import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.Type
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.SentInvite
 import com.coinninja.coinkeeper.util.CNLogger
@@ -50,7 +49,7 @@ internal constructor(@ApplicationContext internal val context: Context,
                 continue
             }
 
-            val oldInvite = inviteTransactionSummaryHelper.getInviteSummaryById(sentInvite.id)
+            val oldInvite = inviteTransactionSummaryHelper.getInviteSummaryByCnId(sentInvite.id)
             oldInvite?.let {
                 val oldInviteBtcState = oldInvite.btcState
                 val newInvite = inviteTransactionSummaryHelper.updateInviteAddressTransaction(sentInvite)
@@ -87,7 +86,7 @@ internal constructor(@ApplicationContext internal val context: Context,
         val noLocalMatchInvites = mutableListOf<SentInvite>()
 
         for (sentInvite in sentInvites) {
-            if (inviteTransactionSummaryHelper.getInviteSummaryById(sentInvite.id) == null && BTCState.from(sentInvite.status) != BTCState.CANCELED) {
+            if (inviteTransactionSummaryHelper.getInviteSummaryByCnId(sentInvite.id) == null && BTCState.from(sentInvite.status) != BTCState.CANCELED) {
                 noLocalMatchInvites.add(sentInvite)
             }
         }
@@ -96,7 +95,7 @@ internal constructor(@ApplicationContext internal val context: Context,
     }
 
     private fun acknowledgeLocalInvitationIfNecessary(sentInvite: SentInvite) {
-        inviteTransactionSummaryHelper.getInviteSummaryById(sentInvite.metadata.request_id)?.let {
+        inviteTransactionSummaryHelper.getInviteSummaryByCnId(sentInvite.metadata.request_id)?.let {
             inviteTransactionSummaryHelper.acknowledgeInviteTransactionSummary(sentInvite)
         }
     }
