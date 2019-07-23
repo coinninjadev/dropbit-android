@@ -108,7 +108,7 @@ public class TransactionHelper {
         return dao.queryBuilder().where(Properties.Fee.eq(0L)).list();
     }
 
-    public TransactionSummary initTransactions(List<GsonAddress> addresses) {
+    public void initTransactions(List<GsonAddress> addresses) {
         TransactionSummaryDao dao = daoSessionManager.getTransactionSummaryDao();
         List<String> txids = new ArrayList<>();
         TransactionSummary transaction = null;
@@ -134,7 +134,6 @@ public class TransactionHelper {
 
             }
         }
-        return transaction;
     }
 
     @SuppressWarnings("UnnecessaryContinue")
@@ -205,7 +204,6 @@ public class TransactionHelper {
             return;
         }
 
-        invite.refresh();
         invite.setAddress(address);
         invite.update();
         invite.refresh();
@@ -746,6 +744,16 @@ public class TransactionHelper {
         return currentTimeInMillis - olderThanTimeInMillis;
     }
 
+    private void updateInviteTimeCompleteTransactionInviteSummary(InviteTransactionSummary invite) {
+        TransactionsInvitesSummary summary = invite.getTransactionsInvitesSummary();
+
+        if (null != summary) {
+            summary.setInviteTime(0);
+            summary.setBtcTxTime(invite.getSentDate());
+            summary.update();
+        }
+    }
+
     private TransactionSummaryDao getTransactionDao() {
         return daoSessionManager.getTransactionSummaryDao();
     }
@@ -766,18 +774,6 @@ public class TransactionHelper {
         transInvitesDao.delete(transInvite);
     }
 
-    private void updateInviteTimeCompleteTransactionInviteSummary(InviteTransactionSummary invite) {
-        TransactionsInvitesSummaryDao query = daoSessionManager.getTransactionsInvitesSummaryDao();
-        TransactionsInvitesSummary summary = query.queryBuilder()
-                .where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(invite.getId()))
-                .limit(1).unique();
-
-        if (null != summary) {
-            summary.setInviteTime(0);
-            summary.setBtcTxTime(invite.getSentDate());
-            summary.update();
-        }
-    }
 
     private void markTargetStatsAsCanceled(List<TargetStat> receivers) {
         for (TargetStat targetStat : receivers) {
