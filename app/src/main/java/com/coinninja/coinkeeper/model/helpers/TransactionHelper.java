@@ -197,18 +197,17 @@ public class TransactionHelper {
         if (invite == null) return null;
 
         invite.refresh();
-        String status = sentInvite.getStatus();
-        if ("expired".equals(status)) {
-            invite.setBtcState(BTCState.EXPIRED);
-            updateInviteTimeCompleteTransactionInviteSummary(invite);
-        } else if ("new".equals(status)) {
-            invite.setBtcState(BTCState.UNFULFILLED);
-        } else if ("canceled".equals(status)) {
-            invite.setBtcState(BTCState.CANCELED);
-            updateInviteTimeCompleteTransactionInviteSummary(invite);
-        } else if ("completed".equals(status)) {
-            invite.setBtcState(BTCState.FULFILLED);
-            updateInviteTimeCompleteTransactionInviteSummary(invite);
+        BTCState status = BTCState.from(sentInvite.getStatus());
+        switch (status) {
+            case UNFULFILLED:
+                invite.setBtcState(status);
+                break;
+            case FULFILLED:
+            case CANCELED:
+            case EXPIRED:
+                invite.setBtcState(status);
+                updateInviteTimeCompleteTransactionInviteSummary(invite);
+                break;
         }
 
         invite.setPubkey(sentInvite.getAddressPubKey());
