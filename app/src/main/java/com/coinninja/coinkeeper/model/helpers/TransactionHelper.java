@@ -652,10 +652,6 @@ public class TransactionHelper {
         return daoSessionManager.getTransactionSummaryDao();
     }
 
-    private InviteTransactionSummaryDao getInviteTransactionDao() {
-        return daoSessionManager.getInviteTransactionSummaryDao();
-    }
-
     private TransactionsInvitesSummaryDao getTransactionsInvitesSummaryDao() {
         return daoSessionManager.getTransactionsInvitesSummaryDao();
     }
@@ -739,8 +735,9 @@ public class TransactionHelper {
         transaction.refresh();
     }
 
+    //TODO Move To InviteSummaryHelper
     private void renameInviteSummary(String originalTxId, String newTxId) {
-        InviteTransactionSummary invite = getInviteTransactionDao().queryBuilder().
+        InviteTransactionSummary invite = daoSessionManager.getInviteTransactionSummaryDao().queryBuilder().
                 where(InviteTransactionSummaryDao.Properties.BtcTransactionId.eq(originalTxId)).
                 limit(1).unique();
 

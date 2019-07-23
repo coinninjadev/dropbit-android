@@ -15,7 +15,7 @@ import retrofit2.Response
 @RunWith(MockitoJUnitRunner::class)
 class GetIncomingInviteRunnerTest {
 
-    private fun createRunner(): GetIncomingInviteRunner = GetIncomingInviteRunner(mock(), mock())
+    private fun createRunner(): GetIncomingInviteRunner = GetIncomingInviteRunner(mock(), mock(), mock())
 
     private val badResponse: Response<*>
         get() = Response.error<Any>(400, ResponseBody.create(MediaType.parse("application/json"),
