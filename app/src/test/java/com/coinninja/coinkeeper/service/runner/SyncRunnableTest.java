@@ -253,7 +253,7 @@ public class SyncRunnableTest {
 
         syncRunner.run();
 
-        verify(walletHelper).initTransactions(responseAddresses);
+        verify(transactionHelper).initTransactions(responseAddresses);
     }
 
     @Test

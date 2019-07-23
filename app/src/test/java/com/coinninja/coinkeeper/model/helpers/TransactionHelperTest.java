@@ -26,6 +26,7 @@ import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
+import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.InviteMetadata;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey;
@@ -43,10 +44,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.verification.VerificationModeFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -110,6 +113,36 @@ public class TransactionHelperTest {
         when(transactionSummaryDao.queryBuilder()).thenReturn(tsQuery);
         when(transactionInviteSummaryDao.queryBuilder()).thenReturn(tsInviteQuery);
         when(inviteDao.queryBuilder()).thenReturn(inviteQuery);
+        when(walletHelper.getWallet()).thenReturn(mock(Wallet.class));
+    }
+
+    @Test
+    public void when_a_new_transaction_is_initialized_set_its_mempool_state_to_pending() {
+        ArgumentCaptor<TransactionSummary> argumentCaptor = ArgumentCaptor.forClass(TransactionSummary.class);
+        List<GsonAddress> addresses = new ArrayList<>();
+        addresses.add(mock(GsonAddress.class));
+
+        TransactionSummaryDao dao = setupTransactionSummaryDao(null);
+
+        helper.initTransactions(addresses);
+        verify(dao).insert(argumentCaptor.capture());
+
+
+        TransactionSummary summary = argumentCaptor.getValue();
+        assertNotNull(summary);
+        assertThat(summary.getMemPoolState(), equalTo(MemPoolState.PENDING));
+    }
+
+    @Test
+    public void do_not_create_transaction_when_it_already_exits() {
+        TransactionSummary transaction = mock(TransactionSummary.class);
+        List<GsonAddress> addresses = new ArrayList<>();
+        addresses.add(mock(GsonAddress.class));
+        TransactionSummaryDao dao = setupTransactionSummaryDao(transaction);
+
+        helper.initTransactions(addresses);
+
+        verify(dao, VerificationModeFactory.times(0)).insert(transaction);
     }
 
     @Test
@@ -1055,7 +1088,7 @@ public class TransactionHelperTest {
         when(query.unique()).thenReturn(sampleTargetStat);
     }
 
-    private void setupTransactionSummaryDao(TransactionSummary sampleTransaction) {
+    private TransactionSummaryDao setupTransactionSummaryDao(TransactionSummary sampleTransaction) {
         TransactionSummaryDao dao = mock(TransactionSummaryDao.class);
 
         QueryBuilder query = mock(QueryBuilder.class);
@@ -1064,6 +1097,7 @@ public class TransactionHelperTest {
         when(query.where(any())).thenReturn(query);
         when(query.limit(1)).thenReturn(query);
         when(query.unique()).thenReturn(sampleTransaction);
+        return dao;
     }
 
     private TransactionDetail buildMockTransactionDetails(String txID) {

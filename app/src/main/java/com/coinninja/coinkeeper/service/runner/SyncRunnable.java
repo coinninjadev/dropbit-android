@@ -135,7 +135,7 @@ public class SyncRunnable implements Runnable {
         addressHelper.addAddresses(addresses, change);
 
         // save reference transactions
-        walletHelper.initTransactions(addresses);
+        transactionHelper.initTransactions(addresses);
 
         return addresses;
     }

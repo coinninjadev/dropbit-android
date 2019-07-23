@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.model.helpers;
 
-import androidx.annotation.NonNull;
-
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
 import com.coinninja.coinkeeper.model.db.FundingStat;
@@ -18,13 +16,11 @@ import com.coinninja.coinkeeper.model.db.Word;
 import com.coinninja.coinkeeper.model.db.WordDao;
 import com.coinninja.coinkeeper.model.db.enums.AccountStatus;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
-import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
-import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -118,34 +114,6 @@ public class WalletHelper {
                 " where _id in (select _id from FUNDING_STAT where WALLET_ID is null and ADDRESS_ID is not null);");
     }
 
-    public TransactionSummary initTransactions(List<GsonAddress> addresses) {
-        TransactionSummaryDao dao = daoSessionManager.getTransactionSummaryDao();
-        List<String> txids = new ArrayList<>();
-        TransactionSummary transaction = null;
-
-        for (GsonAddress address : addresses) {
-            String txid = address.getTransactionId();
-
-            if (txids.indexOf(txid) > 0) {
-                continue;
-            }
-
-            transaction = dao.queryBuilder().where(TransactionSummaryDao.Properties.
-                    Txid.eq(txid)).limit(1).unique();
-
-            if (transaction == null) {
-                transaction = new TransactionSummary();
-                transaction.setWalletId(getWallet().getId());
-                transaction.setTxid(txid);
-                transaction.setMemPoolState(MemPoolState.PENDING);
-
-                dao.insert(transaction);
-                dao.refresh(transaction);
-
-            }
-        }
-        return transaction;
-    }
 
     public LazyList<TransactionsInvitesSummary> getTransactionsLazily() {
         return daoSessionManager.getTransactionsInvitesSummaryDao().queryBuilder()
