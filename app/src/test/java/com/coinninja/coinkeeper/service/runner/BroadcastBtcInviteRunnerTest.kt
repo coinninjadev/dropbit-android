@@ -16,7 +16,6 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.helpers.BroadcastBtcInviteHelper
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -37,7 +36,6 @@ class BroadcastBtcInviteRunnerTest {
                 mock(TransactionFundingManager::class.java),
                 mock(TransactionNotificationManager::class.java),
                 mock(InviteTransactionSummaryHelper::class.java),
-                mock(TransactionHelper::class.java),
                 mock(BroadcastBtcInviteHelper::class.java),
                 mock(BroadcastTransactionHelper::class.java),
                 mock(SyncWalletManager::class.java),
@@ -53,6 +51,7 @@ class BroadcastBtcInviteRunnerTest {
         whenever(transactionBroadcastResult.isSuccess).thenReturn(true)
         whenever(runner.broadcastHelper.broadcast(any())).thenReturn(transactionBroadcastResult)
         runner.invite = mock(InviteTransactionSummary::class.java)
+        whenever(runner.invite!!.serverId).thenReturn("--server-id--")
         whenever(runner.invite!!.valueFeesSatoshis).thenReturn(100)
         whenever(runner.invite!!.valueSatoshis).thenReturn(10000)
         whenever(runner.invite!!.address).thenReturn("--address--")
@@ -133,6 +132,6 @@ class BroadcastBtcInviteRunnerTest {
         verify(runner.externalNotificationHelper).saveNotification(
                 "DropBit to 2565245258 has been canceled", runner.invite!!.serverId)
         verify(runner.cnWalletManager).updateBalances()
-        verify(runner.transactionHelper).updateInviteAsCanceled(runner.invite!!.serverId)
+        verify(runner.inviteTransactionSummaryHelper).cancelInviteByCnId(runner.invite!!.serverId)
     }
 }

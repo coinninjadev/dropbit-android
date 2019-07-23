@@ -33,6 +33,19 @@ class InviteTransactionSummaryHelperTest {
     }
 
     @Test
+    fun cancelsByCnId() {
+        val helper = createHelper()
+        val invite: InviteTransactionSummary = mock()
+        whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId("--cn-id--")).thenReturn(invite)
+
+        helper.cancelInviteByCnId("--cn-id--")
+
+        verify(invite).btcState = BTCState.CANCELED
+        verify(invite).btcTransactionId = ""
+        verify(invite).update()
+    }
+
+    @Test
     fun cancels_invite() {
         val helper = createHelper()
         val invite: InviteTransactionSummary = mock()
@@ -41,6 +54,7 @@ class InviteTransactionSummaryHelperTest {
 
         val ordered = inOrder(invite)
         ordered.verify(invite).btcState = BTCState.CANCELED
+        ordered.verify(invite).btcTransactionId = ""
         ordered.verify(invite).update()
     }
 

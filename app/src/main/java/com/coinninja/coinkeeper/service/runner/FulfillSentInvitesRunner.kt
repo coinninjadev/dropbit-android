@@ -3,15 +3,17 @@ package com.coinninja.coinkeeper.service.runner
 
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper
 import javax.inject.Inject
 
 @Mockable
-class FulfillSentInvitesRunner @Inject
-internal constructor(internal val transactionHelper: TransactionHelper,
-                     internal val sentInvitesStatusGetter: SentInvitesStatusGetter,
-                     internal val sentInvitesStatusSender: SentInvitesStatusSender,
-                     internal val broadcastBtcInviteRunner: BroadcastBtcInviteRunner) : Runnable {
+class FulfillSentInvitesRunner @Inject internal constructor(
+        internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
+        internal val sentInvitesStatusGetter: SentInvitesStatusGetter,
+        internal val sentInvitesStatusSender: SentInvitesStatusSender,
+        internal val broadcastBtcInviteRunner: BroadcastBtcInviteRunner
+) : Runnable {
 
     override fun run() {
 
@@ -19,7 +21,7 @@ internal constructor(internal val transactionHelper: TransactionHelper,
         sentInvitesStatusGetter.run()
 
         //Step 2. addressForPubKey any sent invites that do not have a tx id but have an address
-        val unfulfilledTransactions = transactionHelper.gatherUnfulfilledInviteTrans()
+        val unfulfilledTransactions = inviteTransactionSummaryHelper.unfulfilledSentInvites
         broadcastRealTxForInvites(unfulfilledTransactions)
 
         //Step 3. report to coinninja server of any invites that have been newly fulfilled (with TX ID)

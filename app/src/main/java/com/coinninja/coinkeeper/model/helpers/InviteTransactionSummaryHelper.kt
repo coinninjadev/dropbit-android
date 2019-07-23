@@ -135,7 +135,14 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
 
     fun cancelInvite(invite: InviteTransactionSummary) {
         invite.btcState = BTCState.CANCELED
+        invite.btcTransactionId = ""
         invite.update()
+    }
+
+    fun cancelInviteByCnId(cnId: String) {
+        getInviteSummaryByCnId(cnId)?.let {
+            cancelInvite(it)
+        }
     }
 
     fun cancelPendingSentInvites() {

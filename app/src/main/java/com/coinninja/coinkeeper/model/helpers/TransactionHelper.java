@@ -21,10 +21,8 @@ import com.coinninja.coinkeeper.model.db.TransactionSummaryDao.Properties;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummaryDao;
 import com.coinninja.coinkeeper.model.db.UserIdentity;
-import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
-import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
@@ -91,7 +89,7 @@ public class TransactionHelper {
     public void initTransactions(List<GsonAddress> addresses) {
         TransactionSummaryDao dao = daoSessionManager.getTransactionSummaryDao();
         List<String> txids = new ArrayList<>();
-        TransactionSummary transaction = null;
+        TransactionSummary transaction;
 
         for (GsonAddress address : addresses) {
             String txid = address.getTransactionId();
@@ -152,49 +150,6 @@ public class TransactionHelper {
                 transaction.update();
             }
         }
-    }
-
-
-    public void updateInviteAsCanceled(String inviteServerID) {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        InviteTransactionSummary invite = inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
-                limit(1).unique();
-
-        if (invite == null) {
-            return;
-        }
-
-        invite.setBtcTransactionId("");
-        invite.setBtcState(BTCState.CANCELED);
-        invite.update();
-        invite.refresh();
-
-        addInviteToTransInvitesSummary(invite);
-    }
-
-    public List<InviteTransactionSummary> gatherUnfulfilledInviteTrans() {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        return inviteDao.queryBuilder()
-                .where(InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.getId()),
-                        InviteTransactionSummaryDao.Properties.Address.isNotNull(),
-                        InviteTransactionSummaryDao.Properties.Address.notEq(""))
-                .whereOr(
-                        InviteTransactionSummaryDao.Properties.BtcTransactionId.isNull(),
-                        InviteTransactionSummaryDao.Properties.BtcTransactionId.eq(""))
-                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId()))
-                .list();
-
-    }
-
-    public InviteTransactionSummary getInviteTransactionSummary(String inviteServerID) {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        return inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(inviteServerID)).
-                limit(1).unique();
     }
 
     public List<InviteTransactionSummary> getInvitesWithTxID() {
@@ -282,10 +237,6 @@ public class TransactionHelper {
         transaction.update();
         transaction.refresh();
 
-    }
-
-    public TransactionSummary createInitialTransaction(String txid) {
-        return createInitialTransaction(txid, null);
     }
 
     public TransactionSummary createInitialTransactionForCompletedBroadcast(CompletedBroadcastDTO completedBroadcastActivityDTO) {
@@ -517,7 +468,7 @@ public class TransactionHelper {
         transInvitesDao.refresh(transactionsInvitesSummary);
     }
 
-    protected TransactionsInvitesSummary joinInviteToTransaction(TransactionsInvitesSummary transactionsInvitesSummary, String btcTxID) {
+    TransactionsInvitesSummary joinInviteToTransaction(TransactionsInvitesSummary transactionsInvitesSummary, String btcTxID) {
         TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
 
         if (transactionsInvitesSummary == null) {
@@ -536,25 +487,6 @@ public class TransactionHelper {
         return transInvitesDao.queryBuilder().
                 where(TransactionsInvitesSummaryDao.Properties.TransactionTxID.eq(btcTxID)).
                 limit(1).unique();
-    }
-
-    protected void saveLocalTransaction(Wallet wallet, String txID, InviteTransactionSummary invite) {
-        TransactionSummaryDao dao = getTransactionDao();
-        TransactionSummary transaction = dao.queryBuilder().
-                where(Properties.Txid.eq(txID)).
-                limit(1).unique();
-
-        if (null == transaction) {
-            transaction = new TransactionSummary();
-            transaction.setTxid(txID);
-            transaction.setMemPoolState(MemPoolState.INIT);
-            transaction.setWallet(wallet);
-            long currentInitTime = dateUtil.getCurrentTimeInMillis();
-            transaction.setTxTime(currentInitTime);
-
-            dao.insert(transaction);
-            dao.refresh(transaction);
-        }
     }
 
     private TransactionSummaryDao getTransactionDao() {
