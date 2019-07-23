@@ -176,4 +176,12 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
                 it.update()
                 transactionInviteSummaryHelper.getOrCreateParentSettlementFor(it)
             }
+
+    fun updateInviteAddressTransaction(cnId: String, address: String) {
+        inviteSummaryQueryManager.getInviteSummaryByCnId(cnId)?.let {
+            it.address = address
+            it.update()
+        }
+
+    }
 }

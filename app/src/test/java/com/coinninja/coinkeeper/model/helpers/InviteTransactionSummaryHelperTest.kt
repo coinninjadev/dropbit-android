@@ -218,6 +218,18 @@ class InviteTransactionSummaryHelperTest {
         verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(invite)
     }
 
+    @Test
+    fun updates_invite_with_address() {
+        val helper = createInviteTransactionSumamaryHelper()
+        val invite: InviteTransactionSummary = mock()
+        whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId("--server-id--")).thenReturn(invite)
+
+        helper.updateInviteAddressTransaction("--server-id--", "--address--")
+
+        verify(invite).address = "--address--"
+        verify(invite).update()
+    }
+
     private fun createPendingToPhoneInviteDTO(): PendingInviteDTO {
         val identity = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Blow")
         return PendingInviteDTO(identity,

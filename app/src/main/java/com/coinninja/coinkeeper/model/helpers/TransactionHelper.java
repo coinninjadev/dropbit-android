@@ -157,23 +157,6 @@ public class TransactionHelper {
     }
 
 
-    public void updateInviteAddressTransaction(String id, String address) {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        InviteTransactionSummary invite = inviteDao.queryBuilder().
-                where(InviteTransactionSummaryDao.Properties.ServerId.eq(id)).
-                limit(1).unique();
-
-        if (invite == null) {
-            Log.e(TAG, "unable to update invite: " + address);
-            return;
-        }
-
-        invite.setAddress(address);
-        invite.update();
-        invite.refresh();
-    }
-
     public InviteTransactionSummary updateInviteAddressTransaction(SentInvite sentInvite) {
         InviteTransactionSummary invite = getInviteTransactionSummary(sentInvite);
         if (invite == null) return null;

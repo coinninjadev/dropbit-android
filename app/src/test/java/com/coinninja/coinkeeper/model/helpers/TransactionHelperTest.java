@@ -749,7 +749,6 @@ public class TransactionHelperTest {
 
     }
 
-
     @Test
     public void do_NOT_update_FULFILLED_invites_test() {
         DaoSession daoSessionMock = mock(DaoSession.class);
