@@ -6,7 +6,6 @@ import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
-import com.coinninja.coinkeeper.model.db.BroadcastBtcInviteDao;
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.FundingStatDao;
@@ -46,7 +45,6 @@ import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -183,38 +181,6 @@ public class TransactionHelperTest {
 
         verify(transactionsInvitesSummary).setBtcTxTime(200000L);
         verify(transactionsInvitesSummary).setInviteTime(0);
-    }
-
-    @Test
-    public void does_not_update_transaction_time_when_not_avaialable() {
-        TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        when(transaction.getTxTime()).thenReturn(0L);
-        when(transaction.getId()).thenReturn(0L);
-        when(transaction.getTxid()).thenReturn("--txid--");
-        when(tsInviteQuery.whereOr(any(), any())).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.limit(1)).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.unique()).thenReturn(transactionsInvitesSummary);
-
-        helper.addTransactionToTransInvitesSummary(transaction);
-
-        verify(transactionsInvitesSummary, times(0)).setInviteTime(anyLong());
-        verify(transactionsInvitesSummary, times(0)).setBtcTxTime(anyLong());
-    }
-
-    @Test
-    public void updates_transaction_time_removing_invite_time_from_summary() {
-        TransactionsInvitesSummary transactionsInvitesSummary = mock(TransactionsInvitesSummary.class);
-        when(transaction.getTxTime()).thenReturn(100000L);
-        when(transaction.getId()).thenReturn(0L);
-        when(transaction.getTxid()).thenReturn("--txid--");
-        when(tsInviteQuery.whereOr(any(), any())).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.limit(1)).thenReturn(tsInviteQuery);
-        when(tsInviteQuery.unique()).thenReturn(transactionsInvitesSummary);
-
-        helper.addTransactionToTransInvitesSummary(transaction);
-
-        verify(transactionsInvitesSummary).setInviteTime(0);
-        verify(transactionsInvitesSummary).setBtcTxTime(100000L);
     }
 
     @Test
@@ -479,6 +445,16 @@ public class TransactionHelperTest {
         helper.saveTransaction(transaction, detail);
 
         verify(transaction, times(0)).setMemPoolState(any());
+    }
+
+    @Test
+    public void adds_transaction_to_parent_settlement_when_creating_new_transaction_record() {
+        TransactionDetail detail = mock(TransactionDetail.class);
+        TransactionSummary transaction = mock(TransactionSummary.class);
+
+        helper.saveTransaction(transaction, detail);
+
+        verify(transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction);
     }
 
     @Test

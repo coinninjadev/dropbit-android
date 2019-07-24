@@ -377,44 +377,9 @@ public class TransactionHelper {
         transaction.update();
         transaction.refresh();
 
-        try {
-            addTransactionToTransInvitesSummary(transaction);
-        } catch (Exception ex) {
-            Log.e(TAG, "Transaction To InvitesSummary for txID: " + transaction.getTxid());
-        }
+        transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction);
     }
 
-    @Deprecated()
-    void addTransactionToTransInvitesSummary(TransactionSummary transaction) {
-        TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
-
-        TransactionsInvitesSummary transactionsInvitesSummary = transInvitesDao.queryBuilder().whereOr(
-                TransactionsInvitesSummaryDao.Properties.TransactionSummaryID.eq(transaction.getId()),
-                TransactionsInvitesSummaryDao.Properties.InviteTxID.eq(transaction.getTxid()))
-                .limit(1).unique();
-
-        if (transactionsInvitesSummary == null) {
-            transactionsInvitesSummary = new TransactionsInvitesSummary();
-            transInvitesDao.insert(transactionsInvitesSummary);
-        }
-
-        transactionsInvitesSummary.setTransactionSummary(transaction);
-        transactionsInvitesSummary.setTransactionSummaryID(transaction.getId());
-        if (transaction.getTxTime() > 0L) {
-            transactionsInvitesSummary.setBtcTxTime(transaction.getTxTime());
-            transactionsInvitesSummary.setInviteTime(0);
-        }
-        transactionsInvitesSummary.setTransactionTxID(transaction.getTxid());
-
-        transaction.setTransactionsInvitesSummary(transactionsInvitesSummary);
-        transaction.setTransactionsInvitesSummaryID(transactionsInvitesSummary.getId());
-
-        transaction.update();
-        transaction.refresh();
-        transactionsInvitesSummary.update();
-        transactionsInvitesSummary.refresh();
-        transInvitesDao.refresh(transactionsInvitesSummary);
-    }
 
     private TransactionSummaryDao getTransactionDao() {
         return daoSessionManager.getTransactionSummaryDao();

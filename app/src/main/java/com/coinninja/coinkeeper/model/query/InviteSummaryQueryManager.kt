@@ -19,20 +19,23 @@ class InviteSummaryQueryManager @Inject internal constructor(
                 .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNACKNOWLEDGED.id)).list()
 
     val unfulfilledSentInvites: List<InviteTransactionSummary>
-        get() {
-            val inviteTransactionSummaryQueryBuilder = daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
-            return inviteTransactionSummaryQueryBuilder
-                    .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.id),
-                            InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.id))
-                    .list()
+        get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
+                .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.id),
+                        InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.id))
+                .list()
 
-        }
 
     val invitesWithTxid: List<InviteTransactionSummary>
         get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder().where(
                 InviteTransactionSummaryDao.Properties.BtcTransactionId.isNotNull(),
                 InviteTransactionSummaryDao.Properties.BtcTransactionId.notEq("")
         ).list()
+
+    fun getInviteSummaryByTxid(txid: String): InviteTransactionSummary? =
+            daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
+                    .where(
+                            InviteTransactionSummaryDao.Properties.BtcTransactionId.eq(txid)
+                    ).unique()
 
     fun getInviteSummaryByCnId(cnId: String): InviteTransactionSummary? =
             daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
