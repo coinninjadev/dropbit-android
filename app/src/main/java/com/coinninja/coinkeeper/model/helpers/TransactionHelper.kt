@@ -116,26 +116,6 @@ class TransactionHelper @Inject constructor(
 
     // TODO --- YOU ARE HERE
 
-    fun createInitialTransactionForCompletedBroadcast(completedBroadcastActivityDTO: CompletedBroadcastDTO): TransactionSummary {
-        val transactionId = completedBroadcastActivityDTO.transactionId
-        val identity = completedBroadcastActivityDTO.identity
-        val transactionSummary = daoSessionManager.newTransactionSummary()
-        transactionSummary.txid = transactionId
-        transactionSummary.wallet = walletHelper.wallet
-        transactionSummary.memPoolState = MemPoolState.PENDING
-        transactionSummary.numConfirmations = 0
-        transactionSummary.txTime = dateUtil.getCurrentTimeInMillis()
-
-        daoSessionManager.insert(transactionSummary)
-
-        val transactionInviteSummary = transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transactionSummary)
-
-        identity?.let {
-            addUserIdentitiesToTransaction(identity, transactionInviteSummary)
-        }
-        return transactionSummary
-    }
-
     fun updateTransactions(fetchedTransactions: List<TransactionDetail>, currentBlockHeight: Int) {
         for (detail in fetchedTransactions) {
             val transaction = transactionDao.queryBuilder().where(Properties.Txid.eq(detail.transactionId)).limit(1).unique()
@@ -150,12 +130,52 @@ class TransactionHelper @Inject constructor(
 
 
             try {
-                saveTransaction(transaction, detail)
+                updateTransaction(transaction, detail)
             } catch (ex: Exception) {
                 continue
             }
 
         }
+    }
+
+    internal fun updateTransaction(transaction: TransactionSummary, detail: TransactionDetail) {
+        if (detail.blocktimeMillis > 0L) {
+            transaction.txTime = detail.blocktimeMillis
+        } else if (detail.timeMillis > 0L) {
+            transaction.txTime = detail.timeMillis
+        } else {
+            transaction.txTime = detail.receivedTimeMillis
+        }
+
+        transaction.blockhash = detail.blockhash
+        transaction.blockheight = detail.blockheight
+        if (detail.isInBlock) {
+            transaction.memPoolState = MemPoolState.MINED
+        }
+        transaction.update()
+        transaction.refresh()
+
+        try {
+            for (`in` in detail.vInList) {
+                saveIn(transaction, `in`)
+            }
+
+            for (out in detail.vOutList) {
+                saveOut(transaction, out)
+            }
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            return
+        }
+
+
+        daoSessionManager.clearCacheFor(transaction)
+        transaction.numInputs = transaction.funder.size
+        transaction.numOutputs = transaction.receiver.size
+        transaction.update()
+        transaction.refresh()
+
+        transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction)
     }
 
     internal fun saveOut(transaction: TransactionSummary, out: VOut) {
@@ -248,44 +268,24 @@ class TransactionHelper @Inject constructor(
         dao.refresh(funder)
     }
 
-    internal fun saveTransaction(transaction: TransactionSummary, detail: TransactionDetail) {
-        if (detail.blocktimeMillis > 0L) {
-            transaction.txTime = detail.blocktimeMillis
-        } else if (detail.timeMillis > 0L) {
-            transaction.txTime = detail.timeMillis
-        } else {
-            transaction.txTime = detail.receivedTimeMillis
+    fun createInitialTransactionForCompletedBroadcast(completedBroadcastActivityDTO: CompletedBroadcastDTO): TransactionSummary {
+        val transactionId = completedBroadcastActivityDTO.transactionId
+        val identity = completedBroadcastActivityDTO.identity
+        val transactionSummary = daoSessionManager.newTransactionSummary()
+        transactionSummary.txid = transactionId
+        transactionSummary.wallet = walletHelper.wallet
+        transactionSummary.memPoolState = MemPoolState.PENDING
+        transactionSummary.numConfirmations = 0
+        transactionSummary.txTime = dateUtil.getCurrentTimeInMillis()
+
+        daoSessionManager.insert(transactionSummary)
+
+        val transactionInviteSummary = transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transactionSummary)
+
+        identity?.let {
+            addUserIdentitiesToTransaction(identity, transactionInviteSummary)
         }
-
-        transaction.blockhash = detail.blockhash
-        transaction.blockheight = detail.blockheight
-        if (detail.isInBlock) {
-            transaction.memPoolState = MemPoolState.MINED
-        }
-        transaction.update()
-        transaction.refresh()
-
-        try {
-            for (`in` in detail.vInList) {
-                saveIn(transaction, `in`)
-            }
-
-            for (out in detail.vOutList) {
-                saveOut(transaction, out)
-            }
-        } catch (e: IllegalArgumentException) {
-            e.printStackTrace()
-            return
-        }
-
-
-        daoSessionManager.clearCacheFor(transaction)
-        transaction.numInputs = transaction.funder.size
-        transaction.numOutputs = transaction.receiver.size
-        transaction.update()
-        transaction.refresh()
-
-        transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction)
+        return transactionSummary
     }
 
 
@@ -298,5 +298,6 @@ class TransactionHelper @Inject constructor(
 
         val toUser = userIdentityHelper.updateFrom(identity)
         transactionInviteSummary.toUser = toUser
+        transactionInviteSummary.update()
     }
 }

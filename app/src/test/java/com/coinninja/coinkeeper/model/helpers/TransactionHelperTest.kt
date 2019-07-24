@@ -206,7 +206,7 @@ class TransactionHelperTest {
         whenever(td.blocktimeMillis).thenReturn(blockTime)
         val ts = mock(TransactionSummary::class.java)
 
-        helper.saveTransaction(ts, td)
+        helper.updateTransaction(ts, td)
 
         verify(ts).txTime = blockTime
     }
@@ -220,7 +220,7 @@ class TransactionHelperTest {
         whenever(td.timeMillis).thenReturn(txTime)
         val ts = mock(TransactionSummary::class.java)
 
-        helper.saveTransaction(ts, td)
+        helper.updateTransaction(ts, td)
 
         verify(ts).txTime = txTime
     }
@@ -232,7 +232,7 @@ class TransactionHelperTest {
         whenever(td.receivedTimeMillis).thenReturn(txTime)
         val ts = mock(TransactionSummary::class.java)
 
-        helper.saveTransaction(ts, td)
+        helper.updateTransaction(ts, td)
 
         verify(ts).txTime = txTime
     }
@@ -434,7 +434,7 @@ class TransactionHelperTest {
         whenever(detail.blockhash).thenReturn("Some block hash")
         whenever(detail.isInBlock).thenCallRealMethod()
 
-        helper.saveTransaction(transaction, detail)
+        helper.updateTransaction(transaction, detail)
 
         verify(transaction).memPoolState = MemPoolState.MINED
     }
@@ -444,7 +444,7 @@ class TransactionHelperTest {
         val detail = mock(TransactionDetail::class.java)
         whenever(detail.blockhash).thenReturn("")
 
-        helper.saveTransaction(transaction, detail)
+        helper.updateTransaction(transaction, detail)
 
         verify(transaction, times(0)).memPoolState = ArgumentMatchers.any()
     }
@@ -454,7 +454,7 @@ class TransactionHelperTest {
         val detail = mock(TransactionDetail::class.java)
         whenever(detail.blockhash).thenReturn(null)
 
-        helper.saveTransaction(transaction, detail)
+        helper.updateTransaction(transaction, detail)
 
         verify(transaction, times(0)).memPoolState = ArgumentMatchers.any()
     }
@@ -464,7 +464,7 @@ class TransactionHelperTest {
         val detail = mock(TransactionDetail::class.java)
         val transaction = mock(TransactionSummary::class.java)
 
-        helper.saveTransaction(transaction, detail)
+        helper.updateTransaction(transaction, detail)
 
         verify(transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction)
     }
