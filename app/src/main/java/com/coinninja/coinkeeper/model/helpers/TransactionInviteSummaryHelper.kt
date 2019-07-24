@@ -80,28 +80,29 @@ class TransactionInviteSummaryHelper @Inject internal constructor(
     }
 
     fun updateSentTimeFrom(transaction: TransactionSummary) {
-        if (transaction.txTime > 0 && transaction.transactionsInvitesSummary?.inviteSummaryID == null) {
-            val transactionsInvitesSummary = transaction.transactionsInvitesSummary
-            transactionsInvitesSummary.inviteTime = 0
-            transactionsInvitesSummary.btcTxTime = transaction.txTime
-            transactionsInvitesSummary.update()
+        val settlement = transaction.transactionsInvitesSummary
+        val invite: InviteTransactionSummary? = settlement.inviteTransactionSummary
+        if (transaction.txTime > 0 && invite == null) {
+            settlement.inviteTime = 0
+            settlement.btcTxTime = transaction.txTime
+            settlement.update()
         }
     }
 
     fun updateSentTimeFrom(invite: InviteTransactionSummary) {
-        val transactionsInvitesSummary = invite.transactionsInvitesSummary
+        val settlement = invite.transactionsInvitesSummary
         when (invite.btcState) {
             BTCState.CANCELED,
             BTCState.FULFILLED,
             BTCState.EXPIRED -> {
-                transactionsInvitesSummary.btcTxTime = invite.sentDate
-                transactionsInvitesSummary.inviteTime = 0
+                settlement.btcTxTime = invite.sentDate
+                settlement.inviteTime = 0
             }
             else -> {
-                transactionsInvitesSummary.btcTxTime = 0
-                transactionsInvitesSummary.inviteTime = invite.sentDate
+                settlement.btcTxTime = 0
+                settlement.inviteTime = invite.sentDate
             }
         }
-        transactionsInvitesSummary.update()
+        settlement.update()
     }
 }
