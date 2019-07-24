@@ -6,7 +6,6 @@ import com.coinninja.coinkeeper.model.db.TransactionSummary
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.query.InviteSummaryQueryManager
-import com.coinninja.coinkeeper.model.query.TransactionInviteSummaryQueryManager
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager
 import javax.inject.Inject
 
@@ -14,21 +13,8 @@ import javax.inject.Inject
 class TransactionInviteSummaryHelper @Inject internal constructor(
         internal val daoSessionManager: DaoSessionManager,
         internal val transactionQueryManager: TransactionQueryManager,
-        internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
-        internal val transactionInviteSummaryQueryManager: TransactionInviteSummaryQueryManager
+        internal val inviteSummaryQueryManager: InviteSummaryQueryManager
 ) {
-
-
-    fun getOrCreateTransactionInviteSummaryFor(transaction: TransactionSummary): TransactionsInvitesSummary {
-        return transactionInviteSummaryQueryManager
-                .getTransactionInviteSummaryByTransactionSummary(transaction)
-                ?: daoSessionManager.newTransactionInviteSummary().also {
-                    it.transactionSummary = transaction
-                    it.btcTxTime = transaction.txTime
-                    daoSessionManager.insert(it)
-                }
-
-    }
 
     fun getOrCreateParentSettlementFor(transaction: TransactionSummary): TransactionsInvitesSummary =
             transaction.transactionsInvitesSummary

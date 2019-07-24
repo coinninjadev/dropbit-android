@@ -1,5 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import com.coinninja.coinkeeper.model.db.FundingStat
+import com.coinninja.coinkeeper.model.db.TargetStat
 import com.coinninja.coinkeeper.model.db.TransactionSummary
 import com.coinninja.coinkeeper.model.db.Wallet
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
@@ -61,9 +63,93 @@ class TransactionHelperTest {
         verify(helper.daoSessionManager, times(3)).insert(any<TransactionSummary>())
     }
 
+    @Test
+    fun updates_transaction_as_failed_to_broadcast() {
+        val helper = createHelper()
+        val txid = "--txid--"
+        val transaction: TransactionSummary = mock()
+        whenever(helper.transactionQueryManager.transactionByTxid(txid)).thenReturn(transaction)
+
+        helper.markTransactionSummaryAsFailedToBroadcast(txid)
+
+        val ordered = inOrder(transaction)
+        ordered.verify(transaction).memPoolState = MemPoolState.FAILED_TO_BROADCAST
+        ordered.verify(transaction).update()
+    }
+
+    @Test
+    fun cancels_inputs_when_transaction_fails_to_broadcast() {
+        val helper = createHelper()
+        val txid = "--txid--"
+        val transaction: TransactionSummary = mock()
+        val input1 = mock<FundingStat>()
+        val input2 = mock<FundingStat>()
+        val output1 = mock<TargetStat>()
+        val output2 = mock<TargetStat>()
+        val inputs: List<FundingStat> = listOf(input1, input2)
+        whenever(helper.transactionQueryManager.transactionByTxid(txid)).thenReturn(transaction)
+        whenever(transaction.funder).thenReturn(inputs)
+        whenever(input1.id).thenReturn(1)
+        whenever(input2.id).thenReturn(2)
+        whenever(helper.transactionQueryManager.targetStatFromFundingId(1)).thenReturn(output1)
+        whenever(helper.transactionQueryManager.targetStatFromFundingId(2)).thenReturn(output2)
+
+        helper.markTransactionSummaryAsFailedToBroadcast(txid)
+
+        verify(input1).state = FundingStat.State.CANCELED
+        verify(input1).update()
+        verify(output1).fundingStat = null
+        verify(output1).update()
+        verify(input2).state = FundingStat.State.CANCELED
+        verify(input2).update()
+        verify(output2).fundingStat = null
+        verify(output2).update()
+    }
+
+    @Test
+    fun cancels_outputs_for_transactions_that_have_failed_to_broadcast() {
+        val helper = createHelper()
+        val txid = "--txid--"
+        val transaction: TransactionSummary = mock()
+        val input1 = mock<FundingStat>()
+        val input2 = mock<FundingStat>()
+        val output1 = mock<TargetStat>()
+        val output2 = mock<TargetStat>()
+        val outputs: List<TargetStat> = listOf(output1, output2)
+        whenever(helper.transactionQueryManager.transactionByTxid(txid)).thenReturn(transaction)
+        whenever(transaction.receiver).thenReturn(outputs)
+        whenever(output1.id).thenReturn(1)
+        whenever(output2.id).thenReturn(2)
+        whenever(helper.transactionQueryManager.fundingStatFromTargetId(1)).thenReturn(input1)
+        whenever(helper.transactionQueryManager.fundingStatFromTargetId(2)).thenReturn(input2)
+
+        helper.markTransactionSummaryAsFailedToBroadcast(txid)
+
+        verify(output1).state = TargetStat.State.CANCELED
+        verify(output1).update()
+        verify(input1).targetStat = null
+        verify(input1).update()
+        verify(output2).state = TargetStat.State.CANCELED
+        verify(output2).update()
+        verify(input2).targetStat = null
+        verify(input2).update()
+    }
+
+    @Test
+    fun updates_transaction_as_acknowledged() {
+        val helper = createHelper()
+        val txid = "--txid--"
+        val transaction: TransactionSummary = mock()
+        whenever(helper.transactionQueryManager.transactionByTxid(txid)).thenReturn(transaction)
+
+        helper.markTransactionSummaryAsAcknowledged(txid)
+
+        val ordered = inOrder(transaction)
+        ordered.verify(transaction).memPoolState = MemPoolState.ACKNOWLEDGE
+        ordered.verify(transaction).update()
+    }
+
     /*
-
-
 
     @Test
     fun merging_invite_to_transaction_invite_time_when_txtime_null_when_available() {

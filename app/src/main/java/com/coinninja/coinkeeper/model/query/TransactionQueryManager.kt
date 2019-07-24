@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.model.query
 
 import app.dropbit.annotations.Mockable
-import com.coinninja.coinkeeper.model.db.TransactionSummary
+import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao.Properties
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
@@ -45,6 +45,18 @@ class TransactionQueryManager @Inject constructor(
     val transactionsWithoutFees: List<TransactionSummary>
         get() =
             daoSessionManager.transactionSummaryDao.queryBuilder().where(Properties.Fee.eq(0L)).list()
+
+    fun targetStatFromFundingId(fundingId: Long): TargetStat? =
+            daoSessionManager.targetStatDao.queryBuilder()
+                    .where(TargetStatDao.Properties.FundingId.eq(fundingId))
+                    .limit(1)
+                    .unique()
+
+    fun fundingStatFromTargetId(targetId: Long): FundingStat? =
+            daoSessionManager.fundingStatDao.queryBuilder()
+                    .where(FundingStatDao.Properties.TargetId.eq(targetId))
+                    .limit(1)
+                    .unique()
 
     fun pendingTransactionsOlderThan(olderThanSeconds: Long): List<TransactionSummary> =
 

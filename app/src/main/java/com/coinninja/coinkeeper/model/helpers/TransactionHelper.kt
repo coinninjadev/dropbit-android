@@ -8,7 +8,10 @@ import com.coinninja.coinkeeper.model.db.TransactionSummaryDao.Properties
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager
-import com.coinninja.coinkeeper.service.client.model.*
+import com.coinninja.coinkeeper.service.client.model.GsonAddress
+import com.coinninja.coinkeeper.service.client.model.TransactionDetail
+import com.coinninja.coinkeeper.service.client.model.VIn
+import com.coinninja.coinkeeper.service.client.model.VOut
 import com.coinninja.coinkeeper.util.DateUtil
 import javax.inject.Inject
 
@@ -33,14 +36,8 @@ class TransactionHelper @Inject constructor(
 
     val requiringNotificationCheck: List<TransactionSummary> get() = transactionQueryManager.requiringNotificationCheck
 
-    fun transactionWithTxid(txid: String): TransactionSummary?  = transactionQueryManager.transactionByTxid(txid)
-
-
     private val transactionDao: TransactionSummaryDao
         get() = daoSessionManager.transactionSummaryDao
-
-    private val transactionsInvitesSummaryDao: TransactionsInvitesSummaryDao
-        get() = daoSessionManager.transactionsInvitesSummaryDao
 
     fun getPendingTransactionsOlderThan(olderThanMillis: Long): List<TransactionSummary> {
         return transactionQueryManager.pendingTransactionsOlderThan(olderThanMillis)
@@ -66,7 +63,78 @@ class TransactionHelper @Inject constructor(
         txids.clear()
     }
 
+    fun markTransactionSummaryAsAcknowledged(txid: String) {
+        transactionQueryManager.transactionByTxid(txid)?.let {
+            it.memPoolState = MemPoolState.ACKNOWLEDGE
+            it.update()
+            it.refresh()
+        }
+    }
+
+    fun markTransactionSummaryAsFailedToBroadcast(txid: String): String? {
+        transactionQueryManager.transactionByTxid(txid)?.let {
+
+            markTargetStatsAsCanceled(it.receiver)
+            markFundingStatsAsCanceled(it.funder)
+            it.memPoolState = MemPoolState.FAILED_TO_BROADCAST
+            it.update()
+        }
+        return txid
+    }
+
+    internal fun markTargetStatsAsCanceled(receivers: List<TargetStat>) {
+        for (targetStat in receivers) {
+            targetStat.state = TargetStat.State.CANCELED
+            targetStat.update()
+            targetStat.refresh()
+            removeFundingStatTargetStatRelationship(targetStat)
+        }
+    }
+
+    internal fun markFundingStatsAsCanceled(funders: List<FundingStat>) {
+        for (fundingStat in funders) {
+            fundingStat.state = FundingStat.State.CANCELED
+            fundingStat.update()
+            fundingStat.refresh()
+            removeFundingStatTargetStatRelationship(fundingStat)
+        }
+    }
+
+    internal fun removeFundingStatTargetStatRelationship(fundingStat: FundingStat) {
+        transactionQueryManager.targetStatFromFundingId(fundingStat.id)?.let {
+            it.fundingStat = null
+            it.update()
+        }
+    }
+
+    internal fun removeFundingStatTargetStatRelationship(targetStat: TargetStat) {
+        transactionQueryManager.fundingStatFromTargetId(targetStat.id)?.let {
+            it.targetStat = null
+            it.update()
+        }
+    }
+
     // TODO --- YOU ARE HERE
+
+    fun createInitialTransactionForCompletedBroadcast(completedBroadcastActivityDTO: CompletedBroadcastDTO): TransactionSummary {
+        val transactionId = completedBroadcastActivityDTO.transactionId
+        val identity = completedBroadcastActivityDTO.identity
+        val transactionSummary = daoSessionManager.newTransactionSummary()
+        transactionSummary.txid = transactionId
+        transactionSummary.wallet = walletHelper.wallet
+        transactionSummary.memPoolState = MemPoolState.PENDING
+        transactionSummary.numConfirmations = 0
+        transactionSummary.txTime = dateUtil.getCurrentTimeInMillis()
+
+        daoSessionManager.insert(transactionSummary)
+
+        val transactionInviteSummary = transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transactionSummary)
+
+        identity?.let {
+            addUserIdentitiesToTransaction(identity, transactionInviteSummary)
+        }
+        return transactionSummary
+    }
 
     fun updateTransactions(fetchedTransactions: List<TransactionDetail>, currentBlockHeight: Int) {
         for (detail in fetchedTransactions) {
@@ -88,76 +156,6 @@ class TransactionHelper @Inject constructor(
             }
 
         }
-    }
-
-    fun joinInviteToTx(invite: InviteTransactionSummary, transaction: TransactionSummary) {
-
-        val joinTableDao = daoSessionManager.transactionsInvitesSummaryDao
-        val joinContainingRealTX = joinTableDao.queryBuilder()
-                .where(TransactionsInvitesSummaryDao.Properties.TransactionSummaryID.eq(transaction.id)).limit(1).unique()
-        val joinContainingInvite = joinTableDao.queryBuilder()
-                .where(TransactionsInvitesSummaryDao.Properties.InviteSummaryID.eq(invite.id)).limit(1).unique()
-
-        if (joinContainingRealTX === joinContainingInvite) return
-
-        dropEntry(joinContainingInvite)
-        dropEntry(joinContainingRealTX)
-
-
-        val newJoinTable = daoSessionManager.newTransactionInviteSummary()
-        daoSessionManager.insert(newJoinTable)
-
-        newJoinTable.inviteTransactionSummary = invite
-        newJoinTable.inviteTxID = invite.btcTransactionId
-
-        newJoinTable.transactionTxID = transaction.txid
-        newJoinTable.transactionSummary = transaction
-
-        if (transaction.txTime > 0) {
-            newJoinTable.btcTxTime = transaction.txTime
-            newJoinTable.inviteTime = 0
-        } else {
-            newJoinTable.inviteTime = invite.sentDate
-        }
-
-        newJoinTable.update()
-        newJoinTable.refresh()
-
-        invite.transactionsInvitesSummaryID = newJoinTable.id
-        invite.update()
-        invite.refresh()
-
-        transaction.transactionsInvitesSummaryID = newJoinTable.id
-        transaction.update()
-        transaction.refresh()
-    }
-
-    fun markTransactionSummaryAsFailedToBroadcast(txid: String): String? {
-        val transaction = transactionDao.queryBuilder().where(Properties.Txid.eq(txid)).limit(1).unique()
-                ?: return null
-
-        markTargetStatsAsCanceled(transaction.receiver)
-        markFundingStatsAsCanceled(transaction.funder)
-
-        transaction.memPoolState = MemPoolState.FAILED_TO_BROADCAST
-        transaction.update()
-        transaction.refresh()
-
-        return renameTXIDToFailed(txid)
-    }
-
-    fun markTransactionSummaryAsAcknowledged(txid: String) {
-        val transaction = transactionDao.queryBuilder().where(Properties.Txid.eq(txid)).limit(1).unique()
-                ?: return
-
-        transaction.memPoolState = MemPoolState.ACKNOWLEDGE
-        transaction.update()
-        transaction.refresh()
-
-    }
-
-    fun createInitialTransactionForCompletedBroadcast(completedBroadcastActivityDTO: CompletedBroadcastDTO): TransactionSummary {
-        return createInitialTransaction(completedBroadcastActivityDTO.transactionId, completedBroadcastActivityDTO.identity)
     }
 
     internal fun saveOut(transaction: TransactionSummary, out: VOut) {
@@ -290,116 +288,8 @@ class TransactionHelper @Inject constructor(
         transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction)
     }
 
-    private fun dropEntry(transInvite: TransactionsInvitesSummary?) {
-        val transInvitesDao = daoSessionManager.transactionsInvitesSummaryDao
-        if (transInvite == null) {
-            return
-        }
-        transInvitesDao.delete(transInvite)
-    }
 
-
-    private fun markTargetStatsAsCanceled(receivers: List<TargetStat>) {
-        for (targetStat in receivers) {
-            targetStat.state = TargetStat.State.CANCELED
-
-            targetStat.update()
-            targetStat.refresh()
-
-            removeFundingStatTargetStatRelationship(targetStat)
-        }
-    }
-
-    private fun markFundingStatsAsCanceled(funders: List<FundingStat>) {
-        for (fundingStat in funders) {
-            fundingStat.state = FundingStat.State.CANCELED
-
-            fundingStat.update()
-            fundingStat.refresh()
-
-            removeFundingStatTargetStatRelationship(fundingStat)
-        }
-
-    }
-
-    private fun removeFundingStatTargetStatRelationship(fundingStat: FundingStat) {
-        val dao = daoSessionManager.targetStatDao
-
-        val targetStat = dao.queryBuilder().where(TargetStatDao.Properties.FundingId.eq(fundingStat.id)).limit(1).unique()
-                ?: return
-
-        targetStat.fundingStat = null
-        targetStat.update()
-        targetStat.refresh()
-    }
-
-    private fun removeFundingStatTargetStatRelationship(targetStat: TargetStat) {
-        val dao = daoSessionManager.fundingStatDao
-
-        val fundingStat = dao.queryBuilder().where(FundingStatDao.Properties.TargetId.eq(targetStat.id)).limit(1).unique()
-                ?: return
-
-        fundingStat.targetStat = null
-        fundingStat.update()
-        fundingStat.refresh()
-    }
-
-    private fun renameTXIDToFailed(txid: String): String {
-        val currentTime = dateUtil.getCurrentTimeInMillis()
-        val newTxId = String.format("failedToBroadcast_%s_%s", currentTime, txid)
-        renameTransSummary(txid, newTxId)
-        renameInviteSummary(txid, newTxId)
-        renameTransInviteSummary(txid, newTxId)
-        return newTxId
-    }
-
-    private fun renameTransSummary(originalTxId: String, newTxId: String) {
-        val transaction = transactionDao.queryBuilder().where(Properties.Txid.eq(originalTxId)).limit(1).unique()
-                ?: return
-
-        transaction.txid = newTxId
-        transaction.update()
-        transaction.refresh()
-    }
-
-    //TODO Move To InviteSummaryHelper
-    private fun renameInviteSummary(originalTxId: String, newTxId: String) {
-        val invite = daoSessionManager.inviteTransactionSummaryDao.queryBuilder().where(InviteTransactionSummaryDao.Properties.BtcTransactionId.eq(originalTxId)).limit(1).unique()
-                ?: return
-
-        invite.btcTransactionId = newTxId
-        invite.update()
-        invite.refresh()
-    }
-
-    private fun renameTransInviteSummary(originalTxId: String, newTxId: String) {
-        val transactionsInvitesSummary = transactionsInvitesSummaryDao.queryBuilder().where(TransactionsInvitesSummaryDao.Properties.InviteTxID.eq(originalTxId)).limit(1).unique()
-                ?: return
-
-        transactionsInvitesSummary.inviteTxID = newTxId
-        transactionsInvitesSummary.update()
-        transactionsInvitesSummary.refresh()
-    }
-
-    private fun createInitialTransaction(transactionId: String?, identity: Identity?): TransactionSummary {
-        val transactionSummary = daoSessionManager.newTransactionSummary()
-        transactionSummary.txid = transactionId
-        transactionSummary.wallet = walletHelper.wallet
-        transactionSummary.memPoolState = MemPoolState.PENDING
-        transactionSummary.numConfirmations = 0
-        transactionSummary.txTime = dateUtil.getCurrentTimeInMillis()
-
-        daoSessionManager.insert(transactionSummary)
-
-        val transactionInviteSummary = transactionInviteSummaryHelper.getOrCreateTransactionInviteSummaryFor(transactionSummary)
-        addUserIdentitiesToTransaction(identity, transactionInviteSummary)
-        transactionInviteSummary.update()
-        return transactionSummary
-    }
-
-    private fun addUserIdentitiesToTransaction(identity: Identity?, transactionInviteSummary: TransactionsInvitesSummary) {
-        if (identity == null) return
-
+    private fun addUserIdentitiesToTransaction(identity: Identity, transactionInviteSummary: TransactionsInvitesSummary) {
         val myIdentity = dropbitAccountHelper.identityForType(identity.identityType)
         if (myIdentity != null) {
             val fromUser = userIdentityHelper.updateFrom(myIdentity)
@@ -409,10 +299,4 @@ class TransactionHelper @Inject constructor(
         val toUser = userIdentityHelper.updateFrom(identity)
         transactionInviteSummary.toUser = toUser
     }
-
-    companion object {
-
-        private val TAG = TransactionHelper::class.java.simpleName
-    }
-
 }

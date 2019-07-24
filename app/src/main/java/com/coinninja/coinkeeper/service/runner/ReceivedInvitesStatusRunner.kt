@@ -30,8 +30,6 @@ class ReceivedInvitesStatusRunner @Inject constructor(
         } else {
             logger.logError(TAG, RECEIVED_INVITE_FAILED, response)
         }
-
-        cleanInviteJoinTable()
     }
 
     private fun saveCompletedInvites(invites: List<ReceivedInvite>) {
@@ -47,15 +45,6 @@ class ReceivedInvitesStatusRunner @Inject constructor(
 
         inviteTransactionSummaryHelper.updateFulfilledInviteByCnId(cnId, txid)
         analytics.setUserProperty(Analytics.PROPERTY_HAS_RECEIVED_DROPBIT, true)
-    }
-
-    //TODO Remove HACK
-    private fun cleanInviteJoinTable() {
-        val invites = inviteTransactionSummaryHelper.getInvitesWithTxID
-        for (invite in invites) {
-            val transaction = transactionHelper.transactionWithTxid(invite.btcTransactionId) ?: continue
-            transactionHelper.joinInviteToTx(invite, transaction)
-        }
     }
 
     companion object {
