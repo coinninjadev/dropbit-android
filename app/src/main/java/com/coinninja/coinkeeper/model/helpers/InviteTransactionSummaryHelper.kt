@@ -41,6 +41,8 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         return inviteTransactionSummary.transactionsInvitesSummary
     }
 
+    val getInvitesWithTxID: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.invitesWithTxid
+
     private fun createInviteTransactionSummaryWithParent(cnId: String): TransactionsInvitesSummary {
         val transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary()
         val inviteTransactionSummary = createInviteTransactionSummary(cnId)

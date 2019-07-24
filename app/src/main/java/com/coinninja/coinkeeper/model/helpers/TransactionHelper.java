@@ -136,7 +136,6 @@ public class TransactionHelper {
                 continue;
             }
         }
-
     }
 
     public void updateFeesFor(List<TransactionStats> transactionStats) {
@@ -149,14 +148,6 @@ public class TransactionHelper {
                 transaction.update();
             }
         }
-    }
-
-    public List<InviteTransactionSummary> getInvitesWithTxID() {
-        InviteTransactionSummaryDao inviteDao = daoSessionManager.getInviteTransactionSummaryDao();
-
-        return inviteDao.queryBuilder().where(
-                InviteTransactionSummaryDao.Properties.BtcTransactionId.isNotNull(),
-                InviteTransactionSummaryDao.Properties.BtcTransactionId.notEq("")).list();
     }
 
     public TransactionSummary getTransactionWithTxID(String txID) {
@@ -423,27 +414,6 @@ public class TransactionHelper {
         transactionsInvitesSummary.update();
         transactionsInvitesSummary.refresh();
         transInvitesDao.refresh(transactionsInvitesSummary);
-    }
-
-    TransactionsInvitesSummary joinInviteToTransaction(TransactionsInvitesSummary transactionsInvitesSummary, String btcTxID) {
-        TransactionsInvitesSummaryDao transInvitesDao = daoSessionManager.getTransactionsInvitesSummaryDao();
-
-        if (transactionsInvitesSummary == null) {
-            return null;//nothing to join
-        }
-
-
-        TransactionSummary tx = transactionsInvitesSummary.getTransactionSummary();
-        InviteTransactionSummary invite = transactionsInvitesSummary.getInviteTransactionSummary();
-        if (tx != null && invite != null) {
-            return transactionsInvitesSummary;//its already joined
-        }
-
-
-        dropEntry(transactionsInvitesSummary);//there must be two entries for this invite, lets remove this one and find the second one
-        return transInvitesDao.queryBuilder().
-                where(TransactionsInvitesSummaryDao.Properties.TransactionTxID.eq(btcTxID)).
-                limit(1).unique();
     }
 
     private TransactionSummaryDao getTransactionDao() {

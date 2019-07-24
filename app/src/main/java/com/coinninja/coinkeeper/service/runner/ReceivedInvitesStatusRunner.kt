@@ -51,11 +51,9 @@ class ReceivedInvitesStatusRunner @Inject constructor(
 
     //TODO Remove HACK
     private fun cleanInviteJoinTable() {
-        val invites = transactionHelper.invitesWithTxID
+        val invites = inviteTransactionSummaryHelper.getInvitesWithTxID
         for (invite in invites) {
-            val txID = invite.btcTransactionId
-            val transaction = transactionHelper.getTransactionWithTxID(txID) ?: continue
-
+            val transaction = transactionHelper.getTransactionWithTxID(invite.btcTransactionId) ?: continue
             transactionHelper.joinInviteToTx(invite, transaction)
         }
     }

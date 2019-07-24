@@ -28,6 +28,12 @@ class InviteSummaryQueryManager @Inject internal constructor(
 
         }
 
+    val invitesWithTxid: List<InviteTransactionSummary>
+        get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder().where(
+                InviteTransactionSummaryDao.Properties.BtcTransactionId.isNotNull(),
+                InviteTransactionSummaryDao.Properties.BtcTransactionId.notEq("")
+        ).list()
+
     fun getInviteSummaryByCnId(cnId: String): InviteTransactionSummary? =
             daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
                     .where(InviteTransactionSummaryDao.Properties.ServerId.eq(cnId)).unique()
