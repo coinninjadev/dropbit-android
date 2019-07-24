@@ -8,7 +8,6 @@ import com.coinninja.coinkeeper.model.db.FundingStatDao
 import com.coinninja.coinkeeper.model.db.TargetStatDao
 import com.coinninja.coinkeeper.service.client.model.GsonAddress
 import java.util.*
-import java.util.Collections.list
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -26,7 +25,7 @@ class AddressHelper @Inject constructor(
         val savedAddresses: ArrayList<String> = ArrayList()
 
         addresses.forEach loop@{
-            val addressValue = it.getAddress()
+            val addressValue = it.address
 
             if (savedAddresses.indexOf(addressValue) == 0 || !containsAddress(addressValue)) {
                 savedAddresses.add(addressValue)

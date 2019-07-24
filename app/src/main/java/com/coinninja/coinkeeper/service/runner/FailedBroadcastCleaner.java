@@ -101,6 +101,27 @@ public class FailedBroadcastCleaner implements Runnable {
         return flatMapOfValuesInHashMap(transactionsMap);
     }
 
+    String[] markAsFailedToBroadcast(List<TransactionSummary> unAcknowledged) {
+        ArrayList<String> newTxIds = new ArrayList<>();
+        for (TransactionSummary transactionSummary : unAcknowledged) {
+            String newTXID = transactionHelper.markTransactionSummaryAsFailedToBroadcast(transactionSummary.getTxid());
+            reportFailure(transactionSummary);
+            if (newTXID == null) continue;
+
+            newTxIds.add(newTXID);
+        }
+
+        return newTxIds.toArray(new String[newTxIds.size()]);
+    }
+
+    void notifyUserOfBroadcastFail(String[] newlyFailedTXIDs) {
+        for (String newlyFailedTXID : newlyFailedTXIDs) {
+            String message = application.getString(R.string.notification_transaction_failed_to_broadcast, newlyFailedTXID);
+
+            externalNotificationHelper.saveNotification(message, newlyFailedTXID);
+        }
+    }
+
     private List<TransactionDetail> blockChainInfoLoop(String[] txids) {
         List<TransactionDetail> transactionDetails = new ArrayList<>();
         for (String txId : txids) {
@@ -123,19 +144,6 @@ public class FailedBroadcastCleaner implements Runnable {
         return transactionDetails;
     }
 
-    String[] markAsFailedToBroadcast(List<TransactionSummary> unAcknowledged) {
-        ArrayList<String> newTxIds = new ArrayList<>();
-        for (TransactionSummary transactionSummary : unAcknowledged) {
-            String newTXID = transactionHelper.markTransactionSummaryAsFailedToBroadcast(transactionSummary.getTxid());
-            reportFailure(transactionSummary);
-            if (newTXID == null) continue;
-
-            newTxIds.add(newTXID);
-        }
-
-        return newTxIds.toArray(new String[newTxIds.size()]);
-    }
-
     private void reportFailure(TransactionSummary transactionSummary) {
         if (transactionSummary.getTransactionsInvitesSummary().getInviteTransactionSummary() == null) {
             analytics.trackEvent(Analytics.EVENT_PENDING_TRANSACTION_FAILED);
@@ -144,16 +152,8 @@ public class FailedBroadcastCleaner implements Runnable {
         }
     }
 
-    void markAsAcknowledged(String acknowledgedTxID) {
+    private void markAsAcknowledged(String acknowledgedTxID) {
         transactionHelper.markTransactionSummaryAsAcknowledged(acknowledgedTxID);
-    }
-
-    void notifyUserOfBroadcastFail(String[] newlyFailedTXIDs) {
-        for (String newlyFailedTXID : newlyFailedTXIDs) {
-            String message = application.getString(R.string.notification_transaction_failed_to_broadcast, newlyFailedTXID);
-
-            externalNotificationHelper.saveNotification(message, newlyFailedTXID);
-        }
     }
 
     private HashMap<String, TransactionSummary> transListToTxIDMap(List<TransactionSummary> list) {

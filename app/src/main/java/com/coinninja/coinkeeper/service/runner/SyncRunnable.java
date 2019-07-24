@@ -160,9 +160,11 @@ public class SyncRunnable implements Runnable {
     }
 
     private void fetchTransactionFees() {
-        List<TransactionSummary> transactionsWithoutFees = transactionHelper.getTransactionsWithoutFees();
-        List<TransactionStats> transactionStats = transactionAPIUtil.fetchFeesFor(transactionsWithoutFees);
-        transactionHelper.updateFeesFor(transactionStats);
+        for (TransactionSummary summary : transactionHelper.getTransactionsWithoutFees()) {
+            TransactionStats transactionStat = transactionAPIUtil.fetchFeesFor(summary);
+            summary.setFee(transactionStat.getFees());
+            summary.update();
+        }
     }
 
     private void calculateBalance() {

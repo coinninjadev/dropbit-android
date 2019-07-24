@@ -9,7 +9,6 @@ import com.coinninja.coinkeeper.util.CNLogger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -19,9 +18,8 @@ import static com.coinninja.coinkeeper.service.client.CoinKeeperClient.TRANSACTI
 
 public class TransactionAPIUtil {
     private static final String TAG = TransactionAPIUtil.class.getSimpleName();
-
-    private CoinKeeperApiClient apiClient;
     private final CNLogger logger;
+    private CoinKeeperApiClient apiClient;
 
     @Inject
     TransactionAPIUtil(CoinKeeperApiClient apiClient, CNLogger logger) {
@@ -58,14 +56,27 @@ public class TransactionAPIUtil {
         return results;
     }
 
-    public void updateHistoricPricingIfNecessary(List<TransactionSummary> transactions) {
+    void updateHistoricPricingIfNecessary(List<TransactionSummary> transactions) {
         if (transactions.isEmpty()) return;
 
-        for(TransactionSummary transaction : transactions) {
+        for (TransactionSummary transaction : transactions) {
             CNPricing pricing = getTransactionHistoricalPricing(transaction.getTxid());
-            if (pricing == null || pricing.getAverage() < 100) { continue; }
+            if (pricing == null || pricing.getAverage() < 100) {
+                continue;
+            }
             transaction.setHistoricPrice(pricing.getAverage());
             transaction.update();
+        }
+    }
+
+    TransactionStats fetchFeesFor(TransactionSummary transaction) {
+        Response transactionStats;
+
+        transactionStats = apiClient.getTransactionStats(transaction.getTxid());
+        if (transactionStats.isSuccessful()) {
+            return (TransactionStats) transactionStats.body();
+        } else {
+            return null;
         }
     }
 
@@ -97,19 +108,5 @@ public class TransactionAPIUtil {
             logger.logError(TAG, "|---- Get Batch Transactions", response);
         }
         return results;
-    }
-
-    public List<TransactionStats> fetchFeesFor(List<TransactionSummary> transactions) {
-        ArrayList<TransactionStats> stats = new ArrayList<>();
-        Response transactionStats;
-
-        for (TransactionSummary transaction : transactions) {
-            transactionStats = apiClient.getTransactionStats(transaction.getTxid());
-            if (transactionStats.isSuccessful()) {
-                stats.add((TransactionStats) transactionStats.body());
-            }
-        }
-
-        return stats;
     }
 }

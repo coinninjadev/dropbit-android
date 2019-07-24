@@ -15,7 +15,6 @@ import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -32,6 +31,7 @@ import retrofit2.Response;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -217,30 +217,25 @@ public class TransactionAPIUtilTest {
 
     @Test
     public void fetchFeeInformation() {
-        List<TransactionStats> expectedResposne = new ArrayList<>();
-        expectedResposne.add((TransactionStats) txStatsResponse1.body());
-        expectedResposne.add((TransactionStats) txStatsResponse2.body());
-        when(apiClient.getTransactionStats(transactionOneId)).thenReturn(txStatsResponse1);
-        when(apiClient.getTransactionStats(transactionTwoId)).thenReturn(txStatsResponse2);
+        TransactionSummary transaction = mock(TransactionSummary.class);
+        TransactionStats stat = new TransactionStats();
+        Response response = Response.success(200, stat);
+        when(transaction.getTxid()).thenReturn(transactionOneId);
+        when(apiClient.getTransactionStats(transactionOneId)).thenReturn(response);
 
-        List<TransactionStats> transactionStats = apiUtil.fetchFeesFor(transactions);
+        TransactionStats transactionStat = apiUtil.fetchFeesFor(transaction);
 
-        verify(apiClient, times(2)).getTransactionStats(any());
-        assertThat(transactionStats, equalTo(expectedResposne));
-
+        verify(apiClient).getTransactionStats(any());
+        assertThat(transactionStat, equalTo(stat));
     }
 
     @Test
-    public void onlyPacksSuccessfullResponsesForFees() {
-        List<TransactionStats> expectedResposne = new ArrayList<>();
-        expectedResposne.add((TransactionStats) txStatsResponse2.body());
+    public void returns_null_for_unsuccessful_requests() {
+        TransactionSummary transaction = mock(TransactionSummary.class);
+        when(transaction.getTxid()).thenReturn(transactionOneId);
         when(apiClient.getTransactionStats(transactionOneId)).thenReturn(error);
-        when(apiClient.getTransactionStats(transactionTwoId)).thenReturn(txStatsResponse2);
 
-        List<TransactionStats> transactionStats = apiUtil.fetchFeesFor(transactions);
-
-        verify(apiClient, times(2)).getTransactionStats(any());
-        assertThat(transactionStats, equalTo(expectedResposne));
+        assertNull(apiUtil.fetchFeesFor(transaction));
     }
 
     private void mock55transactions() {

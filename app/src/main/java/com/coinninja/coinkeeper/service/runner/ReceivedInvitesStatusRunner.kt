@@ -53,7 +53,7 @@ class ReceivedInvitesStatusRunner @Inject constructor(
     private fun cleanInviteJoinTable() {
         val invites = inviteTransactionSummaryHelper.getInvitesWithTxID
         for (invite in invites) {
-            val transaction = transactionHelper.getTransactionWithTxID(invite.btcTransactionId) ?: continue
+            val transaction = transactionHelper.transactionWithTxid(invite.btcTransactionId) ?: continue
             transactionHelper.joinInviteToTx(invite, transaction)
         }
     }

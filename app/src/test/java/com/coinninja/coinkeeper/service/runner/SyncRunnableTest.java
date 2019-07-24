@@ -32,6 +32,7 @@ import java.util.List;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -160,38 +161,21 @@ public class SyncRunnableTest {
 
     @Test
     public void savesFeeData() {
-        List<TransactionStats> transactionStats = new ArrayList<>();
         TransactionStats ts = new TransactionStats();
         ts.setFees(1905L);
         ts.setFeesRate(5107L);
         ts.setCoinBase(false);
-        transactionStats.add(ts);
 
         List<TransactionSummary> transactions = new ArrayList<>();
-        TransactionSummary t1 = new TransactionSummary();
-        t1.setTxid("1d1ef96bc636952cc01d7d613df41caf7815e6766670bafa5d096bacf843fd24");
+        TransactionSummary t1 = mock(TransactionSummary.class);
         transactions.add(t1);
         when(transactionHelper.getTransactionsWithoutFees()).thenReturn(transactions);
-        when(transactionAPIUtil.fetchFeesFor(transactions)).thenReturn(transactionStats);
+        when(transactionAPIUtil.fetchFeesFor(t1)).thenReturn(ts);
 
         syncRunner.run();
 
-        verify(transactionHelper).updateFeesFor(transactionStats);
-    }
-
-    @Test
-    public void fetchesFeesForTransactions() {
-
-        List<TransactionSummary> transactions = new ArrayList<>();
-        TransactionSummary t1 = new TransactionSummary();
-        t1.setTxid("1d1ef96bc636952cc01d7d613df41caf7815e6766670bafa5d096bacf843fd24");
-        transactions.add(t1);
-
-        when(transactionHelper.getTransactionsWithoutFees()).thenReturn(transactions);
-
-        syncRunner.run();
-
-        verify(transactionAPIUtil).fetchFeesFor(transactions);
+        verify(t1).setFee(1905L);
+        verify(t1).update();
     }
 
     @Test
