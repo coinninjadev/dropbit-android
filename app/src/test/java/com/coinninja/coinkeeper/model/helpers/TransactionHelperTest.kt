@@ -6,6 +6,7 @@ import com.coinninja.coinkeeper.model.db.TransactionSummary
 import com.coinninja.coinkeeper.model.db.Wallet
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.service.client.model.GsonAddress
+import com.coinninja.coinkeeper.service.client.model.TransactionDetail
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Test
 
@@ -147,6 +148,46 @@ class TransactionHelperTest {
         val ordered = inOrder(transaction)
         ordered.verify(transaction).memPoolState = MemPoolState.ACKNOWLEDGE
         ordered.verify(transaction).update()
+    }
+
+    @Test
+    fun updates_many_transactions_from_list_of_details() {
+        val tx1 = mock<TransactionSummary>()
+        val tx2 = mock<TransactionSummary>()
+        val detail1 = TransactionDetail().also {
+            it.transactionId = "--txid-1--"
+        }
+        val detail2 = TransactionDetail().also {
+            it.transactionId = "--txid-2--"
+
+        }
+        val helper = createHelper()
+        whenever(helper.transactionQueryManager.transactionByTxid(detail1.transactionId)).thenReturn(tx1)
+        whenever(helper.transactionQueryManager.transactionByTxid(detail2.transactionId)).thenReturn(tx2)
+        val transactions: List<TransactionDetail> = listOf(detail1, detail2)
+
+        helper.updateTransactions(transactions, 100)
+
+        val ordered = inOrder(tx1, tx2, helper.transactionInviteSummaryHelper)
+        ordered.verify(tx1).update()
+        ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(tx1)
+        ordered.verify(tx2).update()
+        ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(tx2)
+    }
+
+    @Test
+    fun updates_transaction_from_transaction_details() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    @Test
+    fun updates_transaction_inputs_from_transaction_details() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    @Test
+    fun updates_transaction_ouptuts_from_transaction_details() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     /*

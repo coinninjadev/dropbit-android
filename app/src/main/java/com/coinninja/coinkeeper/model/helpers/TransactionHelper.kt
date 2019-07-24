@@ -4,7 +4,6 @@ import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.*
-import com.coinninja.coinkeeper.model.db.TransactionSummaryDao.Properties
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager
@@ -35,9 +34,6 @@ class TransactionHelper @Inject constructor(
     val pendingMindedTransactions: List<TransactionSummary> get() = transactionQueryManager.pendingMindedTransactions
 
     val requiringNotificationCheck: List<TransactionSummary> get() = transactionQueryManager.requiringNotificationCheck
-
-    private val transactionDao: TransactionSummaryDao
-        get() = daoSessionManager.transactionSummaryDao
 
     fun getPendingTransactionsOlderThan(olderThanMillis: Long): List<TransactionSummary> {
         return transactionQueryManager.pendingTransactionsOlderThan(olderThanMillis)
@@ -114,31 +110,25 @@ class TransactionHelper @Inject constructor(
         }
     }
 
-    // TODO --- YOU ARE HERE
-
     fun updateTransactions(fetchedTransactions: List<TransactionDetail>, currentBlockHeight: Int) {
         for (detail in fetchedTransactions) {
-            val transaction = transactionDao.queryBuilder().where(Properties.Txid.eq(detail.transactionId)).limit(1).unique()
-                    ?: continue
-
-            transaction.memPoolState = MemPoolState.ACKNOWLEDGE
-            if (detail.blockheight > 0) {
-                transaction.numConfirmations = CNWalletManager.calcConfirmations(currentBlockHeight, detail.blockheight)
+            transactionQueryManager.transactionByTxid(detail.transactionId)?.let {
+                try {
+                    updateTransaction(it, detail, currentBlockHeight)
+                } catch (ex: Exception) {
+                }
             }
-            transaction.update()
-            transaction.refresh()
-
-
-            try {
-                updateTransaction(transaction, detail)
-            } catch (ex: Exception) {
-                continue
-            }
-
         }
     }
 
-    internal fun updateTransaction(transaction: TransactionSummary, detail: TransactionDetail) {
+    // TODO --- YOU ARE HERE
+
+    internal fun updateTransaction(transaction: TransactionSummary, detail: TransactionDetail, currentBlockHeight: Int) {
+        transaction.memPoolState = MemPoolState.ACKNOWLEDGE
+        if (detail.blockheight > 0) {
+            transaction.numConfirmations = CNWalletManager.calcConfirmations(currentBlockHeight, detail.blockheight)
+        }
+
         if (detail.blocktimeMillis > 0L) {
             transaction.txTime = detail.blocktimeMillis
         } else if (detail.timeMillis > 0L) {
@@ -173,8 +163,6 @@ class TransactionHelper @Inject constructor(
         transaction.numInputs = transaction.funder.size
         transaction.numOutputs = transaction.receiver.size
         transaction.update()
-        transaction.refresh()
-
         transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction)
     }
 
