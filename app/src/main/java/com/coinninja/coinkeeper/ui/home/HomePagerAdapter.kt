@@ -12,16 +12,14 @@ import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragmen
 @Mockable
 class HomePagerAdapter(fm: FragmentManager, behavior: Int) : FragmentStatePagerAdapter(fm, behavior) {
     companion object {
-        const val numPages = 3
+        const val numPages = 1
     }
 
-    private val fragments = listOf<Fragment>(MarketScreenFragment(), TransactionHistoryFragment(), PayRequestScreenFragment())
+    private val fragments = listOf<Fragment>(TransactionHistoryFragment())
 
     override fun getItem(position: Int): Fragment {
         when (position) {
-            0 -> return fragments[0]
-            1 -> return fragments[1]
-            else -> return fragments[2]
+            else -> return fragments[0]
         }
     }
 
