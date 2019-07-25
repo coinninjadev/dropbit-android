@@ -1,9 +1,13 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import com.coinninja.bindings.DerivationPath
+import com.coinninja.bindings.TransactionData
+import com.coinninja.bindings.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
+import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO
 import com.coinninja.coinkeeper.service.client.model.*
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Test
@@ -362,7 +366,7 @@ class TransactionHelperTest {
         val dropbitMeIdentity: DropbitMeIdentity = mock()
         val toUser = mock<UserIdentity>()
         val fromUser = mock<UserIdentity>()
-        val settlement:TransactionsInvitesSummary = mock()
+        val settlement: TransactionsInvitesSummary = mock()
 
         whenever(identity.identityType).thenReturn(IdentityType.TWITTER)
         whenever(helper.userIdentityHelper.updateFrom(identity)).thenReturn(toUser)
@@ -372,6 +376,51 @@ class TransactionHelperTest {
         helper.addUserIdentitiesToTransaction(identity, settlement)
 
         val ordered = inOrder(settlement)
+        ordered.verify(settlement).fromUser = fromUser
+        ordered.verify(settlement).toUser = toUser
+        ordered.verify(settlement).update()
+    }
+
+    @Test
+    fun creates_initial_transaction_at_time_of_broadcast() {
+        val helper = createHelper()
+        val identity = mock<Identity>()
+        val dropbitMeIdentity: DropbitMeIdentity = mock()
+        val toUser = mock<UserIdentity>()
+        val fromUser = mock<UserIdentity>()
+        val settlement: TransactionsInvitesSummary = mock()
+        val completedBroadcastDTO = CompletedBroadcastDTO(
+                transactionId = "--txid--",
+                identity = identity,
+                transactionData = TransactionData(
+                        utxos = arrayOf(
+                                UnspentTransactionOutput("--proof-txid-1--", 1, 100000,
+                                        DerivationPath(49, 0, 0, 0, 1))),
+                        amount = 1000, feeAmount = 10, changeAmount = 100000,
+                        changePath = DerivationPath(49, 0, 0, 1, 0),
+                        paymentAddress = "--pay-to-address--"
+                )
+        )
+        val transaction: TransactionSummary = mock()
+        whenever(helper.daoSessionManager.newTransactionSummary()).thenReturn(transaction)
+        whenever(helper.walletHelper.wallet).thenReturn(mock())
+        whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(System.currentTimeMillis())
+        whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(System.currentTimeMillis())
+        whenever(identity.identityType).thenReturn(IdentityType.TWITTER)
+        whenever(helper.userIdentityHelper.updateFrom(identity)).thenReturn(toUser)
+        whenever(helper.userIdentityHelper.updateFrom(dropbitMeIdentity)).thenReturn(fromUser)
+        whenever(helper.dropbitAccountHelper.identityForType(identity.identityType)).thenReturn(dropbitMeIdentity)
+        whenever(helper.transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction)).thenReturn(settlement)
+
+        helper.createInitialTransactionForCompletedBroadcast(completedBroadcastDTO)
+
+        val ordered = inOrder(transaction, helper.daoSessionManager, helper.transactionInviteSummaryHelper, settlement)
+        ordered.verify(transaction).txid = completedBroadcastDTO.transactionId
+        ordered.verify(transaction).wallet = helper.walletHelper.wallet
+        ordered.verify(transaction).memPoolState = MemPoolState.PENDING
+        ordered.verify(transaction).txTime = helper.dateUtil.getCurrentTimeInMillis()
+        ordered.verify(helper.daoSessionManager).insert(transaction)
+        ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction)
         ordered.verify(settlement).fromUser = fromUser
         ordered.verify(settlement).toUser = toUser
         ordered.verify(settlement).update()

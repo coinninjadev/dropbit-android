@@ -215,7 +215,6 @@ class TransactionHelper @Inject constructor(
         }
     }
 
-    //TODO("--- YOU ARE HERE")
     fun createInitialTransactionForCompletedBroadcast(completedBroadcastActivityDTO: CompletedBroadcastDTO): TransactionSummary {
         val transactionId = completedBroadcastActivityDTO.transactionId
         val identity = completedBroadcastActivityDTO.identity
@@ -223,7 +222,6 @@ class TransactionHelper @Inject constructor(
         transactionSummary.txid = transactionId
         transactionSummary.wallet = walletHelper.wallet
         transactionSummary.memPoolState = MemPoolState.PENDING
-        transactionSummary.numConfirmations = 0
         transactionSummary.txTime = dateUtil.getCurrentTimeInMillis()
 
         daoSessionManager.insert(transactionSummary)
