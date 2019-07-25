@@ -8,7 +8,10 @@ import com.coinninja.coinkeeper.model.db.TransactionSummary
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey
 import com.coinninja.coinkeeper.service.client.model.VIn
 import com.coinninja.coinkeeper.service.client.model.VOut
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.greenrobot.greendao.query.QueryBuilder
 import org.junit.Test
 
@@ -116,10 +119,12 @@ class FundingStatHelperTest {
         ordered.verify(helper.daoSessionManager).newFundingStat()
         ordered.verify(input1).transaction = transaction
         ordered.verify(input1).wallet = transaction.wallet
+        ordered.verify(input1).state = FundingStat.State.PENDING
         ordered.verify(helper.daoSessionManager).insert(input1)
         ordered.verify(helper.daoSessionManager).newFundingStat()
         ordered.verify(input2).transaction = transaction
         ordered.verify(input2).wallet = transaction.wallet
+        ordered.verify(input2).state = FundingStat.State.PENDING
         ordered.verify(helper.daoSessionManager).insert(input2)
     }
 }

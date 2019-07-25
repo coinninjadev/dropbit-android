@@ -36,8 +36,8 @@ class FundingStatHelper @Inject constructor(
                 }
             }
 
-    private fun createInputFor(utxo: UnspentTransactionOutput): FundingStat {
-        return daoSessionManager.newFundingStat()
+    private fun createInputFor(utxo: UnspentTransactionOutput): FundingStat = daoSessionManager.newFundingStat().also {
+        //TODO("get reference to address from DerivationPath")
     }
 
     fun createInputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
@@ -45,6 +45,7 @@ class FundingStatHelper @Inject constructor(
             val input = createInputFor(it)
             input.transaction = transaction
             input.wallet = transaction.wallet
+            input.state = FundingStat.State.PENDING
             daoSessionManager.insert(input)
         }
     }
