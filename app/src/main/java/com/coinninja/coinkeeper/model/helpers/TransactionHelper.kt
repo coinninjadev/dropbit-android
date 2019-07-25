@@ -218,17 +218,18 @@ class TransactionHelper @Inject constructor(
     fun createInitialTransactionForCompletedBroadcast(completedBroadcastActivityDTO: CompletedBroadcastDTO): TransactionSummary {
         val transactionId = completedBroadcastActivityDTO.transactionId
         val identity = completedBroadcastActivityDTO.identity
-        val transactionSummary = daoSessionManager.newTransactionSummary()
-        transactionSummary.txid = transactionId
-        transactionSummary.wallet = walletHelper.wallet
-        transactionSummary.memPoolState = MemPoolState.PENDING
-        transactionSummary.txTime = dateUtil.getCurrentTimeInMillis()
+        val transaction = daoSessionManager.newTransactionSummary()
+        transaction.txid = transactionId
+        transaction.wallet = walletHelper.wallet
+        transaction.memPoolState = MemPoolState.PENDING
+        transaction.txTime = dateUtil.getCurrentTimeInMillis()
+        daoSessionManager.insert(transaction)
+        fundingStatHelper.createInputsFor(transaction, completedBroadcastActivityDTO.transactionData)
+        targetStatHelper.createOutputsFor(transaction, completedBroadcastActivityDTO.transactionData)
 
-        daoSessionManager.insert(transactionSummary)
-
-        transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transactionSummary).also {
+        transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction).also {
             addUserIdentitiesToTransaction(identity, it)
         }
-        return transactionSummary
+        return transaction
     }
 }

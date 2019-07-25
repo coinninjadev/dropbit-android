@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
+import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
 import com.coinninja.coinkeeper.model.db.TargetStat
@@ -42,6 +43,10 @@ class TargetStatHelper @Inject constructor(
                     daoSessionManager.insert(it)
                 }
             }
+
+    fun createOutputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
+
+    }
 
 
     val spendableTargets: List<TargetStat>

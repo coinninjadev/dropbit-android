@@ -414,12 +414,14 @@ class TransactionHelperTest {
 
         helper.createInitialTransactionForCompletedBroadcast(completedBroadcastDTO)
 
-        val ordered = inOrder(transaction, helper.daoSessionManager, helper.transactionInviteSummaryHelper, settlement)
+        val ordered = inOrder(transaction, helper.daoSessionManager, helper.transactionInviteSummaryHelper, settlement, helper.fundingStatHelper, helper.targetStatHelper)
         ordered.verify(transaction).txid = completedBroadcastDTO.transactionId
         ordered.verify(transaction).wallet = helper.walletHelper.wallet
         ordered.verify(transaction).memPoolState = MemPoolState.PENDING
         ordered.verify(transaction).txTime = helper.dateUtil.getCurrentTimeInMillis()
         ordered.verify(helper.daoSessionManager).insert(transaction)
+        ordered.verify(helper.fundingStatHelper).createInputsFor(transaction, completedBroadcastDTO.transactionData)
+        ordered.verify(helper.targetStatHelper).createOutputsFor(transaction, completedBroadcastDTO.transactionData)
         ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction)
         ordered.verify(settlement).fromUser = fromUser
         ordered.verify(settlement).toUser = toUser

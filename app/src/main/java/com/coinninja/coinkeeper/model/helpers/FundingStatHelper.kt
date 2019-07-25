@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
+import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.model.db.FundingStat
 import com.coinninja.coinkeeper.model.db.FundingStatDao
 import com.coinninja.coinkeeper.model.db.TransactionSummary
@@ -33,6 +34,10 @@ class FundingStatHelper @Inject constructor(
                     daoSessionManager.insert(it)
                 }
             }
+
+    fun createInputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
 
 }
