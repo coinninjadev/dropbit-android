@@ -52,6 +52,9 @@
     <color name="font_lightest_gray">#f4f4f4</color>
     <color name="font_white">#ffffff</color>
 
+
+    <color name="button_bar_boarder">#d8d8d8</color>
+
     <!-- Button Colors -->
     <!-- Primary Button Colors -->
     <color name="primary">#2cd1ff</color>

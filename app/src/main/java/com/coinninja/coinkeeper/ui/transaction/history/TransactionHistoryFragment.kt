@@ -79,7 +79,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         super.onCreate(savedInstanceState)
         intentFilter.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED)
 
-        syncManagerViewNotifier.observeSyncManagerChange(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -89,19 +88,20 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     override fun onStart() {
         super.onStart()
         transactions = walletHelper.transactionsLazily
-        transactionHistoryDataAdapter.setOnItemClickListener(this)
-        transactionHistoryDataAdapter.setTransactions(transactions)
-        transactionHistoryDataAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier)
-        setupHistoryList()
         setupNewWalletButtons()
     }
 
     override fun onResume() {
         super.onResume()
-        presentTransactions()
-        setupSwipeToRefresh()
         transactionHistoryDataAdapter.defaultCurrencies = currencyPreference.currenciesPreference
         localBroadCastUtil.registerReceiver(receiver, intentFilter)
+        transactionHistoryDataAdapter.setOnItemClickListener(this)
+        transactionHistoryDataAdapter.setTransactions(transactions)
+        transactionHistoryDataAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier)
+        syncManagerViewNotifier.observeSyncManagerChange(this)
+        setupHistoryList()
+        presentTransactions()
+        setupSwipeToRefresh()
 
     }
 
@@ -153,6 +153,9 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         transactions = walletHelper.transactionsLazily
         transactionHistoryDataAdapter.setTransactions(transactions)
         presentTransactions()
+        findViewById<RecyclerView>(R.id.transaction_history)?.let {
+            it.adapter = transactionHistoryDataAdapter
+        }
     }
 
     private fun presentTransactions() {
@@ -176,6 +179,7 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
 
     override fun onSyncStatusChanged() {
         view?.findViewById<SwipeRefreshLayout>(R.id.pull_refresh_container)?.isRefreshing = false
+        refreshTransactions()
     }
 
 }
