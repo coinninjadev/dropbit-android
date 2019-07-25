@@ -121,6 +121,7 @@ class TransactionHelper @Inject constructor(
                 try {
                     updateTransaction(it, detail, currentBlockHeight)
                 } catch (ex: Exception) {
+                    ex.printStackTrace()
                 }
             }
         }

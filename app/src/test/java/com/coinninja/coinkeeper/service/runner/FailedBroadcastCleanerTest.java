@@ -135,7 +135,7 @@ public class FailedBroadcastCleanerTest {
     @Test
     public void removes_transaction_found_on_coinninja_from_pending_list_test() {
         List<TransactionDetail> expectedResponse = new ArrayList<>();
-        expectedResponse.add((TransactionDetail) buildTransactionResponse(TestData.TRANSACTIONS_ONE).body());
+        expectedResponse.add((TransactionDetail) buildTransactionResponse(TestData.INSTANCE.getTRANSACTIONS_ONE()).body());
         Response response = Response.success(expectedResponse);
 
         when(apiClient.getTransactions(any())).thenReturn(response);
@@ -204,7 +204,7 @@ public class FailedBroadcastCleanerTest {
     public void returns_empty_if_coinninja_has_all_of_the_requested_transactions_test() {
 
         List<TransactionDetail> expectedResposne = new ArrayList<>();
-        expectedResposne.add((TransactionDetail) buildTransactionResponse(TestData.TRANSACTIONS_ONE).body());
+        expectedResposne.add((TransactionDetail) buildTransactionResponse(TestData.INSTANCE.getTRANSACTIONS_ONE()).body());
         Response response = Response.success(expectedResposne);
 
         when(apiClient.getTransactions(any())).thenReturn(response);
@@ -237,7 +237,7 @@ public class FailedBroadcastCleanerTest {
     @Test
     public void check_coinninja_mark_as_acknowledged_test() {
         List<TransactionDetail> expectedResposne = new ArrayList<>();
-        expectedResposne.add((TransactionDetail) buildTransactionResponse(TestData.TRANSACTIONS_ONE).body());
+        expectedResposne.add((TransactionDetail) buildTransactionResponse(TestData.INSTANCE.getTRANSACTIONS_ONE()).body());
         Response response = Response.success(expectedResposne);
 
         when(apiClient.getTransactions(any())).thenReturn(response);

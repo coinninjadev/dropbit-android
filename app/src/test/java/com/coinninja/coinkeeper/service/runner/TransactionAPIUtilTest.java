@@ -81,8 +81,8 @@ public class TransactionAPIUtilTest {
         transactions.add(t2);
         transactionIds[1] = t2.getTxid();
 
-        txResponse1 = buildTransactionResponse(TestData.TRANSACTIONS_ONE);
-        txResponse2 = buildTransactionResponse(TestData.TRANSACTIONS_TWO);
+        txResponse1 = buildTransactionResponse(TestData.INSTANCE.getTRANSACTIONS_ONE());
+        txResponse2 = buildTransactionResponse(TestData.INSTANCE.getTRANSACTIONS_TWO());
 
         error = Response.error(ResponseBody.create(null, ""), new okhttp3.Response.Builder()
                 .code(404)
@@ -91,11 +91,11 @@ public class TransactionAPIUtilTest {
                 .request(new Request.Builder().url("https://someuri.com").build())
                 .build());
 
-        txStatsResponse1 = buildTransactionStatsResponse(TestData.TRANSACTION_ONE_STATS);
-        txStatsResponse2 = buildTransactionStatsResponse(TestData.TRANSACTION_TWO_STATS);
+        txStatsResponse1 = buildTransactionStatsResponse(TestData.INSTANCE.getTRANSACTION_ONE_STATS());
+        txStatsResponse2 = buildTransactionStatsResponse(TestData.INSTANCE.getTRANSACTION_TWO_STATS());
 
-        txConfirmationResponse1 = buildTransactionConfirmationResponse(TestData.TRANSACTION_ONE_CONFIRMATION);
-        txConfirmationResponse2 = buildTransactionConfirmationResponse(TestData.TRANSACTION_ONE_CONFIRMATION);
+        txConfirmationResponse1 = buildTransactionConfirmationResponse(TestData.INSTANCE.getTRANSACTION_ONE_CONFIRMATION());
+        txConfirmationResponse2 = buildTransactionConfirmationResponse(TestData.INSTANCE.getTRANSACTION_ONE_CONFIRMATION());
 
     }
 

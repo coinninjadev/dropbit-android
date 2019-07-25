@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
@@ -30,7 +28,6 @@ import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
-import com.coinninja.coinkeeper.service.client.model.MerchantResponse;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
@@ -54,6 +51,7 @@ import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView;
+import com.coinninja.coinkeeper.wallet.data.TestData;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
@@ -65,8 +63,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowAlertDialog;
-import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowToast;
 
 import java.util.ArrayList;
@@ -80,7 +76,6 @@ import retrofit2.Call;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
-import static com.coinninja.coinkeeper.wallet.data.TestData.EXTERNAL_ADDRESSES;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
@@ -180,7 +175,7 @@ public class PayDialogFragmentTest {
 
     @Test
     public void shows_payment_address_when_initialized_from_scan() {
-        String address = EXTERNAL_ADDRESSES[0];
+        String address = TestData.INSTANCE.getEXTERNAL_ADDRESSES()[0];
         paymentUtil.setAddress(address);
         start();
 
@@ -611,7 +606,7 @@ public class PayDialogFragmentTest {
         Intent intent = new Intent();
         intent.putExtra(DropbitIntents.EXTRA_IDENTITY, identity);
         PaymentReceiverView paymentReceiverView = withId(dialog.getView(), R.id.payment_receiver);
-        paymentReceiverView.setPaymentAddress(EXTERNAL_ADDRESSES[0]);
+        paymentReceiverView.setPaymentAddress(TestData.INSTANCE.getEXTERNAL_ADDRESSES()[0]);
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent);
 
