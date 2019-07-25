@@ -76,6 +76,7 @@ class TargetStatHelperTest {
         whenever(queryBuilder.where(any(), any(), any(), any())).thenReturn(queryBuilder)
         whenever(queryBuilder.limit(1)).thenReturn(queryBuilder)
         whenever(queryBuilder.unique()).thenReturn(null)
+        whenever(targetStat.id).thenReturn(null)
 
         whenever(helper.daoSessionManager.newTargetStat()).thenReturn(targetStat)
 

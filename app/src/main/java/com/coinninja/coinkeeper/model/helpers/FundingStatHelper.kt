@@ -23,17 +23,16 @@ class FundingStatHelper @Inject constructor(
                     FundingStatDao.Properties.Addr.eq(input.previousOutput.scriptPubKey.addresses[0])
             ).limit(1).unique()
 
-    fun getOrCreateFundingStat(transaction: TransactionSummary, input: VIn): FundingStat =
-            (fundingStatFor(transaction.id, input) ?: daoSessionManager.newFundingStat()).also {
+    fun getOrCreateFundingStat(transaction: TransactionSummary, input: VIn): FundingStat = (fundingStatFor(transaction.id, input) ?: daoSessionManager.newFundingStat()).also {
                 it.addr = input.previousOutput.scriptPubKey.addresses[0]
                 it.position = input.previousOutput.index
                 it.transaction = transaction
                 it.fundedTransaction = input.txid
                 it.value = input.previousOutput.value
-                if (it.id > 0) {
-                    it.update()
-                } else {
+                if (it.id == null) {
                     daoSessionManager.insert(it)
+                } else {
+                    it.update()
                 }
             }
 

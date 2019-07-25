@@ -80,6 +80,7 @@ class FundingStatHelperTest {
         whenever(queryBuilder.limit(1)).thenReturn(queryBuilder)
         whenever(queryBuilder.unique()).thenReturn(null)
         whenever(helper.daoSessionManager.newFundingStat()).thenReturn(fundingStat)
+        whenever(fundingStat.id).thenReturn(null)
 
         helper.getOrCreateFundingStat(transaction, input)
 

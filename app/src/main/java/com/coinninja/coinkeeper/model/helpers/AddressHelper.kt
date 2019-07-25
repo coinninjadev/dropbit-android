@@ -10,7 +10,6 @@ import com.coinninja.coinkeeper.model.db.TargetStatDao
 import com.coinninja.coinkeeper.service.client.model.GsonAddress
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 @Mockable
 class AddressHelper @Inject constructor(
@@ -35,13 +34,11 @@ class AddressHelper @Inject constructor(
                     .unique()
 
     fun addAddresses(addresses: List<GsonAddress>, changeIndex: Int): List<Address> {
-        val savedAddresses: ArrayList<String> = ArrayList()
+        val savedAddresses: MutableList<String> = mutableListOf()
 
-        addresses.forEach loop@{
-            val addressValue = it.address
-
-            if (savedAddresses.indexOf(addressValue) == 0 || !containsAddress(addressValue)) {
-                savedAddresses.add(addressValue)
+        addresses.forEach {
+            if (!savedAddresses.contains(it.address) && !containsAddress(it.address)) {
+                savedAddresses.add(it.address)
                 daoSessionManager.newAddressFrom(it, walletHelper.wallet, changeIndex)
             }
         }

@@ -38,10 +38,10 @@ class TargetStatHelper @Inject constructor(
                 it.transaction = transaction
                 it.value = output.value
                 it.txTime = transaction.txTime
-                if (it.id > 0) {
-                    it.update()
-                } else {
+                if (it.id == null) {
                     daoSessionManager.insert(it)
+                } else {
+                    it.update()
                 }
             }
 
