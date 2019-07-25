@@ -40,6 +40,7 @@ public class MessageEncryptor {
 
     public String decrypt(String address, String encryptedPayload) {
         Address foundAddress = addressHelper.addressForPubKey(address);
+        if (foundAddress == null) return "";
         byte[] ephemeralPublicKey = messageCryptor.unpackEphemeralPublicKey(encryptedPayload);
         DecryptionKeys decryptionKeys = hdWallet.generateDecryptionKeys(foundAddress.getDerivationPath(), ephemeralPublicKey);
         byte[] decrypted = messageCryptor.decrypt(encryptedPayload, decryptionKeys.encryptionKey, decryptionKeys.hmacKey);

@@ -273,7 +273,7 @@ public class TransactionAPIUtilTest {
 
         for (String txid : hunk) {
             detail = new TransactionDetail();
-            detail.setTransactionId(txid);
+            detail.setTxid(txid);
             details.add(detail);
         }
 

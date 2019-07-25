@@ -58,7 +58,7 @@ public class CNWalletManager {
     }
 
     public static int calcConfirmations(int currentBlockHeight, int transactionBlock) {
-        return 1 + currentBlockHeight - transactionBlock;
+        return currentBlockHeight - transactionBlock + 1;
     }
 
     public void createWallet() {

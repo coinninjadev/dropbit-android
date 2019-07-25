@@ -1,9 +1,11 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
-import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.model.Identity
-import com.coinninja.coinkeeper.model.db.*
+import com.coinninja.coinkeeper.model.db.FundingStat
+import com.coinninja.coinkeeper.model.db.TargetStat
+import com.coinninja.coinkeeper.model.db.TransactionSummary
+import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager
@@ -18,6 +20,9 @@ import javax.inject.Inject
 class TransactionHelper @Inject constructor(
         internal val daoSessionManager: DaoSessionManager,
         internal val walletHelper: WalletHelper,
+        internal val fundingStatHelper: FundingStatHelper,
+        internal val targetStatHelper: TargetStatHelper,
+        internal val addressHelper: AddressHelper,
         internal val transactionInviteSummaryHelper: TransactionInviteSummaryHelper,
         internal val dropbitAccountHelper: DropbitAccountHelper,
         internal val transactionQueryManager: TransactionQueryManager,
@@ -112,7 +117,7 @@ class TransactionHelper @Inject constructor(
 
     fun updateTransactions(fetchedTransactions: List<TransactionDetail>, currentBlockHeight: Int) {
         for (detail in fetchedTransactions) {
-            transactionQueryManager.transactionByTxid(detail.transactionId)?.let {
+            transactionQueryManager.transactionByTxid(detail.txid)?.let {
                 try {
                     updateTransaction(it, detail, currentBlockHeight)
                 } catch (ex: Exception) {
@@ -121,141 +126,85 @@ class TransactionHelper @Inject constructor(
         }
     }
 
-    // TODO --- YOU ARE HERE
 
     internal fun updateTransaction(transaction: TransactionSummary, detail: TransactionDetail, currentBlockHeight: Int) {
-        transaction.memPoolState = MemPoolState.ACKNOWLEDGE
-        if (detail.blockheight > 0) {
-            transaction.numConfirmations = CNWalletManager.calcConfirmations(currentBlockHeight, detail.blockheight)
-        }
-
-        if (detail.blocktimeMillis > 0L) {
-            transaction.txTime = detail.blocktimeMillis
-        } else if (detail.timeMillis > 0L) {
-            transaction.txTime = detail.timeMillis
-        } else {
-            transaction.txTime = detail.receivedTimeMillis
-        }
-
-        transaction.blockhash = detail.blockhash
         transaction.blockheight = detail.blockheight
-        if (detail.isInBlock) {
-            transaction.memPoolState = MemPoolState.MINED
-        }
-        transaction.update()
-        transaction.refresh()
+        transaction.numConfirmations = detail.numConfirmations(currentBlockHeight)
+        transaction.txTime = detail.timeMillis
+        transaction.blockhash = detail.blockhash
+        transaction.memPoolState = detail.mempoolState
+        transaction.numInputs = detail.numberOfInputs
+        transaction.numOutputs = detail.numberOfOutputs
+        transaction.wallet = walletHelper.wallet
 
         try {
-            for (`in` in detail.vInList) {
-                saveIn(transaction, `in`)
+            for (input in detail.vInList) {
+                saveIn(transaction, input)
             }
-
             for (out in detail.vOutList) {
                 saveOut(transaction, out)
             }
         } catch (e: IllegalArgumentException) {
-            e.printStackTrace()
             return
         }
-
-
-        daoSessionManager.clearCacheFor(transaction)
-        transaction.numInputs = transaction.funder.size
-        transaction.numOutputs = transaction.receiver.size
         transaction.update()
         transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction)
     }
 
-    internal fun saveOut(transaction: TransactionSummary, out: VOut) {
-        val dao = daoSessionManager.targetStatDao
-        val addresses = out.scriptPubKey.addresses
-
-        if (null != addresses && addresses.size == 0)
+    @Throws(IllegalArgumentException::class)
+    internal fun saveOut(transaction: TransactionSummary, output: VOut) {
+        val addresses = output.scriptPubKey.addresses
+        if (addresses.isEmpty())
             throw IllegalArgumentException()
 
-        var target: TargetStat? = dao.queryBuilder().where(TargetStatDao.Properties.Tsid.eq(transaction.id),
-                TargetStatDao.Properties.Value.eq(out.value),
-                TargetStatDao.Properties.Position.eq(out.index),
-                TargetStatDao.Properties.Addr.eq(addresses[0])).unique()
-
-        val dbAddress = daoSessionManager.addressDao.queryBuilder().where(AddressDao.Properties.Address.eq(addresses[0])).unique()
-
-        if (null != target) {
-            target.refresh()
-        } else {
-            target = TargetStat()
-            target.__setDaoSession(daoSessionManager.daoSession)
-        }
-
-        if (null != dbAddress) {
-            target.address = dbAddress
+        val target = targetStatHelper.getOrCreateTargetStat(transaction, output)
+        addressHelper.addressForPubKey(addresses[0])?.let {
+            target.address = it
             target.wallet = transaction.wallet
         }
 
-        val transactionState = transaction.memPoolState
-        val targetState: TargetStat.State
-        when (transactionState) {
-            MemPoolState.ACKNOWLEDGE, MemPoolState.MINED -> targetState = TargetStat.State.ACKNOWLEDGE
-            MemPoolState.FAILED_TO_BROADCAST, MemPoolState.DOUBLE_SPEND, MemPoolState.ORPHANED -> targetState = TargetStat.State.CANCELED
-            else -> targetState = TargetStat.State.PENDING
-        }
+        val targetState: TargetStat.State =
+                when (transaction.memPoolState) {
+                    MemPoolState.ACKNOWLEDGE,
+                    MemPoolState.MINED -> TargetStat.State.ACKNOWLEDGE
+                    MemPoolState.FAILED_TO_BROADCAST,
+                    MemPoolState.DOUBLE_SPEND,
+                    MemPoolState.ORPHANED -> TargetStat.State.CANCELED
+                    else -> TargetStat.State.PENDING
+                }
 
-        target.addr = addresses[0]
-        target.position = out.index
-        target.transaction = transaction
-        target.value = out.value
         target.state = targetState
-        target.txTime = transaction.txTime
-        dao.save(target)
+        target.update()
     }
 
-    internal fun saveIn(transaction: TransactionSummary, `in`: VIn) {
-        val dao = daoSessionManager.fundingStatDao
+    @Throws(IllegalArgumentException::class)
+    internal fun saveIn(transaction: TransactionSummary, input: VIn) {
 
-        val addresses = `in`.previousOutput.scriptPubKey.addresses
-        if (null != addresses && addresses.size == 0)
+        val addresses = input.previousOutput.scriptPubKey.addresses
+        if (addresses.isEmpty())
             throw IllegalArgumentException()
 
-        var funder: FundingStat? = dao.queryBuilder().where(
-                FundingStatDao.Properties.Tsid.eq(transaction.id),
-                FundingStatDao.Properties.FundedTransaction.eq(`in`.transactionId),
-                FundingStatDao.Properties.Value.eq(`in`.previousOutput.value),
-                FundingStatDao.Properties.Position.eq(`in`.previousOutput.index),
-                FundingStatDao.Properties.Addr.eq(`in`.previousOutput.scriptPubKey.addresses[0]))
-                .unique()
-
-        val dbAddress = daoSessionManager.addressDao.queryBuilder().where(AddressDao.Properties.Address.eq(addresses[0])).unique()
-
-        if (funder == null) {
-            funder = FundingStat()
-            funder.__setDaoSession(daoSessionManager.daoSession)
-        } else {
-            funder.refresh()
-        }
-
-        if (dbAddress != null) {
-            funder.address = dbAddress
+        val funder: FundingStat = fundingStatHelper.getOrCreateFundingStat(transaction, input)
+        addressHelper.addressForPubKey(addresses[0])?.let {
+            funder.address = it
             funder.wallet = transaction.wallet
         }
 
-        val transactionState = transaction.memPoolState
-        val fundingState: FundingStat.State
-        when (transactionState) {
-            MemPoolState.ACKNOWLEDGE, MemPoolState.MINED -> fundingState = FundingStat.State.ACKNOWLEDGE
-            MemPoolState.FAILED_TO_BROADCAST, MemPoolState.DOUBLE_SPEND, MemPoolState.ORPHANED -> fundingState = FundingStat.State.CANCELED
-            else -> fundingState = FundingStat.State.PENDING
-        }
+        val fundingState: FundingStat.State =
+                when (transaction.memPoolState) {
+                    MemPoolState.ACKNOWLEDGE,
+                    MemPoolState.MINED -> FundingStat.State.ACKNOWLEDGE
+                    MemPoolState.FAILED_TO_BROADCAST,
+                    MemPoolState.DOUBLE_SPEND,
+                    MemPoolState.ORPHANED -> FundingStat.State.CANCELED
+                    else -> FundingStat.State.PENDING
+                }
 
-        funder.addr = addresses[0]
-        funder.position = `in`.previousOutput.index
-        funder.transaction = transaction
-        funder.fundedTransaction = `in`.transactionId
         funder.state = fundingState
-        funder.value = `in`.previousOutput.value
-        dao.save(funder)
-        dao.refresh(funder)
+        funder.update()
     }
 
+    //TODO("--- YOU ARE HERE")
     fun createInitialTransactionForCompletedBroadcast(completedBroadcastActivityDTO: CompletedBroadcastDTO): TransactionSummary {
         val transactionId = completedBroadcastActivityDTO.transactionId
         val identity = completedBroadcastActivityDTO.identity

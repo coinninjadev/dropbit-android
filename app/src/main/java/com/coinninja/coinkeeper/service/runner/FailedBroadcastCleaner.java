@@ -74,7 +74,7 @@ public class FailedBroadcastCleaner implements Runnable {
         if (response.body() != null) {//if coinninja gives us null, that means NONE of the txIds were found
             List<TransactionDetail> details = (List<TransactionDetail>) response.body();
             for (TransactionDetail detail : details) {
-                String foundTxID = detail.getTransactionId();
+                String foundTxID = detail.getTxid();
                 transactionsMap.remove(foundTxID);
                 markAsAcknowledged(foundTxID);
             }
@@ -93,7 +93,7 @@ public class FailedBroadcastCleaner implements Runnable {
         }
 
         for (TransactionDetail detail : details) {
-            String foundTxID = detail.getTransactionId();
+            String foundTxID = detail.getTxid();
             transactionsMap.remove(foundTxID);
             markAsAcknowledged(foundTxID);
         }
@@ -137,7 +137,7 @@ public class FailedBroadcastCleaner implements Runnable {
 
             BlockchainTX blockchainTX = (BlockchainTX) response.body();
             TransactionDetail transactionDetail = new TransactionDetail();
-            transactionDetail.setTransactionId(blockchainTX.getHash());
+            transactionDetail.setTxid(blockchainTX.getHash());
             transactionDetails.add(transactionDetail);
         }
 

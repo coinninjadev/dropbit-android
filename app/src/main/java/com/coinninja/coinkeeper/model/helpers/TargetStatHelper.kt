@@ -8,6 +8,7 @@ import com.coinninja.coinkeeper.model.db.TargetStatDao
 import com.coinninja.coinkeeper.model.db.TransactionSummary
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
+import com.coinninja.coinkeeper.service.client.model.VOut
 import java.util.*
 import javax.inject.Inject
 
@@ -17,6 +18,31 @@ class TargetStatHelper @Inject constructor(
         internal val walletHelper: WalletHelper,
         internal val dustProtectionPreference: DustProtectionPreference
 ) {
+
+    fun targetStatFor(transactionId: Long, output: VOut): TargetStat? =
+            daoSessionManager.targetStatDao.queryBuilder()
+                    .where(
+                            TargetStatDao.Properties.Tsid.eq(transactionId),
+                            TargetStatDao.Properties.Value.eq(output.value),
+                            TargetStatDao.Properties.Position.eq(output.index),
+                            TargetStatDao.Properties.Addr.eq(output.scriptPubKey.addresses[0])
+                    )
+                    .unique()
+
+    fun getOrCreateTargetStat(transaction: TransactionSummary, output: VOut): TargetStat =
+            (targetStatFor(transaction.id, output) ?: daoSessionManager.newTargetStat()).also {
+                it.addr = output.scriptPubKey.addresses[0]
+                it.position = output.index
+                it.transaction = transaction
+                it.value = output.value
+                it.txTime = transaction.txTime
+                if (it.id > 0) {
+                    it.update()
+                } else {
+                    daoSessionManager.insert(it)
+                }
+            }
+
 
     val spendableTargets: List<TargetStat>
         get() {

@@ -1,12 +1,13 @@
 package com.coinninja.coinkeeper.service.client.model
 
 import app.dropbit.annotations.Mockable
+import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
+import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.google.gson.annotations.SerializedName
 
 @Mockable
 data class TransactionDetail(
-        @SerializedName("txid")
-        var transactionId: String = "",
+        var txid: String = "",
         var hash: String? = null,
         var size: Int = 0,
         var vsize: Int = 0,
@@ -29,10 +30,15 @@ data class TransactionDetail(
         @SerializedName("received_time")
         var receivedTime: Long = 0
 ) {
-    val isInBlock: Boolean get() = !blockhash.isNullOrEmpty()
-    val blocktimeMillis: Long get() = blocktime * 1000
-    val receivedTimeMillis: Long get() = receivedTime * 1000
-    val timeMillis: Long get() = time * 1000
+    val numberOfInputs: Int get() = vInList.size
+    val numberOfOutputs: Int get() = vOutList.size
+    val mempoolState: MemPoolState get() = if (blockhash.isNullOrEmpty()) MemPoolState.ACKNOWLEDGE else MemPoolState.MINED
+    val timeMillis: Long get() = (if (blocktime > 0) blocktime else if (time > 0) time else receivedTime) * 1000
+    fun numConfirmations(currentBlockHeight: Int): Int =
+            if (blockheight > 0)
+                CNWalletManager.calcConfirmations(currentBlockHeight, blockheight)
+            else
+                0
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -40,7 +46,7 @@ data class TransactionDetail(
 
         other as TransactionDetail
 
-        if (transactionId != other.transactionId) return false
+        if (txid != other.txid) return false
         if (hash != other.hash) return false
         if (size != other.size) return false
         if (vsize != other.vsize) return false
@@ -62,7 +68,7 @@ data class TransactionDetail(
     }
 
     override fun hashCode(): Int {
-        var result = transactionId.hashCode()
+        var result = txid.hashCode()
         result = 31 * result + (hash?.hashCode() ?: 0)
         result = 31 * result + size
         result = 31 * result + vsize
@@ -81,4 +87,5 @@ data class TransactionDetail(
         result = 31 * result + receivedTime.hashCode()
         return result
     }
+
 }

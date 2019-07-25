@@ -21,6 +21,10 @@ class AddressHelper @Inject constructor(
                 .where(AddressDao.Properties.Address.eq(address)).count() > 0
     }
 
+    fun addressForPubKey(address: String): Address? =
+            daoSessionManager.addressDao.queryBuilder()
+                    .where(AddressDao.Properties.Address.eq(address)).unique()
+
     fun addAddresses(addresses: List<GsonAddress>, changeIndex: Int): List<Address> {
         val savedAddresses: ArrayList<String> = ArrayList()
 
@@ -119,11 +123,6 @@ class AddressHelper @Inject constructor(
         )
     }
 
-    fun addressForPubKey(address: String): Address {
-        return daoSessionManager.addressDao.queryBuilder()
-                .where(AddressDao.Properties.Address.eq(address)).unique()
-    }
-
     fun getLargestDerivationIndexReportedFor(chainIndex: Int): Int {
         val chainAddresses = daoSessionManager.addressDao.queryRaw("" +
                 " LEFT JOIN TARGET_STAT on T._id = TARGET_STAT.ADDRESS_ID" +
@@ -139,4 +138,5 @@ class AddressHelper @Inject constructor(
 
         return if (chainAddresses.size > 0) chainAddresses[0].index else 0
     }
+
 }
