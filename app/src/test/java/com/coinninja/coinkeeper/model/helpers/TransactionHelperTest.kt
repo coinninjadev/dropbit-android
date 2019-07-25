@@ -1,6 +1,8 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.*
+import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.service.client.model.*
 import com.nhaarman.mockitokotlin2.*
@@ -351,5 +353,27 @@ class TransactionHelperTest {
         ordered.verify(targetStat).update()
         ordered.verify(transaction).update()
         ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction)
+    }
+
+    @Test
+    fun updates_settlement_with_identity_when_transaction_sent() {
+        val helper = createHelper()
+        val identity = mock<Identity>()
+        val dropbitMeIdentity: DropbitMeIdentity = mock()
+        val toUser = mock<UserIdentity>()
+        val fromUser = mock<UserIdentity>()
+        val settlement:TransactionsInvitesSummary = mock()
+
+        whenever(identity.identityType).thenReturn(IdentityType.TWITTER)
+        whenever(helper.userIdentityHelper.updateFrom(identity)).thenReturn(toUser)
+        whenever(helper.userIdentityHelper.updateFrom(dropbitMeIdentity)).thenReturn(fromUser)
+        whenever(helper.dropbitAccountHelper.identityForType(identity.identityType)).thenReturn(dropbitMeIdentity)
+
+        helper.addUserIdentitiesToTransaction(identity, settlement)
+
+        val ordered = inOrder(settlement)
+        ordered.verify(settlement).fromUser = fromUser
+        ordered.verify(settlement).toUser = toUser
+        ordered.verify(settlement).update()
     }
 }

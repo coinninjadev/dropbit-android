@@ -204,6 +204,17 @@ class TransactionHelper @Inject constructor(
         funder.update()
     }
 
+    internal fun addUserIdentitiesToTransaction(identity: Identity?, transactionInviteSummary: TransactionsInvitesSummary) {
+        identity?.let {
+            dropbitAccountHelper.identityForType(identity.identityType)?.let {
+                transactionInviteSummary.fromUser = userIdentityHelper.updateFrom(it)
+            }
+
+            transactionInviteSummary.toUser = userIdentityHelper.updateFrom(identity)
+            transactionInviteSummary.update()
+        }
+    }
+
     //TODO("--- YOU ARE HERE")
     fun createInitialTransactionForCompletedBroadcast(completedBroadcastActivityDTO: CompletedBroadcastDTO): TransactionSummary {
         val transactionId = completedBroadcastActivityDTO.transactionId
@@ -217,24 +228,9 @@ class TransactionHelper @Inject constructor(
 
         daoSessionManager.insert(transactionSummary)
 
-        val transactionInviteSummary = transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transactionSummary)
-
-        identity?.let {
-            addUserIdentitiesToTransaction(identity, transactionInviteSummary)
+        transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transactionSummary).also {
+            addUserIdentitiesToTransaction(identity, it)
         }
         return transactionSummary
-    }
-
-
-    private fun addUserIdentitiesToTransaction(identity: Identity, transactionInviteSummary: TransactionsInvitesSummary) {
-        val myIdentity = dropbitAccountHelper.identityForType(identity.identityType)
-        if (myIdentity != null) {
-            val fromUser = userIdentityHelper.updateFrom(myIdentity)
-            transactionInviteSummary.fromUser = fromUser
-        }
-
-        val toUser = userIdentityHelper.updateFrom(identity)
-        transactionInviteSummary.toUser = toUser
-        transactionInviteSummary.update()
     }
 }
