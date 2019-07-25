@@ -1,23 +1,25 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import com.coinninja.bindings.DerivationPath
+import com.coinninja.bindings.TransactionData
+import com.coinninja.bindings.UnspentTransactionOutput
 import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey
 import com.coinninja.coinkeeper.service.client.model.VOut
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
 import org.greenrobot.greendao.query.Join
 import org.greenrobot.greendao.query.QueryBuilder
 import org.greenrobot.greendao.query.WhereCondition
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
 class TargetStatHelperTest {
 
     private fun createHelper(): TargetStatHelper {
-        val statHelper = TargetStatHelper(mock(), mock(), mock())
+        val statHelper = TargetStatHelper(mock(), mock(), mock(), mock())
         whenever(statHelper.walletHelper.wallet).thenReturn(mock())
         whenever(statHelper.walletHelper.wallet.id).thenReturn(1L)
         return statHelper
@@ -105,15 +107,15 @@ class TargetStatHelperTest {
 
         val unspentTransactionOutput = targetStat.toUnspentTransactionOutput()
 
-        assertThat(unspentTransactionOutput.amount, equalTo(1000L))
-        assertThat(unspentTransactionOutput.index, equalTo(1))
-        assertThat(unspentTransactionOutput.isReplaceable, equalTo(true))
-        assertThat(unspentTransactionOutput.txId, equalTo("--txid--"))
-        assertThat(unspentTransactionOutput.path.purpose, equalTo(49))
-        assertThat(unspentTransactionOutput.path.coinType, equalTo(0))
-        assertThat(unspentTransactionOutput.path.account, equalTo(0))
-        assertThat(unspentTransactionOutput.path.change, equalTo(1))
-        assertThat(unspentTransactionOutput.path.index, equalTo(50))
+        assertThat(unspentTransactionOutput.amount).isEqualTo(1000L)
+        assertThat(unspentTransactionOutput.index).isEqualTo(1)
+        assertThat(unspentTransactionOutput.isReplaceable).isEqualTo(true)
+        assertThat(unspentTransactionOutput.txId).isEqualTo("--txid--")
+        assertThat(unspentTransactionOutput.path.purpose).isEqualTo(49)
+        assertThat(unspentTransactionOutput.path.coinType).isEqualTo(0)
+        assertThat(unspentTransactionOutput.path.account).isEqualTo(0)
+        assertThat(unspentTransactionOutput.path.change).isEqualTo(1)
+        assertThat(unspentTransactionOutput.path.index).isEqualTo(50)
     }
 
     @Test
@@ -152,24 +154,24 @@ class TargetStatHelperTest {
         verify(join).where(joinCaptor.capture())
 
         val joinValues = joinCaptor.allValues
-        assertThat((joinValues[0] as WhereCondition.PropertyCondition).op,
-                equalTo((TransactionSummaryDao.Properties.MemPoolState.notIn(
+        assertThat((joinValues[0] as WhereCondition.PropertyCondition).op).isEqualTo(
+                (TransactionSummaryDao.Properties.MemPoolState.notIn(
                         MemPoolState.FAILED_TO_BROADCAST.id,
                         MemPoolState.DOUBLE_SPEND.id,
                         MemPoolState.ORPHANED.id
-                ) as WhereCondition.PropertyCondition).op))
+                ) as WhereCondition.PropertyCondition).op)
 
         val whereValues = whereConditionArgumentCaptor.allValues
-        assertThat((whereValues[0] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.State.notEq(TargetStat.State.CANCELED.id) as WhereCondition.PropertyCondition).op))
-        assertThat((whereValues[1] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.WalletId.eq(1L) as WhereCondition.PropertyCondition).op))
-        assertThat((whereValues[2] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.FundingId.isNull as WhereCondition.PropertyCondition).op))
-        assertThat((whereValues[3] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.Value.gt(9999L) as WhereCondition.PropertyCondition).op))
-        assertThat((whereValues[4] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.AddressId.isNotNull as WhereCondition.PropertyCondition).op))
+        assertThat((whereValues[0] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.State.notEq(TargetStat.State.CANCELED.id) as WhereCondition.PropertyCondition).op)
+        assertThat((whereValues[1] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.WalletId.eq(1L) as WhereCondition.PropertyCondition).op)
+        assertThat((whereValues[2] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.FundingId.isNull as WhereCondition.PropertyCondition).op)
+        assertThat((whereValues[3] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.Value.gt(9999L) as WhereCondition.PropertyCondition).op)
+        assertThat((whereValues[4] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.AddressId.isNotNull as WhereCondition.PropertyCondition).op)
     }
 
     @Test
@@ -208,26 +210,26 @@ class TargetStatHelperTest {
 
 
         val joinValues = joinCaptor.allValues
-        assertThat((joinValues[0] as WhereCondition.PropertyCondition).op,
-                equalTo((TransactionSummaryDao.Properties.MemPoolState.notIn(
+        assertThat((joinValues[0] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TransactionSummaryDao.Properties.MemPoolState.notIn(
                         MemPoolState.FAILED_TO_BROADCAST.id,
                         MemPoolState.DOUBLE_SPEND.id,
                         MemPoolState.ORPHANED.id
-                ) as WhereCondition.PropertyCondition).op))
+                ) as WhereCondition.PropertyCondition).op)
 
         val whereValues = whereConditionArgumentCaptor.allValues
-        assertThat((whereValues[0] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.State.notEq(TargetStat.State.CANCELED.id) as WhereCondition.PropertyCondition).op))
-        assertThat((whereValues[1] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.WalletId.eq(1L) as WhereCondition.PropertyCondition).op))
-        assertThat((whereValues[2] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.FundingId.isNull as WhereCondition.PropertyCondition).op))
-        assertThat((whereValues[3] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.Value.gt(10000) as WhereCondition.PropertyCondition).op))
+        assertThat((whereValues[0] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.State.notEq(TargetStat.State.CANCELED.id) as WhereCondition.PropertyCondition).op)
+        assertThat((whereValues[1] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.WalletId.eq(1L) as WhereCondition.PropertyCondition).op)
+        assertThat((whereValues[2] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.FundingId.isNull as WhereCondition.PropertyCondition).op)
+        assertThat((whereValues[3] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.Value.gt(10000) as WhereCondition.PropertyCondition).op)
 
 
-        assertThat((whereValues[4] as WhereCondition.PropertyCondition).op,
-                equalTo((TargetStatDao.Properties.AddressId.isNotNull as WhereCondition.PropertyCondition).op))
+        assertThat((whereValues[4] as WhereCondition.PropertyCondition).op)
+                .isEqualTo((TargetStatDao.Properties.AddressId.isNotNull as WhereCondition.PropertyCondition).op)
     }
 
     @Test
@@ -257,8 +259,8 @@ class TargetStatHelperTest {
 
         val targets = targetStatHelper.spendableTargets
 
-        assertThat(targets.size, equalTo(1))
-        assertThat(targets[0], equalTo(target))
+        assertThat(targets.size).isEqualTo(1)
+        assertThat(targets[0]).isEqualTo(target)
     }
 
     @Test
@@ -285,7 +287,58 @@ class TargetStatHelperTest {
         whenever(qb.list()).thenReturn(mockTargets)
 
         val targets = targetStatHelper.spendableTargets
+        assertThat(targets.size).isEqualTo(0)
+    }
 
-        assertThat(targets.size, equalTo(0))
+    @Test
+    fun creates_outputs_for_saved_transactions() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    @Test
+    fun creates_change_output_for_sent_transaction() {
+        val helper = createHelper()
+        val changePath = DerivationPath(49, 0, 0, 1, 0)
+        val transactionData = TransactionData(
+                utxos = arrayOf(
+                        UnspentTransactionOutput("--proof-txid-1--", 1, 100000,
+                                DerivationPath(49, 0, 0, 0, 1))),
+                amount = 1000, feeAmount = 10, changeAmount = 100000,
+                changePath = changePath,
+                paymentAddress = "--pay-to-address--"
+        )
+
+        val output = mock<TargetStat>()
+        val address = mock<Address>()
+        whenever(address.address).thenReturn("--change-address--")
+        whenever(helper.daoSessionManager.newTargetStat()).thenReturn(output)
+        whenever(helper.addressHelper.addressForPath(changePath)).thenReturn(address)
+
+        assertThat(helper.createChangeOutput(transactionData)).isEqualTo(output)
+
+        verify(output).address = address
+        verify(output).addr = "--change-address--"
+        verify(output).position = 1
+        verify(output).value = transactionData.changeAmount
+    }
+
+    @Test
+    fun only_creates_change_output_when_there_is_change() {
+        val helper = createHelper()
+        val transactionData = TransactionData(
+                utxos = arrayOf(
+                        UnspentTransactionOutput("--proof-txid-1--", 1, 100000,
+                                DerivationPath(49, 0, 0, 0, 1))),
+                amount = 1000, feeAmount = 10, changeAmount = 0,
+                changePath = DerivationPath(49, 0, 0, 1, 0),
+                paymentAddress = "--pay-to-address--"
+        )
+
+        assertThat(helper.createChangeOutput(transactionData)).isNull()
+    }
+
+    @Test
+    fun creates_payment_outputs_for_sent_transaction() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

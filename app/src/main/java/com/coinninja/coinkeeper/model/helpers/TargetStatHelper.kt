@@ -17,6 +17,7 @@ import javax.inject.Inject
 class TargetStatHelper @Inject constructor(
         internal val daoSessionManager: DaoSessionManager,
         internal val walletHelper: WalletHelper,
+        internal val addressHelper: AddressHelper,
         internal val dustProtectionPreference: DustProtectionPreference
 ) {
 
@@ -43,6 +44,22 @@ class TargetStatHelper @Inject constructor(
                     daoSessionManager.insert(it)
                 }
             }
+
+    internal fun createChangeOutput(transactionData: TransactionData): TargetStat? {
+        transactionData.changePath?.let { changePath ->
+            addressHelper.addressForPath(changePath)?.let { changeAddress ->
+                if (transactionData.changeAmount > 0) {
+                    return daoSessionManager.newTargetStat().apply {
+                        address = changeAddress
+                        addr = changeAddress.address
+                        position = 1
+                        value = transactionData.changeAmount
+                    }
+                }
+            }
+        }
+        return null
+    }
 
     fun createOutputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
 
