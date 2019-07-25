@@ -11,7 +11,8 @@ import javax.inject.Inject
 
 @Mockable
 class FundingStatHelper @Inject constructor(
-        internal val daoSessionManager: DaoSessionManager
+        internal val daoSessionManager: DaoSessionManager,
+        internal val addressHelper: AddressHelper
 ) {
     internal fun fundingStatFor(transactionId: Long, input: VIn): FundingStat? =
             daoSessionManager.fundingStatDao.queryBuilder().where(
@@ -36,8 +37,14 @@ class FundingStatHelper @Inject constructor(
                 }
             }
 
-    private fun createInputFor(utxo: UnspentTransactionOutput): FundingStat = daoSessionManager.newFundingStat().also {
-        //TODO("get reference to address from DerivationPath")
+    internal fun createInputFor(utxo: UnspentTransactionOutput): FundingStat = daoSessionManager.newFundingStat().apply {
+        fundedTransaction = utxo.txId
+        position = utxo.index
+        value = utxo.amount
+        addressHelper.addressForPath(utxo.path)?.let {
+            address = it
+            addr = it.address
+        }
     }
 
     fun createInputsFor(transaction: TransactionSummary, transactionData: TransactionData) {

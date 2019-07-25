@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
+import com.coinninja.bindings.DerivationPath
 import com.coinninja.coinkeeper.model.db.Address
 import com.coinninja.coinkeeper.model.db.Address.addressesIn
 import com.coinninja.coinkeeper.model.db.AddressDao
@@ -24,6 +25,14 @@ class AddressHelper @Inject constructor(
     fun addressForPubKey(address: String): Address? =
             daoSessionManager.addressDao.queryBuilder()
                     .where(AddressDao.Properties.Address.eq(address)).unique()
+
+    fun addressForPath(derivationPath: DerivationPath): Address? =
+            daoSessionManager.addressDao.queryBuilder()
+                    .where(
+                            AddressDao.Properties.ChangeIndex.eq(derivationPath.change),
+                            AddressDao.Properties.Index.eq(derivationPath.index)
+                    )
+                    .unique()
 
     fun addAddresses(addresses: List<GsonAddress>, changeIndex: Int): List<Address> {
         val savedAddresses: ArrayList<String> = ArrayList()
@@ -138,5 +147,6 @@ class AddressHelper @Inject constructor(
 
         return if (chainAddresses.size > 0) chainAddresses[0].index else 0
     }
+
 
 }
