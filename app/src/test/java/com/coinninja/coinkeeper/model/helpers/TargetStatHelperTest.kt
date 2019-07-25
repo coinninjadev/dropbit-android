@@ -292,7 +292,45 @@ class TargetStatHelperTest {
 
     @Test
     fun creates_outputs_for_saved_transactions() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val helper = createHelper()
+        val transaction: TransactionSummary = mock()
+        val changePath = DerivationPath(49, 0, 0, 1, 0)
+        val transactionData = TransactionData(
+                utxos = arrayOf(
+                        UnspentTransactionOutput("--proof-txid-1--", 1, 100000,
+                                DerivationPath(49, 0, 0, 0, 1))),
+                amount = 1000, feeAmount = 10, changeAmount = 100000,
+                changePath = changePath,
+                paymentAddress = "--pay-to-address--"
+        )
+        val changeOutput = mock<TargetStat>()
+        val receiverOutput = mock<TargetStat>()
+        val address = mock<Address>()
+        whenever(address.address).thenReturn("--change-address--")
+        whenever(helper.daoSessionManager.newTargetStat()).thenReturn(receiverOutput).thenReturn(changeOutput)
+        whenever(helper.addressHelper.addressForPath(changePath)).thenReturn(address)
+        whenever(transaction.wallet).thenReturn(mock())
+
+        helper.createOutputsFor(transaction, transactionData)
+
+        val ordered = inOrder(changeOutput, receiverOutput, helper.daoSessionManager)
+        ordered.verify(receiverOutput, times(0)).address = any()
+        ordered.verify(receiverOutput).addr = "--pay-to-address--"
+        ordered.verify(receiverOutput).position = 0
+        ordered.verify(receiverOutput).value = transactionData.amount
+        ordered.verify(receiverOutput).state = TargetStat.State.PENDING
+        ordered.verify(receiverOutput).transaction = transaction
+        ordered.verify(receiverOutput, times(0)).wallet = any()
+        ordered.verify(helper.daoSessionManager).insert(receiverOutput)
+
+        ordered.verify(changeOutput).address = address
+        ordered.verify(changeOutput).addr = "--change-address--"
+        ordered.verify(changeOutput).position = 1
+        ordered.verify(changeOutput).value = transactionData.changeAmount
+        ordered.verify(changeOutput).state = TargetStat.State.PENDING
+        ordered.verify(changeOutput).transaction = transaction
+        ordered.verify(changeOutput).wallet = transaction.wallet
+        ordered.verify(helper.daoSessionManager).insert(changeOutput)
     }
 
     @Test
@@ -316,10 +354,11 @@ class TargetStatHelperTest {
 
         assertThat(helper.createChangeOutput(transactionData)).isEqualTo(output)
 
-        verify(output).address = address
-        verify(output).addr = "--change-address--"
-        verify(output).position = 1
-        verify(output).value = transactionData.changeAmount
+        val ordered = inOrder(output)
+        ordered.verify(output).address = address
+        ordered.verify(output).addr = "--change-address--"
+        ordered.verify(output).position = 1
+        ordered.verify(output).value = transactionData.changeAmount
     }
 
     @Test
@@ -339,6 +378,27 @@ class TargetStatHelperTest {
 
     @Test
     fun creates_payment_outputs_for_sent_transaction() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val helper = createHelper()
+        val changePath = DerivationPath(49, 0, 0, 1, 0)
+        val transactionData = TransactionData(
+                utxos = arrayOf(
+                        UnspentTransactionOutput("--proof-txid-1--", 1, 100000,
+                                DerivationPath(49, 0, 0, 0, 1))),
+                amount = 1000, feeAmount = 10, changeAmount = 100000,
+                changePath = changePath,
+                paymentAddress = "--pay-to-address--"
+        )
+
+        val output = mock<TargetStat>()
+        whenever(helper.daoSessionManager.newTargetStat()).thenReturn(output)
+
+        assertThat(helper.createOutputForReceiver(transactionData)).isEqualTo(output)
+
+        val ordered = inOrder(output)
+        ordered.verify(output, times(0)).address = any()
+        ordered.verify(output).addr = "--pay-to-address--"
+        ordered.verify(output).position = 0
+        ordered.verify(output).value = transactionData.amount
+
     }
 }

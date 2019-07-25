@@ -61,8 +61,24 @@ class TargetStatHelper @Inject constructor(
         return null
     }
 
-    fun createOutputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
+    internal fun createOutputForReceiver(transactionData: TransactionData): TargetStat = daoSessionManager.newTargetStat().apply {
+        addr = transactionData.paymentAddress
+        position = 0
+        value = transactionData.amount
+    }
 
+    fun createOutputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
+        createOutputForReceiver(transactionData).apply {
+            state = TargetStat.State.PENDING
+            this.transaction = transaction
+            daoSessionManager.insert(this)
+        }
+        createChangeOutput(transactionData)?.apply {
+            state = TargetStat.State.PENDING
+            this.transaction = transaction
+            wallet = transaction.wallet
+            daoSessionManager.insert(this)
+        }
     }
 
 
