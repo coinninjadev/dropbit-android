@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
 import com.coinninja.bindings.TransactionData
+import com.coinninja.bindings.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.db.FundingStat
 import com.coinninja.coinkeeper.model.db.FundingStatDao
 import com.coinninja.coinkeeper.model.db.TransactionSummary
@@ -35,9 +36,17 @@ class FundingStatHelper @Inject constructor(
                 }
             }
 
-    fun createInputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun createInputFor(utxo: UnspentTransactionOutput): FundingStat {
+        return daoSessionManager.newFundingStat()
     }
 
+    fun createInputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
+        transactionData.utxos.forEach {
+            val input = createInputFor(it)
+            input.transaction = transaction
+            input.wallet = transaction.wallet
+            daoSessionManager.insert(input)
+        }
+    }
 
 }

@@ -1,14 +1,14 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import com.coinninja.bindings.DerivationPath
+import com.coinninja.bindings.TransactionData
+import com.coinninja.bindings.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.db.FundingStat
 import com.coinninja.coinkeeper.model.db.TransactionSummary
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey
 import com.coinninja.coinkeeper.service.client.model.VIn
 import com.coinninja.coinkeeper.service.client.model.VOut
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.inOrder
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.greenrobot.greendao.query.QueryBuilder
 import org.junit.Test
 
@@ -86,5 +86,40 @@ class FundingStatHelperTest {
         ordered.verify(fundingStat).fundedTransaction = "--funding-txid--"
         ordered.verify(fundingStat).value = 1000
         ordered.verify(helper.daoSessionManager).insert(fundingStat)
+    }
+
+    @Test
+    fun creates_inputs_for_provided_transaction() {
+        val helper = createHelper()
+        val transaction: TransactionSummary = mock()
+        val transactionData = TransactionData(
+                utxos = arrayOf(
+                        UnspentTransactionOutput("--proof-txid-1--", 1, 100000,
+                                DerivationPath(49, 0, 0, 0, 1)
+                        ),
+                        UnspentTransactionOutput("--proof-txid-2--", 2, 200000,
+                                DerivationPath(49, 0, 0, 0, 2)
+                        )
+                ),
+                amount = 200000, feeAmount = 100, changeAmount = 99900,
+                changePath = DerivationPath(49, 0, 0, 1, 0),
+                paymentAddress = "--pay-to-address--"
+        )
+        val input1: FundingStat = mock()
+        val input2: FundingStat = mock()
+        whenever(helper.daoSessionManager.newFundingStat()).thenReturn(input1).thenReturn(input2)
+        whenever(transaction.wallet).thenReturn(mock())
+
+        helper.createInputsFor(transaction, transactionData)
+
+        val ordered = inOrder(helper.daoSessionManager, input1, input2)
+        ordered.verify(helper.daoSessionManager).newFundingStat()
+        ordered.verify(input1).transaction = transaction
+        ordered.verify(input1).wallet = transaction.wallet
+        ordered.verify(helper.daoSessionManager).insert(input1)
+        ordered.verify(helper.daoSessionManager).newFundingStat()
+        ordered.verify(input2).transaction = transaction
+        ordered.verify(input2).wallet = transaction.wallet
+        ordered.verify(helper.daoSessionManager).insert(input2)
     }
 }
