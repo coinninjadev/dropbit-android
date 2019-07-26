@@ -5,6 +5,7 @@ import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.Wallet;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver;
@@ -74,7 +75,7 @@ public class CNWalletManagerTest {
     private MyTwitterProfile myTwitterProfile;
 
     @Mock
-    private TransactionHelper transactionHelper;
+    private InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
 
     @Mock
     private PhoneNumber phoneNumber;
@@ -306,10 +307,11 @@ public class CNWalletManagerTest {
         cnWalletManager.deverifyAccount();
 
         verify(walletHelper).removeCurrentCnUserRegistration();
-        verify(transactionHelper).cancelPendingSentInvites();
+        verify(inviteTransactionSummaryHelper).cancelPendingSentInvites();
         verify(analytics).setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
         verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_DROPBIT_ME_ENABLED, false);
         verify(analytics).setUserProperty(Analytics.PROPERTY_TWITTER_VERIFIED, false);
+        verify(myTwitterProfile).clear();
         verify(analytics).flush();
     }
 

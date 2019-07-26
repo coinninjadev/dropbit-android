@@ -223,14 +223,11 @@ public class Account {
         return identities;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 991003748)
     public synchronized void resetIdentities() {
         identities = null;
     }
-
 
     public AccountStatus getStatus() {
         return status;

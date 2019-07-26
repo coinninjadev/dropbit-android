@@ -9,8 +9,7 @@ import com.coinninja.coinkeeper.model.db.DaoMaster
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.model.db.UserIdentityDao
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
-import com.coinninja.coinkeeper.service.client.model.InviteMetadata.MetadataContact
-import junit.framework.Assert.assertNull
+import com.coinninja.coinkeeper.service.client.model.MetadataContact
 import org.greenrobot.greendao.database.Database
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -180,13 +179,13 @@ class UserIdentityHelperTest {
         val db = getWritableDB()
         val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
-        val contact = MetadataContact("twitter", "12345678990", "myHandle")
+        val contact = MetadataContact("twitter", "12345678990", "@myHandle")
         val contact2 = MetadataContact("phone", "13305551111", "")
 
         val identity = userIdentityHelper.updateFrom(contact)
         assertThat(identity.type, equalTo(IdentityType.TWITTER))
         assertThat(identity.identity, equalTo(contact.identity))
-        assertThat(identity.handle, equalTo(contact.handle))
+        assertThat(identity.handle, equalTo("myHandle"))
         assertThat(identity.hash, equalTo(contact.identity))
 
         val identity2 = userIdentityHelper.updateFrom(contact2)

@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.service.runner
 
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
@@ -10,9 +10,9 @@ import org.mockito.Mockito.*
 
 class FulfillSentInvitesRunnerTest {
 
-    fun createRunner(): FulfillSentInvitesRunner {
+    private fun createRunner(): FulfillSentInvitesRunner {
         return FulfillSentInvitesRunner(
-                mock(TransactionHelper::class.java),
+                mock(InviteTransactionSummaryHelper::class.java),
                 mock(SentInvitesStatusGetter::class.java),
                 mock(SentInvitesStatusSender::class.java),
                 mock(BroadcastBtcInviteRunner::class.java)
@@ -24,16 +24,16 @@ class FulfillSentInvitesRunnerTest {
         val runner = createRunner()
         val invite = mock(InviteTransactionSummary::class.java)
         whenever(invite.btcTransactionId).thenReturn(null)
-        whenever(runner.transactionHelper.gatherUnfulfilledInviteTrans()).thenReturn(listOf(invite))
+        whenever(runner.inviteTransactionSummaryHelper.unfulfilledSentInvites).thenReturn(listOf(invite))
 
-        val ordered = inOrder(runner.transactionHelper, runner.sentInvitesStatusGetter, runner.sentInvitesStatusSender, runner.broadcastBtcInviteRunner)
+        val ordered = inOrder(runner.inviteTransactionSummaryHelper, runner.sentInvitesStatusGetter, runner.sentInvitesStatusSender, runner.broadcastBtcInviteRunner)
         runner.run()
 
         //Step 1. grab all sent invites from server, save/update the ones that now have an address
         ordered.verify(runner.sentInvitesStatusGetter).run()
 
-        //Step 2. get any sent invites that do not have a tx id but have an address
-        ordered.verify(runner.transactionHelper).gatherUnfulfilledInviteTrans()
+        //Step 2. addressForPubKey any sent invites that do not have a tx id but have an address
+        ordered.verify(runner.inviteTransactionSummaryHelper).unfulfilledSentInvites
 
         //Step 3. report to coinninja server of any invites that have been newly fulfilled (with TX ID)
         ordered.verify(runner.broadcastBtcInviteRunner).invite = invite
@@ -47,7 +47,7 @@ class FulfillSentInvitesRunnerTest {
         val runner = createRunner()
         val unfulfilled = mock(InviteTransactionSummary::class.java)
         val unfulfilledTransactions = listOf(unfulfilled)
-        whenever(runner.transactionHelper.gatherUnfulfilledInviteTrans()).thenReturn(unfulfilledTransactions)
+        whenever(runner.inviteTransactionSummaryHelper.unfulfilledSentInvites).thenReturn(unfulfilledTransactions)
 
         runner.run()
 
@@ -61,7 +61,7 @@ class FulfillSentInvitesRunnerTest {
         val unfulfilled2 = mock(InviteTransactionSummary::class.java)
         val unfulfilled3 = mock(InviteTransactionSummary::class.java)
         val unfulfilledTransactions = listOf(unfulfilled1, unfulfilled2, unfulfilled3)
-        whenever(runner.transactionHelper.gatherUnfulfilledInviteTrans()).thenReturn(unfulfilledTransactions)
+        whenever(runner.inviteTransactionSummaryHelper.unfulfilledSentInvites).thenReturn(unfulfilledTransactions)
 
         runner.run()
 
@@ -76,7 +76,7 @@ class FulfillSentInvitesRunnerTest {
         val unfulfilled3 = mock(InviteTransactionSummary::class.java)
         val unfulfilledTransactions = listOf(unfulfilled1, fulfilled2, unfulfilled3)
         whenever(fulfilled2.btcTransactionId).thenReturn("--txid--")
-        whenever(runner.transactionHelper.gatherUnfulfilledInviteTrans()).thenReturn(unfulfilledTransactions)
+        whenever(runner.inviteTransactionSummaryHelper.unfulfilledSentInvites).thenReturn(unfulfilledTransactions)
 
         runner.run()
 

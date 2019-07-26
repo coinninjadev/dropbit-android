@@ -74,7 +74,7 @@ public class FailedBroadcastCleaner implements Runnable {
         if (response.body() != null) {//if coinninja gives us null, that means NONE of the txIds were found
             List<TransactionDetail> details = (List<TransactionDetail>) response.body();
             for (TransactionDetail detail : details) {
-                String foundTxID = detail.getTransactionId();
+                String foundTxID = detail.getTxid();
                 transactionsMap.remove(foundTxID);
                 markAsAcknowledged(foundTxID);
             }
@@ -93,12 +93,33 @@ public class FailedBroadcastCleaner implements Runnable {
         }
 
         for (TransactionDetail detail : details) {
-            String foundTxID = detail.getTransactionId();
+            String foundTxID = detail.getTxid();
             transactionsMap.remove(foundTxID);
             markAsAcknowledged(foundTxID);
         }
 
         return flatMapOfValuesInHashMap(transactionsMap);
+    }
+
+    String[] markAsFailedToBroadcast(List<TransactionSummary> unAcknowledged) {
+        ArrayList<String> newTxIds = new ArrayList<>();
+        for (TransactionSummary transactionSummary : unAcknowledged) {
+            String newTXID = transactionHelper.markTransactionSummaryAsFailedToBroadcast(transactionSummary.getTxid());
+            reportFailure(transactionSummary);
+            if (newTXID == null) continue;
+
+            newTxIds.add(newTXID);
+        }
+
+        return newTxIds.toArray(new String[newTxIds.size()]);
+    }
+
+    void notifyUserOfBroadcastFail(String[] newlyFailedTXIDs) {
+        for (String newlyFailedTXID : newlyFailedTXIDs) {
+            String message = application.getString(R.string.notification_transaction_failed_to_broadcast, newlyFailedTXID);
+
+            externalNotificationHelper.saveNotification(message, newlyFailedTXID);
+        }
     }
 
     private List<TransactionDetail> blockChainInfoLoop(String[] txids) {
@@ -116,24 +137,11 @@ public class FailedBroadcastCleaner implements Runnable {
 
             BlockchainTX blockchainTX = (BlockchainTX) response.body();
             TransactionDetail transactionDetail = new TransactionDetail();
-            transactionDetail.setTransactionId(blockchainTX.getHash());
+            transactionDetail.setTxid(blockchainTX.getHash());
             transactionDetails.add(transactionDetail);
         }
 
         return transactionDetails;
-    }
-
-    String[] markAsFailedToBroadcast(List<TransactionSummary> unAcknowledged) {
-        ArrayList<String> newTxIds = new ArrayList<>();
-        for (TransactionSummary transactionSummary : unAcknowledged) {
-            String newTXID = transactionHelper.markTransactionSummaryAsFailedToBroadcast(transactionSummary.getTxid());
-            reportFailure(transactionSummary);
-            if (newTXID == null) continue;
-
-            newTxIds.add(newTXID);
-        }
-
-        return newTxIds.toArray(new String[newTxIds.size()]);
     }
 
     private void reportFailure(TransactionSummary transactionSummary) {
@@ -144,16 +152,8 @@ public class FailedBroadcastCleaner implements Runnable {
         }
     }
 
-    void markAsAcknowledged(String acknowledgedTxID) {
+    private void markAsAcknowledged(String acknowledgedTxID) {
         transactionHelper.markTransactionSummaryAsAcknowledged(acknowledgedTxID);
-    }
-
-    void notifyUserOfBroadcastFail(String[] newlyFailedTXIDs) {
-        for (String newlyFailedTXID : newlyFailedTXIDs) {
-            String message = application.getString(R.string.notification_transaction_failed_to_broadcast, newlyFailedTXID);
-
-            externalNotificationHelper.saveNotification(message, newlyFailedTXID);
-        }
     }
 
     private HashMap<String, TransactionSummary> transListToTxIDMap(List<TransactionSummary> list) {

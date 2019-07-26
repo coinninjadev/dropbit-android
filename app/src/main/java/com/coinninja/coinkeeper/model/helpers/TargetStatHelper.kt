@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
+import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
 import com.coinninja.coinkeeper.model.db.TargetStat
@@ -8,6 +9,7 @@ import com.coinninja.coinkeeper.model.db.TargetStatDao
 import com.coinninja.coinkeeper.model.db.TransactionSummary
 import com.coinninja.coinkeeper.model.db.TransactionSummaryDao
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
+import com.coinninja.coinkeeper.service.client.model.VOut
 import java.util.*
 import javax.inject.Inject
 
@@ -15,8 +17,70 @@ import javax.inject.Inject
 class TargetStatHelper @Inject constructor(
         internal val daoSessionManager: DaoSessionManager,
         internal val walletHelper: WalletHelper,
+        internal val addressHelper: AddressHelper,
         internal val dustProtectionPreference: DustProtectionPreference
 ) {
+
+    fun targetStatFor(transactionId: Long, output: VOut): TargetStat? =
+            daoSessionManager.targetStatDao.queryBuilder()
+                    .where(
+                            TargetStatDao.Properties.Tsid.eq(transactionId),
+                            TargetStatDao.Properties.Value.eq(output.value),
+                            TargetStatDao.Properties.Position.eq(output.index),
+                            TargetStatDao.Properties.Addr.eq(output.scriptPubKey.addresses[0])
+                    )
+                    .unique()
+
+    fun getOrCreateTargetStat(transaction: TransactionSummary, output: VOut): TargetStat =
+            (targetStatFor(transaction.id, output) ?: daoSessionManager.newTargetStat()).also {
+                it.addr = output.scriptPubKey.addresses[0]
+                it.position = output.index
+                it.transaction = transaction
+                it.value = output.value
+                it.txTime = transaction.txTime
+                if (it.id == null) {
+                    daoSessionManager.insert(it)
+                } else {
+                    it.update()
+                }
+            }
+
+    internal fun createChangeOutput(transactionData: TransactionData): TargetStat? {
+        transactionData.changePath?.let { changePath ->
+            addressHelper.addressForPath(changePath)?.let { changeAddress ->
+                if (transactionData.changeAmount > 0) {
+                    return daoSessionManager.newTargetStat().apply {
+                        address = changeAddress
+                        addr = changeAddress.address
+                        position = 1
+                        value = transactionData.changeAmount
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    internal fun createOutputForReceiver(transactionData: TransactionData): TargetStat = daoSessionManager.newTargetStat().apply {
+        addr = transactionData.paymentAddress
+        position = 0
+        value = transactionData.amount
+    }
+
+    fun createOutputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
+        createOutputForReceiver(transactionData).apply {
+            state = TargetStat.State.PENDING
+            this.transaction = transaction
+            daoSessionManager.insert(this)
+        }
+        createChangeOutput(transactionData)?.apply {
+            state = TargetStat.State.PENDING
+            this.transaction = transaction
+            wallet = transaction.wallet
+            daoSessionManager.insert(this)
+        }
+    }
+
 
     val spendableTargets: List<TargetStat>
         get() {

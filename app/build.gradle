@@ -203,7 +203,7 @@ dependencies {
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     implementation group: 'org.cryptonode.jncryptor', name: 'jncryptor', version: '1.0.1'
-    implementation "com.coinninja.libbitcoin:libbitcoinbindings-release:1.0.52984"
+    implementation "com.coinninja.libbitcoin:libbitcoinbindings-release:1.1.0"
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
 
     implementation "androidx.appcompat:appcompat:$rootProject.appcompat_version"
