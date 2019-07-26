@@ -56,46 +56,4 @@ internal class HomeActivityTest {
         }
     }
 
-    @Test
-    fun `configures pager and tabs`() {
-        setupActivity().onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-            val tabs = activity.findViewById<TabLayout>(R.id.pager_tabs)
-            Assert.assertThat(pager.currentItem, equalTo(1))
-            assertEquals(pager.adapter, activity.homePagerAdapterProvider.provide(activity.supportFragmentManager, activity.lifecycle.currentState))
-            Assert.assertThat(tabs.selectedTabPosition, equalTo(1))
-        }
-    }
-
-    @Test
-    fun `shows market selection when observer called`() {
-        setupActivity().onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-
-            Assert.assertThat(pager.currentItem, equalTo(1))
-
-            activity.showMarketPage()
-
-            Assert.assertThat(pager.currentItem, equalTo(0))
-        }
-    }
-
-    @Test
-    fun `restores state when resuming session`() {
-        val scenario = setupActivity()
-        scenario.onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-            val tabs = activity.findViewById<TabLayout>(R.id.pager_tabs)
-            pager.setCurrentItem(0, false)
-            Assert.assertThat(pager.currentItem, equalTo(0))
-            Assert.assertThat(tabs.selectedTabPosition, equalTo(0))
-        }
-
-        scenario.recreate()
-
-        scenario.onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-            Assert.assertThat(pager.currentItem, equalTo(0))
-        }
-    }
 }

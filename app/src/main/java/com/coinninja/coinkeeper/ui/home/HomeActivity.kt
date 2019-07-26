@@ -3,11 +3,9 @@ package com.coinninja.coinkeeper.ui.home
 import android.os.Bundle
 import androidx.viewpager.widget.ViewPager
 import com.coinninja.coinkeeper.R
-import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity
-import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 
 class HomeActivity : BalanceBarActivity() {
@@ -21,29 +19,14 @@ class HomeActivity : BalanceBarActivity() {
 
     @Inject
     internal lateinit var homePagerAdapterProvider: HomePagerAdapterProvider
-    var currentPage = 1
+    internal var currentPage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        observeMarketSelection(object : OnMarketSelectionObserver {
-            override fun onShowMarket() {
-                showMarketPage()
-            }
-        })
         findViewById<ViewPager>(R.id.home_pager)?.apply {
             adapter = homePagerAdapterProvider.provide(supportFragmentManager, lifecycle.currentState)
             setCurrentItem(currentPage, false)
-        }.also {
-            findViewById<TabLayout>(R.id.pager_tabs)?.apply {
-                setupWithViewPager(it)
-            }
-        }
-    }
-
-    internal fun showMarketPage() {
-        findViewById<ViewPager>(R.id.home_pager)?.apply {
-            setCurrentItem(0, true)
         }
     }
 

@@ -16,14 +16,13 @@ import javax.inject.Inject;
 
 public class ActionBarController {
 
-    @Inject
-    TitleViewManager titleViewManager;
-
     public MenuItemClickListener menuItemClickListener;
     public Boolean isActionBarGone;
     public Boolean isTitleUppercase;
     public Boolean isUpEnabled;
     public Integer optionMenuLayout;
+    @Inject
+    TitleViewManager titleViewManager;
 
     @Inject
     public ActionBarController() {
@@ -37,8 +36,11 @@ public class ActionBarController {
                 isActionBarGone = true;
                 return;
             case R.id.actionbar_up_on:
+                isUpEnabled = true;
+                break;
             case R.id.actionbar_up_on_with_nav_bar:
                 isUpEnabled = true;
+                optionMenuLayout = R.menu.actionbar_light_charts_menu;
                 break;
             case R.id.actionbar_up_off_close_on:
                 isUpEnabled = false;
@@ -67,11 +69,6 @@ public class ActionBarController {
 
     }
 
-    private void initTitleView(AppCompatActivity context) {
-        titleViewManager.setActionBar(context.getSupportActionBar());
-        titleViewManager.setTitleView(context.findViewById(R.id.appbar_title));
-    }
-
     public void displayTitle(AppCompatActivity context) {
         if (isActionBarGone != null && isActionBarGone == true) {
             context.findViewById(R.id.cn_appbar_layout_container).setVisibility(View.GONE);
@@ -98,16 +95,19 @@ public class ActionBarController {
 
     public boolean onMenuItemClicked(MenuItem item) {
         if (optionMenuLayout == null) return false;
-
-        if (item.getItemId() == R.id.action_skip_btn) {
-            menuItemClickListener.onSkipClicked();
-            return true;
-        } else if (item.getItemId() == R.id.action_close_btn) {
-            menuItemClickListener.onCloseClicked();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_skip_btn:
+                menuItemClickListener.onSkipClicked();
+                return true;
+            case R.id.action_close_btn:
+                menuItemClickListener.onCloseClicked();
+                return true;
+            case R.id.action_chart_button:
+                menuItemClickListener.onShowMarketData();
+                return true;
+            default:
+                return false;
         }
-
-        return false;
     }
 
     public void setMenuItemClickListener(MenuItemClickListener menuItemClickListener) {
@@ -118,5 +118,10 @@ public class ActionBarController {
         if (isActionBarGone != null && isActionBarGone == true) return;
 
         titleViewManager.renderTitleView(string);
+    }
+
+    private void initTitleView(AppCompatActivity context) {
+        titleViewManager.setActionBar(context.getSupportActionBar());
+        titleViewManager.setTitleView(context.findViewById(R.id.appbar_title));
     }
 }

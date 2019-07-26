@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.di.interfaces.ActivityScope
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.home.HomeModule
+import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
@@ -27,6 +28,10 @@ abstract class AndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [HomeModule::class])
     internal abstract fun homeActivity(): HomeActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [])
+    internal abstract fun marketScreenActivity(): MarketScreenActivity
 
     @ActivityScope
     @ContributesAndroidInjector

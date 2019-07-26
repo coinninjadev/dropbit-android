@@ -331,4 +331,17 @@ public class ActionBarControllerTest {
         verify(titleViewManager, never()).renderTitleView(anyString());
     }
 
+    @Test
+    public void observes_chart_menu_item_click() {
+        MenuItem item = mock(MenuItem.class);
+        when(item.getItemId()).thenReturn(R.id.action_chart_button);
+        MenuItemClickListener menuItemClickListener = mock(MenuItemClickListener.class);
+        controller.setMenuItemClickListener(menuItemClickListener);
+        controller.optionMenuLayout = R.menu.actionbar_light_charts_menu;
+
+        boolean itemClicked = controller.onMenuItemClicked(item);
+
+        assertTrue(itemClicked);
+        verify(menuItemClickListener).onShowMarketData();
+    }
 }

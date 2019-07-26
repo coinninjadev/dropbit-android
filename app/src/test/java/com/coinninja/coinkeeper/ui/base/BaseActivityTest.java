@@ -229,6 +229,16 @@ public class BaseActivityTest {
         verify(actionBarController).updateTitle("-- some text");
     }
 
+    @Test
+    public void shows_market_charts_when_charts_menu_item_pressed() {
+        setupWithTheme(R.style.CoinKeeperTheme_Drawer);
+        activity.actionBarController = actionBarController;
+
+        activity.onShowMarketData();
+
+        verify(activityNavigationUtil).showMarketCharts(activity);
+    }
+
     private void setupWithTheme(int theme) {
         application.typedValue = mock(TypedValue.class);
         activity = activityController.get();

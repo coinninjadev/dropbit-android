@@ -434,4 +434,5 @@
     <!-- Market News -->
     <string name="news">News</string>
     <string name="news_source_published_separator">-</string>
+    <string name="show_market_data">Show Market News</string>
 </resources>

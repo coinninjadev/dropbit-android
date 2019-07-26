@@ -14,6 +14,7 @@ import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
@@ -351,10 +352,19 @@ class ActivityNavigationUtilTest {
     fun opensUrl() {
         createActivityNavigationUtil().also {
             val uri = Uri.parse("http://www.example.com")
-           
+
             it.openUrl(activity, uri)
 
             assertThat(activity, activityWithIntentStarted(Intent(Intent.ACTION_VIEW, uri)))
+        }
+    }
+
+    @Test
+    fun shows_market_charts() {
+        createActivityNavigationUtil().also {
+            it.showMarketCharts(activity)
+
+            assertThat(activity, activityWithIntentStarted(Intent(activity, MarketScreenActivity::class.java)))
         }
     }
 }

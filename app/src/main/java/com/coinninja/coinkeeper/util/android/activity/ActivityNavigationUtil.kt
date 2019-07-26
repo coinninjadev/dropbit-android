@@ -15,6 +15,7 @@ import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity
@@ -34,7 +35,6 @@ import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity
 import com.coinninja.coinkeeper.view.activity.TrainingActivity
 import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity
 import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity
-import com.coinninja.coinkeeper.view.fragment.PayDialogFragment
 import java.util.*
 import javax.inject.Inject
 
@@ -196,5 +196,9 @@ class ActivityNavigationUtil @Inject constructor(
         Intent(Intent.ACTION_VIEW, uri).also {
             context.startActivity(it)
         }
+    }
+
+    fun showMarketCharts(activity: Activity) {
+        Intent(activity, MarketScreenActivity::class.java).also { activity.startActivity(it) }
     }
 }

@@ -89,6 +89,11 @@ public abstract class BaseActivity extends DaggerAppCompatActivity implements Me
         navigationUtil.navigateToHome(this);
     }
 
+    @Override
+    public void onShowMarketData() {
+        navigationUtil.showMarketCharts(this);
+    }
+
     public void showKeyboard(View view) {
         view.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -128,6 +133,7 @@ public abstract class BaseActivity extends DaggerAppCompatActivity implements Me
         }
 
         drawerController.renderBadgeForUnverifiedDeviceIfNecessary();
+        observeMarketSelection(() -> onShowMarketData());
     }
 
     protected void onPriceReceived(USDCurrency price) {

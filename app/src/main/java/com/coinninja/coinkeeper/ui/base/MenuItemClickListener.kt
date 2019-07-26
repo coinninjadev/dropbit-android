@@ -4,4 +4,6 @@ interface MenuItemClickListener {
     fun onCloseClicked()
 
     fun onSkipClicked()
+
+    fun onShowMarketData()
 }
