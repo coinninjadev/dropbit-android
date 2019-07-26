@@ -9,8 +9,8 @@
         motion:duration="300">
         <OnSwipe
             motion:dragDirection="dragUp"
-            motion:touchAnchorId="@+id/chart"
-            motion:touchAnchorSide="bottom" />
+            motion:touchAnchorId="@+id/news"
+            motion:touchAnchorSide="top" />
     </Transition>
 
     <ConstraintSet android:id="@+id/start">

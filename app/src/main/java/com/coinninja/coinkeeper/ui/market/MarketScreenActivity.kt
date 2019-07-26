@@ -10,4 +10,6 @@ class MarketScreenActivity : SecuredActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_market)
     }
+
+
 }
