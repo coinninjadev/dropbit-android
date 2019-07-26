@@ -9,13 +9,15 @@ import androidx.constraintlayout.widget.Group
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.util.FeesManager
 import com.coinninja.coinkeeper.util.FeesManager.FeeType.*
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder
-import com.coinninja.coinkeeper.util.uri.UriUtil
 import com.coinninja.coinkeeper.util.uri.routes.DropbitRoute
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import javax.inject.Inject
 
 class AdjustableFeesActivity : SecuredActivity() {
+    @Inject
+    lateinit var activityNavigationUtil: ActivityNavigationUtil
 
     @Inject
     lateinit var dropbitUriBuilder: DropbitUriBuilder
@@ -35,11 +37,11 @@ class AdjustableFeesActivity : SecuredActivity() {
     }
 
     private fun adjustableFeesTooltipClicked() {
-        UriUtil.openUrl(dropbitUriBuilder.build(DropbitRoute.ADJUSTABLE_FEES), this);
+        activityNavigationUtil.openUrl(this, dropbitUriBuilder.build(DropbitRoute.ADJUSTABLE_FEES))
     }
 
     private fun feeSelectionButtonClicked(view: View) {
-        when(view) {
+        when (view) {
             findViewById<View>(R.id.fast_fees) -> {
                 adjustableFeesManager.feePreference = FAST
             }
@@ -71,7 +73,7 @@ class AdjustableFeesActivity : SecuredActivity() {
     }
 
     private fun setupUIForSelectedFee() {
-        when(adjustableFeesManager.feePreference) {
+        when (adjustableFeesManager.feePreference) {
             FAST -> {
                 setupSelectedButtonUI(findViewById(R.id.fast_fees))
                 setupUnselectedButton(findViewById(R.id.slow_fees))

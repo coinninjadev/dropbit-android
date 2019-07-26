@@ -2,6 +2,8 @@ package com.coinninja.coinkeeper.db;
 
 import android.os.Build;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.util.Hasher;
 
 import org.junit.After;
@@ -17,7 +19,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DatabaseSecretProviderTest {
 
     private String appSecret = "--app-secret--";

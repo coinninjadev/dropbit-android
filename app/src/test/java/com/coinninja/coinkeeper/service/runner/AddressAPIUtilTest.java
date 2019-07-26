@@ -100,8 +100,8 @@ public class AddressAPIUtilTest {
 
     @Test
     public void will_look_ahead_when_partial_returned__LOOK_AHEAD_ANY() {
-        block1 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 0, INITIAL_GAP_LIMIT);
-        block2 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 5, 25);
+        block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, INITIAL_GAP_LIMIT);
+        block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 5, 25);
 
         when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 20)).thenReturn(block1);
         when(wallet.fillBlock(HDWallet.EXTERNAL, 5, 20)).thenReturn(block2);
@@ -198,10 +198,10 @@ public class AddressAPIUtilTest {
          * Address lookup 4 [12, 13, 14, 15, 16]
          *    -> Response: no transactions returned
          */
-        block1 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 0, 5);
-        block2 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 5, 10);
-        block3 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 9, 14);
-        block4 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 12, 17);
+        block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, 5);
+        block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 5, 10);
+        block3 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 9, 14);
+        block4 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 12, 17);
 
         when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 5)).thenReturn(block1);
         when(wallet.fillBlock(HDWallet.EXTERNAL, 5, 5)).thenReturn(block2);
@@ -229,8 +229,8 @@ public class AddressAPIUtilTest {
 
     private void mockIndex22with3Pages() {
         mockLookAhead();
-        block1 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
-        block2 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, ADDRESSES_TO_QUERY_AT_A_TIME, 27);
+        block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, ADDRESSES_TO_QUERY_AT_A_TIME);
+        block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), ADDRESSES_TO_QUERY_AT_A_TIME, 27);
 
         when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 25)).thenReturn(block1);
         when(wallet.fillBlock(HDWallet.EXTERNAL, 25, 2)).thenReturn(block2);
@@ -245,14 +245,14 @@ public class AddressAPIUtilTest {
     }
 
     private void mockLookAhead() {
-        block3 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 27, 27 + AddressAPIUtil.LOOK_AHEAD);
+        block3 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 27, 27 + AddressAPIUtil.LOOK_AHEAD);
 
         when(wallet.fillBlock(HDWallet.EXTERNAL, 27, AddressAPIUtil.LOOK_AHEAD)).thenReturn(block3);
         when(apiClient.queryAddressesFor(block3, DEFAULT_PAGE)).thenReturn(buildResponse(block3, 0));
     }
 
     private void mockIndex0() {
-        block1 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 0, AddressAPIUtil.LOOK_AHEAD);
+        block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, AddressAPIUtil.LOOK_AHEAD);
 
         when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 5)).thenReturn(block1);
 
@@ -260,7 +260,7 @@ public class AddressAPIUtilTest {
     }
 
     private void mockIndex2() {
-        block1 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 0, 7);
+        block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, 7);
 
         when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 7)).thenReturn(block1);
 
@@ -268,8 +268,8 @@ public class AddressAPIUtilTest {
     }
 
     private void mockIndex22() {
-        block1 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
-        block2 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, ADDRESSES_TO_QUERY_AT_A_TIME, 27);
+        block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, ADDRESSES_TO_QUERY_AT_A_TIME);
+        block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), ADDRESSES_TO_QUERY_AT_A_TIME, 27);
 
         when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 25)).thenReturn(block1);
         when(wallet.fillBlock(HDWallet.EXTERNAL, 25, 2)).thenReturn(block2);
@@ -279,8 +279,8 @@ public class AddressAPIUtilTest {
     }
 
     private void mockIndex22AllAddressesUsed() {
-        block1 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
-        block2 = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, ADDRESSES_TO_QUERY_AT_A_TIME, 27);
+        block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, ADDRESSES_TO_QUERY_AT_A_TIME);
+        block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), ADDRESSES_TO_QUERY_AT_A_TIME, 27);
 
         when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 25)).thenReturn(block1);
         when(wallet.fillBlock(HDWallet.EXTERNAL, 25, 2)).thenReturn(block2);

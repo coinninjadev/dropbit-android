@@ -103,7 +103,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
     Bip70Callback bip70Callback;
 
     boolean shouldShowScanOnAttach = false;
-    BitcoinUri bitcoinUri = null;
+    public BitcoinUri bitcoinUri = null;
 
     public static PayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks, boolean shouldShowScanOnAttach) {
         PayDialogFragment payFragment = commonInit(paymentUtil, paymentBarCallbacks);
@@ -209,7 +209,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
 
     public void onFetchContactComplete(AddressLookupResult addressLookupResult) {
         paymentHolder.setPublicKey(addressLookupResult.getAddressPubKey());
-        paymentHolder.setPaymentAddress(addressLookupResult.getAddress());
+        paymentHolder.setPaymentAddress(addressLookupResult.getAddress() == null ? "" : addressLookupResult.getAddress());
         updateSharedMemosUI();
     }
 
@@ -317,7 +317,7 @@ public class PayDialogFragment extends BaseBottomDialogFragment {
             @Override
             public void failure(String message) {
                 commonCompletion();
-                AlertDialogBuilder.build(getView().getContext(), message).show();
+                showPasteAttemptFail(getString(R.string.invalid_bitcoin_address_error));
             }
 
             private void commonCompletion() {

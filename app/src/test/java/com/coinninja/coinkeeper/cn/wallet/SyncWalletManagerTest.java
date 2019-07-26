@@ -128,14 +128,14 @@ public class SyncWalletManagerTest {
 
     @Test
     public void shedules_sync_for_30_second_intervals() {
-        syncWalletManager.schedule30SecondSync();
+        syncWalletManager.schedule60SecondSync();
 
         verify(handler).postDelayed(syncWalletManager.timeOutRunnable, 60 * 1000);
     }
 
     @Test
     public void binds_to_cn_wallet_service_when_sync_is_scheduled() {
-        syncWalletManager.schedule30SecondSync();
+        syncWalletManager.schedule60SecondSync();
 
         List<ServiceConnection> boundServiceConnections = ShadowApplication.getInstance().getBoundServiceConnections();
         assertThat(boundServiceConnections.size(), equalTo(1));
@@ -166,7 +166,7 @@ public class SyncWalletManagerTest {
     public void only_syncs_when_wallet_exists() {
         when(cnWalletManager.hasWallet()).thenReturn(false);
 
-        syncWalletManager.schedule30SecondSync();
+        syncWalletManager.schedule60SecondSync();
 
         verify(handler, times(0)).postDelayed(any(), anyLong());
     }

@@ -6,17 +6,13 @@ import com.coinninja.coinkeeper.cn.service.runner.AccountDeverificationServiceRu
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.receiver.WalletSyncCompletedReceiver
-import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mockito.*
-import org.mockito.junit.MockitoJUnitRunner
 
 
-@RunWith(MockitoJUnitRunner::class)
 class FullSyncWalletRunnerTest {
 
     private fun createRunner(): FullSyncWalletRunner {
@@ -35,7 +31,6 @@ class FullSyncWalletRunnerTest {
                 mock(DropbitAccountHelper::class.java),
                 mock(LocalBroadCastUtil::class.java),
                 mock(RemoteAddressCache::class.java),
-                mock(SyncManagerViewNotifier::class.java),
                 mock(DropBitMeServiceManager::class.java)
         )
 
@@ -66,15 +61,17 @@ class FullSyncWalletRunnerTest {
 
         inOrder.verify(runner.accountDeverificationServiceRunner).run()
         inOrder.verify(runner.walletRegistrationRunner).run()
-        inOrder.verify(runner.dropBitMeServiceManager).syncIdentities()
         inOrder.verify(runner.currentBTCStateRunner).run()
-        inOrder.verify(runner.syncRunnable).run()
-        inOrder.verify(runner.transactionConfirmationUpdateRunner).run()
+        inOrder.verify(runner.dropBitMeServiceManager).syncIdentities()
+
         inOrder.verify(runner.syncIncomingInvitesRunner).run()
-        inOrder.verify(runner.fulfillSentInvitesRunner).run()
         inOrder.verify(runner.receivedInvitesStatusRunner).run()
         inOrder.verify(runner.negativeBalanceRunner).run()
+        inOrder.verify(runner.fulfillSentInvitesRunner).run()
         inOrder.verify(runner.remoteAddressCache).cacheAddresses()
+
+        inOrder.verify(runner.syncRunnable).run()
+        inOrder.verify(runner.transactionConfirmationUpdateRunner).run()
         inOrder.verify(runner.failedBroadcastCleaner).run()
         inOrder.verify(runner.cnWalletManager).updateBalances()
         inOrder.verify(runner.localBroadCastUtil).sendGlobalBroadcast(
@@ -91,11 +88,10 @@ class FullSyncWalletRunnerTest {
         val inOrder = inOrder(runner.accountDeverificationServiceRunner, runner.walletRegistrationRunner,
                 runner.currentBTCStateRunner, runner.syncRunnable, runner.transactionConfirmationUpdateRunner,
                 runner.syncIncomingInvitesRunner, runner.fulfillSentInvitesRunner, runner.receivedInvitesStatusRunner,
-                runner.negativeBalanceRunner, runner.failedBroadcastCleaner, runner.cnWalletManager, runner.syncManagerViewNotifier)
+                runner.negativeBalanceRunner, runner.failedBroadcastCleaner, runner.cnWalletManager)
 
         runner.run()
 
-        inOrder.verify(runner.syncManagerViewNotifier).isSyncing = true
         inOrder.verify(runner.accountDeverificationServiceRunner).run()
         inOrder.verify(runner.walletRegistrationRunner).run()
         inOrder.verify(runner.currentBTCStateRunner).run()
@@ -103,7 +99,6 @@ class FullSyncWalletRunnerTest {
         inOrder.verify(runner.transactionConfirmationUpdateRunner).run()
         inOrder.verify(runner.failedBroadcastCleaner).run()
         inOrder.verify(runner.cnWalletManager).updateBalances()
-        inOrder.verify(runner.syncManagerViewNotifier).isSyncing = false
 
         verify(runner.remoteAddressCache, times(0)).cacheAddresses()
         verify(runner.syncIncomingInvitesRunner, times(0)).run()

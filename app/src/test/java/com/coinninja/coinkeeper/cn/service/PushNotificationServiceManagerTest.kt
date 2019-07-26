@@ -5,29 +5,26 @@ import com.coinninja.coinkeeper.service.client.model.CNDeviceEndpoint
 import com.coinninja.coinkeeper.service.client.model.CNSubscriptionState
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.internal.verification.VerificationModeFactory.times
 import java.util.*
 
 class PushNotificationServiceManagerTest {
     companion object {
-        private val UUID: String = "-uuid-"
-        private val TOKEN: String = "-push_token-"
-        private val CN_DEVICE_ID: String = "158a4cf9-0362-4636-8c68-ed7a98a7f345"
-        private val CN_DEVICE_ENDPOINT_ID: String = "--endpoint id"
+        private const val UUID: String = "-uuid-"
+        private const val TOKEN: String = "-push_token-"
+        private const val CN_DEVICE_ID: String = "158a4cf9-0362-4636-8c68-ed7a98a7f345"
+        private const val CN_DEVICE_ENDPOINT_ID: String = "--endpoint id"
     }
 
-    fun createPushNotificationServiceManager(): PushNotificationServiceManager {
+    private fun createPushNotificationServiceManager(): PushNotificationServiceManager {
         val pushNotificationServiceManager = PushNotificationServiceManager(
-                mock(PushNotificationTokenManager::class.java),
-                mock(PushNotificationDeviceManager::class.java),
-                mock(PushNotificationEndpointManager::class.java),
-                mock(PushNotificationSubscriptionManager::class.java)
+                mock(), mock(), mock(), mock()
         )
         whenever(pushNotificationServiceManager.pushNotificationDeviceManager.deviceId).thenReturn(CN_DEVICE_ID)
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.endpoint).thenReturn(CN_DEVICE_ENDPOINT_ID)
@@ -47,36 +44,21 @@ class PushNotificationServiceManagerTest {
     @Test
     fun registers_device() {
         val pushNotificationServiceManager = createPushNotificationServiceManager()
-        pushNotificationServiceManager.registerDevice(UUID)
-
-        verify(pushNotificationServiceManager.pushNotificationDeviceManager).createDevice(UUID)
-    }
-
-
-    // Register Endpoint with Coinninja
-
-    @Test
-    fun registers_device_endpoint_when_device_created() {
-        val pushNotificationServiceManager = createPushNotificationServiceManager()
         whenever(pushNotificationServiceManager.pushNotificationDeviceManager.createDevice(UUID)).thenReturn(true)
 
-        pushNotificationServiceManager.registerDevice(UUID)
-
-        verify(pushNotificationServiceManager.pushNotificationEndpointManager).registersAsEndpoint(CN_DEVICE_ID)
+        assertTrue(pushNotificationServiceManager.registerDevice(UUID))
     }
 
     @Test
-    fun do_nothing_when_device_not_created() {
+    fun `is registered device when device id is present`() {
         val pushNotificationServiceManager = createPushNotificationServiceManager()
-        whenever(pushNotificationServiceManager.pushNotificationDeviceManager.createDevice(UUID)).thenReturn(false)
+        whenever(pushNotificationServiceManager.pushNotificationDeviceManager.deviceId)
+                .thenReturn("--device-id--")
 
-        pushNotificationServiceManager.registerDevice(UUID)
-
-        verify(pushNotificationServiceManager.pushNotificationEndpointManager, times(0)).registersAsEndpoint(ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(pushNotificationServiceManager.pushNotificationEndpointManager, times(0)).registersAsEndpoint(ArgumentMatchers.any())
-        verify(pushNotificationServiceManager.pushNotificationEndpointManager, times(0)).registersAsEndpoint()
+        assertTrue(pushNotificationServiceManager.isRegisteredDevice())
     }
 
+    // Register Endpoint with Coinninja
 
     @Test
     fun register_for_endpoint_when_local_is_absent() {
@@ -91,7 +73,7 @@ class PushNotificationServiceManagerTest {
         val pushNotificationServiceManager = createPushNotificationServiceManager()
         val endpoints = ArrayList<CNDeviceEndpoint>()
         val endpoint = CNDeviceEndpoint()
-        endpoint.setId(CN_DEVICE_ENDPOINT_ID)
+        endpoint.id = CN_DEVICE_ENDPOINT_ID
         endpoints.add(endpoint)
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.fetchEndpoints()).thenReturn(endpoints)
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.hasEndpoint()).thenReturn(true)
@@ -109,10 +91,10 @@ class PushNotificationServiceManagerTest {
         val endpointToUnregister = "-- deadend"
         val endpoints = ArrayList<CNDeviceEndpoint>()
         val endpoint = CNDeviceEndpoint()
-        endpoint.setId(CN_DEVICE_ENDPOINT_ID)
+        endpoint.id = CN_DEVICE_ENDPOINT_ID
         endpoints.add(endpoint)
         val endpoint2 = CNDeviceEndpoint()
-        endpoint2.setId(endpointToUnregister)
+        endpoint2.id = endpointToUnregister
         endpoints.add(endpoint2)
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.fetchEndpoints()).thenReturn(endpoints)
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.hasEndpoint()).thenReturn(true)
@@ -131,10 +113,10 @@ class PushNotificationServiceManagerTest {
         val endpointToUnregister = "-- deadend"
         val endpoints = ArrayList<CNDeviceEndpoint>()
         val endpoint = CNDeviceEndpoint()
-        endpoint.setId("--- deadend 2")
+        endpoint.id = "--- deadend 2"
         endpoints.add(endpoint)
         val endpoint2 = CNDeviceEndpoint()
-        endpoint.setId(endpointToUnregister)
+        endpoint.id = endpointToUnregister
         endpoints.add(endpoint2)
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.fetchEndpoints()).thenReturn(endpoints)
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.hasEndpoint()).thenReturn(true)
@@ -170,7 +152,7 @@ class PushNotificationServiceManagerTest {
     @Test
     fun `provides access to subscription state`() {
         val pushNotificationServiceManager = createPushNotificationServiceManager()
-        val subscriptionState = Gson().fromJson<CNSubscriptionState>(YEARLY_HIGH_DATA.NOT_SUBSCRIBED_TO_YEARLY_HIGH, CNSubscriptionState::class.java)
+        val subscriptionState = Gson().fromJson(YEARLY_HIGH_DATA.NOT_SUBSCRIBED_TO_YEARLY_HIGH, CNSubscriptionState::class.java)
         whenever(pushNotificationServiceManager.pushNotificationSubscriptionManager.getSubscriptionState(CN_DEVICE_ID, CN_DEVICE_ENDPOINT_ID)).thenReturn(subscriptionState)
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.hasEndpoint()).thenReturn(true)
 
@@ -227,11 +209,11 @@ class PushNotificationServiceManagerTest {
     @Test
     fun `verify token request token manager to ensure presence of a token`() {
         val pushNotificationServiceManager = createPushNotificationServiceManager()
+        val observer: PushTokenVerifiedObserver = mock()
 
-        pushNotificationServiceManager.verifyToken()
+        pushNotificationServiceManager.acquireToken(observer)
 
-        verify(pushNotificationServiceManager.pushNotificationTokenManager).retrieveTokenIfNecessary()
-
+        verify(pushNotificationServiceManager.pushNotificationTokenManager).retrieveTokenIfNecessary(observer)
     }
 
     @Test

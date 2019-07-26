@@ -20,7 +20,7 @@ import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.android.InternetUtil;
 
 import org.greenrobot.greendao.query.LazyList;
@@ -67,7 +67,7 @@ public class MessengerActivityTest {
     private WalletHelper walletHelper;
 
     private MessengerActivity activity;
-    private ActivityController<TransactionHistoryActivity> activityController;
+    private ActivityController<HomeActivity> activityController;
     private ShadowActivity shadowActivity;
     private TestCoinKeeperApplication application;
 
@@ -95,7 +95,7 @@ public class MessengerActivityTest {
         application.internalNotificationsInteractor = notificationsInteractor;
         application.walletHelper = walletHelper;
 
-        activityController = Robolectric.buildActivity(TransactionHistoryActivity.class);
+        activityController = Robolectric.buildActivity(HomeActivity.class);
         activity = activityController.get();
         application.yearlyHighViewModel = mock(YearlyHighViewModel.class);
         MutableLiveData<Boolean> liveData = mock(MutableLiveData.class);

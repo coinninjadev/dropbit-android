@@ -159,10 +159,9 @@ class SettingsActivity : SecuredActivity(), DialogInterface.OnClickListener {
         val switch = findViewById<Switch>(R.id.yearly_high_subscription)
         if (switch.isChecked != isSubscribed) {
             switch.isChecked = isSubscribed
-
-            switch.setOnCheckedChangeListener { button, value ->
-                yearlyHighViewModel.toggleSubscription(isSubscribed)
-            }
+        }
+        switch.setOnCheckedChangeListener { button, value ->
+            yearlyHighViewModel.toggleSubscription(isSubscribed)
         }
     }
 

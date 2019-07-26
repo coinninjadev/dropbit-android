@@ -5,6 +5,7 @@ import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
@@ -25,23 +26,24 @@ public class IncomingInviteResponder implements Runnable {
     static String TAG = IncomingInviteResponder.class.getSimpleName();
 
     private final SignedCoinKeeperApiClient client;
-    private final TransactionHelper transactionHelper;
     private final InternalNotificationHelper notificationHelper;
     private final WalletHelper walletHelper;
     private final AccountManager accountManager;
+    private final InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
     private final Analytics analytics;
     private final CNLogger logger;
 
     @Inject
-    public IncomingInviteResponder(SignedCoinKeeperApiClient client, TransactionHelper transactionHelper,
+    public IncomingInviteResponder(SignedCoinKeeperApiClient client,
                                    InternalNotificationHelper internalNotificationHelper,
                                    WalletHelper walletHelper, AccountManager accountManager,
+                                   InviteTransactionSummaryHelper inviteTransactionSummaryHelper,
                                    Analytics analytics, CNLogger logger) {
         this.client = client;
         this.walletHelper = walletHelper;
-        this.transactionHelper = transactionHelper;
         notificationHelper = internalNotificationHelper;
         this.accountManager = accountManager;
+        this.inviteTransactionSummaryHelper = inviteTransactionSummaryHelper;
         this.analytics = analytics;
         this.logger = logger;
     }
@@ -66,7 +68,7 @@ public class IncomingInviteResponder implements Runnable {
             CNWalletAddress cnAddress = postAddress(address, invite, pubkey);
             if (cnAddress != null) {
                 analytics.trackEvent(Analytics.EVENT_DROPBIT_ADDRESS_PROVIDED);
-                transactionHelper.updateInviteAddressTransaction(invite.getServerId(), address);
+                inviteTransactionSummaryHelper.updateInviteAddressTransaction(invite.getServerId(), address);
                 saveNotificationFor(invite);
             }
         }

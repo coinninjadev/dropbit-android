@@ -15,7 +15,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.widget.DropbitMeImageView;
@@ -28,7 +28,7 @@ import static java.util.Arrays.asList;
 public class DropbitMeFragment extends BaseFragment {
 
     private final String[] visibleWithList = {
-            TransactionHistoryActivity.class.getName(),
+            HomeActivity.class.getName(),
             TransactionDetailsActivity.class.getName(),
     };
 

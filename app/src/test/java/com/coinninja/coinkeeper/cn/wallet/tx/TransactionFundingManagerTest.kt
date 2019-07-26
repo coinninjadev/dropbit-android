@@ -45,6 +45,7 @@ class TransactionFundingManagerTest {
         assertThat(transactionData.feeAmount, equalTo(500L))
         assertThat(transactionData.changeAmount, equalTo(4499L))
         assertThat(transactionData.utxos, equalTo(unspentTransactionOutputs.toTypedArray()))
+        assertThat(transactionData.isReplaceable, equalTo(true))
     }
 
     @Test
@@ -75,7 +76,7 @@ class TransactionFundingManagerTest {
         assertThat(transactionData.changeAmount, equalTo(0L))
         assertThat(transactionData.feeAmount, equalTo(0L))
         assertThat(transactionData.changePath, equalTo(transactionFundingManager.fundingModel.nextChangePath))
-        assertThat(transactionData.utxos, equalTo(arrayOfNulls(0)))
+        assertThat(transactionData.utxos, equalTo(emptyArray()))
     }
 
     @Test
@@ -96,7 +97,7 @@ class TransactionFundingManagerTest {
         assertThat(transactionData.changeAmount, equalTo(0L))
         assertThat(transactionData.feeAmount, equalTo(0L))
         assertThat(transactionData.changePath, equalTo(transactionFundingManager.fundingModel.nextChangePath))
-        assertThat(transactionData.utxos, equalTo(arrayOfNulls(0)))
+        assertThat(transactionData.utxos, equalTo(emptyArray()))
     }
 
     @Test
@@ -241,7 +242,7 @@ class TransactionFundingManagerTest {
             val unspentTransactionOutput = mock(UnspentTransactionOutput::class.java)
             whenever(unspentTransactionOutput.amount).thenReturn(value)
             whenever(stat.value).thenReturn(value)
-            whenever(stat.toUnspentTranasactionOutput()).thenReturn(unspentTransactionOutput)
+            whenever(stat.toUnspentTransactionOutput()).thenReturn(unspentTransactionOutput)
             unspentTransactionOutputs.add(unspentTransactionOutput)
         }
         transactionFundingManager.fundingModel.unspentTransactionOutputs.addAll(unspentTransactionOutputs)

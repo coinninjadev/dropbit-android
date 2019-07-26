@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <font-family xmlns:app="http://schemas.android.com/apk/res-auto">
-
+    <font
+        app:font="@font/montserrat_extra_light"
+        app:fontStyle="normal"
+        app:fontWeight="200" />
     <font
         app:font="@font/montserrat_light"
         app:fontStyle="normal" />
@@ -16,4 +19,5 @@
     <font
         app:font="@font/montserrat_semibold"
         app:fontStyle="normal" />
+
 </font-family>

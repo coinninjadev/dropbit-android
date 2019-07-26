@@ -27,7 +27,7 @@ public class SeedWordsPagerAdapter extends PagerAdapter {
 
         TextView wordView = rootView.findViewById(R.id.seed_word_txt_view);
 
-        wordView.setText(seedWords[position].toUpperCase(Locale.ENGLISH));
+        wordView.setText(seedWords[position]);
         container.addView(rootView);
         return rootView;
     }

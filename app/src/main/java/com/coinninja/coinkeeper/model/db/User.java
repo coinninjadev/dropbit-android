@@ -120,9 +120,7 @@ public class User {
         return wallets;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 1899338572)
     public synchronized void resetWallets() {
         wallets = null;

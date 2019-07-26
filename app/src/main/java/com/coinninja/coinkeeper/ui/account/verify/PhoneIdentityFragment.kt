@@ -9,7 +9,6 @@ import android.widget.Toast
 import com.coinninja.android.helpers.Resources.getDrawable
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.PhoneNumber
-import com.coinninja.coinkeeper.model.db.User
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
@@ -44,15 +43,13 @@ class PhoneIdentityFragment : BaseIdentityFragment() {
     @Inject
     lateinit var activityNavigationUtil: ActivityNavigationUtil
 
-    @Inject
-    lateinit var analytics: Analytics
-
     internal val intentFilter = IntentFilter(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED)
 
     internal val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED -> {
+                    analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false)
                     configureNotVerified()
                     activity?.let {
                         if (it is UserAccountVerificationActivity) {
@@ -77,12 +74,13 @@ class PhoneIdentityFragment : BaseIdentityFragment() {
     }
 
     override fun onVerify() {
-        analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, true);
-        activityNavigationUtil.navigateToRegisterPhone(context)
+        context?.let {
+            analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, true)
+            activityNavigationUtil.navigateToRegisterPhone(it)
+        }
     }
 
     override fun onDeVerify() {
-        analytics.setUserProperty(Analytics.PROPERTY_PHONE_VERIFIED, false);
         localBroadCastUtil.registerReceiver(receiver, intentFilter)
         serviceWorkUtil.deVerifyPhoneNumber()
     }

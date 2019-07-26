@@ -7,9 +7,9 @@
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/adjustable_fee_configuration_group"
-        android:visibility="visible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="visible"
         app:constraint_referenced_ids="adjustable_fees_fragment, estimated_delivery_time" />
 
     <TextView
@@ -88,7 +88,7 @@
         android:layout_width="0dp"
         android:layout_height="35dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,17 +96,32 @@
         tools:layout="@layout/merge_triple_button_view" />
 
     <TextView
+        android:id="@+id/approximate_wait_time_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/approximate_wait_time"
+        android:textAppearance="@style/TextAppearance.Fees.WaitLabel"
+        app:layout_constraintEnd_toStartOf="@+id/estimated_delivery_time"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/adjustable_fees_fragment" />
+
+    <TextView
         android:id="@+id/estimated_delivery_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="8dp"
         android:text="@string/approximate_wait_time"
+        android:textAppearance="@style/TextAppearance.Fees.WaitTime"
+        app:layout_constraintBottom_toBottomOf="@+id/approximate_wait_time_label"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adjustable_fees_fragment"
-        tools:text="Approximate wait time: 10 minutes" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/approximate_wait_time_label"
+        app:layout_constraintTop_toTopOf="@+id/approximate_wait_time_label"
+        tools:text="10 minutes" />
 
     <ImageView
         android:id="@+id/avatar_image_view"

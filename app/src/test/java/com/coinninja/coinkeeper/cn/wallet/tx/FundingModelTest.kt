@@ -46,7 +46,7 @@ internal class FundingModelTest {
             val mockUTXO = mock(UnspentTransactionOutput::class.java)
             whenever(mockTarget.value).thenReturn(value)
             whenever(mockUTXO.amount).thenReturn(value)
-            whenever(mockTarget.toUnspentTranasactionOutput()).thenReturn(mockUTXO)
+            whenever(mockTarget.toUnspentTransactionOutput()).thenReturn(mockUTXO)
             spendableTargets.add(mockTarget)
         }
 

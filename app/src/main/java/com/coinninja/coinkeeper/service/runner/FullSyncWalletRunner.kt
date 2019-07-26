@@ -7,7 +7,6 @@ import com.coinninja.coinkeeper.cn.service.runner.AccountDeverificationServiceRu
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.receiver.WalletSyncCompletedReceiver
-import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import org.greenrobot.greendao.DaoException
@@ -29,56 +28,40 @@ internal constructor(internal val cnWalletManager: CNWalletManager,
                      internal val dropbitAccountHelper: DropbitAccountHelper,
                      internal val localBroadCastUtil: LocalBroadCastUtil,
                      internal val remoteAddressCache: RemoteAddressCache,
-                     internal val syncManagerViewNotifier: SyncManagerViewNotifier,
                      internal val dropBitMeServiceManager: DropBitMeServiceManager
 ) : Runnable {
 
     override fun run() {
-        if (syncManagerViewNotifier.isSyncing) {
-            return
-        }
-        syncManagerViewNotifier.isSyncing = true
-
         if (!cnWalletManager.hasWallet())
             return
 
         try {
-            syncTransactions()
-            if (dropbitAccountHelper.hasVerifiedAccount) {
-                syncDropbits()
-            }
-            updateWallet()
+            accountDeverificationServiceRunner.run()
+            walletRegistrationRunner.run()
+            currentBTCStateRunner.run()
+            dropBitMeServiceManager.syncIdentities()
+
+            syncDropbits()
+
+            syncRunnable.run()
+            transactionConfirmationUpdateRunner.run()
+            failedBroadcastCleaner.run()
+            cnWalletManager.updateBalances()
         } catch (e: DaoException) {
             e.printStackTrace()
         }
 
         localBroadCastUtil.sendGlobalBroadcast(WalletSyncCompletedReceiver::class.java,
                 DropbitIntents.ACTION_WALLET_SYNC_COMPLETE)
-
-        syncManagerViewNotifier.isSyncing = false
-    }
-
-    private fun syncTransactions() {
-        accountDeverificationServiceRunner.run()
-        walletRegistrationRunner.run()
-        dropBitMeServiceManager.syncIdentities()
-        currentBTCStateRunner.run()
-        syncRunnable.run()
-        transactionConfirmationUpdateRunner.run()
     }
 
     private fun syncDropbits() {
         if (!dropbitAccountHelper.hasVerifiedAccount) return
 
         syncIncomingInvitesRunner.run()
-        fulfillSentInvitesRunner.run()
         receivedInvitesStatusRunner.run()
         negativeBalanceRunner.run()
+        fulfillSentInvitesRunner.run()
         remoteAddressCache.cacheAddresses()
-    }
-
-    private fun updateWallet() {
-        failedBroadcastCleaner.run()
-        cnWalletManager.updateBalances()
     }
 }

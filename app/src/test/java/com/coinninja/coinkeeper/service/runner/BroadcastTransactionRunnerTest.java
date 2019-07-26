@@ -1,7 +1,9 @@
 package com.coinninja.coinkeeper.service.runner;
 
+import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionData;
+import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.bitcoin.BroadcastTransactionHelper;
@@ -28,6 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,8 +49,7 @@ public class BroadcastTransactionRunnerTest {
     @Mock
     private Analytics analytics;
 
-    @Mock
-    private TransactionData transactionData;
+    private TransactionData transactionData = new TransactionData(new UnspentTransactionOutput[0], 0L, 0L, 0L, mock(DerivationPath.class), "--payment-address");
 
     @Mock
     private SignedCoinKeeperApiClient apiClient;
@@ -78,7 +80,6 @@ public class BroadcastTransactionRunnerTest {
         task.setBroadcastListener(callback);
 
         when(broadcastTransactionHelper.broadcast(any())).thenReturn(result);
-        when(transactionData.getPaymentAddress()).thenReturn("Some bitcoin address");
     }
 
     @Test
@@ -170,7 +171,7 @@ public class BroadcastTransactionRunnerTest {
     @Test
     public void broadcast_checksum_Fail() {
         String reason = "Some error message";
-        when(transactionData.getPaymentAddress()).thenReturn(null);
+        transactionData.setPaymentAddress("");
         when(application.getString(R.string.transaction_checksum_error)).thenReturn(reason);
 
         task.doInBackground(transactionData);

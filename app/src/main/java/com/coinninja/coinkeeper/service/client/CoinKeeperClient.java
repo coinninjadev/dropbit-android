@@ -15,8 +15,10 @@ import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
+import com.coinninja.coinkeeper.service.client.model.HistoricalPriceRecord;
 import com.coinninja.coinkeeper.service.client.model.InviteUserPayload;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.service.client.model.NewsArticle;
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite;
 import com.coinninja.coinkeeper.service.client.model.SentInvite;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
@@ -180,4 +182,10 @@ public interface CoinKeeperClient {
 
     @DELETE("devices/{deviceID}/endpoints/{endpointID}/subscriptions/{topicID}")
     Call<Void> unsubscribeFromTopic(@Path("deviceID") String devicesId, @Path("endpointID") String deviceEndpoint, @Path("topicID") String topicId);
+
+    @GET("pricing/historic")
+    Call<List<HistoricalPriceRecord>> loadHistoricPricing(@Query("period") String period);
+
+    @GET("news/feed/items")
+    Call<List<NewsArticle>> loadNews(@Query("count") int count);
 }

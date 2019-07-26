@@ -72,12 +72,12 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         return identity;
     }
 
-    public PaymentHolder getPaymentHolder() {
-        return paymentUtil.getPaymentHolder();
-    }
-
     public void setIdentity(Identity identityToSendTo) {
         identity = identityToSendTo;
+    }
+
+    public PaymentHolder getPaymentHolder() {
+        return paymentUtil.getPaymentHolder();
     }
 
     @Override
@@ -126,6 +126,25 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         setupFeeUI();
     }
 
+    @Override
+    protected int getContentViewLayoutId() {
+        return R.layout.fragment_confirm_pay_dialog;
+    }
+
+    public void showPrice() {
+        TextView primaryCurrencyView = getView().findViewById(R.id.primary_currency);
+        TextView secondaryCurrencyView = getView().findViewById(R.id.secondary_currency);
+
+        primaryCurrencyView.setVisibility(View.VISIBLE);
+        secondaryCurrencyView.setVisibility(View.VISIBLE);
+
+        String primaryAmount = getPaymentHolder().getPrimaryCurrency().toFormattedCurrency();
+        String secondaryAmount = getPaymentHolder().getSecondaryCurrency().toFormattedCurrency();
+
+        primaryCurrencyView.setText(primaryAmount);
+        secondaryCurrencyView.setText(secondaryAmount);
+    }
+
     private void setupAdjustedFeesUI() {
         if (feesManager.isAdjustableFeesEnabled()) {
             getView().findViewById(R.id.adjustable_fee_configuration_group).setVisibility(View.VISIBLE);
@@ -153,11 +172,11 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
 
     private void setApproximateTimeForFee(View view) {
         if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_left)) {
-            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(String.format("%s 10 minutes", getString(R.string.approximate_wait_time)));
+            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(R.string.approx_ten_minutes);
         } else if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_center)) {
-            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(String.format("%s 20-60 minutes", getString(R.string.approximate_wait_time)));
+            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(R.string.approx_hour_wait);
         } else if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_right)) {
-            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(String.format("%s 24 hours+", getString(R.string.approximate_wait_time)));
+            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(R.string.approx_day_wait);
         }
     }
 
@@ -213,25 +232,6 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
 
         button.setChecked(true);
         setApproximateTimeForFee(button);
-    }
-
-    @Override
-    protected int getContentViewLayoutId() {
-        return R.layout.fragment_confirm_pay_dialog;
-    }
-
-    public void showPrice() {
-        TextView primaryCurrencyView = getView().findViewById(R.id.primary_currency);
-        TextView secondaryCurrencyView = getView().findViewById(R.id.secondary_currency);
-
-        primaryCurrencyView.setVisibility(View.VISIBLE);
-        secondaryCurrencyView.setVisibility(View.VISIBLE);
-
-        String primaryAmount = getPaymentHolder().getPrimaryCurrency().toFormattedCurrency();
-        String secondaryAmount = getPaymentHolder().getSecondaryCurrency().toFormattedCurrency();
-
-        primaryCurrencyView.setText(primaryAmount);
-        secondaryCurrencyView.setText(secondaryAmount);
     }
 
     private void setPaymentBarCallbacks(PaymentBarCallbacks paymentBarCallbacks) {

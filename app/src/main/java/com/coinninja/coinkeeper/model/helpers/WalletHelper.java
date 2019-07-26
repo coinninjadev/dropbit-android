@@ -2,8 +2,6 @@ package com.coinninja.coinkeeper.model.helpers;
 
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
-import com.coinninja.coinkeeper.model.db.Address;
-import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummaryDao;
@@ -18,13 +16,11 @@ import com.coinninja.coinkeeper.model.db.Word;
 import com.coinninja.coinkeeper.model.db.WordDao;
 import com.coinninja.coinkeeper.model.db.enums.AccountStatus;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
-import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
-import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
@@ -108,36 +104,6 @@ public class WalletHelper {
         return walletQueryManager.getWallet();
     }
 
-    public boolean containsAddress(String address) {
-        return daoSessionManager.getAddressDao().queryBuilder().
-                where(AddressDao.Properties.Address.eq(address)).
-                list().size() > 0;
-    }
-
-    public List<Address> addAddresses(List<GsonAddress> addresses, int changeIndex) {
-        AddressDao addressDao = daoSessionManager.getAddressDao();
-        List<String> savedAddresses = new ArrayList<>();
-
-        for (GsonAddress address : addresses) {
-            String addr = address.getAddress();
-
-            if (savedAddresses.indexOf(addr) >= 0 || containsAddress(addr)) {
-                savedAddresses.add(addr);
-                continue;
-            }
-            savedAddresses.add(addr);
-
-            Address dbAddress = new Address();
-            dbAddress.setWalletId(getWallet().getId());
-            dbAddress.setAddress(addr);
-            dbAddress.setChangeIndex(changeIndex);
-            dbAddress.setIndex(address.getDerivationIndex());
-            addressDao.insert(dbAddress);
-        }
-
-        return addressDao.queryBuilder().
-                where(AddressDao.Properties.Address.in(savedAddresses)).list();
-    }
 
     public void linkStatsWithAddressBook() {
         daoSessionManager.runRaw("update TARGET_STAT set ADDRESS_ID = (select _id from ADDRESS where address = TARGET_STAT.ADDR)");
@@ -148,34 +114,6 @@ public class WalletHelper {
                 " where _id in (select _id from FUNDING_STAT where WALLET_ID is null and ADDRESS_ID is not null);");
     }
 
-    public TransactionSummary initTransactions(List<GsonAddress> addresses) {
-        TransactionSummaryDao dao = daoSessionManager.getTransactionSummaryDao();
-        List<String> txids = new ArrayList<>();
-        TransactionSummary transaction = null;
-
-        for (GsonAddress address : addresses) {
-            String txid = address.getTransactionId();
-
-            if (txids.indexOf(txid) > 0) {
-                continue;
-            }
-
-            transaction = dao.queryBuilder().where(TransactionSummaryDao.Properties.
-                    Txid.eq(txid)).limit(1).unique();
-
-            if (transaction == null) {
-                transaction = new TransactionSummary();
-                transaction.setWalletId(getWallet().getId());
-                transaction.setTxid(txid);
-                transaction.setMemPoolState(MemPoolState.PENDING);
-
-                dao.insert(transaction);
-                dao.refresh(transaction);
-
-            }
-        }
-        return transaction;
-    }
 
     public LazyList<TransactionsInvitesSummary> getTransactionsLazily() {
         return daoSessionManager.getTransactionsInvitesSummaryDao().queryBuilder()
@@ -207,7 +145,7 @@ public class WalletHelper {
         account.update();
     }
 
-    public void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
+    void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
         if (!hasAccount()) return;
 
         Account account = getUserAccount();

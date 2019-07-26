@@ -21,9 +21,9 @@ public class RecoveryWordsPresenter {
 
         StringBuilder positionCountTXT = new StringBuilder();
         positionCountTXT.append("word ");
-        positionCountTXT.append(Integer.toString(position + 1));
+        positionCountTXT.append(position + 1);
         positionCountTXT.append(" of ");
-        positionCountTXT.append(Integer.toString(NUM_WORDS));
+        positionCountTXT.append(NUM_WORDS);
 
         view.setPageCounterText(positionCountTXT.toString());
         view.setPagePosition(position);

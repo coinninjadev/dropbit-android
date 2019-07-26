@@ -21,7 +21,9 @@ class YearlyHighViewModel @Inject constructor(internal val yearlyHighSubscriptio
 
     fun toggleSubscription(currentSubscriptionStatus: Boolean) {
         isSubscribedToYearlyHigh.value?.let {
-            if (currentSubscriptionStatus == it) { return }
+            if (currentSubscriptionStatus != it) {
+                return
+            }
 
             if (currentSubscriptionStatus)
                 unsubscribe()

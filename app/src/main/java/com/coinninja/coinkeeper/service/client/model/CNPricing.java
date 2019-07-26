@@ -17,8 +17,7 @@ public class CNPricing {
     }
 
     public long getAverage() {
-        average = average.movePointRight(2);
-        return average.longValue();
+        return average.movePointRight(2).longValue();
     }
 
     public void setAverage(BigDecimal average) {

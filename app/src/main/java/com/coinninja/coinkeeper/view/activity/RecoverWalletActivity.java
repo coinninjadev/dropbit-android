@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
@@ -21,8 +23,6 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
 
 public class RecoverWalletActivity extends SecuredActivity {
 
@@ -87,7 +87,7 @@ public class RecoverWalletActivity extends SecuredActivity {
 
     private void startSaveRecoveryWordsService() {
         if (cnServiceConnection.isBounded()) {
-            CNWalletServicesInterface cnServices = cnServiceConnection.getCNWalletServicesInterface();
+            CNWalletServicesInterface cnServices = cnServiceConnection.getCnWalletServicesInterface();
             cnServices.saveSeedWords(recoveryWords);
         }
     }

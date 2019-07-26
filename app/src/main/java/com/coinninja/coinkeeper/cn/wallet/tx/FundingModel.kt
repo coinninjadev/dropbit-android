@@ -23,7 +23,7 @@ class FundingModel(internal val libBitcoinProvider: LibBitcoinProvider,
         get() {
             val list = mutableListOf<UnspentTransactionOutput>()
             targetStatHelper.spendableTargets.forEach { target ->
-                list.add(target.toUnspentTranasactionOutput())
+                list.add(target.toUnspentTransactionOutput())
             }
             return list
         }

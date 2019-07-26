@@ -82,7 +82,7 @@ internal constructor(internal val transactionNotificationMapper: TransactionNoti
         val encryption = messageEncryptor.encrypt(message, completedBroadcastDTO.publicKey)
 
         sendNotificationToCN(completedBroadcastDTO.transactionId,
-                completedBroadcastDTO.transactionData.paymentAddress,
+                completedBroadcastDTO.transactionData.paymentAddress ?: "",
                 completedBroadcastDTO.identity?.hashForType ?: "",
                 encryption)
     }
