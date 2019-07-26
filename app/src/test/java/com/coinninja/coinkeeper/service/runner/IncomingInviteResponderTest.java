@@ -7,7 +7,7 @@ import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
+import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
@@ -52,7 +52,7 @@ public class IncomingInviteResponderTest {
     @Mock
     private SignedCoinKeeperApiClient apiClient;
     @Mock
-    private TransactionHelper transactionHelper;
+    private InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
     @Mock
     private InternalNotificationHelper notificationHelper;
     @Mock
@@ -110,7 +110,7 @@ public class IncomingInviteResponderTest {
 
         incomingInviteResponder.run();
 
-        verify(transactionHelper).updateInviteAddressTransaction(sampleInviteServerID, unusedAddresses.get(1));
+        verify(inviteTransactionSummaryHelper).updateInviteAddressTransaction(sampleInviteServerID, unusedAddresses.get(1));
         verify(notificationHelper).addNotifications(expectedNotificationMessage);
     }
 
@@ -128,7 +128,7 @@ public class IncomingInviteResponderTest {
 
         incomingInviteResponder.run();
 
-        verify(transactionHelper, times(0)).updateInviteAddressTransaction(anyString(), anyString());
+        verify(inviteTransactionSummaryHelper, times(0)).updateInviteAddressTransaction(anyString(), anyString());
         verify(notificationHelper, times(0)).addNotifications(anyString());
         verify(cnLogger).logError(anyString(), anyString(), any());
     }

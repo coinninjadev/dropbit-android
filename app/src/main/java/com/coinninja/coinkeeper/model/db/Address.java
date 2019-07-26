@@ -1,8 +1,12 @@
 package com.coinninja.coinkeeper.model.db;
 
+import androidx.annotation.NonNull;
+
 import com.coinninja.bindings.DerivationPath;
 
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.Property;
@@ -11,12 +15,16 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
 
 import java.util.List;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
 
 @Entity(active = true)
 public class Address {
 
+    @NonNull
+    public static List<Address> addressesIn(AddressDao dao, List<String> items) {
+        return dao.queryBuilder().where(
+                AddressDao.Properties.Address.in(items))
+                .list();
+    }
 
     @Id(autoincrement = true)
     private Long id;
@@ -50,17 +58,21 @@ public class Address {
     @Property
     private Wallet wallet;
 
-    /** Used to resolve relations */
+    /**
+     * Used to resolve relations
+     */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
-    /** Used for active entity operations. */
+    /**
+     * Used for active entity operations.
+     */
     @Generated(hash = 1580986028)
     private transient AddressDao myDao;
 
     @Generated(hash = 393417580)
     public Address(Long id, String address, Long walletId, int index,
-            int changeIndex) {
+                   int changeIndex) {
         this.id = id;
         this.address = address;
         this.walletId = walletId;
@@ -73,7 +85,7 @@ public class Address {
     }
 
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
@@ -81,7 +93,7 @@ public class Address {
     }
 
     public String getAddress() {
-        return this.address;
+        return address;
     }
 
     public void setAddress(String address) {
@@ -89,7 +101,7 @@ public class Address {
     }
 
     public Long getWalletId() {
-        return this.walletId;
+        return walletId;
     }
 
     public void setWalletId(Long walletId) {
@@ -97,7 +109,7 @@ public class Address {
     }
 
     public int getIndex() {
-        return this.index;
+        return index;
     }
 
     public void setIndex(int index) {
@@ -105,7 +117,7 @@ public class Address {
     }
 
     public int getChangeIndex() {
-        return this.changeIndex;
+        return changeIndex;
     }
 
     public void setChangeIndex(int changeIndex) {

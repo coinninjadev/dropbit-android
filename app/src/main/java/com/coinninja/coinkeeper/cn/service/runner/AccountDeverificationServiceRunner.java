@@ -28,7 +28,7 @@ public class AccountDeverificationServiceRunner implements Runnable {
     private final NotificationUtil notificationUtil;
     private final Analytics analytics;
     private ServiceWorkUtil serviceWorkUtil;
-    String debugMessage = "Failed to get %s: %s";
+    String debugMessage = "Failed to addressForPubKey %s: %s";
 
 
     @Inject

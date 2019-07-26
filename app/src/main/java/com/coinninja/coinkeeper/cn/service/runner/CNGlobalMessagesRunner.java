@@ -93,7 +93,7 @@ public class CNGlobalMessagesRunner implements Runnable {
     }
 
     private void logError(Response response) {
-        String message = "|---- Unable to get CN Global Messages";
+        String message = "|---- Unable to addressForPubKey CN Global Messages";
         cnLogger.logError(TAG, message, response);
     }
 

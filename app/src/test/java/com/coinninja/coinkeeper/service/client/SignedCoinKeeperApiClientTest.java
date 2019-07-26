@@ -464,7 +464,7 @@ public class SignedCoinKeeperApiClientTest {
 
         ReceivedInvite invite = invites.get(0);
         assertThat(invite.getAddress(), equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"));
-        assertThat(invite.getCreated_at(), equalTo(1531921356000L));
+        assertThat(invite.getCreated_at_millis(), equalTo(1531921356000L));
         assertThat(invite.getId(), equalTo("a1bb1d88-bfc8-4085-8966-e0062278237c"));
         assertThat(invite.getSender(), equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"));
         assertThat(invite.getStatus(), equalTo("waiting-response"));

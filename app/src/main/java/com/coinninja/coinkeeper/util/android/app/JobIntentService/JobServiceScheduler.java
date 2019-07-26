@@ -10,19 +10,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-import javax.inject.Inject;
-
 import androidx.annotation.RequiresApi;
 import androidx.core.app.JobIntentService;
+
+import javax.inject.Inject;
 
 public class JobServiceScheduler {
 
     public static final int SYNC_NOW_SERVICE_JOB_ID = 104;
     public static final int SYNC_HOURLY_SERVICE_JOB_ID = 106;
     public static final int ENDPOINT_REGISTRATION_SERVICE_JOB_ID = 100;
-    public static final int DEVICE_REGISTRATION_SERVICE_JOB_ID = 101;
     public static final int GLOBAL_MESSAGING_SERVICE_JOB_ID = 102;
-    public static final int DROP_BIT_SERVICE_PATCHER_JOB_ID = 103;
     public static final int BROADCAST_NOTIFICATION_SERVICE = 107;
     public static final int CONTACT_LOOKUP_SERVICE = 108;
 
@@ -40,6 +38,10 @@ public class JobServiceScheduler {
     public void schedule(Context context, int jobId, Class<? extends Service> job,
                          int networkType, long repeatFrequency, boolean isPersistant) {
         schduleJob(context, jobId, job, networkType, repeatFrequency, isPersistant);
+    }
+
+    public void cancelJob(int jobId) {
+        jobScheduler.cancel(jobId);
     }
 
     @SuppressLint("ServiceCast")
@@ -66,9 +68,5 @@ public class JobServiceScheduler {
             }
         }
         return false;
-    }
-
-    public void cancelJob(int jobId) {
-        jobScheduler.cancel(jobId);
     }
 }

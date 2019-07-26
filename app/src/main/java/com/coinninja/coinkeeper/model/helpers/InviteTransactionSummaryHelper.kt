@@ -3,14 +3,13 @@ package com.coinninja.coinkeeper.model.helpers
 import app.dropbit.annotations.Mockable
 import com.coinninja.bindings.TransactionBroadcastResult
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
-import com.coinninja.coinkeeper.model.db.InviteTransactionSummaryDao
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.db.enums.BTCState
-import com.coinninja.coinkeeper.model.db.enums.BTCState.UNACKNOWLEDGED
 import com.coinninja.coinkeeper.model.db.enums.Type
 import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
 import com.coinninja.coinkeeper.model.query.InviteSummaryQueryManager
+import com.coinninja.coinkeeper.service.client.model.ReceivedInvite
 import com.coinninja.coinkeeper.service.client.model.SentInvite
 import com.coinninja.coinkeeper.util.DateUtil
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
@@ -20,6 +19,7 @@ import javax.inject.Inject
 @Mockable
 class InviteTransactionSummaryHelper @Inject internal
 constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
+            internal val transactionInviteSummaryHelper: TransactionInviteSummaryHelper,
             internal val daoSessionManager: DaoSessionManager,
             internal val transactionHelper: TransactionHelper,
             internal val dropbitAccountHelper: DropbitAccountHelper,
@@ -28,18 +28,12 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
             internal val dateUtil: DateUtil
 ) {
 
-    val allUnacknowledgedInvitations: List<InviteTransactionSummary>
-        get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder().where(InviteTransactionSummaryDao.Properties.BtcState.eq(UNACKNOWLEDGED.id)).list()
+    val allUnacknowledgedInvitations: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.allUnacknowledgedInvitations
+    val unfulfilledSentInvites: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.unfulfilledSentInvites
 
-    val unfulfilledSentInvites: List<InviteTransactionSummary>
-        get() {
-            val inviteTransactionSummaryQueryBuilder = daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
-            return inviteTransactionSummaryQueryBuilder
-                    .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.id),
-                            InviteTransactionSummaryDao.Properties.Type.eq(Type.SENT.id))
-                    .list()
-
-        }
+    fun getInviteSummaryByCnId(id: String): InviteTransactionSummary? {
+        return inviteSummaryQueryManager.getInviteSummaryByCnId(id)
+    }
 
     internal fun getOrCreateInviteSummaryWithServerId(cnId: String): TransactionsInvitesSummary {
         val inviteTransactionSummary = inviteSummaryQueryManager.getInviteSummaryByCnId(cnId)
@@ -47,11 +41,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         return inviteTransactionSummary.transactionsInvitesSummary
     }
 
-    internal fun getInviteSummaryWithServerId(cnId: String): TransactionsInvitesSummary? {
-        val inviteTransactionSummary = inviteSummaryQueryManager.getInviteSummaryByCnId(cnId)
-                ?: return null
-        return inviteTransactionSummary.transactionsInvitesSummary
-    }
+    val getInvitesWithTxID: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.invitesWithTxid
 
     private fun createInviteTransactionSummaryWithParent(cnId: String): TransactionsInvitesSummary {
         val transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary()
@@ -93,78 +83,110 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         invite.valueSatoshis = pendingInviteDTO.inviteAmount
         invite.valueFeesSatoshis = pendingInviteDTO.inviteFee
         invite.wallet = walletHelper.wallet
-        invite.btcState = UNACKNOWLEDGED
+        invite.btcState = BTCState.UNACKNOWLEDGED
         invite.type = Type.SENT
         invite.update()
 
         return invite
     }
 
-    fun acknowledgeInviteTransactionSummary(completedInviteDTO: CompletedInviteDTO): InviteTransactionSummary? {
-        inviteSummaryQueryManager.getInviteSummaryByCnId(completedInviteDTO.requestId)?.let { invite ->
-            val transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary()
-            transactionsInvitesSummary.inviteTime = completedInviteDTO.invitedContact!!.createdAt
-            daoSessionManager.insert(transactionsInvitesSummary)
-
-            transactionsInvitesSummary.inviteSummaryID = invite.id
-            invite.apply {
-                this.transactionsInvitesSummary = transactionsInvitesSummary
-                serverId = completedInviteDTO.cnId
-                sentDate = completedInviteDTO.invitedContact!!.createdAt
-                btcState = BTCState.from(completedInviteDTO.invitedContact!!.status)
-                update()
-            }
-            transactionsInvitesSummary.update()
-            return invite
-        }
-        return null
+    private fun acknowledgeSentInvite(invite: InviteTransactionSummary, cnId: String) {
+        invite.serverId = cnId
+        invite.sentDate = dateUtil.getCurrentTimeInMillis()
+        invite.btcState = BTCState.UNFULFILLED
+        invite.update()
+        transactionInviteSummaryHelper.getOrCreateParentSettlementFor(invite)
     }
+
+    fun acknowledgeInviteTransactionSummary(completedInviteDTO: CompletedInviteDTO): InviteTransactionSummary? {
+        val serverId = completedInviteDTO.cnId ?: ""
+        if (serverId.isEmpty()) return null
+
+        val invite = inviteSummaryQueryManager.getInviteSummaryByCnId(completedInviteDTO.requestId)
+        invite?.let {
+            acknowledgeSentInvite(it, serverId)
+        }
+        return invite
+    }
+
 
     fun acknowledgeInviteTransactionSummary(sentInvite: SentInvite) {
-        val invite = inviteSummaryQueryManager.getInviteSummaryByCnId(sentInvite.metadata.request_id)!!
-        if (invite.btcState != UNACKNOWLEDGED) {
-            return
-        }
-
-        val transactionsInvitesSummary = daoSessionManager.newTransactionInviteSummary()
-        transactionsInvitesSummary.apply {
-            inviteTime = sentInvite.created_at
-            toUser = invite.toUser
-            fromUser = invite.fromUser
-        }
-        daoSessionManager.insert(transactionsInvitesSummary)
-
-        invite.apply {
-            this.transactionsInvitesSummary = transactionsInvitesSummary
-            serverId = sentInvite.id
-            sentDate = sentInvite.created_at
-            btcState = BTCState.from(sentInvite.status)
-            update()
+        val invite = inviteSummaryQueryManager.getInviteSummaryByCnId(sentInvite.metadata.request_id)
+        invite?.let {
+            acknowledgeSentInvite(it, sentInvite.id)
         }
     }
 
-    fun updateFulfilledInvite(transactionsInvitesSummary: TransactionsInvitesSummary,
-                              transactionBroadcastResult: TransactionBroadcastResult) {
+    private fun updateInviteAsFulfilled(txid: String, invite: InviteTransactionSummary) {
+        invite.btcTransactionId = txid
+        invite.btcState = BTCState.FULFILLED
+        invite.update()
+        transactionInviteSummaryHelper.populateWith(invite.transactionsInvitesSummary, invite)
+    }
+
+    fun updateFulfilledInvite(invite: InviteTransactionSummary, transactionBroadcastResult: TransactionBroadcastResult) {
         val txid = transactionBroadcastResult.txId
-        val inviteTransactionSummary = transactionsInvitesSummary.inviteTransactionSummary
-        inviteTransactionSummary.apply {
-            btcTransactionId = txid
-            btcState = BTCState.FULFILLED
-            update()
-        }
-        transactionsInvitesSummary.apply {
-            inviteTxID = txid
-            transactionTxID = txid
-            inviteTime = 0L
-            btcTxTime = dateUtil.getCurrentTimeInMillis()
-            update()
-        }
-
-        val transactionSummary = transactionHelper.createInitialTransaction(txid)
-        transactionsInvitesSummary.transactionSummary = transactionSummary
+        updateInviteAsFulfilled(txid, invite)
     }
 
-    fun getInviteSummaryById(id: String): InviteTransactionSummary? {
-        return inviteSummaryQueryManager.getInviteSummaryByCnId(id)
+    fun updateFulfilledInviteByCnId(cnId: String, txid: String) {
+        getInviteSummaryByCnId(cnId)?.let {
+            updateInviteAsFulfilled(txid, it)
+        }
+    }
+
+    fun cancelInvite(invite: InviteTransactionSummary) {
+        invite.btcState = BTCState.CANCELED
+        invite.btcTransactionId = ""
+        invite.update()
+    }
+
+    fun cancelInviteByCnId(cnId: String) {
+        getInviteSummaryByCnId(cnId)?.let {
+            cancelInvite(it)
+        }
+    }
+
+    fun cancelPendingSentInvites() {
+        unfulfilledSentInvites.forEach {
+            cancelInvite(it)
+        }
+    }
+
+    fun saveReceivedInviteTransaction(receivedInvite: ReceivedInvite) =
+            inviteSummaryQueryManager.getOrCreate(receivedInvite.id).also {
+                it.btcState = BTCState.from(receivedInvite.status)
+                it.historicValue = receivedInvite.metadata.amount.usd
+                it.toUser = userIdentityHelper.updateFrom(receivedInvite.metadata.receiver)
+                it.fromUser = userIdentityHelper.updateFrom(receivedInvite.metadata.sender)
+                it.sentDate = receivedInvite.created_at_millis
+                it.valueSatoshis = receivedInvite.metadata.amount.btc
+                it.valueFeesSatoshis = 0L
+                it.wallet = walletHelper.wallet
+                it.address = receivedInvite.address
+                it.btcTransactionId = receivedInvite.txid
+                it.type = Type.RECEIVED
+                it.update()
+                transactionInviteSummaryHelper.getOrCreateParentSettlementFor(it)
+            }
+
+    fun updateInviteAddressTransaction(cnId: String, address: String) {
+        inviteSummaryQueryManager.getInviteSummaryByCnId(cnId)?.let {
+            it.address = address
+            it.update()
+        }
+
+    }
+
+    fun updateInviteAddressTransaction(sentInvite: SentInvite): InviteTransactionSummary? {
+        val invite: InviteTransactionSummary? = inviteSummaryQueryManager.getInviteSummaryByCnId(sentInvite.id)
+        invite?.let {
+            it.btcState = BTCState.from(sentInvite.status)
+            it.pubkey = sentInvite.addressPubKey
+            it.address = sentInvite.address
+            transactionInviteSummaryHelper.updateSentTimeFrom(it)
+            it.update()
+        }
+        return invite
     }
 }

@@ -1,6 +1,9 @@
 package com.coinninja.coinkeeper.model.helpers;
 
+import androidx.annotation.NonNull;
+
 import com.coinninja.coinkeeper.model.db.AccountDao;
+import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
 import com.coinninja.coinkeeper.model.db.BroadcastBtcInviteDao;
 import com.coinninja.coinkeeper.model.db.DaoMaster;
@@ -28,6 +31,7 @@ import com.coinninja.coinkeeper.model.db.UserIdentityDao;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.WalletDao;
 import com.coinninja.coinkeeper.model.db.WordDao;
+import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.query.QueryBuilder;
@@ -190,7 +194,7 @@ public class DaoSessionManager {
     }
 
     public long insert(InviteTransactionSummary inviteTransactionSummary) {
-        long id =  session.getInviteTransactionSummaryDao().insert(inviteTransactionSummary);
+        long id = session.getInviteTransactionSummaryDao().insert(inviteTransactionSummary);
         inviteTransactionSummary.__setDaoSession(session);
         inviteTransactionSummary.setId(id);
         return id;
@@ -248,6 +252,24 @@ public class DaoSessionManager {
         userIdentity.setId(id);
         userIdentity.__setDaoSession(session);
         return id;
+    }
+
+    public void clearCacheFor(TransactionSummary transaction) {
+        //Clear cache of to-many relations
+        transaction.resetFunder();
+        transaction.resetReceiver();
+    }
+
+    @NonNull
+    public Address newAddressFrom(GsonAddress gsonAddress, Wallet wallet, int changeIndex) {
+        Address address = new Address();
+        address.setWallet(wallet);
+        address.setAddress(gsonAddress.getAddress());
+        address.setChangeIndex(gsonAddress.getDerivationIndex());
+        address.setChangeIndex(changeIndex);
+        address.setIndex(gsonAddress.getDerivationIndex());
+        session.getAddressDao().insert(address);
+        return address;
     }
 
     private void dropAllTables() {

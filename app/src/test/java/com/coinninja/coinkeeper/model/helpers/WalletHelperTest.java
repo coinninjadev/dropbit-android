@@ -4,22 +4,18 @@ import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
 import com.coinninja.coinkeeper.model.db.Address;
-import com.coinninja.coinkeeper.model.db.DaoSession;
 import com.coinninja.coinkeeper.model.db.FundingStat;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.db.TargetStat;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
-import com.coinninja.coinkeeper.model.db.TransactionSummaryDao;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummaryDao;
 import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.enums.BTCState;
-import com.coinninja.coinkeeper.model.db.enums.MemPoolState;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.query.WalletQueryManager;
 import com.coinninja.coinkeeper.service.client.CNUserAccount;
 import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
-import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
@@ -29,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -37,7 +32,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
@@ -406,34 +400,6 @@ public class WalletHelperTest {
     }
 
     @Test
-    public void when_a_new_transaction_is_initialized_set_its_mempool_state_to_pending() {
-        ArgumentCaptor<TransactionSummary> argumentCaptor = ArgumentCaptor.forClass(TransactionSummary.class);
-
-        List<GsonAddress> addresses = sampleGsonAddress();
-        TransactionSummaryDao dao = setupTransactionSummaryDao(daoSessionManager.getDaoSession(), null);
-
-        walletHelper.initTransactions(addresses);
-        verify(dao).insert(argumentCaptor.capture());
-
-
-        TransactionSummary summary = argumentCaptor.getValue();
-        assertNotNull(summary);
-        assertThat(summary.getMemPoolState(), equalTo(MemPoolState.PENDING));
-    }
-
-    @Test
-    public void do_not_create_transaction_when_it_already_exits() {
-        TransactionSummary transaction = mock(TransactionSummary.class);
-        List<GsonAddress> addresses = sampleGsonAddress();
-        setupTransactionSummaryDao(daoSessionManager.getDaoSession(), transaction);
-
-        walletHelper.initTransactions(addresses);
-
-        verify(daoSessionManager.getTransactionSummaryDao(),
-                times(0)).insert(transaction);
-    }
-
-    @Test
     public void do_not_use_TargetStat_who_state_is_canceled() {
         List<TargetStat> targetStats = buildSampleTargetStats();
         List<FundingStat> fundingStats = buildSampleFundingStats();
@@ -650,28 +616,5 @@ public class WalletHelperTest {
         return inviteTransactionSummaries;
     }
 
-    private TransactionSummaryDao setupTransactionSummaryDao(DaoSession daoSession, TransactionSummary sampleTransaction) {
-        TransactionSummaryDao dao = mock(TransactionSummaryDao.class);
-
-        QueryBuilder query = mock(QueryBuilder.class);
-
-
-        when(daoSessionManager.getTransactionSummaryDao()).thenReturn(dao);
-        when(dao.queryBuilder()).thenReturn(query);
-        when(query.where(any())).thenReturn(query);
-        when(query.limit(1)).thenReturn(query);
-        when(query.unique()).thenReturn(sampleTransaction);
-
-        return dao;
-    }
-
-    private List<GsonAddress> sampleGsonAddress() {
-        GsonAddress gsonAddress = mock(GsonAddress.class);
-
-
-        List<GsonAddress> list = new ArrayList<>();
-        list.add(gsonAddress);
-        return list;
-    }
 
 }
