@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
@@ -30,9 +33,6 @@ import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import static com.coinninja.coinkeeper.util.analytics.Analytics.EVENT_TRANSACTION_RETRY;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
@@ -134,7 +134,7 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     @Override
     protected void onStop() {
         super.onStop();
-        syncWalletManager.schedule30SecondSync();
+        syncWalletManager.schedule60SecondSync();
     }
 
     @Override
@@ -180,7 +180,9 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     }
 
     private void showTwitterShareCardIfNecessary() {
-        if (!userPreferences.getShouldShareOnTwitter()) { return; }
+        if (!userPreferences.getShouldShareOnTwitter()) {
+            return;
+        }
         shareTransactionDialog.show(getSupportFragmentManager(), ShareTransactionDialog.class.getName());
     }
 

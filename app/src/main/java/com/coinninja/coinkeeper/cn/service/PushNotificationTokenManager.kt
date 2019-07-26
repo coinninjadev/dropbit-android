@@ -13,13 +13,15 @@ class PushNotificationTokenManager @Inject internal constructor(
         internal val fireBaseInstanceId: FirebaseInstanceId,
         internal val preferencesUtil: PreferencesUtil) {
 
-    val token: String?
-        get() = preferencesUtil.getString(PUSH_NOTIFICATION_DEVICE_TOKEN, "")
+    var pushTokenVerifiedObserver: PushTokenVerifiedObserver? = null
+
+    val token: String get() = preferencesUtil.getString(PUSH_NOTIFICATION_DEVICE_TOKEN, "")
 
     val onCompleteListener: (Task<InstanceIdResult>) -> Unit = { task ->
         if (task.isSuccessful) {
             task.result?.let {
                 saveToken(it.token)
+                pushTokenVerifiedObserver?.onTokenAcquired(it.token)
             }
         }
     }
@@ -28,11 +30,16 @@ class PushNotificationTokenManager @Inject internal constructor(
         preferencesUtil.savePreference(PUSH_NOTIFICATION_DEVICE_TOKEN, token)
     }
 
-    fun retrieveTokenIfNecessary() {
-        if (token.isNullOrEmpty()) {
+    fun retrieveTokenIfNecessary(observer: PushTokenVerifiedObserver? = null) {
+        pushTokenVerifiedObserver = observer
+        val token = this.token
+        if (token.isEmpty()) {
             fireBaseInstanceId.instanceId.addOnCompleteListener(onCompleteListener)
+        } else {
+            pushTokenVerifiedObserver?.onTokenAcquired(token)
         }
     }
+
 
     companion object {
         internal val PUSH_NOTIFICATION_DEVICE_TOKEN = "push_notification_device_token"

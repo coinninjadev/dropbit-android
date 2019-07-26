@@ -26,13 +26,14 @@ import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController
 import com.coinninja.coinkeeper.util.DropbitIntents
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.matchers.IntentFilterMatchers
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertNull
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -45,24 +46,24 @@ class TwitterIdentityFragmentTest {
 
     lateinit var scenario: FragmentScenario<TwitterIdentityFragment>
 
-    var application: TestCoinKeeperApplication? = null
-
-    @Before
-    fun setUp() {
-        application = ApplicationProvider.getApplicationContext()
-        application!!.dropbitAccountHelper = mock(DropbitAccountHelper::class.java)
-        application!!.twitterVerificationController = mock(TwitterVerificationController::class.java)
+    var application: TestCoinKeeperApplication = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>().also {
+        it.dropbitAccountHelper = mock(DropbitAccountHelper::class.java)
+        it.twitterVerificationController = mock(TwitterVerificationController::class.java)
+        it.analytics = mock(Analytics::class.java)
     }
 
     @After
     fun tearDown() {
         scenario.moveToState(Lifecycle.State.DESTROYED)
-        application = null
     }
 
     fun start() {
         scenario = FragmentScenario.launch(TwitterIdentityFragment::class.java, null,
                 androidx.appcompat.R.style.Base_Theme_AppCompat, null)
+        scenario.onFragment { fragment ->
+            fragment.analytics = application.analytics
+            fragment.myTwitterProfile = mock()
+        }
         scenario.moveToState(Lifecycle.State.RESUMED)
     }
 
@@ -80,7 +81,7 @@ class TwitterIdentityFragmentTest {
 
     @Test
     fun `configures for phone verification when user is verified but phone is not`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(false)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(false)
         start()
 
         scenario.onFragment { fragment ->
@@ -98,11 +99,11 @@ class TwitterIdentityFragmentTest {
 
     @Test
     fun `shows verified when verified`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(identity.identity).thenReturn("JonnyNumber5")
         whenever(identity.type).thenReturn(IdentityType.TWITTER)
-        whenever(application!!.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
+        whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
 
         scenario.onFragment { fragment ->
@@ -128,18 +129,18 @@ class TwitterIdentityFragmentTest {
 
             scenario.moveToState(Lifecycle.State.DESTROYED)
 
-            verify(application!!.localBroadCastUtil).unregisterReceiver(receiver)
-            verify(application!!.twitterVerificationController).onStopped()
+            verify(application.localBroadCastUtil).unregisterReceiver(receiver)
+            verify(application.twitterVerificationController).onStopped()
         }
     }
 
     @Test
     fun `prompts to deVerify`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(identity.identity).thenReturn("JonnyNumber5")
         whenever(identity.type).thenReturn(IdentityType.TWITTER)
-        whenever(application!!.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
+        whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
 
         scenario.onFragment { fragment ->
@@ -148,19 +149,19 @@ class TwitterIdentityFragmentTest {
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
         assertThat(dialog.findViewById<TextView>(R.id.warning)!!.text.toString(),
-                equalTo(application!!.getString(R.string.deverification_twitter_removed_warning_message)))
+                equalTo(application.getString(R.string.deverification_twitter_removed_warning_message)))
         assertThat(dialog.findViewById<TextView>(R.id.message)!!.text.toString(),
-                equalTo(application!!.getString(R.string.deverification_twitter_removed_message)))
+                equalTo(application.getString(R.string.deverification_twitter_removed_message)))
 
     }
 
     @Test
     fun `accepting idea of deVerifing prompts to confirm`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(identity.identity).thenReturn("JonnyNumber5")
         whenever(identity.type).thenReturn(IdentityType.TWITTER)
-        whenever(application!!.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
+        whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
         scenario.onFragment { fragment ->
             clickOn(withId(fragment.view, R.id.remove_verification))
@@ -172,16 +173,16 @@ class TwitterIdentityFragmentTest {
         val confirmation = ShadowDialog.getLatestDialog() as AlertDialog
 
         assertThat(confirmation.findViewById<TextView>(android.R.id.message)!!.text.toString(),
-                equalTo(application!!.getString(R.string.deverification_twitter_removed_message_follow_up)))
+                equalTo(application.getString(R.string.deverification_twitter_removed_message_follow_up)))
     }
 
     @Test
     fun `accepting follow up performs deVerification`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(identity.identity).thenReturn("JonnyNumber5")
         whenever(identity.type).thenReturn(IdentityType.TWITTER)
-        whenever(application!!.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
+        whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
         scenario.onFragment { fragment ->
             clickOn(withId(fragment.view, R.id.remove_verification))
@@ -198,19 +199,20 @@ class TwitterIdentityFragmentTest {
             assertNull(fragment.activity?.supportFragmentManager?.findFragmentByTag("CONFIRM_DEVERIFICATION_CONFIRMATION_NOTICE"))
         }
 
-        verify(application!!.serviceWorkUtil).deVerifyTwitter()
+        verify(application.serviceWorkUtil).deVerifyTwitter()
+
         scenario.onFragment { fragment ->
-            verify(application!!.localBroadCastUtil).registerReceiver(fragment.receiver, fragment.intentFilter)
+            verify(application.localBroadCastUtil).registerReceiver(fragment.receiver, fragment.intentFilter)
         }
     }
 
     @Test
     fun `dismissing follow up dismisses dialog`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(identity.handle).thenReturn("JohnnyNumber5")
         whenever(identity.type).thenReturn(IdentityType.TWITTER)
-        whenever(application!!.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
+        whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
         scenario.onFragment { fragment ->
             clickOn(withId(fragment.view, R.id.remove_verification))
@@ -231,16 +233,15 @@ class TwitterIdentityFragmentTest {
 
     @Test
     fun `observing twitter deVerification updates ui`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(identity.handle).thenReturn("JohnnyNumber5")
         whenever(identity.type).thenReturn(IdentityType.TWITTER)
-        whenever(application!!.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
+        whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
 
         scenario.onFragment { fragment ->
             fragment.receiver.onReceive(fragment.context, Intent(DropbitIntents.ACTION_DEVERIFY_TWITTER_COMPLETED))
-
 
             val verificationButton = fragment.getVerificationButton()!!
             assertThat(verificationButton.text.toString(), equalTo(fragment.getString(R.string.verify_twitter_account)))
@@ -251,29 +252,32 @@ class TwitterIdentityFragmentTest {
 
             val removeVerificationView = fragment.getRemoveVerificationView()!!
             assertThat(removeVerificationView.visibility, equalTo(View.GONE))
-        }
 
+
+            verify(application.analytics).setUserProperty(Analytics.PROPERTY_TWITTER_VERIFIED, false)
+            verify(fragment.myTwitterProfile).clear()
+        }
     }
 
     @Test
     fun `failing to deVerify shows toast`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(identity.handle).thenReturn("JohnnyNumber5")
         whenever(identity.type).thenReturn(IdentityType.TWITTER)
-        whenever(application!!.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
+        whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
 
         scenario.onFragment { fragment ->
             fragment.receiver.onReceive(fragment.context, Intent(DropbitIntents.ACTION_DEVERIFY_TWITTER_FAILED))
         }
 
-        assertThat(ShadowToast.getTextOfLatestToast(), equalTo(getString(application!!, R.string.deverification_twitter_failed)))
+        assertThat(ShadowToast.getTextOfLatestToast(), equalTo(getString(application, R.string.deverification_twitter_failed)))
     }
 
     @Test
     fun `verification requests authentication with twitter`() {
-        whenever(application!!.dropbitAccountHelper.isTwitterVerified).thenReturn(false)
+        whenever(application.dropbitAccountHelper.isTwitterVerified).thenReturn(false)
         start()
         val twitterUser = TwitterUser()
         twitterUser.screenName = "JohnnyNumber5"
@@ -281,7 +285,7 @@ class TwitterIdentityFragmentTest {
         val resultData = Intent()
         resultData.putExtra(TwitterIntents.TWITTER_USER, twitterUser)
         val result = Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
-        Intents.intending(toPackage(application!!.packageName)).respondWith(result)
+        Intents.intending(toPackage(application.packageName)).respondWith(result)
 
         scenario.onFragment { fragment ->
             clickOn(withId(fragment.view, R.id.verify_button))

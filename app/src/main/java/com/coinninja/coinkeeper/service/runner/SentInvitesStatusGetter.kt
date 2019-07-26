@@ -10,7 +10,6 @@ import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.Type
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.SentInvite
 import com.coinninja.coinkeeper.util.CNLogger
@@ -22,7 +21,6 @@ class SentInvitesStatusGetter @Inject
 internal constructor(@ApplicationContext internal val context: Context,
                      internal val internalNotificationHelper: InternalNotificationHelper,
                      internal val client: SignedCoinKeeperApiClient,
-                     internal val transactionHelper: TransactionHelper,
                      internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
                      internal val cnLogger: CNLogger
 ) : Runnable {
@@ -47,14 +45,14 @@ internal constructor(@ApplicationContext internal val context: Context,
         for (sentInvite in sentInvites) {
             if (BTCState.from(sentInvite.status) == BTCState.UNFULFILLED) {
                 acknowledgeLocalInvitationIfNecessary(sentInvite)
-                transactionHelper.updateInviteAddressTransaction(sentInvite)
+                inviteTransactionSummaryHelper.updateInviteAddressTransaction(sentInvite)
                 continue
             }
 
-            val oldInvite = transactionHelper.getInviteTransactionSummary(sentInvite)
+            val oldInvite = inviteTransactionSummaryHelper.getInviteSummaryByCnId(sentInvite.id)
             oldInvite?.let {
                 val oldInviteBtcState = oldInvite.btcState
-                val newInvite = transactionHelper.updateInviteAddressTransaction(sentInvite)
+                val newInvite = inviteTransactionSummaryHelper.updateInviteAddressTransaction(sentInvite)
                 newInvite?.let {
                     if (hasStateChanged(oldInviteBtcState, newInvite)) {
                         notifyUser(newInvite)
@@ -88,7 +86,7 @@ internal constructor(@ApplicationContext internal val context: Context,
         val noLocalMatchInvites = mutableListOf<SentInvite>()
 
         for (sentInvite in sentInvites) {
-            if (inviteTransactionSummaryHelper.getInviteSummaryById(sentInvite.id) == null && BTCState.from(sentInvite.status) != BTCState.CANCELED) {
+            if (inviteTransactionSummaryHelper.getInviteSummaryByCnId(sentInvite.id) == null && BTCState.from(sentInvite.status) != BTCState.CANCELED) {
                 noLocalMatchInvites.add(sentInvite)
             }
         }
@@ -97,7 +95,7 @@ internal constructor(@ApplicationContext internal val context: Context,
     }
 
     private fun acknowledgeLocalInvitationIfNecessary(sentInvite: SentInvite) {
-        inviteTransactionSummaryHelper.getInviteSummaryById(sentInvite.metadata.request_id)?.let {
+        inviteTransactionSummaryHelper.getInviteSummaryByCnId(sentInvite.metadata.request_id)?.let {
             inviteTransactionSummaryHelper.acknowledgeInviteTransactionSummary(sentInvite)
         }
     }

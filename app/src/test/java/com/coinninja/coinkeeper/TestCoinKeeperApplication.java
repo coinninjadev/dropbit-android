@@ -52,6 +52,9 @@ import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryDataAdapter;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.FeesManager;
@@ -100,6 +103,9 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
 
     public static AndroidInjector<DaggerApplication> injector;
 
+    public DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
+    public TransactionHistoryDataAdapter transactionHistoryDataAdapter;
+    public SyncManagerViewNotifier syncManagerViewNotifier;
     public YearlyHighViewModel yearlyHighViewModel;
     public PreferencesUtil preferencesUtil;
     public QRScanManager qrScanManager = mock(QRScanManager.class);
@@ -307,6 +313,9 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         deleteWalletPresenter = null;
         dustProtectionPreference = null;
         yearlyHighViewModel = null;
+        defaultCurrencyChangeViewNotifier =null;
+        transactionHistoryDataAdapter = null;
+        syncManagerViewNotifier = null;
     }
 }
 

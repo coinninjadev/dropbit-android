@@ -1,7 +1,8 @@
 package com.coinninja.coinkeeper.twitter
 
-import app.dropbit.twitter.Twitter
 import app.dropbit.twitter.model.TwitterUser
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertNull
@@ -9,55 +10,56 @@ import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
 
 class MyTwitterProfileTest {
 
-    @Test
-    fun `does not load twitter identity when not verified`() {
-        val twitter = mock(Twitter::class.java)
-        val myTwitterProfile = MyTwitterProfile(twitter)
-        whenever(twitter.hasTwitterEnabled).thenReturn(false)
+    private fun createProfile(): MyTwitterProfile {
+        val profile = MyTwitterProfile(mock(), mock())
+        whenever(profile.twitter.hasTwitterEnabled).thenReturn(true)
+        return profile
+    }
 
+    @Test
+    fun does_not_load_twitter_identity_when_not_verified() {
         runBlocking {
-            val user = myTwitterProfile.loadMyProfile()
+            val profile = createProfile()
+            whenever(profile.dropbitAccountHelper.isTwitterVerified).thenReturn(false)
+
+            val user = profile.loadMyProfile()
             assertNull(user)
-        }
 
-        verify(twitter, times(0)).me()
+            verify(profile.twitter, times(0)).me()
+        }
     }
 
     @Test
-    fun `loads profile when one is not cached`() {
-        val twitter = mock(Twitter::class.java)
-        val myTwitterProfile = MyTwitterProfile(twitter)
-        val twitterUser = mock(TwitterUser::class.java)
-        whenever(twitter.hasTwitterEnabled).thenReturn(true)
-        whenever(twitter.me()).thenReturn(twitterUser)
-        myTwitterProfile.myUser = null
-
+    fun loads_profile_when_one_is_not_cached() {
         runBlocking {
-            val user = myTwitterProfile.loadMyProfile()
-            assertThat(user, equalTo(twitterUser))
-        }
+            val twitterUser = mock<TwitterUser>()
+            val profile = createProfile()
+            whenever(profile.twitter.me()).thenReturn(twitterUser)
+            whenever(profile.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+            profile.myUser = null
 
-        verify(twitter).me()
+            val user = profile.loadMyProfile()
+            assertThat(user, equalTo(twitterUser))
+
+            verify(profile.twitter).me()
+        }
     }
 
     @Test
-    fun `uses cached profile when already loaded`() {
-        val twitter = mock(Twitter::class.java)
-        val myTwitterProfile = MyTwitterProfile(twitter)
-        val twitterUser = mock(TwitterUser::class.java)
-        whenever(twitter.hasTwitterEnabled).thenReturn(true)
-        myTwitterProfile.myUser = twitterUser
-
+    fun uses_cached_profile_when_already_loaded() {
         runBlocking {
-            val user = myTwitterProfile.loadMyProfile()
-            assertThat(user, equalTo(twitterUser))
-        }
+            val profile = createProfile()
+            val twitterUser = mock<TwitterUser>()
+            whenever(profile.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
+            profile.myUser = twitterUser
 
-        verify(twitter, times(0)).me()
+            val user = profile.loadMyProfile()
+            assertThat(user, equalTo(twitterUser))
+
+            verify(profile.twitter, times(0)).me()
+        }
     }
 }

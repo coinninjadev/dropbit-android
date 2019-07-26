@@ -224,12 +224,12 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     private void handlePaste(EditText focusedChild) {
         int i = parent.indexOfChild(focusedChild);
         removeWatcher(focusedChild);
-        char[] text = focusedChild.getText().toString().toCharArray();
+        String text = focusedChild.getText().toString();
         View view;
-        for (int j = 0; j < text.length; i++, j++) {
+        for (int j = 0; j < text.length(); i++, j++) {
             view = parent.getChildAt(i);
             if (null != view) {
-                ((EditText) view).setText(String.valueOf(text[j]));
+                ((EditText) view).setText(String.valueOf(text.charAt(i)));
             }
         }
 
@@ -242,6 +242,8 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
         view.setOnFocusChangeListener(null);
         view.requestFocusFromTouch();
         view.setOnFocusChangeListener(this);
+
+        if (text.length() >= 6) { serviceWorkUtil.validatePhoneNumberConfirmationCode(text); }
     }
 
     private void onResendClick() {
@@ -346,6 +348,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     }
 
     private void removeWatcher(EditText view) {
+        if (watcher == null) { return; }
         view.removeTextChangedListener(watcher);
         view.setOnKeyListener(null);
     }

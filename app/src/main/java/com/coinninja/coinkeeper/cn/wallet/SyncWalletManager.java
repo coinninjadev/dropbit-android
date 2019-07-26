@@ -31,7 +31,7 @@ public class SyncWalletManager implements ServiceConnection {
     private Handler timeoutHandler;
     Runnable timeOutRunnable = () -> {
         syncNow();
-        schedule30SecondSync();
+        schedule60SecondSync();
     };
 
     @Inject
@@ -54,7 +54,7 @@ public class SyncWalletManager implements ServiceConnection {
         binder = null;
     }
 
-    public void schedule30SecondSync() {
+    public void schedule60SecondSync() {
         if (!cnWalletManager.hasWallet()) return;
         if (null == binder) {
             context.bindService(new Intent(context, CNWalletService.class), this, Context.BIND_AUTO_CREATE);

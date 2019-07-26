@@ -10,15 +10,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class TwitterUserViewModel  : ViewModel {
+class TwitterUserViewModel @Inject constructor(internal var twitter: Twitter) : ViewModel() {
 
-    private var twitter: Twitter
     var followingTwitterUsers: MutableLiveData<List<TwitterUser>>? = null
     var searchTwitterUsers: MutableLiveData<List<TwitterUser>>? = null
 
-    @Inject
-    constructor(twitter: Twitter) {
-        this.twitter = twitter
+    init {
         this.followingTwitterUsers = MutableLiveData()
         this.searchTwitterUsers = MutableLiveData()
     }

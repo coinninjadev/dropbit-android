@@ -109,10 +109,9 @@ public class PrivateAccessor {
             } catch (Exception ex) {
                 /* in case of an exception, we will throw a new
                  * NoSuchFieldException object */
-                ;
             }
         }
-        throw new NoSuchFieldException("Could get value for field " +
+        throw new NoSuchFieldException("Could addressForPubKey value for field " +
                 object.getClass().getName() + "." + name);
     }
 
@@ -142,11 +141,10 @@ public class PrivateAccessor {
             } catch (Exception ex) {
                 /* in case of an exception, we will throw a new
                  * NoSuchFieldException object */
-                ;
             }
             base = base.getSuperclass();
         }
-        throw new NoSuchFieldException("Could not get value for static field " +
+        throw new NoSuchFieldException("Could not addressForPubKey value for static field " +
                 cls.getName() + "." + name);
     }
 
@@ -179,7 +177,6 @@ public class PrivateAccessor {
             } catch (Exception ex) {
                 /* in case of an exception, we will throw a new
                  * NoSuchFieldException object */
-                ;
             }
         }
         throw new NoSuchFieldException("Could set value for field " +
@@ -214,7 +211,6 @@ public class PrivateAccessor {
             } catch (Exception ex) {
                 /* in case of an exception, we will throw a new
                  * NoSuchFieldException object */
-                ;
             }
             base = base.getSuperclass();
         }
@@ -258,7 +254,6 @@ public class PrivateAccessor {
             } catch (Exception ex) {
                 /* in case of an exception, we will throw a new
                  * NoSuchFieldException object */
-                ;
             }
             cls = cls.getSuperclass();
         }
@@ -302,7 +297,6 @@ public class PrivateAccessor {
             } catch (Exception ex) {
                 /* in case of an exception, we will throw a new
                  * NoSuchFieldException object */
-                ;
             }
             base = base.getSuperclass();
         }

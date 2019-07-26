@@ -6,22 +6,23 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.res.Resources;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.JobIntentService;
+import androidx.core.app.NotificationCompat;
+
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.ExternalNotification;
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.JobIntentService;
-import androidx.core.app.NotificationCompat;
 import dagger.android.AndroidInjection;
 
 public class BtcBroadcastNotificationService extends JobIntentService {
@@ -80,7 +81,7 @@ public class BtcBroadcastNotificationService extends JobIntentService {
         String txID = notification.getExtraData();
         if (txID == null || txID.isEmpty()) return;
 
-        Intent clickedIntent = new Intent(this, TransactionHistoryActivity.class);
+        Intent clickedIntent = new Intent(this, HomeActivity.class);
         clickedIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         clickedIntent.putExtra(DropbitIntents.EXTRA_TRANSACTION_ID, txID);
 

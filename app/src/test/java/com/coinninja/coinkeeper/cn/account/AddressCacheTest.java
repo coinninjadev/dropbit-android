@@ -70,7 +70,7 @@ public class AddressCacheTest {
     public void caches_addresses_generated_by_hd_wallet() {
         int externalIndex = 5;
         when(walletHelper.getCurrentExternalIndex()).thenReturn(externalIndex);
-        String[] addresses = Arrays.copyOfRange(TestData.EXTERNAL_ADDRESSES, 0, 15);
+        String[] addresses = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, 15);
         when(hdWallet.fillBlock(HDWallet.EXTERNAL, 0, 15)).thenReturn(addresses);
 
         addressCache.cacheAddressesFor(HDWallet.EXTERNAL);

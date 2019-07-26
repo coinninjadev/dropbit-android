@@ -16,7 +16,6 @@ import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.helpers.BroadcastBtcInviteHelper
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import javax.inject.Inject
@@ -29,7 +28,6 @@ internal constructor(@ApplicationContext internal val context: Context,
                      internal val transactionFundingManager: TransactionFundingManager,
                      internal val transactionNotificationManager: TransactionNotificationManager,
                      internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
-                     internal val transactionHelper: TransactionHelper,
                      internal val broadcastBtcInviteHelper: BroadcastBtcInviteHelper,
                      internal val broadcastHelper: BroadcastTransactionHelper,
                      internal val syncWalletManager: SyncWalletManager,
@@ -42,7 +40,7 @@ internal constructor(@ApplicationContext internal val context: Context,
         invite?.let { invite ->
             val transactionData = fundInvite(invite)
 
-            if (transactionData.utxos.size == 0) {
+            if (transactionData.utxos.isEmpty()) {
                 cancelInvite(invite)
             } else {
                 val transactionBroadcastResult = fulfillInvite(transactionData)
@@ -55,7 +53,8 @@ internal constructor(@ApplicationContext internal val context: Context,
 
     private fun broadcastTXToBtcNetwork(transactionData: TransactionData): TransactionBroadcastResult {
         val result: TransactionBroadcastResult
-        if (transactionData.paymentAddress.isNotEmpty()) {
+        val paymentAddress = transactionData.paymentAddress ?: ""
+        if (paymentAddress.isNotEmpty()) {
             result = broadcastHelper.broadcast(transactionData)
             analytics.trackEvent(Analytics.EVENT_DROPBIT_COMPLETED)
         } else {
@@ -66,7 +65,7 @@ internal constructor(@ApplicationContext internal val context: Context,
     }
 
     private fun updateFulfilledInvite(invite: InviteTransactionSummary, transactionBroadcastResult: TransactionBroadcastResult) {
-        inviteTransactionSummaryHelper.updateFulfilledInvite(invite.transactionsInvitesSummary, transactionBroadcastResult)
+        inviteTransactionSummaryHelper.updateFulfilledInvite(invite, transactionBroadcastResult)
         saveToBroadcastBtcDatabaseMarkAsFunded(invite, transactionBroadcastResult)
         saveToExternalNotificationsDatabase(transactionBroadcastResult, invite)
         transactionNotificationManager.notifyCnOfFundedInvite(invite)
@@ -97,7 +96,7 @@ internal constructor(@ApplicationContext internal val context: Context,
     }
 
     private fun saveCancellationToBroadcastBtcDatabase(invite: InviteTransactionSummary) {
-        transactionHelper.updateInviteAsCanceled(invite.serverId)
+        inviteTransactionSummaryHelper.cancelInviteByCnId(invite.serverId)
         broadcastBtcInviteHelper.saveBroadcastInviteAsCanceled(invite)
     }
 
@@ -120,8 +119,7 @@ internal constructor(@ApplicationContext internal val context: Context,
     }
 
     private fun saveToBroadcastBtcDatabaseMarkAsFunded(invite: InviteTransactionSummary, result: TransactionBroadcastResult) {
-        val inviteTransactionSummary = transactionHelper.getInviteTransactionSummary(invite.serverId)
-        broadcastBtcInviteHelper.saveBroadcastBtcInvite(inviteTransactionSummary, invite.serverId, result.txId, invite.address, BTCState.FULFILLED)
+        broadcastBtcInviteHelper.saveBroadcastBtcInvite(invite, invite.serverId, result.txId, invite.address, BTCState.FULFILLED)
     }
 
     private fun onBroadcastTxError(result: TransactionBroadcastResult) {

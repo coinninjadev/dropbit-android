@@ -10,12 +10,15 @@ import com.coinninja.coinkeeper.service.client.model.CNSharedMemo;
 import com.coinninja.coinkeeper.service.client.model.CNTopicSubscription;
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch;
 import com.coinninja.coinkeeper.service.client.model.InviteUserPayload;
+import com.coinninja.coinkeeper.service.client.model.NewsArticle;
+import com.coinninja.coinkeeper.ui.market.Granularity;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Response;
@@ -254,6 +257,30 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
     @NotNull
     public Response unsubscribeFromTopic(@NotNull String devicesId, @NotNull String deviceEndpoint, @NotNull String topicId) {
         return executeCall(getClient().unsubscribeFromTopic(devicesId, deviceEndpoint, topicId));
+    }
+
+    public Response loadHistoricPricing(@NotNull Granularity granularity) {
+        return executeCall(getClient().loadHistoricPricing(granularity.getValue()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public Response loadNews(int count, int offset) {
+        count = offset > 0 ? count + offset : count;
+        Response response = executeCall(getClient().loadNews(count));
+        if (response.code() == 200 && offset > 0) {
+            List<NewsArticle> fetched = (List<NewsArticle>) response.body();
+            if (fetched != null && fetched.size() == count) {
+                ArrayList articles = new ArrayList(fetched) {
+                    public ArrayList trimOffset() {
+                        removeRange(0, offset);
+                        return this;
+                    }
+                }.trimOffset();
+                response = Response.success(articles);
+            }
+        }
+
+        return response;
     }
 
     @NonNull

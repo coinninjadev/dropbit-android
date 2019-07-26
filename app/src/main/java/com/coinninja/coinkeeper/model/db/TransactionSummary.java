@@ -19,7 +19,7 @@ import java.util.List;
 
 @Entity(active = true)
 public class TransactionSummary {
-    private static final int REQUIRED_CONFIRMATIONS = 3;
+    private static final int REQUIRED_CONFIRMATIONS = 1;
 
     @Id
     Long id;
@@ -67,25 +67,34 @@ public class TransactionSummary {
     private MemPoolState memPoolState;
 
     @Keep
+    public boolean isInBlock() {
+        return getBlockhash() != null && !getBlockhash().isEmpty();
+    }
+
+    @Keep
     public boolean isReplaceable() {
         return getNumConfirmations() < REQUIRED_CONFIRMATIONS;
     }
 
-    /** Used to resolve relations */
+    /**
+     * Used to resolve relations
+     */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
-    /** Used for active entity operations. */
+    /**
+     * Used for active entity operations.
+     */
     @Generated(hash = 989876454)
     private transient TransactionSummaryDao myDao;
 
 
     @Generated(hash = 1265541453)
     public TransactionSummary(Long id, String txid,
-            Long transactionsInvitesSummaryID, boolean soughtNotification,
-            long walletId, long fee, long txTime, int numConfirmations,
-            String blockhash, int numInputs, int numOutputs, int blockheight,
-            long historicPrice, Long transactionNotificationId,
-            MemPoolState memPoolState) {
+                              Long transactionsInvitesSummaryID, boolean soughtNotification,
+                              long walletId, long fee, long txTime, int numConfirmations,
+                              String blockhash, int numInputs, int numOutputs, int blockheight,
+                              long historicPrice, Long transactionNotificationId,
+                              MemPoolState memPoolState) {
         this.id = id;
         this.txid = txid;
         this.transactionsInvitesSummaryID = transactionsInvitesSummaryID;
@@ -220,7 +229,7 @@ public class TransactionSummary {
     }
 
     public boolean getSoughtNotification() {
-        return this.soughtNotification;
+        return soughtNotification;
     }
 
     public void setSoughtNotification(boolean soughtNotification) {
@@ -228,7 +237,7 @@ public class TransactionSummary {
     }
 
     public Long getTransactionNotificationId() {
-        return this.transactionNotificationId;
+        return transactionNotificationId;
     }
 
     public void setTransactionNotificationId(Long transactionNotificationId) {
@@ -278,10 +287,8 @@ public class TransactionSummary {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            TransactionsInvitesSummaryDao targetDao = daoSession
-                    .getTransactionsInvitesSummaryDao();
-            TransactionsInvitesSummary transactionsInvitesSummaryNew = targetDao
-                    .load(__key);
+            TransactionsInvitesSummaryDao targetDao = daoSession.getTransactionsInvitesSummaryDao();
+            TransactionsInvitesSummary transactionsInvitesSummaryNew = targetDao.load(__key);
             synchronized (this) {
                 transactionsInvitesSummary = transactionsInvitesSummaryNew;
                 transactionsInvitesSummary__resolvedKey = __key;
@@ -292,8 +299,7 @@ public class TransactionSummary {
 
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 386011818)
-    public void setTransactionsInvitesSummary(
-            TransactionsInvitesSummary transactionsInvitesSummary) {
+    public void setTransactionsInvitesSummary(TransactionsInvitesSummary transactionsInvitesSummary) {
         synchronized (this) {
             this.transactionsInvitesSummary = transactionsInvitesSummary;
             transactionsInvitesSummaryID = transactionsInvitesSummary == null ? null
@@ -312,10 +318,8 @@ public class TransactionSummary {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            TransactionNotificationDao targetDao = daoSession
-                    .getTransactionNotificationDao();
-            TransactionNotification transactionNotificationNew = targetDao
-                    .load(__key);
+            TransactionNotificationDao targetDao = daoSession.getTransactionNotificationDao();
+            TransactionNotification transactionNotificationNew = targetDao.load(__key);
             synchronized (this) {
                 transactionNotification = transactionNotificationNew;
                 transactionNotification__resolvedKey = __key;
@@ -326,8 +330,7 @@ public class TransactionSummary {
 
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 144706267)
-    public void setTransactionNotification(
-            TransactionNotification transactionNotification) {
+    public void setTransactionNotification(TransactionNotification transactionNotification) {
         synchronized (this) {
             this.transactionNotification = transactionNotification;
             transactionNotificationId = transactionNotification == null ? null
@@ -348,8 +351,7 @@ public class TransactionSummary {
                 throw new DaoException("Entity is detached from DAO context");
             }
             FundingStatDao targetDao = daoSession.getFundingStatDao();
-            List<FundingStat> funderNew = targetDao
-                    ._queryTransactionSummary_Funder(id);
+            List<FundingStat> funderNew = targetDao._queryTransactionSummary_Funder(id);
             synchronized (this) {
                 if (funder == null) {
                     funder = funderNew;
@@ -377,8 +379,7 @@ public class TransactionSummary {
                 throw new DaoException("Entity is detached from DAO context");
             }
             TargetStatDao targetDao = daoSession.getTargetStatDao();
-            List<TargetStat> receiverNew = targetDao
-                    ._queryTransactionSummary_Receiver(id);
+            List<TargetStat> receiverNew = targetDao._queryTransactionSummary_Receiver(id);
             synchronized (this) {
                 if (receiver == null) {
                     receiver = receiverNew;

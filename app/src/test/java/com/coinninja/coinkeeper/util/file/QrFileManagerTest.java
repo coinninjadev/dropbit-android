@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.util.file;
 import android.content.Context;
 import android.net.Uri;
 
+import com.coinninja.coinkeeper.util.crypto.BitcoinUri;
 import com.coinninja.coinkeeper.util.image.QRGeneratorUtil;
 import com.google.zxing.WriterException;
 
@@ -17,7 +18,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.io.IOException;
 
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
@@ -45,24 +45,29 @@ public class QrFileManagerTest {
     Uri uri;
 
     private QRFileManager qrFileManager;
-    private String exampleScan;
+
+    @Mock
+    private BitcoinUri exampleScan;
+    private String exampleString = "bitcoin://--address--?amount=1000";
+
     private byte[] qrImageBytes;
 
     @Before
     public void setUp() {
-        exampleScan = "bitcoin:bitcoin:3ABe5Esyys8sjjircCKvyFxBRm1rcGAAMr";
+        when(exampleScan.getAddress()).thenReturn("--address--");
+        when(exampleScan.getSatoshiAmount()).thenReturn(1000L);
+        when(exampleScan.toString()).thenReturn(exampleString);
         qrImageBytes = "imageData".getBytes();
         qrFileManager = new QRFileManager(context, qrGeneratorUtil, fileUtil, fileProviderUtil);
     }
 
-
     @Test
     public void provides_sharable_qr_uri() {
-        String file = "content://com.coinninja.coinkeeper.debug.provider/qr_code/qr_code.png";
+        String file = "content://com.coinninja.coinkeeper.debug.provider/qr_code/qr_code_--address--_1000.png";
         when(uri.toString()).thenReturn(file);
         when(fileProviderUtil.getUriForFile(any(Context.class), any(File.class))).thenReturn(uri);
 
-        Uri uri = qrFileManager.getSharableURI();
+        Uri uri = qrFileManager.createQrCode(exampleScan);
 
         assertThat(uri.toString(), equalTo(file));
     }
@@ -70,7 +75,7 @@ public class QrFileManagerTest {
     @Test
     public void deletes_creates_writes_in_order() throws WriterException, IOException {
         InOrder inOrder = inOrder(fileUtil);
-        when(qrGeneratorUtil.generateFrom(exampleScan)).thenReturn(qrImageBytes);
+        when(qrGeneratorUtil.generateFrom(exampleString)).thenReturn(qrImageBytes);
 
         qrFileManager.createQrCode(exampleScan);
 
@@ -88,7 +93,7 @@ public class QrFileManagerTest {
         qrFileManager.createQrCode(exampleScan);
 
         verify(fileUtil).createFile(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().toString(), equalTo("/external/share/tmp/tmp-qr/qr_code.png"));
+        assertThat(argumentCaptor.getValue().toString(), equalTo("/external/share/tmp/tmp-qr/qr_code_--address--_1000.png"));
     }
 
     @Test
@@ -100,7 +105,7 @@ public class QrFileManagerTest {
         qrFileManager.createQrCode(exampleScan);
 
         verify(fileUtil).delete(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().toString(), equalTo("/external/share/tmp/tmp-qr/qr_code.png"));
+        assertThat(argumentCaptor.getValue().toString(), equalTo("/external/share/tmp/tmp-qr/qr_code_--address--_1000.png"));
     }
 
     @Test
@@ -108,20 +113,13 @@ public class QrFileManagerTest {
         ArgumentCaptor<File> argumentCaptor = ArgumentCaptor.forClass(File.class);
         File qrCacheDirectory = new File("/external/share/tmp/tmp-qr");
         when(context.getExternalFilesDir("tmp-qr")).thenReturn(qrCacheDirectory);
-        when(qrGeneratorUtil.generateFrom(exampleScan)).thenReturn(qrImageBytes);
+        when(qrGeneratorUtil.generateFrom(exampleString)).thenReturn(qrImageBytes);
 
 
         qrFileManager.createQrCode(exampleScan);
 
         verify(fileUtil).writeBytes(eq(qrImageBytes), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().toString(), equalTo("/external/share/tmp/tmp-qr/qr_code.png"));
-    }
-
-    @Test
-    public void generates_qr_code_from_string() {
-        boolean created = qrFileManager.createQrCode(exampleScan);
-
-        assertTrue(created);
+        assertThat(argumentCaptor.getValue().toString(), equalTo("/external/share/tmp/tmp-qr/qr_code_--address--_1000.png"));
     }
 
 

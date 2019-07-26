@@ -12,9 +12,9 @@ import dagger.Provides
 class TransactionFundingProvider {
 
     @Provides
-    fun provideTranasctionFundingConfiguration(libBitcoinProvider: LibBitcoinProvider,
-                                               accountManager: AccountManager, targetStatHelper: TargetStatHelper,
-                                               inviteTransactionSummaryHelper: InviteTransactionSummaryHelper): FundingModel {
+    fun provideTrasnasctionFundingConfiguration(libBitcoinProvider: LibBitcoinProvider,
+                                                accountManager: AccountManager, targetStatHelper: TargetStatHelper,
+                                                inviteTransactionSummaryHelper: InviteTransactionSummaryHelper): FundingModel {
         return FundingModel(libBitcoinProvider, targetStatHelper, inviteTransactionSummaryHelper, accountManager, BuildConfig.DUST_AMOUNT_SATOSHIS)
     }
 }

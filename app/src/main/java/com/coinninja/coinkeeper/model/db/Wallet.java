@@ -105,8 +105,8 @@ public class Wallet {
 
     @Generated(hash = 2008094963)
     public Wallet(Long id, int hdIndex, Long userId, long lastSync,
-            int internalIndex, int externalIndex, long balance,
-            long spendableBalance, int blockTip, long lastUSDPrice) {
+                  int internalIndex, int externalIndex, long balance,
+                  long spendableBalance, int blockTip, long lastUSDPrice) {
         this.id = id;
         this.hdIndex = hdIndex;
         this.userId = userId;
@@ -239,8 +239,7 @@ public class Wallet {
                 throw new DaoException("Entity is detached from DAO context");
             }
             FundingStatDao targetDao = daoSession.getFundingStatDao();
-            List<FundingStat> fundingStatsNew = targetDao
-                    ._queryWallet_FundingStats(id);
+            List<FundingStat> fundingStatsNew = targetDao._queryWallet_FundingStats(id);
             synchronized (this) {
                 if (fundingStats == null) {
                     fundingStats = fundingStatsNew;
@@ -267,8 +266,7 @@ public class Wallet {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            InviteTransactionSummaryDao targetDao = daoSession
-                    .getInviteTransactionSummaryDao();
+            InviteTransactionSummaryDao targetDao = daoSession.getInviteTransactionSummaryDao();
             List<InviteTransactionSummary> inviteTransactionSummariesNew = targetDao
                     ._queryWallet_InviteTransactionSummaries(id);
             synchronized (this) {
@@ -298,8 +296,7 @@ public class Wallet {
                 throw new DaoException("Entity is detached from DAO context");
             }
             TargetStatDao targetDao = daoSession.getTargetStatDao();
-            List<TargetStat> targetStatsNew = targetDao
-                    ._queryWallet_TargetStats(id);
+            List<TargetStat> targetStatsNew = targetDao._queryWallet_TargetStats(id);
             synchronized (this) {
                 if (targetStats == null) {
                     targetStats = targetStatsNew;
@@ -355,8 +352,7 @@ public class Wallet {
                 throw new DaoException("Entity is detached from DAO context");
             }
             TransactionSummaryDao targetDao = daoSession.getTransactionSummaryDao();
-            List<TransactionSummary> transactionsNew = targetDao
-                    ._queryWallet_Transactions(id);
+            List<TransactionSummary> transactionsNew = targetDao._queryWallet_Transactions(id);
             synchronized (this) {
                 if (transactions == null) {
                     transactions = transactionsNew;

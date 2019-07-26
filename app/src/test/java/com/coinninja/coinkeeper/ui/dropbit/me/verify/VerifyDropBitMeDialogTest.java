@@ -12,7 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 
 import org.greenrobot.greendao.query.LazyList;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 public class VerifyDropBitMeDialogTest {
-    private ActivityScenario<TransactionHistoryActivity> scenario;
+    private ActivityScenario<HomeActivity> scenario;
 
     @Mock
     private WalletHelper walletHelper;
@@ -55,7 +55,7 @@ public class VerifyDropBitMeDialogTest {
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(0);
 
-        scenario = ActivityScenario.launch(TransactionHistoryActivity.class);
+        scenario = ActivityScenario.launch(HomeActivity.class);
         scenario.moveToState(Lifecycle.State.RESUMED);
     }
 

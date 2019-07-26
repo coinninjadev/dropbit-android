@@ -14,6 +14,7 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
+import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -72,6 +73,10 @@ public abstract class BaseActivity extends DaggerAppCompatActivity implements Me
         } else {
             super.onBackPressed();
         }
+    }
+
+    public void observeMarketSelection(OnMarketSelectionObserver onMarketSelectionObserver) {
+        drawerController.observeMarketSelection(onMarketSelectionObserver);
     }
 
     @Override

@@ -35,30 +35,36 @@
     </LinearLayout>
 
     <Button
+        style="@style/TextAppearance.Button.Small.RecoverWords"
         android:id="@+id/challenge_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/vertical_margin" />
 
     <Button
+        style="@style/TextAppearance.Button.Small.RecoverWords"
         android:id="@+id/challenge_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/vertical_margin" />
 
     <Button
+        style="@style/TextAppearance.Button.Small.RecoverWords"
         android:id="@+id/challenge_3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="energy"
         android:layout_marginTop="@dimen/vertical_margin" />
 
     <Button
+        style="@style/TextAppearance.Button.Small.RecoverWords"
         android:id="@+id/challenge_4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/vertical_margin" />
 
     <Button
+        style="@style/TextAppearance.Button.Small.RecoverWords"
         android:id="@+id/challenge_5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

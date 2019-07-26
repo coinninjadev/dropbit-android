@@ -11,23 +11,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class CoinNinjaUserViewModel : ViewModel {
-
-    private val client: SignedCoinKeeperApiClient
-    private val localContactQueryUtil: LocalContactQueryUtil
+class CoinNinjaUserViewModel @Inject constructor(
+        internal val client: SignedCoinKeeperApiClient,
+        internal val localContactQueryUtil: LocalContactQueryUtil) : ViewModel() {
 
     var contacts: MutableLiveData<List<Contact>>? = null
 
-    @Inject
-    constructor(client: SignedCoinKeeperApiClient, localContactQueryUtil: LocalContactQueryUtil) {
-        this.client = client
-        this.localContactQueryUtil = localContactQueryUtil
+    init {
         this.contacts = MutableLiveData()
     }
 
     fun load() {
-        var chunks: List<List<Contact>> = localContactQueryUtil.getContactsInChunks(100)
-        var mutableContacts: List<Contact> = mutableListOf()
+        val chunks: List<List<Contact>> = localContactQueryUtil.getContactsInChunks(100)
+        val mutableContacts: MutableList<Contact> = mutableListOf()
 
         GlobalScope.launch {
             for (chunk in chunks) {
@@ -44,9 +40,9 @@ class CoinNinjaUserViewModel : ViewModel {
         if (chunk.size == 0) {
             return chunk; }
 
-        var results: Map<String, String> = fetchContactStatus(chunk)
+        val results: Map<String, String> = fetchContactStatus(chunk)
         for (contact in chunk) {
-            var phoneHash: String = contact.hash;
+            val phoneHash: String = contact.hash;
             contact.isVerified = results.containsKey(phoneHash) && "verified" == results[phoneHash]
         }
 
@@ -54,7 +50,7 @@ class CoinNinjaUserViewModel : ViewModel {
     }
 
     private fun fetchContactStatus(contacts: List<Contact>): Map<String, String> {
-        var response = client.fetchContactStatus(contacts)
+        val response = client.fetchContactStatus(contacts)
         var results: Map<String, String> = HashMap()
 
         if (response.isSuccessful) results = response.body() as Map<String, String>

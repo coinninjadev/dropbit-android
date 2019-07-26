@@ -16,7 +16,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 public class DisabledDropbitMeDialogTest {
-    private ActivityScenario<TransactionHistoryActivity> scenario;
+    private ActivityScenario<HomeActivity> scenario;
 
     @Mock
     private WalletHelper walletHelper;
@@ -78,7 +78,7 @@ public class DisabledDropbitMeDialogTest {
         when(dropbitMeConfiguration.isDisabled()).thenReturn(true).thenReturn(false);
         when(dropbitMeConfiguration.getShareUrl()).thenReturn("https://dropbit.me/1234");
 
-        scenario = ActivityScenario.launch(TransactionHistoryActivity.class);
+        scenario = ActivityScenario.launch(HomeActivity.class);
         scenario.moveToState(Lifecycle.State.RESUMED);
     }
 

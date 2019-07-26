@@ -29,12 +29,13 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView;
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
+import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.ClipboardUtil;
@@ -50,6 +51,7 @@ import com.coinninja.coinkeeper.view.subviews.SharedMemoToggleView;
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView;
+import com.coinninja.coinkeeper.wallet.data.TestData;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
@@ -67,10 +69,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import dagger.Module;
+import dagger.Provides;
+import retrofit2.Call;
+
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
-import static com.coinninja.coinkeeper.wallet.data.TestData.EXTERNAL_ADDRESSES;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
@@ -130,7 +135,7 @@ public class PayDialogFragmentTest {
     private TransactionData invalidTransactionData = new TransactionData(new UnspentTransactionOutput[0],
             0, 0, 0, mock(DerivationPath.class), "");
 
-    private ActivityScenario<TransactionHistoryActivity> scenario;
+    private ActivityScenario<HomeActivity> scenario;
     private Context context;
 
     @Before
@@ -170,7 +175,7 @@ public class PayDialogFragmentTest {
 
     @Test
     public void shows_payment_address_when_initialized_from_scan() {
-        String address = EXTERNAL_ADDRESSES[0];
+        String address = TestData.INSTANCE.getEXTERNAL_ADDRESSES()[0];
         paymentUtil.setAddress(address);
         start();
 
@@ -601,7 +606,7 @@ public class PayDialogFragmentTest {
         Intent intent = new Intent();
         intent.putExtra(DropbitIntents.EXTRA_IDENTITY, identity);
         PaymentReceiverView paymentReceiverView = withId(dialog.getView(), R.id.payment_receiver);
-        paymentReceiverView.setPaymentAddress(EXTERNAL_ADDRESSES[0]);
+        paymentReceiverView.setPaymentAddress(TestData.INSTANCE.getEXTERNAL_ADDRESSES()[0]);
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent);
 
@@ -721,8 +726,19 @@ public class PayDialogFragmentTest {
         assertFalse(paymentUtil.isFunded());
     }
 
+    @Test
+    public void shows_invalid_btc_address_when_pasting_dropbitme_url_in_payment_request() {
+        start();
+
+        dialog.bip70Callback.onFailure(mock(Call.class), new RuntimeException("garbage"));
+
+        String errorMessage = ShadowToast.getTextOfLatestToast();
+
+        assertThat(errorMessage, equalTo(dialog.getString(R.string.invalid_bitcoin_address_error)));
+    }
+
     private void start() {
-        scenario = ActivityScenario.launch(TransactionHistoryActivity.class);
+        scenario = ActivityScenario.launch(HomeActivity.class);
         scenario.onActivity(activity -> {
             dialog.show(activity.getSupportFragmentManager(), "tag");
             shadowActivity = shadowOf(activity);
@@ -763,4 +779,11 @@ public class PayDialogFragmentTest {
         when(bitcoinUtil.parse(rawString)).thenReturn(bitcoinUri);
     }
 
+    @Module
+    public static class TestPayDialogFragmentModule {
+        @Provides
+        public FeesManager feesManager() {
+            return mock(FeesManager.class);
+        }
+    }
 }

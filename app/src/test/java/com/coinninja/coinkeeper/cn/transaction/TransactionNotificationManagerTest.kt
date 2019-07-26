@@ -207,9 +207,8 @@ class TransactionNotificationManagerTest {
     }
 
     private fun createCompletedBroadCastDTO(): CompletedBroadcastDTO {
-        val outputs = arrayOfNulls<UnspentTransactionOutput>(0)
         val transactionData = TransactionData(
-                outputs,
+                emptyArray(),
                 10000000L,
                 100L,
                 400000L,

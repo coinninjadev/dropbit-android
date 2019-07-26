@@ -11,7 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryActivity;
+import com.coinninja.coinkeeper.ui.home.HomeActivity;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.junit.After;
@@ -32,7 +32,7 @@ import static org.robolectric.Shadows.shadowOf;
 public class DropBitMeDialogTest {
     @Mock
     DropbitMeConfiguration dropbitMeConfiguration;
-    private ActivityScenario<TransactionHistoryActivity> scenario;
+    private ActivityScenario<HomeActivity> scenario;
     @Mock
     private WalletHelper walletHelper;
     @Mock
@@ -50,7 +50,7 @@ public class DropBitMeDialogTest {
         when(dropbitMeConfiguration.shouldShowWhenPossible()).thenReturn(true);
         when(dropbitMeConfiguration.isNewlyVerified()).thenReturn(false);
 
-        scenario = ActivityScenario.launch(TransactionHistoryActivity.class);
+        scenario = ActivityScenario.launch(HomeActivity.class);
         scenario.moveToState(Lifecycle.State.RESUMED);
     }
 

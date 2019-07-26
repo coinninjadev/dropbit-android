@@ -75,7 +75,7 @@ class TwitterVerificationControllerTest {
         controller.onReceive(context, Intent(DropbitIntents.ACTION_VERIFY_TWITTER_COMPLETED))
 
         verify(controller.dropbitMeConfiguration).setInitialVerification()
-        verify(controller.activityNavigationUtil).navigateToHome(controller.activityContext)
+        verify(controller.activityNavigationUtil).navigateToHome(controller.activityContext!!)
 
     }
 }

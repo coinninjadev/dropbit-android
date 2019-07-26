@@ -3,9 +3,10 @@ package com.coinninja.coinkeeper.ui.memo;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.coinninja.coinkeeper.DumbActivity;
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.base.TestableActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.shadows.ShadowDialog;
 
 import static com.coinninja.android.helpers.Views.withId;
@@ -27,20 +27,20 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class MemoCreatorTest {
 
     @Mock
     MemoCreator.OnMemoCreatedCallback callback;
 
-    private DumbActivity activity;
+    private TestableActivity activity;
     private MemoCreator memoCreator;
-    String text = "";
+    private String text = "";
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        activity = Robolectric.setupActivity(DumbActivity.class);
+        activity = Robolectric.setupActivity(TestableActivity.class);
         memoCreator = new MemoCreator();
     }
 

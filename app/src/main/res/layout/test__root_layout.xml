@@ -5,4 +5,8 @@
     android:id="@+id/test_root"
     android:orientation="vertical">
 
+    <FrameLayout
+        android:id="@+id/test_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

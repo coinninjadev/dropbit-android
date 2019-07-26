@@ -64,7 +64,7 @@ public class MessageEncryptorTest {
         when(address.getDerivationPath()).thenReturn(derivationPath);
         DecryptionKeys decryptionKeys = new DecryptionKeys(ENCRYPTION_KEY, HMAC_KEY);
 
-        when(addressHelper.get(publicKey)).thenReturn(address);
+        when(addressHelper.addressForPubKey(publicKey)).thenReturn(address);
         when(cryptor.unpackEphemeralPublicKey(ENCRYPTED_PAYLOAD)).thenReturn(EPHEMERAL_PUBLIC_KEY);
         when(wallet.generateDecryptionKeys(derivationPath, EPHEMERAL_PUBLIC_KEY)).thenReturn(decryptionKeys);
         when(cryptor.decrypt(ENCRYPTED_PAYLOAD, ENCRYPTION_KEY, HMAC_KEY)).thenReturn(

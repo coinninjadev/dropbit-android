@@ -28,7 +28,6 @@ import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
-import com.coinninja.coinkeeper.di.component.TestAppComponent;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
@@ -61,12 +60,14 @@ import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter;
+import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
+import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryDataAdapter;
 import com.coinninja.coinkeeper.util.AnalyticUtil;
 import com.coinninja.coinkeeper.util.CoinNinjaContactResolver;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
-import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.PhoneNumberUtil;
@@ -104,11 +105,6 @@ import static org.mockito.Mockito.mock;
 
 @Module
 public class TestAppModule {
-
-    @Provides
-    FeesManager feesManager(PreferencesUtil preferencesUtil) {
-        return new FeesManager(preferencesUtil);
-    }
 
     @Provides
     CoroutineContextProvider coroutineContextProvider() {
@@ -164,8 +160,8 @@ public class TestAppModule {
 
 
     @Provides
-    CoinKeeperComponent coinKeeperComponent(TestAppComponent appComponent) {
-        return appComponent;
+    CoinKeeperComponent coinKeeperComponent() {
+        return mock(CoinKeeperComponent.class);
     }
 
     @Provides
@@ -704,5 +700,29 @@ public class TestAppModule {
             app.yearlyHighViewModel = mock(YearlyHighViewModel.class);
         }
         return app.yearlyHighViewModel;
+    }
+
+    @Provides
+    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier(TestCoinKeeperApplication app) {
+        if (app.defaultCurrencyChangeViewNotifier == null) {
+            app.defaultCurrencyChangeViewNotifier = mock(DefaultCurrencyChangeViewNotifier.class);
+        }
+        return app.defaultCurrencyChangeViewNotifier;
+    }
+
+    @Provides
+    TransactionHistoryDataAdapter transactionHistoryDataAdapter(TestCoinKeeperApplication app) {
+        if (app.transactionHistoryDataAdapter == null) {
+            app.transactionHistoryDataAdapter = mock(TransactionHistoryDataAdapter.class);
+        }
+        return app.transactionHistoryDataAdapter;
+    }
+
+    @Provides
+    SyncManagerViewNotifier syncManagerViewNotifier(TestCoinKeeperApplication app) {
+        if (app.syncManagerViewNotifier == null) {
+            app.syncManagerViewNotifier = mock(SyncManagerViewNotifier.class);
+        }
+        return app.syncManagerViewNotifier;
     }
 }
