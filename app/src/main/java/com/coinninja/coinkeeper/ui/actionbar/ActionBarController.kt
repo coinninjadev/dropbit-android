@@ -4,29 +4,28 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.R
-import com.coinninja.coinkeeper.ui.actionbar.managers.TitleViewManager
 import com.coinninja.coinkeeper.ui.base.MenuItemClickListener
 import javax.inject.Inject
 
 @Mockable
-class ActionBarController @Inject constructor(internal val titleViewManager: TitleViewManager) {
+class ActionBarController @Inject constructor() {
 
     var menuItemClickListener: MenuItemClickListener? = null
     internal var isActionBarGone: Boolean = false
     internal var isUpEnabled: Boolean = false
     internal var optionMenuLayout: Int? = null
+    private var _title:String = ""
 
-    fun setTheme(context: AppCompatActivity, actionBarType: TypedValue) {
-
+    fun setTheme(activity: AppCompatActivity, actionBarType: TypedValue) {
         when (actionBarType.resourceId) {
-            R.id.actionbar_gone -> {
-                isActionBarGone = true
-                return
-            }
+            R.id.actionbar_gone -> isActionBarGone = true
+
             R.id.actionbar_up_on -> isUpEnabled = true
+
             R.id.actionbar_up_on_with_nav_bar -> {
                 isUpEnabled = true
                 optionMenuLayout = R.menu.actionbar_light_charts_menu
@@ -52,27 +51,19 @@ class ActionBarController @Inject constructor(internal val titleViewManager: Tit
             }
             else -> throw IllegalStateException("R.attr.actionBarMenuType not set")
         }
-        updateActionBarUpIndicator(context)
-        initTitleView(context)
-
+        hideAppbarIfNecessary(activity)
+        updateActionBarUpIndicator(activity)
+        displayTitle(activity)
     }
 
-    fun displayTitle(context: AppCompatActivity) {
-        if (isActionBarGone) {
-            context.findViewById<View>(R.id.cn_appbar_layout_container).visibility = View.GONE
-        } else {
-            titleViewManager.renderTitle()
-        }
-    }
-
-    fun inflateActionBarMenu(context: AppCompatActivity, menu: Menu) {
+    fun inflateActionBarMenu(activity: AppCompatActivity, menu: Menu) {
         optionMenuLayout?.let {
-            context.menuInflater.inflate(it, menu)
+            activity.menuInflater.inflate(it, menu)
         }
     }
 
-    private fun updateActionBarUpIndicator(context: AppCompatActivity) {
-        context.supportActionBar?.setDisplayHomeAsUpEnabled(isUpEnabled)
+    private fun updateActionBarUpIndicator(activity: AppCompatActivity) {
+        activity.supportActionBar?.setDisplayHomeAsUpEnabled(isUpEnabled)
     }
 
     fun onMenuItemClicked(item: MenuItem): Boolean {
@@ -96,15 +87,35 @@ class ActionBarController @Inject constructor(internal val titleViewManager: Tit
         return false
     }
 
-    fun updateTitle(string: String) {
-        if (!isActionBarGone) {
-            titleViewManager.title = string
-            titleViewManager.renderTitle()
+    fun displayTitle(activity: AppCompatActivity, title: String? = null) {
+        _title = title ?: activity.supportActionBar?.title.toString()
+        activity.supportActionBar?.title = ""
+
+        if (isActionBarGone && _title.isNotEmpty()) {
+            removeTitle(activity)
+        } else {
+            renderTitle(activity)
         }
     }
 
-    private fun initTitleView(context: AppCompatActivity) {
-        titleViewManager.actionBar = context.supportActionBar
-        titleViewManager.titleView = context.findViewById(R.id.appbar_title)
+    private fun hideAppbarIfNecessary(activity: AppCompatActivity) {
+        if (isActionBarGone) {
+            activity.findViewById<View>(R.id.cn_appbar_layout_container)?.apply {
+                visibility = View.GONE
+            }
+        }
+    }
+
+    private fun renderTitle(activity: AppCompatActivity) {
+        activity.findViewById<TextView>(R.id.appbar_title)?.apply {
+            visibility = View.VISIBLE
+            text = _title.toUpperCase()
+        }
+    }
+
+    private fun removeTitle(activity: AppCompatActivity) {
+        activity.findViewById<TextView>(R.id.appbar_title)?.apply {
+            visibility = View.GONE
+        }
     }
 }

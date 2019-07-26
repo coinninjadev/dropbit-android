@@ -58,7 +58,7 @@ public class PinConfirmFragmentTest {
 
         fragment.onResume();
 
-        verify(actionBarController).updateTitle("Re-Enter Pin");
+        verify(actionBarController).displayTitle((BaseActivity) fragment.getActivity(), "Re-Enter Pin");
     }
 
     @Test

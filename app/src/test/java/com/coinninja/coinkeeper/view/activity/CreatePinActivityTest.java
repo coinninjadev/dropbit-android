@@ -205,7 +205,7 @@ public class CreatePinActivityTest {
         verify(activity.confirmFragment, never()).showPinMismatch();
         verify(activity.confirmFragment).onDismissRequest();
         verify(pinFragmentPresenter).clearPin();
-        verify(activity.getActionBarController()).updateTitle(activity.getString(R.string.set_pin_header));
+        verify(activity.getActionBarController()).displayTitle(activity, activity.getString(R.string.set_pin_header));
     }
 
     private void initWithIntent(Intent intent) {

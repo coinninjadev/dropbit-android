@@ -17,7 +17,12 @@ import org.junit.Test
 class ActionBarControllerTest {
 
     private val activity: AppCompatActivity = mock()
-    private fun createController(): ActionBarController = ActionBarController(mock())
+
+    private fun createController(): ActionBarController = ActionBarController().also {
+        whenever(activity.menuInflater).thenReturn(mock())
+        whenever(activity.supportActionBar).thenReturn(mock())
+        whenever(activity.findViewById<TextView>(R.id.appbar_title)).thenReturn(mock<TextView>())
+    }
 
     @Test
     fun actionbar_gone_configuration_test() {
@@ -104,59 +109,24 @@ class ActionBarControllerTest {
         val controller = createController()
         val cnContainerLayout = mock<View>()
         whenever(activity.findViewById<View>(R.id.cn_appbar_layout_container)).thenReturn(cnContainerLayout)
-        controller.isActionBarGone = true
 
-        controller.displayTitle(activity)
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_gone
+        }
+
+        controller.setTheme(activity, actionBarTyped)
 
         verify(cnContainerLayout).visibility = View.GONE
     }
 
     @Test
-    fun init_title_view_directly_after_setting_up_theme() {
-        val controller = createController()
-        val actionBarTyped = TypedValue()
-        actionBarTyped.resourceId = R.id.actionbar_up_on_skip_on
-        val titleView: TextView = mock()
-        whenever(activity.supportActionBar).thenReturn(mock())
-        whenever(activity.findViewById<TextView>(R.id.appbar_title)).thenReturn(titleView)
-
-
-        controller.setTheme(activity, actionBarTyped)
-
-
-        verify(controller.titleViewManager).actionBar = activity.supportActionBar
-        verify(controller.titleViewManager).titleView = titleView
-    }
-
-    @Test
-    fun do_not_init_title_view_when_theme_is_action_gone() {
-        val controller = createController()
-        val actionBarTyped = TypedValue()
-        actionBarTyped.resourceId = R.id.actionbar_gone
-
-        controller.setTheme(activity, actionBarTyped)
-
-        verify(controller.titleViewManager, never()).actionBar = any()
-        verify(controller.titleViewManager, never()).titleView = any()
-    }
-
-    @Test
-    fun if_upper_case_is_true_render_uppercase_title_view_when_displayTitle_is_called() {
-        val controller = createController()
-
-        controller.displayTitle(activity)
-
-        verify(controller.titleViewManager).renderTitle()
-    }
-
-    @Test
     fun if_up_is_enabled_then_setDisplayHomeAsUpEnabled_true() {
         val controller = createController()
-        whenever(activity.supportActionBar).thenReturn(mock())
-        controller.isUpEnabled = true
-        controller.optionMenuLayout = R.id.actionbar_up_on
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_on
+        }
 
-        controller.inflateActionBarMenu(activity, mock())
+        controller.setTheme(activity, actionBarTyped)
 
         verify(activity.supportActionBar)!!.setDisplayHomeAsUpEnabled(true)
     }
@@ -164,11 +134,11 @@ class ActionBarControllerTest {
     @Test
     fun if_up_is_not_enabled_then_setDisplayHomeAsUpEnabled_false() {
         val controller = createController()
-        whenever(activity.supportActionBar).thenReturn(mock())
-        whenever(activity.menuInflater).thenReturn(mock())
-        controller.optionMenuLayout = R.id.actionbar_up_off
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_off
+        }
 
-        controller.inflateActionBarMenu(activity, mock())
+        controller.setTheme(activity, actionBarTyped)
 
         verify(activity.supportActionBar)!!.setDisplayHomeAsUpEnabled(false)
     }
@@ -176,7 +146,6 @@ class ActionBarControllerTest {
     @Test
     fun if_optionMenuLayout_has_any_value_inflate_it() {
         val controller = createController()
-        whenever(activity.menuInflater).thenReturn(mock())
         controller.optionMenuLayout = R.menu.actionbar_dark_close_menu
 
         val menu = mock<Menu>()
@@ -189,7 +158,6 @@ class ActionBarControllerTest {
     fun if_optionMenuLayout_is_null_then_do_nothing() {
         val controller = createController()
         controller.optionMenuLayout = null
-        whenever(activity.menuInflater).thenReturn(mock())
 
         val menu = mock<Menu>()
         controller.inflateActionBarMenu(activity, menu)
@@ -253,27 +221,6 @@ class ActionBarControllerTest {
     }
 
     @Test
-    fun if_isActionBarGone_false_then_when_updateTitle_then_call_controller__titleViewManager_renderTitleView() {
-        val controller = createController()
-        controller.isActionBarGone = false
-
-        controller.updateTitle("--- some new title")
-
-        verify(controller.titleViewManager).title = "--- some new title"
-        verify(controller.titleViewManager).renderTitle()
-    }
-
-    @Test
-    fun if_isActionBarGone_true_then_do_nothing_when_updateTitle() {
-        val controller = createController()
-        controller.isActionBarGone = true
-
-        controller.updateTitle("--- some new title")
-
-        verify(controller.titleViewManager, never()).renderTitle()
-    }
-
-    @Test
     fun observes_chart_menu_item_click() {
         val controller = createController()
         val item: MenuItem = mock()
@@ -285,5 +232,43 @@ class ActionBarControllerTest {
 
         assertTrue(itemClicked)
         verify(controller.menuItemClickListener)!!.onShowMarketData()
+    }
+
+    @Test
+    fun set_title_to_app_bar() {
+        val controller = createController()
+        val title = " --- TITLE --"
+        whenever(activity.supportActionBar!!.title).thenReturn(title)
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_off
+        }
+
+        controller.setTheme(activity, actionBarTyped)
+
+        val textView = activity.findViewById<TextView>(R.id.appbar_title)!!
+        verify(textView).visibility = View.VISIBLE
+        verify(textView).text = title
+        verify(activity.supportActionBar!!).title = ""
+    }
+
+    @Test
+    fun set_title_to_app_bar_directly() {
+        val controller = createController()
+        val title = " --- TITLE --"
+        val titleWeDoNotWant = " --- TITLE BAD --"
+        whenever(activity.supportActionBar!!.title).thenReturn(titleWeDoNotWant)
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_off
+        }
+        controller.setTheme(activity, actionBarTyped)
+
+
+        controller.displayTitle(activity, title)
+
+
+        val textView = activity.findViewById<TextView>(R.id.appbar_title)!!
+        verify(textView, times(2)).visibility = View.VISIBLE
+        verify(textView).text = title
+        verify(activity.supportActionBar!!, times(2)).title = ""
     }
 }

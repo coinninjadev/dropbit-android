@@ -189,7 +189,7 @@ class BaseActivityTest {
 
         activity.updateActivityLabel("-- some text")
 
-        verify(application.actionBarController).updateTitle("-- some text")
+        verify(application.actionBarController).displayTitle(activity, "-- some text")
     }
 
     @Test

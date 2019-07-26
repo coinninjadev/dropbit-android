@@ -61,10 +61,10 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener {
         }
     }
 
-    fun updateActivityLabel(string: String) = actionBarController.updateTitle(string)
-    fun clearTitle() = actionBarController.updateTitle("")
+    fun updateActivityLabel(string: String) = actionBarController.displayTitle(this, string)
+    fun clearTitle() = actionBarController.displayTitle(this, "")
 
-    fun observeMarketSelection(onMarketSelectionObserver: OnMarketSelectionObserver) =
+    private fun observeMarketSelection(onMarketSelectionObserver: OnMarketSelectionObserver) =
             drawerController.observeMarketSelection(onMarketSelectionObserver)
 
     override fun onCloseClicked() = navigationUtil.navigateToHome(this)
