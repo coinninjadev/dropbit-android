@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
@@ -30,8 +29,6 @@ public abstract class SecuredActivity extends MessengerActivity {
 
     static final int AUTHENTICATION_REQUEST_CODE = 9999;
 
-    @Inject
-    public CNWalletManager cnWalletManager;
     @Inject
     PinEntry pinEntry;
     @Inject

@@ -153,7 +153,7 @@ public class VerifyPhoneVerificationCodeActivity extends SecuredActivity impleme
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (receiver != null) {
             localBroadCastUtil.unregisterReceiver(receiver);

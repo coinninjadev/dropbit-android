@@ -20,7 +20,6 @@ import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
-import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.InternetUtil;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
@@ -35,11 +34,6 @@ import javax.inject.Inject;
 
 public class MessengerActivity extends BaseActivity implements CNHealthCheckTask.HealthCheckCallback {
 
-    InternetUtil internetUtil;
-
-    @Inject
-    public Analytics analytics;
-
     private static final List<String> MESSAGE_IGNORE_LIST;
 
     static {
@@ -51,6 +45,7 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
         MESSAGE_IGNORE_LIST = aList;
     }
 
+    InternetUtil internetUtil;
     List<WeakReference<Fragment>> fragList = new ArrayList<>();
     @Inject
     HealthCheckTimerRunner healthCheckRunner;
@@ -75,16 +70,13 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        internetUtil = InternetUtil.newInstance(this);
-        healthCheckRunner.setCallback(this);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        queue = findViewById(R.id.message_queue);
+    public void onPause() {
+        super.onPause();
+        if (!MESSAGE_IGNORE_LIST.contains(getClass().getName())) {
+            notificationsInteractor.stopListeningForNotifications();
+        }
+        queue.removeCallbacks(healthCheckRunner);
+        hasForeGround = false;
     }
 
     @Override
@@ -100,27 +92,6 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (!MESSAGE_IGNORE_LIST.contains(getClass().getName())) {
-            notificationsInteractor.stopListeningForNotifications();
-        }
-        queue.removeCallbacks(healthCheckRunner);
-        hasForeGround = false;
-    }
-
-    @Override
-    protected void onStop() {
-        ViewGroup queue = findViewById(R.id.message_queue);
-        if (null != queue) {
-            queue.removeAllViews();
-            teardownMute();
-        }
-        analytics.onActivityStop(this);
-        super.onStop();
-    }
-
-    @Override
     public void onHealthSuccess() {
         scheduleHealthCheck();
         tearDownNoInternet();
@@ -130,32 +101,6 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     public void onHealthFail() {
         scheduleHealthCheck();
         onNoInternet();
-    }
-
-    private void checkForInternalNotifications() {
-        new LocalBroadCastUtil(getApplication()).sendBroadcast(new Intent(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
-    }
-
-    private void checkInternet() {
-        if (internetUtil != null && !internetUtil.hasInternet()) {
-            onNoInternet();
-        }
-    }
-
-    private void tearDownNoInternet() {
-        if (findViewById(R.id.id_no_internet_message) == null) return;
-
-        queue.removeView(findViewById(R.id.id_no_internet_message));
-        teardownMute();
-    }
-
-    private void onNoInternet() {
-        if (findViewById(R.id.id_no_internet_message) == null) {
-            LayoutInflater.from(this).inflate(R.layout.no_internet_message, findViewById(R.id.message_queue));
-            findViewById(R.id.id_no_internet_message).
-                    findViewById(R.id.component_message_action).setOnClickListener(v -> onNetworkConfigClick());
-            muteViews();
-        }
     }
 
     public void muteViews() {
@@ -180,13 +125,6 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
     public void teardownMute() {
         findViewById(R.id.mute).setVisibility(View.GONE);
         findViewById(R.id.muted_message).setVisibility(View.GONE);
-    }
-
-    private void onNetworkConfigClick() {
-        Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
     }
 
     public void dismissAllDialogs() {
@@ -216,11 +154,68 @@ public class MessengerActivity extends BaseActivity implements CNHealthCheckTask
         return activeFagments;
     }
 
-    private void scheduleHealthCheck() {
-        queue.postDelayed(healthCheckRunner, DropbitIntents.THIRTY_SECONDS);
-    }
-
     public boolean isForeGrounded() {
         return hasForeGround;
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        internetUtil = InternetUtil.newInstance(this);
+        healthCheckRunner.setCallback(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        queue = findViewById(R.id.message_queue);
+    }
+
+    @Override
+    protected void onStop() {
+        ViewGroup queue = findViewById(R.id.message_queue);
+        if (null != queue) {
+            queue.removeAllViews();
+            teardownMute();
+        }
+        analytics.onActivityStop(this);
+        super.onStop();
+    }
+
+    private void checkForInternalNotifications() {
+        new LocalBroadCastUtil(getApplication()).sendBroadcast(new Intent(DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE));
+    }
+
+    private void checkInternet() {
+        if (internetUtil != null && !internetUtil.hasInternet()) {
+            onNoInternet();
+        }
+    }
+
+    private void tearDownNoInternet() {
+        if (findViewById(R.id.id_no_internet_message) == null) return;
+
+        queue.removeView(findViewById(R.id.id_no_internet_message));
+        teardownMute();
+    }
+
+    private void onNoInternet() {
+        if (findViewById(R.id.id_no_internet_message) == null) {
+            LayoutInflater.from(this).inflate(R.layout.no_internet_message, findViewById(R.id.message_queue));
+            findViewById(R.id.id_no_internet_message).
+                    findViewById(R.id.component_message_action).setOnClickListener(v -> onNetworkConfigClick());
+            muteViews();
+        }
+    }
+
+    private void onNetworkConfigClick() {
+        Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void scheduleHealthCheck() {
+        queue.postDelayed(healthCheckRunner, DropbitIntents.THIRTY_SECONDS);
     }
 }

@@ -93,7 +93,7 @@ public class QrScanActivity extends SecuredActivity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (hasCameraPermission()) {
             qrScanManager.stopCapture();

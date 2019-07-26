@@ -126,7 +126,7 @@ public class PickUserActivity extends SecuredActivity implements OnItemClickList
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         twitterVerificationController.onStopped();
     }

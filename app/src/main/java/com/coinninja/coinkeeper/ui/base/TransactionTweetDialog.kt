@@ -1,9 +1,6 @@
 package com.coinninja.coinkeeper.ui.base
 
-import android.app.Activity
-import android.app.AlertDialog
 import android.os.Bundle
-
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,12 +13,10 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.SentInvite
 import com.coinninja.coinkeeper.util.TwitterUtil
 import com.coinninja.coinkeeper.util.analytics.Analytics
-import com.coinninja.coinkeeper.view.util.AlertDialogBuilder
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 import javax.inject.Inject

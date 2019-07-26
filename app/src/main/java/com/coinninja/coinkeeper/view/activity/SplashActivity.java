@@ -49,7 +49,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         findViewById(R.id.img_logo).removeCallbacks(displayDelayRunnable);
     }

@@ -78,7 +78,7 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         localBroadCastUtil.unregisterReceiver(receiver);
         unregisterReceiver(receiver);
@@ -113,7 +113,7 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     }
 
     @Override
-    protected void onPriceReceived(USDCurrency price) {
+    public void onPriceReceived(USDCurrency price) {
         super.onPriceReceived(price);
         invalidateBalance();
     }

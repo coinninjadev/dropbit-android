@@ -87,9 +87,7 @@ class VerificationActivity : SecuredActivity() {
 
 
     override fun onSkipClicked() {
-        if (analytics != null) {
-            analytics.trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SKIPPED)
-        }
+        analytics.trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SKIPPED)
         activityNavigationUtil.navigateToHome(this)
     }
 

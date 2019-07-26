@@ -180,7 +180,7 @@ public class CreatePinActivity extends SecuredActivity implements PinFragmentPre
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (fingerprintAuthDialog != null && isAuthenticatingWithFingerprint) {
             authenticationCompleted();
