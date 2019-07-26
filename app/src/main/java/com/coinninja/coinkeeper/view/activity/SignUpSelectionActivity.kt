@@ -21,8 +21,8 @@ class SignUpSelectionActivity : SecuredActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup_selection)
-        findViewById<View>(R.id.twitter_invite_button).setOnClickListener({ twitterInviteButtonClicked() })
-        findViewById<View>(R.id.text_message_invite_button).setOnClickListener({ textMessageInviteClicked() })
+        findViewById<View>(R.id.text_message_invite_button).setOnClickListener { textMessageInviteClicked() }
+        findViewById<View>(R.id.twitter_invite_button).setOnClickListener { twitterInviteButtonClicked() }
     }
 
     override fun onStart() {

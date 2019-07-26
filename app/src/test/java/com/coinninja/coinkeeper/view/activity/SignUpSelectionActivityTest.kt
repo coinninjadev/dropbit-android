@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.app.Instrumentation
 import android.content.Intent
+import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -60,8 +61,9 @@ class SignUpSelectionActivityTest {
         val result = Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
         Intents.intending(toPackage(ApplicationProvider.getApplicationContext<Application>().packageName)).respondWith(result)
 
-        onView(withId(R.id.twitter_invite_button)).perform(click())
-
+        scenario.onActivity {
+            it.findViewById<View>(R.id.twitter_invite_button).performClick()
+        }
 
         val intent = Intents.getIntents().get(0)
         assertThat(intent).hasComponent(

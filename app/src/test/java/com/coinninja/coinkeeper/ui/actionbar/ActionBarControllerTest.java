@@ -47,7 +47,7 @@ public class ActionBarControllerTest {
     private ActionBarController controller;
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         titleViewManager = null;
         context = null;
         controller = null;

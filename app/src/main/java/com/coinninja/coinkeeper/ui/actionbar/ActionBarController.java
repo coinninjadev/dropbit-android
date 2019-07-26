@@ -115,7 +115,7 @@ public class ActionBarController {
     }
 
     public void updateTitle(String string) {
-        if (isActionBarGone != null && isActionBarGone == true) return;
+        if (isActionBarGone != null && isActionBarGone) return;
 
         titleViewManager.renderTitleView(string);
     }
