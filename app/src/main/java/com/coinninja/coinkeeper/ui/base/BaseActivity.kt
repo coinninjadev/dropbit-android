@@ -36,7 +36,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         actionBarController.inflateActionBarMenu(this, menu)
-        actionBarController.setMenuItemClickListener(this)
+        actionBarController.menuItemClickListener = this
         return true
     }
 

@@ -99,10 +99,10 @@ constructor(
 
         daoSessionManager.insert(transactionNotification)
 
-        profile?.let { profile ->
-            val phoneNumber = PhoneNumber(profile.countryCode, profile.phoneNumber).toString()
+        profile?.let { it ->
+            val phoneNumber = PhoneNumber(it.countryCode, it.phoneNumber).toString()
             transactionNotification.fromUser = userIdentityHelper.updateFrom(
-                    Identity(IdentityType.PHONE, phoneNumber, displayName = profile.displayName)
+                    Identity(IdentityType.PHONE, phoneNumber, displayName = it.displayName)
             )
             val dropbitMeIdentity = dropbitAccountHelper.identityForType(IdentityType.PHONE)
             dropbitMeIdentity?.let {

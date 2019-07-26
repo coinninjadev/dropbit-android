@@ -160,7 +160,7 @@ class BaseActivityTest {
 
         activity.onCreateOptionsMenu(menu)
 
-        verify(application.actionBarController, atLeast(1)).setMenuItemClickListener(activity)
+        verify(application.actionBarController, atLeast(1)).menuItemClickListener = activity
     }
 
     @Test
