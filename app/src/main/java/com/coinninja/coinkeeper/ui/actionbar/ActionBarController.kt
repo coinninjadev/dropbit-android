@@ -1,18 +1,14 @@
 package com.coinninja.coinkeeper.ui.actionbar
 
-import android.content.Context
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-
 import androidx.appcompat.app.AppCompatActivity
 import app.dropbit.annotations.Mockable
-
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.ui.actionbar.managers.TitleViewManager
 import com.coinninja.coinkeeper.ui.base.MenuItemClickListener
-
 import javax.inject.Inject
 
 @Mockable
@@ -20,12 +16,10 @@ class ActionBarController @Inject constructor(internal val titleViewManager: Tit
 
     var menuItemClickListener: MenuItemClickListener? = null
     internal var isActionBarGone: Boolean = false
-    internal var isTitleUppercase: Boolean = false
     internal var isUpEnabled: Boolean = false
     internal var optionMenuLayout: Int? = null
 
-    fun setTheme(context: Context, actionBarType: TypedValue) {
-        isTitleUppercase = false
+    fun setTheme(context: AppCompatActivity, actionBarType: TypedValue) {
 
         when (actionBarType.resourceId) {
             R.id.actionbar_gone -> {
@@ -41,7 +35,9 @@ class ActionBarController @Inject constructor(internal val titleViewManager: Tit
                 isUpEnabled = false
                 optionMenuLayout = R.menu.actionbar_light_close_menu
             }
+
             R.id.actionbar_up_off -> isUpEnabled = false
+
             R.id.actionbar_up_off_skip_on -> {
                 isUpEnabled = false
                 optionMenuLayout = R.menu.actionbar_light_skip_menu
@@ -56,32 +52,27 @@ class ActionBarController @Inject constructor(internal val titleViewManager: Tit
             }
             else -> throw IllegalStateException("R.attr.actionBarMenuType not set")
         }
-
-        initTitleView(context as AppCompatActivity)
+        updateActionBarUpIndicator(context)
+        initTitleView(context)
 
     }
 
     fun displayTitle(context: AppCompatActivity) {
         if (isActionBarGone) {
             context.findViewById<View>(R.id.cn_appbar_layout_container).visibility = View.GONE
-            return
-        }
-
-        if (isTitleUppercase) {
-            titleViewManager.renderUpperCaseTitleView()
         } else {
-            titleViewManager.renderTitleView()
+            titleViewManager.renderTitle()
         }
     }
 
     fun inflateActionBarMenu(context: AppCompatActivity, menu: Menu) {
-        if (isUpEnabled) {
-            context.supportActionBar?.setDisplayHomeAsUpEnabled(isUpEnabled)
-        }
-
         optionMenuLayout?.let {
             context.menuInflater.inflate(it, menu)
         }
+    }
+
+    private fun updateActionBarUpIndicator(context: AppCompatActivity) {
+        context.supportActionBar?.setDisplayHomeAsUpEnabled(isUpEnabled)
     }
 
     fun onMenuItemClicked(item: MenuItem): Boolean {
@@ -106,12 +97,14 @@ class ActionBarController @Inject constructor(internal val titleViewManager: Tit
     }
 
     fun updateTitle(string: String) {
-        if (!isActionBarGone)
-            titleViewManager.renderTitleView(string)
+        if (!isActionBarGone) {
+            titleViewManager.title = string
+            titleViewManager.renderTitle()
+        }
     }
 
     private fun initTitleView(context: AppCompatActivity) {
-        titleViewManager.setActionBar(context.supportActionBar)
-        titleViewManager.setTitleView(context.findViewById(R.id.appbar_title))
+        titleViewManager.actionBar = context.supportActionBar
+        titleViewManager.titleView = context.findViewById(R.id.appbar_title)
     }
 }

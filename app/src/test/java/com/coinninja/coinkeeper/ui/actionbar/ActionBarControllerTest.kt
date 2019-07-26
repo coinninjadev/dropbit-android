@@ -29,7 +29,6 @@ class ActionBarControllerTest {
         controller.setTheme(activity, actionBarTyped)
 
         assertThat(controller.isActionBarGone).isTrue()
-        assertThat(controller.isTitleUppercase).isFalse()
         assertThat(controller.isUpEnabled).isFalse()
         assertThat(controller.optionMenuLayout).isNull()
     }
@@ -45,7 +44,6 @@ class ActionBarControllerTest {
 
         assertThat(controller.isActionBarGone).isFalse()
         assertThat(controller.isUpEnabled).isTrue()
-        assertThat(controller.isTitleUppercase).isFalse()
         assertThat(controller.optionMenuLayout).isNull()
     }
 
@@ -59,7 +57,6 @@ class ActionBarControllerTest {
 
         assertThat(controller.isActionBarGone).isFalse()
         assertThat(controller.isUpEnabled).isFalse()
-        assertThat(controller.isTitleUppercase).isFalse()
         assertThat(controller.optionMenuLayout).isNull()
     }
 
@@ -74,7 +71,6 @@ class ActionBarControllerTest {
 
         assertThat(controller.isActionBarGone).isFalse()
         assertThat(controller.isUpEnabled).isFalse()
-        assertThat(controller.isTitleUppercase).isFalse()
         assertThat(controller.optionMenuLayout).isEqualTo(R.menu.actionbar_light_skip_menu)
     }
 
@@ -89,7 +85,6 @@ class ActionBarControllerTest {
 
         assertThat(controller.isActionBarGone).isFalse()
         assertThat(controller.isUpEnabled).isTrue()
-        assertThat(controller.isTitleUppercase).isFalse()
         assertThat(controller.optionMenuLayout).isEqualTo(R.menu.actionbar_light_skip_menu)
     }
 
@@ -129,8 +124,8 @@ class ActionBarControllerTest {
         controller.setTheme(activity, actionBarTyped)
 
 
-        verify(controller.titleViewManager).setActionBar(activity.supportActionBar)
-        verify(controller.titleViewManager).setTitleView(titleView)
+        verify(controller.titleViewManager).actionBar = activity.supportActionBar
+        verify(controller.titleViewManager).titleView = titleView
     }
 
     @Test
@@ -141,18 +136,17 @@ class ActionBarControllerTest {
 
         controller.setTheme(activity, actionBarTyped)
 
-        verify(controller.titleViewManager, never()).setActionBar(any())
-        verify(controller.titleViewManager, never()).setTitleView(any())
+        verify(controller.titleViewManager, never()).actionBar = any()
+        verify(controller.titleViewManager, never()).titleView = any()
     }
 
     @Test
     fun if_upper_case_is_true_render_uppercase_title_view_when_displayTitle_is_called() {
         val controller = createController()
-        controller.isTitleUppercase = true
 
         controller.displayTitle(activity)
 
-        verify(controller.titleViewManager).renderUpperCaseTitleView()
+        verify(controller.titleViewManager).renderTitle()
     }
 
     @Test
@@ -160,10 +154,23 @@ class ActionBarControllerTest {
         val controller = createController()
         whenever(activity.supportActionBar).thenReturn(mock())
         controller.isUpEnabled = true
+        controller.optionMenuLayout = R.id.actionbar_up_on
 
         controller.inflateActionBarMenu(activity, mock())
 
         verify(activity.supportActionBar)!!.setDisplayHomeAsUpEnabled(true)
+    }
+
+    @Test
+    fun if_up_is_not_enabled_then_setDisplayHomeAsUpEnabled_false() {
+        val controller = createController()
+        whenever(activity.supportActionBar).thenReturn(mock())
+        whenever(activity.menuInflater).thenReturn(mock())
+        controller.optionMenuLayout = R.id.actionbar_up_off
+
+        controller.inflateActionBarMenu(activity, mock())
+
+        verify(activity.supportActionBar)!!.setDisplayHomeAsUpEnabled(false)
     }
 
     @Test
@@ -252,9 +259,9 @@ class ActionBarControllerTest {
 
         controller.updateTitle("--- some new title")
 
-        verify(controller.titleViewManager).renderTitleView("--- some new title")
+        verify(controller.titleViewManager).title = "--- some new title"
+        verify(controller.titleViewManager).renderTitle()
     }
-
 
     @Test
     fun if_isActionBarGone_true_then_do_nothing_when_updateTitle() {
@@ -263,7 +270,7 @@ class ActionBarControllerTest {
 
         controller.updateTitle("--- some new title")
 
-        verify(controller.titleViewManager, never()).renderTitleView(any())
+        verify(controller.titleViewManager, never()).renderTitle()
     }
 
     @Test
