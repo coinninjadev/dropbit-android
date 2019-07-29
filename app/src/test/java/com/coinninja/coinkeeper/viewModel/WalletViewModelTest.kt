@@ -4,6 +4,7 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.ui.base.TestableActivity
+import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency
 import com.coinninja.coinkeeper.util.currency.USDCurrency
@@ -66,19 +67,12 @@ class WalletViewModelTest {
 
     @Test
     fun provides_means_to_load_initial_holdings() {
-        val scenario = createScenario()
+        createScenario()
         val viewModel = createViewModel()
         val btcBalance = BTCCurrency(10000000)
         whenever(viewModel.walletHelper.balance).thenReturn(btcBalance)
         whenever(viewModel.walletHelper.latestPrice).thenReturn(USDCurrency(10000.0))
         whenever(viewModel.walletHelper.btcChainWorth()).thenReturn(USDCurrency(1000.0))
-
-        val holdingsObserver = mock<Observer<in CryptoCurrency>>()
-        val holdingsWorthObserver = mock<Observer<in USDCurrency>>()
-        scenario.onActivity { activity ->
-            viewModel.chainHoldings.observe(activity, holdingsObserver)
-            viewModel.chainHoldingsWorth.observe(activity, holdingsWorthObserver)
-        }
 
         viewModel.loadHoldingBalances()
 
@@ -89,24 +83,63 @@ class WalletViewModelTest {
 
     @Test
     fun triggers_sync_when_value_of_latest_price_is_zero_dollars() {
-        val scenario = createScenario()
+        createScenario()
         val viewModel = createViewModel()
         val btcBalance = BTCCurrency(1000000)
         whenever(viewModel.walletHelper.latestPrice).thenReturn(USDCurrency(0.0))
         whenever(viewModel.walletHelper.balance).thenReturn(btcBalance)
         whenever(viewModel.walletHelper.btcChainWorth()).thenReturn(USDCurrency(0.0))
 
-        val holdingsObserver = mock<Observer<in CryptoCurrency>>()
-        val holdingsWorthObserver = mock<Observer<in USDCurrency>>()
-        scenario.onActivity { activity ->
-            viewModel.chainHoldings.observe(activity, holdingsObserver)
-            viewModel.chainHoldingsWorth.observe(activity, holdingsWorthObserver)
-        }
 
         viewModel.loadHoldingBalances()
 
         verify(viewModel.syncWalletManager).syncNow()
         assertThat(viewModel.chainHoldings.value?.toLong()).isEqualTo(btcBalance.toSatoshis())
         assertThat(viewModel.chainHoldingsWorth.value?.toFormattedCurrency()).isEqualTo("$0.00")
+    }
+
+    @Test
+    fun notifies_of_default_currency_preference_changes() {
+        val scenario = createScenario()
+        val viewModel = createViewModel()
+        val btcBalance = BTCCurrency(1000000)
+        val defaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
+        whenever(viewModel.currencyPreference.currenciesPreference).thenReturn(defaultCurrencies)
+        whenever(viewModel.walletHelper.balance).thenReturn(btcBalance)
+        whenever(viewModel.walletHelper.btcChainWorth()).thenReturn(USDCurrency(0.0))
+
+        val defaultCurrencyChangeObserver = mock<Observer<in DefaultCurrencies>>()
+        scenario.onActivity { activity ->
+            viewModel.defaultCurrencyPreference.observe(activity, defaultCurrencyChangeObserver)
+        }
+
+        viewModel.loadCurrencyDefaults()
+
+        verify(defaultCurrencyChangeObserver).onChanged(defaultCurrencies)
+        assertThat(viewModel.defaultCurrencyPreference.value).isEqualTo(defaultCurrencies)
+    }
+
+    @Test
+    fun toggles_currency_preference() {
+        val scenario = createScenario()
+        val viewModel = createViewModel()
+        val btcBalance = BTCCurrency(1000000)
+        val defaultCurrenciesInitial = DefaultCurrencies(USDCurrency(), BTCCurrency())
+        val defaultCurrenciesToggled = DefaultCurrencies(BTCCurrency(), USDCurrency())
+        whenever(viewModel.currencyPreference.currenciesPreference).thenReturn(defaultCurrenciesInitial)
+        whenever(viewModel.currencyPreference.toggleDefault()).thenReturn(defaultCurrenciesToggled)
+        whenever(viewModel.walletHelper.balance).thenReturn(btcBalance)
+        whenever(viewModel.walletHelper.btcChainWorth()).thenReturn(USDCurrency(0.0))
+
+        val defaultCurrencyChangeObserver = mock<Observer<in DefaultCurrencies>>()
+        scenario.onActivity { activity ->
+            viewModel.defaultCurrencyPreference.observe(activity, defaultCurrencyChangeObserver)
+        }
+
+        viewModel.loadCurrencyDefaults()
+        viewModel.toggleDefaultCurrencyPreference()
+
+        verify(defaultCurrencyChangeObserver, atLeastOnce()).onChanged(any())
+        assertThat(viewModel.defaultCurrencyPreference.value!!.primaryCurrency).isInstanceOf(BTCCurrency::class.java)
     }
 }

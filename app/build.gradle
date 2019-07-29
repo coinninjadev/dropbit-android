@@ -19,8 +19,8 @@ def keystoreProperties = new Properties()
 // Load your keystore.properties file into the keystoreProperties object.
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
-def versionMajor = 2
-def versionMinor = 3
+def versionMajor = 3
+def versionMinor = 0
 def versionPatch = System.getenv("VERSION_PATCH") ? System.getenv("VERSION_PATCH") : 0
 def APP_VERSION = System.getenv("APP_VERSION") ? Integer.parseInt(System.getenv("APP_VERSION")) : 10480
 def hockeyAppApiToken = System.getenv("HOCKEY_APP_API_TOKEN") ? System.getenv("HOCKEY_APP_API_TOKEN") : HOCKEY_APP_API_TOKEN

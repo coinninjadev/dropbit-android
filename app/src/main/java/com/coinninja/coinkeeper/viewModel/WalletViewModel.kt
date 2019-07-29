@@ -8,6 +8,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.history.SyncManagerChangeObserver
 import com.coinninja.coinkeeper.util.CurrencyPreference
+import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency
 import com.coinninja.coinkeeper.util.currency.USDCurrency
 import javax.inject.Inject
@@ -24,6 +25,7 @@ class WalletViewModel @Inject constructor(
     val chainHoldings: MutableLiveData<CryptoCurrency> = MutableLiveData()
     val chainHoldingsWorth: MutableLiveData<USDCurrency> = MutableLiveData()
     val syncInProgress: MutableLiveData<Boolean> = MutableLiveData()
+    val defaultCurrencyPreference: MutableLiveData<DefaultCurrencies> = MutableLiveData()
 
     internal val syncChangeObserver: SyncManagerChangeObserver = object : SyncManagerChangeObserver {
         override fun onSyncStatusChanged() {
@@ -44,6 +46,14 @@ class WalletViewModel @Inject constructor(
 
         chainHoldings.value = walletHelper.balance
         chainHoldingsWorth.value = walletHelper.btcChainWorth()
+    }
+
+    fun loadCurrencyDefaults() {
+        defaultCurrencyPreference.value = currencyPreference.currenciesPreference
+    }
+
+    fun toggleDefaultCurrencyPreference() {
+        defaultCurrencyPreference.value = currencyPreference.toggleDefault()
     }
 
 }
