@@ -6,6 +6,8 @@ import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserViewModel
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivity
+import com.coinninja.coinkeeper.ui.base.BaseActivityModule
+import com.coinninja.coinkeeper.ui.base.TestBaseActivityModule
 import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivity
@@ -26,137 +28,135 @@ import dagger.android.ContributesAndroidInjector
 abstract class TestAndroidActivityBuilder {
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [TestHomeModule::class])
+    @ContributesAndroidInjector(modules = [TestHomeModule::class, TestBaseActivityModule::class])
     internal abstract fun homeActivity(): HomeActivity
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [AdjustableFeesActivityTest.TestAdjustableFeesActivityModule::class])
+    @ContributesAndroidInjector(modules = [AdjustableFeesActivityTest.TestAdjustableFeesActivityModule::class, TestBaseActivityModule::class])
     internal abstract fun adjustableFeesActivity(): AdjustableFeesActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun coinNinjaUserViewModel(): CoinNinjaUserViewModel
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun signupSelectionActivity(): SignUpSelectionActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun twitterUtil(): TwitterUtil
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun spendBitcoinActivity(): SpendBitcoinActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun buyBitcoinActivity(): BuyBitcoinActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun userAccountVerificationActivity(): UserAccountVerificationActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun baseActivity(): BaseActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun backupActivity(): BackupActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun backupRecoveryWordsStartActivity(): BackupRecoveryWordsStartActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun balanceBarActivity(): BalanceBarActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun broadcastActivity(): BroadcastActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun authenticateActivity(): AuthenticateActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun authorizedActionActivity(): AuthorizedActionActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun coinKeeperSupportActivity(): CoinKeeperSupportActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun createPinActivity(): CreatePinActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun inviteSendActivity(): InviteSendActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun licensesActivity(): LicensesActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun pickContactActivity(): PickUserActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun messagegerActivity(): MessengerActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun qrScanActivity(): QrScanActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun restoreWalletActivity(): RestoreWalletActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun recoverWalletActivity(): RecoverWalletActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun securedActivity(): SecuredActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun settingsActivity(): SettingsActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun splashActivity(): SplashActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun startActivity(): StartActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun trainingActivity(): TrainingActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun verifyPhoneNumberActivity(): VerificationActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun verifyPhoneVerificationCodeActivity(): VerifyPhoneVerificationCodeActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun verifyRecoverywordsActivity(): VerifyRecoverywordsActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun transactionDetailsActivity(): TransactionDetailsActivity
-
-
 }
 

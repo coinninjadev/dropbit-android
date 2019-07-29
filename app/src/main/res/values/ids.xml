@@ -5,6 +5,8 @@
     <item name="id_no_internet_message" type="id" />
     <item name="actionbar_gone" type="id" />
     <item name="actionbar_up_on_with_nav_bar" type="id" />
+    <item name="actionbar_up_on_with_nav_bar_balance_on" type="id" />
+    <item name="actionbar_up_on_with_nav_bar_balance_on_charts_on" type="id" />
     <item name="actionbar_up_off" type="id" />
     <item name="actionbar_up_on" type="id" />
     <item name="actionbar_up_on_skip_on" type="id" />

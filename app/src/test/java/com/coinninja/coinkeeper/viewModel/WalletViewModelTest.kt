@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.ui.base.TestableActivity
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency
+import com.coinninja.coinkeeper.util.currency.FiatCurrency
 import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
@@ -52,7 +53,7 @@ class WalletViewModelTest {
         whenever(viewModel.syncManagerViewNotifier.isSyncing).thenReturn(true).thenReturn(false)
 
         val holdingsObserver = mock<Observer<in CryptoCurrency>>()
-        val holdingsWorthObserver = mock<Observer<in USDCurrency>>()
+        val holdingsWorthObserver = mock<Observer<in FiatCurrency>>()
         scenario.onActivity { activity ->
             viewModel.chainHoldings.observe(activity, holdingsObserver)
             viewModel.chainHoldingsWorth.observe(activity, holdingsWorthObserver)

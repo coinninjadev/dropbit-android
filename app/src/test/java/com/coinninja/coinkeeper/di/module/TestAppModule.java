@@ -605,15 +605,6 @@ public class TestAppModule {
         return app.serviceWorkUtil;
     }
 
-
-    @Provides
-    ActionBarController actionBarController(TestCoinKeeperApplication app) {
-        if (app.actionBarController == null) {
-            app.actionBarController = mock(ActionBarController.class);
-        }
-        return app.actionBarController;
-    }
-
     @Provides
     DrawerController drawerController(TestCoinKeeperApplication app) {
         if (app.drawerController == null) {

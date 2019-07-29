@@ -47,7 +47,6 @@ import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController;
-import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
@@ -57,7 +56,6 @@ import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier;
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryDataAdapter;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.Hasher;
 import com.coinninja.coinkeeper.util.LocalContactQueryUtil;
 import com.coinninja.coinkeeper.util.NotificationUtil;
@@ -159,7 +157,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public InternalNotificationHelper internalNotificationHelper = mock(InternalNotificationHelper.class);
     public TypedValue typedValue;
     public ActivityNavigationUtil activityNavigationUtil;
-    public ActionBarController actionBarController;
     public MessageCryptor messageCryptor;
     public PhoneNumberUtil phoneNumberUtil;
     public CoinKeeperLifecycleListener coinKeeperLifecycleListener;
@@ -218,8 +215,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         when(account.getPhoneNumber()).thenReturn(phoneNumber);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(currencyPreference.getCurrenciesPreference()).thenReturn(defaultCurrencies);
-
-        actionBarController = mock(ActionBarController.class);
     }
 
     @Override
@@ -297,7 +292,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         wallet = null;
         cnServiceConnection = null;
         typedValue = null;
-        actionBarController = null;
         coinKeeperLifecycleListener = null;
         inviteContactPresenter = null;
         internalNotificationsInteractor = null;
@@ -313,7 +307,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         deleteWalletPresenter = null;
         dustProtectionPreference = null;
         yearlyHighViewModel = null;
-        defaultCurrencyChangeViewNotifier =null;
+        defaultCurrencyChangeViewNotifier = null;
         transactionHistoryDataAdapter = null;
         syncManagerViewNotifier = null;
     }

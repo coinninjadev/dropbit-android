@@ -10,11 +10,12 @@ import com.coinninja.coinkeeper.ui.transaction.history.SyncManagerChangeObserver
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency
+import com.coinninja.coinkeeper.util.currency.FiatCurrency
 import com.coinninja.coinkeeper.util.currency.USDCurrency
 import javax.inject.Inject
 
 @Mockable
-class WalletViewModel @Inject constructor(
+class WalletViewModel constructor(
         internal val syncWalletManager: SyncWalletManager,
         internal val syncManagerViewNotifier: SyncManagerViewNotifier,
         internal val walletHelper: WalletHelper,
@@ -23,7 +24,7 @@ class WalletViewModel @Inject constructor(
 
 
     val chainHoldings: MutableLiveData<CryptoCurrency> = MutableLiveData()
-    val chainHoldingsWorth: MutableLiveData<USDCurrency> = MutableLiveData()
+    val chainHoldingsWorth: MutableLiveData<FiatCurrency> = MutableLiveData()
     val syncInProgress: MutableLiveData<Boolean> = MutableLiveData()
     val defaultCurrencyPreference: MutableLiveData<DefaultCurrencies> = MutableLiveData()
 
