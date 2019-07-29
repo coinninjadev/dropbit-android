@@ -352,7 +352,6 @@ class ActivityNavigationUtilTest {
     fun opensUrl() {
         createActivityNavigationUtil().also {
             val uri = Uri.parse("http://www.example.com")
-
             it.openUrl(activity, uri)
 
             assertThat(activity, activityWithIntentStarted(Intent(Intent.ACTION_VIEW, uri)))

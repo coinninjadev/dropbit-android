@@ -1,9 +1,9 @@
 package com.coinninja.coinkeeper.di.builder
 
+import com.coinninja.coinkeeper.di.interfaces.ActivityScope
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserViewModel
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
-import com.coinninja.coinkeeper.di.interfaces.ActivityScope
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.home.HomeModule

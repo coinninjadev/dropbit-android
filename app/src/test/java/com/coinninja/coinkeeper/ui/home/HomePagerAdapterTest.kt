@@ -23,6 +23,5 @@ class HomePagerAdapterTest {
         assertTrue(createHomePageAdapter().getItem(1) is TransactionHistoryFragment)
     }
 
-
     private fun createHomePageAdapter(): HomePagerAdapter = HomePagerAdapter(mock(), Lifecycle.State.CREATED.ordinal)
 }
