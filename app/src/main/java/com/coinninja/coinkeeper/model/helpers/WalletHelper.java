@@ -145,6 +145,10 @@ public class WalletHelper {
         account.update();
     }
 
+    public USDCurrency btcChainWorth() {
+        return getBalance().toUSD(getLatestPrice());
+    }
+
     void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
         if (!hasAccount()) return;
 
@@ -296,8 +300,8 @@ public class WalletHelper {
         return new BTCCurrency(getWallet().getSpendableBalance());
     }
 
-    public long getBalance() {
-        return getWallet().getBalance();
+    public BTCCurrency getBalance() {
+        return new BTCCurrency(getWallet().getBalance());
     }
 
     public TransactionSummary getTransactionByTxid(String txid) {

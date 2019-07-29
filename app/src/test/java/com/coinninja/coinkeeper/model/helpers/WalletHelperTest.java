@@ -75,6 +75,14 @@ public class WalletHelperTest {
     }
 
     @Test
+    public void provides_value_of_wallet_on_blockchain() {
+        when(wallet.getBalance()).thenReturn(100000000L);
+        when(wallet.getLastUSDPrice()).thenReturn(10000L);
+
+        assertThat(walletHelper.btcChainWorth().toFormattedCurrency(), equalTo("$100.00"));
+    }
+
+    @Test
     public void caches_price() {
         walletHelper.setLatestPrice(new USDCurrency(500.00d));
         verify(wallet).setLastUSDPrice(50000L);

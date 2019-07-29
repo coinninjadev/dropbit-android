@@ -6,18 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.util.OnViewClickListener;
 
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 public class TransactionEmptyStateView extends ConstraintLayout {
-
-    private Button getBitcoinButton;
-    private Button learnBitcoinButton;
-    private Button spendBitcoinButton;
 
     private OnViewClickListener getBitcoinButtonClickListener;
     private OnViewClickListener learnBitcoinButtonClickListener;
@@ -54,7 +50,7 @@ public class TransactionEmptyStateView extends ConstraintLayout {
         } else {
             findViewById(R.id.empty_transaction_history).setVisibility(View.VISIBLE);
 
-            if (walletHelper.getBalance() > 0) {
+            if (walletHelper.getBalance().toSatoshis() > 0) {
                 findViewById(R.id.no_bitcoin_yet_title).setVisibility(View.GONE);
                 findViewById(R.id.bitcoin_detail_text_view).setVisibility(View.GONE);
                 findViewById(R.id.spend_bitcoin_button).setVisibility(View.VISIBLE);
@@ -69,18 +65,18 @@ public class TransactionEmptyStateView extends ConstraintLayout {
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.merge_transaction_empty_state, this, true);
 
-        getBitcoinButton = findViewById(R.id.get_bitcoin_button);
+        Button getBitcoinButton = findViewById(R.id.get_bitcoin_button);
         getBitcoinButton.setOnClickListener(this::onGetBitcoinClicked);
 
-        learnBitcoinButton = findViewById(R.id.learn_bitcoin_button);
+        Button learnBitcoinButton = findViewById(R.id.learn_bitcoin_button);
         learnBitcoinButton.setOnClickListener(this::learnBitcoinClicked);
-        
-        spendBitcoinButton = findViewById(R.id.spend_bitcoin_button);
+
+        Button spendBitcoinButton = findViewById(R.id.spend_bitcoin_button);
         spendBitcoinButton.setOnClickListener(this::spendBitcoinClicked);
     }
 
     private void learnBitcoinClicked(View view) {
-       learnBitcoinButtonClickListener.onViewClicked(view);
+        learnBitcoinButtonClickListener.onViewClicked(view);
     }
 
     private void spendBitcoinClicked(View view) {

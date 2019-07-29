@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
 
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.blockchain.BlockChainService;
@@ -18,7 +21,6 @@ import com.coinninja.coinkeeper.ui.transaction.history.SyncManagerChangeObserver
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
 import com.coinninja.coinkeeper.util.currency.FiatCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
@@ -26,8 +28,6 @@ import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView;
 
 import javax.inject.Inject;
 
-import androidx.annotation.CallSuper;
-import androidx.annotation.Nullable;
 import dagger.android.AndroidInjection;
 
 import static com.coinninja.android.helpers.Views.withId;
@@ -138,7 +138,7 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     }
 
     protected void updateSyncingUI() {
-        if(syncManagerViewNotifier.isSyncing()) {
+        if (syncManagerViewNotifier.isSyncing()) {
             balance.showSyncingUI();
         } else {
             balance.hideSyncingUI();
@@ -146,7 +146,7 @@ public abstract class BalanceBarActivity extends SecuredActivity implements Serv
     }
 
     private CryptoCurrency getHoldingsOfCrypto() {
-        return new BTCCurrency(walletHelper.getBalance());
+        return walletHelper.getBalance();
     }
 
     private FiatCurrency getHoldingsOfFiat() {
