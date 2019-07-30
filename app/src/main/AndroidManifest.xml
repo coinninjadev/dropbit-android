@@ -109,7 +109,7 @@
             android:configChanges=""
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.Drawer"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn.ChartsOn"
             android:windowSoftInputMode="adjustPan|adjustNothing">
             <intent-filter>
                 <data android:scheme="bitcoin" />
@@ -123,12 +123,12 @@
             android:name=".ui.transaction.details.TransactionDetailsActivity"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn.BalanceOn" />
         <activity
             android:name=".view.activity.QrScanActivity"
             android:label="@string/scan_qr_label"
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
+            android:theme="@style/CoinKeeperTheme.NoActionBar" />
         <activity
             android:name=".ui.phone.verification.VerificationActivity"
             android:label="@string/activity_verification_header"

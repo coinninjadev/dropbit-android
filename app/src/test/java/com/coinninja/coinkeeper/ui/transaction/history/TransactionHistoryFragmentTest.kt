@@ -40,7 +40,7 @@ import org.mockito.Mockito.*
 class TransactionHistoryFragmentTest {
 
     private val conversionCurrency = USDCurrency(1000.0)
-    private val application = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()
+    private val application get() = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()
 
     private fun setupFragment(numTransactions: Int = 12): FragmentScenario<TransactionHistoryFragment> {
         setupDI(numTransactions)
@@ -59,6 +59,7 @@ class TransactionHistoryFragmentTest {
         whenever(transactions[ArgumentMatchers.anyInt()]).thenReturn(transaction)
         whenever(walletHelper.transactionsLazily).thenReturn(transactions)
         whenever(walletHelper.latestPrice).thenReturn(conversionCurrency)
+        whenever(walletHelper.balance).thenReturn(BTCCurrency(1000))
         val defaultCurrencies = DefaultCurrencies(BTCCurrency(), USDCurrency())
         application.walletHelper = walletHelper
         application.localBroadCastUtil = mock(LocalBroadCastUtil::class.java)

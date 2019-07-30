@@ -21,52 +21,70 @@ class ActionBarController constructor(
         internal val walletViewModel: WalletViewModel
 ) {
 
+    companion object {
+        val actionBarTypes: Array<Int> = arrayOf(
+                // -- gone
+                R.id.actionbar_gone,
+
+                // -- up on
+                R.id.actionbar_up_on,
+                R.id.actionbar_up_on_balance_on,
+                R.id.actionbar_up_on_skip_on,
+                R.id.actionbar_up_on_with_nav_bar,
+                R.id.actionbar_up_on_with_nav_bar_balance_on,
+                R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on,
+                // -- up off
+                R.id.actionbar_up_off,
+                R.id.actionbar_up_off_close_on,
+                R.id.actionbar_up_off_skip_on
+        )
+    }
+
     var menuItemClickListener: MenuItemClickListener? = null
-    internal var isActionBarGone: Boolean = false
-    internal var isUpEnabled: Boolean = false
-    internal var isBalanceOn: Boolean = false
-    internal var optionMenuLayout: Int? = null
+    internal var actionBarType = TypedValue().also {
+        it.resourceId = R.id.actionbar_up_on
+    }
+    internal val isActionBarGone: Boolean get() = actionBarType.resourceId == R.id.actionbar_gone
+
+    internal val isUpEnabled: Boolean
+        get() = when (actionBarType.resourceId) {
+            R.id.actionbar_up_on,
+            R.id.actionbar_up_on_balance_on,
+            R.id.actionbar_up_on_skip_on,
+            R.id.actionbar_up_on_with_nav_bar,
+            R.id.actionbar_up_on_with_nav_bar_balance_on,
+            R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on -> true
+            else -> false
+        }
+
+    internal val isBalanceOn: Boolean
+        get() = when (actionBarType.resourceId) {
+            R.id.actionbar_up_on_balance_on,
+            R.id.actionbar_up_on_with_nav_bar_balance_on,
+            R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on -> true
+
+            else -> false
+        }
+
+    internal val optionMenuLayout: Int?
+        get() = when (actionBarType.resourceId) {
+            R.id.actionbar_up_on_skip_on,
+            R.id.actionbar_up_off_skip_on -> R.menu.actionbar_light_skip_menu
+
+            R.id.actionbar_up_off_close_on -> R.menu.actionbar_light_close_menu
+
+            R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on -> R.menu.actionbar_light_charts_menu
+
+            else -> null
+        }
+
     private var _title: String = ""
 
     fun setTheme(activity: AppCompatActivity, actionBarType: TypedValue) {
-        when (actionBarType.resourceId) {
-            R.id.actionbar_gone -> isActionBarGone = true
-
-            R.id.actionbar_up_on_with_nav_bar,
-            R.id.actionbar_up_on -> isUpEnabled = true
-
-            R.id.actionbar_up_on_skip_on -> {
-                isUpEnabled = true
-                optionMenuLayout = R.menu.actionbar_light_skip_menu
-            }
-            R.id.actionbar_up_on_close_on -> {
-                isUpEnabled = true
-                optionMenuLayout = R.menu.actionbar_light_close_menu
-            }
-            R.id.actionbar_up_on_with_nav_bar_balance_on -> {
-                isBalanceOn = true
-            }
-
-            R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on -> {
-                isBalanceOn = true
-                optionMenuLayout = R.menu.actionbar_light_charts_menu
-            }
-
-            R.id.actionbar_up_off_close_on -> {
-                isUpEnabled = false
-                optionMenuLayout = R.menu.actionbar_light_close_menu
-            }
-
-            R.id.actionbar_up_off -> {
-                isUpEnabled = false
-            }
-
-            R.id.actionbar_up_off_skip_on -> {
-                isUpEnabled = false
-                optionMenuLayout = R.menu.actionbar_light_skip_menu
-            }
-            else -> throw IllegalStateException("R.attr.actionBarMenuType not set")
+        if (!actionBarTypes.contains(actionBarType.resourceId)) {
+            throw IllegalStateException("R.attr.actionBarMenuType not set")
         }
+        this.actionBarType = actionBarType
         hideAppbarIfNecessary(activity)
         updateActionBarUpIndicator(activity)
         updateBalanceViewPreference(activity)

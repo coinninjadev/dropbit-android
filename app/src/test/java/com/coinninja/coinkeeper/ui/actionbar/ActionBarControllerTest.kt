@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.ui.actionbar
 
 import android.util.TypedValue
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -16,8 +15,6 @@ import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
@@ -40,70 +37,89 @@ class ActionBarControllerTest {
     @Test
     fun actionbar_gone_configuration_test() {
         val controller = createController()
-
         val actionBarTyped = TypedValue()
+
+
         actionBarTyped.resourceId = R.id.actionbar_gone
-
         controller.setTheme(activity, actionBarTyped)
-
         assertThat(controller.isActionBarGone).isTrue()
         assertThat(controller.isUpEnabled).isFalse()
         assertThat(controller.optionMenuLayout).isNull()
     }
 
     @Test
-    fun actionbar_light_up_on_configuration_test() {
+    fun actionbar_light__up_on_configuration_test() {
         val controller = createController()
         val actionBarTyped = TypedValue()
+
         actionBarTyped.resourceId = R.id.actionbar_up_on
-
         controller.setTheme(activity, actionBarTyped)
-
         assertThat(controller.isActionBarGone).isFalse()
         assertThat(controller.isUpEnabled).isTrue()
         assertThat(controller.optionMenuLayout).isNull()
-    }
 
-    @Test
-    fun actionbar_light_up_off_configuration_test() {
-        val controller = createController()
-        val actionBarTyped = TypedValue()
-        actionBarTyped.resourceId = R.id.actionbar_up_off
 
+        actionBarTyped.resourceId = R.id.actionbar_up_on_balance_on
         controller.setTheme(activity, actionBarTyped)
-
         assertThat(controller.isActionBarGone).isFalse()
-        assertThat(controller.isUpEnabled).isFalse()
+        assertThat(controller.isUpEnabled).isTrue()
         assertThat(controller.optionMenuLayout).isNull()
-    }
 
-    @Test
-    fun actionbar_light_up_off_skip_on_configuration_test() {
-        val controller = createController()
 
-        val actionBarTyped = TypedValue()
-        actionBarTyped.resourceId = R.id.actionbar_up_off_skip_on
-
+        actionBarTyped.resourceId = R.id.actionbar_up_on_with_nav_bar
         controller.setTheme(activity, actionBarTyped)
-
         assertThat(controller.isActionBarGone).isFalse()
-        assertThat(controller.isUpEnabled).isFalse()
-        assertThat(controller.optionMenuLayout).isEqualTo(R.menu.actionbar_light_skip_menu)
-    }
+        assertThat(controller.isUpEnabled).isTrue()
+        assertThat(controller.optionMenuLayout).isNull()
 
-    @Test
-    fun actionbar_light_up_on_skip_on_configuration_test() {
-        val controller = createController()
 
-        val actionBarTyped = TypedValue()
+        actionBarTyped.resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on
+        controller.setTheme(activity, actionBarTyped)
+        assertThat(controller.isActionBarGone).isFalse()
+        assertThat(controller.isUpEnabled).isTrue()
+        assertThat(controller.optionMenuLayout).isEqualTo(R.menu.actionbar_light_charts_menu)
+
+
+        actionBarTyped.resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on
+        controller.setTheme(activity, actionBarTyped)
+        assertThat(controller.isActionBarGone).isFalse()
+        assertThat(controller.isUpEnabled).isTrue()
+        assertThat(controller.optionMenuLayout).isNull()
+
+
         actionBarTyped.resourceId = R.id.actionbar_up_on_skip_on
-
         controller.setTheme(activity, actionBarTyped)
-
         assertThat(controller.isActionBarGone).isFalse()
         assertThat(controller.isUpEnabled).isTrue()
         assertThat(controller.optionMenuLayout).isEqualTo(R.menu.actionbar_light_skip_menu)
     }
+
+    @Test
+    fun actionbar_light__up_off_configuration_test() {
+        val controller = createController()
+        val actionBarTyped = TypedValue()
+
+        actionBarTyped.resourceId = R.id.actionbar_up_off
+        controller.setTheme(activity, actionBarTyped)
+        assertThat(controller.isActionBarGone).isFalse()
+        assertThat(controller.isUpEnabled).isFalse()
+        assertThat(controller.optionMenuLayout).isNull()
+
+
+        actionBarTyped.resourceId = R.id.actionbar_up_off_close_on
+        controller.setTheme(activity, actionBarTyped)
+        assertThat(controller.isActionBarGone).isFalse()
+        assertThat(controller.isUpEnabled).isFalse()
+        assertThat(controller.optionMenuLayout).isEqualTo(R.menu.actionbar_light_close_menu)
+
+
+        actionBarTyped.resourceId = R.id.actionbar_up_off_skip_on
+        controller.setTheme(activity, actionBarTyped)
+        assertThat(controller.isActionBarGone).isFalse()
+        assertThat(controller.isUpEnabled).isFalse()
+        assertThat(controller.optionMenuLayout).isEqualTo(R.menu.actionbar_light_skip_menu)
+    }
+
 
     @Test(expected = IllegalStateException::class)
     fun throw_illegal_state_exception_when_theme_unknown() {
@@ -156,97 +172,6 @@ class ActionBarControllerTest {
     }
 
     @Test
-    fun if_optionMenuLayout_has_any_value_inflate_it() {
-        val controller = createController()
-        controller.optionMenuLayout = R.menu.actionbar_dark_close_menu
-
-        val menu = mock<Menu>()
-        controller.inflateActionBarMenu(activity, menu)
-
-        verify(activity.menuInflater).inflate(R.menu.actionbar_dark_close_menu, menu)
-    }
-
-    @Test
-    fun if_optionMenuLayout_is_null_then_do_nothing() {
-        val controller = createController()
-        controller.optionMenuLayout = null
-
-        val menu = mock<Menu>()
-        controller.inflateActionBarMenu(activity, menu)
-
-        verify(activity.menuInflater, never()).inflate(R.menu.actionbar_dark_close_menu, menu)
-    }
-
-    @Test
-    fun if_optionMenuLayout_is_null_then_onMenuItemClicked_do_nothing() {
-        val controller = createController()
-        controller.menuItemClickListener = mock()
-        controller.optionMenuLayout = null
-
-        val itemClicked = controller.onMenuItemClicked(mock())
-
-        assertFalse(itemClicked)
-        verify(controller.menuItemClickListener, never())!!.onCloseClicked()
-        verify(controller.menuItemClickListener, never())!!.onSkipClicked()
-    }
-
-    @Test
-    fun if_action_skip_btn_clicked_then_call_menuItemClickListener_onSkipClicked() {
-        val controller = createController()
-        val item: MenuItem = mock()
-        whenever(item.itemId).thenReturn(R.id.action_skip_btn)
-        controller.menuItemClickListener = mock()
-        controller.optionMenuLayout = R.menu.actionbar_light_skip_menu
-
-        assertThat(controller.onMenuItemClicked(item)).isTrue()
-        verify(controller.menuItemClickListener)!!.onSkipClicked()
-        verify(controller.menuItemClickListener, never())!!.onCloseClicked()
-    }
-
-    @Test
-    fun if_action_close_btn_clicked_then_call_menuItemClickListener_onSkipClicked() {
-        val controller = createController()
-        val item: MenuItem = mock()
-        whenever(item.itemId).thenReturn(R.id.action_close_btn)
-        controller.menuItemClickListener = mock()
-        controller.optionMenuLayout = R.menu.actionbar_dark_close_menu
-
-        assertThat(controller.onMenuItemClicked(item)).isTrue()
-
-        verify(controller.menuItemClickListener)!!.onCloseClicked()
-        verify(controller.menuItemClickListener, never())!!.onSkipClicked()
-    }
-
-    @Test
-    fun if_a_menu_item_was_clicked_but_is_unknown_the_return_false() {
-        val controller = createController()
-        val item: MenuItem = mock()
-        whenever(item.itemId).thenReturn(-1)
-        controller.menuItemClickListener = mock()
-        controller.optionMenuLayout = R.menu.actionbar_dark_close_menu
-
-        val itemClicked = controller.onMenuItemClicked(item)
-
-        assertFalse(itemClicked)
-        verify(controller.menuItemClickListener, never())!!.onCloseClicked()
-        verify(controller.menuItemClickListener, never())!!.onSkipClicked()
-    }
-
-    @Test
-    fun observes_chart_menu_item_click() {
-        val controller = createController()
-        val item: MenuItem = mock()
-        whenever(item.itemId).thenReturn(R.id.action_chart_button)
-        controller.menuItemClickListener = mock()
-        controller.optionMenuLayout = R.menu.actionbar_light_charts_menu
-
-        val itemClicked = controller.onMenuItemClicked(item)
-
-        assertTrue(itemClicked)
-        verify(controller.menuItemClickListener)!!.onShowMarketData()
-    }
-
-    @Test
     fun set_title_to_app_bar() {
         val controller = createController()
         val title = " --- TITLE --"
@@ -285,7 +210,21 @@ class ActionBarControllerTest {
     }
 
     @Test
-    fun shows_balance_when_theme_requests_it() {
+    fun shows_balance_when_theme_requests_it_up_on_balance_on() {
+        val controller = createController()
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_on_balance_on
+        }
+
+        controller.setTheme(activity, actionBarTyped)
+
+        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)!!
+        verify(balanceView).visibility = View.VISIBLE
+        assertThat(controller.isUpEnabled).isTrue()
+    }
+
+    @Test
+    fun shows_balance_when_theme_requests_it_drawer_with_balance_on() {
         val controller = createController()
         val actionBarTyped = TypedValue().apply {
             resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on
@@ -419,7 +358,7 @@ class ActionBarControllerTest {
     @Test
     fun clicking_balance_toggles_default_currency_preference() {
         val controller = createController()
-        val argumentCaptor:ArgumentCaptor<View.OnClickListener> = ArgumentCaptor.forClass(View.OnClickListener::class.java)
+        val argumentCaptor: ArgumentCaptor<View.OnClickListener> = ArgumentCaptor.forClass(View.OnClickListener::class.java)
         val actionBarTyped = TypedValue().apply {
             resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on
         }

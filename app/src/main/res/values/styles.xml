@@ -53,8 +53,8 @@
         <item name="actionButtonStyle">@style/FlatButton</item>
     </style>
 
-    <style name="CoinKeeperTheme.UpOn.CloseOn">
-        <item name="actionBarMenuType">@id/actionbar_up_on_close_on</item>
+    <style name="CoinKeeperTheme.UpOn.BalanceOn">
+        <item name="actionBarMenuType">@id/actionbar_up_on_balance_on</item>
     </style>
 
     <style name="CoinKeeperTheme.UpOff">
@@ -73,10 +73,14 @@
     </style>
 
 
-    <style name="CoinKeeperTheme.NoActionBar.BlockChain" parent="CoinKeeperTheme.Toolbar">
+    <style name="CoinKeeperTheme.NoActionBar" parent="CoinKeeperTheme.Toolbar">
         <item name="android:windowContentTransitions">true</item>
         <item name="actionBarMenuType">@id/actionbar_gone</item>
-        <item name="cn_background">@style/BlockChain</item>
+    </style>
+
+    <style name="CoinKeeperTheme.NoActionBar.BlockChain">
+        <item name="android:windowContentTransitions">true</item>
+        <item name="actionBarMenuType">@id/actionbar_gone</item>
     </style>
 
     <style name="CoinKeeperTheme.Drawer">

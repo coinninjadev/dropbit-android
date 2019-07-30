@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.di.builder
 
 import com.coinninja.coinkeeper.di.interfaces.ActivityScope
-import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserViewModel
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivity
@@ -15,9 +14,7 @@ import com.coinninja.coinkeeper.ui.settings.SettingsActivity
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity
-import com.coinninja.coinkeeper.util.TwitterUtil
 import com.coinninja.coinkeeper.view.activity.*
-import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity
 import com.coinninja.coinkeeper.view.activity.base.MessengerActivity
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import dagger.Module
@@ -65,10 +62,6 @@ abstract class AndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class])
     internal abstract fun backupRecoveryWordsStartActivity(): BackupRecoveryWordsStartActivity
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [BaseActivityModule::class])
-    internal abstract fun balanceBarActivity(): BalanceBarActivity
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class])

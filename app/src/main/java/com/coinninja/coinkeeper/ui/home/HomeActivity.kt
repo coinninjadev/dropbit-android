@@ -5,10 +5,10 @@ import androidx.viewpager.widget.ViewPager
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity
+import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import javax.inject.Inject
 
-class HomeActivity : BalanceBarActivity() {
+class HomeActivity : SecuredActivity() {
 
     companion object {
         const val currentPageKey = "current_page"

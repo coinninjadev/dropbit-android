@@ -13,14 +13,14 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity;
+import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 
 import javax.inject.Inject;
 
 import static com.coinninja.android.helpers.Views.withId;
 
-public class TransactionDetailsActivity extends BalanceBarActivity {
+public class TransactionDetailsActivity extends SecuredActivity {
 
     @Inject
     DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
@@ -75,17 +75,17 @@ public class TransactionDetailsActivity extends BalanceBarActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        localBroadCastUtil.registerReceiver(receiver, intentFilter);
-    }
-
-    @Override
     protected void onStop() {
         pageAdapter.setShowTransactionDetailRequestObserver(null);
         localBroadCastUtil.unregisterReceiver(receiver);
         pageAdapter.tearDown();
         super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        localBroadCastUtil.registerReceiver(receiver, intentFilter);
     }
 
     private void onTransactionDataChanged() {
