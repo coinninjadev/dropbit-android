@@ -56,8 +56,6 @@ import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController;
-import com.coinninja.coinkeeper.ui.actionbar.ActionBarController;
-import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
@@ -603,14 +601,6 @@ public class TestAppModule {
             app.serviceWorkUtil = mock(ServiceWorkUtil.class);
         }
         return app.serviceWorkUtil;
-    }
-
-    @Provides
-    DrawerController drawerController(TestCoinKeeperApplication app) {
-        if (app.drawerController == null) {
-            app.drawerController = mock(DrawerController.class);
-        }
-        return app.drawerController;
     }
 
     @Provides

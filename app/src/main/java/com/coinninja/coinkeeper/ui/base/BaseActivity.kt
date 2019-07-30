@@ -105,9 +105,6 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener {
         })
     }
 
-    open fun onPriceReceived(price: USDCurrency) =
-            drawerController.updatePriceOfBtcDisplay(price)
-
     fun showLoading() {
         loadingDialog = loadingDialog ?: AlertDialogBuilder.buildIndefiniteProgress(this).also {
             if (!it.isShowing) it.show()

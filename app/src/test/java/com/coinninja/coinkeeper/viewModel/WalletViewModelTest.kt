@@ -80,6 +80,7 @@ class WalletViewModelTest {
         verify(viewModel.syncWalletManager, never()).syncNow()
         assertThat(viewModel.chainHoldings.value?.toLong()).isEqualTo(btcBalance.toSatoshis())
         assertThat(viewModel.chainHoldingsWorth.value?.toFormattedCurrency()).isEqualTo("$1,000.00")
+        assertThat(viewModel.currentPrice.value?.toFormattedCurrency()).isEqualTo("$10,000.00")
     }
 
     @Test

@@ -5,7 +5,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.equalTo
@@ -32,7 +31,6 @@ class BaseActivityTest {
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         application.typedValue = mock()
-        application.drawerController = mock()
         application.activityNavigationUtil = mock()
         application.cnWalletManager = mock()
         application.yearlyHighViewModel = mock()
@@ -53,39 +51,28 @@ class BaseActivityTest {
         whenever(application.cnWalletManager.hasSkippedBackup()).thenReturn(true)
         setupWithTheme(R.style.CoinKeeperTheme_UpOff)
 
-        verify(application.drawerController).showBackupNowDrawerActions()
+        verify(activity.drawerController).showBackupNowDrawerActions()
     }
 
     @Test
     fun during_onBackPressed_close_drawer() {
         setupWithTheme(R.style.CoinKeeperTheme_UpOff)
-        whenever(application.drawerController.isDrawerOpen).thenReturn(true)
+        whenever(activity.drawerController.isDrawerOpen).thenReturn(true)
 
         activity.onBackPressed()
 
-        verify(application.drawerController).closeDrawer()
+        verify(activity.drawerController).closeDrawer()
     }
 
     @Test
     fun during_onPause_close_drawer() {
         setupWithTheme(R.style.CoinKeeperTheme_UpOff)
-        whenever(application.drawerController.isDrawerOpen).thenReturn(true)
+        whenever(activity.drawerController.isDrawerOpen).thenReturn(true)
 
         activity.onPause()
 
-        verify(application.drawerController).closeDrawerNoAnimation()
+        verify(activity.drawerController).closeDrawerNoAnimation()
     }
-
-    @Test
-    fun during_onPriceReceived_updatePriceOfBtcDisplay_of_drawer() {
-        val price = USDCurrency("500")
-        setupWithTheme(R.style.CoinKeeperTheme_UpOff)
-
-        activity.onPriceReceived(price)
-
-        verify(application.drawerController).updatePriceOfBtcDisplay(price)
-    }
-
 
     @Test
     fun on_close_action_clicked_start_home_activity() {

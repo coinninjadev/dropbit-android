@@ -11,8 +11,6 @@ import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.currency.CryptoCurrency
 import com.coinninja.coinkeeper.util.currency.FiatCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
-import javax.inject.Inject
 
 @Mockable
 class WalletViewModel constructor(
@@ -23,6 +21,7 @@ class WalletViewModel constructor(
 ) : ViewModel() {
 
 
+    val currentPrice: MutableLiveData<FiatCurrency> = MutableLiveData()
     val chainHoldings: MutableLiveData<CryptoCurrency> = MutableLiveData()
     val chainHoldingsWorth: MutableLiveData<FiatCurrency> = MutableLiveData()
     val syncInProgress: MutableLiveData<Boolean> = MutableLiveData()
@@ -47,6 +46,7 @@ class WalletViewModel constructor(
 
         chainHoldings.value = walletHelper.balance
         chainHoldingsWorth.value = walletHelper.btcChainWorth()
+        currentPrice.value = walletHelper.latestPrice
     }
 
     fun loadCurrencyDefaults() {

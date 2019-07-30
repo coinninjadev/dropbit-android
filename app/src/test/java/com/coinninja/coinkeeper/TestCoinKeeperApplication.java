@@ -47,7 +47,6 @@ import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController;
-import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter;
@@ -175,7 +174,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public NotificationUtil notificationUtil;
     public DropbitMeConfiguration dropbitMeConfiguration;
     public InternalNotificationsInteractor internalNotificationsInteractor;
-    public DrawerController drawerController;
     public ServiceWorkUtil serviceWorkUtil;
     public RemoteAddressLocalCache remoteAddressLocalCache;
     public DropbitAccountHelper dropbitAccountHelper;
@@ -295,7 +293,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         coinKeeperLifecycleListener = null;
         inviteContactPresenter = null;
         internalNotificationsInteractor = null;
-        drawerController = null;
         serviceWorkUtil = null;
         remoteAddressLocalCache = null;
         dropbitAccountHelper = null;

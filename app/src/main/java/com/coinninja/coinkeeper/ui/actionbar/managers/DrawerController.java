@@ -24,11 +24,10 @@ import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
 import com.coinninja.coinkeeper.view.widget.DrawerLayout;
+import com.coinninja.coinkeeper.viewModel.WalletViewModel;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.HashSet;
-
-import javax.inject.Inject;
 
 import static com.coinninja.android.helpers.Views.withId;
 
@@ -46,18 +45,20 @@ public class DrawerController {
 
     private final String versionName;
     private final DropbitAccountHelper dropbitAccountHelper;
+    private final WalletViewModel walletViewModel;
     DrawerLayout drawerLayout;
     private BadgeRenderer badgeRenderer;
     private ActivityNavigationUtil navigationUtil;
     private OnMarketSelectionObserver onMarketSelectionObserver;
 
-    @Inject
     public DrawerController(BadgeRenderer badgeRenderer, ActivityNavigationUtil navigationUtil,
-                            @BuildVersionName String versionName, DropbitAccountHelper dropbitAccountHelper) {
+                            @BuildVersionName String versionName, DropbitAccountHelper dropbitAccountHelper,
+                            WalletViewModel walletViewModel) {
         this.badgeRenderer = badgeRenderer;
         this.navigationUtil = navigationUtil;
         this.versionName = versionName;
         this.dropbitAccountHelper = dropbitAccountHelper;
+        this.walletViewModel = walletViewModel;
     }
 
     public void inflateDrawer(AppCompatActivity activity, TypedValue actionBarType) {
@@ -65,10 +66,15 @@ public class DrawerController {
             View root = activity.findViewById(R.id.cn_content_wrapper);
             wrapBaseLayoutWithDrawer(activity, root);
             inflate(activity);
+            setupPrice();
             setupNavigationView();
             setupDrawerButtons();
             displayAppVersion();
         }
+    }
+
+    private void setupPrice() {
+        walletViewModel.loadHoldingBalances();
     }
 
     public void openDrawer() {
