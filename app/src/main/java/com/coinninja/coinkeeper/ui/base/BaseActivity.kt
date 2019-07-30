@@ -84,7 +84,6 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener {
         theme.resolveAttribute(R.attr.actionBarMenuType, actionBarType, true)
         actionBarController.setTheme(this, actionBarType)
         drawerController.inflateDrawer(this, actionBarType)
-        actionBarController.displayTitle(this)
     }
 
     public override fun onPause() {
