@@ -117,12 +117,8 @@ class ActionBarController constructor(
                 constraintSet.connect(R.id.balance, ConstraintSet.TOP, R.id.appbar_title, ConstraintSet.BOTTOM)
 
                 constraintSet.applyTo(constraintLayout)
-
-
             }
         }
-
-
     }
 
     private fun updateBalances(defaultCurrencyDisplayView: DefaultCurrencyDisplaySyncView, defaultCurrencies: DefaultCurrencies

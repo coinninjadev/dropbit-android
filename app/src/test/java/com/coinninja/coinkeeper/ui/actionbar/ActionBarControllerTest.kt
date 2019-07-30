@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.util.DefaultCurrencies
@@ -29,6 +30,7 @@ class ActionBarControllerTest {
         whenever(activity.supportActionBar!!.title).thenReturn("")
         whenever(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).thenReturn(mock())
         whenever(activity.findViewById<TextView>(R.id.appbar_title)).thenReturn(mock())
+        whenever(activity.findViewById<ConstraintLayout>(R.id.cn_appbar_extensions)).thenReturn(mock())
         whenever(it.walletViewModel.syncInProgress).thenReturn(mock())
         whenever(it.walletViewModel.chainHoldings).thenReturn(mock())
         whenever(it.walletViewModel.chainHoldingsWorth).thenReturn(mock())
@@ -222,7 +224,6 @@ class ActionBarControllerTest {
 
         val textView = activity.findViewById<TextView>(R.id.appbar_title)!!
         verify(textView, atLeastOnce()).visibility = View.GONE
-        verify(textView, atLeastOnce()).text = ""
         verify(activity.supportActionBar!!, times(2)).title = ""
     }
 
