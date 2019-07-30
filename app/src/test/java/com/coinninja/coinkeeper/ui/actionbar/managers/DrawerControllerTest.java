@@ -10,10 +10,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.lifecycle.MutableLiveData;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
+import com.coinninja.coinkeeper.util.currency.FiatCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
 import com.coinninja.coinkeeper.view.widget.DrawerLayout;
@@ -63,12 +65,14 @@ public class DrawerControllerTest {
 
     private TypedValue actionbarType = new TypedValue();
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         drawerController = new DrawerController(badgeRenderer, navigationUtil, "1.1.1", dropbitAccountHelper, walletViewModel);
         activity = Robolectric.setupActivity(A.class);
         actionbarType.resourceId = R.id.actionbar_up_on_with_nav_bar;
+        when(walletViewModel.getCurrentPrice()).thenReturn(mock(MutableLiveData.class));
     }
 
     @After
@@ -181,17 +185,6 @@ public class DrawerControllerTest {
     }
 
     @Test
-    public void update_price() {
-        USDCurrency price = new USDCurrency("500");
-        drawerController.inflateDrawer(activity, actionbarType);
-        drawerController.updatePriceOfBtcDisplay(price);
-
-        TextView priceView = withId(activity, R.id.drawer_action_price_text);
-
-        assertThat(priceView, hasText(price.toFormattedCurrency()));
-    }
-
-    @Test
     public void display_app_version() {
         drawerController.inflateDrawer(activity, actionbarType);
 
@@ -288,6 +281,27 @@ public class DrawerControllerTest {
         assertFalse(drawerController.onMenuItemClicked(menuItem));
     }
 
+    @Test
+    public void sets_price_change_observer_when_initialized() {
+        drawerController.inflateDrawer(activity, actionbarType);
+
+        verify(drawerController.walletViewModel.getCurrentPrice()).observe(activity, drawerController.currentPriceObserver);
+        verify(drawerController.walletViewModel).loadHoldingBalances();
+    }
+
+    @Test
+    public void updates_price_when_observed() {
+        drawerController.inflateDrawer(activity, actionbarType);
+
+        drawerController.currentPriceObserver.onChanged(null);
+        USDCurrency price = new USDCurrency(5600.00);
+        drawerController.currentPriceObserver.onChanged(price);
+
+        TextView priceView = withId(activity, R.id.drawer_action_price_text);
+
+        assertThat(priceView, hasText(price.toFormattedCurrency()));
+
+    }
 
     public static class A extends AppCompatActivity {
         @Override

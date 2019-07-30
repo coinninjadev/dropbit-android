@@ -14,6 +14,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.lifecycle.Observer;
 
 import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
@@ -21,7 +22,7 @@ import com.coinninja.coinkeeper.di.interfaces.BuildVersionName;
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
+import com.coinninja.coinkeeper.util.currency.FiatCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
 import com.coinninja.coinkeeper.view.widget.DrawerLayout;
 import com.coinninja.coinkeeper.viewModel.WalletViewModel;
@@ -43,10 +44,11 @@ public class DrawerController {
         drawerThemes = set;
     }
 
+    final WalletViewModel walletViewModel;
     private final String versionName;
     private final DropbitAccountHelper dropbitAccountHelper;
-    private final WalletViewModel walletViewModel;
     DrawerLayout drawerLayout;
+    Observer<? super FiatCurrency> currentPriceObserver = (Observer<FiatCurrency>) this::updatePriceOfBtcDisplay;
     private BadgeRenderer badgeRenderer;
     private ActivityNavigationUtil navigationUtil;
     private OnMarketSelectionObserver onMarketSelectionObserver;
@@ -66,15 +68,11 @@ public class DrawerController {
             View root = activity.findViewById(R.id.cn_content_wrapper);
             wrapBaseLayoutWithDrawer(activity, root);
             inflate(activity);
-            setupPrice();
+            setupPrice(activity);
             setupNavigationView();
             setupDrawerButtons();
             displayAppVersion();
         }
-    }
-
-    private void setupPrice() {
-        walletViewModel.loadHoldingBalances();
     }
 
     public void openDrawer() {
@@ -109,14 +107,6 @@ public class DrawerController {
         }
     }
 
-    public void updatePriceOfBtcDisplay(USDCurrency price) {
-        if (drawerLayout == null) return;
-
-        TextView drawerPriceTxtView = drawerLayout.findViewById(R.id.drawer_action_price_text);
-
-        if (!price.isZero()) drawerPriceTxtView.setText(price.toFormattedCurrency());
-    }
-
     public void displayAppVersion() {
         if (drawerLayout == null) return;
 
@@ -146,6 +136,20 @@ public class DrawerController {
 
     public void observeMarketSelection(OnMarketSelectionObserver onMarketSelectionObserver) {
         this.onMarketSelectionObserver = onMarketSelectionObserver;
+    }
+
+    private void setupPrice(AppCompatActivity activity) {
+        walletViewModel.getCurrentPrice().observe(activity, currentPriceObserver);
+        walletViewModel.loadHoldingBalances();
+    }
+
+    private void updatePriceOfBtcDisplay(FiatCurrency price) {
+        if (drawerLayout == null) return;
+
+        TextView drawerPriceTxtView = drawerLayout.findViewById(R.id.drawer_action_price_text);
+
+        if (price != null && !price.isZero())
+            drawerPriceTxtView.setText(price.toFormattedCurrency());
     }
 
     private void wrapBaseLayoutWithDrawer(AppCompatActivity activity, View root) {
