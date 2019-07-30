@@ -33,6 +33,7 @@ class WalletViewModel constructor(
             if (!syncManagerViewNotifier.isSyncing) {
                 chainHoldings.value = walletHelper.balance
                 chainHoldingsWorth.value = walletHelper.btcChainWorth()
+                currentPrice.value = walletHelper.latestPrice
             }
         }
     }.also {

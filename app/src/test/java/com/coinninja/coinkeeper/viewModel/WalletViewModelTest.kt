@@ -48,22 +48,30 @@ class WalletViewModelTest {
         val scenario = createScenario()
         val viewModel = createViewModel()
         val btcBalance = BTCCurrency(1000000)
+        val chainWorth = USDCurrency(100.00)
+        val currentPrice = USDCurrency(10000.00)
         whenever(viewModel.walletHelper.balance).thenReturn(btcBalance)
-        whenever(viewModel.walletHelper.btcChainWorth()).thenReturn(USDCurrency(100.00))
+        whenever(viewModel.walletHelper.btcChainWorth()).thenReturn(chainWorth)
+        whenever(viewModel.walletHelper.latestPrice).thenReturn(currentPrice)
         whenever(viewModel.syncManagerViewNotifier.isSyncing).thenReturn(true).thenReturn(false)
 
         val holdingsObserver = mock<Observer<in CryptoCurrency>>()
         val holdingsWorthObserver = mock<Observer<in FiatCurrency>>()
+        val currentPriceObserver = mock<Observer<in FiatCurrency>>()
         scenario.onActivity { activity ->
             viewModel.chainHoldings.observe(activity, holdingsObserver)
             viewModel.chainHoldingsWorth.observe(activity, holdingsWorthObserver)
+            viewModel.currentPrice.observe(activity, currentPriceObserver)
         }
 
         viewModel.syncChangeObserver.onSyncStatusChanged()
         viewModel.syncChangeObserver.onSyncStatusChanged()
         verify(holdingsObserver, atLeastOnce()).onChanged(btcBalance)
+        verify(holdingsWorthObserver, atLeastOnce()).onChanged(chainWorth)
+        verify(currentPriceObserver, atLeastOnce()).onChanged(currentPrice)
         assertThat(viewModel.chainHoldings.value?.toLong()).isEqualTo(btcBalance.toSatoshis())
         assertThat(viewModel.chainHoldingsWorth.value?.toFormattedCurrency()).isEqualTo("$100.00")
+        assertThat(viewModel.currentPrice.value?.toFormattedCurrency()).isEqualTo("$10,000.00")
     }
 
     @Test
