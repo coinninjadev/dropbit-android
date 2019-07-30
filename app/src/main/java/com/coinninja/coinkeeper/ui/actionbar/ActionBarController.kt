@@ -6,6 +6,8 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.R
@@ -66,6 +68,12 @@ class ActionBarController constructor(
             else -> false
         }
 
+    internal val isBalanceBelowTitle: Boolean
+        get() = when (actionBarType.resourceId) {
+            R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on -> true
+            else -> false
+        }
+
     internal val optionMenuLayout: Int?
         get() = when (actionBarType.resourceId) {
             R.id.actionbar_up_on_skip_on,
@@ -99,7 +107,22 @@ class ActionBarController constructor(
             } else {
                 View.GONE
             }
+
+            if (isBalanceOn && isBalanceBelowTitle) {
+                val constraintSet = ConstraintSet()
+                val constraintLayout = activity.findViewById<ConstraintLayout>(R.id.cn_appbar_extensions)
+                constraintSet.clone(constraintLayout)
+                constraintSet.connect(R.id.balance, ConstraintSet.START, R.id.guideline2, ConstraintSet.START)
+                constraintSet.connect(R.id.balance, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constraintSet.connect(R.id.balance, ConstraintSet.TOP, R.id.appbar_title, ConstraintSet.BOTTOM)
+
+                constraintSet.applyTo(constraintLayout)
+
+
+            }
         }
+
+
     }
 
     private fun updateBalances(defaultCurrencyDisplayView: DefaultCurrencyDisplaySyncView, defaultCurrencies: DefaultCurrencies
