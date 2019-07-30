@@ -3,6 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:cn="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_drawer_main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,11 +33,11 @@
                 android:id="@+id/balance"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginEnd="32dip"
                 android:gravity="end|center_vertical"
                 android:minWidth="20dp"
-                android:visibility="gone"
-                app:layout_constraintEnd_toStartOf="@+id/action_close_btn"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.98"
                 app:layout_constraintStart_toStartOf="@+id/guideline2"
                 app:layout_constraintTop_toBottomOf="@id/appbar_title"
@@ -46,7 +47,8 @@
                 cn:secondaryCryptoIconScale=".8"
                 cn:secondaryTextAppearance="@style/TextAppearance.Balance.Secondary"
                 cn:sentTextAppearance="@style/TextAppearance.Balance.Primary"
-                cn:useCryptoIcon="true" />
+                cn:useCryptoIcon="true"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/appbar_title"

@@ -97,7 +97,7 @@ class ActionBarController constructor(
                 setupObserversFor(activity, this)
                 View.VISIBLE
             } else {
-                View.VISIBLE
+                View.GONE
             }
         }
     }
@@ -179,7 +179,7 @@ class ActionBarController constructor(
         _title = title ?: activity.supportActionBar?.title.toString()
         activity.supportActionBar?.title = ""
 
-        if (isActionBarGone && _title.isNotEmpty()) {
+        if (isActionBarGone || _title.isEmpty()) {
             removeTitle(activity)
         } else {
             renderTitle(activity)

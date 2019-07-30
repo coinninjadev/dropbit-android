@@ -26,6 +26,7 @@ class ActionBarControllerTest {
     private fun createController(): ActionBarController = ActionBarController(mock()).also {
         whenever(activity.menuInflater).thenReturn(mock())
         whenever(activity.supportActionBar).thenReturn(mock())
+        whenever(activity.supportActionBar!!.title).thenReturn("")
         whenever(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).thenReturn(mock())
         whenever(activity.findViewById<TextView>(R.id.appbar_title)).thenReturn(mock())
         whenever(it.walletViewModel.syncInProgress).thenReturn(mock())
@@ -210,7 +211,23 @@ class ActionBarControllerTest {
     }
 
     @Test
-    fun shows_balance_when_theme_requests_it_up_on_balance_on() {
+    fun title_bar__gone_when_empty() {
+        val controller = createController()
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_off
+        }
+        controller.setTheme(activity, actionBarTyped)
+
+        controller.displayTitle(activity, "")
+
+        val textView = activity.findViewById<TextView>(R.id.appbar_title)!!
+        verify(textView, atLeastOnce()).visibility = View.GONE
+        verify(textView, atLeastOnce()).text = ""
+        verify(activity.supportActionBar!!, times(2)).title = ""
+    }
+
+    @Test
+    fun balance__shows_when_theme_requests_it_up_on_balance_on() {
         val controller = createController()
         val actionBarTyped = TypedValue().apply {
             resourceId = R.id.actionbar_up_on_balance_on
@@ -220,11 +237,23 @@ class ActionBarControllerTest {
 
         val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)!!
         verify(balanceView).visibility = View.VISIBLE
-        assertThat(controller.isUpEnabled).isTrue()
     }
 
     @Test
-    fun shows_balance_when_theme_requests_it_drawer_with_balance_on() {
+    fun balance__gone_when_theme_has_no_balance() {
+        val controller = createController()
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_on
+        }
+
+        controller.setTheme(activity, actionBarTyped)
+
+        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)!!
+        verify(balanceView).visibility = View.GONE
+    }
+
+    @Test
+    fun balance_shows_when_theme_requests_it_drawer_with_balance_on() {
         val controller = createController()
         val actionBarTyped = TypedValue().apply {
             resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on

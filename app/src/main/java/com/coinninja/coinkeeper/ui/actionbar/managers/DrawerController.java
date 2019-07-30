@@ -26,11 +26,23 @@ import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
 import com.coinninja.coinkeeper.view.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.HashSet;
+
 import javax.inject.Inject;
 
 import static com.coinninja.android.helpers.Views.withId;
 
 public class DrawerController {
+
+    private static final HashSet drawerThemes;
+
+    static {
+        HashSet<Integer> set = new HashSet<Integer>();
+        set.add(R.id.actionbar_up_on_with_nav_bar);
+        set.add(R.id.actionbar_up_on_with_nav_bar_balance_on);
+        set.add(R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on);
+        drawerThemes = set;
+    }
 
     private final String versionName;
     private final DropbitAccountHelper dropbitAccountHelper;
@@ -49,7 +61,7 @@ public class DrawerController {
     }
 
     public void inflateDrawer(AppCompatActivity activity, TypedValue actionBarType) {
-        if (actionBarType.resourceId == R.id.actionbar_up_on_with_nav_bar) {
+        if (drawerThemes.contains(actionBarType.resourceId)) {
             View root = activity.findViewById(R.id.cn_content_wrapper);
             wrapBaseLayoutWithDrawer(activity, root);
             inflate(activity);
