@@ -15,7 +15,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.util.currency.FiatCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer;
 import com.coinninja.coinkeeper.view.widget.DrawerLayout;
@@ -156,7 +155,6 @@ public class DrawerControllerTest {
         drawerController.openDrawer();
         drawerController.closeDrawer();
         drawerController.closeDrawerNoAnimation();
-        drawerController.updatePriceOfBtcDisplay(new USDCurrency("500.00"));
     }
 
     @Test
