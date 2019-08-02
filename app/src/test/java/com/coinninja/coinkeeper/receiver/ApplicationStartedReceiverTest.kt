@@ -19,11 +19,10 @@ class ApplicationStartedReceiverTest {
 
     private fun createReceiver(): ApplicationStartedReceiver {
         val receiver = ApplicationStartedReceiver()
-        val application1 = application
-        application1.jobServiceScheduler = mock()
-        application1.syncWalletManager = mock()
-        application1.cnWalletManager = mock()
-        application1.analytics = mock()
+        val app = application
+        app.jobServiceScheduler = mock()
+        app.syncWalletManager = mock()
+        app.cnWalletManager = mock()
         return receiver
     }
 
@@ -41,7 +40,7 @@ class ApplicationStartedReceiverTest {
                 eq(100), captor.capture())
 
         val intent = captor.firstValue
-        assertThat(intent.component!!.javaClass.name, equalTo(PushNotificationEndpointRegistrationService::class.java.name))
+        assertThat(intent.component!!.className, equalTo(PushNotificationEndpointRegistrationService::class.java.name))
     }
 
     @Test
@@ -61,6 +60,9 @@ class ApplicationStartedReceiverTest {
         val receiver = createReceiver()
         val app = application
         whenever(app.cnWalletManager.hasWallet).thenReturn(false)
-        verify(app.analytics).setUserProperty(Analytics.PROPERTY_PLATFORM, "Android")
+
+        receiver.onReceive(app, Intent())
+
+        verify(receiver.analytics).setUserProperty(Analytics.PROPERTY_PLATFORM, "Android")
     }
 }

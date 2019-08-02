@@ -132,6 +132,10 @@ interface Analytics {
         const val EVENT_TWITTER_SEND_SUCCESSFUL = "TwitterSendComplete"
         const val EVENT_TWITTER_VERIFIED = "TwitterVerified"
 
+        // CHARTS / NEWS
+        const val EVENT_CHARTS_OPENED = "ChartsOpened"
+        const val EVENT_NEWS_ARTICLE_OPENED = "NewsArticleOpened"
+
         // PROPERTIES
         const val PROPERTY_HAS_WALLET = "Has Wallet"
         const val PROPERTY_HAS_WALLET_BACKUP = "Has Backup"

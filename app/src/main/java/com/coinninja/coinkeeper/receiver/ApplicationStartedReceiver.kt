@@ -28,13 +28,13 @@ class ApplicationStartedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         AndroidInjection.inject(this, context)
         analytics.setUserProperty(Analytics.PROPERTY_PLATFORM, Analytics.OS)
+
         if (!cnWalletManager.hasWallet) return
+
         jobServiceScheduler.enqueueWork(
                 context,
                 PushNotificationEndpointRegistrationService::class.java,
                 JobServiceScheduler.ENDPOINT_REGISTRATION_SERVICE_JOB_ID,
                 Intent(context, PushNotificationEndpointRegistrationService::class.java))
-        //todo remove after all members are past v1.2
-        syncWalletManager.cancelAllOldSyncJobs()
     }
 }
