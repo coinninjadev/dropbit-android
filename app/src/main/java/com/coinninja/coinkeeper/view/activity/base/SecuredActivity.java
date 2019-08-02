@@ -80,7 +80,7 @@ public abstract class SecuredActivity extends MessengerActivity {
         if (Arrays.asList(PIN_IGNORE_LIST).contains(getClass().getName()))
             return;
 
-        boolean hasWallet = cnWalletManager.hasWallet();
+        boolean hasWallet = cnWalletManager.getHasWallet();
 
         if (!authentication.isAuthenticated()) {
             if (!pinEntry.hasExistingPin() && !hasWallet) {

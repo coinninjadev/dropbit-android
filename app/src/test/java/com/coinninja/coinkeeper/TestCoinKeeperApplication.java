@@ -180,7 +180,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public DustProtectionPreference dustProtectionPreference;
     public Twitter twitter;
     public TwitterVerificationController twitterVerificationController;
-    @Nullable
     public CountryCodeLocaleGenerator countryCodeLocaleGenerator;
     public DeleteWalletPresenter deleteWalletPresenter;
 

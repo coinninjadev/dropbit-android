@@ -33,7 +33,7 @@ public class InviteContactPresenter implements InviteContactRunner.OnInviteListe
     @Override
     public void onInviteSuccessful(InvitedContact inviteContact) {
         view.showInviteSuccessful(inviteContact);
-        analytics.setUserProperty(Analytics.PROPERTY_HAS_SENT_DROPBIT, true);
+        analytics.setUserProperty(Analytics.Companion.PROPERTY_HAS_SENT_DROPBIT, true);
     }
 
     @Override

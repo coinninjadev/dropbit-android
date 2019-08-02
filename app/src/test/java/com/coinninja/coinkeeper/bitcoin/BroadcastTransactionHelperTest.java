@@ -155,10 +155,10 @@ public class BroadcastTransactionHelperTest {
 
         broadcastHelper.broadcast(transactionData);
 
-        verify(analytics).trackEvent(eq(Analytics.EVENT_BROADCAST_COMPLETE), proprietiesCaptor.capture());
+        verify(analytics).trackEvent(eq(Analytics.Companion.EVENT_BROADCAST_COMPLETE), proprietiesCaptor.capture());
         JSONObject jsonObject = proprietiesCaptor.getValue();
-        assertThat(jsonObject.getInt(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE), equalTo(200));
-        assertThat(jsonObject.getString(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG), equalTo("OK"));
+        assertThat(jsonObject.getInt(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE), equalTo(200));
+        assertThat(jsonObject.getString(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG), equalTo("OK"));
     }
 
     @Test
@@ -186,10 +186,10 @@ public class BroadcastTransactionHelperTest {
 
         broadcastHelper.broadcast(transactionData);
 
-        verify(analytics).trackEvent(eq(Analytics.EVENT_BROADCAST_FAILED), proprietiesCaptor.capture());
+        verify(analytics).trackEvent(eq(Analytics.Companion.EVENT_BROADCAST_FAILED), proprietiesCaptor.capture());
         JSONObject jsonObject = proprietiesCaptor.getValue();
-        assertThat(jsonObject.getInt(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE), equalTo(500));
-        assertThat(jsonObject.getString(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG), equalTo(message));
+        assertThat(jsonObject.getInt(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE), equalTo(500));
+        assertThat(jsonObject.getString(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG), equalTo(message));
     }
 
     private Response buildBlockchainInfoResposne(String json) {

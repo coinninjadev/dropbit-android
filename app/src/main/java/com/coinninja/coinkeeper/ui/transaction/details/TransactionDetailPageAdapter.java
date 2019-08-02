@@ -28,7 +28,6 @@ import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.TwitterUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
@@ -195,7 +194,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
 
     private void shareButtonClicked(View view) {
         TransactionsInvitesSummary transactionsInvitesSummary = getTransactionSummaryWithTaggedView(view);
-        analytics.trackEvent(Analytics.EVENT_SHARE_VIA_TWITTER);
+        analytics.trackEvent(Analytics.Companion.EVENT_SHARE_VIA_TWITTER);
 
         String memo = transactionsInvitesSummary.getTransactionSummary() == null ||
                 transactionsInvitesSummary.getTransactionSummary().getTransactionNotification() == null ||

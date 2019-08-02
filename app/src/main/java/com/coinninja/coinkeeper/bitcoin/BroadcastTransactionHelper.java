@@ -4,7 +4,6 @@ import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionBuilder;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.model.Transaction;
-import com.coinninja.coinkeeper.interfaces.ErrorLogging;
 import com.coinninja.coinkeeper.service.client.BlockchainClient;
 import com.coinninja.coinkeeper.service.client.BlockstreamClient;
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil;
@@ -83,9 +82,9 @@ public class BroadcastTransactionHelper {
         JSONObject properties = buildBroadcastProp(blockChainInfoResult, blockstreamInfoResult);
 
         if (isSuccess) {
-            analytics.trackEvent(Analytics.EVENT_BROADCAST_COMPLETE, properties);
+            analytics.trackEvent(Analytics.Companion.EVENT_BROADCAST_COMPLETE, properties);
         } else {
-            analytics.trackEvent(Analytics.EVENT_BROADCAST_FAILED, properties);
+            analytics.trackEvent(Analytics.Companion.EVENT_BROADCAST_FAILED, properties);
         }
     }
 
@@ -94,10 +93,10 @@ public class BroadcastTransactionHelper {
         JSONObject jsonObject = new JSONObject();
 
         try {
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_LIB_CODE, blockstreamResponse.getResponseCode());
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_LIB_MSG, blockstreamResponse.getMessage());
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE, blockChainInfoResult.getResponseCode());
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG, blockChainInfoResult.getMessage());
+            jsonObject.put(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_LIB_CODE, blockstreamResponse.getResponseCode());
+            jsonObject.put(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_LIB_MSG, blockstreamResponse.getMessage());
+            jsonObject.put(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_BLOCK_CODE, blockChainInfoResult.getResponseCode());
+            jsonObject.put(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_BLOCK_MSG, blockChainInfoResult.getMessage());
         } catch (JSONException e) {
             Crashlytics.logException(e);
         }

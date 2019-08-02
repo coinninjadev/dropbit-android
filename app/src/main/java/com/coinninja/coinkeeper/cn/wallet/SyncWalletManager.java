@@ -55,7 +55,7 @@ public class SyncWalletManager implements ServiceConnection {
     }
 
     public void schedule60SecondSync() {
-        if (!cnWalletManager.hasWallet()) return;
+        if (!cnWalletManager.getHasWallet()) return;
         if (null == binder) {
             context.bindService(new Intent(context, CNWalletService.class), this, Context.BIND_AUTO_CREATE);
         }
@@ -63,7 +63,7 @@ public class SyncWalletManager implements ServiceConnection {
     }
 
     public void scheduleHourlySync() {
-        if (!cnWalletManager.hasWallet()) return;
+        if (!cnWalletManager.getHasWallet()) return;
 
         jobServiceScheduler.schedule(context, JobServiceScheduler.SYNC_HOURLY_SERVICE_JOB_ID,
                 WalletTransactionRetrieverService.class, NETWORK_TYPE_ANY,
@@ -71,7 +71,7 @@ public class SyncWalletManager implements ServiceConnection {
     }
 
     public void syncNow() {
-        if (!cnWalletManager.hasWallet() || binder == null) return;
+        if (!cnWalletManager.getHasWallet() || binder == null) return;
 
         binder.getService().performSync();
     }

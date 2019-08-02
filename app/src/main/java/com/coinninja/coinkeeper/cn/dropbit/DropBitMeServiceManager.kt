@@ -66,7 +66,7 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
         val identity = dropbitAccountHelper.identityForType(IdentityType.PHONE)
         val response = deleteIdentity(identity)
 
-        if (response.isSuccessful || response.code().equals(404)) {
+        if (response.isSuccessful) {
             dropbitAccountHelper.delete(identity)
             localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED)
         } else {
@@ -80,7 +80,7 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
         val identity = dropbitAccountHelper.identityForType(IdentityType.TWITTER)
         val response = deleteIdentity(identity)
 
-        if (response.isSuccessful || response.code().equals(404)) {
+        if (response.isSuccessful) {
             dropbitAccountHelper.delete(identity)
             twitter.clear()
             localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_DEVERIFY_TWITTER_COMPLETED)
@@ -202,13 +202,13 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
         val response = apiClient.resetWallet()
 
         if (response.isSuccessful)
-            cnWalletManager.deverifyAccount()
+            cnWalletManager.deVerifyAccount()
 
         return response
     }
 
     private fun createUserOrAddIdentity(identity: CNUserIdentity): Response<Any> {
-        if (dropbitAccountHelper.numVerifiedIdentities > 0) {
+        if (dropbitAccountHelper.hasVerifiedAccount) {
             return apiClient.addIdentity(identity)
         } else {
             val response = apiClient.createUserFromIdentity(identity)

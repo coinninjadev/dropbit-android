@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.model.helpers;
 
 import androidx.annotation.NonNull;
 
+import com.coinninja.coinkeeper.model.db.Account;
 import com.coinninja.coinkeeper.model.db.AccountDao;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.AddressDao;
@@ -92,9 +93,20 @@ public class DaoSessionManager {
         long id = getUserDao().insert(user);
         Wallet wallet = new Wallet();
         wallet.setUserId(id);
-        getWalletDao().insert(wallet);
+        long walletId = getWalletDao().insert(wallet);
+        wallet.setId(walletId);
+        wallet.__setDaoSession(session);
         return wallet;
     }
+
+    // Account
+    public long insert(Account account) {
+        long id = getAccountDao().insert(account);
+        account.__setDaoSession(session);
+        account.setId(id);
+        return id;
+    }
+
 
     // WORD
     public WordDao getWordDao() {

@@ -132,21 +132,6 @@ class DropBitMeServiceManagerTest {
     }
 
     @Test
-    fun `404 response means server no longer has phone identity`() {
-        val serviceManager = buildServiceManager()
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(2)
-        val identity = mock(DropbitMeIdentity::class.java)
-        val response = Response.error<Any>(404, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(serviceManager.dropbitAccountHelper.identityForType(IdentityType.PHONE)).thenReturn(identity)
-        whenever(serviceManager.apiClient.deleteIdentity(identity)).thenReturn(response)
-
-        serviceManager.deVerifyPhoneNumber()
-
-        verify(serviceManager.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_DEVERIFY_PHONE_NUMBER_COMPLETED)
-        verify(serviceManager.dropbitAccountHelper).delete(identity)
-    }
-
-    @Test
     fun `deVerifying Twitter removes identity locally and remotely`() {
         val twitter = mock(Twitter::class.java)
         val serviceManager = buildServiceManager(twitter)
@@ -160,22 +145,6 @@ class DropBitMeServiceManagerTest {
 
         verify(serviceManager.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_DEVERIFY_TWITTER_COMPLETED)
         verify(twitter).clear()
-        verify(serviceManager.dropbitAccountHelper).delete(identity)
-    }
-
-
-    @Test
-    fun `404 response means server no longer has twitter identity`() {
-        val serviceManager = buildServiceManager()
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(2)
-        val identity = mock(DropbitMeIdentity::class.java)
-        whenever(serviceManager.dropbitAccountHelper.identityForType(IdentityType.TWITTER)).thenReturn(identity)
-        val response = Response.error<Any>(404, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(serviceManager.apiClient.deleteIdentity(identity)).thenReturn(response)
-
-        serviceManager.deVerifyTwitterAccount()
-
-        verify(serviceManager.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_DEVERIFY_TWITTER_COMPLETED)
         verify(serviceManager.dropbitAccountHelper).delete(identity)
     }
 
@@ -203,7 +172,7 @@ class DropBitMeServiceManagerTest {
 
         serviceManager.deVerifyPhoneNumber()
 
-        verify(serviceManager.cnWalletManager).deverifyAccount()
+        verify(serviceManager.cnWalletManager).deVerifyAccount()
     }
 
     @Test
@@ -217,7 +186,7 @@ class DropBitMeServiceManagerTest {
 
         serviceManager.deVerifyTwitterAccount()
 
-        verify(serviceManager.cnWalletManager).deverifyAccount()
+        verify(serviceManager.cnWalletManager).deVerifyAccount()
     }
 
     @Test
@@ -256,7 +225,7 @@ class DropBitMeServiceManagerTest {
         whenever(serviceManager.twitter.authToken).thenReturn("authToken")
         whenever(serviceManager.twitter.authSecret).thenReturn("authSecret")
         val pendingVerificationResponse = Response.success(pendingUserIdentity)
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(1)
+        whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
         whenever(serviceManager.apiClient.addIdentity(any(CNUserIdentity::class.java))).thenReturn(pendingVerificationResponse)
 
         val verifiedAccount = CNUserAccount()
@@ -308,7 +277,7 @@ class DropBitMeServiceManagerTest {
                 status = AccountStatus.asString(AccountStatus.PENDING_VERIFICATION))
         val response = Response.success(201, accountResponse)
         whenever(serviceManager.apiClient.createUserFromIdentity(eq(identity))).thenReturn(response)
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(0)
+        whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(false)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
 
@@ -326,7 +295,7 @@ class DropBitMeServiceManagerTest {
                 status = AccountStatus.asString(AccountStatus.PENDING_VERIFICATION))
         val response = Response.success(200, accountResponse)
         whenever(serviceManager.apiClient.createUserFromIdentity(eq(identity))).thenReturn(response)
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(0)
+        whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(false)
         val userAccount = mock(Account::class.java)
         whenever(serviceManager.dropbitAccountHelper.updateOrCreateFrom(accountResponse)).thenReturn(userAccount)
         whenever(serviceManager.apiClient.resendVerification(any(CNPhoneNumber::class.java))).thenReturn(Response.success(""))
@@ -351,7 +320,7 @@ class DropBitMeServiceManagerTest {
 
         val response = Response.success(201, identityResponse)
         whenever(serviceManager.apiClient.addIdentity(eq(identity))).thenReturn(response)
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(1)
+        whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
 
@@ -369,7 +338,7 @@ class DropBitMeServiceManagerTest {
 
         val response = Response.success(201, accountResponse)
         whenever(serviceManager.apiClient.createUserFromIdentity(eq(identity))).thenReturn(response)
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(0)
+        whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(false)
         val phoneIdentity = mock(DropbitMeIdentity::class.java)
         whenever(serviceManager.dropbitAccountHelper.phoneIdentity()).thenReturn(phoneIdentity)
 
@@ -384,7 +353,7 @@ class DropBitMeServiceManagerTest {
         val identity = CNUserIdentity(identity = "13305551111", type = "phone")
         val response = Response.error<Any>(424, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(serviceManager.apiClient.addIdentity(eq(identity))).thenReturn(response)
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(1)
+        whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
 
@@ -397,7 +366,7 @@ class DropBitMeServiceManagerTest {
         val identity = CNUserIdentity(identity = "13305551111", type = "phone")
         val response = Response.error<Any>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(serviceManager.apiClient.addIdentity(eq(identity))).thenReturn(response)
-        whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(1)
+        whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
 

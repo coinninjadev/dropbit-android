@@ -32,7 +32,7 @@ internal constructor(internal val cnWalletManager: CNWalletManager,
 ) : Runnable {
 
     override fun run() {
-        if (!cnWalletManager.hasWallet())
+        if (!cnWalletManager.hasWallet)
             return
 
         try {

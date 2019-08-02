@@ -78,7 +78,7 @@ class CNWalletService : Service(), CNWalletServicesInterface {
     }
 
     companion object {
-        internal val SYNC_MESSAGE_ID = 25
-        internal val SAVE_WORDS_ID = 35
+        internal const val SYNC_MESSAGE_ID = 25
+        internal const val SAVE_WORDS_ID = 35
     }
 }

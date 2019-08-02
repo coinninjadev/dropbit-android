@@ -98,24 +98,24 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     public void onResume() {
         super.onResume();
         setupClose();
-        analytics.trackEvent(Analytics.EVENT_CONFIRM_SCREEN_LOADED);
+        analytics.trackEvent(Analytics.Companion.EVENT_CONFIRM_SCREEN_LOADED);
         analytics.flush();
 
         switch (getDisplayState()) {
             case INVITE:
                 showIdentity();
-                analytics.trackEvent(Analytics.EVENT_DROPBIT_SEND);
+                analytics.trackEvent(Analytics.Companion.EVENT_DROPBIT_SEND);
                 break;
             case CONTACT:
                 showIdentity();
-                analytics.trackEvent(Analytics.EVENT_CONTACT_SEND);
+                analytics.trackEvent(Analytics.Companion.EVENT_CONTACT_SEND);
                 break;
             case PHONE_NUMBER_ONLY:
                 showIdentity();
-                analytics.trackEvent(Analytics.EVENT_CONTACT_SEND);
+                analytics.trackEvent(Analytics.Companion.EVENT_CONTACT_SEND);
                 break;
             case BTC_ADDRESS_ONLY:
-                analytics.trackEvent(Analytics.EVENT_BROADCAST_TO_ADDRESS);
+                analytics.trackEvent(Analytics.Companion.EVENT_BROADCAST_TO_ADDRESS);
                 break;
         }
 

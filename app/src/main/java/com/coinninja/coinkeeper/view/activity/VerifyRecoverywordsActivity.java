@@ -6,6 +6,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.transition.TransitionInflater;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -16,11 +21,6 @@ import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.fragment.VerifyRecoverywordsFragment;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 public class VerifyRecoverywordsActivity extends SecuredActivity implements VerifyRecoveryWordsPresenter.View {
 
@@ -122,8 +122,8 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
 
     private void reportAnalytics() {
         if (analytics != null) {
-            analytics.trackEvent(Analytics.EVENT_WALLET_BACKUP_SUCCESSFUL);
-            analytics.trackEvent(Analytics.EVENT_WALLET_CREATE);
+            analytics.trackEvent(Analytics.Companion.EVENT_WALLET_BACKUP_SUCCESSFUL);
+            analytics.trackEvent(Analytics.Companion.EVENT_WALLET_CREATE);
         }
 
     }

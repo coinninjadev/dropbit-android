@@ -3,6 +3,8 @@ package com.coinninja.coinkeeper.ui.spending;
 import android.location.Location;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
@@ -13,8 +15,6 @@ import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter;
 import java.util.HashMap;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.TYPE;
@@ -56,7 +56,7 @@ public class SpendBitcoinActivity extends BaseActivity {
     private void goToMapWebView(Location location) {
         HashMap<CoinNinjaParameter, String> parameters = new HashMap<>();
         parameters.put(TYPE, "spend");
-        String event = Analytics.EVENT_SPEND_AROUND_ME;
+        String event = Analytics.Companion.EVENT_SPEND_AROUND_ME;
         activityNavigationUtil.navigatesToMapWith(this, parameters, location, event);
     }
 

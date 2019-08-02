@@ -18,7 +18,7 @@ internal constructor(internal val daoSessionManager: DaoSessionManager,
                      internal val walletHelper: WalletHelper
 ) {
 
-    val hasVerifiedAccount: Boolean get() = numVerifiedIdentities > 0
+    val hasVerifiedAccount: Boolean get() = walletHelper.hasAccount() && walletHelper.userAccount.status == AccountStatus.VERIFIED && numVerifiedIdentities > 0
 
     val preferredIdentity: DropbitMeIdentity?
         get() {
@@ -32,7 +32,7 @@ internal constructor(internal val daoSessionManager: DaoSessionManager,
 
     val numVerifiedIdentities: Int
         get() {
-            return daoSessionManager.dropbitMeIdentityDao.loadAll().size
+            return daoSessionManager.dropbitMeIdentityDao.queryBuilder().where(DropbitMeIdentityDao.Properties.Status.eq(AccountStatus.VERIFIED.id)).list().size
         }
 
     val isPhoneVerified: Boolean

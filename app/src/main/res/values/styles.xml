@@ -79,8 +79,7 @@
     </style>
 
     <style name="CoinKeeperTheme.NoActionBar.BlockChain">
-        <item name="android:windowContentTransitions">true</item>
-        <item name="actionBarMenuType">@id/actionbar_gone</item>
+        <item name="cn_background">@style/BlockChain</item>
     </style>
 
     <style name="CoinKeeperTheme.Drawer">

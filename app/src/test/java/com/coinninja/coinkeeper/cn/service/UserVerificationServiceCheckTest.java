@@ -104,7 +104,7 @@ public class UserVerificationServiceCheckTest {
     public void performsDeverification() {
         serviceCheck.performDeverification();
 
-        verify(cnWalletManager).deverifyAccount();
+        verify(cnWalletManager).deVerifyAccount();
     }
 
     @Test

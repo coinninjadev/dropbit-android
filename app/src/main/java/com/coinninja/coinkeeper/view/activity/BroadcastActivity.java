@@ -34,7 +34,6 @@ import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
 import javax.inject.Inject;
 
-import static com.coinninja.coinkeeper.util.analytics.Analytics.EVENT_TRANSACTION_RETRY;
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
 public class BroadcastActivity extends SecuredActivity implements BroadcastTransactionPresenter.View {
@@ -82,7 +81,7 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     public void onRetryClicked() {
         showInitTransaction();
         startBroadcast(broadcastDTO.getTransactionData());
-        analytics.trackEvent(EVENT_TRANSACTION_RETRY);
+        analytics.trackEvent(Analytics.Companion.EVENT_TRANSACTION_RETRY);
     }
 
     @Override
@@ -100,7 +99,7 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         showSuccess();
 
         if (broadcastDTO.getIdentity() != null && broadcastDTO.getIdentity().getIdentityType() == IdentityType.TWITTER) {
-            analytics.trackEvent(Analytics.EVENT_TWITTER_SEND_SUCCESSFUL);
+            analytics.trackEvent(Analytics.Companion.EVENT_TWITTER_SEND_SUCCESSFUL);
         }
     }
 

@@ -41,7 +41,7 @@ public class SyncSchedulerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
-        when(cnWalletManager.hasWallet()).thenReturn(true);
+        when(cnWalletManager.getHasWallet()).thenReturn(true);
     }
 
     @Ignore
@@ -75,7 +75,7 @@ public class SyncSchedulerTest {
     public void itWillNotScheduleAlarmOrSyncWhenWordsAreNotBackedUp() {
         ShadowApplication shadow = shadowOf(application);
         ShadowAlarmManager shadowAlarmManager = shadowOf((AlarmManager) application.getSystemService(Context.ALARM_SERVICE));
-        when(cnWalletManager.hasWallet()).thenReturn(false);
+        when(cnWalletManager.getHasWallet()).thenReturn(false);
 
         Intent intent = new Intent("android.intent.action.BOOT_COMPLETED");
         new DeviceRebootBootCompletedReceiver().onReceive(application, intent);

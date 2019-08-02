@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.presenter.activity;
 
 import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
-import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
 import com.coinninja.coinkeeper.service.runner.InviteContactRunner;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -83,7 +82,7 @@ public class InviteContactPresenterTest {
     public void reports_that_user_has_sent_dropbit() {
         inviteContactPresenter.onInviteSuccessful(mock(InvitedContact.class));
 
-        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_SENT_DROPBIT, true);
+        verify(analytics).setUserProperty(Analytics.Companion.PROPERTY_HAS_SENT_DROPBIT, true);
     }
 
     @Test

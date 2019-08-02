@@ -14,8 +14,8 @@ import com.coinninja.coinkeeper.interfaces.PinEntry;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver;
-import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.ui.home.HomeActivity;
+import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.activity.AuthenticateActivity;
 import com.coinninja.coinkeeper.view.activity.CreatePinActivity;
@@ -144,7 +144,7 @@ public class SecuredActivityTest {
     @Test
     public void authenticates_user_on_session_resume() {
         when(authentication.isAuthenticated()).thenReturn(false);
-        when(application.cnWalletManager.hasWallet()).thenReturn(true);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(true);
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
 
         setupActivity(HomeActivity.class);
@@ -160,7 +160,7 @@ public class SecuredActivityTest {
     public void successful_authentication_does_not_reauth() {
         when(application.authentication.isAuthenticated()).thenReturn(false).thenReturn(true);
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
-        when(application.cnWalletManager.hasWallet()).thenReturn(true);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(true);
 
         setupActivity(HomeActivity.class);
 
@@ -180,7 +180,7 @@ public class SecuredActivityTest {
     public void failed_authentication_requthenticates() {
         when(authentication.isAuthenticated()).thenReturn(false);
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
-        when(application.cnWalletManager.hasWallet()).thenReturn(true);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(true);
 
         setupActivity(HomeActivity.class);
 
@@ -203,7 +203,7 @@ public class SecuredActivityTest {
     public void canceling_authentication_finishes_activity() {
         when(authentication.isAuthenticated()).thenReturn(false);
         when(application.pinEntry.hasExistingPin()).thenReturn(true);
-        when(application.cnWalletManager.hasWallet()).thenReturn(true);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(true);
         setupActivity(HomeActivity.class);
 
         activity.onActivityResult(SecuredActivity.AUTHENTICATION_REQUEST_CODE, AppCompatActivity.RESULT_CANCELED, null);
@@ -223,7 +223,7 @@ public class SecuredActivityTest {
 
     @Test
     public void does_not_navigate_to_create_pin_with_verify_phone_when_isinstance_of_create_pin() {
-        when(application.cnWalletManager.hasWallet()).thenReturn(true);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(true);
 
         setupActivity(CreatePinActivity.class);
 
@@ -235,7 +235,7 @@ public class SecuredActivityTest {
     @Test
     public void navigates_to_create_pin_with_verify_phone_next_when_no_pin_and_backup() {
         when(application.pinEntry.hasExistingPin()).thenReturn(false);
-        when(application.cnWalletManager.hasWallet()).thenReturn(true);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(true);
 
         setupActivity(HomeActivity.class);
 
@@ -249,7 +249,7 @@ public class SecuredActivityTest {
     @Test
     public void redirects_user_to_start_actiivty_when_pin_is_empty_and_no_backup() {
         when(application.pinEntry.hasExistingPin()).thenReturn(false);
-        when(application.cnWalletManager.hasWallet()).thenReturn(false);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(false);
 
         setupActivity(HomeActivity.class);
 

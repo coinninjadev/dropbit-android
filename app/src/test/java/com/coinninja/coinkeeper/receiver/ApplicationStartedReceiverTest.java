@@ -45,7 +45,7 @@ public class ApplicationStartedReceiverTest {
 
     @Test
     public void schedules_push_notification_job_intent_services() {
-        when(application.cnWalletManager.hasWallet()).thenReturn(true);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(true);
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
 
         appStartedReceiver.onReceive(application, null);
@@ -59,7 +59,7 @@ public class ApplicationStartedReceiverTest {
 
     @Test
     public void skip_when_missing_wallet() {
-        when(application.cnWalletManager.hasWallet()).thenReturn(false);
+        when(application.cnWalletManager.getHasWallet()).thenReturn(false);
 
         appStartedReceiver.onReceive(application, null);
 

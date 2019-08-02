@@ -111,7 +111,7 @@ public class BuyBitcoinActivityTest {
 
         clickOn(withId(activity, R.id.buy_at_atm));
 
-        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.Companion.EVENT_BUY_BITCOIN_AT_ATM);
     }
 
     @Test
@@ -131,7 +131,7 @@ public class BuyBitcoinActivityTest {
 
         activity.onRequestPermissionsResult(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
 
-        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, null, Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, null, Analytics.Companion.EVENT_BUY_BITCOIN_AT_ATM);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class BuyBitcoinActivityTest {
 
         activity.onRequestPermissionsResult(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
 
-        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.EVENT_BUY_BITCOIN_AT_ATM);
+        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.Companion.EVENT_BUY_BITCOIN_AT_ATM);
     }
 
 }

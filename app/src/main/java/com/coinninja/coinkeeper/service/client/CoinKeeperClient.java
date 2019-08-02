@@ -30,6 +30,8 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -39,6 +41,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 
 public interface CoinKeeperClient {
 
@@ -188,4 +191,8 @@ public interface CoinKeeperClient {
 
     @GET("news/feed/items")
     Call<List<NewsArticle>> loadNews(@Query("count") int count);
+
+    @Streaming
+    @POST("broadcast")
+    Call<ResponseBody> broadcastTransaction(@Body RequestBody body);
 }
