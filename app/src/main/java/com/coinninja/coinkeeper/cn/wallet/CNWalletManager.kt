@@ -33,7 +33,7 @@ class CNWalletManager @Inject internal constructor(
         internal val myTwitterProfile: MyTwitterProfile
 ) {
 
-    val hasBalance: Boolean get() = walletHelper.balance > 0L
+    val hasBalance: Boolean get() = walletHelper.balance.toLong() > 0L
     val hasWallet: Boolean get() = walletHelper.seedWords != null && walletHelper.seedWords!!.size == 12
     val account: Account get() = walletHelper.userAccount
 
@@ -81,7 +81,7 @@ class CNWalletManager @Inject internal constructor(
         walletHelper.updateSpendableBalances()
         localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE)
         analytics.setUserProperty(Analytics.PROPERTY_HAS_BTC_BALANCE, hasBalance)
-        analytics.setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.fromBalance(walletHelper.balance).label)
+        analytics.setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.fromBalance(walletHelper.balance.toLong()).label)
     }
 
     fun deVerifyAccount() {

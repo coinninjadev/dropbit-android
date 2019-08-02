@@ -6,6 +6,7 @@ import com.coinninja.coinkeeper.service.client.CNUserAccount
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.analytics.AnalyticsBalanceRange
+import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.nhaarman.mockitokotlin2.*
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
@@ -25,6 +26,7 @@ class CNWalletManagerTest {
         whenever(manager.bitcoinUtil.isValidBIP39Words(invalidWords)).thenReturn(false)
         whenever(manager.walletHelper.seedWords).thenReturn(validWords)
         whenever(manager.walletHelper.wallet).thenReturn(mock())
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(0L))
 
         return manager
     }
@@ -217,11 +219,11 @@ class CNWalletManagerTest {
     @Test
     fun returns_true_when_user_has_btc_balance() {
         val manager = createManager()
-        whenever(manager.walletHelper.balance).thenReturn(100L)
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(100L))
 
         assertTrue(manager.hasBalance)
 
-        whenever(manager.walletHelper.balance).thenReturn(0L)
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(0L))
         assertFalse(manager.hasBalance)
     }
 
@@ -264,7 +266,7 @@ class CNWalletManagerTest {
     @Test
     fun track_balance_ranges__no_balance() {
         val manager = createManager()
-        whenever(manager.walletHelper.balance).thenReturn(0)
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(0))
 
         manager.updateBalances()
 
@@ -275,7 +277,7 @@ class CNWalletManagerTest {
     @Test
     fun track_balance_ranges__with_balance() {
         val manager = createManager()
-        whenever(manager.walletHelper.balance).thenReturn(99_999)
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(99_999))
 
         manager.updateBalances()
 

@@ -604,23 +604,6 @@ class TestAppModule {
         return app.serviceWorkUtil
     }
 
-
-    @Provides
-    internal fun actionBarController(app: TestCoinKeeperApplication): ActionBarController {
-        if (app.actionBarController == null) {
-            app.actionBarController = mock(ActionBarController::class.java)
-        }
-        return app.actionBarController
-    }
-
-    @Provides
-    internal fun drawerController(app: TestCoinKeeperApplication): DrawerController {
-        if (app.drawerController == null) {
-            app.drawerController = mock(DrawerController::class.java)
-        }
-        return app.drawerController
-    }
-
     @Provides
     internal fun remoteAddressLocalCache(app: TestCoinKeeperApplication): RemoteAddressLocalCache {
         if (app.remoteAddressLocalCache == null) {
