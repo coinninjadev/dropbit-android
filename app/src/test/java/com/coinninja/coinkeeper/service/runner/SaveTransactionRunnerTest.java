@@ -28,7 +28,6 @@ import org.mockito.MockitoAnnotations;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -76,10 +75,10 @@ public class SaveTransactionRunnerTest {
         runner.run();
         ArgumentCaptor<JSONObject> captor = ArgumentCaptor.forClass(JSONObject.class);
 
-        verify(analytics).trackEvent(eq(Analytics.EVENT_SENT_SHARED_PAYLOAD), captor.capture());
+        verify(analytics).trackEvent(eq(Analytics.Companion.EVENT_SENT_SHARED_PAYLOAD), captor.capture());
 
         JSONObject relatedValues = captor.getValue();
-        assertThat(relatedValues.get(Analytics.EVENT_MEMO_JSON_KEY_DID_SHARE), equalTo("false"));
+        assertThat(relatedValues.get(Analytics.Companion.EVENT_MEMO_JSON_KEY_DID_SHARE), equalTo("false"));
     }
 
     @Test

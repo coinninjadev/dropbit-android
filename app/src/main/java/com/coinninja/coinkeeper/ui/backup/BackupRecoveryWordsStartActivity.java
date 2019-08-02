@@ -39,7 +39,7 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (cnWalletManager.hasWallet()) {
+        if (cnWalletManager.getHasWallet()) {
             setTheme(R.style.CoinKeeperTheme_UpOff_CloseOn);
         } else {
             setTheme(R.style.CoinKeeperTheme_UpOff);
@@ -51,9 +51,9 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (cnWalletManager.hasWallet() && cnWalletManager.hasSkippedBackup()) {
+        if (cnWalletManager.getHasWallet() && cnWalletManager.hasSkippedBackup()) {
             setupSkippedBackup();
-        } else if (cnWalletManager.hasWallet()) {
+        } else if (cnWalletManager.getHasWallet()) {
             setupViewBackup();
         } else {
             setupCreateBackup();
@@ -97,7 +97,7 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
     }
 
     private void navigateToViewRecoveryWords(String[] seedWords, int extraState) {
-        analytics.trackEvent(Analytics.EVENT_VIEW_RECOVERY_WORDS);
+        analytics.trackEvent(Analytics.Companion.EVENT_VIEW_RECOVERY_WORDS);
         Intent intent = new Intent(this, BackupActivity.class);
         intent.putExtra(DropbitIntents.EXTRA_RECOVERY_WORDS, seedWords);
         intent.putExtra(DropbitIntents.EXTRA_VIEW_STATE, extraState);

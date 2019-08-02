@@ -2,6 +2,8 @@ package com.coinninja.coinkeeper.view.activity;
 
 import android.content.Intent;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
@@ -18,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
@@ -49,7 +50,7 @@ public class SplashActivityTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
+        application = ApplicationProvider.getApplicationContext();
         activityActivityController = Robolectric.buildActivity(SplashActivity.class);
         activity = activityActivityController.get();
         activityActivityController.create();
@@ -59,7 +60,7 @@ public class SplashActivityTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         activity = null;
         activityActivityController = null;
         application = null;
@@ -86,7 +87,7 @@ public class SplashActivityTest {
 
     @Test
     public void broadcasts_start_up__with_backedup_wallet() {
-        when(cnWalletManager.hasWallet()).thenReturn(true);
+        when(cnWalletManager.getHasWallet()).thenReturn(true);
 
         start();
 
@@ -96,7 +97,7 @@ public class SplashActivityTest {
 
     @Test
     public void starts_home_activity_when_recovery_words_are_saved() {
-        when(cnWalletManager.hasWallet()).thenReturn(true);
+        when(cnWalletManager.getHasWallet()).thenReturn(true);
 
         start();
 

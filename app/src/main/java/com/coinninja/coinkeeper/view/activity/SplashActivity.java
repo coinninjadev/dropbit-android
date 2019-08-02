@@ -63,7 +63,7 @@ public class SplashActivity extends BaseActivity {
 
     @SuppressLint("NewApi")
     private void showNextActivity() {
-        if (cnWalletManager.hasWallet()) {
+        if (cnWalletManager.getHasWallet()) {
             activityNavigationUtil.navigateToHome(this);
         } else {
             navigateToStartActivity();

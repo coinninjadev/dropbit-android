@@ -73,12 +73,12 @@ public class SaveTransactionRunner implements Runnable {
 
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put(Analytics.EVENT_MEMO_JSON_KEY_DID_SHARE, didShareMemo);
+            jsonObject.put(Analytics.Companion.EVENT_MEMO_JSON_KEY_DID_SHARE, didShareMemo);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        analytics.trackEvent(Analytics.EVENT_SENT_SHARED_PAYLOAD, jsonObject);
+        analytics.trackEvent(Analytics.Companion.EVENT_SENT_SHARED_PAYLOAD, jsonObject);
     }
 }

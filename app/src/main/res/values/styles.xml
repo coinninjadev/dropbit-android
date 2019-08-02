@@ -72,9 +72,12 @@
         <item name="actionBarMenuType">@id/actionbar_up_on_close_on</item>
     </style>
 
-    <style name="CoinKeeperTheme.NoActionBar.BlockChain" parent="CoinKeeperTheme.Toolbar">
+    <style name="CoinKeeperTheme.NoActionBar" parent="CoinKeeperTheme.Toolbar">
         <item name="android:windowContentTransitions">true</item>
         <item name="actionBarMenuType">@id/actionbar_gone</item>
+    </style>
+
+    <style name="CoinKeeperTheme.NoActionBar.BlockChain">
         <item name="cn_background">@style/BlockChain</item>
     </style>
 
@@ -569,11 +572,14 @@
         <item name="android:textSize">11sp</item>
         <item name="android:letterSpacing">0.00</item>
     </style>
-    <style name="TextAppearance.Fees.WaitLabel"/>
+
+    <style name="TextAppearance.Fees.WaitLabel" />
+
     <style name="TextAppearance.Fees.WaitTime">
         <item name="fontFamily">@font/montserrat_medium</item>
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
+
     <style name="TextAppearance.Chart" />
 
     <style name="TextAppearance.Chart.Ticker">

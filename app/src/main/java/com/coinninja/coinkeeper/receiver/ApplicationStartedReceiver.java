@@ -27,7 +27,7 @@ public class ApplicationStartedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         AndroidInjection.inject(this, context);
-        if (!cnWalletManager.hasWallet()) return;
+        if (!cnWalletManager.getHasWallet()) return;
         jobServiceScheduler.enqueueWork(
                 context,
                 PushNotificationEndpointRegistrationService.class,

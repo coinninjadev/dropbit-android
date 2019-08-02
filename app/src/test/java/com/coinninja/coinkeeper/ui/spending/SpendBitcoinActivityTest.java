@@ -3,6 +3,9 @@ package com.coinninja.coinkeeper.ui.spending;
 import android.content.pm.PackageManager;
 import android.location.Location;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.runner.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.util.DropbitIntents;
@@ -21,9 +24,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.android.controller.ActivityController;
 
 import java.util.HashMap;
-
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
 
 import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.android.helpers.Views.withId;
@@ -64,7 +64,7 @@ public class SpendBitcoinActivityTest {
 
         clickOn(withId(activity, R.id.around_me_button));
 
-        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.EVENT_SPEND_AROUND_ME);
+        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.Companion.EVENT_SPEND_AROUND_ME);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SpendBitcoinActivityTest {
 
         activity.onRequestPermissionsResult(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
 
-        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, null, Analytics.EVENT_SPEND_AROUND_ME);
+        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, null, Analytics.Companion.EVENT_SPEND_AROUND_ME);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class SpendBitcoinActivityTest {
 
         activity.onRequestPermissionsResult(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
 
-        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.EVENT_SPEND_AROUND_ME);
+        verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.Companion.EVENT_SPEND_AROUND_ME);
     }
 
     @Before

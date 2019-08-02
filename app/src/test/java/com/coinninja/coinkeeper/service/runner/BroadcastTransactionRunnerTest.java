@@ -92,7 +92,7 @@ public class BroadcastTransactionRunnerTest {
     public void notifies_of_broadcast_started() {
         task.doInBackground(transactionData);
 
-        verify(analytics).trackEvent(eq(Analytics.EVENT_BROADCAST_STARTED));
+        verify(analytics).trackEvent(eq(Analytics.Companion.EVENT_BROADCAST_STARTED));
     }
 
     @Test
@@ -112,10 +112,10 @@ public class BroadcastTransactionRunnerTest {
 
 
         ArgumentCaptor<JSONObject> argumentCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        verify(analytics).trackEvent(eq(Analytics.EVENT_BROADCAST_FAILED), argumentCaptor.capture());
+        verify(analytics).trackEvent(eq(Analytics.Companion.EVENT_BROADCAST_FAILED), argumentCaptor.capture());
 
         JSONObject properties = argumentCaptor.getValue();
-        assertThat(properties.getString(Analytics.EVENT_BROADCAST_JSON_KEY_CHECK_IN_FAIL), equalTo("CheckInFail"));
+        assertThat(properties.getString(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_CHECK_IN_FAIL), equalTo("CheckInFail"));
     }
 
     @Test
@@ -156,7 +156,7 @@ public class BroadcastTransactionRunnerTest {
     public void update_user_profile_to_account_for_has_sent() {
         task.onPostExecute(result);
 
-        verify(analytics).setUserProperty(Analytics.PROPERTY_HAS_SENT_ADDRESS, true);
+        verify(analytics).setUserProperty(Analytics.Companion.PROPERTY_HAS_SENT_ADDRESS, true);
     }
 
     @Test

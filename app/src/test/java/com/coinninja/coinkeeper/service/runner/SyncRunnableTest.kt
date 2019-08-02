@@ -21,7 +21,7 @@ class SyncRunnableTest {
     private fun createRunner(): SyncRunnable = SyncRunnable(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock()).also {
         whenever(it.addressAPIUtil.fetchAddresses(any(), any(), any(), any())).thenReturn(mutableListOf())
         whenever(it.addressHelper.addAddresses(any(), any())).thenReturn(mutableListOf())
-        whenever(it.cnWalletManager.hasWallet()).thenReturn(true)
+        whenever(it.cnWalletManager.hasWallet).thenReturn(true)
         whenever(it.walletHelper.wallet).thenReturn(mock())
 
     }
@@ -42,7 +42,7 @@ class SyncRunnableTest {
     @Test
     fun returns_when_no_there_is_no_wallet() {
         val runner = createRunner()
-        whenever(runner.cnWalletManager.hasWallet()).thenReturn(false)
+        whenever(runner.cnWalletManager.hasWallet).thenReturn(false)
 
         runner.run()
 

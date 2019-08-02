@@ -104,7 +104,7 @@ public class RestoreWalletActivityTest {
                 equalTo(activity.recovery_words));
         assertThat(intent.getStringExtra(DropbitIntents.EXTRA_NEXT), equalTo(RecoverWalletActivity.class.getName()));
         assertThat(activity.recovery_words[11], equalTo("apple"));
-        verify(mockAnalytics).trackEvent(Analytics.EVENT_WALLET_RESTORE);
+        verify(mockAnalytics).trackEvent(Analytics.Companion.EVENT_WALLET_RESTORE);
     }
 
     @Test

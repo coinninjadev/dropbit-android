@@ -21,7 +21,7 @@ public class StartupCompleteReceiverTest {
 
         receiver.onReceive(RuntimeEnvironment.application, null);
 
-        verify(receiver.analytics).trackEvent(Analytics.EVENT_APP_OPEN);
+        verify(receiver.analytics).trackEvent(Analytics.Companion.EVENT_APP_OPEN);
         verify(receiver.analytics).flush();
     }
 

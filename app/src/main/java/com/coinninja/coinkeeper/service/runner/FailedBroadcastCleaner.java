@@ -146,9 +146,9 @@ public class FailedBroadcastCleaner implements Runnable {
 
     private void reportFailure(TransactionSummary transactionSummary) {
         if (transactionSummary.getTransactionsInvitesSummary().getInviteTransactionSummary() == null) {
-            analytics.trackEvent(Analytics.EVENT_PENDING_TRANSACTION_FAILED);
+            analytics.trackEvent(Analytics.Companion.EVENT_PENDING_TRANSACTION_FAILED);
         } else {
-            analytics.trackEvent(Analytics.EVENT_PENDING_DROPBIT_SEND_FAILED);
+            analytics.trackEvent(Analytics.Companion.EVENT_PENDING_DROPBIT_SEND_FAILED);
         }
     }
 

@@ -5,14 +5,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.ViewPager;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.adapter.RestoreWalletPageAdapter;
-
-import androidx.annotation.Nullable;
-import androidx.viewpager.widget.ViewPager;
 
 public class RestoreWalletActivity extends SecuredActivity {
 
@@ -77,7 +77,9 @@ public class RestoreWalletActivity extends SecuredActivity {
         Intent intent = new Intent(this, CreatePinActivity.class);
         Bundle bundle = new Bundle();
         bundle.putStringArray(DropbitIntents.EXTRA_RECOVERY_WORDS, recovery_words);
-        if (getIntent() != null && getIntent().hasExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON)) { intent.putExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, getIntent().getStringExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON)); }
+        if (getIntent() != null && getIntent().hasExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON)) {
+            intent.putExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, getIntent().getStringExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON));
+        }
         intent.putExtra(DropbitIntents.EXTRA_NEXT_BUNDLE, bundle);
         intent.putExtra(DropbitIntents.EXTRA_NEXT, RecoverWalletActivity.class.getName());
         startActivity(intent);
@@ -85,7 +87,7 @@ public class RestoreWalletActivity extends SecuredActivity {
 
     private void reportAnalytics() {
         if (analytics != null) {
-            analytics.trackEvent(Analytics.EVENT_WALLET_RESTORE);
+            analytics.trackEvent(Analytics.Companion.EVENT_WALLET_RESTORE);
         }
     }
 }

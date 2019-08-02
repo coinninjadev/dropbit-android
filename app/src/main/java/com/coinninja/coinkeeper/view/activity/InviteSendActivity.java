@@ -116,7 +116,7 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
     @Override
     public void showInviteSuccessful(InvitedContact inviteContact) {
         if (pendingInviteDTO.getIdentity().getIdentityType() == IdentityType.TWITTER) {
-            analytics.trackEvent(Analytics.EVENT_TWITTER_SEND_SUCCESSFUL);
+            analytics.trackEvent(Analytics.Companion.EVENT_TWITTER_SEND_SUCCESSFUL);
         }
 
         sendState = SendState.COMPLETED_SUCCESS;
@@ -134,7 +134,9 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
             transactionTweetDialog.setActivity(this);
             transactionTweetDialog.show(getSupportFragmentManager(), TransactionTweetDialog.class.getName());
         } else {
-            if (!userPreferences.getShouldShareOnTwitter()) { return; }
+            if (!userPreferences.getShouldShareOnTwitter()) {
+                return;
+            }
             shareTransactionDialog.show(getSupportFragmentManager(), ShareTransactionDialog.class.getName());
         }
     }
@@ -245,11 +247,11 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
     }
 
     private void reportSuccessful() {
-        analytics.trackEvent(Analytics.EVENT_DROPBIT_INITIATED);
+        analytics.trackEvent(Analytics.Companion.EVENT_DROPBIT_INITIATED);
     }
 
     private void reportFail() {
-        analytics.trackEvent(Analytics.EVENT_DROPBIT_INITIATION_FAILED);
+        analytics.trackEvent(Analytics.Companion.EVENT_DROPBIT_INITIATION_FAILED);
     }
 
     private void saveInvite(InvitedContact invitedContact) {

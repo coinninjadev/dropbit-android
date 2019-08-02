@@ -78,10 +78,10 @@ public class AccountDeverificationServiceRunner implements Runnable {
             notificationUtil.dispatchInternal(R.string.mismatch_401_user_deverifcation_message);
             serviceWorkUtil.deVerifyTwitter();
             serviceWorkUtil.deVerifyPhoneNumber();
-            analytics.trackEvent(Analytics.EVENT_PHONE_AUTO_DEVERIFIED, json);
+            analytics.trackEvent(Analytics.Companion.EVENT_PHONE_AUTO_DEVERIFIED, json);
         } else {
             notificationUtil.dispatchInternal(R.string.default_401_user_deverifcation_message);
-            analytics.trackEvent(Analytics.EVENT_PHONE_AUTO_DEVERIFIED, json);
+            analytics.trackEvent(Analytics.Companion.EVENT_PHONE_AUTO_DEVERIFIED, json);
         }
     }
 
@@ -90,7 +90,7 @@ public class AccountDeverificationServiceRunner implements Runnable {
 
         String message = String.format(debugMessage, WALLET, walletVerificationService.getRaw());
         walletVerificationService.performDeverification();
-        analytics.trackEvent(Analytics.EVENT_PHONE_AUTO_DEVERIFIED, getJSONToReport(message));
+        analytics.trackEvent(Analytics.Companion.EVENT_PHONE_AUTO_DEVERIFIED, getJSONToReport(message));
     }
 
     private JSONObject getJSONToReport(String message) {

@@ -49,11 +49,11 @@ public class WalletSyncCompletedReceiverTest {
 
     @Test
     public void reports_that_user_has_balance() {
-        when(application.cnWalletManager.hasBalance()).thenReturn(true);
+        when(application.cnWalletManager.getHasBalance()).thenReturn(true);
 
         receiver.onReceive(application, null);
 
-        verify(application.analytics).setUserProperty(Analytics.PROPERTY_HAS_BTC_BALANCE, true);
+        verify(application.analytics).setUserProperty(Analytics.Companion.PROPERTY_HAS_BTC_BALANCE, true);
     }
 
     @Test

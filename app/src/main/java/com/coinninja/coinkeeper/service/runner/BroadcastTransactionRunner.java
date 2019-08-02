@@ -71,7 +71,7 @@ public class BroadcastTransactionRunner extends SteppedAsyncTask<TransactionData
 
     @Override
     protected TransactionBroadcastResult doInBackground(TransactionData... transactions) {
-        analytics.trackEvent(Analytics.EVENT_BROADCAST_STARTED);
+        analytics.trackEvent(Analytics.Companion.EVENT_BROADCAST_STARTED);
         if (transactions.length < 1) return null;
         TransactionData transactionData = transactions[0];
         TransactionBroadcastResult transactionBroadcastResult;
@@ -91,7 +91,7 @@ public class BroadcastTransactionRunner extends SteppedAsyncTask<TransactionData
     protected void onPostExecute(TransactionBroadcastResult transactionBroadcastResult) {
         if (transactionBroadcastResult.isSuccess()) {
             broadcastListener.onBroadcastSuccessful(transactionBroadcastResult);
-            analytics.setUserProperty(Analytics.PROPERTY_HAS_SENT_ADDRESS, true);
+            analytics.setUserProperty(Analytics.Companion.PROPERTY_HAS_SENT_ADDRESS, true);
         } else {
             broadcastListener.onBroadcastError(transactionBroadcastResult);
         }
@@ -133,11 +133,11 @@ public class BroadcastTransactionRunner extends SteppedAsyncTask<TransactionData
     private void reportCheckingFailed() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put(Analytics.EVENT_BROADCAST_JSON_KEY_CHECK_IN_FAIL, Analytics.EVENT_BROADCAST_CHECK_IN_FAIL);
+            jsonObject.put(Analytics.Companion.EVENT_BROADCAST_JSON_KEY_CHECK_IN_FAIL, Analytics.Companion.EVENT_BROADCAST_CHECK_IN_FAIL);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        analytics.trackEvent(Analytics.EVENT_BROADCAST_FAILED, jsonObject);
+        analytics.trackEvent(Analytics.Companion.EVENT_BROADCAST_FAILED, jsonObject);
     }
 
     public interface BroadcastListener {

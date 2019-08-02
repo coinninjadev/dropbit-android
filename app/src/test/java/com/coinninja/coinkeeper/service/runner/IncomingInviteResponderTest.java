@@ -119,7 +119,7 @@ public class IncomingInviteResponderTest {
         when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString())).thenReturn(getResponse(response));
         incomingInviteResponder.run();
 
-        verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_ADDRESS_PROVIDED);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_DROPBIT_ADDRESS_PROVIDED);
     }
 
     @Test

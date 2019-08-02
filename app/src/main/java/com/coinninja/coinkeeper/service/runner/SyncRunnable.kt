@@ -27,7 +27,7 @@ class SyncRunnable @Inject internal constructor(
 ) : Runnable {
 
     override fun run() {
-        if (!cnWalletManager.hasWallet())
+        if (!cnWalletManager.hasWallet)
             return
 
         setGapLimit()

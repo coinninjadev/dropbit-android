@@ -121,9 +121,9 @@
             android:theme="@style/CoinKeeperTheme.UpOn" />
         <activity
             android:name=".view.activity.QrScanActivity"
-            android:label="@string/scan_qr_label"
+            android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
+            android:theme="@style/CoinKeeperTheme.NoActionBar" />
         <activity
             android:name=".ui.phone.verification.VerificationActivity"
             android:label="@string/activity_verification_header"
