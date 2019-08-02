@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.viewpager.widget.ViewPager;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.adapter.TrainingPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
@@ -17,8 +19,6 @@ import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.google.android.material.tabs.TabLayout;
 
 import javax.inject.Inject;
-
-import androidx.viewpager.widget.ViewPager;
 
 import static androidx.viewpager.widget.ViewPager.SCROLL_STATE_DRAGGING;
 
@@ -152,7 +152,7 @@ public class TrainingActivity extends SecuredActivity implements ViewPager.OnPag
     @Override
     public void onEndActionButtonClicked(TrainingModel trainingModel) {
         userHelper.setCompletedTraining(true);
-        if (cnWalletManager.hasWallet()) {
+        if (cnWalletManager.getHasWallet()) {
             activityNavigationUtil.navigateToHome(this);
         }
     }

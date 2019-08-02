@@ -37,7 +37,7 @@ public class UserVerificationServiceCheck extends AbstractAuthorizationServiceCh
 
     @Override
     public void performDeverification() {
-        cnWalletManager.deverifyAccount();
+        cnWalletManager.deVerifyAccount();
     }
 
     @Override

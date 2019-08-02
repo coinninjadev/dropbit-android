@@ -85,7 +85,7 @@ public class AccountDeverificationServiceRunnerTest {
 
         runner.run();
 
-        verify(analytics).trackEvent(eq(Analytics.EVENT_PHONE_AUTO_DEVERIFIED), captor.capture());
+        verify(analytics).trackEvent(eq(Analytics.Companion.EVENT_PHONE_AUTO_DEVERIFIED), captor.capture());
 
         JSONObject response = captor.getValue();
         assertThat(response.get("debugMessage"), equalTo(expectedMessage));
@@ -105,7 +105,7 @@ public class AccountDeverificationServiceRunnerTest {
         runner.run();
 
 
-        verify(analytics).trackEvent(eq(Analytics.EVENT_PHONE_AUTO_DEVERIFIED), captor.capture());
+        verify(analytics).trackEvent(eq(Analytics.Companion.EVENT_PHONE_AUTO_DEVERIFIED), captor.capture());
 
         JSONObject response = captor.getValue();
         assertThat(response.get("debugMessage"), equalTo(expectedMessage));
@@ -124,7 +124,7 @@ public class AccountDeverificationServiceRunnerTest {
 
         runner.run();
 
-        verify(analytics).trackEvent(eq(Analytics.EVENT_PHONE_AUTO_DEVERIFIED), captor.capture());
+        verify(analytics).trackEvent(eq(Analytics.Companion.EVENT_PHONE_AUTO_DEVERIFIED), captor.capture());
 
         JSONObject response = captor.getValue();
         assertThat(response.get("debugMessage"), equalTo(expectedMessage));

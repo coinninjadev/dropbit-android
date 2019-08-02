@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
@@ -22,8 +24,6 @@ import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import java.util.HashMap;
 
 import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.TYPE;
@@ -103,7 +103,9 @@ public class BuyBitcoinActivity extends BaseActivity {
 
     private void dismissCurrentNotice() {
         GenericAlertDialog dialog = (GenericAlertDialog) getSupportFragmentManager().findFragmentByTag(COPY_BITCOIN_DIALOG_TAG);
-        if (dialog != null) { dialog.dismiss(); }
+        if (dialog != null) {
+            dialog.dismiss();
+        }
     }
 
     private void navigateToRouteWithAddress(CallbackHandler callbackHandler) {
@@ -132,7 +134,7 @@ public class BuyBitcoinActivity extends BaseActivity {
     private void onNavigateToMap(@Nullable Location location) {
         HashMap<CoinNinjaParameter, String> parameters = new HashMap<>();
         parameters.put(TYPE, "atms");
-        String event = Analytics.EVENT_BUY_BITCOIN_AT_ATM;
+        String event = Analytics.Companion.EVENT_BUY_BITCOIN_AT_ATM;
         activityNavigationUtil.navigatesToMapWith(this, parameters, location, event);
     }
 }

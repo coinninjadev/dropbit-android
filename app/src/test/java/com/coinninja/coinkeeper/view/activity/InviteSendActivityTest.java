@@ -163,7 +163,7 @@ public class InviteSendActivityTest {
 
         verify(sendingProgressView).setProgress(100);
         verify(sendingProgressView).completeSuccess();
-        verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_INITIATED);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_DROPBIT_INITIATED);
 
         CompletedInviteDTO completedInviteDTO = pendingInviteDTO.completeInviteWith(invitedContact);
         Intents.intending(hasComponent(SaveInviteService.class.getName()));
@@ -185,7 +185,7 @@ public class InviteSendActivityTest {
             Assert.assertThat(dialog.getMessage(),
                     equalTo(activity.getString(R.string.invite_sent_error_rate_limit)));
         });
-        verify(analytics).trackEvent(Analytics.EVENT_DROPBIT_INITIATION_FAILED);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_DROPBIT_INITIATION_FAILED);
     }
 
     private void setupDI(TestCoinKeeperApplication application) {

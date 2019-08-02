@@ -34,14 +34,14 @@ class FullSyncWalletRunnerTest {
                 mock(DropBitMeServiceManager::class.java)
         )
 
-        whenever(runner.cnWalletManager.hasWallet()).thenReturn(true)
+        whenever(runner.cnWalletManager.hasWallet).thenReturn(true)
         return runner
     }
 
     @Test
     fun does_not_execute_when_no_wallet() {
         val runner = createRunner()
-        whenever(runner.cnWalletManager.hasWallet()).thenReturn(false)
+        whenever(runner.cnWalletManager.hasWallet).thenReturn(false)
 
         runner.run()
 

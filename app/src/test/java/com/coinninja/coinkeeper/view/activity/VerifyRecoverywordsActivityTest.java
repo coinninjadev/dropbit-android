@@ -132,8 +132,8 @@ public class VerifyRecoverywordsActivityTest {
         activity.onChallengeCompleted();
 
         verify(activityNavigationUtil).navigateToHome(activity);
-        verify(analytics).trackEvent(Analytics.EVENT_WALLET_BACKUP_SUCCESSFUL);
-        verify(analytics).trackEvent(Analytics.EVENT_WALLET_CREATE);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_WALLET_BACKUP_SUCCESSFUL);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_WALLET_CREATE);
     }
 
     @Test
@@ -163,8 +163,8 @@ public class VerifyRecoverywordsActivityTest {
         activity.onChallengeCompleted();
 
         verify(activityNavigationUtil).navigateToRegisterPhone(activity);
-        verify(analytics).trackEvent(Analytics.EVENT_WALLET_BACKUP_SUCCESSFUL);
-        verify(analytics).trackEvent(Analytics.EVENT_WALLET_CREATE);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_WALLET_BACKUP_SUCCESSFUL);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_WALLET_CREATE);
     }
 
     @Test

@@ -6,7 +6,6 @@ import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
-import com.coinninja.coinkeeper.model.helpers.TransactionHelper;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
@@ -67,7 +66,7 @@ public class IncomingInviteResponder implements Runnable {
 
             CNWalletAddress cnAddress = postAddress(address, invite, pubkey);
             if (cnAddress != null) {
-                analytics.trackEvent(Analytics.EVENT_DROPBIT_ADDRESS_PROVIDED);
+                analytics.trackEvent(Analytics.Companion.EVENT_DROPBIT_ADDRESS_PROVIDED);
                 inviteTransactionSummaryHelper.updateInviteAddressTransaction(invite.getServerId(), address);
                 saveNotificationFor(invite);
             }

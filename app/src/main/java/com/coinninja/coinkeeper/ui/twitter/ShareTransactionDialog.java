@@ -51,7 +51,7 @@ public class ShareTransactionDialog extends BaseBottomDialogFragment {
     }
 
     private void twitterShareClicked() {
-        analytics.trackEvent(Analytics.EVENT_SHARE_VIA_TWITTER);
+        analytics.trackEvent(Analytics.Companion.EVENT_SHARE_VIA_TWITTER);
 
         Intent intent = twitterUtil.createTwitterIntent(getContext(), twitterUtil.getShareMessage(memo));
         if (intent != null) {
@@ -62,12 +62,12 @@ public class ShareTransactionDialog extends BaseBottomDialogFragment {
     }
 
     private void shareNextTimeClicked() {
-        analytics.trackEvent(Analytics.EVENT_SHARE_NEXT_TIME);
+        analytics.trackEvent(Analytics.Companion.EVENT_SHARE_NEXT_TIME);
         dismiss();
     }
 
     private void dontAskMeAgainClicked() {
-        analytics.trackEvent(Analytics.EVENT_NEVER_SHARE);
+        analytics.trackEvent(Analytics.Companion.EVENT_NEVER_SHARE);
         userPreferences.setShouldShareOnTwitter(false);
         dismiss();
     }

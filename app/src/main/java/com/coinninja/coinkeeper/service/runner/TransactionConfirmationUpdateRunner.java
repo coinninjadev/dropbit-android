@@ -37,7 +37,7 @@ public class TransactionConfirmationUpdateRunner implements Runnable {
             String blockHash = transaction.getBlockhash();
             if (blockHash != null && !blockHash.isEmpty()) {
                 transaction.setNumConfirmations(
-                        CNWalletManager.calcConfirmations(currentBlockHeight, transaction.getBlockheight()));
+                        CNWalletManager.Companion.calcConfirmations(currentBlockHeight, transaction.getBlockheight()));
                 transaction.update();
             }
         }

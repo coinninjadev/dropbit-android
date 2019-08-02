@@ -53,7 +53,7 @@ public class PickUserActivityTest {
 
         activityController.get().reportAnalytics(contact);
 
-        verify(activityController.get().analytics).trackEvent(Analytics.EVENT_CONTACT_SEND_BTN);
+        verify(activityController.get().analytics).trackEvent(Analytics.Companion.EVENT_CONTACT_SEND_BTN);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class PickUserActivityTest {
 
         activityController.get().reportAnalytics(contact);
 
-        verify(activityController.get().analytics).trackEvent(Analytics.EVENT_DROPBIT_SEND_BTN);
+        verify(activityController.get().analytics).trackEvent(Analytics.Companion.EVENT_DROPBIT_SEND_BTN);
     }
 
     @Test

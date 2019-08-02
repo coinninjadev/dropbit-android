@@ -11,7 +11,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,7 +28,6 @@ import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
 import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.adapter.util.PickUserViewModel;
-import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 import com.coinninja.coinkeeper.view.widget.ContactsEmptyStateView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -61,7 +59,7 @@ public class PickUserActivity extends SecuredActivity implements OnItemClickList
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(DropbitIntents.URI_WHAT_IS_DROPBIT);
         startActivity(intent);
-        analytics.trackEvent(Analytics.EVENT_INVITE_WHATIS_DROPBIT);
+        analytics.trackEvent(Analytics.Companion.EVENT_INVITE_WHATIS_DROPBIT);
     }
 
     public void initSearch(SearchView searchView) {
@@ -160,14 +158,14 @@ public class PickUserActivity extends SecuredActivity implements OnItemClickList
 
     protected void reportAnalytics(Contact contact) {
         if (contact.isVerified()) {
-            analytics.trackEvent(Analytics.EVENT_CONTACT_SEND_BTN);
+            analytics.trackEvent(Analytics.Companion.EVENT_CONTACT_SEND_BTN);
         } else {
-            analytics.trackEvent(Analytics.EVENT_DROPBIT_SEND_BTN);
+            analytics.trackEvent(Analytics.Companion.EVENT_DROPBIT_SEND_BTN);
         }
     }
 
     private void setupOnClickListeners() {
-        ((ContactsEmptyStateView) findViewById(R.id.contacts_empty_state_view)).setAllowAccessOnClickListener(() -> reqeustContactsPermission());
+        ((ContactsEmptyStateView) findViewById(R.id.contacts_empty_state_view)).setAllowAccessOnClickListener(() -> requestContactsPermission());
     }
 
     private void setupUI() {
@@ -182,7 +180,7 @@ public class PickUserActivity extends SecuredActivity implements OnItemClickList
         if (hasContactsPermission()) {
             return;
         }
-        reqeustContactsPermission();
+        requestContactsPermission();
     }
 
     private void setupTabListener() {
@@ -256,7 +254,7 @@ public class PickUserActivity extends SecuredActivity implements OnItemClickList
         initSearch(searchView);
     }
 
-    private void reqeustContactsPermission() {
+    private void requestContactsPermission() {
         permissionsUtil.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, CONTACTS_PERMISSION_REQUEST_CODE);
     }
 

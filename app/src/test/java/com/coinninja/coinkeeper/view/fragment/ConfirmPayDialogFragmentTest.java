@@ -141,7 +141,7 @@ public class ConfirmPayDialogFragmentTest {
     public void tracks_view_of_confirmation_screen() {
         show(paymentHolder);
 
-        verify(dialog.analytics).trackEvent(Analytics.EVENT_CONFIRM_SCREEN_LOADED);
+        verify(dialog.analytics).trackEvent(Analytics.Companion.EVENT_CONFIRM_SCREEN_LOADED);
         verify(dialog.analytics).flush();
     }
 
@@ -280,7 +280,7 @@ public class ConfirmPayDialogFragmentTest {
         ConfirmHoldButton confirmHoldButton = dialog.getView().findViewById(R.id.confirm_pay_hold_progress_btn);
         assertNotNull(confirmHoldButton);
 
-        verify(dialog.analytics).trackEvent(Analytics.EVENT_BROADCAST_TO_ADDRESS);
+        verify(dialog.analytics).trackEvent(Analytics.Companion.EVENT_BROADCAST_TO_ADDRESS);
     }
 
     @Test
@@ -332,7 +332,7 @@ public class ConfirmPayDialogFragmentTest {
     public void sends_broadcast_to_address_event() {
         show(paymentHolder);
 
-        verify(dialog.analytics).trackEvent(Analytics.EVENT_BROADCAST_TO_ADDRESS);
+        verify(dialog.analytics).trackEvent(Analytics.Companion.EVENT_BROADCAST_TO_ADDRESS);
     }
 
     @Test
@@ -342,7 +342,7 @@ public class ConfirmPayDialogFragmentTest {
 
         dialog.onHoldCompleteSuccessfully();
 
-        verify(dialog.analytics).trackEvent(Analytics.EVENT_DROPBIT_SEND);
+        verify(dialog.analytics).trackEvent(Analytics.Companion.EVENT_DROPBIT_SEND);
     }
 
     @Test

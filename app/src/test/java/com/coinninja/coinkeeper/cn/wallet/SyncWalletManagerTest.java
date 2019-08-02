@@ -68,7 +68,7 @@ public class SyncWalletManagerTest {
         MockitoAnnotations.initMocks(this);
         shadowApplication = shadowOf((Application) context);
         syncWalletManager = new SyncWalletManager(context, cnWalletManager, jobServiceScheduler, handler);
-        when(cnWalletManager.hasWallet()).thenReturn(true);
+        when(cnWalletManager.getHasWallet()).thenReturn(true);
         when(cnWalletBinder.getService()).thenReturn(cnWalletService);
     }
 
@@ -86,7 +86,7 @@ public class SyncWalletManagerTest {
 
     @Test
     public void does_not_execute_sync_on_demand_when_no_wallet_exists() {
-        when(cnWalletManager.hasWallet()).thenReturn(false);
+        when(cnWalletManager.getHasWallet()).thenReturn(false);
 
         syncWalletManager.syncNow();
 
@@ -164,7 +164,7 @@ public class SyncWalletManagerTest {
 
     @Test
     public void only_syncs_when_wallet_exists() {
-        when(cnWalletManager.hasWallet()).thenReturn(false);
+        when(cnWalletManager.getHasWallet()).thenReturn(false);
 
         syncWalletManager.schedule60SecondSync();
 
@@ -182,7 +182,7 @@ public class SyncWalletManagerTest {
 
     @Test
     public void only_syncs_hourly_when_wallet_exists() {
-        when(cnWalletManager.hasWallet()).thenReturn(false);
+        when(cnWalletManager.getHasWallet()).thenReturn(false);
 
         syncWalletManager.scheduleHourlySync();
 

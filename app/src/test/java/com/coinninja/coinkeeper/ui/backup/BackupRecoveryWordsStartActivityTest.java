@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
@@ -24,9 +27,6 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
@@ -304,7 +304,7 @@ public class BackupRecoveryWordsStartActivityTest {
                 AuthorizedActionActivity.RESULT_AUTHORIZED,
                 null);
 
-        verify(analytics).trackEvent(Analytics.EVENT_VIEW_RECOVERY_WORDS);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_VIEW_RECOVERY_WORDS);
     }
 
     private void start() {
@@ -312,7 +312,7 @@ public class BackupRecoveryWordsStartActivityTest {
     }
 
     private void start(boolean hasWallet) {
-        when(cnWalletManager.hasWallet()).thenReturn(hasWallet);
+        when(cnWalletManager.getHasWallet()).thenReturn(hasWallet);
         if (hasWallet) {
             when(application.walletHelper.getSeedWords()).thenReturn(words);
         } else {

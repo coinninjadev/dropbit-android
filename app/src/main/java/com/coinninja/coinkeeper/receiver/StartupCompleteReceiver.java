@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.coinninja.coinkeeper.service.ContactLookupService;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 
 import javax.inject.Inject;
@@ -19,7 +18,7 @@ public class StartupCompleteReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         AndroidInjection.inject(this, context);
-        analytics.trackEvent(Analytics.EVENT_APP_OPEN);
+        analytics.trackEvent(Analytics.Companion.EVENT_APP_OPEN);
         analytics.flush();
     }
 

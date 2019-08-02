@@ -21,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Response;
 
 import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_APPLICATION_KEY;
@@ -281,6 +283,11 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         }
 
         return response;
+    }
+
+    public Response broadcastTransaction(String rawTx) {
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), rawTx);
+        return executeCall(getClient().broadcastTransaction(requestBody));
     }
 
     @NonNull

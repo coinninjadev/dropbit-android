@@ -114,7 +114,7 @@ public class FailedBroadcastCleanerTest {
 
         cleaner.markAsFailedToBroadcast(unAcknowledgedList);
 
-        verify(analytics).trackEvent(Analytics.EVENT_PENDING_TRANSACTION_FAILED);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_PENDING_TRANSACTION_FAILED);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class FailedBroadcastCleanerTest {
 
         cleaner.markAsFailedToBroadcast(unAcknowledgedList);
 
-        verify(analytics).trackEvent(Analytics.EVENT_PENDING_DROPBIT_SEND_FAILED);
+        verify(analytics).trackEvent(Analytics.Companion.EVENT_PENDING_DROPBIT_SEND_FAILED);
     }
 
     @Test
