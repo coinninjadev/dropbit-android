@@ -31,7 +31,6 @@ class AnalyticsClickListener(
         private val BUTTON_ANALYTICS_EVENT_MAP: HashMap<Int, String> = HashMap()
 
         init {
-            BUTTON_ANALYTICS_EVENT_MAP[R.id.balance] = Analytics.EVENT_BUTTON_BALANCE_HISTORY
             BUTTON_ANALYTICS_EVENT_MAP[R.id.request_btn] = Analytics.EVENT_BUTTON_REQUEST
             BUTTON_ANALYTICS_EVENT_MAP[R.id.scan_btn] = Analytics.EVENT_BUTTON_SCAN_QR
             BUTTON_ANALYTICS_EVENT_MAP[R.id.send_btn] = Analytics.EVENT_BUTTON_PAY

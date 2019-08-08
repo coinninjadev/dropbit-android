@@ -11,7 +11,7 @@ import com.coinninja.android.helpers.Views.clickOn
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.service.client.model.TransactionFee
-import com.coinninja.coinkeeper.ui.base.TestableActivity
+import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
@@ -40,16 +40,15 @@ class PaymentBarFragmentTest {
     private val usdCurrency = USDCurrency()
     private val btcCurrency = BTCCurrency()
     private val bitcoinUri: BitcoinUri = mock()
+    private val uri = Uri.parse("bitcoin:?r=https://bitpay.com/i/JHbWb7uRHL29bHhH6h5oTa")
 
     private val application: TestCoinKeeperApplication get() = ApplicationProvider.getApplicationContext()
-    private val creationIntent = Intent(application, TestableActivity::class.java)
+    private val creationIntent = Intent(application, HomeActivity::class.java)
 
     private var defaultCurrencies: DefaultCurrencies = DefaultCurrencies(btcCurrency, usdCurrency)
-    private var scenario: ActivityScenario<TestableActivity> = ActivityScenario.launch(creationIntent)
+    private lateinit var scenario: ActivityScenario<HomeActivity>
 
-    private val paymentBarFragment = PaymentBarFragment()
-
-    private fun configureDI() {
+    private fun configureDI(withBitcoinUri: Boolean = false) {
         application.apply {
             walletHelper = mock()
             currencyPreference = mock()
@@ -59,30 +58,27 @@ class PaymentBarFragmentTest {
             whenever(it.walletHelper.latestFee).thenReturn(initialFee)
             whenever(it.currencyPreference.currenciesPreference).thenReturn(defaultCurrencies)
             whenever(it.currencyPreference.fiat).thenReturn(usdCurrency)
-
+            if (withBitcoinUri) {
+                creationIntent.data = uri
+                whenever(application.bitcoinUtil.parse(uri.toString())).thenReturn(bitcoinUri)
+            }
         }
     }
 
+    private lateinit var paymentBarFragment: PaymentBarFragment
     private val sendButton: View get() = paymentBarFragment.findViewById(R.id.send_btn)!!
     private val requestButton: View get() = paymentBarFragment.findViewById(R.id.request_btn)!!
 
     private fun launchHome(withBitcoinUri: Boolean = false) {
-        val uri = Uri.parse("bitcoin:?r=https://bitpay.com/i/JHbWb7uRHL29bHhH6h5oTa")
-        configureDI()
+        configureDI(withBitcoinUri)
+        scenario = ActivityScenario.launch(creationIntent)
+        scenario.onActivity {
+            paymentBarFragment = it.supportFragmentManager.findFragmentById(R.id.payment_bar_fragment)!! as PaymentBarFragment
+        }
         paymentBarFragment.apply {
             paymentUtil = mock()
         }.also {
             whenever(it.paymentUtil.paymentHolder).thenReturn(it.paymentHolder)
-        }
-        scenario.onActivity {
-            if (withBitcoinUri) {
-                whenever(application.bitcoinUtil.parse(uri.toString())).thenReturn(bitcoinUri)
-                it.intent.data = uri
-            }
-            it.supportFragmentManager.beginTransaction().apply {
-                add(R.id.test_frame, paymentBarFragment)
-                commit()
-            }
         }
     }
 
@@ -104,6 +100,7 @@ class PaymentBarFragmentTest {
         }
     }
 
+    @Test
     fun observes_wallet_sync_complete() {
         launchHome()
         verify(application.localBroadCastUtil).registerReceiver(paymentBarFragment.receiver, paymentBarFragment.intentFilter)
@@ -158,6 +155,7 @@ class PaymentBarFragmentTest {
     @Test
     fun shows_request_dialog() {
         launchHome()
+
         clickOn(requestButton)
 
         verify(application.activityNavigationUtil).showDialogWithTag(eq(paymentBarFragment.childFragmentManager),

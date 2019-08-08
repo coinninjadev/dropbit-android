@@ -7,16 +7,16 @@ import android.content.IntentFilter;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.InternalNotification;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.view.activity.base.MessengerActivity;
 import com.coinninja.coinkeeper.view.notifications.InternalNotificationView;
 
 import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
 
 import static com.coinninja.coinkeeper.util.DropbitIntents.ACTION_INTERNAL_NOTIFICATION_UPDATE;
 
@@ -25,7 +25,7 @@ public class InternalNotificationsInteractor {
     private final LocalBroadCastUtil localBroadCastUtil;
     private final InternalNotificationHelper internalNotificationHelper;
     IntentFilter filter = new IntentFilter(ACTION_INTERNAL_NOTIFICATION_UPDATE);
-    private MessengerActivity activity;
+    private BaseActivity activity;
     private ViewGroup baseLayout;
     private InternalNotificationView notificationView;
     private boolean notificationsMuteBackground;
@@ -47,7 +47,7 @@ public class InternalNotificationsInteractor {
     /**
      * call before any super.()
      */
-    public void startListeningForNotifications(MessengerActivity activity, boolean notificationsMuteBackground) {
+    public void startListeningForNotifications(BaseActivity activity, boolean notificationsMuteBackground) {
         this.activity = activity;
         setMute(notificationsMuteBackground);
         baseLayout = activity.findViewById(R.id.message_queue);

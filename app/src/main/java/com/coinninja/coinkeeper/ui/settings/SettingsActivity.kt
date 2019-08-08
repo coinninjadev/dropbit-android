@@ -13,6 +13,7 @@ import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
+import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder
 import com.coinninja.coinkeeper.util.uri.UriUtil
@@ -20,11 +21,10 @@ import com.coinninja.coinkeeper.util.uri.routes.DropbitRoute
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity
 import com.coinninja.coinkeeper.view.activity.LicensesActivity
 import com.coinninja.coinkeeper.view.activity.SplashActivity
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import javax.inject.Inject
 
-class SettingsActivity : SecuredActivity(), DialogInterface.OnClickListener {
+class SettingsActivity : BaseActivity(), DialogInterface.OnClickListener {
 
     @Inject
     lateinit var dustProtectionPreference: DustProtectionPreference
@@ -56,7 +56,7 @@ class SettingsActivity : SecuredActivity(), DialogInterface.OnClickListener {
         startActivity(intent)
     }
 
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == DELETE_WALLET_REQUEST_CODE && resultCode == AuthorizedActionActivity.RESULT_AUTHORIZED) {
             deleteWalletPresenter.onDelete()
         } else {

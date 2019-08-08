@@ -22,7 +22,6 @@ import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
 import com.coinninja.coinkeeper.di.component.DaggerTestAppComponent;
 import com.coinninja.coinkeeper.di.component.TestAppComponent;
-import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
@@ -42,7 +41,6 @@ import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.runner.FailedBroadcastCleaner;
 import com.coinninja.coinkeeper.service.runner.FulfillSentInvitesRunner;
-import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner;
 import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner;
 import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner;
 import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner;
@@ -76,7 +74,6 @@ import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
 
-import org.jetbrains.annotations.Nullable;
 import org.robolectric.TestLifecycleApplication;
 import org.robolectric.shadows.ShadowPackageManager;
 
@@ -147,7 +144,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     @Inject
     public SignedCoinKeeperApiClient signedCoinKeeperApiClient;
     public CoinKeeperApiClient coinKeeperApiClient;
-    public HealthCheckTimerRunner healthCheckTimerRunner;
     public Wallet wallet = mock(Wallet.class);
     public CNServiceConnection cnServiceConnection = mock(CNServiceConnection.class);
     public TransactionBuilder transactionBuilder = mock(TransactionBuilder.class);
@@ -173,7 +169,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public VerifyRecoveryWordsPresenter verifyRecoveryWordsPresenter;
     public NotificationUtil notificationUtil;
     public DropbitMeConfiguration dropbitMeConfiguration;
-    public InternalNotificationsInteractor internalNotificationsInteractor;
     public ServiceWorkUtil serviceWorkUtil;
     public RemoteAddressLocalCache remoteAddressLocalCache;
     public DropbitAccountHelper dropbitAccountHelper;
@@ -256,7 +251,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         transactionHelper = null;
         blockchainClient = null;
         transactionBuilder = null;
-        healthCheckTimerRunner = null;
         coinKeeperApiClient = null;
         qrScanManager = null;
         signedCoinKeeperApiClient = null;
@@ -291,14 +285,12 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         typedValue = null;
         coinKeeperLifecycleListener = null;
         inviteContactPresenter = null;
-        internalNotificationsInteractor = null;
         serviceWorkUtil = null;
         remoteAddressLocalCache = null;
         dropbitAccountHelper = null;
         hasher = null;
         twitterVerificationController = null;
         preferencesUtil = null;
-        countryCodeLocales = null;
         countryCodeLocaleGenerator = null;
         deleteWalletPresenter = null;
         dustProtectionPreference = null;

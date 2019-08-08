@@ -10,18 +10,18 @@ import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController.Companion.TWITTER_LOGIN_REQUEST_CODE
+import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator
 import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneVerificationView
 import com.google.i18n.phonenumbers.Phonenumber
 import javax.inject.Inject
 
-class VerificationActivity : SecuredActivity() {
+class VerificationActivity : BaseActivity() {
 
     var countryCodeLocales: List<CountryCodeLocale> = emptyList()
 

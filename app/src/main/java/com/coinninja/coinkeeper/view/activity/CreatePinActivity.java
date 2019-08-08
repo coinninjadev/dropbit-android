@@ -6,13 +6,18 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interfaces.Authentication;
 import com.coinninja.coinkeeper.presenter.PreferencePresentor;
 import com.coinninja.coinkeeper.presenter.fragment.FingerprintAuthPresenter;
 import com.coinninja.coinkeeper.presenter.fragment.PinFragmentPresenter;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.android.PreferencesUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.fragment.FingerprintAuthDialog;
 import com.coinninja.coinkeeper.view.fragment.PinConfirmFragment;
 import com.coinninja.coinkeeper.view.fragment.PinCreateFragment;
@@ -20,12 +25,7 @@ import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
-public class CreatePinActivity extends SecuredActivity implements PinFragmentPresenter.View, FingerprintAuthPresenter.View, PreferencePresentor.View {
+public class CreatePinActivity extends BaseActivity implements PinFragmentPresenter.View, FingerprintAuthPresenter.View, PreferencePresentor.View {
 
     public static final String TAG_CREATE_PIN = "CREATE_PIN";
     public static final String TAG_CONFIRM_PIN = "CONFIRM_PIN";
@@ -164,21 +164,6 @@ public class CreatePinActivity extends SecuredActivity implements PinFragmentPre
         }
     }
 
-    void setPinFragmentPresenter(PinFragmentPresenter pinFragmentPresenter) {
-        this.pinFragmentPresenter = pinFragmentPresenter;
-    }
-
-    void setFingerPrintAuthDialog(FingerprintAuthDialog fingerPrintAuthDialog) {
-        fingerprintAuthDialog = fingerPrintAuthDialog;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_authentication);
-        pinFragmentPresenter = PinFragmentPresenter.newInstance(getPinEntry());
-    }
-
     @Override
     public void onPause() {
         super.onPause();
@@ -194,6 +179,21 @@ public class CreatePinActivity extends SecuredActivity implements PinFragmentPre
         pinFragmentPresenter.attachView(this);
         requestPin();
         if (isAuthenticatingWithFingerprint) authenticateWithFingerprint();
+    }
+
+    void setPinFragmentPresenter(PinFragmentPresenter pinFragmentPresenter) {
+        this.pinFragmentPresenter = pinFragmentPresenter;
+    }
+
+    void setFingerPrintAuthDialog(FingerprintAuthDialog fingerPrintAuthDialog) {
+        fingerprintAuthDialog = fingerPrintAuthDialog;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_authentication);
+        pinFragmentPresenter = PinFragmentPresenter.newInstance(getPinEntry());
     }
 
     protected void authenticationCompleted() {

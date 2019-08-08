@@ -13,9 +13,10 @@
         android:layout_width="68dp"
         android:layout_height="68dp"
         android:padding="20dp"
-        app:srcCompat="@drawable/ic_close"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_close"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/ic_send_state"
@@ -42,9 +43,8 @@
         android:text="?"
         android:textAlignment="center"
         android:textSize="16dp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/share_twitter_button"
-         />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.coinninja.coinkeeper.view.ConfirmationsView
         android:id="@+id/confirmation_beads"
@@ -83,6 +83,7 @@
 
     <com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView
         android:id="@+id/default_currency_view"
+        style="@style/transactionDetailBalance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -92,13 +93,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.45"
-        cn:primaryCryptoIconScale="1.75"
-        cn:secondaryCryptoIconScale=".7"
-        cn:receivedTextAppearance="@style/TextAppearance.History.Details.Receive.Value"
-        cn:secondaryTextAppearance="@style/TextAppearance.History.Details.Value.Secondary"
-        cn:sentTextAppearance="@style/TextAppearance.History.Details.Send.Value"
-        cn:useCryptoIcon="true" />
+        app:layout_constraintVertical_bias="0.45" />
 
     <TextView
         android:id="@+id/value_when_sent"
@@ -107,7 +102,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:textAppearance="@style/TextAppearance.History.Receive.Value"
+        android:textAppearance="@style/TextAppearance.History.WhenSent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/default_currency_view"
@@ -121,7 +116,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:drawableLeft="@drawable/plus_icon"
+        android:drawableStart="@drawable/plus_icon"
         android:text="@string/add_memo"
         app:layout_constraintBottom_toTopOf="@+id/shared_transaction_subview"
         app:layout_constraintEnd_toEndOf="parent"
@@ -169,7 +164,7 @@
 
     <Button
         android:id="@+id/call_to_action"
-        style="@style/buttonCallToAction"
+        style="@style/Button.Bitcoin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
@@ -195,14 +190,14 @@
 
     <Button
         android:id="@+id/share_twitter_button"
+        style="@style/Button.Small"
         android:layout_width="63dp"
         android:layout_height="25dp"
-        android:drawableLeft="@drawable/twitter_icon_small"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="25dp"
+        android:drawableLeft="@drawable/twitter_icon_small"
         android:padding="5dp"
-        style="@style/Button.Small"
         android:text="SHARE"
         app:layout_constraintStart_toStartOf="parent"
         cn:layout_constraintTop_toTopOf="parent" />

@@ -57,7 +57,7 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
 
     internal val paymentHolder: PaymentHolder = PaymentHolder()
 
-    internal val paymentBarView: PaymentBarView? get() = findViewById(R.id.payment_bar)
+    internal val paymentBarView: PaymentBarView get() = view as PaymentBarView
     internal val payDialogFragment: PayDialogFragment? get() = childFragmentManager.findFragmentByTag(PayDialogFragment::class.java.simpleName) as PayDialogFragment?
 
     internal var intentFilter = IntentFilter(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE)
@@ -72,7 +72,8 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_payment_bar, container, false)
+        val view = inflater.inflate(R.layout.fragment_payment_bar, container)
+        return view
     }
 
     override fun onStart() {
@@ -87,7 +88,7 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
 
     override fun onResume() {
         super.onResume()
-        paymentBarView?.apply {
+        paymentBarView.apply {
             setOnRequestPressedObserver { this@PaymentBarFragment.onRequestButtonPressed() }
             setOnSendPressedObserver { this@PaymentBarFragment.showPayDialogWithDefault() }
             setOnScanPressedObserver { this@PaymentBarFragment.onQrScanPressed() }

@@ -16,17 +16,16 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.interfaces.CNWalletServicesInterface;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 
 import javax.inject.Inject;
 
-public class RecoverWalletActivity extends SecuredActivity {
+public class RecoverWalletActivity extends BaseActivity {
 
-    private String[] recoveryWords;
     Button nextButton;
     ImageView icon;
     TextView title;
@@ -38,6 +37,32 @@ public class RecoverWalletActivity extends SecuredActivity {
     BitcoinUtil bitcoinUtil;
     @Inject
     CNServiceConnection cnServiceConnection;
+    private String[] recoveryWords;
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unRegisterForLocalBroadcast();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isValid(recoveryWords)) {
+            showFail();
+        } else {
+            registerForLocalBroadcast();
+            startSaveRecoveryWordsService();
+        }
+    }
+
+    public void onSaveRecoveryWordsSuccess() {
+        showSuccess();
+    }
+
+    public void onSaveRecoveryWordsFail() {
+        showFail();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,37 +84,11 @@ public class RecoverWalletActivity extends SecuredActivity {
         bindService(intent, cnServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (!isValid(recoveryWords)) {
-            showFail();
-        } else {
-            registerForLocalBroadcast();
-            startSaveRecoveryWordsService();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        unRegisterForLocalBroadcast();
-    }
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbindService(cnServiceConnection);
         cnServiceConnection.setBounded(false);
-    }
-
-    private void startSaveRecoveryWordsService() {
-        if (cnServiceConnection.isBounded()) {
-            CNWalletServicesInterface cnServices = cnServiceConnection.getCnWalletServicesInterface();
-            cnServices.saveSeedWords(recoveryWords);
-        }
     }
 
     protected void registerForLocalBroadcast() {
@@ -100,18 +99,17 @@ public class RecoverWalletActivity extends SecuredActivity {
         localBroadCastUtil.registerReceiver(receiver, intentFilter);
     }
 
+    private void startSaveRecoveryWordsService() {
+        if (cnServiceConnection.isBounded()) {
+            CNWalletServicesInterface cnServices = cnServiceConnection.getCnWalletServicesInterface();
+            cnServices.saveSeedWords(recoveryWords);
+        }
+    }
+
     private void unRegisterForLocalBroadcast() {
         if (receiver != null) {
             localBroadCastUtil.unregisterReceiver(receiver);
         }
-    }
-
-    public void onSaveRecoveryWordsSuccess() {
-        showSuccess();
-    }
-
-    public void onSaveRecoveryWordsFail() {
-        showFail();
     }
 
     private void showSuccess() {

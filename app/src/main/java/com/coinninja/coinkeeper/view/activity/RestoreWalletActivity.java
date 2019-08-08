@@ -9,25 +9,18 @@ import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.adapter.RestoreWalletPageAdapter;
 
-public class RestoreWalletActivity extends SecuredActivity {
+public class RestoreWalletActivity extends BaseActivity {
 
     String[] recovery_words;
     ViewPager pageView;
 
     public RestoreWalletActivity() {
         recovery_words = new String[12];
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_restore_wallet);
-        setupPager();
     }
 
     @Override
@@ -71,6 +64,13 @@ public class RestoreWalletActivity extends SecuredActivity {
 
     void setViewPager(ViewPager viewPager) {
         pageView = viewPager;
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_restore_wallet);
+        setupPager();
     }
 
     private void createPin() {

@@ -61,7 +61,7 @@
     <color name="primary_pressed">#992cd1ff</color>
     <color name="primary_disabled">#992cd1ff</color>
     <color name="primary_green">#94CB45</color>
-    <color name="primary_orange">#ECA14D</color>
+    <color name="primary_orange">#F69747</color>
 
     <!-- CTA Buttons (Call To Action) -->
     <color name="cta">#242536</color>
@@ -79,17 +79,21 @@
 
 
     <!-- Send / receive -->
-    <color name="color_receive">#83CF1C</color>
-    <color name="color_transfer">#e76c6c</color>
-    <color name="color_send">#e76c6c</color>
+    <color name="color_receive">#45d888</color>
+    <color name="color_transfer">#4a4a4a</color>
+    <color name="color_send">#4a4a4a</color>
 
 
     <!-- BTC Symbol Tint-->
+    <color name="bitcoin_orange">#F69747</color>
+    <color name="bitcoin_orange_pressed">#fbcea8</color>
+    <color name="lightning_blue">#3232a5</color>
+    <color name="lightning_blue_pressed">#6b6bd2</color>
     <color name="font_orange">#F79E36</color>
     <color name="colorBTNText">#242536</color>
     <color name="colorTransparent">#00FFFFFF</color>
-    <color name="color_error">#e76c6c</color>
-    <color name="color_error_pressed">#E49E9E</color>
+    <color name="color_error">#c25d5d</color>
+    <color name="color_error_pressed">#F59090</color>
 
     <color name="fontColor">#9b9b9b</color>
     <color name="light">#ffffffff</color>
@@ -102,7 +106,7 @@
 
     <color name="fingerprint_standard">#242536</color>
     <color name="fingerprint_success">#2cd1ff</color>
-    <color name="fingerprint_error">#e76c6c</color>
+    <color name="fingerprint_error">#c25d5d</color>
     <color name="fingerprint_instruction">#8a000000</color>
 
     <color name="border_transaction_detail_tax">#e0e0e0</color>
@@ -114,7 +118,7 @@
     <!-- Internal Notifications -->
     <color name="transparent_background">#E6fafafa</color>
     <color name="success_background">#83cf1c</color>
-    <color name="error_background">#e87676</color>
+    <color name="error_background">#c25d5d</color>
     <color name="info_background">#ffffff</color>
     <color name="warn_background">#e0b100</color>
 
@@ -144,10 +148,15 @@
     <color name="darker_gray">#99999c</color>
     <color name="news_divider">#d5d5d5</color>
 
+    <!-- Home Button Bar -->
+    <color name="home_tab_bar_border_disabled">#d8d8d8</color>
+    <color name="home_tab_bar_fill_disabled">#E9E9E9</color>
+    <color name="home_tab_bar_font_disabled">#a2a2a2</color>
+
     <!-- Verification -->
     <color name="verification_status_verified">#ff83cf1c</color>
 
     <!-- Market Colors -->
     <color name="market_sentiment_up">#ff83cf1c</color>
-    <color name="market_sentiment_down">#d55c6a</color>
+    <color name="market_sentiment_down">#c25d5d</color>
 </resources>

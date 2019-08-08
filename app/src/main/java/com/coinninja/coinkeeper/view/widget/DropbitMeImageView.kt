@@ -34,6 +34,14 @@ class DropbitMeImageView : AppCompatImageView {
     fun init() {
         circleTransform = CoinKeeperApplication.appComponent.provideCircleTransform()
         myTwitterProfile = CoinKeeperApplication.appComponent.provideMyTwitter()
+        if (isInEditMode) {
+            setImageResource(R.drawable.ic_dropbit_me)
+        } else {
+            renderImage()
+        }
+    }
+
+    private fun renderImage() {
         setImageResource(R.drawable.ic_dropbit_me)
         GlobalScope.launch(Dispatchers.Main) {
             myTwitterProfile.loadMyProfile()?.let {

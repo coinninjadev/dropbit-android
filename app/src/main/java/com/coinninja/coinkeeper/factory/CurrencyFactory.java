@@ -26,7 +26,7 @@ public class CurrencyFactory {
         currencyMap = Collections.unmodifiableMap(aMap);
     }
 
-    public void reset(){
+    public void reset() {
         currencyMap = new HashMap();
         setupDataSource();
     }

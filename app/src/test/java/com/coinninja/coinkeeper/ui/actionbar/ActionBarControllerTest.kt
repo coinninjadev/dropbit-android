@@ -1,8 +1,9 @@
 package com.coinninja.coinkeeper.ui.actionbar
 
 import android.util.TypedValue
-import android.view.Menu
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -14,6 +15,7 @@ import com.coinninja.coinkeeper.util.currency.CryptoCurrency
 import com.coinninja.coinkeeper.util.currency.FiatCurrency
 import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView
+import com.google.android.material.tabs.TabLayout
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Test
@@ -23,14 +25,23 @@ import org.mockito.ArgumentCaptor
 class ActionBarControllerTest {
 
     private val activity: AppCompatActivity = mock()
+    private val root: ViewGroup = mock()
+    private val charts: ImageButton = mock()
+    private val appbarBalance: DefaultCurrencyDisplaySyncView = mock()
+    private val appbarBalanceLarge: DefaultCurrencyDisplaySyncView = mock()
 
     private fun createController(): ActionBarController = ActionBarController(mock()).also {
+        whenever(charts.parent).thenReturn(root)
+        whenever(appbarBalance.parent).thenReturn(root)
+        whenever(appbarBalanceLarge.parent).thenReturn(root)
         whenever(activity.menuInflater).thenReturn(mock())
         whenever(activity.supportActionBar).thenReturn(mock())
         whenever(activity.supportActionBar!!.title).thenReturn("")
-        whenever(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).thenReturn(mock())
+        whenever(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).thenReturn(appbarBalance)
+        whenever(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance_large)).thenReturn(appbarBalanceLarge)
         whenever(activity.findViewById<TextView>(R.id.appbar_title)).thenReturn(mock())
-        whenever(activity.findViewById<ConstraintLayout>(R.id.cn_appbar_extensions)).thenReturn(mock())
+        whenever(activity.findViewById<ImageButton>(R.id.appbar_charts)).thenReturn(charts)
+        whenever(activity.findViewById<ConstraintLayout>(R.id.cn_content_wrapper)).thenReturn(mock())
         whenever(it.walletViewModel.syncInProgress).thenReturn(mock())
         whenever(it.walletViewModel.chainHoldings).thenReturn(mock())
         whenever(it.walletViewModel.chainHoldingsWorth).thenReturn(mock())
@@ -74,14 +85,6 @@ class ActionBarControllerTest {
         assertThat(controller.isActionBarGone).isFalse()
         assertThat(controller.isUpEnabled).isTrue()
         assertThat(controller.optionMenuLayout).isNull()
-
-
-        actionBarTyped.resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on
-        controller.setTheme(activity, actionBarTyped)
-        assertThat(controller.isActionBarGone).isFalse()
-        assertThat(controller.isUpEnabled).isTrue()
-        assertThat(controller.optionMenuLayout).isEqualTo(R.menu.actionbar_light_charts_menu)
-
 
         actionBarTyped.resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on
         controller.setTheme(activity, actionBarTyped)
@@ -139,7 +142,7 @@ class ActionBarControllerTest {
     fun remove_can_container_layout_if_them_is_action_gone() {
         val controller = createController()
         val cnContainerLayout = mock<View>()
-        whenever(activity.findViewById<View>(R.id.cn_appbar_layout_container)).thenReturn(cnContainerLayout)
+        whenever(activity.findViewById<View>(R.id.appbar_group)).thenReturn(cnContainerLayout)
 
         val actionBarTyped = TypedValue().apply {
             resourceId = R.id.actionbar_gone
@@ -236,7 +239,7 @@ class ActionBarControllerTest {
 
         controller.setTheme(activity, actionBarTyped)
 
-        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)!!
+        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)!!
         verify(balanceView).visibility = View.VISIBLE
     }
 
@@ -249,8 +252,9 @@ class ActionBarControllerTest {
 
         controller.setTheme(activity, actionBarTyped)
 
-        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)!!
-        verify(balanceView).visibility = View.GONE
+        verify(root, atLeastOnce()).removeView(charts)
+        verify(root, atLeastOnce()).removeView(appbarBalance)
+        verify(root, atLeastOnce()).removeView(appbarBalanceLarge)
     }
 
     @Test
@@ -262,8 +266,10 @@ class ActionBarControllerTest {
 
         controller.setTheme(activity, actionBarTyped)
 
-        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)!!
+        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)!!
         verify(balanceView).visibility = View.VISIBLE
+        verify(root, atLeastOnce()).removeView(charts)
+        verify(root, atLeastOnce()).removeView(appbarBalanceLarge)
     }
 
     @Test
@@ -274,12 +280,15 @@ class ActionBarControllerTest {
         }
 
         controller.setTheme(activity, actionBarTyped)
-        val menu = mock<Menu>()
-        controller.inflateActionBarMenu(activity, menu)
 
-        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)!!
-        verify(balanceView).visibility = View.VISIBLE
-        verify(activity.menuInflater).inflate(R.menu.actionbar_light_charts_menu, menu)
+        val chartsIcon = activity.findViewById<ImageButton>(R.id.appbar_charts)!!
+        val balanceView = activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)!!
+        verify(chartsIcon).visibility = View.VISIBLE
+        verify(balanceView).visibility = View.GONE // HomeScreen will render this
+        verify(controller.walletViewModel.syncInProgress, atLeastOnce()).observe(eq(activity), any())
+        verify(controller.walletViewModel.chainHoldingsWorth, atLeastOnce()).observe(eq(activity), any())
+        verify(controller.walletViewModel.defaultCurrencyPreference, atLeastOnce()).observe(eq(activity), any())
+        verify(controller.walletViewModel.chainHoldings, atLeastOnce()).observe(eq(activity), any())
     }
 
     @Test
@@ -310,9 +319,9 @@ class ActionBarControllerTest {
         verify(controller.walletViewModel.syncInProgress, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
 
         argumentCaptor.value.onChanged(true)
-        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).showSyncingUI()
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).showSyncingUI()
         argumentCaptor.value.onChanged(false)
-        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).hideSyncingUI()
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).hideSyncingUI()
     }
 
     @Test
@@ -336,7 +345,7 @@ class ActionBarControllerTest {
 
         argumentCaptor.value.onChanged(holdings)
 
-        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).renderValues(currenciesPreferences, holdings, worth)
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).renderValues(currenciesPreferences, holdings, worth)
     }
 
     @Test
@@ -359,7 +368,7 @@ class ActionBarControllerTest {
         verify(controller.walletViewModel.chainHoldingsWorth, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
 
         argumentCaptor.value.onChanged(worth)
-        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).renderValues(currenciesPreferences, holdings, worth)
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).renderValues(currenciesPreferences, holdings, worth)
     }
 
     @Test
@@ -382,7 +391,7 @@ class ActionBarControllerTest {
         verify(controller.walletViewModel.defaultCurrencyPreference, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
 
         argumentCaptor.value.onChanged(currenciesPreferences)
-        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).renderValues(currenciesPreferences, holdings, worth)
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).renderValues(currenciesPreferences, holdings, worth)
     }
 
     @Test
@@ -394,9 +403,40 @@ class ActionBarControllerTest {
         }
 
         controller.setTheme(activity, actionBarTyped)
-        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)).setOnClickListener(argumentCaptor.capture())
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).setOnClickListener(argumentCaptor.capture())
         argumentCaptor.value.onClick(mock())
 
         verify(controller.walletViewModel).toggleDefaultCurrencyPreference()
+    }
+
+    @Test
+    fun hides_tabs_by_default() {
+        val controller = createController()
+        val tabLayout: TabLayout = mock()
+        whenever(activity.findViewById<TabLayout>(R.id.appbar_tabs)).thenReturn(tabLayout)
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on
+        }
+
+        controller.setTheme(activity, actionBarTyped)
+
+        verify(tabLayout).visibility = View.GONE
+    }
+
+    @Test
+    fun adds_tabs_to_tab_view() {
+        val controller = createController()
+        val tabLayout: TabLayout = mock()
+        whenever(activity.findViewById<TabLayout>(R.id.appbar_tabs)).thenReturn(tabLayout)
+        val tab = mock<TabLayout.Tab>()
+        whenever(tabLayout.getTabAt(0)).thenReturn(tab)
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on
+        }
+        controller.setTheme(activity, actionBarTyped)
+
+        controller.addTab(activity, R.layout.home_appbar_tab_1, 0)
+
+        verify(tab).setCustomView(R.layout.home_appbar_tab_1)
     }
 }

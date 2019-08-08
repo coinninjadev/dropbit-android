@@ -7,9 +7,9 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.db.InternalNotification;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.view.activity.base.MessengerActivity;
 import com.coinninja.coinkeeper.view.notifications.InternalNotificationView;
 import com.coinninja.matchers.IntentFilterMatchers;
 
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 public class InternalNotificationsInteractorTest {
 
     @Mock
-    private MessengerActivity activity;
+    private BaseActivity activity;
     @Mock
     private LocalBroadCastUtil localBroadCastUtil;
     @Mock

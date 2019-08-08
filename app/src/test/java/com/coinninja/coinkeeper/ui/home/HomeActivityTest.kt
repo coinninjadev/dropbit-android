@@ -5,6 +5,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.viewpager.widget.ViewPager
+import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DefaultCurrencies
@@ -12,6 +14,8 @@ import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.coinninja.coinkeeper.util.currency.USDCurrency
+import com.google.android.material.tabs.TabLayout
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert
 import org.junit.Test
@@ -48,6 +52,14 @@ internal class HomeActivityTest {
 
             Mockito.verify(application.activityNavigationUtil).showTransactionDetail(activity, txid = txid)
             Assert.assertFalse(activity.intent.hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID))
+        }
+    }
+
+    @Test
+    fun adds_tabs_to_appbar() {
+        setupActivity().onActivity {
+            verify(it.actionBarController).addTab(it, R.layout.home_appbar_tab_1, 0)
+            verify(it.actionBarController).addTab(it, R.layout.home_appbar_tab_2, 1)
         }
     }
 }

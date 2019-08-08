@@ -19,4 +19,10 @@ class MarketChartModule {
         return MarketDataViewModel(contextProvider, walletHelper, signedCoinKeeperApiClient, localBroadCastUtil)
     }
 
+    @Provides
+    fun provideMarketChartConfiguration(): MarketChartController = MarketChartController()
+
+    @Provides
+    fun provideMarketChartButtonBarController(): MarketChartButtonBarController = MarketChartButtonBarController()
+
 }

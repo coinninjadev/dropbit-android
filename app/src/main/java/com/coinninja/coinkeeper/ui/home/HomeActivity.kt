@@ -1,14 +1,17 @@
 package com.coinninja.coinkeeper.ui.home
 
 import android.os.Bundle
+import android.view.View
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.viewpager.widget.ViewPager
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
+import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 
-class HomeActivity : SecuredActivity() {
+class HomeActivity : BaseActivity() {
 
     companion object {
         const val currentPageKey = "current_page"
@@ -21,13 +24,29 @@ class HomeActivity : SecuredActivity() {
     internal lateinit var homePagerAdapterProvider: HomePagerAdapterProvider
     internal var currentPage = 0
 
+    internal val pager: ViewPager get() = findViewById(R.id.home_pager)
+    internal val tabs: TabLayout get() = findViewById(R.id.appbar_tabs)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        findViewById<ViewPager>(R.id.home_pager)?.apply {
+        findViewById<View>(R.id.appbar_balance_large)?.apply {
+            visibility = View.VISIBLE
+        }
+        findViewById<MotionLayout>(R.id.cn_content_wrapper)?.apply {
+            updateState()
+            rebuildScene()
+        }
+
+        pager.apply {
             adapter = homePagerAdapterProvider.provide(supportFragmentManager, lifecycle.currentState)
             setCurrentItem(currentPage, false)
+            tabs.setupWithViewPager(this)
         }
+
+        addTabToAppBar(R.layout.home_appbar_tab_2, 1)
+        addTabToAppBar(R.layout.home_appbar_tab_1, 0)
+
     }
 
     override fun onResume() {

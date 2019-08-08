@@ -13,9 +13,9 @@ import com.coinninja.coinkeeper.adapter.TrainingPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.TrainingModel;
 import com.coinninja.coinkeeper.model.helpers.UserHelper;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.google.android.material.tabs.TabLayout;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import static androidx.viewpager.widget.ViewPager.SCROLL_STATE_DRAGGING;
 
 
-public class TrainingActivity extends SecuredActivity implements ViewPager.OnPageChangeListener, TrainingPagerAdapter.OnTrainingClickListener {
+public class TrainingActivity extends BaseActivity implements ViewPager.OnPageChangeListener, TrainingPagerAdapter.OnTrainingClickListener {
 
 
     @Inject

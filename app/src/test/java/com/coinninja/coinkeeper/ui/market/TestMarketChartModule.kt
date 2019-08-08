@@ -9,10 +9,15 @@ import dagger.Provides
 @Module
 class TestMarketChartModule {
     @Provides
-    fun provideMarketDataViewModel(): MarketDataViewModel = mock<MarketDataViewModel>().also{
+    fun provideMarketDataViewModel(): MarketDataViewModel = mock<MarketDataViewModel>().also {
         whenever(it.currentGranularity).thenReturn(mock())
         whenever(it.periodData).thenReturn(mock())
         whenever(it.currentBtcPrice).thenReturn(mock())
     }
 
+    @Provides
+    fun provideMarketChartConfiguration(): MarketChartController = MarketChartController()
+
+    @Provides
+    fun provideMarketChartButtonBarController(): MarketChartButtonBarController = MarketChartButtonBarController()
 }

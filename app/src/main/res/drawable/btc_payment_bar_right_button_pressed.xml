@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="49dp"
+    android:viewportHeight="51"
+    android:viewportWidth="137"
+    android:width="135dp">
+    <path
+        android:pathData="M6.576,1L129,1a5,5 0,0 1,5 5v41a5,5 0,0 1,-5 5L6.576,52a5,5 0,0 1,-4.831 -6.288c2.429,-9.116 3.644,-15.52 3.644,-19.212S4.174,16.404 1.745,7.288A5,5 0,0 1,6.575 1z"
+        android:fillColor="#000"
+        android:fillType="evenOdd" />
+    <path
+        android:pathData="M6.576,1L129,1a5,5 0,0 1,5 5v41a5,5 0,0 1,-5 5L6.576,52a5,5 0,0 1,-4.831 -6.288c2.429,-9.116 3.644,-15.52 3.644,-19.212S4.174,16.404 1.745,7.288A5,5 0,0 1,6.575 1z"
+        android:fillColor="@color/bitcoin_orange_pressed"
+        android:fillType="evenOdd" />
+    <path
+        android:strokeWidth="1"
+        android:pathData="M6.576,1.5a4.5,4.5 0,0 0,-4.348 5.659c2.44,9.156 3.66,15.593 3.66,19.341 0,3.748 -1.22,10.185 -3.66,19.341A4.5,4.5 0,0 0,6.576 51.5L129,51.5a4.5,4.5 0,0 0,4.5 -4.5L133.5,6A4.5,4.5 0,0 0,129 1.5L6.576,1.5z"
+        android:fillColor="#00000000"
+        android:strokeColor="@color/bitcoin_orange_pressed"
+        android:fillType="evenOdd" />
+</vector>
