@@ -8,12 +8,12 @@ import app.dropbit.twitter.ui.login.TwitterLoginActivity
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController.Companion.TWITTER_LOGIN_REQUEST_CODE
+import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import javax.inject.Inject
 
-class SignUpSelectionActivity : SecuredActivity() {
+class SignUpSelectionActivity : BaseActivity() {
 
     @Inject
     internal lateinit var twitterVerificationController: TwitterVerificationController
@@ -37,10 +37,10 @@ class SignUpSelectionActivity : SecuredActivity() {
 
     private fun textMessageInviteClicked() {
         val signUpSelectionIntent = intent
-        var shouldHideSkip = false
-
-        if (signUpSelectionIntent != null && signUpSelectionIntent.hasExtra(DropbitIntents.EXTRA_HIDE_SKIP_BUTTON)) {
-            shouldHideSkip = signUpSelectionIntent.getBooleanExtra(DropbitIntents.EXTRA_HIDE_SKIP_BUTTON, false)
+        val shouldHideSkip = if (signUpSelectionIntent != null && signUpSelectionIntent.hasExtra(DropbitIntents.EXTRA_HIDE_SKIP_BUTTON)) {
+            signUpSelectionIntent.getBooleanExtra(DropbitIntents.EXTRA_HIDE_SKIP_BUTTON, false)
+        } else {
+            false
         }
 
         val verifyPhoneNumberActivity = Intent(this, VerificationActivity::class.java)

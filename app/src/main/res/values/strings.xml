@@ -436,4 +436,10 @@
     <string name="news">News</string>
     <string name="news_source_published_separator">-</string>
     <string name="show_market_data">Show Market News</string>
+    <string name="market_charts">market charts</string>
+
+
+    <!-- Home Activity -->
+    <string name="app_tab_bar_bitcoin">Bitcoin</string>
+    <string name="app_tab_bar_lightning">Lightning</string>
 </resources>

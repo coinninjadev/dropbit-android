@@ -1,5 +1,7 @@
 package com.coinninja.coinkeeper.ui.base
 
+import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor
+import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController
 import com.coinninja.coinkeeper.viewModel.WalletViewModel
@@ -15,5 +17,12 @@ class TestBaseActivityModule {
 
     @Provides
     fun provideDrawerController(): DrawerController = mock()
+
+    @Provides
+    fun provideHealthCheckRunner(): HealthCheckTimerRunner = mock()
+
+
+    @Provides
+    fun provideInternalNotificationInteractor(): InternalNotificationsInteractor = mock()
 
 }

@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cn_content_wrapper"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:layoutDescription="@xml/motion_scene_empty">
 
-    <include
-        android:id="@+id/cn_appbar_layout_container"
-        layout="@layout/appbar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" />
+    <include layout="@layout/merge_appbar" />
 
     <FrameLayout
         android:id="@+id/cn_content_container"
         style="?attr/cn_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/cn_appbar_layout_container" />
-</RelativeLayout>
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbar_barrier" />
+
+    <include
+        layout="@layout/merge_system_messages"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 

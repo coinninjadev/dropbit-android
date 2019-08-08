@@ -3,12 +3,12 @@ package com.coinninja.coinkeeper.view.activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 
-import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
-
 import androidx.annotation.Nullable;
 
-public class LicensesActivity extends SecuredActivity {
+import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
+
+public class LicensesActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

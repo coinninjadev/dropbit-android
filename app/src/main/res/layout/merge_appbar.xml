@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <View
+        android:id="@+id/appbar_back"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:elevation="0dp"
+        android:background="@color/background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/appbar_balance"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <fragment
+        android:id="@+id/fragment_dropbit_me"
+        android:name="com.coinninja.coinkeeper.ui.base.DropbitMeFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout="@layout/fragment_dropbit_me" />
+
+    <ImageButton
+        android:id="@+id/appbar_charts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/market_charts"
+        android:padding="20dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_chart"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="@id/fragment_dropbit_me" />
+
+    <TextView
+        android:id="@+id/appbar_title"
+        style="?attr/actionBarTitleStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar"
+        tools:text="I am a title" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/appbar_tabs"
+        style="@style/AppTabLayout.HomeScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar_title" />
+
+    <com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView
+        android:id="@+id/appbar_balance"
+        style="@style/appbarBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dip"
+        android:gravity="end|center_vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView
+        android:id="@+id/appbar_balance_large"
+        style="@style/appbarBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dip"
+        android:gravity="end|center_vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbar_tabs"
+        app:useLargeStyles="true"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/appbar_inner_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierAllowsGoneWidgets="true"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="appbar,appbar_tabs,appbar_title"
+        tools:visibility="visible" />
+
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/appbar_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierAllowsGoneWidgets="true"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="fragment_dropbit_me,balance,appbar_charts,appbar,guideline2,appbar_tabs,appbar_title,appbar_balance,appbar_balance_large"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/appbar_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="fragment_dropbit_me,balance,appbar,appbar_inner_barrier,appbar_balance_large, appbar_back" />
+
+</merge>

@@ -18,19 +18,19 @@ import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
 import com.coinninja.coinkeeper.service.SaveInviteService;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.base.TransactionTweetCallback;
 import com.coinninja.coinkeeper.ui.base.TransactionTweetDialog;
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
 import javax.inject.Inject;
 
-public class InviteSendActivity extends SecuredActivity implements InviteContactPresenter.View, TransactionTweetCallback {
+public class InviteSendActivity extends BaseActivity implements InviteContactPresenter.View, TransactionTweetCallback {
     public static final String RATE_LIMIT_DROPBIT_FRAGMENT_TAG = "EXPIRED_CODE_FRAGMENT_TAG";
     static final String RESTORE_STATE = "RESTORE_STATE";
 

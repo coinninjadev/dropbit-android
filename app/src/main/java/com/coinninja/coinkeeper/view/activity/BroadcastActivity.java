@@ -23,20 +23,20 @@ import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
 import javax.inject.Inject;
 
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
-public class BroadcastActivity extends SecuredActivity implements BroadcastTransactionPresenter.View {
+public class BroadcastActivity extends BaseActivity implements BroadcastTransactionPresenter.View {
     static final String RESTORE_STATE = "RESTORE_STATE";
     static final String TRANSACTION_ID = "TRANSACTION_ID";
     private static final String TAG = BroadcastActivity.class.getSimpleName();

@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.view.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -26,13 +27,9 @@ public class DefaultCurrencyDisplaySyncView extends DefaultCurrencyDisplayView {
         super(context, attrs, defStyleAttr, defStyleRes);
         rotationImageView = findViewById(R.id.syncing_image);
         rotationImageView.setVisibility(View.GONE);
+        setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
         styleTextView(secondaryCurrencyView, secondaryTextAppearance);
         Views.rotate(rotationImageView);
-    }
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.merge_default_currency_display_sync_view;
     }
 
     public DefaultCurrencyDisplaySyncView(Context context) {
@@ -47,5 +44,10 @@ public class DefaultCurrencyDisplaySyncView extends DefaultCurrencyDisplayView {
     public void hideSyncingUI() {
         rotationImageView.setVisibility(View.GONE);
         rotationImageView.clearAnimation();
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.merge_default_currency_display_sync_view;
     }
 }

@@ -21,12 +21,12 @@ import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper;
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.util.OnItemClickListener;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.adapter.util.PickUserViewModel;
 import com.coinninja.coinkeeper.view.widget.ContactsEmptyStateView;
 import com.google.android.material.tabs.TabLayout;
@@ -39,7 +39,7 @@ import app.dropbit.twitter.ui.login.TwitterLoginActivity;
 import static com.coinninja.coinkeeper.view.adapter.util.PickUserViewModel.UserType.PHONE_NUMBER;
 import static com.coinninja.coinkeeper.view.adapter.util.PickUserViewModel.UserType.TWITTER;
 
-public class PickUserActivity extends SecuredActivity implements OnItemClickListener {
+public class PickUserActivity extends BaseActivity implements OnItemClickListener {
 
     protected static int CONTACTS_PERMISSION_REQUEST_CODE = 1001;
     protected SearchView searchView;
@@ -130,7 +130,7 @@ public class PickUserActivity extends SecuredActivity implements OnItemClickList
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == TwitterVerificationController.Companion.getTWITTER_LOGIN_REQUEST_CODE() && resultCode == Activity.RESULT_OK) {

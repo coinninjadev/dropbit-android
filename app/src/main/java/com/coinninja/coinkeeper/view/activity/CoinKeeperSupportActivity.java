@@ -4,18 +4,18 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
-import com.coinninja.coinkeeper.view.adapter.CoinKeeperSupportAdapter;
-
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
+import com.coinninja.coinkeeper.view.adapter.CoinKeeperSupportAdapter;
 
-public class CoinKeeperSupportActivity extends SecuredActivity {
+
+public class CoinKeeperSupportActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

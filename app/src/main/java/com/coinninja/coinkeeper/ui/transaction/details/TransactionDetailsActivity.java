@@ -10,17 +10,17 @@ import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 
 import javax.inject.Inject;
 
 import static com.coinninja.android.helpers.Views.withId;
 
-public class TransactionDetailsActivity extends SecuredActivity {
+public class TransactionDetailsActivity extends BaseActivity {
 
     @Inject
     DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;

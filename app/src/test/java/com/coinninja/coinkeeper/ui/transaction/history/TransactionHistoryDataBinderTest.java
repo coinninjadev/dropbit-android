@@ -291,27 +291,6 @@ public class TransactionHistoryDataBinderTest {
     }
 
     @Test
-    public void zero_time_means() {
-        setupReceive();
-        bindableTransaction.setTxTime("");
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView time = view.findViewById(R.id.blocktime);
-        assertThat(time.getText().toString(), equalTo(""));
-    }
-
-    @Test
-    public void formats_time_to_date() {
-        setupReceive();
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView time = view.findViewById(R.id.blocktime);
-        assertThat(time.getText().toString(), equalTo("April 24, 2018 01:24am"));
-    }
-
-    @Test
     public void when_receiving_it_populates_with_senders_address() {
         setupReceive();
 

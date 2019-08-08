@@ -8,6 +8,9 @@ import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.base.TestBaseActivityModule
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
+import com.coinninja.coinkeeper.ui.market.TestMarketChartModule
+import com.coinninja.coinkeeper.ui.news.TestMarketNewsModule
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivity
 import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivityTest
@@ -17,8 +20,6 @@ import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity
 import com.coinninja.coinkeeper.util.TwitterUtil
 import com.coinninja.coinkeeper.view.activity.*
-import com.coinninja.coinkeeper.view.activity.base.MessengerActivity
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -103,10 +104,6 @@ abstract class TestAndroidActivityBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
-    internal abstract fun messagegerActivity(): MessengerActivity
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun qrScanActivity(): QrScanActivity
 
     @ActivityScope
@@ -116,10 +113,6 @@ abstract class TestAndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun recoverWalletActivity(): RecoverWalletActivity
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
-    internal abstract fun securedActivity(): SecuredActivity
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
@@ -152,5 +145,9 @@ abstract class TestAndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun transactionDetailsActivity(): TransactionDetailsActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, TestMarketChartModule::class, TestMarketNewsModule::class])
+    internal abstract fun marketScreenActivity(): MarketScreenActivity
 }
 

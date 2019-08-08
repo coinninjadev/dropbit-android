@@ -9,15 +9,15 @@ import androidx.annotation.Nullable;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BackupActivity;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 
 import javax.inject.Inject;
 
-public class BackupRecoveryWordsStartActivity extends SecuredActivity {
+public class BackupRecoveryWordsStartActivity extends BaseActivity {
 
     public static final int AUTHORIZE_VIEW_REQUEST_CODE = 1;
     public static final int AUTHORIZE_BACKUP_REQUEST_CODE = 2;
@@ -26,7 +26,7 @@ public class BackupRecoveryWordsStartActivity extends SecuredActivity {
     CNWalletManager cnWalletManager;
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == AuthorizedActionActivity.RESULT_AUTHORIZED && requestCode == AUTHORIZE_VIEW_REQUEST_CODE)

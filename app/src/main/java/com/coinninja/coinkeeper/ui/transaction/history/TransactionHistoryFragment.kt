@@ -174,11 +174,11 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     }
 
     private fun setupSwipeToRefresh() {
-        findViewById<SwipeRefreshLayout>(R.id.pull_refresh_container)?.setOnRefreshListener(this)
+        findViewById<SwipeRefreshLayout>(R.id.news_pull_to_refresh)?.setOnRefreshListener(this)
     }
 
     override fun onSyncStatusChanged() {
-        view?.findViewById<SwipeRefreshLayout>(R.id.pull_refresh_container)?.isRefreshing = false
+        view?.findViewById<SwipeRefreshLayout>(R.id.news_pull_to_refresh)?.isRefreshing = false
         refreshTransactions()
     }
 

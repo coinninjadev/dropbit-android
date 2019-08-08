@@ -3,10 +3,10 @@ package com.coinninja.coinkeeper.view.fragment;
 import android.content.Intent;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.coinninja.android.helpers.Resources;
+import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
@@ -27,13 +27,18 @@ import com.coinninja.coinkeeper.view.activity.InviteSendActivity;
 import com.coinninja.coinkeeper.view.button.ConfirmHoldButton;
 import com.coinninja.coinkeeper.view.subviews.SharedMemoView;
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder;
+import com.google.android.material.tabs.TabLayout;
 import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
 import static com.coinninja.android.helpers.Views.withId;
+import static com.coinninja.coinkeeper.util.FeesManager.FeeType;
+import static com.coinninja.coinkeeper.util.FeesManager.FeeType.CHEAP;
+import static com.coinninja.coinkeeper.util.FeesManager.FeeType.FAST;
+import static com.coinninja.coinkeeper.util.FeesManager.FeeType.SLOW;
 
-public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implements ConfirmHoldButton.OnConfirmHoldEndListener {
+public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implements ConfirmHoldButton.OnConfirmHoldEndListener, TabLayout.OnTabSelectedListener {
 
     static final int AUTHORIZE_PAYMENT_REQUEST_CODE = 10;
 
@@ -45,6 +50,8 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
 
     @Inject
     TransactionFundingManager transactionFundingManager;
+
+    FeeType feePref = FAST;
 
     PaymentBarCallbacks paymentBarCallbacks;
     private Identity identity;
@@ -63,21 +70,12 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         return fragment;
     }
 
-    public void commonInit(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks) {
-        this.paymentUtil = paymentUtil;
-        setPaymentBarCallbacks(paymentBarCallbacks);
-    }
-
     public Identity getIdentity() {
         return identity;
     }
 
     public void setIdentity(Identity identityToSendTo) {
         identity = identityToSendTo;
-    }
-
-    public PaymentHolder getPaymentHolder() {
-        return paymentUtil.getPaymentHolder();
     }
 
     @Override
@@ -97,6 +95,7 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     @Override
     public void onResume() {
         super.onResume();
+        feePref = feesManager.getFeePreference();
         setupClose();
         analytics.trackEvent(Analytics.Companion.EVENT_CONFIRM_SCREEN_LOADED);
         analytics.flush();
@@ -124,6 +123,32 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         setupConfirmButton();
         setupAdjustedFeesUI();
         setupFeeUI();
+
+    }
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        switch(tab.getPosition()) {
+            case 0:
+                fundWithNewFee(FAST);
+                break;
+            case 1:
+                fundWithNewFee(SLOW);
+                break;
+            case 2:
+                fundWithNewFee(CHEAP);
+                break;
+        }
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
     }
 
     @Override
@@ -145,6 +170,15 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         secondaryCurrencyView.setText(secondaryAmount);
     }
 
+    private void commonInit(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks) {
+        this.paymentUtil = paymentUtil;
+        setPaymentBarCallbacks(paymentBarCallbacks);
+    }
+
+    private PaymentHolder getPaymentHolder() {
+        return paymentUtil.getPaymentHolder();
+    }
+
     private void setupAdjustedFeesUI() {
         if (feesManager.isAdjustableFeesEnabled()) {
             getView().findViewById(R.id.adjustable_fee_configuration_group).setVisibility(View.VISIBLE);
@@ -152,61 +186,50 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         } else {
             getView().findViewById(R.id.adjustable_fee_configuration_group).setVisibility(View.GONE);
         }
-
-        getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_left).setOnClickListener(v -> adjustedFeeButtonClicked(v));
-        getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_center).setOnClickListener(v -> adjustedFeeButtonClicked(v));
-        getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_right).setOnClickListener(v -> adjustedFeeButtonClicked(v));
     }
 
-    private void setNewFeeForView(View view) {
-        long amount = getPaymentHolder().getTransactionData().getAmount();
-
-        if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_left)) {
-            getPaymentHolder().setTransactionData(transactionFundingManager.buildFundedTransactionData(paymentUtil.getAddress(), feesManager.fee(FeesManager.FeeType.FAST), amount));
-        } else if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_center)) {
-            getPaymentHolder().setTransactionData(transactionFundingManager.buildFundedTransactionData(paymentUtil.getAddress(), feesManager.fee(FeesManager.FeeType.SLOW), amount));
-        } else if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_right)) {
-            getPaymentHolder().setTransactionData(transactionFundingManager.buildFundedTransactionData(paymentUtil.getAddress(), feesManager.fee(FeesManager.FeeType.CHEAP), amount));
-        }
-    }
-
-    private void setApproximateTimeForFee(View view) {
-        if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_left)) {
-            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(R.string.approx_ten_minutes);
-        } else if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_center)) {
-            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(R.string.approx_hour_wait);
-        } else if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_right)) {
-            ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(R.string.approx_day_wait);
-        }
-    }
-
-    private Double feeForView(View view) {
-        if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_left)) {
-            return feesManager.fee(FeesManager.FeeType.FAST);
-        } else if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_center)) {
-            return feesManager.fee(FeesManager.FeeType.SLOW);
-        } else if (view == getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_right)) {
-            return feesManager.fee(FeesManager.FeeType.CHEAP);
-        }
-
-        return feesManager.fee(FeesManager.FeeType.FAST);
-    }
-
-    private void adjustedFeeButtonClicked(View view) {
+    private void fundWithNewFee(FeeType feeType) {
+        TransactionData transactionData;
         if (paymentUtil.isSendingMax()) {
-            paymentUtil.setFee(feeForView(view));
-            paymentUtil.fundMax();
-            getPaymentHolder().updateValue(new BTCCurrency(getPaymentHolder().getTransactionData().getAmount()));
-            setApproximateTimeForFee(view);
-        } else if (paymentUtil.isTransactionFundableWithFee(feeForView(view), paymentUtil.getPaymentHolder().getTransactionData().getAmount())) {
-            setNewFeeForView(view);
-            setApproximateTimeForFee(view);
+            transactionData = transactionFundingManager.buildFundedTransactionData(
+                    paymentUtil.getAddress(),
+                    feesManager.fee(feeType)
+            );
+        } else {
+            transactionData = transactionFundingManager.buildFundedTransactionData(
+                    paymentUtil.getAddress(),
+                    feesManager.fee(feeType),
+                    getPaymentHolder().getTransactionData().getAmount()
+            );
+        }
+
+        if (transactionData.getAmount() > 0) {
+            feePref = feeType;
+            getPaymentHolder().setTransactionData(transactionData);
         } else {
             AlertDialogBuilder.build(getContext(), getString(R.string.fee_too_high_error)).show();
-            setupCurrentlySelectedFeeUI();
         }
 
+        updateWaitTime();
         setupFeeUI();
+    }
+
+    private void updateWaitTime() {
+        String waitTime;
+
+        switch (feePref) {
+            case FAST:
+                waitTime = getString(R.string.approx_ten_minutes);
+                break;
+            case SLOW:
+                waitTime = getString(R.string.approx_hour_wait);
+                break;
+            default:
+                waitTime = getString(R.string.day);
+                break;
+        }
+
+        ((TextView) getView().findViewById(R.id.estimated_delivery_time)).setText(waitTime);
     }
 
     private void setupFeeUI() {
@@ -215,23 +238,21 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     }
 
     private void setupCurrentlySelectedFeeUI() {
-        RadioButton button = getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_left);
+        TabLayout tabLayout = getView().findViewById(R.id.adjustable_fees).findViewById(R.id.adjustable_fees);
 
-        switch (feesManager.getFeePreference()) {
+        switch (feePref) {
             case FAST:
+                tabLayout.selectTab(tabLayout.getTabAt(0));
                 break;
             case SLOW:
-                button = getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_center);
-                break;
-            case CHEAP:
-                button = getView().findViewById(R.id.adjustable_fees_fragment).findViewById(R.id.radio_right);
+                tabLayout.selectTab(tabLayout.getTabAt(1));
                 break;
             default:
-
+                tabLayout.selectTab(tabLayout.getTabAt(2));
+                break;
         }
-
-        button.setChecked(true);
-        setApproximateTimeForFee(button);
+        tabLayout.addOnTabSelectedListener(this);
+        updateWaitTime();
     }
 
     private void setPaymentBarCallbacks(PaymentBarCallbacks paymentBarCallbacks) {
@@ -280,8 +301,6 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
                 feeAmount.toFormattedString(),
                 feeAmount.toUSD(getPaymentHolder().getEvaluationCurrency()).toFormattedCurrency())
         );
-
-
     }
 
     private void onCloseClicked() {
@@ -345,7 +364,6 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         }
 
     }
-
 
     public enum DisplayState {
         CONTACT, INVITE, PHONE_NUMBER_ONLY, BTC_ADDRESS_ONLY

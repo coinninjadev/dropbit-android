@@ -27,18 +27,6 @@ class AnalyticsClickListenerTest {
     }
 
     @Test
-    fun track_EVENT_BUTTON_BALANCE_HISTORY_event_test() {
-        val analyticsClickListener = createListener()
-        val expectedAnalyticsEvent = Analytics.EVENT_BUTTON_BALANCE_HISTORY
-        val sampleEventID = R.id.balance
-        setId(sampleEventID)
-
-        analyticsClickListener.onClick(view)
-
-        verify(analytics).trackButtonEvent(expectedAnalyticsEvent)
-    }
-
-    @Test
     fun track_EVENT_BUTTON_SCAN_QR_event_test() {
         val analyticsClickListener = createListener()
         val expectedAnalyticsEvent = Analytics.EVENT_BUTTON_SCAN_QR

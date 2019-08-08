@@ -2,17 +2,17 @@ package com.coinninja.coinkeeper.view.activity;
 
 import android.os.Bundle;
 
-import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
-import com.coinninja.coinkeeper.view.fragment.AuthenticateFragment;
-
-import javax.inject.Inject;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-public class AuthenticateActivity extends SecuredActivity {
+import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
+import com.coinninja.coinkeeper.view.fragment.AuthenticateFragment;
+
+import javax.inject.Inject;
+
+public class AuthenticateActivity extends BaseActivity {
 
     @Inject
     AuthenticateFragment authenticateFragment;
@@ -33,7 +33,7 @@ public class AuthenticateActivity extends SecuredActivity {
     @Override
     public void teardownMute() {
         super.teardownMute();
-        if (isForeGrounded())
+        if (getHasForeGround())
             authenticateFragment.teardownMute();
     }
 

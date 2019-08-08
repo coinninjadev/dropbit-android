@@ -4,6 +4,8 @@ import android.graphics.drawable.Drawable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -18,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 
 import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DefaultCurrencyDisplayViewTest {
 
     private DefaultCurrencyDisplayView defaultCurrencyDisplayView;
@@ -153,6 +154,7 @@ public class DefaultCurrencyDisplayViewTest {
     public void renders_crypto_symbol_primary() {
         DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
         defaultCurrencyDisplayView.useCryptoSymbol(true);
+        defaultCurrencyDisplayView.useCryptoIcon(false);
 
         defaultCurrencyDisplayView.renderValues(defaultCurrencies, BindableTransaction.SendState.SEND, totalCrypto, fiatValue);
 
@@ -163,6 +165,7 @@ public class DefaultCurrencyDisplayViewTest {
     public void renders_crypto_symbol_secondary() {
         DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         defaultCurrencyDisplayView.useCryptoSymbol(true);
+        defaultCurrencyDisplayView.useCryptoIcon(false);
 
         defaultCurrencyDisplayView.renderValues(defaultCurrencies, BindableTransaction.SendState.SEND, totalCrypto, fiatValue);
 

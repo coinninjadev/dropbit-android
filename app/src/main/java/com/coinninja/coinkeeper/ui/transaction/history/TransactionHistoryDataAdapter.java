@@ -141,7 +141,6 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             bindIcon(itemView.findViewById(R.id.icon), transaction, picasso, circleTransform);
             bindConfirmations(itemView.findViewById(R.id.confirmations), transaction);
             bindAddress(itemView.findViewById(R.id.address), transaction);
-            bindTransactionTime(itemView.findViewById(R.id.blocktime), transaction);
             bindValue(transaction);
             bindSendState(itemView, transaction);
             bindMemo(itemView, transaction);
@@ -164,9 +163,6 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             memoView.setVisibility(View.VISIBLE);
         }
 
-        private void bindTransactionTime(TextView view, BindableTransaction transaction) {
-            view.setText(transaction.getTxTime());
-        }
 
         private void bindAddress(TextView view, BindableTransaction transaction) {
             bindIdentifyingTarget(view, transaction);

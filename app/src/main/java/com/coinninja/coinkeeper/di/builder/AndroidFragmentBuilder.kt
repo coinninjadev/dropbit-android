@@ -13,11 +13,6 @@ import com.coinninja.coinkeeper.ui.dropbit.me.verified.DisabledDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.NewlyVerifiedDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.VerifiedDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verify.VerifyDropBitMeDialog
-import com.coinninja.coinkeeper.ui.market.MarketChartModule
-import com.coinninja.coinkeeper.ui.market.MarketChartsFragment
-import com.coinninja.coinkeeper.ui.market.MarketScreenFragment
-import com.coinninja.coinkeeper.ui.news.MarketNewsFragment
-import com.coinninja.coinkeeper.ui.news.MarketNewsModule
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestFragment
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragment
@@ -32,21 +27,10 @@ import dagger.android.ContributesAndroidInjector
 
 @Module
 abstract class AndroidFragmentBuilder {
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [MarketChartModule::class])
-    internal abstract fun marketChartsFragment(): MarketChartsFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [MarketNewsModule::class])
-    internal abstract fun marketNewsFragment(): MarketNewsFragment
 
     @ActivityScope
     @ContributesAndroidInjector
     internal abstract fun payRequestScreenFragment(): PayRequestScreenFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun marketScreenFragment(): MarketScreenFragment
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [PayRequestScreenFragmentModule::class])

@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.coinninja.android.helpers.Input;
 import com.coinninja.coinkeeper.R;
@@ -35,6 +36,8 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     private CurrencyFormattingTextWatcher watcher;
     private OnSendMaxObserver onSendMaxObserver;
     private OnSendMaxClearedObserver sendMaxClearedObserver;
+    private int defaultSecondaryFontColor;
+    private int cryptoFontColor;
 
     public PaymentInputView(Context context) {
         this(context, null);
@@ -134,6 +137,8 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     private void init() {
         primaryCurrency = withId(this, R.id.primary_currency);
         secondaryCurrency = withId(this, R.id.secondary_currency);
+        defaultSecondaryFontColor = secondaryCurrency.getCurrentTextColor();
+        cryptoFontColor = ResourcesCompat.getColor(getResources(), R.color.bitcoin_orange, getContext().getTheme());
         sendMax = withId(this, R.id.send_max);
         secondaryCurrency.setVisibility(GONE);
         watcher = new CurrencyFormattingTextWatcher();
@@ -200,6 +205,9 @@ public class PaymentInputView extends ConstraintLayout implements CurrencyFormat
     private void updateSecondaryCurrencyWith(Currency value) {
         if (value.isCrypto()) {
             value.setCurrencyFormat(CryptoCurrency.NO_SYMBOL_FORMAT);
+            secondaryCurrency.setTextColor(cryptoFontColor);
+        } else {
+            secondaryCurrency.setTextColor(defaultSecondaryFontColor);
         }
 
         secondaryCurrency.setVisibility(VISIBLE);

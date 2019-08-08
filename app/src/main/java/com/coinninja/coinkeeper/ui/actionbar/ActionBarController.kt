@@ -4,10 +4,11 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.R
@@ -17,6 +18,7 @@ import com.coinninja.coinkeeper.util.currency.CryptoCurrency
 import com.coinninja.coinkeeper.util.currency.FiatCurrency
 import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView
 import com.coinninja.coinkeeper.viewModel.WalletViewModel
+import com.google.android.material.tabs.TabLayout
 
 @Mockable
 class ActionBarController constructor(
@@ -74,15 +76,20 @@ class ActionBarController constructor(
             else -> false
         }
 
+
+    internal val isChartsOn: Boolean
+        get() = when (actionBarType.resourceId) {
+            R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on -> true
+            else -> false
+        }
+
+
     internal val optionMenuLayout: Int?
         get() = when (actionBarType.resourceId) {
             R.id.actionbar_up_on_skip_on,
             R.id.actionbar_up_off_skip_on -> R.menu.actionbar_light_skip_menu
 
             R.id.actionbar_up_off_close_on -> R.menu.actionbar_light_close_menu
-
-            R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on -> R.menu.actionbar_light_charts_menu
-
             else -> null
         }
 
@@ -96,29 +103,55 @@ class ActionBarController constructor(
         hideAppbarIfNecessary(activity)
         updateActionBarUpIndicator(activity)
         updateBalanceViewPreference(activity)
+        showChartsIfNecessary(activity)
         displayTitle(activity)
+        hideTabs(activity)
     }
 
-    private fun updateBalanceViewPreference(activity: AppCompatActivity) {
-        activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.balance)?.apply {
-            visibility = if (isBalanceOn) {
-                setupObserversFor(activity, this)
-                View.VISIBLE
+    private fun hideTabs(activity: AppCompatActivity) {
+        activity.findViewById<View>(R.id.appbar_tabs)?.visibility=View.GONE
+    }
+
+    private fun showChartsIfNecessary(activity: AppCompatActivity) {
+        activity.findViewById<ImageButton>(R.id.appbar_charts)?.apply {
+            if (isChartsOn) {
+                visibility = View.VISIBLE
+                setOnClickListener { menuItemClickListener?.onShowMarketData() }
             } else {
-                View.GONE
-            }
-
-            if (isBalanceOn && isBalanceBelowTitle) {
-                val constraintSet = ConstraintSet()
-                val constraintLayout = activity.findViewById<ConstraintLayout>(R.id.cn_appbar_extensions)
-                constraintSet.clone(constraintLayout)
-                constraintSet.connect(R.id.balance, ConstraintSet.START, R.id.guideline2, ConstraintSet.START)
-                constraintSet.connect(R.id.balance, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constraintSet.connect(R.id.balance, ConstraintSet.TOP, R.id.appbar_title, ConstraintSet.BOTTOM)
-
-                constraintSet.applyTo(constraintLayout)
+                this@ActionBarController.removeView(this)
             }
         }
+    }
+
+    fun updateBalanceViewPreference(activity: AppCompatActivity) {
+        activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)?.apply {
+            if (isBalanceOn) {
+                setupObserversFor(activity, this)
+                if (isBalanceBelowTitle) {
+                    visibility = View.GONE
+                } else {
+                    visibility = View.VISIBLE
+                }
+            } else {
+                this@ActionBarController.removeView(this)
+            }
+        }
+        activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance_large)?.apply {
+            if (isBalanceOn) {
+                if (isBalanceBelowTitle) {
+                    setupObserversFor(activity, this)
+                    View.VISIBLE
+                } else {
+                    this@ActionBarController.removeView(this)
+                }
+            } else {
+                this@ActionBarController.removeView(this)
+            }
+        }
+    }
+
+    private fun removeView(view: View) {
+        (view.parent as ViewGroup).removeView(view)
     }
 
     private fun updateBalances(defaultCurrencyDisplayView: DefaultCurrencyDisplaySyncView, defaultCurrencies: DefaultCurrencies
@@ -184,10 +217,6 @@ class ActionBarController constructor(
                     menuItemClickListener?.onCloseClicked()
                     true
                 }
-                R.id.action_chart_button -> {
-                    menuItemClickListener?.onShowMarketData()
-                    true
-                }
                 else -> false
             }
         }
@@ -207,7 +236,7 @@ class ActionBarController constructor(
 
     private fun hideAppbarIfNecessary(activity: AppCompatActivity) {
         if (isActionBarGone) {
-            activity.findViewById<View>(R.id.cn_appbar_layout_container)?.apply {
+            activity.findViewById<View>(R.id.appbar_group)?.apply {
                 visibility = View.GONE
             }
         }
@@ -223,6 +252,13 @@ class ActionBarController constructor(
     private fun removeTitle(activity: AppCompatActivity) {
         activity.findViewById<TextView>(R.id.appbar_title)?.apply {
             visibility = View.GONE
+        }
+    }
+
+    fun addTab(activity: AppCompatActivity, @LayoutRes resourceId: Int, index: Int) {
+        activity.findViewById<TabLayout>(R.id.appbar_tabs)?.apply {
+            visibility = View.VISIBLE
+            getTabAt(index)?.setCustomView(resourceId)
         }
     }
 }

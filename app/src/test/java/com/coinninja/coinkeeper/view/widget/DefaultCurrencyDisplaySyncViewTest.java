@@ -23,8 +23,8 @@ public class DefaultCurrencyDisplaySyncViewTest {
     @Before
     public void setUp() {
         TestableActivity activity = Robolectric.setupActivity(TestableActivity.class);
-        activity.appendLayout(R.layout.appbar_layout);
-        defaultCurrencyDisplayView = withId(activity, R.id.balance);
+        activity.appendLayout(R.layout.cn_base_layout);
+        defaultCurrencyDisplayView = withId(activity, R.id.appbar_balance);
     }
 
     @Test

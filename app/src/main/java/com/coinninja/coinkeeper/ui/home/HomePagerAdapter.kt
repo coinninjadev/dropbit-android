@@ -5,17 +5,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import app.dropbit.annotations.Mockable
+import com.coinninja.coinkeeper.ui.lightning.LightningHistoryFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 
 @Mockable
 class HomePagerAdapter(fm: FragmentManager, behavior: Int) : FragmentStatePagerAdapter(fm, behavior) {
     companion object {
-        const val numPages = 1
+        const val numPages = 2
     }
 
-    private val fragments = listOf<Fragment>(TransactionHistoryFragment())
+    private val fragments = listOf(TransactionHistoryFragment(), LightningHistoryFragment())
 
-    override fun getItem(position: Int): Fragment = fragments[0]
+    override fun getItem(position: Int): Fragment = fragments[position]
 
     override fun getCount(): Int = numPages
 

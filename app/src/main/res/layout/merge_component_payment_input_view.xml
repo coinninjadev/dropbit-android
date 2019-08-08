@@ -16,15 +16,13 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:focusedByDefault="true"
-        android:gravity="center"
         android:imeOptions="actionDone"
         android:importantForAutofill="no"
         android:inputType="numberDecimal"
         android:longClickable="false"
         android:lines="1"
         android:maxLines="1"
-        android:textColor="@color/colorAccent"
-        android:textSize="@dimen/pay_dialog_large_text"
+        android:textAppearance="@style/TextAppearance.Payment.Input"
         android:visibility="visible"
         app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
@@ -36,6 +34,7 @@
 
     <TextView
         android:id="@+id/secondary_currency"
+        android:textAppearance="@style/TextAppearance.Payment.SecondaryCurrency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/primary_currency"
@@ -64,7 +63,8 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/secondary_currency"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/primary_currency" />
+        app:layout_constraintTop_toTopOf="@+id/primary_currency"
+        tools:ignore="ContentDescription" />
 
     <Button
         android:id="@+id/send_max"

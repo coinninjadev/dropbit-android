@@ -25,6 +25,7 @@
     <dimen name="dialog_padding">20dp</dimen>
     <dimen name="appbar_ic_padding">8dp</dimen>
     <dimen name="button_horizontal_padding">14dp</dimen>
+    <dimen name="button_horizontal_padding_small">6dp</dimen>
     <dimen name="button_vertical_padding">10dp</dimen>
     <dimen name="button_vertical_padding_small">5dp</dimen>
     <dimen name="message_vertical_padding">28dp</dimen>
@@ -112,11 +113,12 @@
     <dimen name="bead_connector_length">39dp</dimen>
 
     <!-- TX Details Screen -->
-    <dimen name="tx_detail_send_state_icon_size">40dp</dimen>
+    <dimen name="tx_detail_send_state_icon_size">42dp</dimen>
     <dimen name="input_radius">6dp</dimen>
 
     <dimen name="divider_horizontal_space">23dp</dimen>
     <dimen name="divider_vertical_space">5dp</dimen>
     <dimen name="list_rounded">6dp</dimen>
 
+    <dimen name="home_tab_max_width">130dp</dimen>
 </resources>

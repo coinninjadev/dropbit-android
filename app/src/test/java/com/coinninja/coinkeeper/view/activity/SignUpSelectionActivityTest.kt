@@ -36,9 +36,11 @@ class SignUpSelectionActivityTest {
 
     @Test
     fun `clicking on text message invite navigates to verify phone number`() {
-        setup()
+        val scenario = setup()
 
-        onView(withId(R.id.text_message_invite_button)).perform(click())
+        scenario.onActivity {
+            it.findViewById<View>(R.id.text_message_invite_button).performClick()
+        }
 
         val intent = Intents.getIntents().get(0)
         assertThat(intent).hasComponent(

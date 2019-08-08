@@ -37,6 +37,14 @@ class BaseActivityTest {
         whenever(application.yearlyHighViewModel.isSubscribedToYearlyHigh).thenReturn(mock())
     }
 
+    @Test
+    fun adds_tab_to_appbar() {
+        setupWithTheme(R.style.CoinKeeperTheme_Drawer_BalanceOn_ChartsOn)
+
+        activity.addTabToAppBar(R.layout.home_appbar_tab_2, 1)
+
+        verify(activity.actionBarController).addTab(activity, R.layout.home_appbar_tab_2, 1)
+    }
 
     @Test
     fun during_setContentView_set_the_resolveAttribute_on_injected_TypedValue() {
@@ -69,7 +77,7 @@ class BaseActivityTest {
         setupWithTheme(R.style.CoinKeeperTheme_UpOff)
         whenever(activity.drawerController.isDrawerOpen).thenReturn(true)
 
-        activity.onPause()
+        activityController.pause()
 
         verify(activity.drawerController).closeDrawerNoAnimation()
     }

@@ -7,7 +7,9 @@ import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivityModule
 import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.home.HomeModule
+import com.coinninja.coinkeeper.ui.market.MarketChartModule
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
+import com.coinninja.coinkeeper.ui.news.MarketNewsModule
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
@@ -15,8 +17,6 @@ import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity
 import com.coinninja.coinkeeper.view.activity.*
-import com.coinninja.coinkeeper.view.activity.base.MessengerActivity
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -28,7 +28,7 @@ abstract class AndroidActivityBuilder {
     internal abstract fun homeActivity(): HomeActivity
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [BaseActivityModule::class])
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, MarketChartModule::class, MarketNewsModule::class])
     internal abstract fun marketScreenActivity(): MarketScreenActivity
 
     @ActivityScope
@@ -97,10 +97,6 @@ abstract class AndroidActivityBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class])
-    internal abstract fun messagegerActivity(): MessengerActivity
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [BaseActivityModule::class])
     internal abstract fun qrScanActivity(): QrScanActivity
 
     @ActivityScope
@@ -110,10 +106,6 @@ abstract class AndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class])
     internal abstract fun recoverWalletActivity(): RecoverWalletActivity
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [BaseActivityModule::class])
-    internal abstract fun securedActivity(): SecuredActivity
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class])
