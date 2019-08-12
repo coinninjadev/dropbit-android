@@ -16,9 +16,12 @@
         android:layout_marginEnd="8dp"
         android:text="@string/pay_header"
         android:textAppearance="@style/Dialog.Header"
+        app:layout_constraintBottom_toTopOf="@+id/payment_input_view"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
 
     <ImageView
         android:id="@+id/pay_header_close_btn"
@@ -39,9 +42,11 @@
         android:id="@+id/payment_input_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        app:layout_constraintTop_toBottomOf="@id/pay_header_label"
-        tools:layout_editor_absoluteX="97dp" />
+        android:layout_marginTop="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/contact_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pay_header_label" />
 
     <TextView
         android:id="@+id/contact_name"
@@ -49,11 +54,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:textAppearance="@style/TextAppearance.History.Details.Contact"
         android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/contact_number"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/payment_input_view"
         tools:text="Joe Smoe" />
@@ -66,7 +72,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/payment_receiver"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contact_name"
         tools:text="(330) 555-1111" />
@@ -79,14 +87,13 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="0dp"
         android:background="@drawable/input_background"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintBottom_toTopOf="@+id/twitter_contacts_button"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contact_number"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/contact_number" />
 
     <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
         android:id="@+id/contacts_btn"
@@ -110,10 +117,10 @@
         android:id="@+id/twitter_contacts_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="4dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="16dp"
         android:drawableStart="@drawable/twitter_icon"
         android:drawablePadding="4dp"
         android:text="@string/twitter"
@@ -124,8 +131,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/contacts_btn"
-        app:layout_constraintTop_toBottomOf="@+id/barrier"
-        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintTop_toBottomOf="@+id/payment_receiver"
         app:layout_constraintVertical_weight="1"
         app:layout_goneMarginBottom="16dp" />
 
@@ -149,8 +155,8 @@
     <include
         android:id="@+id/transaction_memo"
         layout="@layout/memo_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:ellipsize="end"
@@ -166,39 +172,20 @@
 
     <Button
         android:id="@+id/pay_footer_send_btn"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="32dp"
         android:text="@string/pay_dialog_send_btn_label"
-        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/transaction_memo"
+        app:layout_constraintTop_toBottomOf="@id/transaction_memo"
         app:layout_goneMarginBottom="8dp" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:barrierAllowsGoneWidgets="false"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="payment_receiver,contact_name,pay_header_close_btn,pay_header_label,contact_number,payment_input_view,guideline"
-        tools:layout_editor_absoluteX="24dp"
-        tools:layout_editor_absoluteY="228dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_end="401dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
