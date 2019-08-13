@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.cn.wallet;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -83,17 +81,6 @@ public class SyncWalletManager implements ServiceConnection {
         }
 
         timeoutHandler.removeCallbacks(timeOutRunnable);
-    }
-
-    public void cancelAllOldSyncJobs() {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent serviceIntent = new Intent(context, WalletTransactionRetrieverService.class);
-
-        PendingIntent alarmIntent = PendingIntent.getService(context, 0, serviceIntent, 0);
-        alarmManager.cancel(alarmIntent);
-
-        alarmIntent = PendingIntent.getService(context, 30, serviceIntent, 0);
-        alarmManager.cancel(alarmIntent);
     }
 
     public void cancelAllScheduledSync() {

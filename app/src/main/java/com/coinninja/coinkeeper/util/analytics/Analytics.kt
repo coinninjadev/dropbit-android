@@ -25,6 +25,8 @@ interface Analytics {
     fun setUserProperty(propertyName: String, value: String)
 
     companion object {
+        const val OS = "Android"
+
         // EVENTS
 
         // -- BROADCASTING
@@ -130,6 +132,10 @@ interface Analytics {
         const val EVENT_TWITTER_SEND_SUCCESSFUL = "TwitterSendComplete"
         const val EVENT_TWITTER_VERIFIED = "TwitterVerified"
 
+        // CHARTS / NEWS
+        const val EVENT_CHARTS_OPENED = "ChartsOpened"
+        const val EVENT_NEWS_ARTICLE_OPENED = "NewsArticleOpened"
+
         // PROPERTIES
         const val PROPERTY_HAS_WALLET = "Has Wallet"
         const val PROPERTY_HAS_WALLET_BACKUP = "Has Backup"
@@ -143,5 +149,6 @@ interface Analytics {
         const val PROPERTY_HAS_DROPBIT_ME_ENABLED = "DropBitMe Enabled"
         const val PROPERTY_TWITTER_VERIFIED = "Twitter Verified"
         const val PROPERTY_APP_V1 = "v1Wallet"
+        const val PROPERTY_PLATFORM = "Platform"
     }
 }

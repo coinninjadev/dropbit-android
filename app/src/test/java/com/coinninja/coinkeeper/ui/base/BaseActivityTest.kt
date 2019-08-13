@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.equalTo
@@ -109,6 +110,7 @@ class BaseActivityTest {
         activity.onShowMarketData()
 
         verify(application.activityNavigationUtil).showMarketCharts(activity)
+        verify(activity.analytics).trackEvent(Analytics.EVENT_CHARTS_OPENED)
     }
 
     private fun setupWithTheme(theme: Int) {

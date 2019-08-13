@@ -131,7 +131,10 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
 
     override fun onCloseClicked() = navigationUtil.navigateToHome(this)
     override fun onSkipClicked() = navigationUtil.navigateToHome(this)
-    override fun onShowMarketData() = navigationUtil.showMarketCharts(this)
+    override fun onShowMarketData() {
+        navigationUtil.showMarketCharts(this)
+        analytics.trackEvent(Analytics.EVENT_CHARTS_OPENED)
+    }
 
     fun showKeyboard(view: View) {
         view.requestFocus()

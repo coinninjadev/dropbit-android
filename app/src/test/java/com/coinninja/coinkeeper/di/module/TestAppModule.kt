@@ -62,7 +62,6 @@ import com.coinninja.messaging.MessageCryptor
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import com.mixpanel.android.mpmetrics.MixpanelAPI
-import com.squareup.picasso.Picasso
 import dagger.Module
 import dagger.Provides
 import org.mockito.Mockito.mock
@@ -85,12 +84,6 @@ class TestAppModule {
     internal fun coinNinjaContentResolver(permissionsUtil: PermissionsUtil, resolver: ContentResolver): CoinNinjaContactResolver {
         return CoinNinjaContactResolver(permissionsUtil, resolver)
     }
-
-    @Provides
-    internal fun picasso(): Picasso {
-        return mock(Picasso::class.java)
-    }
-
 
     @Provides
     internal fun analyticUtil(analyticsProvider: MixpanelAPI): AnalyticUtil {
