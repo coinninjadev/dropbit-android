@@ -6,20 +6,18 @@ import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.phone.verification.ManualPhoneVerification;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
-import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import static com.coinninja.android.helpers.Views.shakeInError;
 import static com.coinninja.android.helpers.Views.withId;
-import static com.coinninja.coinkeeper.ui.phone.verification.ManualPhoneVerification.shouldManuallyVerify;
 
 public class PhoneVerificationView extends ConstraintLayout {
 
@@ -45,6 +43,22 @@ public class PhoneVerificationView extends ConstraintLayout {
         init(context);
     }
 
+    public void resetView() {
+        hideError();
+        clearPhoneNumber();
+    }
+
+    public void setCountryCodeLocals(List<CountryCodeLocale> countryCodeLocales) {
+        phoneNumberInput.setCountryCodeLocals(countryCodeLocales);
+    }
+
+    public List<CountryCodeLocale> getCountryCodeLocales() {
+        return phoneNumberInput.getCountryCodeLocales();
+    }
+
+    public void setOnValidPhoneNumberObserver(PhoneNumberInputView.OnValidPhoneNumberObserver onPhoneNumberValidObserver) {
+        this.onPhoneNumberValidObserver = onPhoneNumberValidObserver;
+    }
 
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.merge_phone_verification_view, this, true);
@@ -96,7 +110,7 @@ public class PhoneVerificationView extends ConstraintLayout {
 
     private void onCountryCodeLocaleSelected(CountryCodeLocale countryCodeLocale) {
         selectedCountryCodeLocale = countryCodeLocale;
-        shouldManuallyVerifyNumber = shouldManuallyVerify(countryCodeLocale.getLocale());
+        shouldManuallyVerifyNumber = ManualPhoneVerification.INSTANCE.shouldManuallyVerify(countryCodeLocale.getLocale());
         invalidateVerifyPhoneNumberButton();
         resetView();
     }
@@ -105,7 +119,6 @@ public class PhoneVerificationView extends ConstraintLayout {
         if (shouldManuallyVerifyNumber) return;
         notifyObserverOfValidInput(phoneNumber);
     }
-
 
     private void onManuallyValidatePhoneNumber() {
         String userInput = phoneNumberInput.getText();
@@ -121,23 +134,6 @@ public class PhoneVerificationView extends ConstraintLayout {
             e.printStackTrace();
             showError();
         }
-    }
-
-    public void resetView() {
-        hideError();
-        clearPhoneNumber();
-    }
-
-    public void setCountryCodeLocals(List<CountryCodeLocale> countryCodeLocales) {
-        phoneNumberInput.setCountryCodeLocals(countryCodeLocales);
-    }
-
-    public List<CountryCodeLocale> getCountryCodeLocales() {
-        return phoneNumberInput.getCountryCodeLocales();
-    }
-
-    public void setOnValidPhoneNumberObserver(PhoneNumberInputView.OnValidPhoneNumberObserver onPhoneNumberValidObserver) {
-        this.onPhoneNumberValidObserver = onPhoneNumberValidObserver;
     }
 
     private void showError() {

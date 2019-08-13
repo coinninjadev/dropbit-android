@@ -11,10 +11,12 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.google.android.material.tabs.TabLayout
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertEquals
 import org.hamcrest.Matchers.equalTo
@@ -57,7 +59,7 @@ internal class HomeActivityTest {
     }
 
     @Test
-    fun `configures pager and tabs`() {
+    fun configures_pager_and_tabs() {
         setupActivity().onActivity { activity ->
             val pager = activity.findViewById<ViewPager>(R.id.home_pager)
             val tabs = activity.findViewById<TabLayout>(R.id.pager_tabs)
@@ -68,7 +70,7 @@ internal class HomeActivityTest {
     }
 
     @Test
-    fun `shows market selection when observer called`() {
+    fun shows_market_selection_when_observer_called() {
         setupActivity().onActivity { activity ->
             val pager = activity.findViewById<ViewPager>(R.id.home_pager)
 
@@ -81,7 +83,7 @@ internal class HomeActivityTest {
     }
 
     @Test
-    fun `restores state when resuming session`() {
+    fun restores_state_when_resuming_session() {
         val scenario = setupActivity()
         scenario.onActivity { activity ->
             val pager = activity.findViewById<ViewPager>(R.id.home_pager)
@@ -96,6 +98,19 @@ internal class HomeActivityTest {
         scenario.onActivity { activity ->
             val pager = activity.findViewById<ViewPager>(R.id.home_pager)
             Assert.assertThat(pager.currentItem, equalTo(0))
+        }
+    }
+
+    @Test
+    fun observes_market_page_being_selected() {
+        setupActivity().onActivity { activity ->
+            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
+            Assert.assertThat(pager.currentItem, equalTo(1))
+
+            activity.showMarketPage()
+
+            Assert.assertThat(pager.currentItem, equalTo(0))
+            verify(activity.analytics).trackEvent(Analytics.EVENT_CHARTS_OPENED)
         }
     }
 }

@@ -9,10 +9,11 @@ import android.content.SharedPreferences
 import android.location.LocationManager
 import android.os.Handler
 import android.util.TypedValue
-
 import androidx.core.os.ConfigurationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-
+import app.dropbit.commons.util.CoroutineContextProvider
+import app.dropbit.commons.util.TestCoroutineContextProvider
+import app.dropbit.twitter.Twitter
 import com.coinninja.bindings.TransactionBuilder
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener
@@ -28,14 +29,7 @@ import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager
 import com.coinninja.coinkeeper.di.component.CoinKeeperComponent
-import com.coinninja.coinkeeper.di.interfaces.ApplicationContext
-import com.coinninja.coinkeeper.di.interfaces.BuildVersionName
-import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope
-import com.coinninja.coinkeeper.di.interfaces.CountryCodeLocales
-import com.coinninja.coinkeeper.di.interfaces.DebugBuild
-import com.coinninja.coinkeeper.di.interfaces.NumAddressesToCache
-import com.coinninja.coinkeeper.di.interfaces.ThreadHandler
-import com.coinninja.coinkeeper.di.interfaces.TimeOutHandler
+import com.coinninja.coinkeeper.di.interfaces.*
 import com.coinninja.coinkeeper.di.interfaces.UUID
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor
 import com.coinninja.coinkeeper.interactor.UserPreferences
@@ -49,12 +43,7 @@ import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter
 import com.coinninja.coinkeeper.service.ContactLookupService
 import com.coinninja.coinkeeper.service.client.BlockstreamClient
-import com.coinninja.coinkeeper.service.runner.FailedBroadcastCleaner
-import com.coinninja.coinkeeper.service.runner.FulfillSentInvitesRunner
-import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner
-import com.coinninja.coinkeeper.service.runner.NegativeBalanceRunner
-import com.coinninja.coinkeeper.service.runner.ReceivedInvitesStatusRunner
-import com.coinninja.coinkeeper.service.runner.SyncIncomingInvitesRunner
+import com.coinninja.coinkeeper.service.runner.*
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController
@@ -63,22 +52,9 @@ import com.coinninja.coinkeeper.ui.settings.DeleteWalletPresenter
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryDataAdapter
-import com.coinninja.coinkeeper.util.AnalyticUtil
-import com.coinninja.coinkeeper.util.CoinNinjaContactResolver
-import com.coinninja.coinkeeper.util.CurrencyPreference
-import com.coinninja.coinkeeper.util.DefaultCurrencies
-import com.coinninja.coinkeeper.util.ErrorLoggingUtil
-import com.coinninja.coinkeeper.util.Hasher
-import com.coinninja.coinkeeper.util.NotificationUtil
-import com.coinninja.coinkeeper.util.PhoneNumberUtil
-import com.coinninja.coinkeeper.util.RemoteAddressLocalCache
+import com.coinninja.coinkeeper.util.*
 import com.coinninja.coinkeeper.util.analytics.Analytics
-import com.coinninja.coinkeeper.util.android.ClipboardUtil
-import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
-import com.coinninja.coinkeeper.util.android.LocationUtil
-import com.coinninja.coinkeeper.util.android.PermissionsUtil
-import com.coinninja.coinkeeper.util.android.PreferencesUtil
-import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
+import com.coinninja.coinkeeper.util.android.*
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
@@ -89,18 +65,10 @@ import com.coinninja.messaging.MessageCryptor
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import com.mixpanel.android.mpmetrics.MixpanelAPI
-import com.squareup.picasso.Picasso
-
-import java.util.ArrayList
-import java.util.Locale
-
-import app.dropbit.commons.util.CoroutineContextProvider
-import app.dropbit.commons.util.TestCoroutineContextProvider
-import app.dropbit.twitter.Twitter
 import dagger.Module
 import dagger.Provides
-
 import org.mockito.Mockito.mock
+import java.util.*
 
 @Module
 class TestAppModule {
@@ -119,12 +87,6 @@ class TestAppModule {
     internal fun coinNinjaContentResolver(permissionsUtil: PermissionsUtil, resolver: ContentResolver): CoinNinjaContactResolver {
         return CoinNinjaContactResolver(permissionsUtil, resolver)
     }
-
-    @Provides
-    internal fun picasso(): Picasso {
-        return mock(Picasso::class.java)
-    }
-
 
     @Provides
     internal fun analyticUtil(analyticsProvider: MixpanelAPI): AnalyticUtil {

@@ -19,4 +19,6 @@ class SentInvite (
 ) {
 
     val created_at_millis: Long get() =  created_at * 1000
+
+    val isDuplicate: Boolean get() = delivery_id == "duplicate"
 }

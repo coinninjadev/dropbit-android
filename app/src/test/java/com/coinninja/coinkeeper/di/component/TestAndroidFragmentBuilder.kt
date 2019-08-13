@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.di.component
 
 import com.coinninja.coinkeeper.di.interfaces.ActivityScope
+import com.coinninja.coinkeeper.di.module.TestPicassoModule
 import com.coinninja.coinkeeper.di.module.TestRequestScreenFragmentModule
 import com.coinninja.coinkeeper.ui.account.UserServerAddressesFragment
 import com.coinninja.coinkeeper.ui.account.verify.PhoneIdentityFragment
@@ -8,7 +9,7 @@ import com.coinninja.coinkeeper.ui.account.verify.TwitterIdentityFragment
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment
 import com.coinninja.coinkeeper.ui.base.BaseFragment
 import com.coinninja.coinkeeper.ui.base.DropbitMeFragment
-import com.coinninja.coinkeeper.ui.base.TransactionTweetDialog
+import com.coinninja.coinkeeper.ui.base.TransactionTweetDialogTest
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.DisabledDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.NewlyVerifiedDropbitMeDialog
@@ -26,6 +27,7 @@ import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragment
 import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog
+import com.coinninja.coinkeeper.ui.twitter.TransactionTweetDialog
 import com.coinninja.coinkeeper.view.fragment.*
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -57,7 +59,7 @@ abstract class TestAndroidFragmentBuilder {
     internal abstract fun transactionHistoryFragment(): TransactionHistoryFragment
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TransactionTweetDialogTest.TestTransactionTweetDialogModule::class, TestPicassoModule::class])
     internal abstract fun transactionTweetDialog(): TransactionTweetDialog
 
     @ActivityScope
@@ -69,11 +71,11 @@ abstract class TestAndroidFragmentBuilder {
     internal abstract fun disabledDropbitMeDialog(): DisabledDropbitMeDialog
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestPicassoModule::class])
     internal abstract fun verifiedDropbitMeDialog(): VerifiedDropbitMeDialog
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TestPicassoModule::class])
     internal abstract fun newlyVerifiedDropbitMeDialog(): NewlyVerifiedDropbitMeDialog
 
     @ActivityScope

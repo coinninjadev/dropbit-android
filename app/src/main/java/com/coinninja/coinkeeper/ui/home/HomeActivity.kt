@@ -5,6 +5,7 @@ import androidx.viewpager.widget.ViewPager
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver
 import com.coinninja.coinkeeper.util.DropbitIntents
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity
 import com.google.android.material.tabs.TabLayout
@@ -23,6 +24,15 @@ class HomeActivity : BalanceBarActivity() {
     internal lateinit var homePagerAdapterProvider: HomePagerAdapterProvider
     var currentPage = 1
 
+    val onPageChangeListener = object : ViewPager.OnPageChangeListener {
+        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+        override fun onPageScrollStateChanged(state: Int) {}
+        override fun onPageSelected(position: Int) {
+            if (position == 0)
+                analytics.trackEvent(Analytics.EVENT_CHARTS_OPENED)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -32,6 +42,7 @@ class HomeActivity : BalanceBarActivity() {
             }
         })
         findViewById<ViewPager>(R.id.home_pager)?.apply {
+            addOnPageChangeListener(this@HomeActivity.onPageChangeListener)
             adapter = homePagerAdapterProvider.provide(supportFragmentManager, lifecycle.currentState)
             setCurrentItem(currentPage, false)
         }.also {

@@ -7,7 +7,6 @@ import com.coinninja.coinkeeper.ui.account.verify.TwitterIdentityFragment
 import com.coinninja.coinkeeper.ui.base.BaseDialogFragment
 import com.coinninja.coinkeeper.ui.base.BaseFragment
 import com.coinninja.coinkeeper.ui.base.DropbitMeFragment
-import com.coinninja.coinkeeper.ui.base.TransactionTweetDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.DisabledDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.NewlyVerifiedDropbitMeDialog
@@ -25,6 +24,8 @@ import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragmentModul
 import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog
+import com.coinninja.coinkeeper.ui.twitter.TransactionTweetDialog
+import com.coinninja.coinkeeper.ui.twitter.TwitterTweetModule
 import com.coinninja.coinkeeper.view.fragment.*
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -57,7 +58,7 @@ abstract class AndroidFragmentBuilder {
     internal abstract fun transactionHistoryFragment(): TransactionHistoryFragment
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [TwitterTweetModule::class])
     internal abstract fun transactionTweetDialog(): TransactionTweetDialog
 
     @ActivityScope

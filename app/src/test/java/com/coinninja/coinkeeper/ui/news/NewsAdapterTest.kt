@@ -13,6 +13,7 @@ import app.dropbit.commons.util.HOUR_MILLIS
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.service.client.model.NewsArticle
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -29,11 +30,11 @@ class NewsAdapterTest {
     private fun createAdapter(): NewsAdapter {
         val picasso = mock<Picasso>()
         whenever(picasso.load(any<String>())).thenReturn(mock())
-        return NewsAdapter(mock(), picasso, NewsSourceMap())
+        return NewsAdapter(mock(), picasso, NewsSourceMap(), mock())
     }
 
     @Test
-    fun `updates list with articles`() {
+    fun updates_list_with_articles() {
         val adapter = createAdapter()
         val adapterDataObserver = mock<RecyclerView.AdapterDataObserver>()
         adapter.registerAdapterDataObserver(adapterDataObserver)
@@ -45,7 +46,7 @@ class NewsAdapterTest {
     }
 
     @Test
-    fun `clears all articles from adapter`() {
+    fun clears_all_articles_from_adapter() {
         val adapter = createAdapter()
         adapter.addArticles(listOf(mock(), mock()))
         val adapterDataObserver = mock<RecyclerView.AdapterDataObserver>()
@@ -59,7 +60,7 @@ class NewsAdapterTest {
     }
 
     @Test
-    fun `binds to view`() {
+    fun binds_to_view() {
         val adapter = createAdapter()
         val parent = LinearLayout(application)
         val holder = adapter.onCreateViewHolder(parent, 0)
@@ -94,7 +95,7 @@ class NewsAdapterTest {
     }
 
     @Test
-    fun `clicking on view follows link`() {
+    fun clicking_on_view_follows_link() {
         val adapter = createAdapter()
         val parent = LinearLayout(application)
         val holder = adapter.onCreateViewHolder(parent, 0)
@@ -108,5 +109,6 @@ class NewsAdapterTest {
         holder.view.performClick()
 
         verify(adapter.activityNavigationUtil).openUrl(parent.context, Uri.parse("http://www.example.com"))
+        verify(adapter.analytics).trackEvent(Analytics.EVENT_NEWS_ARTICLE_OPENED)
     }
 }
