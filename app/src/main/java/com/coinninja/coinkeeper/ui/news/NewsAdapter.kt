@@ -13,6 +13,7 @@ import app.dropbit.annotations.Mockable
 import app.dropbit.commons.util.makeRelativeTime
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.service.client.model.NewsArticle
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.squareup.picasso.Picasso
 import javax.inject.Inject
@@ -20,7 +21,9 @@ import javax.inject.Inject
 @Mockable
 class NewsAdapter @Inject constructor(val activityNavigationUtil: ActivityNavigationUtil,
                                       val picasso: Picasso,
-                                      val newsSourceMap: NewsSourceMap) : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
+                                      val newsSourceMap: NewsSourceMap,
+                                      val analytics: Analytics
+) : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
 
     val articles: MutableList<NewsArticle> = mutableListOf()
 
@@ -75,7 +78,9 @@ class NewsAdapter @Inject constructor(val activityNavigationUtil: ActivityNaviga
             view.tag = link
             view.setOnClickListener { v ->
                 if (v.tag != null)
-                    activityNavigationUtil.openUrl(v.context, Uri.parse(v.tag.toString()))
+                    activityNavigationUtil.openUrl(v.context, Uri.parse(v.tag.toString())).also {
+                        analytics.trackEvent(Analytics.EVENT_NEWS_ARTICLE_OPENED)
+                    }
             }
             return this
         }

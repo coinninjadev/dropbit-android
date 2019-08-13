@@ -17,9 +17,9 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
 
     fun translateTransaction(summary: TransactionsInvitesSummary): BindableTransaction {
         bindableTransaction.reset()
-        setupContact(summary)
         translateInvite(summary.inviteTransactionSummary)
         translateTransaction(summary.transactionSummary)
+        setupContact(summary)
         return bindableTransaction
     }
 
