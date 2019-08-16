@@ -119,7 +119,7 @@ class Migrate_V33_to_V34Test {
 
         Migrate_V33_to_V34().runMigration(db, 33)
 
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), 49, 0, 0).connect()
         verifyTransactionInviteSummaries(daoSessionManager)
         verifyInviteSummaries(daoSessionManager)
         verifyTransactionNotifications(daoSessionManager)

@@ -82,10 +82,12 @@ interface Analytics {
         // -- Button Pressed -- History
         const val EVENT_BUTTON_SHARE_TRANS_ID = "ShareTransID" // - user taps share transaction ID button
         //json keys
+        const val EVENT_BROADCAST_JSON_KEY_BLOCK_STREAM_CODE = "BlockStreamCode"
+        const val EVENT_BROADCAST_JSON_KEY_BLOCK_STREAM_MSG = "BlockStreamMessage"
         const val EVENT_BROADCAST_JSON_KEY_LIB_CODE = "LibCode"
         const val EVENT_BROADCAST_JSON_KEY_LIB_MSG = "LibMsg"
-        const val EVENT_BROADCAST_JSON_KEY_BLOCK_CODE = "BlockCode"
-        const val EVENT_BROADCAST_JSON_KEY_BLOCK_MSG = "BlockMsg"
+        const val EVENT_BROADCAST_JSON_KEY_BLOCK_CODE = "BlockChainCode"
+        const val EVENT_BROADCAST_JSON_KEY_BLOCK_MSG = "BlockChainMsg"
         const val EVENT_BROADCAST_JSON_KEY_CHECK_IN_FAIL = "Message"
         const val EVENT_MEMO_JSON_KEY_DID_SHARE = "SharingEnabled"
         //check-in

@@ -2,6 +2,9 @@ package com.coinninja.coinkeeper.service.client;
 
 import androidx.annotation.NonNull;
 
+import com.coinninja.bindings.model.Transaction;
+import com.coinninja.coinkeeper.bitcoin.BroadcastProvider;
+import com.coinninja.coinkeeper.bitcoin.BroadcastingClient;
 import com.coinninja.coinkeeper.model.Contact;
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity;
 import com.coinninja.coinkeeper.service.client.model.CNDevice;
@@ -30,7 +33,7 @@ import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_
 import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_PLATFORM_KEY;
 import static com.coinninja.coinkeeper.util.DropbitIntents.CN_API_CREATE_DEVICE_UUID_KEY;
 
-public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
+public class SignedCoinKeeperApiClient extends CoinKeeperApiClient implements BroadcastingClient {
 
     private final String fcmAppId;
 
@@ -285,9 +288,16 @@ public class SignedCoinKeeperApiClient extends CoinKeeperApiClient {
         return response;
     }
 
-    public Response broadcastTransaction(String rawTx) {
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), rawTx);
+    @Override
+    public Response<Object> broadcastTransaction(@NotNull Transaction transaction) {
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), transaction.rawTx);
         return executeCall(getClient().broadcastTransaction(requestBody));
+    }
+
+    @NotNull
+    @Override
+    public BroadcastProvider broadcastProvider() {
+        return BroadcastProvider.COIN_NINJA;
     }
 
     @NonNull

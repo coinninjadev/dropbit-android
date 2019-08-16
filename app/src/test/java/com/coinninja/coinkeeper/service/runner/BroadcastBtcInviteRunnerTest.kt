@@ -3,20 +3,13 @@ package com.coinninja.coinkeeper.service.runner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.TransactionBroadcastResult
 import com.coinninja.bindings.TransactionData
 import com.coinninja.bindings.UnspentTransactionOutput
-import com.coinninja.coinkeeper.bitcoin.BroadcastTransactionHelper
-import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager
-import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
-import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
-import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
-import com.coinninja.coinkeeper.model.helpers.BroadcastBtcInviteHelper
-import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper
-import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.util.analytics.Analytics
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.MatcherAssert.assertThat
@@ -32,46 +25,40 @@ class BroadcastBtcInviteRunnerTest {
     private fun createBroadcastInviteRunner(): BroadcastBtcInviteRunner {
         return BroadcastBtcInviteRunner(
                 ApplicationProvider.getApplicationContext(),
-                mock(CNWalletManager::class.java),
-                mock(TransactionFundingManager::class.java),
-                mock(TransactionNotificationManager::class.java),
-                mock(InviteTransactionSummaryHelper::class.java),
-                mock(BroadcastBtcInviteHelper::class.java),
-                mock(BroadcastTransactionHelper::class.java),
-                mock(SyncWalletManager::class.java),
-                mock(ExternalNotificationHelper::class.java),
-                mock(Analytics::class.java)
+                mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock()
         )
     }
 
     @Test
     fun full_funding_run_successful_test() {
         val runner = createBroadcastInviteRunner()
-        val transactionBroadcastResult = mock(TransactionBroadcastResult::class.java)
+        val transactionBroadcastResult = mock<BroadcastResult>()
+        val txid = "-- txid --"
         whenever(transactionBroadcastResult.isSuccess).thenReturn(true)
-        whenever(runner.broadcastHelper.broadcast(any())).thenReturn(transactionBroadcastResult)
-        runner.invite = mock(InviteTransactionSummary::class.java)
+        whenever(transactionBroadcastResult.txid).thenReturn(txid)
+        runner.invite = mock()
         whenever(runner.invite!!.serverId).thenReturn("--server-id--")
         whenever(runner.invite!!.valueFeesSatoshis).thenReturn(100)
         whenever(runner.invite!!.valueSatoshis).thenReturn(10000)
         whenever(runner.invite!!.address).thenReturn("--address--")
         val transactionData = TransactionData(
-                arrayOf(mock(UnspentTransactionOutput::class.java)),
+                arrayOf(mock()),
                 runner.invite!!.valueSatoshis,
                 runner.invite!!.valueFeesSatoshis,
                 0,
-                mock(DerivationPath::class.java),
+                mock(),
                 ""
         )
 
         whenever(runner.transactionFundingManager.buildFundedTransactionDataForDropBit(runner.invite!!.address,
                 runner.invite!!.valueSatoshis, runner.invite!!.valueFeesSatoshis)).thenReturn(transactionData)
+        whenever(runner.broadcastHelper.broadcast(transactionData)).thenReturn(transactionBroadcastResult)
 
         runner.run()
 
         assertThat(transactionData.paymentAddress, equalTo<String>("--address--"))
         verify(runner.broadcastHelper).broadcast(transactionData)
-        verify(runner.inviteTransactionSummaryHelper).updateFulfilledInvite(runner.invite!!, transactionBroadcastResult)
+        verify(runner.inviteTransactionSummaryHelper).updateFulfilledInvite(runner.invite!!, txid)
         verify(runner.transactionNotificationManager).notifyCnOfFundedInvite(runner.invite!!)
         verify(runner.syncWalletManager).syncNow()
         verify(runner.analytics).trackEvent(Analytics.EVENT_DROPBIT_COMPLETED)
@@ -80,23 +67,20 @@ class BroadcastBtcInviteRunnerTest {
     @Test
     fun broadcast_TX_To_Btc_Network_error_test() {
         val runner = createBroadcastInviteRunner()
-        runner.invite = mock(InviteTransactionSummary::class.java)
+        runner.invite = mock()
         whenever(runner.invite!!.valueFeesSatoshis).thenReturn(100)
         whenever(runner.invite!!.valueSatoshis).thenReturn(10000)
-        whenever(runner.invite!!.transactionsInvitesSummary).thenReturn(mock(TransactionsInvitesSummary::class.java))
+        whenever(runner.invite!!.transactionsInvitesSummary).thenReturn(mock())
         whenever(runner.invite!!.address).thenReturn("--address--")
-        val transactionData = TransactionData(
-                arrayOf(mock(UnspentTransactionOutput::class.java)),
+        val transactionData = TransactionData(arrayOf(mock()),
                 runner.invite!!.valueSatoshis,
                 runner.invite!!.valueFeesSatoshis,
-                0,
-                mock(DerivationPath::class.java),
-                ""
+                0, mock(), ""
         )
         whenever(runner.transactionFundingManager.buildFundedTransactionDataForDropBit(runner.invite!!.address,
                 runner.invite!!.valueSatoshis, runner.invite!!.valueFeesSatoshis)).thenReturn(transactionData)
 
-        val result = mock(TransactionBroadcastResult::class.java)
+        val result = mock<BroadcastResult>()
         whenever(result.isSuccess).thenReturn(false)
         whenever(runner.broadcastHelper.broadcast(transactionData)).thenReturn(result)
 

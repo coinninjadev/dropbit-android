@@ -23,7 +23,6 @@ import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
 import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.matchers.IntentFilterMatchers
-import com.coinninja.matchers.ViewMatcher
 import com.nhaarman.mockitokotlin2.whenever
 import org.greenrobot.greendao.query.LazyList
 import org.hamcrest.MatcherAssert.assertThat
@@ -190,7 +189,7 @@ class TransactionHistoryFragmentTest {
 
             verify(fragment.transactionHistoryDataAdapter).setTransactions(transactions)
             verify(fragment.transactionHistoryDataAdapter).setTransactions(updatedTransactions)
-            verify(fragment.walletHelper, times(5)).transactionsLazily
+            verify(fragment.walletHelper, times(3)).transactionsLazily
 
         }
     }
@@ -216,33 +215,6 @@ class TransactionHistoryFragmentTest {
     }
 
     @Test
-    fun shows_empty_state_view() {
-        val scenario = setupFragment(0)
-
-        scenario.onFragment { fragment ->
-            val empty = fragment.findViewById<View>(R.id.empty_transaction_history)
-
-            assertNotNull(empty)
-            assertThat(empty, ViewMatcher.isVisible())
-        }
-    }
-
-    @Test
-    fun has_list_view_for_transactions() {
-        val scenario = setupFragment()
-
-        scenario.onFragment { fragment ->
-            val empty = fragment.findViewById<View>(R.id.empty_transaction_history)
-            val list = fragment.findViewById<View>(R.id.transaction_history)
-
-            assertNotNull(empty)
-            assertNotNull(list)
-            assertThat(empty, ViewMatcher.isGone())
-            assertThat(list, ViewMatcher.isVisible())
-        }
-    }
-
-    @Test
     fun refreshes_transactions_on_transaction_data_change() {
         val scenario = setupFragment(12)
         val application = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()
@@ -257,7 +229,7 @@ class TransactionHistoryFragmentTest {
             fragment.receiver.onReceive(fragment.context!!, Intent(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED))
 
             verify(fragment.transactionHistoryDataAdapter, times(2)).setTransactions(transactions)
-            verify(fragment.walletHelper, times(5)).transactionsLazily
+            verify(fragment.walletHelper, times(3)).transactionsLazily
         }
     }
 

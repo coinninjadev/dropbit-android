@@ -3,6 +3,8 @@ package com.coinninja.coinkeeper.service.runner;
 import android.util.Log;
 
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.model.db.Wallet;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 
@@ -24,7 +26,6 @@ public class AddressAPIUtil {
     public static final int INITIAL_GAP_LIMIT = 20;
     public static final int LOOK_AHEAD = 5;
     private CoinKeeperApiClient apiClient;
-
     private HDWallet hdWallet;
     private int largestIndexConsumed;
     private int lookAhead;
@@ -57,6 +58,16 @@ public class AddressAPIUtil {
         return addresses;
     }
 
+    /**
+     * @return largest address index that has transactions during execution
+     */
+    public int getLargestIndexConsumed() {
+        return largestIndexConsumed;
+    }
+
+    public int getNumberOfAddressesToFetch() {
+        return numAddressesToFetch;
+    }
 
     private int calcBufferSize() {
         return (calcNumRemaining() > ADDRESSES_TO_QUERY_AT_A_TIME) ?
@@ -124,20 +135,7 @@ public class AddressAPIUtil {
     }
 
     private String[] getBlockToRequest(int startIndex) {
-        return hdWallet.fillBlock(changeIndex,
-                startIndex,
-                calcBufferSize());
-    }
-
-    /**
-     * @return largest address index that has transactions during execution
-     */
-    public int getLargestIndexConsumed() {
-        return largestIndexConsumed;
-    }
-
-    public int getNumberOfAddressesToFetch() {
-        return numAddressesToFetch;
+        return hdWallet.fillBlock(changeIndex, startIndex, calcBufferSize());
     }
 
     private List<GsonAddress> seekAhead() {

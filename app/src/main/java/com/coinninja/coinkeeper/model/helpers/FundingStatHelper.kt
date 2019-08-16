@@ -14,17 +14,18 @@ class FundingStatHelper @Inject constructor(
         internal val daoSessionManager: DaoSessionManager,
         internal val addressHelper: AddressHelper
 ) {
-    internal fun fundingStatFor(transactionId: Long, input: VIn): FundingStat? =
+    internal fun fundingStatFor(transactionId: Long, input: VIn, address:String?=null): FundingStat? =
             daoSessionManager.fundingStatDao.queryBuilder().where(
                     FundingStatDao.Properties.Tsid.eq(transactionId),
                     FundingStatDao.Properties.FundedTransaction.eq(input.txid),
                     FundingStatDao.Properties.Value.eq(input.previousOutput.value),
                     FundingStatDao.Properties.Position.eq(input.previousOutput.index),
-                    FundingStatDao.Properties.Addr.eq(input.previousOutput.scriptPubKey.addresses[0])
+                    FundingStatDao.Properties.Addr.eq(address ?: input.previousOutput.scriptPubKey.addresses[0])
             ).limit(1).unique()
 
-    fun getOrCreateFundingStat(transaction: TransactionSummary, input: VIn): FundingStat = (fundingStatFor(transaction.id, input) ?: daoSessionManager.newFundingStat()).also {
-                it.addr = input.previousOutput.scriptPubKey.addresses[0]
+    fun getOrCreateFundingStat(transaction: TransactionSummary, input: VIn, address:String?=null): FundingStat =
+            (fundingStatFor(transaction.id, input, address) ?: daoSessionManager.newFundingStat()).also {
+                it.addr = address ?: input.previousOutput.scriptPubKey.addresses[0]
                 it.position = input.previousOutput.index
                 it.transaction = transaction
                 it.fundedTransaction = input.txid

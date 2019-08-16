@@ -57,6 +57,44 @@ class FundingStatHelperTest {
     }
 
     @Test
+    fun inserts_new_input_with_details__coinbase() {
+        val helper = createHelper()
+        val transaction = mock<TransactionSummary>()
+        val input = VIn(
+                txid = "--funding-txid--",
+                previousOutput = VOut(
+                        value = 1000,
+                        index = 1,
+                        scriptPubKey = ScriptPubKey(
+                                addresses = emptyArray()
+                        )
+
+                )
+        )
+        val fundingStat = mock<FundingStat>()
+        whenever(fundingStat.id).thenReturn(0)
+        val queryBuilder: QueryBuilder<FundingStat> = mock()
+        whenever(helper.daoSessionManager.fundingStatDao).thenReturn(mock())
+        whenever(helper.daoSessionManager.fundingStatDao.queryBuilder()).thenReturn(queryBuilder)
+        whenever(queryBuilder.where(any(), any(), any(), any(), any())).thenReturn(queryBuilder)
+        whenever(queryBuilder.limit(1)).thenReturn(queryBuilder)
+        whenever(queryBuilder.unique()).thenReturn(null)
+        whenever(helper.daoSessionManager.newFundingStat()).thenReturn(fundingStat)
+        whenever(fundingStat.id).thenReturn(null)
+
+        helper.getOrCreateFundingStat(transaction, input, "Coinbase")
+
+        val ordered = inOrder(fundingStat, helper.daoSessionManager)
+        ordered.verify(helper.daoSessionManager).newFundingStat()
+        ordered.verify(fundingStat).addr = "Coinbase"
+        ordered.verify(fundingStat).position = 1
+        ordered.verify(fundingStat).transaction = transaction
+        ordered.verify(fundingStat).fundedTransaction = "--funding-txid--"
+        ordered.verify(fundingStat).value = 1000
+        ordered.verify(helper.daoSessionManager).insert(fundingStat)
+    }
+
+    @Test
     fun inserts_new_input_with_details() {
         val helper = createHelper()
         val transaction = mock<TransactionSummary>()

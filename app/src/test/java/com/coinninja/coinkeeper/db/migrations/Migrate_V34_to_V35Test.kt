@@ -5,11 +5,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.db.TestOpenHelper
 import com.coinninja.coinkeeper.model.db.DaoMaster
+import com.coinninja.coinkeeper.model.db.WalletDao
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
+import com.google.common.truth.Truth.assertThat
 import org.greenrobot.greendao.database.Database
-import org.hamcrest.Matchers.equalTo
 import org.junit.After
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +39,7 @@ class Migrate_V34_to_V35Test {
     }
 
     @Test
-    fun `migrates data`() {
+    fun migrates_data() {
         val helper = TestOpenHelper(ApplicationProvider.getApplicationContext(), TestOpenHelper.dbName)
         val db = helper.writableV31Db
         prepare(db)
@@ -49,27 +49,29 @@ class Migrate_V34_to_V35Test {
         val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
         verifyWallet(daoSessionManager)
 
-        var cursor = db.rawQuery("select * from sqlite_master where tbl_name = \"TEMP_WALLET\"", null)
-        assertThat(cursor.count, equalTo(0))
+        val cursor = db.rawQuery("select * from sqlite_master where tbl_name = \"TEMP_WALLET\"", null)
+        assertThat(cursor.count).isEqualTo(0)
         cursor.close()
 
         db.close()
     }
 
     private fun verifyWallet(daoSessionManager: DaoSessionManager) {
-        val all = daoSessionManager.walletDao.loadAll()
+        val cursor = daoSessionManager.daoSession.database.rawQuery("select * from wallet", null)
+        cursor.moveToFirst()
 
-        var wallet = all.get(0)
-        assertEquals(wallet.id, 1)
-        assertEquals(wallet.hdIndex, 5)
-        assertEquals(wallet.userId, 4)
-        assertEquals(wallet.lastSync, 3)
-        assertEquals(wallet.internalIndex, 8)
-        assertEquals(wallet.externalIndex, 2)
-        assertEquals(wallet.balance, 26)
-        assertEquals(wallet.spendableBalance, 17)
-        assertEquals(wallet.blockTip, 14)
-        assertEquals(wallet.lastUSDPrice, 23)
+        assertThat(cursor.getLong(cursor.getColumnIndex(WalletDao.Properties.Id.columnName))).isEqualTo(1L)
+        assertThat(cursor.getInt(cursor.getColumnIndex(WalletDao.Properties.HdIndex.columnName))).isEqualTo(5)
+        assertThat(cursor.getLong(cursor.getColumnIndex(WalletDao.Properties.UserId.columnName))).isEqualTo(4)
+        assertThat(cursor.getLong(cursor.getColumnIndex(WalletDao.Properties.LastSync.columnName))).isEqualTo(3)
+        assertThat(cursor.getInt(cursor.getColumnIndex(WalletDao.Properties.InternalIndex.columnName))).isEqualTo(8)
+        assertThat(cursor.getInt(cursor.getColumnIndex(WalletDao.Properties.ExternalIndex.columnName))).isEqualTo(2)
+        assertThat(cursor.getLong(cursor.getColumnIndex(WalletDao.Properties.Balance.columnName))).isEqualTo(26)
+        assertThat(cursor.getLong(cursor.getColumnIndex(WalletDao.Properties.SpendableBalance.columnName))).isEqualTo(17)
+        assertThat(cursor.getInt(cursor.getColumnIndex(WalletDao.Properties.BlockTip.columnName))).isEqualTo(14)
+        assertThat(cursor.getLong(cursor.getColumnIndex(WalletDao.Properties.LastUSDPrice.columnName))).isEqualTo(23)
+
+        cursor.close()
     }
 
 }

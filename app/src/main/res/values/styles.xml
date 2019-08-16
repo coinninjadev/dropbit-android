@@ -729,6 +729,27 @@
         <item name="android:letterSpacing">0.00</item>
     </style>
 
+    <!-- Lightning -->
+
+    <style name="TextAppearance.Lightning" />
+
+    <style name="TextAppearance.Lightning.Tx" />
+
+    <style name="TextAppearance.Lightning.Tx.EmptyState" />
+
+    <style name="TextAppearance.Lightning.Tx.EmptyState.Header">
+        <item name="android:textColor">@color/font_gray</item>
+        <item name="fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.06</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Tx.EmptyState.Message">
+        <item name="fontFamily">@font/montserrat_regular</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/lightning_blue</item>
+    </style>
+
     <!-- Pay Dialog -->
     <style name="TextAppearance.Payment">
         <item name="android:textColor">@color/font_gray</item>

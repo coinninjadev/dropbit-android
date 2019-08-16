@@ -44,7 +44,7 @@ public class Address {
 
     @Keep
     public DerivationPath getDerivationPath() {
-        return new DerivationPath(49, 0, 0, changeIndex, index);
+        return new DerivationPath(getWallet().getPurpose(), getWallet().getCoinType(), getWallet().getAccountIndex(), changeIndex, index);
     }
 
     @ToMany(referencedJoinProperty = "addressId")

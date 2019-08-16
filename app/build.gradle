@@ -39,7 +39,7 @@ kapt {
 }
 
 greendao {
-    schemaVersion 35
+    schemaVersion 36
 }
 
 hockeyapp {
@@ -85,6 +85,9 @@ android {
         buildConfigField "String", "DEFAULT_SALT", "\"${DEFAULT_SALT}\""
         buildConfigField "String", "PHONE_HASH_SALT", "\"${PHONE_HASH_SALT}\""
         buildConfigField "int", "PHONE_HASH_ITERATIONS", "${PHONE_HASH_ITERATIONS}"
+        buildConfigField "int", "COIN_TYPE", "0"
+        buildConfigField "int", "PURPOSE", "49"
+        buildConfigField "int", "ACCOUNT_INDEX", "0"
     }
 
     signingConfigs {
@@ -127,6 +130,7 @@ android {
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE__STAGING}\""
             buildConfigField "boolean", "IS_PRODUCTION", "false"
+            buildConfigField "int", "COIN_TYPE", "1"
             versionNameSuffix "-staging"
             buildConfigField "String", "FCM_APPLICATION_KEY", "\"${DEBUG_FCM_APP_KEY}\""
         }
@@ -203,7 +207,7 @@ dependencies {
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     implementation group: 'org.cryptonode.jncryptor', name: 'jncryptor', version: '1.0.1'
-    implementation "com.coinninja.libbitcoin:libbitcoinbindings-release:1.1.0"
+    implementation "com.coinninja.libbitcoin:libbitcoinbindings-release:1.2.0"
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
 
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta2"

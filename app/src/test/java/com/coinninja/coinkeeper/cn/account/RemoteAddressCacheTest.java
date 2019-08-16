@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.cn.account;
 
+import com.coinninja.bindings.DerivationPath;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
@@ -66,8 +67,9 @@ public class RemoteAddressCacheTest {
     private List<CNWalletAddress> cachedAddresses = new ArrayList<>();
 
     private AddressDTO setupAddress(String address, String pubKey) {
-        Address newAddress = new Address();
-        newAddress.setAddress(address);
+        Address newAddress = mock(Address.class);
+        when(newAddress.getDerivationPath()).thenReturn(mock(DerivationPath.class));
+        when(newAddress.getAddress()).thenReturn(address);
         return new AddressDTO(newAddress, pubKey);
     }
 

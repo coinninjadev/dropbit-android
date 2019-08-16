@@ -4,14 +4,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.image.CircleTransform;
@@ -27,24 +31,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import static com.coinninja.android.helpers.Views.withId;
+import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.assertNotNull;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class TransactionHistoryDataAdapterTest {
 
-
+    @Mock
+    WalletHelper walletHelper;
     private DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
-
     @Mock
     private TransactionAdapterUtil transactionUtil;
     @Mock
@@ -52,12 +52,13 @@ public class TransactionHistoryDataAdapterTest {
     @Mock
     private LazyList transactions;
     @Mock
-    WalletHelper walletHelper;
-    @Mock
     private Picasso picasso;
     @Mock
     private CircleTransform circleTransform;
-
+    @Mock
+    private Analytics analytics;
+    @Mock
+    private ActivityNavigationUtil activityNavigationUtil;
 
     private TransactionHistoryDataAdapter adapter;
     private TestableActivity activity;
@@ -70,8 +71,9 @@ public class TransactionHistoryDataAdapterTest {
         when(transactions.isEmpty()).thenReturn(false);
         when(transactions.isClosed()).thenReturn(false);
         activity = Robolectric.setupActivity(TestableActivity.class);
-        activity.appendLayout(R.layout.activity_transaction_history);
-        adapter = new TransactionHistoryDataAdapter(transactionUtil, defaultCurrencies, picasso, circleTransform);
+        activity.appendLayout(R.layout.fragment_transaction_history);
+        adapter = new TransactionHistoryDataAdapter(transactionUtil, defaultCurrencies, picasso,
+                circleTransform, walletHelper, analytics, activityNavigationUtil);
         adapter.setTransactions(transactions);
         adapter.setOnItemClickListener(listener);
     }
@@ -89,7 +91,7 @@ public class TransactionHistoryDataAdapterTest {
     public void adapter_recounts_size_of_data() {
         when(transactions.size()).thenReturn(500);
 
-        assertThat(adapter.getItemCount(), equalTo(500));
+        assertThat(adapter.getItemCount()).isEqualTo(500);
     }
 
     @Test
@@ -122,6 +124,52 @@ public class TransactionHistoryDataAdapterTest {
         adapter.onDefaultCurrencyChanged(defaultCurrencies);
 
         verify(notifier).observeDefaultCurrencyChange(adapter);
-        assertThat(adapter.getDefaultCurrencies(), equalTo(defaultCurrencies));
+        assertThat(adapter.getDefaultCurrencies()).isEqualTo(defaultCurrencies);
+    }
+
+    @Test
+    public void adds_footer_when_0_transactions() {
+        when(transactions.size()).thenReturn(0);
+
+        adapter.setTransactions(transactions);
+
+        assertThat(adapter.getItemCount()).isEqualTo(1);
+        assertThat(adapter.getItemViewType(0)).isEqualTo(TransactionHistoryDataAdapter.FOOTER_TYPE);
+    }
+
+    @Test
+    public void adds_footer_when_1_transactions() {
+        when(transactions.size()).thenReturn(1);
+
+        adapter.setTransactions(transactions);
+
+        assertThat(adapter.getItemCount()).isEqualTo(2);
+        assertThat(adapter.getItemViewType(0)).isEqualTo(TransactionHistoryDataAdapter.STANDARD_TYPE);
+        assertThat(adapter.getItemViewType(1)).isEqualTo(TransactionHistoryDataAdapter.FOOTER_TYPE);
+    }
+
+    @Test
+    public void clicking_on_empty_state_navigates_and_reports() {
+        when(transactions.size()).thenReturn(1);
+        when(walletHelper.getBalance()).thenReturn(new BTCCurrency(1000));
+        adapter.setTransactions(transactions);
+
+        RecyclerView parent = activity.findViewById(R.id.transaction_history);
+        parent.setLayoutManager(new LinearLayoutManager(activity));
+        TransactionHistoryDataAdapter.ViewHolder holder = adapter.onCreateViewHolder(parent, adapter.getItemViewType(1));
+        adapter.onBindViewHolder(holder, 1);
+
+        holder.itemView.findViewById(R.id.get_bitcoin_button).performClick();
+        verify(analytics).trackEvent(Analytics.EVENT_GET_BITCOIN);
+        verify(activityNavigationUtil).navigateToBuyBitcoin(activity);
+
+        holder.itemView.findViewById(R.id.learn_bitcoin_button).performClick();
+        verify(analytics).trackEvent(Analytics.EVENT_GET_BITCOIN);
+        verify(activityNavigationUtil).navigateToLearnBitcoin(activity);
+
+        holder.itemView.findViewById(R.id.spend_bitcoin_button).performClick();
+        verify(analytics).trackEvent(Analytics.EVENT_GET_BITCOIN);
+        verify(activityNavigationUtil).navigateToSpendBitcoin(activity);
+
     }
 }

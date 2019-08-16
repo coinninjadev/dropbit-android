@@ -1,13 +1,24 @@
 package com.coinninja.coinkeeper.service.client;
 
+import com.coinninja.bindings.model.Transaction;
+import com.coinninja.coinkeeper.bitcoin.BroadcastProvider;
+import com.coinninja.coinkeeper.bitcoin.BroadcastingClient;
+
+import org.jetbrains.annotations.NotNull;
+
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class BlockchainClient extends NetworkingApiClient {
+public class BlockchainClient extends NetworkingApiClient implements BroadcastingClient {
+
     protected final static String URI_BASE = "https://blockchain.info/";
     private BlockchainInfoClient client;
 
+
+    private BlockchainClient(BlockchainInfoClient client) {
+        this.client = client;
+    }
 
     public static BlockchainClient newInstance(String url) {
         BlockchainInfoClient client = new Retrofit.Builder().
@@ -21,15 +32,18 @@ public class BlockchainClient extends NetworkingApiClient {
         return newInstance(URI_BASE);
     }
 
-    private BlockchainClient(BlockchainInfoClient client) {
-        this.client = client;
-    }
-
     public Response getTransactionFor(String txid) {
         return executeCall(client.getTransactionFor(txid));
     }
 
-    public Response broadcastTransaction(String rawTx) {
-        return executeCall(client.pushTX(rawTx));
+    @Override
+    public Response broadcastTransaction(Transaction transaction) {
+        return executeCall(client.pushTX(transaction.rawTx));
+    }
+
+    @NotNull
+    @Override
+    public BroadcastProvider broadcastProvider() {
+        return BroadcastProvider.BLOCKCHAIN_INFO;
     }
 }

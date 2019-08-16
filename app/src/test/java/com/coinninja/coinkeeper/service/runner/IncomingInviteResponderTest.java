@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.service.runner;
 
+import com.coinninja.bindings.DerivationPath;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.model.PhoneNumber;
@@ -84,8 +85,9 @@ public class IncomingInviteResponderTest {
     public static final String FORMATTED_PHONE = "(222) 111-3333";
 
     private AddressDTO setupAddress(String address, String pubKey) {
-        Address newAddress = new Address();
-        newAddress.setAddress(address);
+        Address newAddress = mock(Address.class);
+        when(newAddress.getAddress()).thenReturn(address);
+        when(newAddress.getDerivationPath()).thenReturn(mock(DerivationPath.class));
         return new AddressDTO(newAddress, pubKey);
     }
 

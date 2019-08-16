@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.coinninja.bindings.TransactionBroadcastResult
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.BTCState
@@ -206,12 +206,12 @@ class InviteTransactionSummaryHelperTest {
         val helper = createHelper()
         val invite = mock<InviteTransactionSummary>()
         val transactionsInvitesSummary = mock<TransactionsInvitesSummary>()
-        val transactionBroadcastResult = mock<TransactionBroadcastResult>()
-        whenever(transactionBroadcastResult.txId).thenReturn(txid)
+        val transactionBroadcastResult = mock<BroadcastResult>()
+        whenever(transactionBroadcastResult.txid).thenReturn(txid)
         whenever(invite.transactionsInvitesSummary).thenReturn(transactionsInvitesSummary)
         val orderedOperations = inOrder(invite, helper.transactionInviteSummaryHelper)
 
-        helper.updateFulfilledInvite(invite, transactionBroadcastResult)
+        helper.updateFulfilledInvite(invite, txid)
 
         orderedOperations.verify(invite).btcTransactionId = txid
         orderedOperations.verify(invite).btcState = BTCState.FULFILLED

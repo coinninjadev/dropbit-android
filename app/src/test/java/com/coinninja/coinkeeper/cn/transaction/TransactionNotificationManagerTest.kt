@@ -3,22 +3,15 @@ package com.coinninja.coinkeeper.cn.transaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.bindings.DerivationPath
 import com.coinninja.bindings.TransactionData
-import com.coinninja.bindings.UnspentTransactionOutput
-import com.coinninja.coinkeeper.cn.transaction.notification.TransactionNotificationMapper
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO
 import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO
-import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
-import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
-import com.coinninja.coinkeeper.model.helpers.UserIdentityHelper
-import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.CNSharedMemo
 import com.coinninja.coinkeeper.service.client.model.InvitedContact
-import com.coinninja.coinkeeper.util.CNLogger
-import com.coinninja.coinkeeper.util.encryption.MessageEncryptor
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import okhttp3.MediaType
 import okhttp3.ResponseBody
@@ -32,19 +25,11 @@ import retrofit2.Response
 class TransactionNotificationManagerTest {
 
     private fun createManager(): TransactionNotificationManager {
-        return TransactionNotificationManager(
-                mock(TransactionNotificationMapper::class.java),
-                mock(MessageEncryptor::class.java),
-                mock(DaoSessionManager::class.java),
-                mock(SignedCoinKeeperApiClient::class.java),
-                mock(DropbitAccountHelper::class.java),
-                mock(UserIdentityHelper::class.java),
-                mock(CNLogger::class.java)
-        )
+        return TransactionNotificationManager(mock(), mock(), mock(), mock(), mock(), mock(), mock())
     }
 
     @Test
-    fun `sends encrypted notification when invite with transaction notification`() {
+    fun sends_encrypted_notification_when_invite_with_transaction_notification() {
         val transactionNotificationManager = createManager()
         val json = "--v<*>-json--"
         val encryption = "--encryption--"
@@ -69,7 +54,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `sends empty notification when invite with transaction notification but no pubkey`() {
+    fun sends_empty_notification_when_invite_with_transaction_notification_but_no_pubkey() {
         val transactionNotificationManager = createManager()
         val pubkey: String? = null
         val invite = mock(InviteTransactionSummary::class.java)
@@ -90,7 +75,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `sends empty notification when invite has no transaction notification`() {
+    fun sends_empty_notification_when_invite_has_no_transaction_notification() {
         val transactionNotificationManager = createManager()
         val invite = mock(InviteTransactionSummary::class.java)
         val toUser = mock(UserIdentity::class.java)
@@ -108,22 +93,20 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `only saves notification for invite when memo exists`() {
+    fun only_saves_notification_for_invite_when_memo_exists() {
         val transactionNotificationManager = createManager()
         val inviteSummary = mock(InviteTransactionSummary::class.java)
         val completedInviteDTO = createCompletedInviteDTO()
-        val transactionNotification = mock(TransactionNotification::class.java)
         completedInviteDTO.memo = ""
 
         transactionNotificationManager.saveTransactionNotificationLocally(inviteSummary, completedInviteDTO)
 
-        verify(transactionNotificationManager.daoSessionManager, times(0)).insert(ArgumentMatchers.any(TransactionNotification::class.java))
-        verify(inviteSummary, times(0)).transactionNotification = transactionNotification
-        verify(inviteSummary, times(0)).update()
+        verifyZeroInteractions(transactionNotificationManager.daoSessionManager)
+        verifyZeroInteractions(inviteSummary)
     }
 
     @Test
-    fun `saves transaction locally for given invite`() {
+    fun saves_transaction_locally_for_given_invite() {
         val transactionNotificationManager = createManager()
         val completedInviteDTO = createCompletedInviteDTO()
         val inviteSummary = mock(InviteTransactionSummary::class.java)
@@ -140,7 +123,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `saves transaction locally for given transaction`() {
+    fun saves_transaction_locally_for_given_transaction() {
         val transactionNotificationManager = createManager()
         val completedBroadcastDTO = createCompletedBroadCastDTO()
         completedBroadcastDTO.transactionId = TXID
@@ -168,7 +151,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `sends transaction notification to cn`() {
+    fun sends_transaction_notification_to_cn() {
         val transactionNotificationManager = createManager()
         val completedBroadcastDTO = createCompletedBroadCastDTO()
         val json = "--transaction-v*-as-json--"
@@ -189,7 +172,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `failures in sending memos are logged`() {
+    fun failures_in_sending_memos_are_logged() {
         val transactionNotificationManager = createManager()
         val completedBroadcastDTO = createCompletedBroadCastDTO()
         val json = "--transaction-v*-as-json--"

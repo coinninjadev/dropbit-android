@@ -4,14 +4,12 @@ import com.coinninja.bindings.AddressType
 import com.coinninja.bindings.DerivationPath
 import com.coinninja.bindings.Libbitcoin
 import com.coinninja.bindings.UnspentTransactionOutput
-import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.cn.wallet.HDWallet
-import com.coinninja.coinkeeper.cn.wallet.LibBitcoinProvider
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
 import com.coinninja.coinkeeper.model.db.TargetStat
-import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
-import com.coinninja.coinkeeper.model.helpers.TargetStatHelper
+import com.coinninja.coinkeeper.model.db.Wallet
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -24,13 +22,12 @@ internal class FundingModelTest {
     data class dropbit(val value: Long, val fee: Long)
 
     private fun createFundingModel(): FundingModel {
-        val fundingModel = FundingModel(
-                mock(LibBitcoinProvider::class.java),
-                mock(TargetStatHelper::class.java),
-                mock(InviteTransactionSummaryHelper::class.java),
-                mock(AccountManager::class.java),
-                1000
-        )
+        val wallet: Wallet = mock()
+        val fundingModel = FundingModel(mock(), mock(), mock(), mock(), mock(), 1000)
+        whenever(fundingModel.walletHelper.wallet).thenReturn(wallet)
+        whenever(wallet.purpose).thenReturn(49)
+        whenever(wallet.coinType).thenReturn(0)
+        whenever(wallet.accountIndex).thenReturn(0)
         return fundingModel
     }
 

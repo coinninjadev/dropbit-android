@@ -13,6 +13,8 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.image.CircleTransform;
@@ -60,6 +62,10 @@ public class TransactionHistoryDataBinderTest {
     private Picasso picasso;
     @Mock
     private CircleTransform circleTransform;
+    @Mock
+    private Analytics analytics;
+    @Mock
+    private ActivityNavigationUtil activityNavigationUtil;
 
     private View view;
     private TransactionHistoryDataAdapter.ViewHolder viewHolder;
@@ -72,13 +78,15 @@ public class TransactionHistoryDataBinderTest {
         MockitoAnnotations.initMocks(this);
         when(transactions.isEmpty()).thenReturn(false);
         when(transactions.isClosed()).thenReturn(false);
+        when(transactions.size()).thenReturn(2);
         when(transactions.get(0)).thenReturn(transaction);
         TestableActivity activity = Robolectric.setupActivity(TestableActivity.class);
         ViewGroup parent = activity.findViewById(R.id.test_root);
         bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         when(transactionAdapterUtil.translateTransaction(any(TransactionsInvitesSummary.class))).thenReturn(bindableTransaction);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
-        adapter = new TransactionHistoryDataAdapter(transactionAdapterUtil, defaultCurrencies, picasso, circleTransform);
+        adapter = new TransactionHistoryDataAdapter(transactionAdapterUtil, defaultCurrencies,
+                picasso, circleTransform, walletHelper, analytics, activityNavigationUtil);
         adapter.setOnItemClickListener(onClickListener);
         adapter.setTransactions(transactions);
         bindableTransaction.setSendState(SendState.SEND);

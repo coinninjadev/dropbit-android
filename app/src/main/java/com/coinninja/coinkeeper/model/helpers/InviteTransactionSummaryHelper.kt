@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
 import com.coinninja.bindings.TransactionBroadcastResult
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.db.enums.BTCState
@@ -124,8 +125,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         transactionInviteSummaryHelper.populateWith(invite.transactionsInvitesSummary, invite)
     }
 
-    fun updateFulfilledInvite(invite: InviteTransactionSummary, transactionBroadcastResult: TransactionBroadcastResult) {
-        val txid = transactionBroadcastResult.txId
+    fun updateFulfilledInvite(invite: InviteTransactionSummary, txid:String) {
         updateInviteAsFulfilled(txid, invite)
     }
 
