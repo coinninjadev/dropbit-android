@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
@@ -85,14 +86,14 @@ public class BroadcastActivity extends BaseActivity implements BroadcastTransact
     }
 
     @Override
-    public void showBroadcastFail(TransactionBroadcastResult transactionBroadcastResult) {
-        Log.e(TAG, "showBroadcastFail: " + transactionBroadcastResult.getMessage());
+    public void showBroadcastFail(BroadcastResult broadcastResult) {
+        Log.e(TAG, "showBroadcastFail: " + broadcastResult.getMessage());
         genericFail();
     }
 
     @Override
-    public void showBroadcastSuccessful(TransactionBroadcastResult transactionBroadcastResult) {
-        transactionId = transactionBroadcastResult.getTxId();
+    public void showBroadcastSuccessful(BroadcastResult broadcastResult) {
+        transactionId = broadcastResult.getTxid();
         CompletedBroadcastDTO completedBroadcastActivityDTO = new CompletedBroadcastDTO(broadcastDTO, transactionId);
         finalizeTransaction(completedBroadcastActivityDTO);
         showInitTransaction();

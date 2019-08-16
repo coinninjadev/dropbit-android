@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.model;
 
+import com.coinninja.bindings.DerivationPath;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.model.db.Address;
@@ -164,6 +165,6 @@ public class PaymentHolder {
 
     private void clearTransactionData() {
         transactionData = new TransactionData(new UnspentTransactionOutput[0], 0, 0,
-                0, new Address().getDerivationPath(), "");
+                0, new DerivationPath(49, 0, 0, 1, 0), "");
     }
 }

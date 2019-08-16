@@ -18,6 +18,7 @@ import com.coinninja.bindings.TransactionBuilder
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.bitcoin.TransactionBroadcaster
 import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
@@ -62,6 +63,7 @@ import com.coinninja.messaging.MessageCryptor
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import com.mixpanel.android.mpmetrics.MixpanelAPI
+import com.nhaarman.mockitokotlin2.mock
 import dagger.Module
 import dagger.Provides
 import org.mockito.Mockito.mock
@@ -649,4 +651,7 @@ class TestAppModule {
         }
         return app.syncManagerViewNotifier
     }
+
+    @Provides
+    internal fun broadcaster(): TransactionBroadcaster = mock()
 }

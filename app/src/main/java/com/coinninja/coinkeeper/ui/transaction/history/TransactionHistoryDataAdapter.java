@@ -14,8 +14,11 @@ import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.image.CircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
@@ -33,8 +36,13 @@ import static com.coinninja.android.helpers.Views.withId;
 
 public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDataAdapter.ViewHolder> implements DefaultCurrencyChangeObserver {
 
+    static int FOOTER_TYPE = 1;
+    static int STANDARD_TYPE = 0;
     private final Picasso picasso;
     private final CircleTransform circleTransform;
+    private final WalletHelper walletHelper;
+    private final Analytics analytics;
+    private final ActivityNavigationUtil activityNavigationUtil;
     private LazyList<TransactionsInvitesSummary> transactions;
     private OnItemClickListener onItemClickListener;
     private TransactionAdapterUtil transactionAdapterUtil;
@@ -42,33 +50,48 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
     private DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
 
     @Inject
-    public TransactionHistoryDataAdapter(TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies, Picasso picasso, CircleTransform circleTransform) {
+    public TransactionHistoryDataAdapter(TransactionAdapterUtil transactionAdapterUtil,
+                                         DefaultCurrencies defaultCurrencies, Picasso picasso,
+                                         CircleTransform circleTransform, WalletHelper walletHelper,
+                                         Analytics analytics, ActivityNavigationUtil activityNavigationUtil
+    ) {
         this.transactionAdapterUtil = transactionAdapterUtil;
         this.defaultCurrencies = defaultCurrencies;
         this.picasso = picasso;
         this.circleTransform = circleTransform;
+        this.walletHelper = walletHelper;
+        this.analytics = analytics;
+        this.activityNavigationUtil = activityNavigationUtil;
     }
 
     @Override
     public TransactionHistoryDataAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_item_transaction_record, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        if (!transactions.isClosed()) {
-            BindableTransaction transaction =
-                    transactionAdapterUtil.translateTransaction(transactions.get(position));
-            holder.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
-            holder.bindToTransaction(transaction, defaultCurrencies, picasso, circleTransform);
-            holder.getItemView().setOnClickListener(v -> onClick(holder.getItemView(), position));
+        if (viewType == STANDARD_TYPE) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_item_transaction_record, parent, false);
+            return new ViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_empty_transactions, parent, false);
+            return new ViewHolder(view);
         }
     }
 
     @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        if (getItemViewType(position) == STANDARD_TYPE) {
+            bindToTransactionRecord(holder, position);
+        } else {
+            bindToFooter(holder);
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position >= transactions.size() ? FOOTER_TYPE : STANDARD_TYPE;
+    }
+
+    @Override
     public int getItemCount() {
-        return transactions.size();
+        return transactions.size() < 2 ? transactions.size() + 1 : transactions.size();
     }
 
     public void setTransactions(LazyList<TransactionsInvitesSummary> transactions) {
@@ -101,6 +124,35 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
     void onClick(View view, int position) {
         if (onItemClickListener != null)
             onItemClickListener.onItemClick(view, position);
+    }
+
+    private void bindToFooter(ViewHolder holder) {
+        TransactionEmptyStateView emptyStateView = holder.itemView.findViewById(R.id.empty_state_view);
+        emptyStateView.setupUIForWallet(transactions.size(), walletHelper.getBalance().toSatoshis());
+        emptyStateView.setGetBitcoinButtonClickListener(v -> {
+            analytics.trackEvent(Analytics.EVENT_GET_BITCOIN);
+            activityNavigationUtil.navigateToBuyBitcoin(v.getContext());
+        });
+
+        emptyStateView.setLearnBitcoinButtonClickListener(v -> {
+            analytics.trackEvent(Analytics.EVENT_LEARN_BITCOIN);
+            activityNavigationUtil.navigateToLearnBitcoin(v.getContext());
+        });
+
+        emptyStateView.setSpendBitcoinButtonClickListener(v -> {
+            analytics.trackEvent(Analytics.EVENT_SPEND_BITCOIN);
+            activityNavigationUtil.navigateToSpendBitcoin(v.getContext());
+        });
+    }
+
+    private void bindToTransactionRecord(ViewHolder holder, int position) {
+        if (!transactions.isClosed()) {
+            BindableTransaction transaction =
+                    transactionAdapterUtil.translateTransaction(transactions.get(position));
+            holder.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+            holder.bindToTransaction(transaction, defaultCurrencies, picasso, circleTransform);
+            holder.getItemView().setOnClickListener(v -> onClick(holder.getItemView(), position));
+        }
     }
 
     public interface OnItemClickListener {

@@ -442,4 +442,13 @@
     <!-- Home Activity -->
     <string name="app_tab_bar_bitcoin">Bitcoin</string>
     <string name="app_tab_bar_lightning">Lightning</string>
+
+
+    <!--- Lightning Empty State -->
+    <string name="_5_dollars">$5</string>
+    <string name="_20_dollars">$20</string>
+    <string name="_50_dollars">$50</string>
+    <string name="_100_dollars">$100</string>
+    <string name="oh_and_we_ll_cover_the_fees_every_time_you_load">OH, and we’ll cover the fees every time you load</string>
+    <string name="nothing_s_here_yet_load_your_lightning_wallet">NOTHING’S HERE YET, LOAD YOUR LIGHITNG WALLET</string>
 </resources>

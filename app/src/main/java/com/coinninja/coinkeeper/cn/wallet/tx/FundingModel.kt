@@ -7,15 +7,16 @@ import com.coinninja.bindings.UnspentTransactionOutput
 import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.cn.wallet.LibBitcoinProvider
-import com.coinninja.coinkeeper.model.db.Address
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.model.helpers.TargetStatHelper
+import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import kotlin.math.floor
 
 @Mockable
 class FundingModel(internal val libBitcoinProvider: LibBitcoinProvider,
                    internal val targetStatHelper: TargetStatHelper,
                    internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
+                   internal val walletHelper: WalletHelper,
                    internal val accountManager: AccountManager,
                    val transactionDustValue: Long) {
 
@@ -41,11 +42,9 @@ class FundingModel(internal val libBitcoinProvider: LibBitcoinProvider,
 
     val nextChangePath: DerivationPath
         get() {
-            val address = Address().also {
-                it.changeIndex = HDWallet.INTERNAL
-                it.index = accountManager.nextChangeIndex
-            }
-            return address.derivationPath
+            val wallet = walletHelper.wallet
+            return DerivationPath(wallet.purpose, wallet.coinType, wallet.accountIndex,
+                    HDWallet.INTERNAL, accountManager.nextChangeIndex)
         }
 
     val inputSizeInBytes: Int get() = inputSizeP2SH

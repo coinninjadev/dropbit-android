@@ -1,12 +1,13 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
-import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionData;
+import com.coinninja.coinkeeper.bitcoin.BroadcastListener;
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult;
 import com.coinninja.coinkeeper.service.runner.BroadcastTransactionRunner;
 
 import javax.inject.Inject;
 
-public class BroadcastTransactionPresenter implements BroadcastTransactionRunner.BroadcastListener {
+public class BroadcastTransactionPresenter implements BroadcastListener {
 
     private BroadcastTransactionRunner broadcastRunner;
 
@@ -23,9 +24,9 @@ public class BroadcastTransactionPresenter implements BroadcastTransactionRunner
     }
 
     @Override
-    public void onBroadcastSuccessful(TransactionBroadcastResult transactionBroadcastResult) {
+    public void onBroadcastSuccessful(BroadcastResult broadcastResult) {
 
-        view.showBroadcastSuccessful(transactionBroadcastResult);
+        view.showBroadcastSuccessful(broadcastResult);
     }
 
     @Override
@@ -34,8 +35,8 @@ public class BroadcastTransactionPresenter implements BroadcastTransactionRunner
     }
 
     @Override
-    public void onBroadcastError(TransactionBroadcastResult transactionBroadcastResult) {
-        view.showBroadcastFail(transactionBroadcastResult);
+    public void onBroadcastError(BroadcastResult broadcastResult) {
+        view.showBroadcastFail(broadcastResult);
     }
 
     public void attachView(View view) {
@@ -43,9 +44,9 @@ public class BroadcastTransactionPresenter implements BroadcastTransactionRunner
     }
 
     public interface View {
-        void showBroadcastFail(TransactionBroadcastResult transactionBroadcastResult);
+        void showBroadcastFail(BroadcastResult broadcastResult);
 
-        void showBroadcastSuccessful(TransactionBroadcastResult transactionBroadcastResult);
+        void showBroadcastSuccessful(BroadcastResult broadcastResult);
 
         void showProgress(int progress);
     }

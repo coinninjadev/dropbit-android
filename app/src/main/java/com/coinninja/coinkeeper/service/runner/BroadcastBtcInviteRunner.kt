@@ -2,10 +2,11 @@ package com.coinninja.coinkeeper.service.runner
 
 import android.content.Context
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionBroadcastResult
 import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult
 import com.coinninja.coinkeeper.bitcoin.BroadcastTransactionHelper
+import com.coinninja.coinkeeper.bitcoin.isNotFunded
 import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
@@ -40,44 +41,32 @@ internal constructor(@ApplicationContext internal val context: Context,
         invite?.let { invite ->
             val transactionData = fundInvite(invite)
 
-            if (transactionData.utxos.isEmpty()) {
+            if (transactionData.isNotFunded()) {
                 cancelInvite(invite)
             } else {
-                val transactionBroadcastResult = fulfillInvite(transactionData)
-                if (transactionBroadcastResult.isSuccess) {
-                    updateFulfilledInvite(invite, transactionBroadcastResult)
+                val result = fulfillInvite(transactionData)
+                if (result.isSuccess) {
+                    updateFulfilledInvite(invite, result.txid)
                 }
             }
         }
     }
 
-    private fun broadcastTXToBtcNetwork(transactionData: TransactionData): TransactionBroadcastResult {
-        val result: TransactionBroadcastResult
-        val paymentAddress = transactionData.paymentAddress ?: ""
-        if (paymentAddress.isNotEmpty()) {
-            result = broadcastHelper.broadcast(transactionData)
-            analytics.trackEvent(Analytics.EVENT_DROPBIT_COMPLETED)
-        } else {
-            result = broadcastHelper.generateFailedBroadcast(context.getString(R.string.transaction_checksum_error))
-        }
 
-        return result
-    }
-
-    private fun updateFulfilledInvite(invite: InviteTransactionSummary, transactionBroadcastResult: TransactionBroadcastResult) {
-        inviteTransactionSummaryHelper.updateFulfilledInvite(invite, transactionBroadcastResult)
-        saveToBroadcastBtcDatabaseMarkAsFunded(invite, transactionBroadcastResult)
-        saveToExternalNotificationsDatabase(transactionBroadcastResult, invite)
+    private fun updateFulfilledInvite(invite: InviteTransactionSummary, txid: String) {
+        inviteTransactionSummaryHelper.updateFulfilledInvite(invite, txid)
+        saveToBroadcastBtcDatabaseMarkAsFunded(invite, txid)
+        saveToExternalNotificationsDatabase(invite, txid)
         transactionNotificationManager.notifyCnOfFundedInvite(invite)
         syncWalletManager.syncNow()
     }
 
-    private fun fulfillInvite(transactionData: TransactionData): TransactionBroadcastResult {
-        val transactionBroadcastResult = broadcastTXToBtcNetwork(transactionData)
-        if (!transactionBroadcastResult.isSuccess) {
-            onBroadcastTxError(transactionBroadcastResult)
+    private fun fulfillInvite(transactionData: TransactionData): BroadcastResult {
+        val result = broadcastHelper.broadcast(transactionData)
+        if (result.isSuccess) {
+            analytics.trackEvent(Analytics.EVENT_DROPBIT_COMPLETED)
         }
-        return transactionBroadcastResult
+        return result
     }
 
     private fun fundInvite(invite: InviteTransactionSummary): TransactionData {
@@ -100,13 +89,12 @@ internal constructor(@ApplicationContext internal val context: Context,
         broadcastBtcInviteHelper.saveBroadcastInviteAsCanceled(invite)
     }
 
-    private fun saveToExternalNotificationsDatabase(result: TransactionBroadcastResult,
-                                                    invite: InviteTransactionSummary) {
+    private fun saveToExternalNotificationsDatabase(invite: InviteTransactionSummary, txid: String) {
         val recipient = invite.localeFriendlyDisplayIdentityForReceiver
         val btcSpent = BTCCurrency(invite.valueSatoshis)
         val messageAmount = btcSpent.toFormattedCurrency()
         val message = context.getString(R.string.invite_broadcast_real_btc_message, messageAmount, recipient)
-        val txID = result.txId
+        val txID = txid
 
         externalNotificationHelper.saveNotification(message, txID)
     }
@@ -118,12 +106,8 @@ internal constructor(@ApplicationContext internal val context: Context,
                 invite.serverId)
     }
 
-    private fun saveToBroadcastBtcDatabaseMarkAsFunded(invite: InviteTransactionSummary, result: TransactionBroadcastResult) {
-        broadcastBtcInviteHelper.saveBroadcastBtcInvite(invite, invite.serverId, result.txId, invite.address, BTCState.FULFILLED)
-    }
-
-    private fun onBroadcastTxError(result: TransactionBroadcastResult) {
-        result.message
+    private fun saveToBroadcastBtcDatabaseMarkAsFunded(invite: InviteTransactionSummary, txid: String) {
+        broadcastBtcInviteHelper.saveBroadcastBtcInvite(invite, invite.serverId, txid, invite.address, BTCState.FULFILLED)
     }
 
 }

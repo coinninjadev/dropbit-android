@@ -23,6 +23,7 @@ import com.coinninja.bindings.TransactionBuilder
 import com.coinninja.coinkeeper.BuildConfig
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener
+import com.coinninja.coinkeeper.bitcoin.TransactionBroadcaster
 import com.coinninja.coinkeeper.cn.transaction.notification.TransactionNotificationMapper
 import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
@@ -40,6 +41,8 @@ import com.coinninja.coinkeeper.model.db.Account
 import com.coinninja.coinkeeper.model.helpers.*
 import com.coinninja.coinkeeper.model.query.WalletQueryManager
 import com.coinninja.coinkeeper.service.WalletCreationIntentService
+import com.coinninja.coinkeeper.service.client.BlockchainClient
+import com.coinninja.coinkeeper.service.client.BlockstreamClient
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner
 import com.coinninja.coinkeeper.util.*
@@ -313,4 +316,23 @@ class AppModule {
     internal fun twitter(@ApplicationContext context: Context): Twitter {
         return TwitterProvider.provide(context)
     }
+
+    @Provides
+    internal fun broadcaster(@isTestnet isTestnet: Boolean, signedCoinKeeperApiClient: SignedCoinKeeperApiClient,
+                             blockstreamClient: BlockstreamClient,
+                             blockchainClient: BlockchainClient): TransactionBroadcaster {
+
+        val broadcaster = TransactionBroadcaster()
+        if (isTestnet) {
+            broadcaster.add(signedCoinKeeperApiClient)
+        } else {
+            broadcaster.add(blockchainClient)
+            broadcaster.add(blockstreamClient)
+        }
+        return broadcaster
+    }
+
+    @isTestnet
+    @Provides
+    internal fun isTestnet(): Boolean = BuildConfig.COIN_TYPE == 1
 }

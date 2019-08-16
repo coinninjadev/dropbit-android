@@ -69,6 +69,15 @@ public class Wallet {
     @Property
     private long lastUSDPrice;
 
+    @Property
+    private int purpose;
+
+    @Property
+    private int coinType;
+
+    @Property
+    private int accountIndex;
+
 
     /**
      * Used to resolve relations
@@ -103,10 +112,10 @@ public class Wallet {
     public Wallet() {
     }
 
-    @Generated(hash = 2008094963)
-    public Wallet(Long id, int hdIndex, Long userId, long lastSync,
-                  int internalIndex, int externalIndex, long balance,
-                  long spendableBalance, int blockTip, long lastUSDPrice) {
+    @Generated(hash = 1456873090)
+    public Wallet(Long id, int hdIndex, Long userId, long lastSync, int internalIndex,
+            int externalIndex, long balance, long spendableBalance, int blockTip, long lastUSDPrice,
+            int purpose, int coinType, int accountIndex) {
         this.id = id;
         this.hdIndex = hdIndex;
         this.userId = userId;
@@ -117,6 +126,9 @@ public class Wallet {
         this.spendableBalance = spendableBalance;
         this.blockTip = blockTip;
         this.lastUSDPrice = lastUSDPrice;
+        this.purpose = purpose;
+        this.coinType = coinType;
+        this.accountIndex = accountIndex;
     }
 
     public Long getId() {
@@ -430,6 +442,30 @@ public class Wallet {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
+    }
+
+    public int getPurpose() {
+        return this.purpose;
+    }
+
+    public void setPurpose(int purpose) {
+        this.purpose = purpose;
+    }
+
+    public int getCoinType() {
+        return this.coinType;
+    }
+
+    public void setCoinType(int coinType) {
+        this.coinType = coinType;
+    }
+
+    public int getAccountIndex() {
+        return this.accountIndex;
+    }
+
+    public void setAccountIndex(int accountIndex) {
+        this.accountIndex = accountIndex;
     }
 
     /** called by internal mechanisms, do not call yourself. */

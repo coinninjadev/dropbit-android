@@ -6,12 +6,13 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.coinninja.bindings.DerivationPath;
-import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.bindings.model.Transaction;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
+import com.coinninja.coinkeeper.bitcoin.BroadcastProvider;
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
@@ -133,10 +134,10 @@ public class BroadcastActivityTest {
     @Test
     public void show_ui_elements_on_successful_broadcast() {
         activityController.start().resume().visible();
-        TransactionBroadcastResult transactionBroadcastResult = mock(TransactionBroadcastResult.class);
-        when(transactionBroadcastResult.getTxId()).thenReturn("--txid--");
+        BroadcastResult broadcastResult = mock(BroadcastResult.class);
+        when(broadcastResult.getTxid()).thenReturn("--txid--");
 
-        activity.showBroadcastSuccessful(transactionBroadcastResult);
+        activity.showBroadcastSuccessful(broadcastResult);
 
         verify(sendingProgressView).setProgress(100);
         verify(sendingProgressView).completeSuccess();
@@ -150,14 +151,14 @@ public class BroadcastActivityTest {
     @Test
     public void start_save_transaction_service_on_successful_broadcast() {
         activityController.start().resume().visible();
-        TransactionBroadcastResult mockTransactionBroadcastResult = mock(TransactionBroadcastResult.class);
-        when(mockTransactionBroadcastResult.getTxId()).thenReturn("--txid--");
+        BroadcastResult broadcastResult = mock(BroadcastResult.class);
+        when(broadcastResult.getTxid()).thenReturn("--txid--");
 
         Intent intent = new Intent(activity, BroadcastTransactionService.class);
         CompletedBroadcastDTO completedDto = new CompletedBroadcastDTO(broadcastActivityDTO, "--txid--");
         intent.putExtra(DropbitIntents.EXTRA_COMPLETED_BROADCAST_DTO, completedDto);
 
-        activity.showBroadcastSuccessful(mockTransactionBroadcastResult);
+        activity.showBroadcastSuccessful(broadcastResult);
 
         assertThat(activity, ActivityMatchers.serviceWithIntentStarted(intent));
     }
@@ -203,8 +204,8 @@ public class BroadcastActivityTest {
     @Test
     public void handles_failed_sends() {
         activityController.start().resume().visible();
-        TransactionBroadcastResult mockTransactionBroadcastResult = mock(TransactionBroadcastResult.class);
-        activity.showBroadcastFail(mockTransactionBroadcastResult);
+        BroadcastResult broadcastResult = mock(BroadcastResult.class);
+        activity.showBroadcastFail(broadcastResult);
 
         TextView sendLabel = activity.findViewById(R.id.broadcast_sending_progress_label);
         assertThat(sendLabel.getVisibility(), equalTo(View.VISIBLE));
@@ -217,10 +218,10 @@ public class BroadcastActivityTest {
     @Test
     public void transactionSuccessful() {
         activityController.start().resume().visible();
-        TransactionBroadcastResult transactionBroadcastResult = mock(TransactionBroadcastResult.class);
-        when(transactionBroadcastResult.getTxId()).thenReturn("--txid--");
+        BroadcastResult broadcastResult = mock(BroadcastResult.class);
+        when(broadcastResult.getTxid()).thenReturn("--txid--");
 
-        activity.showBroadcastSuccessful(transactionBroadcastResult);
+        activity.showBroadcastSuccessful(broadcastResult);
 
         verify(sendingProgressView).setProgress(100);
         verify(sendingProgressView).completeSuccess();
@@ -265,9 +266,9 @@ public class BroadcastActivityTest {
 
     @Test
     public void saves_send_state_on_save() {
-        TransactionBroadcastResult transactionResult = new TransactionBroadcastResult(200, true, "foo", new Transaction("", "__txid__"));
+        BroadcastResult broadcastResult = new BroadcastResult(200, true, "foo", new Transaction("", "__txid__"), BroadcastProvider.BLOCK_STREAM);
         activityController.start().resume();
-        activity.showBroadcastSuccessful(transactionResult);
+        activity.showBroadcastSuccessful(broadcastResult);
 
         Bundle outState = new Bundle();
         activity.onSaveInstanceState(outState, null);

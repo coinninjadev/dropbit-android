@@ -21,19 +21,20 @@ class TargetStatHelper @Inject constructor(
         internal val dustProtectionPreference: DustProtectionPreference
 ) {
 
-    fun targetStatFor(transactionId: Long, output: VOut): TargetStat? =
+    fun targetStatFor(transactionId: Long, output: VOut, address: String?=null): TargetStat? =
             daoSessionManager.targetStatDao.queryBuilder()
                     .where(
                             TargetStatDao.Properties.Tsid.eq(transactionId),
                             TargetStatDao.Properties.Value.eq(output.value),
                             TargetStatDao.Properties.Position.eq(output.index),
-                            TargetStatDao.Properties.Addr.eq(output.scriptPubKey.addresses[0])
+                            TargetStatDao.Properties.Addr.eq(address ?: output.scriptPubKey.addresses[0])
                     )
                     .unique()
 
-    fun getOrCreateTargetStat(transaction: TransactionSummary, output: VOut): TargetStat =
-            (targetStatFor(transaction.id, output) ?: daoSessionManager.newTargetStat()).also {
-                it.addr = output.scriptPubKey.addresses[0]
+    fun getOrCreateTargetStat(transaction: TransactionSummary, output: VOut, address: String? = null): TargetStat =
+            (targetStatFor(transaction.id, output, address)
+                    ?: daoSessionManager.newTargetStat()).also {
+                it.addr = address ?: output.scriptPubKey.addresses[0]
                 it.position = output.index
                 it.transaction = transaction
                 it.value = output.value

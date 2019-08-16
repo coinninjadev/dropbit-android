@@ -26,7 +26,7 @@ public class DaoSessionManagerModule {
     @Provides
     @CoinkeeperApplicationScope
     DaoSessionManager daoSessionManager(DaoMaster daoMaster) {
-        return new DaoSessionManager(daoMaster).connect();
+        return new DaoSessionManager(daoMaster, BuildConfig.PURPOSE, BuildConfig.COIN_TYPE, BuildConfig.ACCOUNT_INDEX).connect();
     }
 
     @Provides

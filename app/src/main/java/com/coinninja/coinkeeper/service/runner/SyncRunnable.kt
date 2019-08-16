@@ -30,6 +30,7 @@ class SyncRunnable @Inject internal constructor(
         if (!cnWalletManager.hasWallet)
             return
 
+        accountManager.cacheAddresses()
         setGapLimit()
 
         Log.d("SYNC", "fetching addresses")

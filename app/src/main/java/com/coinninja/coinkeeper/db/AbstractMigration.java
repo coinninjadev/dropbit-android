@@ -26,7 +26,7 @@ public abstract class AbstractMigration implements Migration {
      * @param currentVersion
      */
     @SuppressLint("RestrictedApi")
-    protected void prepareMigration(@NonNull Database db, int currentVersion) {
+    private void prepareMigration(@NonNull Database db, int currentVersion) {
         checkNotNull(db, "Database cannot be null");
         if (currentVersion < 1) {
             throw new IllegalArgumentException(

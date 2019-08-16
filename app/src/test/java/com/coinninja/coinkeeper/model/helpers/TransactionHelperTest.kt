@@ -9,6 +9,7 @@ import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO
 import com.coinninja.coinkeeper.service.client.model.*
+import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Test
 
@@ -318,6 +319,38 @@ class TransactionHelperTest {
         ordered.verify(targetStat).update()
         ordered.verify(transaction).update()
         ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction)
+    }
+
+    @Test
+    fun can_save_coinbase_transaction_outputs() {
+        val helper = createHelper()
+        val detail: TransactionDetail = Gson().fromJson(coinbaseTX, TransactionDetail::class.java)
+        val transaction: TransactionSummary = mock()
+        val targetStat: TargetStat = mock()
+        whenever(transaction.memPoolState).thenReturn(MemPoolState.ACKNOWLEDGE)
+        whenever(helper.targetStatHelper.getOrCreateTargetStat(transaction, detail.vOutList[1], "Coinbase")).thenReturn(targetStat)
+
+        helper.saveOut(detail, transaction, detail.vOutList[1])
+
+        verify(helper.targetStatHelper).getOrCreateTargetStat(transaction, detail.vOutList[1], "Coinbase")
+        verify(targetStat).state = TargetStat.State.ACKNOWLEDGE
+        verify(targetStat).update()
+    }
+
+    @Test
+    fun can_save_coinbase_transaction_inputs() {
+        val helper = createHelper()
+        val detail: TransactionDetail = Gson().fromJson(coinbaseTX, TransactionDetail::class.java)
+        val transaction: TransactionSummary = mock()
+        val fundingStat: FundingStat = mock()
+        whenever(transaction.memPoolState).thenReturn(MemPoolState.ACKNOWLEDGE)
+        whenever(helper.fundingStatHelper.getOrCreateFundingStat(transaction, detail.vInList[0], "Coinbase")).thenReturn(fundingStat)
+
+        helper.saveIn(detail, transaction, detail.vInList[0])
+
+        verify(helper.fundingStatHelper).getOrCreateFundingStat(transaction, detail.vInList[0], "Coinbase")
+        verify(fundingStat).state = FundingStat.State.ACKNOWLEDGE
+        verify(fundingStat).update()
     }
 
     @Test
