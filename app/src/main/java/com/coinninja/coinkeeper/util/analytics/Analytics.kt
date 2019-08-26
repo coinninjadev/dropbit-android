@@ -138,7 +138,7 @@ interface Analytics {
 
         // PROPERTIES
         const val PROPERTY_HAS_WALLET = "Has Wallet"
-        const val PROPERTY_HAS_WALLET_BACKUP = "Has Backup"
+        const val PROPERTY_HAS_WALLET_BACKUP = "Backed Up"
         const val PROPERTY_PHONE_VERIFIED = "Phone Verified"
         const val PROPERTY_HAS_BTC_BALANCE = "Has BTC Balance"
         const val PROPERTY_RELATIVE_WALLET_RANGE = "Relative Wallet Range"
@@ -149,6 +149,6 @@ interface Analytics {
         const val PROPERTY_HAS_DROPBIT_ME_ENABLED = "DropBitMe Enabled"
         const val PROPERTY_TWITTER_VERIFIED = "Twitter Verified"
         const val PROPERTY_APP_V1 = "v1Wallet"
-        const val PROPERTY_PLATFORM = "Platform"
+        const val PROPERTY_PLATFORM = "platform"
     }
 }
