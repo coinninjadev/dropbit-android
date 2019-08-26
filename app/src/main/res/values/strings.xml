@@ -209,7 +209,7 @@
     <string name="pay_error_add_valid_bitcoin_address">Please add valid bitcoin address or phone number</string>
     <string name="pay_error_invalid_amount">Invalid amount</string>
     <string name="pay_error_too_little_transaction">Can not spend less than $1</string>
-    <string name="payment_error_too_much_sent_to_contact">Can not send more than $100.00 to a phone identity</string>
+    <string name="payment_error_too_much_sent_to_contact">For security reasons we limit invite transactions to $100. Once your contact has the DropBit app there are no transaction limits.</string>
     <string name="payment_memo">What’s it for?</string>
     <string name="send_max">send max</string>
 
