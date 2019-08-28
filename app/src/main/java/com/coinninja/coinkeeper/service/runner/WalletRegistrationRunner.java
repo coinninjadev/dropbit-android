@@ -13,9 +13,9 @@ import javax.inject.Inject;
 
 import retrofit2.Response;
 
-public class WalletRegistraionRunner implements Runnable {
+public class WalletRegistrationRunner implements Runnable {
 
-    private static final String TAG = WalletRegistraionRunner.class.getName();
+    private static final String TAG = WalletRegistrationRunner.class.getName();
     private final DataSigner dataSigner;
     private final WalletHelper walletHelper;
     private final CNLogger logger;
@@ -23,8 +23,8 @@ public class WalletRegistraionRunner implements Runnable {
     private SignedCoinKeeperApiClient apiClient;
 
     @Inject
-    public WalletRegistraionRunner(LocalBroadCastUtil localBroadCastUtil, SignedCoinKeeperApiClient apiClient,
-                                   DataSigner dataSigner, WalletHelper walletHelper, CNLogger logger) {
+    public WalletRegistrationRunner(LocalBroadCastUtil localBroadCastUtil, SignedCoinKeeperApiClient apiClient,
+                                    DataSigner dataSigner, WalletHelper walletHelper, CNLogger logger) {
         this.localBroadCastUtil = localBroadCastUtil;
         this.apiClient = apiClient;
         this.dataSigner = dataSigner;

@@ -16,7 +16,7 @@ import javax.inject.Inject
 class FullSyncWalletRunner @Inject
 internal constructor(internal val cnWalletManager: CNWalletManager,
                      internal val accountDeverificationServiceRunner: AccountDeverificationServiceRunner,
-                     internal val walletRegistrationRunner: WalletRegistraionRunner,
+                     internal val walletRegistrationRunner: WalletRegistrationRunner,
                      internal val currentBTCStateRunner: CurrentBTCStateRunner,
                      internal val syncRunnable: SyncRunnable,
                      internal val transactionConfirmationUpdateRunner: TransactionConfirmationUpdateRunner,

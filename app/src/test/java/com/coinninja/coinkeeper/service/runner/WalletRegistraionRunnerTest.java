@@ -42,7 +42,7 @@ public class WalletRegistraionRunnerTest {
     private final CNWallet CN_WALLET = GSON.fromJson(JSON, CNWallet.class);
     private final Response SUCCESSFUL_RESPONSE = Response.success(CN_WALLET);
 
-    WalletRegistraionRunner runner;
+    WalletRegistrationRunner runner;
 
     @Mock
     LocalBroadCastUtil localBroadCastUtil;
@@ -62,7 +62,7 @@ public class WalletRegistraionRunnerTest {
     @Before
     public void setUp() {
         when(dataSigner.getCoinNinjaVerificationKey()).thenReturn(SIGN_VERIFICATION_KEY);
-        runner = new WalletRegistraionRunner(localBroadCastUtil, signedCoinKeeperClient, dataSigner, walletHelper, logger);
+        runner = new WalletRegistrationRunner(localBroadCastUtil, signedCoinKeeperClient, dataSigner, walletHelper, logger);
 
         String json = "{\n" +
                 "  \"id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\",\n" +
@@ -115,7 +115,7 @@ public class WalletRegistraionRunnerTest {
 
         runner.run();
 
-        verify(signedCoinKeeperClient, times(0)).registerWallet(any());
+        verify(signedCoinKeeperClient, times(0)).registerWallet(anyString());
     }
 
     @Test

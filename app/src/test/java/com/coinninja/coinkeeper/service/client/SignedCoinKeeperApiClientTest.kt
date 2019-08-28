@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.service.client
 
 import com.coinninja.coinkeeper.cn.wallet.DataSigner
+import com.coinninja.coinkeeper.cn.wallet.WalletFlags
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.service.client.model.*
@@ -274,33 +275,31 @@ class SignedCoinKeeperApiClientTest {
     }
 
     @Test
-    fun posts_pubKey_to_CN_for_account_creation() {
-        val call = mock<Call<CNWallet>>()
-        whenever(call.execute()).thenReturn(Response.success(mock()))
-        whenever(client.createWallet(any())).thenReturn(call)
-        whenever(dataSigner.coinNinjaVerificationKey).thenReturn("---pub--key---")
-        val apiClient = SignedCoinKeeperApiClient(client, FCM_APP_ID)
-
-        apiClient.registerWallet(dataSigner.coinNinjaVerificationKey)
-
-        val json = JsonObject()
-        json.addProperty("public_key_string", "---pub--key---")
-        verify(client).createWallet(json)
-    }
-
-    @Test
     fun creates_cnWallet() {
         val json = "{\n" +
                 "  \"id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\",\n" +
                 "  \"public_key_string\": \"02262233847a69026f8f3ae027af347f2501adf008fe4f6087d31a1d975fd41473\",\n" +
                 "  \"created_at\": 1531921356,\n" +
-                "  \"updated_at\": 1531921356\n" +
+                "  \"updated_at\": 1531931356,\n" +
+                "  \"flags\": 1\n" +
                 "}"
         webServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
-        val response = signedCoinKeeperApiClient.registerWallet("---pub--key---")
+        val response = signedCoinKeeperApiClient.registerWallet(
+                WalletRegistrationPayload("---pub--key---", 1)
+        )
+
+        val recordedRequest = webServer.takeRequest()
+        assertThat(recordedRequest.path, equalTo("/wallet"))
+        assertThat(recordedRequest.method, equalTo("POST"))
+
         val cnWallet = response.body() as CNWallet
         assertThat(response.code(), equalTo(200))
         assertThat(cnWallet.id, equalTo("f8e8c20e-ba44-4bac-9a96-44f3b7ae955d"))
+        assertThat(cnWallet.publicKeyString, equalTo("02262233847a69026f8f3ae027af347f2501adf008fe4f6087d31a1d975fd41473"))
+        assertThat(cnWallet.createdAtMillis, equalTo(1531921356000L))
+        assertThat(cnWallet.updatedAtMillis, equalTo(1531931356000L))
+        assertThat(cnWallet.walletFlags.purposeBit, equalTo(WalletFlags.purpose49))
+        assertThat(cnWallet.walletFlags.versionBit, equalTo(WalletFlags.v1))
     }
 
     @Test

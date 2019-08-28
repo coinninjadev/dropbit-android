@@ -67,7 +67,6 @@ class CNWalletManager @Inject internal constructor(
     fun skipBackup(recoveryWords: Array<String>) {
         saveSeedWords(recoveryWords)
         preferencesUtil.savePreference(PREFERENCE_SKIPPED_BACKUP, true)
-        analytics.setUserProperty(Analytics.PROPERTY_APP_V1, true)
     }
 
     fun syncCompleted() {

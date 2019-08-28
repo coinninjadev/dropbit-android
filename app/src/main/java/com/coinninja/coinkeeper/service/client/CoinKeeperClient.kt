@@ -1,28 +1,6 @@
 package com.coinninja.coinkeeper.service.client
 
-import com.coinninja.coinkeeper.service.client.model.AddressLookupResult
-import com.coinninja.coinkeeper.service.client.model.CNDevice
-import com.coinninja.coinkeeper.service.client.model.CNDeviceEndpoint
-import com.coinninja.coinkeeper.service.client.model.CNGlobalMessage
-import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber
-import com.coinninja.coinkeeper.service.client.model.CNPricing
-import com.coinninja.coinkeeper.service.client.model.CNSharedMemo
-import com.coinninja.coinkeeper.service.client.model.CNSubscription
-import com.coinninja.coinkeeper.service.client.model.CNSubscriptionState
-import com.coinninja.coinkeeper.service.client.model.CNTopicSubscription
-import com.coinninja.coinkeeper.service.client.model.CNTransactionNotificationResponse
-import com.coinninja.coinkeeper.service.client.model.CNUserPatch
-import com.coinninja.coinkeeper.service.client.model.CNWallet
-import com.coinninja.coinkeeper.service.client.model.CNWalletAddress
-import com.coinninja.coinkeeper.service.client.model.GsonAddress
-import com.coinninja.coinkeeper.service.client.model.HistoricalPriceRecord
-import com.coinninja.coinkeeper.service.client.model.InviteUserPayload
-import com.coinninja.coinkeeper.service.client.model.InvitedContact
-import com.coinninja.coinkeeper.service.client.model.NewsArticle
-import com.coinninja.coinkeeper.service.client.model.ReceivedInvite
-import com.coinninja.coinkeeper.service.client.model.SentInvite
-import com.coinninja.coinkeeper.service.client.model.TransactionDetail
-import com.coinninja.coinkeeper.service.client.model.TransactionStats
+import com.coinninja.coinkeeper.service.client.model.*
 import com.google.gson.JsonObject
 
 import org.json.JSONObject
@@ -69,8 +47,12 @@ interface CoinKeeperClient {
     @GET("wallet")
     fun verifyWallet(): Call<CNWallet>
 
+    @Deprecated(level = DeprecationLevel.WARNING, message = "Use new create wallet method with wallet registration payload")
     @POST("wallet")
     fun createWallet(@Body publicKeyHex: JsonObject): Call<CNWallet>
+
+    @POST("wallet")
+    fun createWallet(@Body walletRegistrationPayload: WalletRegistrationPayload): Call<CNWallet>
 
     @POST("wallet/addresses")
     fun addAddressToCNWallet(@Body address: JsonObject): Call<CNWalletAddress>

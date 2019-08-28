@@ -38,10 +38,15 @@ class SignedCoinKeeperApiClient(client: CoinKeeperClient, private val fcmAppId: 
         return executeCall(client.createUserAccount(CNPhoneNumber))
     }
 
+    @Deprecated(level = DeprecationLevel.WARNING, message = "Use new create wallet method with wallet registration payload")
     fun registerWallet(publicVerificationKey: String): Response<CNWallet> {
         val json = JsonObject()
         json.addProperty("public_key_string", publicVerificationKey)
         return executeCall(client.createWallet(json))
+    }
+
+    fun registerWallet(walletRegistrationPayload: WalletRegistrationPayload): Response<CNWallet> {
+        return executeCall(client.createWallet(walletRegistrationPayload))
     }
 
     fun fetchContactStatus(contacts: List<Contact>): Response<Map<String, String>> {
