@@ -269,7 +269,7 @@ class CNWalletManagerTest {
         manager.updateBalances()
 
         verify(manager.analytics).setUserProperty(Analytics.PROPERTY_HAS_BTC_BALANCE, false)
-        verify(manager.analytics).setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.UNDER_MILLI_BTC.label)
+        verify(manager.analytics).setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.NONE.label)
     }
 
     @Test

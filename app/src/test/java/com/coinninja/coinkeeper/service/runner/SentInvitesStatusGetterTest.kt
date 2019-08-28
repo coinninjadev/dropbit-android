@@ -17,6 +17,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import retrofit2.Response
 
+@Suppress("UNCHECKED_CAST")
 @RunWith(AndroidJUnit4::class)
 class SentInvitesStatusGetterTest {
     companion object {
@@ -54,10 +55,8 @@ class SentInvitesStatusGetterTest {
     private var newSummary: InviteTransactionSummary = mock()
     private var oldSummary: InviteTransactionSummary = mock()
 
-    private val badResponse: Response<*>
-        get() = Response.error<Any>(500,
-                ResponseBody.create(
-                        MediaType.parse("application/json"), ""))
+    private fun <T> badResponse(): Response<T> = Response.error<T>(500, ResponseBody.create(
+            MediaType.parse("application/json"), ""))
 
     private fun createRunner(): SentInvitesStatusGetter {
         return SentInvitesStatusGetter(
@@ -83,7 +82,7 @@ class SentInvitesStatusGetterTest {
     @Test
     fun does_nothing_when_server_out() {
         val runner = createRunner()
-        whenever(runner.client.sentInvites).thenReturn(badResponse)
+        whenever(runner.client.sentInvites).thenReturn(badResponse())
 
         runner.run()
 
@@ -158,7 +157,7 @@ class SentInvitesStatusGetterTest {
     }
 
     private fun mockSendForStatus(runner: SentInvitesStatusGetter, status: String, simulateChange: Boolean) {
-        val response = getResponse(status)
+        val response = getResponse(status) as Response<List<SentInvite>>
         invite = (response.body() as List<*>)[0] as SentInvite
         newSummary = mock()
         oldSummary = mock()

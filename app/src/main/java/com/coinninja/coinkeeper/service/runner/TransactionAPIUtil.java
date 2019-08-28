@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.service.runner;
 
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
+import com.coinninja.coinkeeper.service.client.CoinKeeperClient;
 import com.coinninja.coinkeeper.service.client.model.CNPricing;
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail;
 import com.coinninja.coinkeeper.service.client.model.TransactionStats;
@@ -13,8 +14,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import retrofit2.Response;
-
-import static com.coinninja.coinkeeper.service.client.CoinKeeperClient.TRANSACTIONS_TO_QUERY_AT_A_TIME;
 
 public class TransactionAPIUtil {
     private static final String TAG = TransactionAPIUtil.class.getSimpleName();
@@ -38,7 +37,7 @@ public class TransactionAPIUtil {
         List<List<String>> hunks = new ArrayList<>();
         List<String> transactionIds = new ArrayList<>();
         for (int i = 0; i < numTransactions; i++) {
-            if (i != 0 && (i % TRANSACTIONS_TO_QUERY_AT_A_TIME) == 0) {
+            if (i != 0 && (i % CoinKeeperClient.TRANSACTIONS_TO_QUERY_AT_A_TIME) == 0) {
                 hunks.add(transactionIds);
                 transactionIds = new ArrayList<>();
             }

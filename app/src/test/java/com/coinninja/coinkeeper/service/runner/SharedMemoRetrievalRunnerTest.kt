@@ -20,14 +20,15 @@ import java.util.*
 
 class SharedMemoRetrievalRunnerTest {
 
-    private var T2_ID: String? = "2"
-    private var T1_ID: String? = "1"
+    companion object {
+        private const val T2_ID: String = "2"
+        private const val T1_ID: String = "1"
+    }
+
     var transactions = mutableListOf<TransactionSummary>()
 
     @After
     fun tearDown() {
-        T1_ID = null
-        T2_ID = null
         transactions.clear()
     }
 
@@ -56,7 +57,7 @@ class SharedMemoRetrievalRunnerTest {
     @Test
     fun handles_no_memo_for_a_successful_transaction_notification_request() {
         val runner = setUp()
-        val response = Response.success(ArrayList<CNSharedMemo>())
+        val response: Response<List<CNSharedMemo>> = Response.success(emptyList())
         whenever(runner.signedCoinKeeperApiClient.getTransactionNotification(T1_ID)).thenReturn(response)
         whenever(runner.signedCoinKeeperApiClient.getTransactionNotification(T2_ID)).thenReturn(response)
 
@@ -102,7 +103,7 @@ class SharedMemoRetrievalRunnerTest {
                 "     }   \n" +
                 "   }   "
 
-        val response2 = Response.error<Any>(404, ResponseBody.create(MediaType.parse("application/json"),
+        val response2 = Response.error<List<CNSharedMemo>>(404, ResponseBody.create(MediaType.parse("application/json"),
                 json))
         whenever(runner.signedCoinKeeperApiClient.getTransactionNotification(T2_ID)).thenReturn(response2)
         whenever(runner.messageEncryptor.decrypt(cnSharedMemo.address, cnSharedMemo.encrypted_payload)).thenReturn(decrypted)
@@ -131,13 +132,13 @@ class SharedMemoRetrievalRunnerTest {
     fun skips_messages_that_are_not_in_expected_format() {
         val runner = setUp()
         val cnSharedMemo = CNSharedMemo()
-        val response = Response.success(Arrays.asList(cnSharedMemo))
+        val response: Response<List<CNSharedMemo>> = Response.success(listOf(cnSharedMemo))
         whenever(runner.signedCoinKeeperApiClient.getTransactionNotification(T1_ID)).thenReturn(response)
 
         val json = ""
 
-        val response2 = Response.error<Any>(404, ResponseBody.create(MediaType.parse("application/json"),
-                json))
+        val response2: Response<List<CNSharedMemo>> = Response.error<List<CNSharedMemo>>(404, ResponseBody.create(MediaType.parse("application/json"),
+                json)) as Response<List<CNSharedMemo>>
         whenever(runner.signedCoinKeeperApiClient.getTransactionNotification(T2_ID)).thenReturn(response2)
         whenever(runner.messageEncryptor.decrypt(cnSharedMemo.address, cnSharedMemo.encrypted_payload)).thenThrow(IndexOutOfBoundsException())
 

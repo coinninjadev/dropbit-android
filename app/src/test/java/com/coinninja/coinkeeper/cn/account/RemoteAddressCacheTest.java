@@ -97,7 +97,7 @@ public class RemoteAddressCacheTest {
             cachedAddresses.add(address);
         }
 
-        when(apiClient.getCNWalletAddresses()).thenReturn(Response.success(cachedAddresses));
+        when(apiClient.getCnWalletAddresses()).thenReturn(Response.success(cachedAddresses));
     }
 
     @After
@@ -110,19 +110,19 @@ public class RemoteAddressCacheTest {
 
     @Test
     public void only_cache_addresses_when_verified() {
-        Response<Object> response = Response.error(401, ResponseBody.create(MediaType.parse("text/html"), ""));
-        when(apiClient.getCNWalletAddresses()).
+        Response<List<CNWalletAddress>> response = Response.error(401, ResponseBody.create(MediaType.parse("text/html"), ""));
+        when(apiClient.getCnWalletAddresses()).
                 thenReturn(response);
 
         remoteAddressCache.cacheAddresses();
 
         verify(apiClient, times(0)).removeAddress(anyString());
-        verify(apiClient, times(0)).addAddress(anyString());
+        verify(apiClient, times(0)).addAddress(anyString(), anyString());
     }
 
     @Test
     public void sends_five_addresses_when_no_addresses_cached() {
-        when(apiClient.getCNWalletAddresses()).thenReturn(Response.success(new ArrayList<CNWalletAddress>()));
+        when(apiClient.getCnWalletAddresses()).thenReturn(Response.success(new ArrayList<CNWalletAddress>()));
 
         remoteAddressCache.cacheAddresses();
 

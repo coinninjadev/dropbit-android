@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
+import com.coinninja.coinkeeper.service.client.CoinKeeperClient;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 
 import java.io.IOException;
@@ -59,8 +60,7 @@ public class AddressAPIUtil {
 
 
     private int calcBufferSize() {
-        return (calcNumRemaining() > ADDRESSES_TO_QUERY_AT_A_TIME) ?
-                ADDRESSES_TO_QUERY_AT_A_TIME : calcNumRemaining();
+        return (calcNumRemaining() > ADDRESSES_TO_QUERY_AT_A_TIME) ? ADDRESSES_TO_QUERY_AT_A_TIME : calcNumRemaining();
     }
 
     private int calcNumRemaining() {

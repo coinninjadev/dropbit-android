@@ -9,9 +9,6 @@ import okhttp3.MediaType
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.ResponseBody
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import retrofit2.Response
 
@@ -52,17 +49,16 @@ class ReceivedInvitesStatusRunnerTest {
     @Test
     fun not_save_bad_response_from_server_invite_test() {
         val runner = createRunner()
-        val response = badResponse
-        whenever(runner.client.receivedInvites).thenReturn(response)
+        whenever(runner.client.receivedInvites).thenReturn(badResponse())
 
         runner.run()
 
         verify(runner.inviteTransactionSummaryHelper, times(0)).updateFulfilledInviteByCnId(any(), any())
-        verify(runner.logger).logError(ReceivedInvitesStatusRunner.TAG, ReceivedInvitesStatusRunner.RECEIVED_INVITE_FAILED, response)
+        verify(runner.logger).logError(ReceivedInvitesStatusRunner.TAG, ReceivedInvitesStatusRunner.RECEIVED_INVITE_FAILED, runner.client.receivedInvites)
     }
 
-    private fun getResponse(jsonArray: String): Response<*> {
-        return Response.success(Gson().fromJson<Any>(jsonArray, object : TypeToken<List<ReceivedInvite>>() {
+    private fun <T> getResponse(jsonArray: String): Response<T> {
+        return Response.success(Gson().fromJson<T>(jsonArray, object : TypeToken<List<ReceivedInvite>>() {
 
         }.type), okhttp3.Response.Builder()
                 .code(200)
@@ -73,9 +69,8 @@ class ReceivedInvitesStatusRunnerTest {
     }
 
     companion object {
-        private val badResponse: Response<*>
-            get() = Response.error<Any>(400, ResponseBody.create(MediaType.parse("application/json"),
-                    "[]"))
+        private fun <T> badResponse(): Response<T> = Response.error<T>(400, ResponseBody.create(MediaType.parse("application/json"),
+                "[]"))
 
         private const val fulfilledReceivedRequest = "[\n" +
                 "  {\n" +

@@ -16,6 +16,7 @@ import org.mockito.internal.verification.VerificationModeFactory.times
 import retrofit2.Response
 import java.util.*
 
+@Suppress("UNCHECKED_CAST")
 class PushNotificationEndpointManagerTest {
 
     private companion object {
@@ -68,7 +69,7 @@ class PushNotificationEndpointManagerTest {
     fun log_error_when_fail_to_create_endpoint() {
         val pushNotificationEndpointManager = createEndpointManager()
         val responseBody = ResponseBody.create(MediaType.parse("text"), "")
-        val response = Response.error<Any>(400, responseBody)
+        val response = Response.error<CNDeviceEndpoint>(400, responseBody)
         whenever(pushNotificationEndpointManager.apiClient.registerForPushEndpoint(any(), any())).thenReturn(response)
 
         pushNotificationEndpointManager.registersAsEndpoint(CN_DEVICE_ID)
@@ -92,7 +93,7 @@ class PushNotificationEndpointManagerTest {
     fun log_error_when_registering_device_endpoint_with_cached_values() {
         val pushNotificationEndpointManager = createEndpointManager()
         val responseBody = ResponseBody.create(MediaType.parse("text"), "")
-        val response = Response.error<Any>(400, responseBody)
+        val response = Response.error<CNDeviceEndpoint>(400, responseBody)
         whenever(pushNotificationEndpointManager.apiClient.registerForPushEndpoint(any(), any())).thenReturn(response)
 
         pushNotificationEndpointManager.registersAsEndpoint(CN_DEVICE_ID, TOKEN)
@@ -181,7 +182,7 @@ class PushNotificationEndpointManagerTest {
     @Test
     fun provides_empty_list_of_endpoints_from_the_server_on_error() {
         val pushNotificationEndpointManager = createEndpointManager()
-        val response = Response.error<Any>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.error<List<CNDeviceEndpoint>>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(pushNotificationEndpointManager.apiClient.fetchRemoteEndpointsFor(CN_DEVICE_ID)).thenReturn(
                 response)
 
@@ -197,7 +198,7 @@ class PushNotificationEndpointManagerTest {
     fun logs_unregister_error() {
         val pushNotificationEndpointManager = createEndpointManager()
         val endpoint = "--endpoint"
-        val response = Response.error<Any>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.error<Map<String, String>>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(pushNotificationEndpointManager.apiClient.unRegisterDeviceEndpoint(CN_DEVICE_ID, endpoint)).thenReturn(response)
 
         pushNotificationEndpointManager.unRegister(endpoint)
@@ -213,7 +214,7 @@ class PushNotificationEndpointManagerTest {
                 PushNotificationEndpointManager.PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, ""))
                 .thenReturn(endpoint)
         whenever(pushNotificationEndpointManager.apiClient.unRegisterDeviceEndpoint(CN_DEVICE_ID, endpoint))
-                .thenReturn(generateSuccessResponse(200, ""))
+                .thenReturn(generateSuccessResponse(200, "") as Response<Map<String, String>>)
 
         pushNotificationEndpointManager.unRegister()
 
@@ -224,14 +225,15 @@ class PushNotificationEndpointManagerTest {
     fun unregisters_provided_endpoint() {
         val pushNotificationEndpointManager = createEndpointManager()
         val endpoint = "--endpoint"
-        whenever(pushNotificationEndpointManager.apiClient.unRegisterDeviceEndpoint(CN_DEVICE_ID, endpoint)).thenReturn(generateSuccessResponse(200, ""))
+        whenever(pushNotificationEndpointManager.apiClient.unRegisterDeviceEndpoint(CN_DEVICE_ID, endpoint))
+                .thenReturn(generateSuccessResponse(200, "") as Response<Map<String, String>>)
 
         pushNotificationEndpointManager.unRegister(endpoint)
 
         verify(pushNotificationEndpointManager.apiClient).unRegisterDeviceEndpoint(CN_DEVICE_ID, endpoint)
     }
 
-    private fun generateSuccessResponse(responseCode: Int, responseData: Any): Response<*> {
+    private fun <T> generateSuccessResponse(responseCode: Int = 200, responseData: T): Response<T> {
         return Response.success(responseData, okhttp3.Response.Builder()
                 .code(responseCode)
                 .message("OK")

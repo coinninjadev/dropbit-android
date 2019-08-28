@@ -7,19 +7,15 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.ResponseBody
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
 import retrofit2.Response
 
 
-@RunWith(MockitoJUnitRunner::class)
 class GetIncomingInviteRunnerTest {
 
     private fun createRunner(): GetIncomingInviteRunner = GetIncomingInviteRunner(mock(), mock(), mock())
 
-    private val badResponse: Response<*>
-        get() = Response.error<Any>(400, ResponseBody.create(MediaType.parse("application/json"),
-                "[]"))
+    private fun <T> badResponse(): Response<T> = Response.error<T>(400, ResponseBody.create(MediaType.parse("application/json"),
+            "[]"))
 
     @Test
     fun writes_two_invites_to_database_test() {
@@ -36,8 +32,7 @@ class GetIncomingInviteRunnerTest {
     @Test
     fun server_fail_test() {
         val runner = createRunner()
-        val response = badResponse
-        whenever(runner.client.receivedInvites).thenReturn(response)
+        whenever(runner.client.receivedInvites).thenReturn(badResponse())
 
         runner.run()
 
@@ -56,7 +51,7 @@ class GetIncomingInviteRunnerTest {
         verify(runner.inviteTransactionSummaryHelper, times(0)).saveReceivedInviteTransaction(any())
     }
 
-    private fun getResponse(responseData: Any): Response<*> {
+    private fun <T> getResponse(responseData: T): Response<T> {
         return Response.success(responseData, okhttp3.Response.Builder()
                 .code(200)
                 .message("OK")

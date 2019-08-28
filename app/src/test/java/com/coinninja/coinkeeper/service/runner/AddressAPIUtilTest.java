@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("ALL")
 @RunWith(MockitoJUnitRunner.class)
 public class AddressAPIUtilTest {
 
