@@ -32,7 +32,7 @@ class WalletFlags(val flag: Long) {
         internal const val v1: Long = 0b0001
         internal const val v2: Long = 0b0010
 
-        fun compose(purpose: Long, version: Long, isActive: Boolean = true): WalletFlags {
+        internal fun compose(purpose: Long, version: Long, isActive: Boolean = true): WalletFlags {
 
             return WalletFlags(
                     (if (isActive) activated else deactivated)
@@ -42,6 +42,8 @@ class WalletFlags(val flag: Long) {
                             or version
             )
         }
+
+        val purpose49v1: Long get() = compose(purpose49, v1).flag
 
     }
 }

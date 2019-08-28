@@ -102,4 +102,8 @@ class WalletFlagsTest {
         assertThat(flags.hasPurpose(WalletFlags.purpose84)).isTrue()
     }
 
+    @Test
+    fun getter_for_purpose49_version1() {
+        assertThat(WalletFlags.purpose49v1).isEqualTo(1)
+    }
 }
