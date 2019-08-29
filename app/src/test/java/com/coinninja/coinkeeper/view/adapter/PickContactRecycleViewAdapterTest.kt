@@ -9,8 +9,8 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.ui.util.OnItemClickListener
-import com.coinninja.coinkeeper.view.adapter.PickContactRecycleViewAdapter.ViewHolder.CONTACT
-import com.coinninja.coinkeeper.view.adapter.PickContactRecycleViewAdapter.ViewHolder.UNVERIFIED_HEADER
+import com.coinninja.coinkeeper.view.adapter.PickContactRecycleViewAdapter.Companion.CONTACT
+import com.coinninja.coinkeeper.view.adapter.PickContactRecycleViewAdapter.Companion.UNVERIFIED_HEADER
 import junit.framework.Assert.assertNull
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Test
@@ -25,19 +25,19 @@ class PickContactRecycleViewAdapterTest {
         val adapter = PickContactRecycleViewAdapter()
         val onItemClickListener = mock(OnItemClickListener::class.java)
         val onClickListener = mock(View.OnClickListener::class.java)
-        adapter.setOnClickListeners(onItemClickListener, onClickListener)
+        adapter.setupOnClickListeners(onItemClickListener, onClickListener)
         return adapter
     }
 
     private fun createContact(phoneNumber: PhoneNumber = PhoneNumber("+12223334444"), isVerified: Boolean = false, name: String = "Jimmy Bob"): Contact {
-        var contact = Contact();
-        contact.setPhoneNumber(phoneNumber)
+        val contact = Contact();
+        contact.phoneNumber = phoneNumber
         contact.displayName = name
         contact.isVerified = isVerified
         return contact
     }
 
-    private fun createContactList(number: Int, isVerified: Boolean = false): List<Contact> {
+    private fun createContactList(number: Int, isVerified: Boolean = false): MutableList<Contact> {
         val contacts: MutableList<Contact> = mutableListOf()
         for (i in 1..number) {
             contacts.add(createContact(isVerified = isVerified))
@@ -50,15 +50,15 @@ class PickContactRecycleViewAdapterTest {
     fun `returns correct count of items`() {
         val adapter = setup()
 
-        adapter.contacts = createContactList(10)
+        adapter.setContacts(createContactList(10))
 
-        assertThat(adapter.contacts.size, equalTo(10))
+        assertThat(adapter.getContacts().size, equalTo(10))
     }
 
     @Test
     fun `unverified header index set correctly`() {
         val adapter = setup()
-        adapter.contacts = createContactList(5, true) + createContactList(5, false)
+        adapter.setContacts(createContactList(5, true) + createContactList(5, false))
         assertThat(adapter.unVerifiedHeaderIndex, equalTo(5))
     }
 
@@ -66,9 +66,9 @@ class PickContactRecycleViewAdapterTest {
     fun `verify get item returns correct item`() {
         val adapter = setup()
         val contacts = createContactList(5, true) + createContactList(5, false)
-        adapter.contacts = contacts
+        adapter.setContacts(contacts)
 
-        assertThat(adapter.getItemAt(0).javaClass, equalTo(Contact::class.java))
+        assertThat(adapter.getItemAt(0)!!::class.java.simpleName, equalTo(Contact::class.java.simpleName))
         assertNull(adapter.getItemAt(5))
     }
 
@@ -77,11 +77,11 @@ class PickContactRecycleViewAdapterTest {
         val adapter = setup()
         val context = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()
         val viewGroup = LinearLayout(context)
-        val viewHolder = adapter.onCreateViewHolder(viewGroup, CONTACT);
+        val viewHolder = adapter.onCreateViewHolder(viewGroup, CONTACT)
         viewHolder.bindTo(createContact(), 0)
         viewHolder.view.performClick()
 
-        verify(adapter.clickListener).onItemClick(viewHolder.view, 0)
+        verify(adapter.clickListener)!!.onItemClick(viewHolder.view, 0)
     }
 
     @Test
@@ -90,31 +90,48 @@ class PickContactRecycleViewAdapterTest {
         val displayName = "Searchy McSearch"
         val searchContact = createContact(name = displayName)
         val contacts = createContactList(5) + searchContact
-        adapter.contacts = contacts
+        adapter.setContacts(contacts)
         adapter.filter.filter("Search")
 
-        assertThat(adapter.contacts.size, equalTo(1))
-        assertThat(adapter.contacts[0].displayName, equalTo(displayName))
+        assertThat(adapter.getContacts().size, equalTo(1))
+        assertThat(adapter.getItemAt(1)!!.displayName, equalTo(displayName))
     }
 
     @Test
     fun `test contact search with empty search`() {
         val adapter = setup()
         val contacts = createContactList(5)
-        adapter.contacts = contacts
+        adapter.setContacts(contacts)
         adapter.filter.filter("")
 
-        assertThat(adapter.contacts.size, equalTo(5))
+        assertThat(adapter.getContacts().size, equalTo(5))
     }
 
     @Test
     fun `verify get item view type returns correct item`() {
         val adapter = setup()
         val contacts = createContactList(5, true) + createContactList(5, false)
-        adapter.contacts = contacts
+        adapter.setContacts(contacts)
 
         assertThat(adapter.getItemViewType(1), equalTo(CONTACT))
         assertThat(adapter.getItemViewType(5), equalTo(UNVERIFIED_HEADER))
         assertThat(adapter.getItemViewType(0), equalTo(CONTACT))
+    }
+
+    @Test
+    fun empty_list() {
+        val adapter = setup()
+        val contacts = createContactList(1, true) + createContactList(1)
+        adapter.setContacts(contacts)
+        assertThat(adapter.getContacts().size, equalTo(2))
+
+        adapter.filter.filter("foo")
+
+        assertThat(adapter.getContacts().size, equalTo(0))
+        assertNull(adapter.getItemAt(0))
+
+        val parent = LinearLayout(ApplicationProvider.getApplicationContext())
+        val holder = adapter.onCreateViewHolder(parent, CONTACT)
+        adapter.onBindViewHolder(holder, 1)
     }
 }
