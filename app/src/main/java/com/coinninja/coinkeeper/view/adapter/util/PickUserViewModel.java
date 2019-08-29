@@ -40,7 +40,7 @@ public class PickUserViewModel extends ViewModel {
     }
 
     public void setupOnClickListeners(OnItemClickListener adapterClickListener, View.OnClickListener onWhatIsDropbitClicked) {
-        contactAdapter.setOnClickListeners(adapterClickListener, onWhatIsDropbitClicked);
+        contactAdapter.setupOnClickListeners(adapterClickListener, onWhatIsDropbitClicked);
         twitterAdapter.setOnClickListener(adapterClickListener);
     }
 
