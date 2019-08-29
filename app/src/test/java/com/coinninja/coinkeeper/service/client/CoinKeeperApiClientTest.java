@@ -14,10 +14,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -45,17 +47,6 @@ public class CoinKeeperApiClientTest {
 
     private MockWebServer server;
 
-    private CoinKeeperApiClient createClient(String host) {
-        CoinKeeperClient client = new Retrofit.Builder().
-                baseUrl(host).
-                client(new OkHttpClient.Builder()
-                        .build())
-                .addConverterFactory(GsonConverterFactory.create()).
-                        build().create(CoinKeeperClient.class);
-
-        return new CoinKeeperApiClient(client);
-    }
-
     @Before
     public void setUp() {
         server = new MockWebServer();
@@ -71,7 +62,6 @@ public class CoinKeeperApiClientTest {
         }
 
     }
-
 
     @Test
     public void order_of_tx_resposne() {
@@ -140,12 +130,14 @@ public class CoinKeeperApiClientTest {
     }
 
     @Test
-    public void sends_expected_contract_for_multiple_transactions() {
+    public void sends_expected_contract_for_multiple_transactions() throws IOException {
         ArgumentCaptor<JsonObject> argumentCaptor = ArgumentCaptor.forClass(JsonObject.class);
 
         String[] txids = {"---txid--1---", "---txid--2---"};
         CoinKeeperClient client = mock(CoinKeeperClient.class);
-        when(client.queryTransactions(Matchers.any(JsonObject.class))).thenReturn(mock(Call.class));
+        Call<List<TransactionDetail>> call = mock(Call.class);
+        when(call.execute()).thenReturn(Response.success(new ArrayList<TransactionDetail>()));
+        when(client.queryTransactions(ArgumentMatchers.any())).thenReturn(call);
         CoinKeeperApiClient apiClient = new CoinKeeperApiClient(client);
 
         apiClient.getTransactions(txids);
@@ -163,12 +155,14 @@ public class CoinKeeperApiClientTest {
     }
 
     @Test
-    public void sends_expected_contract_when_quering_for_addresses() {
+    public void sends_expected_contract_when_quering_for_addresses() throws IOException {
         ArgumentCaptor<JsonObject> argumentCaptor = ArgumentCaptor.forClass(JsonObject.class);
 
         String[] inAddresses = {"1Gy2Ast7uT13wQByPKs9Vi9Qj1BVcARgVQ", "3PxEH5t91Cio4B7LCZCEWQEGGxaqGW5HkX"};
         CoinKeeperClient client = mock(CoinKeeperClient.class);
-        when(client.getAddresses(Matchers.any(JsonObject.class), anyInt(), anyInt())).thenReturn(mock(Call.class));
+        Call call = mock(Call.class);
+        when(call.execute()).thenReturn(Response.success(new ArrayList<GsonAddress>()));
+        when(client.getAddresses(ArgumentMatchers.any(JsonObject.class), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt())).thenReturn(call);
         CoinKeeperApiClient apiClient = new CoinKeeperApiClient(client);
 
         apiClient.queryAddressesFor(inAddresses, 1);
@@ -215,5 +209,16 @@ public class CoinKeeperApiClientTest {
         assertThat(addresses.get(0).getAddress(), equalTo("1Gy2Ast7uT13wQByPKs9Vi9Qj1BVcARgVQ"));
         assertThat(addresses.get(1).getAddress(), equalTo("3PxEH5t91Cio4B7LCZCEWQEGGxaqGW5HkX"));
         assertThat(addresses.get(2).getAddress(), equalTo("3PxEH5t91Cio4B7LCZCEWQEGGxaqGW5HkX"));
+    }
+
+    private CoinKeeperApiClient createClient(String host) {
+        CoinKeeperClient client = new Retrofit.Builder().
+                baseUrl(host).
+                client(new OkHttpClient.Builder()
+                        .build())
+                .addConverterFactory(GsonConverterFactory.create()).
+                        build().create(CoinKeeperClient.class);
+
+        return new CoinKeeperApiClient(client);
     }
 }

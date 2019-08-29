@@ -41,6 +41,9 @@ class PushNotificationEndpointRegistrationService : JobIntentService() {
         if (pushNotificationServiceManager.hasPushToken()) {
             if (!pushNotificationServiceManager.isRegisteredDevice()) {
                 pushNotificationServiceManager.registerDevice(uuid)
+            } else if (pushNotificationServiceManager.isRegisteredDevice()
+                    && !pushNotificationServiceManager.isRegisteredEndpoint()) {
+                pushNotificationServiceManager.removeAllDeviceEndpoints()
             }
 
             if (!pushNotificationServiceManager.isRegisteredEndpoint()) {

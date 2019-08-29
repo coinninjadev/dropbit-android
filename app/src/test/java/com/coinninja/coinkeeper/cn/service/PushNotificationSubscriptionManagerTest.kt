@@ -1,42 +1,35 @@
 package com.coinninja.coinkeeper.cn.service
 
-import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.CNSubscription
 import com.coinninja.coinkeeper.service.client.model.CNSubscriptionState
 import com.coinninja.coinkeeper.service.client.model.CNTopic
 import com.coinninja.coinkeeper.service.client.model.CNTopicSubscription
-import com.coinninja.coinkeeper.util.CNLogger
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.*
-import org.mockito.junit.MockitoJUnitRunner
 import retrofit2.Response
 import java.util.*
 
-@RunWith(MockitoJUnitRunner::class)
+@Suppress("UNCHECKED_CAST")
 class PushNotificationSubscriptionManagerTest {
     companion object {
-        private val devicesId: String = "-- device id"
-        private val deviceEndpoint: String = "--- device endpoint id"
+        private const val devicesId: String = "-- device id"
+        private const val deviceEndpoint: String = "--- device endpoint id"
     }
 
-    fun createSubscriptionManager(): PushNotificationSubscriptionManager {
-        val pushNotificationSubscriptionManager = PushNotificationSubscriptionManager(
-                mock(SignedCoinKeeperApiClient::class.java),
-                mock(CNLogger::class.java))
+    private fun createSubscriptionManager(): PushNotificationSubscriptionManager {
+        val pushNotificationSubscriptionManager = PushNotificationSubscriptionManager(mock(), mock())
         mockWalletSubscriptionResponse(pushNotificationSubscriptionManager)
-        whenever(pushNotificationSubscriptionManager.apiClient.subscribeToTopics(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Response.success(ArrayList<CNTopic>()))
+        whenever(pushNotificationSubscriptionManager.apiClient.subscribeToTopics(any(), any(), any())).thenReturn(
+                Response.success(ResponseBody.create(MediaType.parse("plain/text"), "")) as Response<Void>)
         return pushNotificationSubscriptionManager
     }
 
     private fun mockWalletSubscriptionResponse(subscriptionManager: PushNotificationSubscriptionManager) {
-        whenever(subscriptionManager.apiClient.subscribeToWalletNotifications(ArgumentMatchers.any())).thenReturn(Response.success(mock(CNSubscription::class.java)))
-        whenever(subscriptionManager.apiClient.updateWalletSubscription(ArgumentMatchers.any())).thenReturn(Response.success(mock(CNSubscription::class.java)))
+        whenever(subscriptionManager.apiClient.subscribeToWalletNotifications(any())).thenReturn(Response.success(mock()))
+        whenever(subscriptionManager.apiClient.updateWalletSubscription(any())).thenReturn(Response.success(mock()))
     }
 
     private fun createSubscriptionState(): CNSubscriptionState {
@@ -83,7 +76,7 @@ class PushNotificationSubscriptionManagerTest {
 
         subscriptionManager.subscribeToChannels(devicesId, deviceEndpoint)
 
-        verify(subscriptionManager.apiClient, times(0)).subscribeToWalletNotifications(ArgumentMatchers.any())
+        verify(subscriptionManager.apiClient, times(0)).subscribeToWalletNotifications(any())
     }
 
     @Test
@@ -96,11 +89,10 @@ class PushNotificationSubscriptionManagerTest {
 
         subscriptionManager.subscribeToChannels(devicesId, deviceEndpoint)
 
-        verify<SignedCoinKeeperApiClient>(subscriptionManager.apiClient)
+        verify(subscriptionManager.apiClient)
                 .subscribeToTopics(devicesId, deviceEndpoint, CNTopicSubscription(listOf("--topic id 1")))
 
-        verify(subscriptionManager.logger, times(0)).logError(ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString(), ArgumentMatchers.any())
+        verify(subscriptionManager.logger, times(0)).logError(any(), any(), any())
     }
 
     @Test
@@ -118,7 +110,7 @@ class PushNotificationSubscriptionManagerTest {
     @Test
     fun logs_failures_when_fetching_subscriptions() {
         val subscriptionManager = createSubscriptionManager()
-        val response = Response.error<Any>(500,
+        val response = Response.error<CNSubscriptionState>(500,
                 ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(subscriptionManager.apiClient.fetchDeviceEndpointSubscriptions(devicesId, deviceEndpoint)).thenReturn(response)
 
@@ -126,14 +118,14 @@ class PushNotificationSubscriptionManagerTest {
 
         verify(subscriptionManager.logger).logError(PushNotificationSubscriptionManager.TAG,
                 PushNotificationSubscriptionManager.FETCH_SUBSCRIPTIONS_FAILED, response)
-        verify(subscriptionManager.apiClient, times(0)).subscribeToTopics(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any())
+        verify(subscriptionManager.apiClient, times(0)).subscribeToTopics(any(), any(), any())
     }
 
     @Test
     fun logs_failures_when_subscribing_to_topics() {
         val subscriptionManager = createSubscriptionManager()
         val subscription = CNTopicSubscription(topics = listOf("--topic id 1"))
-        val response = Response.error<Any>(500,
+        val response = Response.error<Void>(500,
                 ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(subscriptionManager.apiClient.subscribeToTopics(devicesId, deviceEndpoint, subscription)).thenReturn(response)
 
@@ -149,7 +141,7 @@ class PushNotificationSubscriptionManagerTest {
 
         subscriptionManager.subscribeToTopics(devicesId, deviceEndpoint, ArrayList())
 
-        verify(subscriptionManager.apiClient, times(0)).subscribeToTopics(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(subscriptionManager.apiClient, times(0)).subscribeToTopics(any(), any(), any())
     }
 
     @Test
@@ -163,8 +155,8 @@ class PushNotificationSubscriptionManagerTest {
     @Test
     fun logs_error_when_subscribing_wallet_endpoint() {
         val subscriptionManager = createSubscriptionManager()
-        val response = Response.error<Any>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(subscriptionManager.apiClient.subscribeToWalletNotifications(ArgumentMatchers.any())).thenReturn(response)
+        val response = Response.error<CNSubscription>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        whenever(subscriptionManager.apiClient.subscribeToWalletNotifications(any())).thenReturn(response)
 
         subscriptionManager.subscribeToWalletNotifications(deviceEndpoint)
 
@@ -174,20 +166,20 @@ class PushNotificationSubscriptionManagerTest {
     @Test
     fun on_409_update_the_subscription() {
         val subscriptionManager = createSubscriptionManager()
-        whenever(subscriptionManager.apiClient.subscribeToWalletNotifications(ArgumentMatchers.any())).thenReturn(Response.error<Any>(409, ResponseBody.create(MediaType.parse("plain/text"), "")))
+        whenever(subscriptionManager.apiClient.subscribeToWalletNotifications(any())).thenReturn(Response.error<CNSubscription>(409, ResponseBody.create(MediaType.parse("plain/text"), "")))
 
         subscriptionManager.subscribeToWalletNotifications(deviceEndpoint)
 
         verify(subscriptionManager.apiClient).updateWalletSubscription(deviceEndpoint)
-        verify(subscriptionManager.logger, times(0)).logError(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(subscriptionManager.logger, times(0)).logError(any(), any(), any())
     }
 
     @Test
     fun logs_error_on_update_wallet_subscription() {
         val subscriptionManager = createSubscriptionManager()
-        whenever(subscriptionManager.apiClient.subscribeToWalletNotifications(ArgumentMatchers.any())).thenReturn(Response.error<Any>(409, ResponseBody.create(MediaType.parse("plain/text"), "")))
-        val response = Response.error<Any>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(subscriptionManager.apiClient.updateWalletSubscription(ArgumentMatchers.any())).thenReturn(response)
+        whenever(subscriptionManager.apiClient.subscribeToWalletNotifications(any())).thenReturn(Response.error<CNSubscription>(409, ResponseBody.create(MediaType.parse("plain/text"), "")))
+        val response = Response.error<CNSubscription>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        whenever(subscriptionManager.apiClient.updateWalletSubscription(any())).thenReturn(response)
 
         subscriptionManager.subscribeToWalletNotifications(deviceEndpoint)
 
@@ -222,7 +214,7 @@ class PushNotificationSubscriptionManagerTest {
     fun `unsubscribe from a topic`() {
         val subscriptionManager = createSubscriptionManager()
         whenever(subscriptionManager.apiClient.unsubscribeFromTopic(devicesId, deviceEndpoint, "--topic-id--"))
-                .thenReturn(Response.success(200))
+                .thenReturn(Response.success(200) as Response<Void>)
 
         subscriptionManager.unsubscribeFrom(devicesId, deviceEndpoint, "--topic-id--")
 
@@ -232,7 +224,7 @@ class PushNotificationSubscriptionManagerTest {
     @Test
     fun `logs failure when removing a subscription from a topic`() {
         val subscriptionManager = createSubscriptionManager()
-        val response = Response.error<Any>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.error<Void>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(subscriptionManager.apiClient.unsubscribeFromTopic(devicesId, deviceEndpoint, "--topic-id--"))
                 .thenReturn(response)
 

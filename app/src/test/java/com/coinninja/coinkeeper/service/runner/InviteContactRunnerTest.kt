@@ -5,13 +5,13 @@ import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
-import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
-import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.InviteUserPayload
 import com.coinninja.coinkeeper.service.client.model.InvitedContact
-import com.coinninja.coinkeeper.util.CNLogger
 import com.coinninja.coinkeeper.util.DropbitIntents
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import okhttp3.MediaType
 import okhttp3.ResponseBody
@@ -20,27 +20,19 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import retrofit2.Response
 
 @RunWith(AndroidJUnit4::class)
 class InviteContactRunnerTest {
 
-    fun createRunner(): InviteContactRunner {
-        val inviteContactRunner = InviteContactRunner(
-                mock(SignedCoinKeeperApiClient::class.java),
-                mock(DropbitAccountHelper::class.java),
-                mock(InviteTransactionSummaryHelper::class.java),
-                mock(CNLogger::class.java)
-        )
+    private fun createRunner(): InviteContactRunner {
+        val inviteContactRunner = InviteContactRunner(mock(), mock(), mock(), mock())
 
         val uuid = "23742734-23742734-23472734-23742734"
         val identity = Identity(identityType = IdentityType.PHONE, hash = "--hash--", value = "+13305551111")
         val pendingInviteDTO = PendingInviteDTO(identity, 50000L, 10000L, 100L, "", false, uuid)
-        val phoneIdentity = mock(DropbitMeIdentity::class.java)
+        val phoneIdentity: DropbitMeIdentity = mock()
         whenever(phoneIdentity.type).thenReturn(IdentityType.PHONE)
         whenever(phoneIdentity.identity).thenReturn("+13305551111")
         whenever(inviteContactRunner.dropbitAccountHelper.phoneIdentity()).thenReturn(phoneIdentity)
@@ -48,15 +40,14 @@ class InviteContactRunnerTest {
         return inviteContactRunner
     }
 
-
     @Test
     fun send_invite_to_contact_test() {
         val runner = createRunner()
-        val contact = mock(InvitedContact::class.java)
+        val contact: InvitedContact = mock()
         val identity = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Some User")
         val mockResponse = Response.success(contact)
-        whenever(runner.client.inviteUser(ArgumentMatchers.any(InviteUserPayload::class.java))).thenReturn(mockResponse)
-        runner.setOnInviteListener(mock(InviteContactRunner.OnInviteListener::class.java))
+        whenever(runner.client.inviteUser(any())).thenReturn(mockResponse)
+        runner.setOnInviteListener(mock())
 
         runner.execute(identity)
 
@@ -69,10 +60,10 @@ class InviteContactRunnerTest {
         val runner = createRunner()
 
         val body = ResponseBody.create(MediaType.parse("text"), "bad request")
-        val mockResponse = Response.error<Any>(400, body)
+        val mockResponse = Response.error<InvitedContact>(400, body)
 
-        whenever(runner.client.inviteUser(ArgumentMatchers.any(InviteUserPayload::class.java))).thenReturn(mockResponse)
-        runner.setOnInviteListener(mock(InviteContactRunner.OnInviteListener::class.java))
+        whenever(runner.client.inviteUser(any())).thenReturn(mockResponse)
+        runner.setOnInviteListener(mock())
 
         runner.execute(identity)
 
@@ -83,12 +74,10 @@ class InviteContactRunnerTest {
     fun send_dropbit_rate_limit_error() {
         val identity = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Some User")
         val runner = createRunner()
-
         val body = ResponseBody.create(MediaType.parse("text"), "rate limit error")
-        val mockResponse = Response.error<Any>(429, body)
-
-        whenever(runner.client.inviteUser(ArgumentMatchers.any(InviteUserPayload::class.java))).thenReturn(mockResponse)
-        runner.setOnInviteListener(mock(InviteContactRunner.OnInviteListener::class.java))
+        val mockResponse = Response.error<InvitedContact>(429, body)
+        whenever(runner.client.inviteUser(any())).thenReturn(mockResponse)
+        runner.setOnInviteListener(mock())
 
         runner.execute(identity)
 
@@ -98,10 +87,10 @@ class InviteContactRunnerTest {
     @Test
     fun invites_twitter_with_handle_from_twitter() {
         val runner = createRunner()
-        whenever(runner.client.inviteUser(ArgumentMatchers.any(InviteUserPayload::class.java))).thenReturn(Response.success(mock(InvitedContact::class.java)))
-        val captor = ArgumentCaptor.forClass(InviteUserPayload::class.java)
+        whenever(runner.client.inviteUser(any())).thenReturn(Response.success(mock<InvitedContact>()))
+        val captor = argumentCaptor<InviteUserPayload>()
         whenever(runner.dropbitAccountHelper.isTwitterVerified).thenReturn(true)
-        val twitterIdentity = mock(DropbitMeIdentity::class.java)
+        val twitterIdentity: DropbitMeIdentity = mock()
         whenever(runner.dropbitAccountHelper.twitterIdentity()).thenReturn(twitterIdentity)
         whenever(twitterIdentity.handle).thenReturn("MyHandle")
         whenever(twitterIdentity.identity).thenReturn("5432112345")
@@ -110,35 +99,35 @@ class InviteContactRunnerTest {
         runner.execute(identity)
 
         verify(runner.client).inviteUser(captor.capture())
-        val (amount, sender, receiver) = captor.value
+        val invitedUser = captor.firstValue
 
-        assertThat(amount.btc, equalTo(10000L))
-        assertThat(amount.usd, equalTo(5L))
+        assertThat(invitedUser.amount.btc, equalTo(10000L))
+        assertThat(invitedUser.amount.usd, equalTo(5L))
 
-        assertThat<String>(receiver.handle, equalTo("Some User"))
-        assertThat(receiver.identity, equalTo("1234567890"))
-        assertThat(receiver.type, equalTo("twitter"))
+        assertThat(invitedUser.receiver.handle, equalTo("Some User"))
+        assertThat(invitedUser.receiver.identity, equalTo("1234567890"))
+        assertThat(invitedUser.receiver.type, equalTo("twitter"))
 
-        assertThat<String>(sender.handle, equalTo("MyHandle"))
-        assertThat(sender.identity, equalTo("5432112345"))
-        assertThat(sender.type, equalTo("twitter"))
+        assertThat(invitedUser.sender.handle, equalTo("MyHandle"))
+        assertThat(invitedUser.sender.identity, equalTo("5432112345"))
+        assertThat(invitedUser.sender.type, equalTo("twitter"))
     }
 
     @Test
     fun invites_phone_with_out_handle_from_phone() {
         val runner = createRunner()
-        whenever(runner.client.inviteUser(ArgumentMatchers.any(InviteUserPayload::class.java))).thenReturn(Response.success(mock(InvitedContact::class.java)))
-        val captor = ArgumentCaptor.forClass(InviteUserPayload::class.java)
+        whenever(runner.client.inviteUser(any())).thenReturn(Response.success(mock()))
+        val captor = argumentCaptor<InviteUserPayload>()
         whenever(runner.dropbitAccountHelper.isPhoneVerified).thenReturn(true)
-        val phoneIdentity = mock(DropbitMeIdentity::class.java)
+        val phoneIdentity: DropbitMeIdentity = mock()
         whenever(runner.dropbitAccountHelper.phoneIdentity()).thenReturn(phoneIdentity)
         whenever(phoneIdentity.identity).thenReturn("+13305551111")
         whenever(phoneIdentity.type).thenReturn(IdentityType.PHONE)
         val identity = Identity(IdentityType.PHONE, "+13305550000", "--hash--", null)
         runner.execute(identity)
 
-        verify<SignedCoinKeeperApiClient>(runner.client).inviteUser(captor.capture())
-        val (amount, sender, receiver) = captor.value
+        verify(runner.client).inviteUser(captor.capture())
+        val (amount, sender, receiver) = captor.firstValue
 
         assertThat(amount.btc, equalTo(10000L))
         assertThat(amount.usd, equalTo(5L))
@@ -155,9 +144,9 @@ class InviteContactRunnerTest {
     @Test
     fun `invites phone from twitter when phone is not verified`() {
         val runner = createRunner()
-        whenever(runner.client.inviteUser(ArgumentMatchers.any(InviteUserPayload::class.java))).thenReturn(Response.success(mock(InvitedContact::class.java)))
-        val captor = ArgumentCaptor.forClass(InviteUserPayload::class.java)
-        val twitterIdentity = mock(DropbitMeIdentity::class.java)
+        whenever(runner.client.inviteUser(any())).thenReturn(Response.success(mock()))
+        val captor = argumentCaptor<InviteUserPayload>()
+        val twitterIdentity: DropbitMeIdentity = mock()
         whenever(runner.dropbitAccountHelper.isPhoneVerified).thenReturn(false)
         whenever(runner.dropbitAccountHelper.twitterIdentity()).thenReturn(twitterIdentity)
         whenever(twitterIdentity.handle).thenReturn("MyHandle")
@@ -167,7 +156,7 @@ class InviteContactRunnerTest {
         runner.execute(identity)
 
         verify<SignedCoinKeeperApiClient>(runner.client).inviteUser(captor.capture())
-        val (amount, sender, receiver) = captor.value
+        val (amount, sender, receiver) = captor.firstValue
 
         assertThat(amount.btc, equalTo(10000L))
         assertThat(amount.usd, equalTo(5L))

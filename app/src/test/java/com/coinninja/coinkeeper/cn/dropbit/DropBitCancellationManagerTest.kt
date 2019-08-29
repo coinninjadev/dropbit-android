@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.cn.dropbit
 
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
+import com.coinninja.coinkeeper.service.client.model.SentInvite
 import com.nhaarman.mockitokotlin2.*
 import okhttp3.MediaType
 import okhttp3.Protocol
@@ -10,6 +11,7 @@ import org.junit.Test
 import retrofit2.Response
 import java.util.*
 
+@Suppress("UNCHECKED_CAST")
 class DropBitCancellationManagerTest {
     private fun createManager(): DropBitCancellationManager = DropBitCancellationManager(mock(), mock(), mock())
 
@@ -27,7 +29,7 @@ class DropBitCancellationManagerTest {
 
         whenever(service.inviteTransactionSummaryHelper.unfulfilledSentInvites).thenReturn(sampleInvitesList)
 
-        val response = getResponse(sentInviteJSON)
+        val response = getResponse(sentInviteJSON) as Response<SentInvite>
 
         whenever(service.client.updateInviteStatusCanceled(any())).thenReturn(response)
 
@@ -49,7 +51,8 @@ class DropBitCancellationManagerTest {
 
         sampleInvitesList.add(tempInvite1)
         sampleInvitesList.add(tempInvite2)
-        val response = getResponse(sentInviteJSON)
+
+        val response = getResponse(sentInviteJSON) as Response<SentInvite>
 
         whenever(service.client.updateInviteStatusCanceled(any())).thenReturn(response)
 
@@ -71,8 +74,7 @@ class DropBitCancellationManagerTest {
 
         sampleInvitesList.add(tempInvite1)
         sampleInvitesList.add(tempInvite2)
-        val badResponse = badResponse
-
+        val badResponse = badResponse as Response<SentInvite>
         whenever(service.client.updateInviteStatusCanceled(any())).thenReturn(badResponse)
 
         service.markAsCanceled(sampleInvitesList)
@@ -87,7 +89,7 @@ class DropBitCancellationManagerTest {
         val service = createManager()
         val tempInvite1: InviteTransactionSummary = mock()
         whenever(tempInvite1.serverId).thenReturn("some invite id 1")
-        val response = getResponse(sentInviteJSON)
+        val response = getResponse(sentInviteJSON) as Response<SentInvite>
 
         whenever(service.client.updateInviteStatusCanceled(any())).thenReturn(response)
 
@@ -103,7 +105,7 @@ class DropBitCancellationManagerTest {
         val tempInvite1: InviteTransactionSummary = mock()
         whenever(tempInvite1.serverId).thenReturn("some invite id 1")
 
-        val badResponse = badResponse
+        val badResponse = badResponse as Response<SentInvite>
 
         whenever(service.client.updateInviteStatusCanceled(any())).thenReturn(badResponse)
 
@@ -120,7 +122,7 @@ class DropBitCancellationManagerTest {
         val tempInvite1: InviteTransactionSummary = mock()
         whenever(tempInvite1.serverId).thenReturn(serverInviteId)
 
-        val response = getResponse(sentInviteJSON)
+        val response = getResponse(sentInviteJSON) as Response<SentInvite>
 
         whenever(service.inviteTransactionSummaryHelper.getInviteSummaryByCnId(serverInviteId)).thenReturn(tempInvite1)
         whenever(service.client.updateInviteStatusCanceled(any())).thenReturn(response)
@@ -138,7 +140,7 @@ class DropBitCancellationManagerTest {
         val tempInvite1: InviteTransactionSummary = mock()
         whenever(tempInvite1.serverId).thenReturn(serverInviteId)
 
-        val badResponse = badResponse
+        val badResponse = badResponse as Response<SentInvite>
         whenever(service.client.updateInviteStatusCanceled(any())).thenReturn(badResponse)
 
         service.markAsCanceled(tempInvite1)
