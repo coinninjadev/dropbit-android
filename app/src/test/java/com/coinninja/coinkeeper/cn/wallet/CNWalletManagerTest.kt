@@ -20,7 +20,7 @@ class CNWalletManagerTest {
     }
 
     private fun createManager(): CNWalletManager {
-        val manager = CNWalletManager(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock())
+        val manager = CNWalletManager(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock())
         whenever(manager.bitcoinUtil.isValidBIP39Words(validWords)).thenReturn(true)
         whenever(manager.bitcoinUtil.isValidBIP39Words(invalidWords)).thenReturn(false)
         whenever(manager.walletHelper.seedWords).thenReturn(validWords)
@@ -90,7 +90,7 @@ class CNWalletManagerTest {
 
         verify(manager.walletHelper).saveWords(validWords)
         verify(manager.preferencesUtil).savePreference(CNWalletManager.PREFERENCE_SKIPPED_BACKUP, true)
-        verify(manager.analytics).setUserProperty(Analytics.PROPERTY_APP_V1, true)
+        verify(manager.walletFlagsStorage).flags = WalletFlags.purpose49v1
     }
 
     @Test
@@ -269,7 +269,7 @@ class CNWalletManagerTest {
         manager.updateBalances()
 
         verify(manager.analytics).setUserProperty(Analytics.PROPERTY_HAS_BTC_BALANCE, false)
-        verify(manager.analytics).setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.UNDER_MILLI_BTC.label)
+        verify(manager.analytics).setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.NONE.label)
     }
 
     @Test

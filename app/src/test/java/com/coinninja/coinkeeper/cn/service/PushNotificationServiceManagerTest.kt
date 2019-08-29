@@ -222,7 +222,14 @@ class PushNotificationServiceManagerTest {
         whenever(pushNotificationServiceManager.pushNotificationEndpointManager.hasEndpoint()).thenReturn(true)
 
         assertTrue(pushNotificationServiceManager.isRegisteredEndpoint())
+    }
 
+    @Test
+    fun proxies_remove_all_endpoints_for_device() {
+        val pushNotificationServiceManager = createPushNotificationServiceManager()
 
+        pushNotificationServiceManager.removeAllDeviceEndpoints()
+
+        verify(pushNotificationServiceManager.pushNotificationEndpointManager).removeAllRemoteEndpointsForDevice()
     }
 }

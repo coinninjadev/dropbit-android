@@ -18,6 +18,7 @@ import org.mockito.Mockito.verify
 import org.mockito.internal.verification.VerificationModeFactory.times
 import retrofit2.Response
 
+@Suppress("UNCHECKED_CAST")
 class PushNotificationDeviceManagerTest {
     companion object {
         private const val CN_DEVICE_ID: String = "158a4cf9-0362-4636-8c68-ed7a98a7f345"
@@ -110,7 +111,7 @@ class PushNotificationDeviceManagerTest {
         val pushNotificationDeviceManager = createManager()
         val body = ResponseBody.create(MediaType.parse("text"), "der")
         val response = Response.error<Any>(500, body)
-        whenever(pushNotificationDeviceManager.apiClient.createCNDevice(UUID)).thenReturn(response)
+        whenever(pushNotificationDeviceManager.apiClient.createCNDevice(UUID)).thenReturn(response as Response<CNDevice>)
 
         pushNotificationDeviceManager.createDevice(UUID)
 
@@ -133,7 +134,7 @@ class PushNotificationDeviceManagerTest {
                 .removePreference(PushNotificationDeviceManager.PUSH_NOTIFICATION_SERVER_DEVICE_ID)
     }
 
-    private fun generateSuccessResponse(responseCode: Int, responseData: Any?): Response<*> {
+    private fun <T> generateSuccessResponse(responseCode: Int, responseData: T?): Response<T> {
         return Response.success(responseData, okhttp3.Response.Builder()
                 .code(responseCode)
                 .message("OK")

@@ -170,7 +170,7 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
     fun resendPhoneConfirmation(phoneNumber: PhoneNumber) {
         val response = apiClient.resendVerification(phoneNumber.toCNPhoneNumber())
 
-        if (response.isSuccessful()) {
+        if (response.isSuccessful) {
             localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT)
         } else if (response.code() == 429) {
             localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR)
@@ -184,12 +184,11 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
     }
 
     private fun deleteIdentity(identity: DropbitMeIdentity?): Response<out Any> {
-        val response = if (dropbitAccountHelper.numVerifiedIdentities > 1) {
+        return if (dropbitAccountHelper.numVerifiedIdentities > 1) {
             apiClient.deleteIdentity(identity)
         } else {
             resetWallet()
         }
-        return response
     }
 
     private fun updateUserAccount(response: Response<*>) {
@@ -197,7 +196,7 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
         dropbitAccountHelper.updateUserAccount(userPatch)
     }
 
-    private fun resetWallet(): Response<Any> {
+    private fun resetWallet(): Response<Void> {
         val response = apiClient.resetWallet()
 
         if (response.isSuccessful)
@@ -206,9 +205,9 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
         return response
     }
 
-    private fun createUserOrAddIdentity(identity: CNUserIdentity): Response<Any> {
-        if (dropbitAccountHelper.hasVerifiedAccount) {
-            return apiClient.addIdentity(identity)
+    private fun createUserOrAddIdentity(identity: CNUserIdentity): Response<*> {
+        return if (dropbitAccountHelper.hasVerifiedAccount) {
+            apiClient.addIdentity(identity)
         } else {
             val response = apiClient.createUserFromIdentity(identity)
             if (response.isSuccessful) {
@@ -219,7 +218,7 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
                     userAccount.update()
                 }
             }
-            return response
+            response
         }
     }
 }

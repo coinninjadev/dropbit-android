@@ -27,7 +27,7 @@ class PushNotificationEndpointRegistrationServiceTest {
     }
 
     @Test
-    fun `registers observer for being informed when token loaded`() {
+    fun registers_observer_for_being_informed_when_token_loaded() {
         val service = createService()
 
         service.onHandleWork(Intent())
@@ -50,7 +50,23 @@ class PushNotificationEndpointRegistrationServiceTest {
     }
 
     @Test
-    fun `subscribes user to yearly high when endpoint is being created`() {
+    fun removes_all_endpoints_when_device_is_registered_but_endpoints_are_not() {
+        val service = createService()
+        val orderedOperations = inOrder(service.pushNotificationServiceManager, service.yearlyHighSubscription)
+        whenever(service.pushNotificationServiceManager.hasPushToken()).thenReturn(true)
+        whenever(service.pushNotificationServiceManager.isRegisteredEndpoint()).thenReturn(false)
+        whenever(service.pushNotificationServiceManager.isRegisteredDevice()).thenReturn(true)
+
+        service.onHandleWork(Intent())
+
+        orderedOperations.verify(service.pushNotificationServiceManager).removeAllDeviceEndpoints()
+        orderedOperations.verify(service.pushNotificationServiceManager).registerAsEndpoint()
+        orderedOperations.verify(service.yearlyHighSubscription).subscribe()
+        orderedOperations.verify(service.pushNotificationServiceManager).subscribeToChannels()
+    }
+
+    @Test
+    fun subscribes_user_to_yearly_high_when_endpoint_is_being_created() {
         val service = createService()
         val orderedOperations = inOrder(service.pushNotificationServiceManager, service.yearlyHighSubscription)
         whenever(service.pushNotificationServiceManager.hasPushToken()).thenReturn(true)
@@ -66,7 +82,7 @@ class PushNotificationEndpointRegistrationServiceTest {
     }
 
     @Test
-    fun `schedules rerun when token acquired`() {
+    fun schedules_rerun_when_token_acquired() {
         val argumentCaptor: ArgumentCaptor<Intent> = ArgumentCaptor.forClass(Intent::class.java)
         val service = createService()
 

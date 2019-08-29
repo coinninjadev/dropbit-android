@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName
 
 @Mockable
 data class CNUserAccount(
-        var id: String? = null,
-        var status: String? = null,
-        var wallet_id: String? = null,
+        var id: String = "",
+        var status: String = "",
+        var wallet_id: String = "",
         @SerializedName("private")
         var isPrivate: Boolean = false,
-        var identities: List<CNUserIdentity>? = null,
+        var identities: List<CNUserIdentity> = emptyList(),
         @SerializedName("phone_number_hash")
-        var phoneNumberHash: String? = null
+        var phoneNumberHash: String = ""
 )
 
