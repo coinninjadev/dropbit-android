@@ -81,6 +81,12 @@ class PushNotificationEndpointManager @Inject internal constructor(
         preferencesUtil.savePreference(PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, endpoint.id)
     }
 
+    fun removeAllRemoteEndpointsForDevice() {
+        fetchEndpoints().forEach {
+            unRegister(it.id)
+        }
+    }
+
     companion object {
         internal val TAG = PushNotificationEndpointManager::class.java.simpleName
         internal const val DEVICE_ENDPOINT_ERROR_MESSAGE = "----- Device Endpoint Creation Failed"

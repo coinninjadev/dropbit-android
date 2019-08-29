@@ -233,6 +233,22 @@ class PushNotificationEndpointManagerTest {
         verify(pushNotificationEndpointManager.apiClient).unRegisterDeviceEndpoint(CN_DEVICE_ID, endpoint)
     }
 
+    @Test
+    fun removes_endpoints_registered_for_device() {
+        val deviceId = "--device-id--"
+        val remoteEndpointId = "--remote-endpoint-id--"
+        val endpointManager = createEndpointManager()
+        whenever(endpointManager.pushNotificationDeviceManager.deviceId).thenReturn(deviceId)
+        val endpointResponse: Response<List<CNDeviceEndpoint>> = Response.success(listOf(CNDeviceEndpoint(remoteEndpointId)))
+        whenever(endpointManager.apiClient.fetchRemoteEndpointsFor(deviceId)).thenReturn(endpointResponse)
+        val removeEndpointResponse: Response<Map<String, String>> = Response.success(emptyMap())
+        whenever(endpointManager.apiClient.unRegisterDeviceEndpoint(deviceId, remoteEndpointId)).thenReturn(removeEndpointResponse)
+
+        endpointManager.removeAllRemoteEndpointsForDevice()
+
+        verify(endpointManager.apiClient).unRegisterDeviceEndpoint(deviceId, remoteEndpointId)
+    }
+
     private fun <T> generateSuccessResponse(responseCode: Int = 200, responseData: T): Response<T> {
         return Response.success(responseData, okhttp3.Response.Builder()
                 .code(responseCode)

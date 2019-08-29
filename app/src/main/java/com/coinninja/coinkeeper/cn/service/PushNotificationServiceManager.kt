@@ -82,4 +82,5 @@ internal constructor(internal val pushNotificationTokenManager: PushNotification
     fun isRegisteredEndpoint(): Boolean = pushNotificationEndpointManager.hasEndpoint()
     fun isRegisteredDevice(): Boolean = pushNotificationDeviceManager.deviceId.isNotEmpty()
     fun registerDevice(uuid: String): Boolean = pushNotificationDeviceManager.createDevice(uuid)
+    fun removeAllDeviceEndpoints() = pushNotificationEndpointManager.removeAllRemoteEndpointsForDevice()
 }
