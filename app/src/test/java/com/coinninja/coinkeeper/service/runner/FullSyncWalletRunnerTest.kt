@@ -19,7 +19,7 @@ class FullSyncWalletRunnerTest {
         val runner = FullSyncWalletRunner(
                 mock(CNWalletManager::class.java),
                 mock(AccountDeverificationServiceRunner::class.java),
-                mock(WalletRegistraionRunner::class.java),
+                mock(WalletRegistrationRunner::class.java),
                 mock(CurrentBTCStateRunner::class.java),
                 mock(SyncRunnable::class.java),
                 mock(TransactionConfirmationUpdateRunner::class.java),

@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.service.runner
 import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.bitcoin.BroadcastResult
+import com.coinninja.coinkeeper.service.client.CurrentState
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
@@ -19,7 +20,7 @@ class BroadcastTransactionRunnerTest {
 
     private fun createTask(): BroadcastTransactionRunner {
         val task = BroadcastTransactionRunner(mock(), mock(), mock(), mock())
-        whenever(task.apiClient.currentState).thenReturn(Response.success<Any>(null))
+        whenever(task.apiClient.currentState).thenReturn(Response.success<CurrentState>(null))
         whenever(task.application.getString(R.string.transaction_checksum_error)).thenReturn("checksum failed")
         task.broadcastListener = mock()
         whenever(task.broadcastTransactionHelper.broadcast(any())).thenReturn(broadcastResult)
@@ -54,7 +55,7 @@ class BroadcastTransactionRunnerTest {
     @Test
     fun logs_broadcast_failure_when_checking_fails() {
         val task = createTask()
-        whenever(task.apiClient.currentState).thenReturn(Response.error<Any>(500,
+        whenever(task.apiClient.currentState).thenReturn(Response.error<CurrentState>(500,
                 ResponseBody.create(MediaType.parse("plain/text"), "")))
 
 
@@ -71,7 +72,7 @@ class BroadcastTransactionRunnerTest {
     @Test
     fun progress_stops_when_failure_occurs() {
         val task = createTask()
-        whenever(task.apiClient.currentState).thenReturn(Response.error<Any>(500,
+        whenever(task.apiClient.currentState).thenReturn(Response.error<CurrentState>(500,
                 ResponseBody.create(MediaType.parse("plain/text"), "")))
 
         task.doInBackground(mock())

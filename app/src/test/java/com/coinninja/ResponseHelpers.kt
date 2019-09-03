@@ -5,6 +5,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 
 
-fun failedHttpResponse(content:String=""):Response<Any> {
+fun <T> failedHttpResponse(content:String = ""): Response<T> {
     return Response.error(500, ResponseBody.create(MediaType.parse("plain/text"), content))
 }
+

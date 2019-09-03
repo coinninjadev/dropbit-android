@@ -13,12 +13,13 @@ import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.service.client.CNUserAccount
 import com.coinninja.coinkeeper.service.client.CNUserIdentity
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
-import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber
 import com.coinninja.coinkeeper.service.client.model.CNUserPatch
 import com.coinninja.coinkeeper.util.CNLogger
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import okhttp3.MediaType
 import okhttp3.ResponseBody
@@ -26,11 +27,11 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.*
 import retrofit2.Response
 
+@Suppress("UNCHECKED_CAST")
 @RunWith(AndroidJUnit4::class)
 class DropBitMeServiceManagerTest {
 
@@ -64,7 +65,7 @@ class DropBitMeServiceManagerTest {
 
     @Test
     fun disables_account__logs_non_success() {
-        val response = Response.error<Any>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.error<CNUserPatch>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
         val serviceManager = buildServiceManager()
         whenever(serviceManager.apiClient.disableDropBitMeAccount()).thenReturn(response)
 
@@ -92,7 +93,7 @@ class DropBitMeServiceManagerTest {
 
     @Test
     fun enables_account__logs_non_success() {
-        val response = Response.error<Any>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.error<CNUserPatch>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
         val serviceManager = buildServiceManager()
         whenever(serviceManager.apiClient.enableDropBitMeAccount()).thenReturn(response)
 
@@ -109,7 +110,7 @@ class DropBitMeServiceManagerTest {
         whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(2)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(serviceManager.dropbitAccountHelper.identityForType(IdentityType.PHONE)).thenReturn(identity)
-        val response = Response.success(ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.success(ResponseBody.create(MediaType.parse("plain/text"), "")) as Response<Void>
         whenever(serviceManager.apiClient.deleteIdentity(identity)).thenReturn(response)
 
         serviceManager.deVerifyPhoneNumber()
@@ -122,7 +123,7 @@ class DropBitMeServiceManagerTest {
     fun `notifies when deVerifying phone number fails`() {
         val serviceManager = buildServiceManager()
         whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(2)
-        val response = Response.error<Any>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.error<Void>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(serviceManager.apiClient.deleteIdentity(ArgumentMatchers.any())).thenReturn(response)
 
         serviceManager.deVerifyPhoneNumber()
@@ -138,7 +139,7 @@ class DropBitMeServiceManagerTest {
         whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(2)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(serviceManager.dropbitAccountHelper.identityForType(IdentityType.TWITTER)).thenReturn(identity)
-        val response = Response.success(ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.success(ResponseBody.create(MediaType.parse("plain/text"), "")) as Response<Void>
         whenever(serviceManager.apiClient.deleteIdentity(identity)).thenReturn(response)
 
         serviceManager.deVerifyTwitterAccount()
@@ -152,7 +153,7 @@ class DropBitMeServiceManagerTest {
     fun `notifies when deVerifying Twitter fails`() {
         val serviceManager = buildServiceManager()
         whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(2)
-        val response = Response.error<Any>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.error<Void>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(serviceManager.apiClient.deleteIdentity(ArgumentMatchers.any())).thenReturn(response)
 
         serviceManager.deVerifyTwitterAccount()
@@ -167,7 +168,7 @@ class DropBitMeServiceManagerTest {
         whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(1)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(serviceManager.dropbitAccountHelper.identityForType(IdentityType.PHONE)).thenReturn(identity)
-        val response = Response.success(204, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.success(204, ResponseBody.create(MediaType.parse("plain/text"), "")) as Response<Void>
         whenever(serviceManager.apiClient.resetWallet()).thenReturn(response)
 
         serviceManager.deVerifyPhoneNumber()
@@ -181,7 +182,7 @@ class DropBitMeServiceManagerTest {
         whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(1)
         val identity = mock(DropbitMeIdentity::class.java)
         whenever(serviceManager.dropbitAccountHelper.identityForType(IdentityType.TWITTER)).thenReturn(identity)
-        val response = Response.success(ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val response = Response.success(ResponseBody.create(MediaType.parse("plain/text"), "")) as Response<Void>
         whenever(serviceManager.apiClient.resetWallet()).thenReturn(response)
 
         serviceManager.deVerifyTwitterAccount()
@@ -194,9 +195,9 @@ class DropBitMeServiceManagerTest {
         val serviceManager = buildServiceManager()
         val identity1 = CNUserIdentity(id = "id 1")
         val identity2 = CNUserIdentity(id = "id 2")
-        val identities = listOf<CNUserIdentity>(identity1, identity2)
+        val identities = listOf(identity1, identity2)
         val response: Response<List<CNUserIdentity>> = Response.success(identities)
-        whenever(serviceManager.apiClient.getIdentities()).thenReturn(response)
+        whenever(serviceManager.apiClient.identities).thenReturn(response)
 
         serviceManager.syncIdentities()
 
@@ -208,8 +209,8 @@ class DropBitMeServiceManagerTest {
     @Test
     fun `only updates identities with success`() {
         val serviceManager = buildServiceManager()
-        val response = Response.error<Any>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(serviceManager.apiClient.getIdentities()).thenReturn(response)
+        val response = Response.error<List<CNUserIdentity>>(500, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        whenever(serviceManager.apiClient.identities).thenReturn(response)
 
         serviceManager.syncIdentities()
 
@@ -218,24 +219,27 @@ class DropBitMeServiceManagerTest {
 
     @Test
     fun `add and verify Twitter identity when user already verified`() {
-        val argumentCaptor = ArgumentCaptor.forClass(CNUserIdentity::class.java)
+        val argumentCaptor = argumentCaptor<CNUserIdentity>()
         val snowflake = 1234567890L
         val serviceManager = buildServiceManager()
         val pendingUserIdentity = CNUserIdentity()
         whenever(serviceManager.twitter.authToken).thenReturn("authToken")
         whenever(serviceManager.twitter.authSecret).thenReturn("authSecret")
         val pendingVerificationResponse = Response.success(pendingUserIdentity)
+        val identity = CNUserIdentity(identity = snowflake.toString(), type = "twitter")
         whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
-        whenever(serviceManager.apiClient.addIdentity(any(CNUserIdentity::class.java))).thenReturn(pendingVerificationResponse)
+        whenever(serviceManager.apiClient.addIdentity(identity)).thenReturn(pendingVerificationResponse)
 
         val verifiedAccount = CNUserAccount()
         val verifiedIdentityResponse = Response.success(verifiedAccount)
-        whenever(serviceManager.apiClient.verifyIdentity(any(CNUserIdentity::class.java))).thenReturn(verifiedIdentityResponse)
+        val verified = CNUserIdentity(identity = snowflake.toString(), type = "twitter")
+        verified.code = "${serviceManager.twitter.authToken}:${serviceManager.twitter.authSecret}"
+        whenever(serviceManager.apiClient.verifyIdentity(verified)).thenReturn(verifiedIdentityResponse)
 
         serviceManager.verifyTwitter(snowflake)
 
         verify(serviceManager.apiClient).verifyIdentity(argumentCaptor.capture())
-        val identityToVerify = argumentCaptor.value
+        val identityToVerify = argumentCaptor.firstValue
         assertThat(identityToVerify.code, equalTo("authToken:authSecret"))
         verify(serviceManager.dropbitAccountHelper).updateOrCreateFrom(verifiedAccount)
         verify(serviceManager.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_VERIFY_TWITTER_COMPLETED)
@@ -243,7 +247,7 @@ class DropBitMeServiceManagerTest {
 
     @Test
     fun `create user and verify with Twitter when user is not already verified`() {
-        val argumentCaptor = ArgumentCaptor.forClass(CNUserIdentity::class.java)
+        val argumentCaptor = argumentCaptor<CNUserIdentity>()
         val snowflake = 1234567890L
         val serviceManager = buildServiceManager()
         whenever(serviceManager.twitter.authToken).thenReturn("authToken")
@@ -253,16 +257,19 @@ class DropBitMeServiceManagerTest {
 
         // Create user from identity rather than add identity ---
         whenever(serviceManager.dropbitAccountHelper.numVerifiedIdentities).thenReturn(0)
-        whenever(serviceManager.apiClient.createUserFromIdentity(any(CNUserIdentity::class.java))).thenReturn(userAccountResponse)
+        val identity = CNUserIdentity(identity = snowflake.toString(), type = "twitter")
+        whenever(serviceManager.apiClient.createUserFromIdentity(identity)).thenReturn(userAccountResponse)
 
         val verifiedAccount = CNUserAccount()
         val verifiedIdentityResponse = Response.success(verifiedAccount)
-        whenever(serviceManager.apiClient.verifyIdentity(any(CNUserIdentity::class.java))).thenReturn(verifiedIdentityResponse)
+        val verified = CNUserIdentity(identity = snowflake.toString(), type = "twitter")
+        verified.code = "${serviceManager.twitter.authToken}:${serviceManager.twitter.authSecret}"
+        whenever(serviceManager.apiClient.verifyIdentity(verified)).thenReturn(verifiedIdentityResponse)
 
         serviceManager.verifyTwitter(snowflake)
 
         verify(serviceManager.apiClient).verifyIdentity(argumentCaptor.capture())
-        val identityToVerify = argumentCaptor.value
+        val identityToVerify = argumentCaptor.firstValue
         assertThat(identityToVerify.code, equalTo("authToken:authSecret"))
         verify(serviceManager.dropbitAccountHelper, times(2)).updateOrCreateFrom(verifiedAccount)
         verify(serviceManager.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_VERIFY_TWITTER_COMPLETED)
@@ -276,7 +283,7 @@ class DropBitMeServiceManagerTest {
         val savedIdentity = CNUserIdentity(identity = "+13305551111", type = "phone",
                 status = AccountStatus.asString(AccountStatus.PENDING_VERIFICATION))
         val response = Response.success(201, accountResponse)
-        whenever(serviceManager.apiClient.createUserFromIdentity(eq(identity))).thenReturn(response)
+        whenever(serviceManager.apiClient.createUserFromIdentity(identity)).thenReturn(response)
         whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(false)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
@@ -288,25 +295,26 @@ class DropBitMeServiceManagerTest {
 
     @Test
     fun `verifies a number from another verified account and request new verification code`() {
+        val phone = PhoneNumber("+13305551111")
         val serviceManager = buildServiceManager()
         val identity = CNUserIdentity(identity = "13305551111", type = "phone")
         val accountResponse = CNUserAccount()
         val savedIdentity = CNUserIdentity(identity = "+13305551111", type = "phone",
                 status = AccountStatus.asString(AccountStatus.PENDING_VERIFICATION))
         val response = Response.success(200, accountResponse)
-        whenever(serviceManager.apiClient.createUserFromIdentity(eq(identity))).thenReturn(response)
+        whenever(serviceManager.apiClient.createUserFromIdentity(identity)).thenReturn(response)
         whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(false)
-        val userAccount = mock(Account::class.java)
+        val userAccount: Account = mock()
         whenever(serviceManager.dropbitAccountHelper.updateOrCreateFrom(accountResponse)).thenReturn(userAccount)
-        whenever(serviceManager.apiClient.resendVerification(any(CNPhoneNumber::class.java))).thenReturn(Response.success(""))
+        whenever(serviceManager.apiClient.resendVerification(phone.toCNPhoneNumber())).thenReturn(Response.success("") as Response<CNUserAccount>)
 
-        serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
+        serviceManager.verifyPhoneNumber(phone)
 
         verify(serviceManager.dropbitAccountHelper).newFrom(savedIdentity)
         verify(serviceManager.dropbitAccountHelper).updateOrCreateFrom(accountResponse)
         verify(userAccount).status = AccountStatus.PENDING_VERIFICATION
         verify(userAccount).update()
-        verify(serviceManager.apiClient).resendVerification(PhoneNumber("+13305551111").toCNPhoneNumber())
+        verify(serviceManager.apiClient).resendVerification(phone.toCNPhoneNumber())
         verify(serviceManager.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_PHONE_VERIFICATION__CODE_SENT)
     }
 
@@ -319,7 +327,7 @@ class DropBitMeServiceManagerTest {
         savedIdentity.identity = "+13305551111"
 
         val response = Response.success(201, identityResponse)
-        whenever(serviceManager.apiClient.addIdentity(eq(identity))).thenReturn(response)
+        whenever(serviceManager.apiClient.addIdentity(identity)).thenReturn(response)
         whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
@@ -337,9 +345,9 @@ class DropBitMeServiceManagerTest {
         accountResponse.identities = listOf(identityResponse)
 
         val response = Response.success(201, accountResponse)
-        whenever(serviceManager.apiClient.createUserFromIdentity(eq(identity))).thenReturn(response)
+        whenever(serviceManager.apiClient.createUserFromIdentity(identity)).thenReturn(response)
         whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(false)
-        val phoneIdentity = mock(DropbitMeIdentity::class.java)
+        val phoneIdentity: DropbitMeIdentity = mock()
         whenever(serviceManager.dropbitAccountHelper.phoneIdentity()).thenReturn(phoneIdentity)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
@@ -351,8 +359,8 @@ class DropBitMeServiceManagerTest {
     fun `notifies about country blacklist when verifying phone number`() {
         val serviceManager = buildServiceManager()
         val identity = CNUserIdentity(identity = "13305551111", type = "phone")
-        val response = Response.error<Any>(424, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(serviceManager.apiClient.addIdentity(eq(identity))).thenReturn(response)
+        val response = Response.error<CNUserIdentity>(424, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        whenever(serviceManager.apiClient.addIdentity(identity)).thenReturn(response)
         whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
@@ -364,8 +372,8 @@ class DropBitMeServiceManagerTest {
     fun `notifies about general error when verifying phone number`() {
         val serviceManager = buildServiceManager()
         val identity = CNUserIdentity(identity = "13305551111", type = "phone")
-        val response = Response.error<Any>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(serviceManager.apiClient.addIdentity(eq(identity))).thenReturn(response)
+        val response = Response.error<CNUserIdentity>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        whenever(serviceManager.apiClient.addIdentity(identity)).thenReturn(response)
         whenever(serviceManager.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
 
         serviceManager.verifyPhoneNumber(PhoneNumber("+13305551111"))
@@ -377,7 +385,7 @@ class DropBitMeServiceManagerTest {
     fun `resending phone confirmation sends completed broadcast`() {
         val serviceManager = buildServiceManager()
         val phoneNumber = PhoneNumber("+13305551111").toCNPhoneNumber()
-        whenever(serviceManager.apiClient.resendVerification(eq(phoneNumber))).thenReturn(Response.success(""))
+        whenever(serviceManager.apiClient.resendVerification(phoneNumber)).thenReturn(Response.success("") as Response<CNUserAccount>)
 
         serviceManager.resendPhoneConfirmation(PhoneNumber("+13305551111"))
 
@@ -388,8 +396,8 @@ class DropBitMeServiceManagerTest {
     fun `resending phone confirmation sends rate limit  broadcast`() {
         val serviceManager = buildServiceManager()
         val phoneNumber = PhoneNumber("+13305551111").toCNPhoneNumber()
-        val error = Response.error<Any>(429, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(serviceManager.apiClient.resendVerification(eq(phoneNumber))).thenReturn(error)
+        val error = Response.error<CNUserAccount>(429, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        whenever(serviceManager.apiClient.resendVerification(phoneNumber)).thenReturn(error)
 
         serviceManager.resendPhoneConfirmation(PhoneNumber("+13305551111"))
 
@@ -400,8 +408,8 @@ class DropBitMeServiceManagerTest {
     fun `resending phone confirmation sends country blacklisted  broadcast`() {
         val serviceManager = buildServiceManager()
         val phoneNumber = PhoneNumber("+13305551111").toCNPhoneNumber()
-        val error = Response.error<Any>(424, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(serviceManager.apiClient.resendVerification(eq(phoneNumber))).thenReturn(error)
+        val error = Response.error<CNUserAccount>(424, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        whenever(serviceManager.apiClient.resendVerification(phoneNumber)).thenReturn(error)
 
         serviceManager.resendPhoneConfirmation(PhoneNumber("+13305551111"))
 
@@ -412,8 +420,8 @@ class DropBitMeServiceManagerTest {
     fun `resending phone confirmation sends http error  broadcast`() {
         val serviceManager = buildServiceManager()
         val phoneNumber = PhoneNumber("+13305551111").toCNPhoneNumber()
-        val error = Response.error<Any>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
-        whenever(serviceManager.apiClient.resendVerification(eq(phoneNumber))).thenReturn(error)
+        val error = Response.error<CNUserAccount>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        whenever(serviceManager.apiClient.resendVerification(phoneNumber)).thenReturn(error)
 
         serviceManager.resendPhoneConfirmation(PhoneNumber("+13305551111"))
 
@@ -451,7 +459,7 @@ class DropBitMeServiceManagerTest {
         identity.type = IdentityType.PHONE
         val cnIdentity = CNUserIdentity(type = "phone", code = code, identity = "13305551111")
         whenever(serviceManager.dropbitAccountHelper.phoneIdentity()).thenReturn(identity)
-        val error = Response.error<Any>(404, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val error = Response.error<CNUserAccount>(404, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(serviceManager.dropbitAccountHelper.phoneIdentity()).thenReturn(identity)
         whenever(serviceManager.apiClient.verifyIdentity(cnIdentity)).thenReturn(error)
 
@@ -468,7 +476,7 @@ class DropBitMeServiceManagerTest {
         identity.identity = "+13305551111"
         identity.type = IdentityType.PHONE
         val cnIdentity = CNUserIdentity(type = "phone", code = code, identity = "13305551111")
-        val error = Response.error<Any>(409, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val error = Response.error<CNUserAccount>(409, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(serviceManager.dropbitAccountHelper.phoneIdentity()).thenReturn(identity)
         whenever(serviceManager.apiClient.verifyIdentity(cnIdentity)).thenReturn(error)
 
@@ -485,7 +493,7 @@ class DropBitMeServiceManagerTest {
         identity.identity = "+13305551111"
         identity.type = IdentityType.PHONE
         val cnIdentity = CNUserIdentity(type = "phone", code = code, identity = "13305551111")
-        val error = Response.error<Any>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
+        val error = Response.error<CNUserAccount>(400, ResponseBody.create(MediaType.parse("plain/text"), ""))
         whenever(serviceManager.dropbitAccountHelper.phoneIdentity()).thenReturn(identity)
         whenever(serviceManager.apiClient.verifyIdentity(cnIdentity)).thenReturn(error)
 

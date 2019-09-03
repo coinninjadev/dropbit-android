@@ -14,6 +14,7 @@ import javax.inject.Inject;
 
 import retrofit2.Response;
 
+@SuppressWarnings("ALL")
 public class RemoteAddressCache {
     private static final int NUM_ADDRESSES_TO_CACHE = 5;
     private final SignedCoinKeeperApiClient apiClient;
@@ -28,7 +29,7 @@ public class RemoteAddressCache {
     }
 
     public void cacheAddresses() {
-        Response response = apiClient.getCNWalletAddresses();
+        Response response = apiClient.getCnWalletAddresses();
 
         if (response.isSuccessful()) {
             List<CNWalletAddress> cachedAddresses = (List<CNWalletAddress>) response.body();

@@ -27,11 +27,11 @@ class PushNotificationEndpointManager @Inject internal constructor(
         registersAsEndpoint(deviceId, token)
     }
 
-    fun registersAsEndpoint(deviceId: String, token: String?) {
+    fun registersAsEndpoint(deviceId: String, token: String) {
         val response = apiClient.registerForPushEndpoint(deviceId, token)
         if (response.isSuccessful) {
-            val cnDeviceEndpoint = response.body() as CNDeviceEndpoint?
-            saveEndpoint(cnDeviceEndpoint!!)
+            val cnDeviceEndpoint = response.body() as CNDeviceEndpoint
+            saveEndpoint(cnDeviceEndpoint)
             pushNotificationSubscriptionManager.subscribeToChannels(deviceId, cnDeviceEndpoint.id)
         } else {
             logger.logError(TAG, DEVICE_ENDPOINT_ERROR_MESSAGE, response)
@@ -65,9 +65,11 @@ class PushNotificationEndpointManager @Inject internal constructor(
 
     @JvmOverloads
     fun unRegister(endpointId: String? = endpoint) {
-        val response = apiClient.unRegisterDeviceEndpoint(pushNotificationDeviceManager.deviceId, endpointId)
-        if (!response.isSuccessful) {
-            logger.logError(TAG, UNREGISTER_DEVICE_ENDPOINT_ERROR_MESSAGE, response)
+        endpointId?.let {
+            val response = apiClient.unRegisterDeviceEndpoint(pushNotificationDeviceManager.deviceId, it)
+            if (!response.isSuccessful) {
+                logger.logError(TAG, UNREGISTER_DEVICE_ENDPOINT_ERROR_MESSAGE, response)
+            }
         }
     }
 
@@ -77,6 +79,12 @@ class PushNotificationEndpointManager @Inject internal constructor(
 
     private fun saveEndpoint(endpoint: CNDeviceEndpoint) {
         preferencesUtil.savePreference(PUSH_NOTIFICATION_SERVER_DEVICE_ENDPOINT_ID, endpoint.id)
+    }
+
+    fun removeAllRemoteEndpointsForDevice() {
+        fetchEndpoints().forEach {
+            unRegister(it.id)
+        }
     }
 
     companion object {

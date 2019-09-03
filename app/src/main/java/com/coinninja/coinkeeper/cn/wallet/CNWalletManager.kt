@@ -30,7 +30,8 @@ class CNWalletManager @Inject internal constructor(
         internal val localBroadCastUtil: LocalBroadCastUtil,
         internal val dateUtil: DateUtil,
         internal val analytics: Analytics,
-        internal val myTwitterProfile: MyTwitterProfile
+        internal val myTwitterProfile: MyTwitterProfile,
+        internal val walletFlagsStorage: WalletFlagsStorage
 ) {
 
     val hasBalance: Boolean get() = walletHelper.balance.toLong() > 0L
@@ -67,7 +68,7 @@ class CNWalletManager @Inject internal constructor(
     fun skipBackup(recoveryWords: Array<String>) {
         saveSeedWords(recoveryWords)
         preferencesUtil.savePreference(PREFERENCE_SKIPPED_BACKUP, true)
-        analytics.setUserProperty(Analytics.PROPERTY_APP_V1, true)
+        walletFlagsStorage.flags = WalletFlags.purpose49v1
     }
 
     fun syncCompleted() {
