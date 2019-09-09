@@ -2,31 +2,35 @@ package com.coinninja.coinkeeper.service.client.model
 
 import android.os.Parcelable
 import app.dropbit.annotations.Mockable
-import com.coinninja.coinkeeper.service.runner.SentInvitesStatusGetter
 import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
-import java.util.*
 
 @Mockable
 @Parcelize
 data class AddressLookupResult(
         @SerializedName("phone_number_hash")
-        var phoneNumberHash: String? = null,
-        var address: String? = null,
+        var phoneNumberHash: String = "",
+        var address: String = "",
         @SerializedName("address_pubkey")
-        var addressPubKey: String? = null) : Parcelable {
+        var addressPubKey: String = "") : Parcelable {
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as AddressLookupResult?
-        return phoneNumberHash == that?.phoneNumberHash &&
-                address == that?.address &&
-                addressPubKey == that?.addressPubKey
+        other as AddressLookupResult
+
+        if (phoneNumberHash != other.phoneNumberHash) return false
+        if (address != other.address) return false
+        if (addressPubKey != other.addressPubKey) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(phoneNumberHash, address, addressPubKey)
+        var result = phoneNumberHash.hashCode()
+        result = 31 * result + address.hashCode()
+        result = 31 * result + addressPubKey.hashCode()
+        return result
     }
 }

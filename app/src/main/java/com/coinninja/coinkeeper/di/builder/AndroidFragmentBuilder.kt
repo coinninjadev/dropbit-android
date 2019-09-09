@@ -12,6 +12,9 @@ import com.coinninja.coinkeeper.ui.dropbit.me.verified.DisabledDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.NewlyVerifiedDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.VerifiedDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verify.VerifyDropBitMeDialog
+import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragment
+import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragmentModule
+import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestFragment
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragment
@@ -133,4 +136,11 @@ abstract class AndroidFragmentBuilder {
     @ContributesAndroidInjector
     internal abstract fun twitterIdentityFragment(): TwitterIdentityFragment
 
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [LightningHistoryFragmentModule::class])
+    internal abstract fun lightningHistoryFragment(): LightningHistoryFragment
+
+    @ActivityScope
+    @ContributesAndroidInjector()
+    internal abstract fun lightningLoadingOptionsDialog(): LightningLoadingOptionsDialog
 }

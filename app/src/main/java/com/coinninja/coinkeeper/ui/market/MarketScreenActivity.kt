@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import app.dropbit.commons.currency.USDCurrency
+import app.dropbit.commons.currency.asFormattedUsdCurrencyString
 import app.dropbit.commons.util.decimalFormatted
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.service.client.model.HistoricalPriceRecord
@@ -16,8 +18,6 @@ import com.coinninja.coinkeeper.service.client.model.NewsArticle
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.news.NewsAdapter
 import com.coinninja.coinkeeper.ui.news.NewsViewModel
-import com.coinninja.coinkeeper.util.currency.USDCurrency
-import com.coinninja.coinkeeper.util.currency.asFormattedUsdCurrencyString
 import com.coinninja.coinkeeper.viewModel.MarketDataViewModel
 import com.github.mikephil.charting.charts.LineChart
 import java.math.BigDecimal
@@ -51,7 +51,7 @@ class MarketScreenActivity : BaseActivity() {
     var isLoading: Boolean = true
     var pageSize: Int = 0
     val articleChangeObserver = Observer<List<NewsArticle>> { loadedArticles ->
-        findViewById<SwipeRefreshLayout>(R.id.news_pull_to_refresh)?.apply { isRefreshing = false }
+        findViewById<SwipeRefreshLayout>(R.id.pull_to_refresh)?.apply { isRefreshing = false }
         newsAdapter.addArticles(loadedArticles)
         pageSize = newsAdapter.itemCount
         isLoading = false
@@ -154,7 +154,7 @@ class MarketScreenActivity : BaseActivity() {
             adapter = newsAdapter
             setOnScrollListener(onScrollChangedObserver)
         }
-        findViewById<SwipeRefreshLayout>(R.id.news_pull_to_refresh)?.apply {
+        findViewById<SwipeRefreshLayout>(R.id.pull_to_refresh)?.apply {
             setOnRefreshListener { onRefreshNews() }
         }
 

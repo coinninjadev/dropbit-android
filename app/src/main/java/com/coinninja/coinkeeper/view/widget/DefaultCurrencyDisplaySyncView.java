@@ -29,7 +29,7 @@ public class DefaultCurrencyDisplaySyncView extends DefaultCurrencyDisplayView {
         rotationImageView.setVisibility(View.GONE);
         setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
         styleTextView(secondaryCurrencyView, secondaryTextAppearance);
-        Views.rotate(rotationImageView);
+        Views.INSTANCE.rotate(rotationImageView);
     }
 
     public DefaultCurrencyDisplaySyncView(Context context) {
@@ -38,7 +38,7 @@ public class DefaultCurrencyDisplaySyncView extends DefaultCurrencyDisplayView {
 
     public void showSyncingUI() {
         rotationImageView.setVisibility(View.VISIBLE);
-        Views.rotate(rotationImageView);
+        Views.INSTANCE.rotate(rotationImageView);
     }
 
     public void hideSyncingUI() {

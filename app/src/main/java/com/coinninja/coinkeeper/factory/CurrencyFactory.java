@@ -1,14 +1,14 @@
 package com.coinninja.coinkeeper.factory;
 
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.Currency;
+import app.dropbit.commons.currency.USDCurrency;
 
 public class CurrencyFactory {
 

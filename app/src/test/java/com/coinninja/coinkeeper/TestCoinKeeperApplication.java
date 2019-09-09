@@ -68,8 +68,6 @@ import com.coinninja.coinkeeper.util.android.ServiceWorkUtil;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler;
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale;
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator;
 import com.coinninja.messaging.MessageCryptor;
@@ -82,6 +80,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
 import app.dropbit.twitter.Twitter;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
@@ -203,6 +203,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     @Override
     public void beforeTest(Method method) {
         when(walletHelper.getUserAccount()).thenReturn(account);
+        when(walletHelper.getSpendableBalance()).thenReturn(new BTCCurrency(0));
         PhoneNumber phoneNumber = new PhoneNumber("+15550123456");
         when(account.getPhoneNumber()).thenReturn(phoneNumber);
         when(authentication.isAuthenticated()).thenReturn(true);

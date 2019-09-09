@@ -74,7 +74,7 @@ public class SyncWalletManager implements ServiceConnection {
         binder.getService().performSync();
     }
 
-    public void cancel30SecondSync() {
+    public void cancel60SecondSync() {
         if (null != binder) {
             context.unbindService(this);
             binder = null;
@@ -85,7 +85,7 @@ public class SyncWalletManager implements ServiceConnection {
 
     public void cancelAllScheduledSync() {
         context.stopService(new Intent(context, WalletTransactionRetrieverService.class));
-        cancel30SecondSync();
+        cancel60SecondSync();
         jobServiceScheduler.cancelJob(JobServiceScheduler.SYNC_HOURLY_SERVICE_JOB_ID);
     }
 

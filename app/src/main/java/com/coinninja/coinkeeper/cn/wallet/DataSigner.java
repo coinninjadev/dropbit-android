@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.cn.wallet;
 
 import javax.inject.Inject;
 
+@Deprecated
 public class DataSigner {
 
     private final LibBitcoinProvider libBitcoinProvider;

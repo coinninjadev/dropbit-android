@@ -6,7 +6,6 @@ import android.widget.TextView;
 
 import com.coinninja.coinkeeper.R;
 
-import static com.coinninja.android.helpers.Views.withId;
 
 public class SharedMemoView extends AbstractBasicViewType {
 
@@ -28,9 +27,9 @@ public class SharedMemoView extends AbstractBasicViewType {
 
     @Override
     public void render() {
-        memoView = withId(view, R.id.shared_memo_text_view);
-        sharedMemoStatusTextView = withId(view, R.id.shared_memo_status_text_view);
-        sharedStatusImageView = withId(view, R.id.shared_status_image_view);
+        memoView = view.findViewById(R.id.shared_memo_text_view);
+        sharedMemoStatusTextView = view.findViewById(R.id.shared_memo_status_text_view);
+        sharedStatusImageView = view.findViewById(R.id.shared_status_image_view);
     }
 
     public void hide() {

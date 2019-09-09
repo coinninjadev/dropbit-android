@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowApplication;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
@@ -52,7 +51,7 @@ public class InternalNotificationViewTest {
     public void setUp() throws Exception {
         baseLayout = new LinearLayout(application);
         LayoutInflater.from(application).inflate(R.layout.merge_system_messages, baseLayout, true);
-        baseLayout = withId(baseLayout, R.id.message_queue);
+        baseLayout = baseLayout.findViewById(R.id.message_queue);
 
         internalNotificationView = new InternalNotificationView(baseLayout);
         shadowActivity = shadowOf(application);

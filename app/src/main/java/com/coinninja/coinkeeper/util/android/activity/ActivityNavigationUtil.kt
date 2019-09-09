@@ -8,13 +8,20 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Resources
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.PhoneNumber
+import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
+import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
@@ -31,10 +38,7 @@ import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LATITUDE
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.LONGITUDE
 import com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.*
-import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity
-import com.coinninja.coinkeeper.view.activity.TrainingActivity
-import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity
-import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity
+import com.coinninja.coinkeeper.view.activity.*
 import java.util.*
 import javax.inject.Inject
 
@@ -200,5 +204,40 @@ class ActivityNavigationUtil @Inject constructor(
 
     fun showMarketCharts(activity: Activity) {
         Intent(activity, MarketScreenActivity::class.java).also { activity.startActivity(it) }
+    }
+
+    fun showLoadLightningWith(context: Context, usdCurrency: USDCurrency? = null) {
+        Intent(context, LightningDepositActivity::class.java).also {
+            usdCurrency?.let { amount ->
+                it.putExtra(DropbitIntents.EXTRA_AMOUNT, amount)
+            }
+            context.startActivity(it)
+        }
+    }
+
+    fun showWithdrawalLightning(context: Context) {
+        Intent(context, LightningWithdrawalActivity::class.java).also {
+            context.startActivity(it)
+        }
+    }
+
+    fun navigateToBroadcast(activity: Activity, broadcastTransactionDTO: BroadcastTransactionDTO) {
+        Intent(activity, BroadcastActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_BROADCAST_DTO, broadcastTransactionDTO)
+            activity.startActivity(it)
+        }
+    }
+
+    fun showLoadLightningOptions(context: AppCompatActivity) {
+        context.supportFragmentManager.let {
+            LightningLoadingOptionsDialog().show(it, LightningLoadingOptionsDialog::class.java.simpleName)
+        }
+    }
+
+    fun showWithdrawalCompleted(activity: Activity, withdrawalRequest: WithdrawalRequest) {
+        Intent(activity, LightningWithdrawalBroadcastActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_WITHDRAWAL_REQUEST, withdrawalRequest)
+            activity.startActivity(it)
+        }
     }
 }

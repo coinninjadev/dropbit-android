@@ -32,7 +32,6 @@ import org.greenrobot.greendao.query.LazyList;
 import javax.inject.Inject;
 
 import static androidx.recyclerview.widget.RecyclerView.Adapter;
-import static com.coinninja.android.helpers.Views.withId;
 
 public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDataAdapter.ViewHolder> implements DefaultCurrencyChangeObserver {
 
@@ -181,10 +180,10 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
         public void bindIdentifyingTarget(TextView view, BindableTransaction transaction) {
             view.setText(transaction.getIdentifiableTarget());
             if (transaction.getIdentityType() == IdentityType.TWITTER) {
-                Views.setCompondDrawableOnStart(view, R.drawable.twitter_icon_blue, .6F);
+                Views.INSTANCE.setCompondDrawableOnStart(view, R.drawable.twitter_icon_blue, .6F);
                 view.setCompoundDrawablePadding(10);
             } else {
-                Views.clearCompoundDrawablesOn(view);
+                Views.INSTANCE.clearCompoundDrawablesOn(view);
             }
         }
 
@@ -199,14 +198,14 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
         }
 
         private void bindValue(BindableTransaction transaction) {
-            DefaultCurrencyDisplayView view = withId(itemView, R.id.default_currency_view);
+            DefaultCurrencyDisplayView view = itemView.findViewById(R.id.default_currency_view);
             view.renderValues(defaultCurrencies, transaction.getBasicDirection(), transaction.totalCryptoForSendState(), transaction.totalFiatForSendState());
             if (defaultCurrencyChangeViewNotifier != null)
                 defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(view);
         }
 
         private void bindMemo(View itemView, BindableTransaction transaction) {
-            TextView memoView = withId(itemView, R.id.transaction_memo);
+            TextView memoView = itemView.findViewById(R.id.transaction_memo);
             if ("".equals(transaction.getMemo())) {
                 memoView.setVisibility(View.GONE);
                 return;

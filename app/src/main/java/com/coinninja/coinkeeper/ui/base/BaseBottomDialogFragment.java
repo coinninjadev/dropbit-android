@@ -16,7 +16,6 @@ import androidx.fragment.app.DialogFragment;
 import com.coinninja.coinkeeper.R;
 
 public abstract class BaseBottomDialogFragment extends BaseDialogFragment {
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

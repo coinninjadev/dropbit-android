@@ -20,6 +20,24 @@ class TransactionFundingManagerTest {
     private val payToAddress get() = "--address--"
 
     @Test
+    fun building_transaction_data_with_RBF_set_to_false_overrides_UTXOS_preference() {
+        val transactionFundingManager = createTransactionFundingManager()
+        val unspentTransactionOutputs: MutableList<UnspentTransactionOutput> = mutableListOf()
+        mockTargets(transactionFundingManager, unspentTransactionOutputs, 9999L, 50000L, 100000L)
+        unspentTransactionOutputs.remove(unspentTransactionOutputs[2])
+        unspentTransactionOutputs.remove(unspentTransactionOutputs[1])
+
+        val transactionData = transactionFundingManager.buildFundedTransactionData(
+                payToAddress, feeRate, 5000L, false)
+
+        assertThat(transactionData.amount, equalTo(5000L))
+        assertThat(transactionData.feeAmount, equalTo(830L))
+        assertThat(transactionData.changeAmount, equalTo(4169L))
+        assertThat(transactionData.utxos, equalTo(unspentTransactionOutputs.toTypedArray()))
+        assertThat(transactionData.isReplaceable, equalTo(false))
+    }
+
+    @Test
     fun `check to see if new fee can fund the transaction`() {
         val transactionFundingManager = createTransactionFundingManager()
         val unspentTransactionOutputs: MutableList<UnspentTransactionOutput> = mutableListOf()

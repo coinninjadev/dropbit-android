@@ -15,8 +15,6 @@ import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.image.CircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
@@ -36,7 +34,9 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
+
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
@@ -145,7 +145,7 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView memoView = withId(view, R.id.transaction_memo);
+        TextView memoView = view.findViewById(R.id.transaction_memo);
         assertThat(memoView, hasText(""));
         assertThat(memoView, isGone());
     }
@@ -158,7 +158,7 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView memoView = withId(view, R.id.transaction_memo);
+        TextView memoView = view.findViewById(R.id.transaction_memo);
         assertThat(memoView, hasText("memo"));
         assertThat(memoView, isVisible());
     }
@@ -518,6 +518,6 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        assertThat(withId(view, R.id.address), hasText("Jeff"));
+        assertThat(view.findViewById(R.id.address), hasText("Jeff"));
     }
 }

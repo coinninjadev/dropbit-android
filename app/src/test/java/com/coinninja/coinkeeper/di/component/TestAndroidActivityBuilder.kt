@@ -8,6 +8,12 @@ import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.base.TestBaseActivityModule
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
+import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivityTest
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivityTest
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivityTest
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.market.TestMarketChartModule
 import com.coinninja.coinkeeper.ui.news.TestMarketNewsModule
@@ -149,5 +155,17 @@ abstract class TestAndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, TestMarketChartModule::class, TestMarketNewsModule::class])
     internal abstract fun marketScreenActivity(): MarketScreenActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, LightningDepositActivityTest.LightningDepositActivityTestModule::class])
+    internal abstract fun lightningDepositActivity(): LightningDepositActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, LightningWithdrawalActivityTest.LightningWithdrawalActivityTestModule::class])
+    internal abstract fun lightningWithdrawalActivity(): LightningWithdrawalActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, LightningWithdrawalBroadcastActivityTest.LightningWithdrawalBroadcastActivityTestModule::class])
+    internal abstract fun lightningWithdrawalCompletedActivity(): LightningWithdrawalBroadcastActivity
 }
 

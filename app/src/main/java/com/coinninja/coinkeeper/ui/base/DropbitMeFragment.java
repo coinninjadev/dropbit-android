@@ -14,15 +14,16 @@ import androidx.annotation.Nullable;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
-import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.ui.home.HomeActivity;
+import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity;
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity;
+import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.widget.DropbitMeImageView;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static java.util.Arrays.asList;
 
 public class DropbitMeFragment extends BaseFragment {
@@ -30,6 +31,8 @@ public class DropbitMeFragment extends BaseFragment {
     private final String[] visibleWithList = {
             HomeActivity.class.getName(),
             TransactionDetailsActivity.class.getName(),
+            LightningDepositActivity.class.getName(),
+            LightningWithdrawalActivity.class.getName(),
     };
 
     @Inject
@@ -38,7 +41,7 @@ public class DropbitMeFragment extends BaseFragment {
     DropbitMeDialogFactory dropbitMeDialogFactory;
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
-
+    IntentFilter filter;
     private DropbitMeImageView button;
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -48,13 +51,12 @@ public class DropbitMeFragment extends BaseFragment {
             }
         }
     };
-    IntentFilter filter;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dropbit_me, container, false);
-        button = withId(view, R.id.dropbit_me_button);
+        button = view.findViewById(R.id.dropbit_me_button);
         return view;
     }
 

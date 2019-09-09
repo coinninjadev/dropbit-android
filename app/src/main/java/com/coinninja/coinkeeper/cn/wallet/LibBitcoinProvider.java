@@ -6,6 +6,7 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 
 import javax.inject.Inject;
 
+@Deprecated
 @CoinkeeperApplicationScope
 public class LibBitcoinProvider {
     private WalletHelper walletHelper;

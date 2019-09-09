@@ -37,6 +37,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.robolectric.Shadows.shadowOf
 
+@Suppress("UNCHECKED_CAST")
 @RunWith(AndroidJUnit4::class)
 class SettingsActivityTest {
 
@@ -214,7 +215,7 @@ class SettingsActivityTest {
         scenario.moveToState(Lifecycle.State.RESUMED)
         scenario.onActivity { activity ->
             val view = withId<Switch>(activity, R.id.dust_protection_toggle)
-            assertTrue(view.isChecked)
+            assertTrue(view!!.isChecked)
         }
     }
 
@@ -284,7 +285,7 @@ class SettingsActivityTest {
         scenario.onActivity { activity ->
             activity.yearlyHighObserver.onChanged(true)
 
-            assertTrue(withId<Switch>(activity, R.id.yearly_high_subscription).isChecked)
+            assertTrue(withId<Switch>(activity, R.id.yearly_high_subscription)!!.isChecked)
         }
     }
 }

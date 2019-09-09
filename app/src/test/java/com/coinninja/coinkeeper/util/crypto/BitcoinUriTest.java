@@ -6,7 +6,6 @@ import android.net.Uri;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
 import com.coinninja.coinkeeper.util.uri.routes.BitcoinRoute;
@@ -22,12 +21,14 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
+import app.dropbit.commons.currency.BTCCurrency;
+
 import static com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter.AMOUNT;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.anyString;
-import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

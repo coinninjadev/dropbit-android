@@ -14,13 +14,13 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.FiatCurrency
 import com.coinninja.android.helpers.Resources
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.di.interfaces.BuildVersionName
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.util.currency.FiatCurrency
 import com.coinninja.coinkeeper.util.ui.BadgeRenderer
 import com.coinninja.coinkeeper.view.widget.DrawerLayout
 import com.coinninja.coinkeeper.viewModel.WalletViewModel

@@ -3,6 +3,8 @@ package com.coinninja.coinkeeper.util
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.Contact
@@ -12,8 +14,6 @@ import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.service.client.model.TransactionFee
 import com.coinninja.coinkeeper.util.PaymentUtil.PaymentMethod
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.*
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.nhaarman.mockitokotlin2.*
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -37,7 +37,8 @@ class PaymentUtilTest {
 
     private val usdCurrency: USDCurrency get() = USDCurrency(2.0)
     private val btcCurrency: BTCCurrency get() = BTCCurrency(1.0)
-    private val validTransactionData: TransactionData = TransactionData(arrayOf(mock()), 10000, 100, 500, mock(), "--payment-address--")
+    private val validTransactionData: TransactionData = TransactionData(arrayOf(mock()), 10000, 100,
+            500, mock(), BTC_ADDRESS)
     private val invalidTransactionData: TransactionData = TransactionData(emptyArray())
     private val transactionFee: TransactionFee = TransactionFee(5.0, 10.0, 15.0)
     private val identity: Identity get() = Identity(Contact(PHONE_NUMBER, DISPLAY_NAME, false))
@@ -92,19 +93,19 @@ class PaymentUtilTest {
 
         assertTrue(paymentUtil.isValidPaymentMethod)
         assertTrue(paymentUtil.errorMessage.isNullOrEmpty())
-        assertThat(paymentUtil.paymentHolder!!.paymentAddress, equalTo(BTC_ADDRESS))
+        assertThat(paymentUtil.paymentHolder.paymentAddress, equalTo(BTC_ADDRESS))
     }
 
     @Test
     fun confirms_insufficient_funding_with_given_fees() {
         val paymentUtil = createUtil()
         paymentUtil.setAddress(BTC_ADDRESS)
-        val btcCurrency = paymentUtil.paymentHolder!!.updateValue(USDCurrency(25.0)) as BTCCurrency
+        val btcCurrency = paymentUtil.paymentHolder.updateValue(USDCurrency(25.0)) as BTCCurrency
         val spendableBalance = btcCurrency.toSatoshis() - 100L
-        paymentUtil.paymentHolder!!.spendableBalance = BTCCurrency(spendableBalance)
+        paymentUtil.paymentHolder.spendableBalance = BTCCurrency(spendableBalance)
 
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()),
-                eq(transactionFee.slow), any())).thenReturn(invalidTransactionData)
+                eq(transactionFee.slow), any(), eq(null))).thenReturn(invalidTransactionData)
 
         assertFalse(paymentUtil.checkFunding())
         assertThat(paymentUtil.errorMessage, equalTo("Attempting to send "
@@ -116,8 +117,8 @@ class PaymentUtilTest {
     fun confirms_funding_with_given_fees() {
         val paymentUtil = createUtil()
         paymentUtil.setAddress(BTC_ADDRESS)
-        paymentUtil.paymentHolder!!.spendableBalance = paymentUtil.paymentHolder!!.updateValue(USDCurrency(50.0)) as BTCCurrency
-        whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.slow), any())).thenReturn(validTransactionData)
+        paymentUtil.paymentHolder.spendableBalance = paymentUtil.paymentHolder.updateValue(USDCurrency(50.0)) as BTCCurrency
+        whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.slow), any(), eq(null))).thenReturn(validTransactionData)
 
         assertTrue(paymentUtil.checkFunding())
         assertTrue(paymentUtil.isFunded())
@@ -126,10 +127,10 @@ class PaymentUtilTest {
     @Test
     fun can_send_more_than_limit_to_address() {
         val paymentUtil = createUtil()
-        paymentUtil.paymentHolder!!.updateValue(USDCurrency(25.0))
+        paymentUtil.paymentHolder.updateValue(USDCurrency(25.0))
         paymentUtil.setAddress(BTC_ADDRESS)
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.slow),
-                any())).thenReturn(validTransactionData)
+                any(), eq(null))).thenReturn(validTransactionData)
 
         assertTrue(paymentUtil.checkFunding())
         assertTrue(paymentUtil.isValid)
@@ -138,10 +139,10 @@ class PaymentUtilTest {
     @Test
     fun will_not_limit_amount_can_send_to_verified_contact() {
         val paymentUtil = createUtil()
-        paymentUtil.paymentHolder!!.updateValue(USDCurrency(101.0))
+        paymentUtil.paymentHolder.updateValue(USDCurrency(101.0))
         val identity = Identity(identity.identityType, identity.value, identity.hash, identity.displayName, "", true, identity.avatarUrl)
         paymentUtil.setIdentity(identity)
-        whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.slow), any()))
+        whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()), eq(transactionFee.slow), any(), eq(null)))
                 .thenReturn(validTransactionData)
 
         assertTrue(paymentUtil.checkFunding())
@@ -152,7 +153,7 @@ class PaymentUtilTest {
     @Test
     fun will_limit_amount_can_send_to_contact_invite() {
         val paymentUtil = createUtil()
-        paymentUtil.paymentHolder!!.updateValue(USDCurrency(101.0))
+        paymentUtil.paymentHolder.updateValue(USDCurrency(101.0))
         paymentUtil.setIdentity(identity)
 
         assertFalse(paymentUtil.isValid)
@@ -165,7 +166,7 @@ class PaymentUtilTest {
     fun can_send_less_than_one_usd() {
         val paymentUtil = createUtil()
         paymentUtil.setAddress(BTC_ADDRESS)
-        paymentUtil.paymentHolder!!.updateValue(USDCurrency(0.99))
+        paymentUtil.paymentHolder.updateValue(USDCurrency(0.99))
 
         assertTrue(paymentUtil.isValid)
     }
@@ -174,7 +175,7 @@ class PaymentUtilTest {
     fun invalid_payment_amount_has_reason() {
         val paymentUtil = createUtil()
         paymentUtil.setAddress(BTC_ADDRESS)
-        paymentUtil.paymentHolder!!.updateValue(USDCurrency(0.0))
+        paymentUtil.paymentHolder.updateValue(USDCurrency(0.0))
 
         assertFalse(paymentUtil.isValid)
 
@@ -186,7 +187,7 @@ class PaymentUtilTest {
     fun valid_payment_is_valid() {
         val paymentUtil = createUtil()
         paymentUtil.setAddress(BTC_ADDRESS)
-        whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(any(), any(), any()))
+        whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(any(), any(), any(), eq(null)))
                 .thenReturn(validTransactionData)
 
         paymentUtil.checkFunding()
@@ -206,7 +207,7 @@ class PaymentUtilTest {
     @Test
     fun updating_price_to_spend_returns_converted_btc() {
         val paymentUtil = createUtil()
-        val btc = paymentUtil.paymentHolder!!.updateValue(USDCurrency(5.0)) as BTCCurrency
+        val btc = paymentUtil.paymentHolder.updateValue(USDCurrency(5.0)) as BTCCurrency
 
         assertThat(btc.toSatoshis(), equalTo(100000L))
     }
@@ -328,10 +329,10 @@ class PaymentUtilTest {
     fun is_valid_checks_payment_type_and_payment_amount() {
         val paymentUtil = createUtil()
         paymentUtil.setAddress(BTC_ADDRESS)
-        paymentUtil.paymentHolder!!.updateValue(BTCCurrency(0.0))
+        paymentUtil.paymentHolder.updateValue(BTCCurrency(0.0))
         assertFalse(paymentUtil.isValid)
 
-        paymentUtil.paymentHolder!!.updateValue(BTCCurrency(1.0))
+        paymentUtil.paymentHolder.updateValue(BTCCurrency(1.0))
         assertTrue(paymentUtil.isValid)
 
         verifyZeroInteractions(paymentUtil.transactionFundingManager)
@@ -341,33 +342,10 @@ class PaymentUtilTest {
     fun check_funding_validates_funding() {
         val paymentUtil = createUtil()
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(paymentUtil.getAddress()),
-                eq(transactionFee.slow), any()))
+                eq(transactionFee.slow), any(), eq(null)))
                 .thenReturn(validTransactionData)
 
         assertTrue(paymentUtil.checkFunding())
-    }
-
-    @Test
-    fun invalid_when_satoshisSpending_negative_from_long_overflow() {
-        val paymentUtil = createUtil()
-        paymentUtil.paymentHolder!!.updateValue(USDCurrency(101.0))
-        paymentUtil.setAddress(BTC_ADDRESS)
-        paymentUtil.paymentHolder!!.spendableBalance = paymentUtil.paymentHolder!!.updateValue(USDCurrency(25.0)) as BTCCurrency
-        paymentUtil.paymentHolder!!.transactionData = validTransactionData
-
-        validTransactionData.amount = -1
-        paymentUtil.paymentHolder!!.transactionData = validTransactionData
-        assertFalse(paymentUtil.isFunded())
-
-        validTransactionData.amount = 1
-        validTransactionData.feeAmount = -1
-        paymentUtil.paymentHolder!!.transactionData = validTransactionData
-        assertFalse(paymentUtil.isFunded())
-
-        validTransactionData.feeAmount = 1
-        validTransactionData.changeAmount = -1
-        paymentUtil.paymentHolder!!.transactionData = validTransactionData
-        assertFalse(paymentUtil.isFunded())
     }
 
     @Test
@@ -378,7 +356,7 @@ class PaymentUtilTest {
 
         assertTrue(paymentUtil.fundMax())
 
-        assertThat(paymentUtil.paymentHolder!!.transactionData, equalTo(validTransactionData))
+        assertThat(paymentUtil.paymentHolder.transactionData, equalTo(validTransactionData))
     }
 
     @Test
@@ -392,19 +370,19 @@ class PaymentUtilTest {
         paymentUtil.clearFunding()
 
         assertFalse(paymentUtil.isFunded())
-        val transactionData = paymentUtil.paymentHolder!!.transactionData
+        val transactionData = paymentUtil.paymentHolder.transactionData
         assertThat(transactionData.utxos.size, equalTo(0))
         assertThat(transactionData.amount, equalTo(0L))
         assertThat(transactionData.changeAmount, equalTo(0L))
         assertThat(transactionData.feeAmount, equalTo(0L))
-        assertThat(paymentUtil.paymentHolder!!.paymentAddress, equalTo(BTC_ADDRESS))
+        assertThat(paymentUtil.paymentHolder.paymentAddress, equalTo(BTC_ADDRESS))
     }
 
     @Test
     fun ignores_floor_amount_when_sending_max() {
         val paymentUtil = createUtil()
-        paymentUtil.paymentHolder!!.evaluationCurrency = USDCurrency(1000.00)
-        paymentUtil.paymentHolder!!.updateValue(USDCurrency(.99))
+        paymentUtil.paymentHolder.evaluationCurrency = USDCurrency(1000.00)
+        paymentUtil.paymentHolder.updateValue(USDCurrency(.99))
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(any(), any())).thenReturn(validTransactionData)
         paymentUtil.setAddress(BTC_ADDRESS)
         paymentUtil.fundMax()
@@ -416,11 +394,11 @@ class PaymentUtilTest {
     @Test
     fun checking_funding_uses_send_max_flag() {
         val paymentUtil = createUtil()
-        paymentUtil.paymentHolder!!.evaluationCurrency = USDCurrency(1000.00)
-        paymentUtil.paymentHolder!!.updateValue(USDCurrency(5.99))
+        paymentUtil.paymentHolder.evaluationCurrency = USDCurrency(1000.00)
+        paymentUtil.paymentHolder.updateValue(USDCurrency(5.99))
         paymentUtil.setAddress(BTC_ADDRESS)
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(any(), any())).thenReturn(validTransactionData)
-        whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(any(), any(), any())).thenReturn(invalidTransactionData)
+        whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(any(), any(), any(), eq(null))).thenReturn(invalidTransactionData)
         paymentUtil.fundMax()
 
         paymentUtil.checkFunding()
@@ -428,7 +406,8 @@ class PaymentUtilTest {
         assertTrue(paymentUtil.isValid)
         assertTrue(paymentUtil.isFunded())
         verify(paymentUtil.transactionFundingManager).buildFundedTransactionData(any(), any())
-        verify(paymentUtil.transactionFundingManager, times(0)).buildFundedTransactionData(any(), any(), any())
+        verify(paymentUtil.transactionFundingManager, times(0))
+                .buildFundedTransactionData(any(), any(), any(), eq(null))
     }
 
     @Test
@@ -444,15 +423,15 @@ class PaymentUtilTest {
         assertThat(paymentUtil.paymentHolder?.transactionData, equalTo(txData1))
 
         paymentUtil.setAddress(BTC_ADDRESS)
-        assertThat(paymentUtil.paymentHolder!!.paymentAddress, equalTo(BTC_ADDRESS))
-        assertThat(paymentUtil.paymentHolder!!.transactionData, equalTo(txData2))
+        assertThat(paymentUtil.paymentHolder.paymentAddress, equalTo(BTC_ADDRESS))
+        assertThat(paymentUtil.paymentHolder.transactionData, equalTo(txData2))
 
-        paymentUtil.paymentHolder!!.clearPayment()
+        paymentUtil.paymentHolder.clearPayment()
 
         paymentUtil.setAddress(BTC_ADDRESS)
         paymentUtil.fundMax()
-        assertThat(paymentUtil.paymentHolder!!.transactionData, equalTo(txData2))
-        assertThat(paymentUtil.paymentHolder!!.paymentAddress, equalTo(BTC_ADDRESS))
+        assertThat(paymentUtil.paymentHolder.transactionData, equalTo(txData2))
+        assertThat(paymentUtil.paymentHolder.paymentAddress, equalTo(BTC_ADDRESS))
     }
 
     companion object {

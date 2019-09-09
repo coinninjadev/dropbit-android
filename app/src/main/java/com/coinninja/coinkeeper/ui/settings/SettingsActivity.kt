@@ -100,16 +100,16 @@ class SettingsActivity : BaseActivity(), DialogInterface.OnClickListener {
     }
 
     private fun setupDustProtection() {
-        val toolTip = withId<View>(this, R.id.dust_protection_tooltip)
-        toolTip.setOnClickListener { this.onDustProtectionTooltipPressed(it) }
-        val view = withId<Switch>(this, R.id.dust_protection_toggle)
+        val toolTip = findViewById<View>(R.id.dust_protection_tooltip)
+        toolTip.setOnClickListener { this.onDustProtectionTooltipPressed() }
+        val view = findViewById<Switch>(R.id.dust_protection_toggle)
         view.isChecked = dustProtectionPreference.isDustProtectionEnabled
         view.setOnCheckedChangeListener { compoundButton, value ->
             this.onToggleDustProtection(compoundButton, value)
         }
     }
 
-    private fun onDustProtectionTooltipPressed(view: View) {
+    private fun onDustProtectionTooltipPressed() {
         UriUtil.openUrl(dropbitUriBuilder.build(DropbitRoute.DUST_PROTECTION), this)
     }
 

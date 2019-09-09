@@ -9,11 +9,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.thunderdome.model.WithdrawalRequest
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Resources
+import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.PhoneNumber
+import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
+import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
@@ -25,12 +34,10 @@ import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter
 import com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION
-import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity
-import com.coinninja.coinkeeper.view.activity.StartActivity
-import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity
-import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity
+import com.coinninja.coinkeeper.view.activity.*
 import com.coinninja.matchers.ActivityMatchers.activityWithIntentStarted
 import com.google.i18n.phonenumbers.Phonenumber
+import junit.framework.Assert.assertNotNull
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Assert
@@ -365,6 +372,71 @@ class ActivityNavigationUtilTest {
             it.showMarketCharts(activity)
 
             assertThat(activity, activityWithIntentStarted(Intent(activity, MarketScreenActivity::class.java)))
+        }
+    }
+
+    @Test
+    fun shows_lightning_deposit_screen_with_no_amount() {
+        createActivityNavigationUtil().also {
+            it.showLoadLightningWith(activity)
+
+            assertThat(activity, activityWithIntentStarted(Intent(activity, LightningDepositActivity::class.java)))
+        }
+    }
+
+    @Test
+    fun shows_lightning_deposit_screen_with_amount() {
+        createActivityNavigationUtil().also {
+            val amount = USDCurrency(5_00)
+            it.showLoadLightningWith(activity, amount)
+
+            val intent = Intent(activity, LightningDepositActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_AMOUNT, amount)
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun shows_withdrawal_lighting_screen() {
+        createActivityNavigationUtil().also {
+            it.showWithdrawalLightning(activity)
+
+            val intent = Intent(activity, LightningWithdrawalActivity::class.java)
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun shows_loading_lightning_options() {
+        createActivityNavigationUtil().also {
+            it.showLoadLightningOptions(activity)
+
+            assertNotNull(activity.supportFragmentManager.findFragmentByTag(LightningLoadingOptionsDialog::class.java.simpleName))
+        }
+    }
+
+    @Test
+    fun navigates_to_broadcast() {
+        createActivityNavigationUtil().also {
+            val broadcastDTO = BroadcastTransactionDTO(TransactionData())
+
+            it.navigateToBroadcast(activity, broadcastDTO)
+
+            val intent = Intent(activity, BroadcastActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_BROADCAST_DTO, broadcastDTO)
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun shows_withdrawal_completed_screen() {
+        createActivityNavigationUtil().also {
+            val withdrawalRequest = WithdrawalRequest(BTCCurrency(100000), BTCCurrency(500), BTCCurrency(5000))
+            it.showWithdrawalCompleted(activity, withdrawalRequest)
+
+            val intent = Intent(activity, LightningWithdrawalBroadcastActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_WITHDRAWAL_REQUEST, withdrawalRequest)
+            assertThat(activity, activityWithIntentStarted(intent))
         }
     }
 }

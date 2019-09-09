@@ -5,9 +5,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.service.client.model.NewsArticle
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Test

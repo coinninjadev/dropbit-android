@@ -2,13 +2,11 @@ package com.coinninja.coinkeeper.util.crypto;
 
 import android.net.Uri;
 
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
+import androidx.annotation.NonNull;
+
 import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import androidx.annotation.NonNull;
+import app.dropbit.commons.currency.BTCCurrency;
 
 public class BitcoinUri {
 
@@ -61,7 +59,9 @@ public class BitcoinUri {
     }
 
     public Uri getBip70UrlIfApplicable() {
-        if (!isBip70 || bip70Uri == null) { return null; }
+        if (!isBip70 || bip70Uri == null) {
+            return null;
+        }
 
         return bip70Uri;
     }

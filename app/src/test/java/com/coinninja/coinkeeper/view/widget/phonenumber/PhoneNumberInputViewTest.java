@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView.OnExamplePhoneNumberChangedObserver;
 import static com.coinninja.coinkeeper.view.widget.phonenumber.PhoneNumberInputView.OnValidPhoneNumberObserver;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -53,7 +52,7 @@ public class PhoneNumberInputViewTest {
         scenario = ActivityScenario.launch(TestableActivity.class);
         scenario.onActivity(activity -> {
             activity.appendLayout(R.layout.test__phone_number_input_view);
-            phoneNumberInputView = withId(activity, R.id.phone_number_input);
+            phoneNumberInputView = activity.findViewById(R.id.phone_number_input);
         });
         countryCodeLocales = new ArrayList<>();
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "GB"), 44));
@@ -100,21 +99,21 @@ public class PhoneNumberInputViewTest {
 
     @Test
     public void sets_the_flag_view_with_the_correct_emoji() {
-        TextView emoji = withId(phoneNumberInputView, R.id.phone_number_view_flag);
+        TextView emoji = phoneNumberInputView.findViewById(R.id.phone_number_view_flag);
 
         assertThat(emoji, hasText(countryCodeLocales.get(1).getEmoji()));
     }
 
     @Test
     public void sets_country_code_for_initialized_country() {
-        TextView selectedCountryCode = withId(phoneNumberInputView, R.id.phone_number_view_number_input);
+        TextView selectedCountryCode = phoneNumberInputView.findViewById(R.id.phone_number_view_number_input);
 
         assertThat(selectedCountryCode, hasText("+1"));
     }
 
     @Test
     public void sets_minimum_ems_when_widget_inits() {
-        EditText phoneInput = withId(phoneNumberInputView, R.id.phone_number_view_number_input);
+        EditText phoneInput = phoneNumberInputView.findViewById(R.id.phone_number_view_number_input);
 
         assertThat(phoneInput.getMaxEms(), equalTo(7));
         assertThat(phoneInput.getMaxEms(), equalTo(7));
@@ -123,7 +122,7 @@ public class PhoneNumberInputViewTest {
     @Test
     @Config(qualifiers = "en-rGB")
     public void sets_minimum_ems_when_widget_inits__gb() {
-        EditText phoneInput = withId(phoneNumberInputView, R.id.phone_number_view_number_input);
+        EditText phoneInput = phoneNumberInputView.findViewById(R.id.phone_number_view_number_input);
 
         assertThat(phoneInput.getMinEms(), equalTo(7));
         assertThat(phoneInput.getMaxEms(), equalTo(7));
@@ -131,7 +130,7 @@ public class PhoneNumberInputViewTest {
 
     @Test
     public void formats_input() {
-        EditText phoneInput = withId(phoneNumberInputView, R.id.phone_number_view_number_input);
+        EditText phoneInput = phoneNumberInputView.findViewById(R.id.phone_number_view_number_input);
 
         phoneNumberInputView.setText("3305551111");
 
@@ -141,7 +140,7 @@ public class PhoneNumberInputViewTest {
     @Test
     @Config(qualifiers = "en-rGB")
     public void formats_input__GB() {
-        EditText phoneInput = withId(phoneNumberInputView, R.id.phone_number_view_number_input);
+        EditText phoneInput = phoneNumberInputView.findViewById(R.id.phone_number_view_number_input);
 
         phoneNumberInputView.setText("+441632960025");
 
@@ -150,7 +149,7 @@ public class PhoneNumberInputViewTest {
 
     @Test
     public void sets_selection_to_end_when_clicked() {
-        EditText phoneInput = withId(phoneNumberInputView, R.id.phone_number_view_number_input);
+        EditText phoneInput = phoneNumberInputView.findViewById(R.id.phone_number_view_number_input);
 
         phoneInput.performClick();
 
@@ -160,7 +159,7 @@ public class PhoneNumberInputViewTest {
 
     @Test
     public void shows_alert_dialog_for_selection_countries_when_selector_chosen() {
-        withId(phoneNumberInputView, R.id.phone_number_view_country_codes).performClick();
+        phoneNumberInputView.findViewById(R.id.phone_number_view_country_codes).performClick();
 
         assertNotNull(ShadowDialog.getLatestDialog());
     }
@@ -168,12 +167,12 @@ public class PhoneNumberInputViewTest {
     @Test
     public void selecting_country_sets_view_to_locale() {
         PhoneNumberFormattingTextWatcher watcher = mock(PhoneNumberFormattingTextWatcher.class);
-        TextView emoji = withId(phoneNumberInputView, R.id.phone_number_view_flag);
-        EditText phoneInput = withId(phoneNumberInputView, R.id.phone_number_view_number_input);
+        TextView emoji = phoneNumberInputView.findViewById(R.id.phone_number_view_flag);
+        EditText phoneInput = phoneNumberInputView.findViewById(R.id.phone_number_view_number_input);
         phoneInput.removeTextChangedListener(phoneNumberInputView.numberFormattingTextWatcher);
         phoneInput.addTextChangedListener(watcher);
         phoneNumberInputView.numberFormattingTextWatcher = watcher;
-        withId(phoneNumberInputView, R.id.phone_number_view_country_codes).performClick();
+        phoneNumberInputView.findViewById(R.id.phone_number_view_country_codes).performClick();
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
 
         shadowOf(latestDialog.getListView()).performItemClick(0);
@@ -191,7 +190,7 @@ public class PhoneNumberInputViewTest {
         phoneNumberInputView.setOnExampleNumberChangeObserver(observer);
         verify(observer).onExamplePhoneNumberChanged("+1 201-555-0123");
 
-        withId(phoneNumberInputView, R.id.phone_number_view_country_codes).performClick();
+        phoneNumberInputView.findViewById(R.id.phone_number_view_country_codes).performClick();
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(0);
 
@@ -249,7 +248,7 @@ public class PhoneNumberInputViewTest {
         phoneNumberInputView.setCountryCodeLocals(countryCodeLocales);
         verify(observer).onCountryCodeLocaleChanged(countryCodeLocales.get(1));
 
-        withId(phoneNumberInputView, R.id.phone_number_view_country_codes).performClick();
+        phoneNumberInputView.findViewById(R.id.phone_number_view_country_codes).performClick();
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(0);
 

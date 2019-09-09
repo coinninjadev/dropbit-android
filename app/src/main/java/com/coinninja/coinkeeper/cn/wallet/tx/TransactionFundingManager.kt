@@ -31,7 +31,7 @@ class TransactionFundingManager @Inject internal constructor(
         return transactionData
     }
 
-    fun buildFundedTransactionData(payToAddress: String?, feeRate: Double, amountToSend: Long): TransactionData {
+    fun buildFundedTransactionData(payToAddress: String?, feeRate: Double, amountToSend: Long, rbf: Boolean? = null): TransactionData {
         val transactionData = createTransactionData()
         val walletValue = fundingModel.spendableAmount
 
@@ -45,6 +45,9 @@ class TransactionFundingManager @Inject internal constructor(
                 feeAmount = fees
                 changeAmount = calculateChange(amountToSend, fees)
                 utxos = unspentTransactionOutputs.toTypedArray()
+                rbf?.let {
+                    isReplaceable = rbf
+                }
             }
         }
 

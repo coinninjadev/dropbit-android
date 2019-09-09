@@ -15,8 +15,6 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
@@ -33,7 +31,9 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
+
 import static com.coinninja.matchers.ConfirmationViewMatcher.configuredForTransaction;
 import static com.coinninja.matchers.ConfirmationViewMatcher.stageIs;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -71,7 +71,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         activity = Robolectric.setupActivity(A.class);
-        page = withId(activity, R.id.page);
+        page = activity.findViewById( R.id.page);
         when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(0L));
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
@@ -105,17 +105,17 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     public void renders_canceled_icon_for_transaction_issues() {
         bindableTransaction.setSendState(BindableTransaction.SendState.FAILED_TO_BROADCAST_SEND);
         adapter.bindTo(page, bindableTransaction, 0);
-        ImageView icon = withId(page, R.id.ic_send_state);
+        ImageView icon = page.findViewById( R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
 
         bindableTransaction.setSendState(BindableTransaction.SendState.FAILED_TO_BROADCAST_TRANSFER);
         adapter.bindTo(page, bindableTransaction, 0);
-        icon = withId(page, R.id.ic_send_state);
+        icon = page.findViewById( R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
 
         bindableTransaction.setSendState(BindableTransaction.SendState.DOUBLESPEND_SEND);
         adapter.bindTo(page, bindableTransaction, 0);
-        icon = withId(page, R.id.ic_send_state);
+        icon = page.findViewById(R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
 
     }
@@ -124,7 +124,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     public void renders_send_icon() {
         adapter.bindTo(page, bindableTransaction, 0);
 
-        ImageView icon = withId(page, R.id.ic_send_state);
+        ImageView icon = page.findViewById(R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_send));
     }
 
@@ -134,8 +134,8 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView confirmations = withId(page, R.id.confirmations);
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
 
         assertThat(confirmationsView, configuredForTransaction());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_PENDING));
@@ -148,8 +148,8 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView confirmations = withId(page, R.id.confirmations);
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
 
         assertThat(confirmationsView, configuredForTransaction());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_COMPLETE));
@@ -164,14 +164,14 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
         when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
 
         adapter.bindTo(page, bindableTransaction, 0);
-        Button seeDetails = withId(page, R.id.call_to_action);
+        Button seeDetails = page.findViewById(R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer).onTransactionDetailsRequested(bindableTransaction);
 
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
         adapter.bindTo(page, bindableTransaction, 1);
-        seeDetails = withId(page, R.id.call_to_action);
+        seeDetails = page.findViewById(R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer, times(2)).onTransactionDetailsRequested(bindableTransaction);
@@ -184,7 +184,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView contact = withId(page, R.id.identity);
+        TextView contact = page.findViewById(R.id.identity);
         assertThat(contact, hasText(name));
     }
 
@@ -195,7 +195,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        DefaultCurrencyDisplayView view = page.findViewById(R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(50010L));
         assertThat(view.getTotalCrypto().toLong(), equalTo(50010000L));
     }
@@ -206,7 +206,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView value = withId(page, R.id.transaction_date);
+        TextView value = page.findViewById(R.id.transaction_date);
         assertThat(value, hasText("April 24, 2018 01:24am"));
     }
 
@@ -214,7 +214,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     public void bind_hides_call_show_details() {
         adapter.bindTo(page, bindableTransaction, 0);
 
-        assertThat(withId(page, R.id.call_to_action), isInvisible());
+        assertThat(page.findViewById(R.id.call_to_action), isInvisible());
     }
 
     public static class A extends AppCompatActivity {

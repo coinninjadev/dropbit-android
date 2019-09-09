@@ -23,14 +23,15 @@ import com.coinninja.coinkeeper.service.client.model.CNPhoneNumber;
 import com.coinninja.coinkeeper.service.client.model.CNWallet;
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.FeesManager;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
 
 import static com.coinninja.coinkeeper.view.util.TransactionUtil.isTargetNotSpendable;
 

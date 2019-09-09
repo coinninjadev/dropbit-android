@@ -4,8 +4,6 @@ import android.content.Context;
 import android.widget.EditText;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +13,9 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
 
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.MatcherAssert.assertThat;

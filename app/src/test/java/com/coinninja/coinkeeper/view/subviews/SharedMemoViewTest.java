@@ -17,7 +17,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.hasTag;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,17 +38,17 @@ public class SharedMemoViewTest {
 
     @Test
     public void test_configure_for_sharing__renders_shared_icon() {
-        SharedMemoView sharedMemoView = new SharedMemoView(view, true, "some memo", "Jon Doe");
+        new SharedMemoView(view, true, "some memo", "Jon Doe");
 
-        ImageView imageView = withId(view, R.id.shared_status_image_view);
+        ImageView imageView = view.findViewById(R.id.shared_status_image_view);
         assertThat(imageView, hasTag(R.drawable.ic_shared_user));
     }
 
     @Test
     public void sets_memo_status_text() {
-        SharedMemoView sharedMemoView = new SharedMemoView(view, true, "some memo", "Jon Doe");
+                new SharedMemoView(view, true, "some memo", "Jon Doe");
 
-        TextView textView = withId(view, R.id.shared_memo_status_text_view);
+        TextView textView = view.findViewById(R.id.shared_memo_status_text_view);
 
         assertThat(textView, hasText(Resources.INSTANCE.getString(context, R.string.shared_memo, "Jon Doe")));
     }

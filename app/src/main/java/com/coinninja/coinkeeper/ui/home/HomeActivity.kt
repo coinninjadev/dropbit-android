@@ -5,9 +5,10 @@ import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.viewpager.widget.ViewPager
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 
@@ -18,14 +19,27 @@ class HomeActivity : BaseActivity() {
     }
 
     @Inject
-    internal lateinit var activityNavigationUtil: ActivityNavigationUtil
+    internal lateinit var homePagerAdapterProvider: HomePagerAdapterProvider
 
     @Inject
-    internal lateinit var homePagerAdapterProvider: HomePagerAdapterProvider
+    internal lateinit var accountModeManger: AccountModeManager
+
     internal var currentPage = 0
 
     internal val pager: ViewPager get() = findViewById(R.id.home_pager)
     internal val tabs: TabLayout get() = findViewById(R.id.appbar_tabs)
+    internal val onTabSelectedListener: TabLayout.OnTabSelectedListener = object : TabLayout.OnTabSelectedListener {
+        override fun onTabReselected(tab: TabLayout.Tab?) {}
+
+        override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+        override fun onTabSelected(tab: TabLayout.Tab?) {
+            when (tabs.selectedTabPosition) {
+                1 -> accountModeManger.changeMode(AccountMode.LIGHTNING)
+                else -> accountModeManger.changeMode(AccountMode.BLOCKCHAIN)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,11 +61,13 @@ class HomeActivity : BaseActivity() {
         addTabToAppBar(R.layout.home_appbar_tab_2, 1)
         addTabToAppBar(R.layout.home_appbar_tab_1, 0)
 
+        tabs.addOnTabSelectedListener(onTabSelectedListener)
     }
 
     override fun onResume() {
         super.onResume()
         showDetailWithInitialIntent()
+        selectTabForMode()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
@@ -75,6 +91,19 @@ class HomeActivity : BaseActivity() {
 
         activityNavigationUtil.showTransactionDetail(this, txid = intent.getStringExtra(DropbitIntents.EXTRA_TRANSACTION_ID))
         intent.removeExtra(DropbitIntents.EXTRA_TRANSACTION_ID)
+    }
+
+    private fun selectTabForMode() {
+        when (accountModeManger.accountMode) {
+            AccountMode.LIGHTNING -> {
+                val tabs = tabs
+                tabs.selectTab(tabs.getTabAt(1))
+            }
+            else -> {
+                val tabs = tabs
+                tabs.selectTab(tabs.getTabAt(0))
+            }
+        }
     }
 
 }

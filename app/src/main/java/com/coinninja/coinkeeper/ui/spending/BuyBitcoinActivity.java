@@ -25,7 +25,6 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter.TYPE;
 
 public class BuyBitcoinActivity extends BaseActivity {
@@ -67,11 +66,11 @@ public class BuyBitcoinActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        withId(this, R.id.buy_with_credit_card)
+        findViewById(R.id.buy_with_credit_card)
                 .setOnClickListener(v -> setupNavigationToByBitcoinWithCreditCard(this));
-        withId(this, R.id.buy_with_gift_card)
+        findViewById(R.id.buy_with_gift_card)
                 .setOnClickListener(v -> setupNavigationToByBitcoinWithGiftCard(this));
-        withId(this, R.id.buy_at_atm).setOnClickListener(v -> onBuyAtAtmClicked());
+        findViewById(R.id.buy_at_atm).setOnClickListener(v -> onBuyAtAtmClicked());
     }
 
     private void showNotice(CallbackHandler callbackHandler) {

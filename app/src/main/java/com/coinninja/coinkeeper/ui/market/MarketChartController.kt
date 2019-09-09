@@ -1,9 +1,8 @@
 package com.coinninja.coinkeeper.ui.market
 
-import android.widget.TextView
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.service.client.model.HistoricalPriceRecord
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description

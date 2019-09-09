@@ -7,6 +7,11 @@ import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivityModule
 import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.home.HomeModule
+import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
+import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivityModule
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivityModule
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
 import com.coinninja.coinkeeper.ui.market.MarketChartModule
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.news.MarketNewsModule
@@ -138,5 +143,17 @@ abstract class AndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class])
     internal abstract fun transactionDetailsActivity(): TransactionDetailsActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, LightningDepositActivityModule::class])
+    internal abstract fun LightningDepositActivity(): LightningDepositActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, LightningWithdrawalActivityModule::class])
+    internal abstract fun lightningWithdrawalActivity(): LightningWithdrawalActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, LightningWithdrawalActivityModule::class])
+    internal abstract fun lightningWithdrawalCompletedActivity(): LightningWithdrawalBroadcastActivity
 
 }

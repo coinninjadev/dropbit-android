@@ -38,8 +38,6 @@ class TransactionTweetDialog : BaseBottomDialogFragment() {
     @Inject
     internal lateinit var circleTransform: CircleTransform
     @Inject
-    internal lateinit var activityNavigationUtil: ActivityNavigationUtil
-    @Inject
     internal lateinit var suppressionCheck: DropbitTwitterInviteTweetSuppressionCheck
 
 

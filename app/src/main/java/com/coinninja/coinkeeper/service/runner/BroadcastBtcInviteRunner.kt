@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.service.runner
 
 import android.content.Context
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.BTCCurrency
 import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.bitcoin.BroadcastResult
@@ -18,7 +19,6 @@ import com.coinninja.coinkeeper.model.helpers.BroadcastBtcInviteHelper
 import com.coinninja.coinkeeper.model.helpers.ExternalNotificationHelper
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.util.analytics.Analytics
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import javax.inject.Inject
 
 

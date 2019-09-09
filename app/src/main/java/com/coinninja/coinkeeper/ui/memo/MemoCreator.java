@@ -5,16 +5,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.coinninja.android.helpers.Input;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import static com.coinninja.android.helpers.Views.withId;
 
 public class MemoCreator {
     private OnMemoCreatedCallback callback;
@@ -31,10 +29,10 @@ public class MemoCreator {
         genericAlertDialog = GenericAlertDialog.newInstance(view, false, false);
         genericAlertDialog.asWide();
         genericAlertDialog.show(activity.getSupportFragmentManager(), MemoCreator.class.getSimpleName());
-        EditText memoView = withId(view, R.id.memo);
+        EditText memoView = view.findViewById(R.id.memo);
         memoView.setText(text);
         memoView.setSelection(text.length());
-        withId(view, R.id.done).setOnClickListener(v -> onDonePressed());
+        view.findViewById(R.id.done).setOnClickListener(v -> onDonePressed());
         memoView.postDelayed(() -> {
             Input.INSTANCE.showKeyboard(memoView);
         }, 200);
@@ -42,7 +40,7 @@ public class MemoCreator {
     }
 
     private void onDonePressed() {
-        TextView memo = withId(view, R.id.memo);
+        TextView memo = view.findViewById(R.id.memo);
         String text = memo.getText().toString().trim();
 
         if (!"".equals(text))

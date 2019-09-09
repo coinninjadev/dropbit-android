@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.coinninja.android.helpers.Views.clickOn;
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
@@ -33,6 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
+import static org.robolectric.shadows.ShadowView.clickOn;
 
 @RunWith(RobolectricTestRunner.class)
 public class PhoneVerificationViewTest {
@@ -49,11 +48,11 @@ public class PhoneVerificationViewTest {
     public void setUp() {
         activity = Robolectric.setupActivity(TestableActivity.class);
         activity.appendLayout(R.layout.activity_verify_phone);
-        phoneVerificationView = withId(activity, R.id.verification_view);
-        phoneNumberInputView = withId(activity, R.id.phone_number_input);
-        errorMessage = withId(activity, R.id.error_message);
-        exampleNumber = withId(activity, R.id.example_number);
-        verifyPhoneButton = withId(activity, R.id.verify_phone_number);
+        phoneVerificationView = activity.findViewById(R.id.verification_view);
+        phoneNumberInputView = activity.findViewById(R.id.phone_number_input);
+        errorMessage = activity.findViewById(R.id.error_message);
+        exampleNumber = activity.findViewById(R.id.example_number);
+        verifyPhoneButton = activity.findViewById(R.id.verify_phone_number);
         countryCodeLocales = new ArrayList<>();
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "GB"), 44));
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "US"), 1));
@@ -146,7 +145,7 @@ public class PhoneVerificationViewTest {
         phoneVerificationView.setCountryCodeLocals(countryCodeLocales);
         assertThat(exampleNumber, hasText("Example: +1 201-555-0123"));
 
-        withId(activity, R.id.phone_number_view_country_codes).performClick();
+        activity.findViewById(R.id.phone_number_view_country_codes).performClick();
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(0);
 
@@ -160,7 +159,7 @@ public class PhoneVerificationViewTest {
         phoneNumberInputView.setText("330555");
         errorMessage.setVisibility(View.VISIBLE);
 
-        withId(activity, R.id.phone_number_view_country_codes).performClick();
+        activity.findViewById(R.id.phone_number_view_country_codes).performClick();
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(0);
 
@@ -174,12 +173,12 @@ public class PhoneVerificationViewTest {
         phoneVerificationView.setCountryCodeLocals(countryCodeLocales);
         assertThat(verifyPhoneButton, isGone());
 
-        clickOn(phoneVerificationView, R.id.phone_number_view_country_codes);
+        clickOn(phoneVerificationView.findViewById(R.id.phone_number_view_country_codes));
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(2);
         assertThat(verifyPhoneButton, isVisible());
 
-        clickOn(phoneVerificationView, R.id.phone_number_view_country_codes);
+        clickOn(phoneVerificationView.findViewById(R.id.phone_number_view_country_codes));
         latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(0);
         assertThat(verifyPhoneButton, isGone());
@@ -191,7 +190,7 @@ public class PhoneVerificationViewTest {
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "NZ"), 64));
         phoneVerificationView.setOnValidPhoneNumberObserver(observer);
         phoneVerificationView.setCountryCodeLocals(countryCodeLocales);
-        clickOn(phoneVerificationView, R.id.phone_number_view_country_codes);
+        clickOn(phoneVerificationView.findViewById(R.id.phone_number_view_country_codes));
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(2);
 
@@ -210,7 +209,7 @@ public class PhoneVerificationViewTest {
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "NZ"), 64));
         phoneVerificationView.setOnValidPhoneNumberObserver(observer);
         phoneVerificationView.setCountryCodeLocals(countryCodeLocales);
-        clickOn(phoneVerificationView, R.id.phone_number_view_country_codes);
+        clickOn(phoneVerificationView.findViewById(R.id.phone_number_view_country_codes));
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(2);
 
@@ -226,7 +225,7 @@ public class PhoneVerificationViewTest {
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "NZ"), 64));
         phoneVerificationView.setOnValidPhoneNumberObserver(observer);
         phoneVerificationView.setCountryCodeLocals(countryCodeLocales);
-        clickOn(phoneVerificationView, R.id.phone_number_view_country_codes);
+        clickOn(phoneVerificationView.findViewById(R.id.phone_number_view_country_codes));
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
         shadowOf(latestDialog.getListView()).performItemClick(2);
 

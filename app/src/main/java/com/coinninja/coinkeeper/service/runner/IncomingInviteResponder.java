@@ -11,7 +11,6 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import app.dropbit.commons.currency.BTCCurrency;
 import retrofit2.Response;
 
 public class IncomingInviteResponder implements Runnable {

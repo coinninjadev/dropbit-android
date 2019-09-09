@@ -86,6 +86,6 @@ public class AuthenticationImpl implements Authentication, ForegroundStatusChang
 
     private void onTimeout() {
         isAuthenticated = false;
-        syncWalletManager.cancel30SecondSync();
+        syncWalletManager.cancel60SecondSync();
     }
 }

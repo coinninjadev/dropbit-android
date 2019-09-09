@@ -17,6 +17,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor
 import com.coinninja.coinkeeper.interfaces.Authentication
 import com.coinninja.coinkeeper.interfaces.PinEntry
@@ -25,7 +26,9 @@ import com.coinninja.coinkeeper.service.WalletCreationIntentService
 import com.coinninja.coinkeeper.service.runner.HealthCheckTimerRunner
 import com.coinninja.coinkeeper.service.tasks.CNHealthCheckTask
 import com.coinninja.coinkeeper.ui.actionbar.ActionBarController
+import com.coinninja.coinkeeper.ui.actionbar.ActionbarControllerProvider
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController
+import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerControllerProvider
 import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
@@ -34,22 +37,32 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.view.activity.*
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder
+import com.coinninja.coinkeeper.viewModel.WalletViewModel
+import com.coinninja.coinkeeper.viewModel.WalletViewModelProvider
 import dagger.android.support.DaggerAppCompatActivity
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, CNHealthCheckTask.HealthCheckCallback {
+    // provided by injected providers
+    lateinit var walletViewModel: WalletViewModel
+    lateinit var actionBarController: ActionBarController
+    internal lateinit var drawerController: DrawerController
 
     @Inject
-    lateinit var actionBarController: ActionBarController
+    lateinit var drawerControllerProvider: DrawerControllerProvider
+    @Inject
+    lateinit var walletViewModelProvider: WalletViewModelProvider
+    @Inject
+    lateinit var actionbarControllerProvider: ActionbarControllerProvider
+    @Inject
+    lateinit var activityNavigationUtil: ActivityNavigationUtil
     @Inject
     lateinit var analytics: Analytics
     @Inject
     lateinit var actionBarType: TypedValue
     @Inject
     lateinit var cnWalletManager: CNWalletManager
-    @Inject
-    internal lateinit var drawerController: DrawerController
     @Inject
     internal lateinit var navigationUtil: ActivityNavigationUtil
     @Inject
@@ -62,6 +75,8 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
     internal lateinit var notificationsInteractor: InternalNotificationsInteractor
     @Inject
     internal lateinit var healthCheckRunner: HealthCheckTimerRunner
+    @Inject
+    internal lateinit var accountModeManager: AccountModeManager
 
     private val fragList = ArrayList<WeakReference<Fragment>>()
     internal val noInternetView: View? get() = findViewById(R.id.id_no_internet_message)
@@ -172,6 +187,9 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        walletViewModel = walletViewModelProvider.provide(this)
+        actionBarController = actionbarControllerProvider.provide(walletViewModel, activityNavigationUtil)
+        drawerController = drawerControllerProvider.provide(walletViewModel, activityNavigationUtil)
         healthCheckRunner.setCallback(this)
     }
 

@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.coinninja.bindings.TransactionBroadcastResult;
 import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.bitcoin.BroadcastResult;
@@ -128,7 +127,7 @@ public class BroadcastActivity extends BaseActivity implements BroadcastTransact
     protected void onStart() {
         super.onStart();
         showInitTransaction();
-        syncWalletManager.cancel30SecondSync();
+        syncWalletManager.cancel60SecondSync();
     }
 
     @Override

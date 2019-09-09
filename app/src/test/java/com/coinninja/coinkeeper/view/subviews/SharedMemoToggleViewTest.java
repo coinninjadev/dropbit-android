@@ -16,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
@@ -44,7 +43,7 @@ public class SharedMemoToggleViewTest {
         activity = Robolectric.setupActivity(TestableActivity.class);
         activity.appendLayout(R.layout.memo_container);
         sharedMemoToggleView = new SharedMemoToggleView(activityNavigationUtil, memoCreator);
-        sharedMemoToggleView.render(activity, withId(activity, R.id.memo_container));
+        sharedMemoToggleView.render(activity, activity.findViewById(R.id.memo_container));
     }
 
     @Test
@@ -52,19 +51,19 @@ public class SharedMemoToggleViewTest {
         sharedMemoToggleView.showSharedMemoViews();
         sharedMemoToggleView.hideSharedMemoViews();
 
-        View sharedMemoGroup = withId(activity, R.id.shared_memo_group);
+        View sharedMemoGroup = activity.findViewById(R.id.shared_memo_group);
 
         assertThat(sharedMemoGroup, isGone());
-        assertThat(withId(activity, R.id.unshare_memo_toggle_button), isGone());
-        assertThat(withId(activity, R.id.shared_memo_toggle_button), isGone());
+        assertThat(activity.findViewById(R.id.unshare_memo_toggle_button), isGone());
+        assertThat(activity.findViewById(R.id.shared_memo_toggle_button), isGone());
         assertFalse(sharedMemoToggleView.isSharing());
     }
 
     @Test
     public void inits_with_sharing_hidden() {
-        View sharedMemoGroup = withId(activity, R.id.shared_memo_group);
-        View unShare = withId(activity, R.id.unshare_memo_toggle_button);
-        View share = withId(activity, R.id.shared_memo_toggle_button);
+        View sharedMemoGroup = activity.findViewById(R.id.shared_memo_group);
+        View unShare = activity.findViewById(R.id.unshare_memo_toggle_button);
+        View share = activity.findViewById(R.id.shared_memo_toggle_button);
 
         assertThat(sharedMemoGroup, isVisible());
         assertThat(share, isVisible());
@@ -77,9 +76,9 @@ public class SharedMemoToggleViewTest {
         sharedMemoToggleView.hideSharedMemoViews();
         sharedMemoToggleView.showSharedMemoViews();
 
-        View sharedMemoGroup = withId(activity, R.id.shared_memo_group);
-        View unShare = withId(activity, R.id.unshare_memo_toggle_button);
-        View share = withId(activity, R.id.shared_memo_toggle_button);
+        View sharedMemoGroup = activity.findViewById(R.id.shared_memo_group);
+        View unShare = activity.findViewById(R.id.unshare_memo_toggle_button);
+        View share = activity.findViewById(R.id.shared_memo_toggle_button);
 
         assertThat(sharedMemoGroup, isVisible());
         assertThat(unShare, isGone());
@@ -89,7 +88,7 @@ public class SharedMemoToggleViewTest {
 
     @Test
     public void provides_memo_from_view() {
-        TextView memo = withId(activity, R.id.memo_text_view);
+        TextView memo = activity.findViewById(R.id.memo_text_view);
 
         memo.setText("foo");
 
@@ -101,7 +100,7 @@ public class SharedMemoToggleViewTest {
         sharedMemoToggleView.showSharedMemoViews();
         assertTrue(sharedMemoToggleView.isSharing());
 
-        withId(activity, R.id.memo_background_view).performClick();
+        activity.findViewById(R.id.memo_background_view).performClick();
 
         assertFalse(sharedMemoToggleView.isSharing());
     }
@@ -109,8 +108,8 @@ public class SharedMemoToggleViewTest {
     @Test
     public void toggles_shared() {
         sharedMemoToggleView.showSharedMemoViews();
-        View unShare = withId(activity, R.id.unshare_memo_toggle_button);
-        View share = withId(activity, R.id.shared_memo_toggle_button);
+        View unShare = activity.findViewById(R.id.unshare_memo_toggle_button);
+        View share = activity.findViewById(R.id.shared_memo_toggle_button);
         assertTrue(sharedMemoToggleView.isSharing());
         assertThat(unShare, isGone());
         assertThat(share, isVisible());
@@ -128,14 +127,14 @@ public class SharedMemoToggleViewTest {
 
     @Test
     public void tooltip_explains_shared_memos() {
-        withId(activity, R.id.shared_memo_tooltip_button).performClick();
+        activity.findViewById(R.id.shared_memo_tooltip_button).performClick();
 
         verify(activityNavigationUtil).explainSharedMemos(activity);
     }
 
     @Test
     public void clicking_on_memo_creates_allows_user_to_input() {
-        TextView memoTextView = withId(activity, R.id.memo_text_view);
+        TextView memoTextView = activity.findViewById(R.id.memo_text_view);
         memoTextView.setText("memo");
 
         memoTextView.performClick();
@@ -148,7 +147,7 @@ public class SharedMemoToggleViewTest {
         String text = "I am a memo";
         sharedMemoToggleView.onMemoCreated(text);
 
-        TextView memoView = withId(activity, R.id.memo_text_view);
+        TextView memoView = activity.findViewById(R.id.memo_text_view);
         assertThat(memoView, hasText(text));
     }
 }

@@ -119,7 +119,7 @@ public class SyncWalletManagerTest {
     @Test
     public void does_not_execute_sync_when_not_bound() {
         syncWalletManager.binder = cnWalletBinder;
-        syncWalletManager.cancel30SecondSync();
+        syncWalletManager.cancel60SecondSync();
 
         syncWalletManager.syncNow();
 
@@ -147,7 +147,7 @@ public class SyncWalletManagerTest {
     public void unbinds_cn_wallet_service_when_30_second_sync_unscheduled() {
         syncWalletManager.onServiceConnected(new ComponentName(context, CNWalletService.class), cnWalletBinder);
 
-        syncWalletManager.cancel30SecondSync();
+        syncWalletManager.cancel60SecondSync();
 
         List<ServiceConnection> unboundServiceConnections = ShadowApplication.getInstance().getUnboundServiceConnections();
         assertThat(unboundServiceConnections.size(), equalTo(1));
@@ -157,7 +157,7 @@ public class SyncWalletManagerTest {
 
     @Test
     public void cancels_30_second_sync() {
-        syncWalletManager.cancel30SecondSync();
+        syncWalletManager.cancel60SecondSync();
 
         verify(handler).removeCallbacks(syncWalletManager.timeOutRunnable);
     }

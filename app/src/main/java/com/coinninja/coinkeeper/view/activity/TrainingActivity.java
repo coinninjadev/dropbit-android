@@ -12,7 +12,6 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.adapter.TrainingPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.model.TrainingModel;
-import com.coinninja.coinkeeper.model.helpers.UserHelper;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
@@ -26,83 +25,12 @@ import static androidx.viewpager.widget.ViewPager.SCROLL_STATE_DRAGGING;
 public class TrainingActivity extends BaseActivity implements ViewPager.OnPageChangeListener, TrainingPagerAdapter.OnTrainingClickListener {
 
 
+    public TrainingPagerAdapter trainingAdapter;
     @Inject
     ActivityNavigationUtil activityNavigationUtil;
-
     @Inject
     CNWalletManager cnWalletManager;
-
-    @Inject
-    UserHelper userHelper;
-
     ViewPager viewPager;
-    public TrainingPagerAdapter trainingAdapter;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_training);
-        trainingAdapter = new TrainingPagerAdapter(this, this);
-        initPager(trainingAdapter);
-        viewPager.addOnPageChangeListener(this);
-
-        initFirstPage();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        trainingAdapter.restartAllVideos();
-        setupOnClickListeners();
-    }
-
-    private void setupOnClickListeners() {
-        findViewById(R.id.ic_close).setOnClickListener(v -> dismiss());
-    }
-
-    private void dismiss() {
-        finish();
-    }
-
-    protected void initPager(TrainingPagerAdapter trainingAdapter) {
-        viewPager = findViewById(R.id.training_pager);
-        viewPager.setAdapter(trainingAdapter);
-        TabLayout tabLayout = findViewById(R.id.training_footer_dots);
-        tabLayout.setupWithViewPager(viewPager, true);
-    }
-
-    protected void initFirstPage() {
-        int startPosition = 0;
-        TrainingModel trainingModel = TrainingModel.values()[startPosition];
-        bindFooterDots(startPosition);
-        bindLearnLink(trainingModel);
-    }
-
-    protected void bindLearnLink(TrainingModel trainingModel) {
-        TrainingPagerAdapter.OnTrainingClickListener onTrainingClickListener = this;
-        TextView learnLink = findViewById(R.id.training_footer_learn_link);
-        learnLink.setText(getText(trainingModel.getrLearnLink()));
-        learnLink.setOnClickListener(view -> onTrainingClickListener.onLearnLinkClicked(trainingModel));
-    }
-
-    protected void bindFooterDots(int position) {
-        TrainingModel trainingModel = TrainingModel.values()[position];
-        TrainingPagerAdapter.OnTrainingClickListener onTrainingClickListener = this;
-        boolean isLastItem = ((TrainingModel.values().length - 1) == position);
-        TabLayout tabLayout = findViewById(R.id.training_footer_dots);
-        Button button = findViewById(R.id.training_footer_action_button);
-
-        if (isLastItem) {
-            tabLayout.setVisibility(View.GONE);
-            button.setVisibility(View.VISIBLE);
-            button.setOnClickListener(view -> onTrainingClickListener.onEndActionButtonClicked(trainingModel));
-        } else {
-            tabLayout.setVisibility(View.VISIBLE);
-            button.setVisibility(View.GONE);
-            button.setOnClickListener(null);
-        }
-    }
-
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -151,7 +79,6 @@ public class TrainingActivity extends BaseActivity implements ViewPager.OnPageCh
 
     @Override
     public void onEndActionButtonClicked(TrainingModel trainingModel) {
-        userHelper.setCompletedTraining(true);
         if (cnWalletManager.getHasWallet()) {
             activityNavigationUtil.navigateToHome(this);
         }
@@ -160,5 +87,70 @@ public class TrainingActivity extends BaseActivity implements ViewPager.OnPageCh
     @Override
     public void onSkipClicked(TrainingModel trainingModel) {
         viewPager.setCurrentItem(3);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_training);
+        trainingAdapter = new TrainingPagerAdapter(this, this);
+        initPager(trainingAdapter);
+        viewPager.addOnPageChangeListener(this);
+
+        initFirstPage();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        trainingAdapter.restartAllVideos();
+        setupOnClickListeners();
+    }
+
+    protected void initPager(TrainingPagerAdapter trainingAdapter) {
+        viewPager = findViewById(R.id.training_pager);
+        viewPager.setAdapter(trainingAdapter);
+        TabLayout tabLayout = findViewById(R.id.training_footer_dots);
+        tabLayout.setupWithViewPager(viewPager, true);
+    }
+
+    protected void initFirstPage() {
+        int startPosition = 0;
+        TrainingModel trainingModel = TrainingModel.values()[startPosition];
+        bindFooterDots(startPosition);
+        bindLearnLink(trainingModel);
+    }
+
+    protected void bindLearnLink(TrainingModel trainingModel) {
+        TrainingPagerAdapter.OnTrainingClickListener onTrainingClickListener = this;
+        TextView learnLink = findViewById(R.id.training_footer_learn_link);
+        learnLink.setText(getText(trainingModel.getrLearnLink()));
+        learnLink.setOnClickListener(view -> onTrainingClickListener.onLearnLinkClicked(trainingModel));
+    }
+
+    protected void bindFooterDots(int position) {
+        TrainingModel trainingModel = TrainingModel.values()[position];
+        TrainingPagerAdapter.OnTrainingClickListener onTrainingClickListener = this;
+        boolean isLastItem = ((TrainingModel.values().length - 1) == position);
+        TabLayout tabLayout = findViewById(R.id.training_footer_dots);
+        Button button = findViewById(R.id.training_footer_action_button);
+
+        if (isLastItem) {
+            tabLayout.setVisibility(View.GONE);
+            button.setVisibility(View.VISIBLE);
+            button.setOnClickListener(view -> onTrainingClickListener.onEndActionButtonClicked(trainingModel));
+        } else {
+            tabLayout.setVisibility(View.VISIBLE);
+            button.setVisibility(View.GONE);
+            button.setOnClickListener(null);
+        }
+    }
+
+    private void setupOnClickListeners() {
+        findViewById(R.id.ic_close).setOnClickListener(v -> dismiss());
+    }
+
+    private void dismiss() {
+        finish();
     }
 }

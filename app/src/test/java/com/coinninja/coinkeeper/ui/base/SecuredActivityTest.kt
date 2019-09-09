@@ -13,7 +13,6 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.interfaces.Authentication
 import com.coinninja.coinkeeper.interfaces.PinEntry
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
-import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.receiver.AuthenticationCompleteReceiver
 import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
@@ -44,7 +43,6 @@ class SecuredActivityTest {
     private val pinEntry: PinEntry = mock()
     private val cnWalletManager: CNWalletManager = mock()
     private val authentication: Authentication = mock()
-    internal val walletHelper: WalletHelper = mock()
 
     internal var transactions: LazyList<TransactionsInvitesSummary>? = null
 
@@ -53,7 +51,6 @@ class SecuredActivityTest {
         application.authentication = authentication
         application.pinEntry = pinEntry
         application.cnWalletManager = cnWalletManager
-        application.walletHelper = walletHelper
         whenever(application.authentication.isAuthenticated).thenReturn(false)
     }
 

@@ -4,14 +4,14 @@ import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
 
-import com.coinninja.coinkeeper.util.currency.Currency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormatSymbols;
 
 import javax.inject.Inject;
+
+import app.dropbit.commons.currency.Currency;
+import app.dropbit.commons.currency.USDCurrency;
 
 import static java.lang.String.format;
 

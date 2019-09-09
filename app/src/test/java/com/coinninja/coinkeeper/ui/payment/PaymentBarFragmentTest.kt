@@ -7,6 +7,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Views.clickOn
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
@@ -17,8 +19,6 @@ import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.FeesManager
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.fragment.PayDialogFragment
 import com.coinninja.matchers.IntentFilterSubject.Companion.assertThatIntentFilter
 import com.google.common.truth.Truth.assertThat
@@ -50,7 +50,6 @@ class PaymentBarFragmentTest {
 
     private fun configureDI(withBitcoinUri: Boolean = false) {
         application.apply {
-            walletHelper = mock()
             currencyPreference = mock()
             bitcoinUtil = mock()
         }.also {
@@ -172,7 +171,7 @@ class PaymentBarFragmentTest {
         val payDialog: PayDialogFragment = mock()
         paymentBar.cancelPayment(payDialog)
 
-        assertThat(paymentBar.paymentHolder.getPaymentAddress()).isEqualTo("")
+        assertThat(paymentBar.paymentHolder.paymentAddress).isEqualTo("")
         verify(payDialog).dismiss()
     }
 

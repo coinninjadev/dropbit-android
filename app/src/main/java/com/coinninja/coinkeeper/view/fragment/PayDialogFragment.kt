@@ -13,7 +13,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import app.dropbit.annotations.Mockable
-import com.coinninja.android.helpers.Views.shakeInError
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.Currency
+import app.dropbit.commons.currency.USDCurrency
+import com.coinninja.android.helpers.shakeInError
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate
@@ -41,9 +44,6 @@ import com.coinninja.coinkeeper.util.android.ClipboardUtil
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
 import com.coinninja.coinkeeper.util.crypto.uri.UriException
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.Currency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.activity.PickUserActivity
 import com.coinninja.coinkeeper.view.activity.QrScanActivity
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
@@ -192,12 +192,12 @@ class PayDialogFragment : BaseBottomDialogFragment() {
     fun onPhoneNumberInvalid(text: String) {
         paymentReceiverView?.clear()
         paymentUtil.setIdentity(null)
-        shakeInError(paymentReceiverView)
+        paymentReceiverView?.shakeInError()
     }
 
     fun onFetchContactComplete(addressLookupResult: AddressLookupResult) {
         paymentHolder.publicKey = addressLookupResult.addressPubKey
-        paymentHolder.paymentAddress = if (addressLookupResult.address == null) "" else addressLookupResult.address
+        paymentHolder.paymentAddress = addressLookupResult.address
         updateSharedMemosUI()
     }
 
@@ -268,21 +268,25 @@ class PayDialogFragment : BaseBottomDialogFragment() {
     }
 
     private fun configurePaymentInput() = paymentInputView?.apply {
-        setPaymentHolder(paymentHolder)
-        setOnSendMaxObserver { this@PayDialogFragment.onSendMaxObserved() }
-        setOnSendMaxClearedObserver { this@PayDialogFragment.onSendMaxClearedObserved() }
+        this.paymentHolder = paymentHolder
+        setOnSendMaxObserver(onSendMaxObserved)
+        setOnSendMaxClearedObserver(onSendMaxClearedObserved)
     }
 
-    private fun onSendMaxClearedObserved() {
-        if (paymentUtil.isSendingMax) {
-            paymentUtil.clearFunding()
+    private val onSendMaxClearedObserved = object : PaymentInputView.OnSendMaxClearedObserver {
+        override fun onSendMaxCleared() {
+            if (paymentUtil.isSendingMax) {
+                paymentUtil.clearFunding()
+            }
         }
     }
 
-    private fun onSendMaxObserved() {
-        if (paymentUtil.fundMax()) {
-            paymentHolder.updateValue(BTCCurrency(paymentHolder.transactionData.amount))
-            paymentInputView?.setPaymentHolder(paymentHolder)
+    private val onSendMaxObserved = object : PaymentInputView.OnSendMaxObserver {
+        override fun onSendMax() {
+            if (paymentUtil.fundMax()) {
+                paymentHolder.updateValue(BTCCurrency(paymentHolder.transactionData.amount))
+                paymentInputView?.paymentHolder = paymentHolder
+            }
         }
     }
 
@@ -315,7 +319,7 @@ class PayDialogFragment : BaseBottomDialogFragment() {
 
     private fun onPaymentChange(currency: Currency) {
         paymentHolder.updateValue(currency)
-        paymentInputView?.setPaymentHolder(paymentHolder)
+        paymentInputView?.paymentHolder = paymentHolder
     }
 
     private fun updateSharedMemosUI() {
@@ -420,7 +424,7 @@ class PayDialogFragment : BaseBottomDialogFragment() {
     }
 
     private fun onCloseClicked() {
-        paymentHolder.memo = null
+        paymentHolder.memo = ""
         paymentHolder.clearPayment()
         paymentBarCallbacks.cancelPayment(this)
     }
@@ -484,7 +488,7 @@ class PayDialogFragment : BaseBottomDialogFragment() {
 
     private fun resetPaymentHolderIfNecessary() {
         paymentUtil.setFee(feesManager.currentFee())
-        paymentHolder.memo = null
+        paymentHolder.memo = ""
     }
 
     private fun checkForBip70Url(bitcoinUri: BitcoinUri?) {

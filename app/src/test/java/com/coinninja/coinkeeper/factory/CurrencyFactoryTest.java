@@ -1,10 +1,10 @@
 package com.coinninja.coinkeeper.factory;
 
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
-
 import org.junit.After;
 import org.junit.Test;
+
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
 
 import static org.junit.Assert.assertTrue;
 

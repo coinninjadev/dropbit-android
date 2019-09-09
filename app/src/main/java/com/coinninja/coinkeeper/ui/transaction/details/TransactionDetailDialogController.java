@@ -14,9 +14,6 @@ import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
@@ -24,7 +21,10 @@ import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.Currency;
+import app.dropbit.commons.currency.USDCurrency;
+
 import static com.coinninja.coinkeeper.util.uri.routes.DropbitRoute.TRANSACTION_DETAILS;
 
 
@@ -53,16 +53,16 @@ public class TransactionDetailDialogController {
     }
 
     private void bindTransactionToView(View view, BindableTransaction transaction) {
-        bindIcon(withId(view, R.id.ic_send_state), transaction.getSendState());
-        bindConfirmations(withId(view, R.id.confirmations), transaction.getConfirmationState());
-        bindConfirmationsCount(withId(view, R.id.value_confirmations), transaction.getConfirmationCount());
-        bindValueWhenSent(withId(view, R.id.value_when_sent), transaction);
-        bindFee(withId(view, R.id.value_network_fee), transaction.getFeeCurrency());
-        bindAddress(withId(view, R.id.receive_address), transaction.getTargetAddress());
-        bindShareTX(withId(view, R.id.share_transaction), transaction.getTxID());
-        bindTooltip(withId(view, R.id.tooltip));
-        bindShowTX(withId(view, R.id.see_on_block), transaction.getTxID());
-        bindClose(withId(view, R.id.ic_close));
+        bindIcon(view.findViewById(R.id.ic_send_state), transaction.getSendState());
+        bindConfirmations(view.findViewById(R.id.confirmations), transaction.getConfirmationState());
+        bindConfirmationsCount(view.findViewById(R.id.value_confirmations), transaction.getConfirmationCount());
+        bindValueWhenSent(view.findViewById(R.id.value_when_sent), transaction);
+        bindFee(view.findViewById(R.id.value_network_fee), transaction.getFeeCurrency());
+        bindAddress(view.findViewById(R.id.receive_address), transaction.getTargetAddress());
+        bindShareTX(view.findViewById(R.id.share_transaction), transaction.getTxID());
+        bindTooltip(view.findViewById(R.id.tooltip));
+        bindShowTX(view.findViewById(R.id.see_on_block), transaction.getTxID());
+        bindClose(view.findViewById(R.id.ic_close));
     }
 
     private void bindTooltip(View view) {

@@ -25,6 +25,7 @@ def versionPatch = System.getenv("VERSION_PATCH") ? System.getenv("VERSION_PATCH
 def APP_VERSION = System.getenv("APP_VERSION") ? Integer.parseInt(System.getenv("APP_VERSION")) : 10480
 def hockeyAppApiToken = System.getenv("HOCKEY_APP_API_TOKEN") ? System.getenv("HOCKEY_APP_API_TOKEN") : HOCKEY_APP_API_TOKEN
 def ANALYTICS_TOKEN = System.getenv("ANALYTICS_TOKEN") ? System.getenv("ANALYTICS_TOKEN") : ANALYTICS_TOKEN
+def COIN_NINJA_API_BASE__REG_TEST = System.getenv("COIN_NINJA_API_BASE__REG_TEST") ? System.getenv("COIN_NINJA_API_BASE__REG_TEST") : COIN_NINJA_API_BASE__REG_TEST
 def COIN_NINJA_API_BASE__STAGING = System.getenv("COIN_NINJA_API_BASE__STAGING") ? System.getenv("COIN_NINJA_API_BASE__STAGING") : COIN_NINJA_API_BASE__STAGING
 def COIN_NINJA_API_BASE = System.getenv("COIN_NINJA_API_BASE") ? System.getenv("COIN_NINJA_API_BASE") : COIN_NINJA_API_BASE
 def DEFAULT_SALT = System.getenv("DEFAULT_SALT") ? System.getenv("DEFAULT_SALT") : DEFAULT_SALT
@@ -33,13 +34,15 @@ def DEBUG_FCM_APP_KEY = System.getenv("DEBUG_FCM_APP_KEY") ? System.getenv("DEBU
 def PROD_FCM_APP_KEY = System.getenv("PROD_FCM_APP_KEY") ? System.getenv("PROD_FCM_APP_KEY") : PROD_FCM_APP_KEY
 def PHONE_HASH_SALT = System.getenv("PHONE_HASH_SALT") ? System.getenv("PHONE_HASH_SALT") : PHONE_HASH_SALT
 def PHONE_HASH_ITERATIONS = System.getenv("PHONE_HASH_ITERATIONS") ? System.getenv("PHONE_HASH_ITERATIONS") : PHONE_HASH_ITERATIONS
+def THUNDERDOME_API_BASE__STAGING = System.getenv("THUNDERDOME_API_BASE__STAGING") ? System.getenv("THUNDERDOME_API_BASE__STAGING") : THUNDERDOME_API_BASE__STAGING
+def THUNDERDOME_API_BASE = System.getenv("THUNDERDOME_API_BASE") ? System.getenv("THUNDERDOME_API_BASE") : THUNDERDOME_API_BASE
 
 kapt {
     generateStubs = true
 }
 
 greendao {
-    schemaVersion 36
+    schemaVersion 37
 }
 
 hockeyapp {
@@ -102,6 +105,7 @@ android {
         debug {
             debuggable true
             minifyEnabled false
+            ext.alwaysUpdateBuildId = false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testCoverageEnabled false
             buildConfigField "String", "ANALYTICS_TOKEN", "\"${ANALYTICS_TOKEN_DEBUG}\""
@@ -124,11 +128,24 @@ android {
 
     flavorDimensions "dropbit"
     productFlavors {
+        regtest {
+            dimension "dropbit"
+            applicationId "com.coinninja.regtest.coinkeeper"
+            signingConfig signingConfigs.release
+            buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE__REG_TEST}\""
+            buildConfigField "String", "THUNDERDOME_API_BASE", "\"${THUNDERDOME_API_BASE__STAGING}\""
+            buildConfigField "boolean", "IS_PRODUCTION", "false"
+            buildConfigField "int", "COIN_TYPE", "1"
+            versionNameSuffix "-staging"
+            buildConfigField "String", "FCM_APPLICATION_KEY", "\"${DEBUG_FCM_APP_KEY}\""
+        }
+
         staging {
             dimension "dropbit"
             applicationId "com.coinninja.staging.coinkeeper"
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE__STAGING}\""
+            buildConfigField "String", "THUNDERDOME_API_BASE", "\"${THUNDERDOME_API_BASE__STAGING}\""
             buildConfigField "boolean", "IS_PRODUCTION", "false"
             buildConfigField "int", "COIN_TYPE", "1"
             versionNameSuffix "-staging"
@@ -140,6 +157,7 @@ android {
             applicationId "com.coinninja.coinkeeper"
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE}\""
+            buildConfigField "String", "THUNDERDOME_API_BASE", "\"${THUNDERDOME_API_BASE}\""
             buildConfigField "boolean", "IS_PRODUCTION", "true"
             buildConfigField "String", "FCM_APPLICATION_KEY", "\"${PROD_FCM_APP_KEY}\""
         }
@@ -151,6 +169,10 @@ android {
             enabled = true
         }
 
+    }
+
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 
     compileOptions {
@@ -169,7 +191,8 @@ android {
             returnDefaultValues = true
             all {
                 systemProperty "robolectric.logging.enabled", false
-                jvmArgs rootProject.jvmArgs
+                //jvmArgs rootProject.jvmArgs
+
             }
         }
         testlogger {
@@ -188,8 +211,10 @@ android.applicationVariants.all { variant ->
 dependencies {
     implementation fileTree(include: ['*.jar', "*.aar"], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation project(":twitter")
     implementation project(":common")
+    implementation project(":persistance")
+    implementation project(":thunderdome")
+    implementation project(":twitter")
 
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
@@ -211,14 +236,24 @@ dependencies {
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
 
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta2"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-alpha03"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha03'
 
+    //implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     implementation "androidx.appcompat:appcompat:1.1.rc01"
     implementation "com.google.android.material:material:$rootProject.material_version"
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation 'org.greenrobot:greendao:3.2.2'
-    implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+    //implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+    implementation 'com.github.hannesa2:cwac-saferoom:1.0.5.0'
+
+    //ROOM
+    api "androidx.room:room-runtime:$room_version"
+    api "androidx.room:room-ktx:$room_version"
+    api "androidx.room:room-rxjava2:$room_version"
+    api "androidx.room:room-guava:$room_version"
 
     implementation "com.squareup.retrofit2:retrofit:$rootProject.retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$rootProject.retrofit_version"
@@ -233,8 +268,8 @@ dependencies {
     implementation "com.madgag.spongycastle:core:1.58.0.0"
     implementation "com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0"
     implementation 'com.mixpanel.android:mixpanel-android:5.6.0'
-    implementation 'com.google.firebase:firebase-messaging:19.0.1'
-    implementation 'com.google.firebase:firebase-core:17.0.1'
+    implementation 'com.google.firebase:firebase-messaging:20.0.0'
+    implementation 'com.google.firebase:firebase-core:17.2.0'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.squareup.picasso:picasso:2.71828"
@@ -242,7 +277,7 @@ dependencies {
     testImplementation "org.json:json:20180813"
     testImplementation "com.squareup.okhttp3:mockwebserver:3.14.1"
 
-    testImplementation 'org.mockito4kotlin:annotation:0.3.0'
+    implementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0'
     testImplementation "androidx.test:core:1.2.0"
     testImplementation "androidx.test.ext:junit:1.1.1"
     testImplementation "androidx.test.ext:truth:1.2.0"
@@ -250,10 +285,11 @@ dependencies {
     testImplementation "androidx.test:runner:$rootProject.androidx_runner_version"
     testImplementation "com.google.truth:truth:0.42"
     testImplementation "androidx.test.espresso:espresso-core:$rootProject.espresso_core_version"
-    implementation "androidx.fragment:fragment-testing:$rootProject.androidx_fragment_testing_version"
+    testImplementation "androidx.fragment:fragment-testing:$rootProject.androidx_fragment_testing_version"
     //--https://issuetracker.google.com/issues/122321150
     testImplementation "org.robolectric:robolectric:$rootProject.robolectric_version"
     testImplementation "androidx.test.espresso:espresso-intents:3.2.0"
+    testImplementation "android.arch.core:core-testing:1.1.1"
 
     testImplementation "junit:junit:4.12"
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.3.2"

@@ -27,6 +27,8 @@ import com.coinninja.coinkeeper.bitcoin.TransactionBroadcaster
 import com.coinninja.coinkeeper.cn.transaction.notification.TransactionNotificationMapper
 import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.di.component.AppComponent
 import com.coinninja.coinkeeper.di.component.CoinKeeperComponent
 import com.coinninja.coinkeeper.di.interfaces.*
@@ -76,6 +78,10 @@ class AppModule {
     internal fun seedWordGenerator(): SeedWordGenerator {
         return SeedWordGenerator()
     }
+
+    @Provides
+    @CoinkeeperApplicationScope
+    internal fun provideAccountModeManager():AccountModeManager = AccountModeManager(AccountMode.BLOCKCHAIN)
 
     @Provides
     internal fun coroutineContextProvider(): CoroutineContextProvider {

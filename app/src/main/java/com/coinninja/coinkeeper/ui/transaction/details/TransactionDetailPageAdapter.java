@@ -27,8 +27,6 @@ import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.TwitterUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
 import com.coinninja.coinkeeper.util.uri.routes.DropbitRoute;
@@ -42,9 +40,8 @@ import org.greenrobot.greendao.query.LazyList;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Views.makeViewInvisible;
-import static com.coinninja.android.helpers.Views.makeViewVisible;
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
 
 public class TransactionDetailPageAdapter extends PagerAdapter implements DefaultCurrencyChangeObserver {
 
@@ -156,13 +153,13 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     }
 
     void bindTo(View page, BindableTransaction bindableTransaction, int position) {
-        makeViewInvisible(page, R.id.call_to_action);
-        withId(page, R.id.ic_close).setOnClickListener(this::close);
-        Button twitterShareButton = withId(page, R.id.share_twitter_button);
+        page.findViewById(R.id.call_to_action).setVisibility(View.INVISIBLE);
+        page.findViewById(R.id.ic_close).setOnClickListener(this::close);
+        Button twitterShareButton = page.findViewById(R.id.share_twitter_button);
         twitterShareButton.setTag(position);
-        withId(page, R.id.share_twitter_button).setOnClickListener(v -> shareButtonClicked(v));
+        page.findViewById(R.id.share_twitter_button).setOnClickListener(v -> shareButtonClicked(v));
 
-        Button addMemoButton = withId(page, R.id.add_memo_button);
+        Button addMemoButton = page.findViewById(R.id.add_memo_button);
         addMemoButton.setOnClickListener(v -> addMemoClicked((Button) v));
         addMemoButton.setTag(position);
 
@@ -181,9 +178,9 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
 
     private void renderTwitterShare(View page, BindableTransaction bindableTransaction) {
         if (bindableTransaction.getTxID() == null || bindableTransaction.getTxID() == "") {
-            withId(page, R.id.share_twitter_button).setVisibility(View.GONE);
+            page.findViewById(R.id.share_twitter_button).setVisibility(View.GONE);
         } else {
-            withId(page, R.id.share_twitter_button).setVisibility(View.VISIBLE);
+            page.findViewById(R.id.share_twitter_button).setVisibility(View.VISIBLE);
         }
     }
 
@@ -221,15 +218,15 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     }
 
     private void bindTransactionValue(View page, BindableTransaction bindableTransaction) {
-        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        DefaultCurrencyDisplayView view = page.findViewById(R.id.default_currency_view);
         view.renderValues(defaultCurrencies, bindableTransaction.getBasicDirection(), bindableTransaction.totalCryptoForSendState(), bindableTransaction.totalFiatForSendState());
         if (defaultCurrencyChangeViewNotifier != null)
             defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(view);
     }
 
     private void renderMemo(View page, BindableTransaction bindableTransaction) {
-        View memoView = withId(page, R.id.shared_transaction_subview);
-        Button addMemoButton = withId(page, R.id.add_memo_button);
+        View memoView = page.findViewById(R.id.shared_transaction_subview);
+        Button addMemoButton = page.findViewById(R.id.add_memo_button);
         String memo = bindableTransaction.getMemo();
         if (memo == null || "".equals(memo)) {
             addMemoButton.setVisibility(View.VISIBLE);
@@ -253,7 +250,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
             tooltipId = DropbitRoute.DROPBIT_TRANSACTION;
         }
 
-        withId(page, R.id.tooltip).setOnClickListener(this::showTooltipInfo);
+        page.findViewById(R.id.tooltip).setOnClickListener(this::showTooltipInfo);
     }
 
     private void showTooltipInfo(View view) {
@@ -269,7 +266,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         if (txID == null || txID.isEmpty())
             return;
 
-        Button cta = withId(page, R.id.call_to_action);
+        Button cta = page.findViewById(R.id.call_to_action);
         cta.setVisibility(View.VISIBLE);
         cta.setTag(position);
         cta.setOnClickListener(this::onSeeDetailsClickListener);
@@ -346,10 +343,10 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     private void setupCancelDropbit(View page, BindableTransaction bindableTransaction) {
         if (bindableTransaction.getSendState() == BindableTransaction.SendState.RECEIVE) return;
 
-        Button button = withId(page, R.id.button_cancel_dropbit);
+        Button button = page.findViewById(R.id.button_cancel_dropbit);
         button.setOnClickListener(this::onCancelDropbit);
         button.setTag(bindableTransaction.getServerInviteId());
-        makeViewVisible(page, R.id.button_cancel_dropbit);
+        page.findViewById(R.id.button_cancel_dropbit).setVisibility(View.VISIBLE);
     }
 
     private void onCancelDropbit(View view) {
@@ -360,7 +357,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     }
 
     private void renderTransactionTime(View page, String txTime) {
-        ((TextView) withId(page, R.id.transaction_date)).setText(txTime);
+        ((TextView) page.findViewById(R.id.transaction_date)).setText(txTime);
     }
 
     private USDCurrency calculateHistoricUSDPrice(BindableTransaction bindableTransaction) {
@@ -371,18 +368,18 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     }
 
     private void renderIdentity(View page, BindableTransaction bindableTransaction) {
-        TextView contact = withId(page, R.id.identity);
+        TextView contact = page.findViewById(R.id.identity);
         if (bindableTransaction.getIdentityType() == IdentityType.TWITTER) {
-            Views.setCompondDrawableOnStart(contact, R.drawable.twitter_icon_blue, .8F);
+            Views.INSTANCE.setCompondDrawableOnStart(contact, R.drawable.twitter_icon_blue, .8F);
             contact.setCompoundDrawablePadding(10);
         } else {
-            Views.clearCompoundDrawablesOn(contact);
+            Views.INSTANCE.clearCompoundDrawablesOn(contact);
         }
         contact.setText(bindableTransaction.getIdentity());
     }
 
     private void renderIcon(View page, BindableTransaction bindableTransaction) {
-        ImageView icon = withId(page, R.id.ic_send_state);
+        ImageView icon = page.findViewById(R.id.ic_send_state);
         Context context = icon.getContext();
 
         switch (bindableTransaction.getSendState()) {
@@ -405,8 +402,8 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     }
 
     private void renderConfirmations(View page, BindableTransaction bindableTransaction) {
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
-        TextView confirmationsLabel = withId(page, R.id.confirmations);
+        ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
+        TextView confirmationsLabel = page.findViewById(R.id.confirmations);
 
         if (bindableTransaction.getInviteState() != null) {
             renderConfirmationsForDropbit(confirmationsView, confirmationsLabel, bindableTransaction.getInviteState());

@@ -2,14 +2,14 @@ package com.coinninja.coinkeeper.util
 
 import android.content.Context
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.bitcoin.isFunded
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import javax.inject.Inject
 
 @Mockable
@@ -18,43 +18,38 @@ class PaymentUtil @Inject constructor(
         internal val bitcoinUtil: BitcoinUtil,
         internal val transactionFundingManager: TransactionFundingManager) {
 
-
     internal var fee: Double = 0.0
     internal var address: String? = null
     internal var identity: Identity? = null
 
-    var paymentMethod: PaymentMethod? = null
+    var paymentMethod: PaymentMethod = PaymentMethod.INVALID
     var errorMessage: String? = null
-    var paymentHolder: PaymentHolder? = null
+    lateinit var paymentHolder: PaymentHolder
     var isSendingMax = false
 
     val isValid: Boolean get() = isValidPaymentMethod && isValidPaymentAmount
 
     fun isFunded(): Boolean {
-        paymentHolder?.let { holder ->
-            val spendableBalance = holder.spendableBalance
-            val transactionData = holder.transactionData
-            val funded = isValidFunding && transactionData.utxos.isNotEmpty() && transactionData.amount > 0
-            val total = holder.btcCurrency.toFormattedCurrency()
+        val spendableBalance = paymentHolder.spendableBalance
+        val funded = paymentHolder.transactionData.isFunded()
+        val total = paymentHolder.btcCurrency.toFormattedCurrency()
 
-            if (!funded) {
-                val builder = StringBuilder()
-                builder.append(getString(R.string.pay_not_attempting_to_send))
-                builder.append(" ")
-                builder.append(total)
-                builder.append(". ")
-                builder.append(getString(R.string.pay_not_enough_funds_error))
-                builder.append("\n")
-                builder.append(getString(R.string.pay_not_available_funds_error))
-                builder.append(" ")
-                builder.append(spendableBalance.toFormattedCurrency())
-                builder.append(" ")
-                builder.append(spendableBalance.toUSD(paymentHolder!!.evaluationCurrency).toFormattedCurrency())
-                errorMessage = builder.toString()
-            }
-            return funded
+        if (!funded) {
+            val builder = StringBuilder()
+            builder.append(getString(R.string.pay_not_attempting_to_send))
+            builder.append(" ")
+            builder.append(total)
+            builder.append(". ")
+            builder.append(getString(R.string.pay_not_enough_funds_error))
+            builder.append("\n")
+            builder.append(getString(R.string.pay_not_available_funds_error))
+            builder.append(" ")
+            builder.append(spendableBalance.toFormattedCurrency())
+            builder.append(" ")
+            builder.append(spendableBalance.toUSD(this.paymentHolder.evaluationCurrency).toFormattedCurrency())
+            errorMessage = builder.toString()
         }
-        return false
+        return funded
     }
 
     val isVerifiedContact: Boolean
@@ -70,8 +65,8 @@ class PaymentUtil @Inject constructor(
 
     private val isValidPaymentAmount: Boolean
         get() {
-            val btcCurrency = paymentHolder!!.btcCurrency
-            val usdCurrency = paymentHolder!!.fiat as USDCurrency
+            val btcCurrency = paymentHolder.btcCurrency
+            val usdCurrency = paymentHolder.fiat as USDCurrency
 
             var isValid = btcCurrency.isValid && btcCurrency.toSatoshis() > 0
 
@@ -87,7 +82,7 @@ class PaymentUtil @Inject constructor(
                 return false
             }
 
-            isValid = !(paymentMethod == PaymentMethod.INVITE && paymentHolder!!.fiat.toLong() > DropbitIntents.MAX_DOLLARS_SENT_THROUGH_CONTACTS)
+            isValid = !(paymentMethod == PaymentMethod.INVITE && paymentHolder.fiat.toLong() > DropbitIntents.MAX_DOLLARS_SENT_THROUGH_CONTACTS)
 
             if (!isValid) {
                 errorMessage = getString(R.string.payment_error_too_much_sent_to_contact)
@@ -95,13 +90,6 @@ class PaymentUtil @Inject constructor(
 
             return isValid
         }
-
-    private val isValidFunding: Boolean
-        get() = !(hasNegativeValue() || hasTooLargeValue())
-
-    init {
-        paymentMethod = PaymentMethod.INVALID
-    }
 
     fun getAddress(): String? {
         return address
@@ -127,30 +115,24 @@ class PaymentUtil @Inject constructor(
 
     fun fundMax(): Boolean {
         isSendingMax = true
-        val transactionData = transactionFundingManager.buildFundedTransactionData(address, fee)
-        paymentHolder!!.transactionData = transactionData
+        paymentHolder.transactionData = transactionFundingManager.buildFundedTransactionData(address, fee)
         return isFunded()
     }
 
     fun clearFunding() {
         isSendingMax = false
-        val address = paymentHolder?.paymentAddress
-        paymentHolder?.clearPayment()
-        paymentHolder?.paymentAddress = address
+        val address = paymentHolder.paymentAddress
+        paymentHolder.clearPayment()
+        paymentHolder.paymentAddress = address
     }
 
     fun checkFunding(): Boolean {
         if (!isSendingMax) {
             val transactionData = transactionFundingManager
-                    .buildFundedTransactionData(address, fee, paymentHolder?.cryptoCurrency?.toLong()
-                            ?: 0)
-            paymentHolder!!.transactionData = transactionData
+                    .buildFundedTransactionData(address, fee, paymentHolder.cryptoCurrency.toLong())
+            paymentHolder.transactionData = transactionData
         }
         return isFunded()
-    }
-
-    fun isTransactionFundableWithFee(fee: Double?, amountToSend: Long): Boolean {
-        return transactionFundingManager.isTransactionFundableWithFee(address, amountToSend, fee!!)
     }
 
     fun reset() {
@@ -168,7 +150,7 @@ class PaymentUtil @Inject constructor(
     private fun setPaymentMethod() {
         if (null != address) {
             paymentMethod = PaymentMethod.ADDRESS
-            paymentHolder?.paymentAddress = address
+            paymentHolder.paymentAddress = address ?: ""
         } else if (identity != null && identity?.isVerified == true) {
             paymentMethod = PaymentMethod.VERIFIED_CONTACT
         } else if (identity != null && identity?.isVerified == false) {
@@ -200,22 +182,6 @@ class PaymentUtil @Inject constructor(
                         else -> invalidBtcAddress
                     }
         }
-    }
-
-    private fun hasNegativeValue(): Boolean {
-        val transactionData = paymentHolder!!.transactionData
-        return transactionData.utxos.isEmpty() ||
-                transactionData.amount < 0 ||
-                transactionData.feeAmount < 0 ||
-                transactionData.changeAmount < 0
-    }
-
-    private fun hasTooLargeValue(): Boolean {
-        val transactionData = paymentHolder!!.transactionData
-        val max = BTCCurrency.MAX_SATOSHI
-        return transactionData.amount >= max ||
-                transactionData.changeAmount >= max ||
-                transactionData.feeAmount >= max
     }
 
     private fun getString(res_id: Int): String {

@@ -2,6 +2,8 @@ package com.coinninja.coinkeeper.service.runner
 
 import android.os.AsyncTask
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
@@ -12,8 +14,6 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.*
 import com.coinninja.coinkeeper.util.CNLogger
 import com.coinninja.coinkeeper.util.DropbitIntents
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import retrofit2.Response
 import javax.inject.Inject
 

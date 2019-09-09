@@ -49,7 +49,6 @@ public class TrainingActivityTest {
         MockitoAnnotations.initMocks(this);
         activityActivityController = Robolectric.buildActivity(TrainingActivity.class);
         activity = activityActivityController.get();
-        activity.userHelper = userHelper;
         activity.activityNavigationUtil = activityNavigationUtil;
     }
 

@@ -14,7 +14,6 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.google.gson.Gson;
 
 import org.junit.Before;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import app.dropbit.commons.currency.BTCCurrency;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;

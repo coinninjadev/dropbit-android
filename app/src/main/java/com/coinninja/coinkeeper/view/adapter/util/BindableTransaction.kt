@@ -2,20 +2,20 @@ package com.coinninja.coinkeeper.view.adapter.util
 
 import android.content.Context
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.CryptoCurrency
+import app.dropbit.commons.currency.FiatCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.CryptoCurrency
-import com.coinninja.coinkeeper.util.currency.FiatCurrency
 import javax.inject.Inject
 
 @Mockable
 class BindableTransaction @Inject constructor(
         @ApplicationContext internal val context: Context,
         internal val walletHelper: WalletHelper) {
-    var profileUrl: String?  = null
+    var profileUrl: String? = null
     var txTime: String? = null
     var confirmationState: ConfirmationState? = null
     var inviteState: InviteState? = null

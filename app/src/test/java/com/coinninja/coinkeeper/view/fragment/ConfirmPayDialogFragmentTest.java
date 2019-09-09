@@ -30,9 +30,6 @@ import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BroadcastActivity;
 import com.coinninja.coinkeeper.view.activity.InviteSendActivity;
@@ -47,13 +44,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.shadows.ShadowActivity;
 
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.FiatCurrency;
+import app.dropbit.commons.currency.USDCurrency;
 import dagger.Module;
 import dagger.Provides;
 
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtraWithKey;
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -83,9 +82,8 @@ public class ConfirmPayDialogFragmentTest {
     private PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER_STRING);
     private ConfirmPayDialogFragment dialog;
     private String paymentAddress = "--send-address--";
-    private Currency eval = new USDCurrency(5000d);
-    private PaymentHolder paymentHolder = new PaymentHolder(eval);
-    private ShadowActivity shadowActivity;
+    private FiatCurrency eval = new USDCurrency(5000d);
+    private PaymentHolder paymentHolder = new PaymentHolder();
     private ActivityScenario<HomeActivity> scenario;
 
     @After
@@ -100,7 +98,6 @@ public class ConfirmPayDialogFragmentTest {
         paymentAddress = null;
         eval = null;
         paymentHolder = null;
-        shadowActivity = null;
         scenario.close();
         scenario = null;
     }
@@ -108,6 +105,7 @@ public class ConfirmPayDialogFragmentTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        paymentHolder.setEvaluationCurrency(eval);
         TestCoinKeeperApplication testCoinKeeperApplication = ApplicationProvider.getApplicationContext();
         testCoinKeeperApplication.walletHelper = walletHelper;
         transactionData = new TransactionData(new UnspentTransactionOutput[0],
@@ -132,6 +130,7 @@ public class ConfirmPayDialogFragmentTest {
         when(defaultCurrencies.getSecondaryCurrency()).thenReturn(new USDCurrency());
         when(transactions.size()).thenReturn(0);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        when(walletHelper.getSpendableBalance()).thenReturn(new BTCCurrency(0L));
 
         scenario = ActivityScenario.launch(HomeActivity.class);
         scenario.moveToState(Lifecycle.State.RESUMED);
@@ -165,8 +164,8 @@ public class ConfirmPayDialogFragmentTest {
     public void sends_regular_transactions_with_memo() {
         show(paymentHolder);
         paymentHolder.setMemo("--memo--");
-        paymentHolder.setIsSharingMemo(false);
-        paymentHolder.setPublicKey(null);
+        paymentHolder.setSharingMemo(false);
+        paymentHolder.setPublicKey("");
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
 
         BroadcastTransactionDTO broadcastDTO = new BroadcastTransactionDTO(paymentHolder.getTransactionData(),
@@ -203,7 +202,7 @@ public class ConfirmPayDialogFragmentTest {
         String memo = "--memo--";
         paymentHolder.setMemo(memo);
         paymentHolder.setPaymentAddress("");
-        paymentHolder.setIsSharingMemo(true);
+        paymentHolder.setSharingMemo(true);
         Identity identity = new Identity(new Contact(phoneNumber, "Joe", true));
         show(identity, paymentHolder);
 
@@ -226,8 +225,8 @@ public class ConfirmPayDialogFragmentTest {
     public void sends_invite_without_memo() {
         paymentHolder.setPaymentAddress("");
         Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", false));
-        paymentHolder.setMemo(null);
-        paymentHolder.setIsSharingMemo(false);
+        paymentHolder.setMemo("");
+        paymentHolder.setSharingMemo(false);
         show(identity, paymentHolder);
 
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
@@ -249,7 +248,7 @@ public class ConfirmPayDialogFragmentTest {
         Identity identity = new Identity(new Contact(phoneNumber, "Joe Smoe", true));
         String memo = "for dinner and drinks";
         paymentHolder.setMemo(memo);
-        paymentHolder.setIsSharingMemo(false);
+        paymentHolder.setSharingMemo(false);
         show(identity, paymentHolder);
 
         dialog.onActivityResult(ConfirmPayDialogFragment.AUTHORIZE_PAYMENT_REQUEST_CODE, AuthorizedActionActivity.RESULT_AUTHORIZED, null);
@@ -351,7 +350,7 @@ public class ConfirmPayDialogFragmentTest {
         paymentHolder.setMemo(memo);
         show(paymentHolder);
 
-        TextView memoView = withId(dialog.getView(), R.id.shared_memo_text_view);
+        TextView memoView = dialog.getView().findViewById(R.id.shared_memo_text_view);
 
         assertThat(memoView, hasText(memo));
     }
@@ -376,7 +375,7 @@ public class ConfirmPayDialogFragmentTest {
     @Module
     public static class TestConfirmPayDialogModule {
         @Provides
-        public FeesManager feesManager() {
+        FeesManager feesManager() {
             return mock(FeesManager.class);
         }
 

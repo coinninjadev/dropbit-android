@@ -17,14 +17,13 @@ import org.junit.runner.RunWith;
 
 import junitx.util.PrivateAccessor;
 
-import static com.coinninja.android.helpers.Views.clickOn;
-import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.shadows.ShadowView.clickOn;
 
 @RunWith(AndroidJUnit4.class)
 public class FingerprintAuthDialogTest {
@@ -71,7 +70,8 @@ public class FingerprintAuthDialogTest {
 
     @Test
     public void negativeResponsesForwardToParentActivity() {
-        clickOn(withId(dialog.getView(), R.id.negative_button));
+
+        clickOn(dialog.getView().findViewById(R.id.negative_button));
 
         verify(authPresenter).onAuthCancel();
     }

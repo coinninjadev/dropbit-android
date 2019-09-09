@@ -1,12 +1,12 @@
 package com.coinninja.coinkeeper.cn.wallet
 
+import app.dropbit.commons.currency.BTCCurrency
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver
 import com.coinninja.coinkeeper.service.client.CNUserAccount
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.analytics.AnalyticsBalanceRange
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.nhaarman.mockitokotlin2.*
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue

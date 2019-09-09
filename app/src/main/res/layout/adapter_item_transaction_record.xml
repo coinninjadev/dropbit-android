@@ -27,19 +27,20 @@
 
     <TextView
         android:id="@+id/address"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:ellipsize="end"
-        android:ems="9"
+        android:ems="8"
         android:scrollHorizontally="true"
         android:singleLine="true"
         android:textAppearance="@style/TextAppearance.History.Address"
+        app:layout_constraintBottom_toTopOf="@+id/confirmations"
         app:layout_constraintEnd_toStartOf="@+id/default_currency_view"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/icon"
-        app:layout_constraintTop_toTopOf="@+id/icon"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="34rdkj567l…98GhsTl" />
 
     <TextView
@@ -49,20 +50,27 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:textAppearance="@style/TextAppearance.History.Confirmations"
+        app:layout_constraintBottom_toTopOf="@+id/transaction_memo"
         app:layout_constraintEnd_toStartOf="@+id/default_currency_view"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/address"
         app:layout_constraintTop_toBottomOf="@+id/address"
-        tools:text="Pending" />
+        tools:text="Pending"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/transaction_memo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.History.Memo"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/default_currency_view"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/address"
         app:layout_constraintTop_toBottomOf="@+id/confirmations"
         tools:text=" Drinks and food" />

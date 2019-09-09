@@ -1,0 +1,1833 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 37,
+    "identityHash": "adeb22107a611fd1498656f1250889a2",
+    "entities": [
+      {
+        "tableName": "ACCOUNT",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `WALLET_ID` INTEGER, `CN_USER_ID` TEXT NOT NULL, `STATUS` INTEGER NOT NULL, `PHONE_NUMBER_HASH` TEXT NOT NULL, `PHONE_NUMBER` TEXT NOT NULL, `VERIFICATION_TTL` INTEGER NOT NULL, `IS_PRIVATE` INTEGER NOT NULL, FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "walletId",
+            "columnName": "WALLET_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cnUserId",
+            "columnName": "CN_USER_ID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "STATUS",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phoneNumberHash",
+            "columnName": "PHONE_NUMBER_HASH",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phoneNumber",
+            "columnName": "PHONE_NUMBER",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verification_ttl",
+            "columnName": "VERIFICATION_TTL",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPrivate",
+            "columnName": "IS_PRIVATE",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "ACCOUNT_WALLET_ID",
+            "unique": false,
+            "columnNames": [
+              "WALLET_ID"
+            ],
+            "createSql": "CREATE  INDEX `ACCOUNT_WALLET_ID` ON `${TABLE_NAME}` (`WALLET_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "WALLET",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "WALLET_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "ADDRESS",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `WALLET_ID` INTEGER NOT NULL, `ADDRESS` TEXT NOT NULL, `INDEX` INTEGER NOT NULL, `CHANGE_INDEX` INTEGER NOT NULL, FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "walletId",
+            "columnName": "WALLET_ID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "ADDRESS",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "INDEX",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "changeIndex",
+            "columnName": "CHANGE_INDEX",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "ADDRESS__WALLET_ID",
+            "unique": false,
+            "columnNames": [
+              "WALLET_ID"
+            ],
+            "createSql": "CREATE  INDEX `ADDRESS__WALLET_ID` ON `${TABLE_NAME}` (`WALLET_ID`)"
+          },
+          {
+            "name": "ADDRESS__ADDRESS",
+            "unique": true,
+            "columnNames": [
+              "ADDRESS"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `ADDRESS__ADDRESS` ON `${TABLE_NAME}` (`ADDRESS`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "WALLET",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "WALLET_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "BROADCAST_BTC_INVITE",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `BROADCAST_TX_ID` TEXT NOT NULL, `BTC_STATE` INTEGER NOT NULL, `BROADCAST_TO_ADDRESS` TEXT NOT NULL, `INVITE_SERVER_ID` TEXT NOT NULL, `INVITE_TRANSACTION_SUMMARY_ID` INTEGER, FOREIGN KEY(`INVITE_TRANSACTION_SUMMARY_ID`) REFERENCES `INVITE_TRANSACTION_SUMMARY`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "_id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "broadcastTxID",
+            "columnName": "BROADCAST_TX_ID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "btcState",
+            "columnName": "BTC_STATE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "broadcastToAddress",
+            "columnName": "BROADCAST_TO_ADDRESS",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inviteServerID",
+            "columnName": "INVITE_SERVER_ID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inviteTransactionSummaryID",
+            "columnName": "INVITE_TRANSACTION_SUMMARY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "BROADCAST_BTC_INVITE__INVITE_TRANSACTION_SUMMARY_ID",
+            "unique": true,
+            "columnNames": [
+              "INVITE_TRANSACTION_SUMMARY_ID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `BROADCAST_BTC_INVITE__INVITE_TRANSACTION_SUMMARY_ID` ON `${TABLE_NAME}` (`INVITE_TRANSACTION_SUMMARY_ID`)"
+          },
+          {
+            "name": "BROADCAST_BTC_INVITE__BROADCAST_TX_ID",
+            "unique": true,
+            "columnNames": [
+              "BROADCAST_TX_ID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `BROADCAST_BTC_INVITE__BROADCAST_TX_ID` ON `${TABLE_NAME}` (`BROADCAST_TX_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "INVITE_TRANSACTION_SUMMARY",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "INVITE_TRANSACTION_SUMMARY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "CONTACT",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `PHONE_NUMBER_HASH` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phoneNumberHash",
+            "columnName": "PHONE_NUMBER_HASH",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "DROPBIT_ME_IDENTITY",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `TYPE` INTEGER NOT NULL, `IDENTITY` TEXT NOT NULL, `SERVER_ID` TEXT NOT NULL, `HANDLE` TEXT NOT NULL, `HASH` TEXT NOT NULL, `STATUS` INTEGER NOT NULL, `ACCOUNT_ID` INTEGER, FOREIGN KEY(`ACCOUNT_ID`) REFERENCES `ACCOUNT`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "TYPE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identity",
+            "columnName": "IDENTITY",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "SERVER_ID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "handle",
+            "columnName": "HANDLE",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hash",
+            "columnName": "HASH",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "STATUS",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountId",
+            "columnName": "ACCOUNT_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "DROPBIT_ME_IDENTITY__ACCOUNT_ID",
+            "unique": false,
+            "columnNames": [
+              "ACCOUNT_ID"
+            ],
+            "createSql": "CREATE  INDEX `DROPBIT_ME_IDENTITY__ACCOUNT_ID` ON `${TABLE_NAME}` (`ACCOUNT_ID`)"
+          },
+          {
+            "name": "DROPBIT_ME_IDENTITY__SERVER_ID",
+            "unique": true,
+            "columnNames": [
+              "SERVER_ID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `DROPBIT_ME_IDENTITY__SERVER_ID` ON `${TABLE_NAME}` (`SERVER_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ACCOUNT",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ACCOUNT_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "EXTERNAL_NOTIFICATION",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `MESSAGE` TEXT NOT NULL, `EXTRA_DATA` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "message",
+            "columnName": "MESSAGE",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "extraData",
+            "columnName": "EXTRA_DATA",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "EXTERNAL_NOTIFICATION__MESSAGE",
+            "unique": false,
+            "columnNames": [
+              "MESSAGE"
+            ],
+            "createSql": "CREATE  INDEX `EXTERNAL_NOTIFICATION__MESSAGE` ON `${TABLE_NAME}` (`MESSAGE`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "FUNDING_STAT",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ADDRESS_ID` INTEGER, `WALLET_ID` INTEGER, `TSID` INTEGER, `ADDR` TEXT NOT NULL, `POSITION` INTEGER NOT NULL, `VALUE` INTEGER NOT NULL, `TX_TIME` INTEGER NOT NULL, `STATE` INTEGER NOT NULL, `FUNDED_TRANSACTION` TEXT NOT NULL, FOREIGN KEY(`ADDRESS_ID`) REFERENCES `ADDRESS`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`TSID`) REFERENCES `TRANSACTION_SUMMARY`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addressId",
+            "columnName": "ADDRESS_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "walletId",
+            "columnName": "WALLET_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "tsid",
+            "columnName": "TSID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "addr",
+            "columnName": "ADDR",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "POSITION",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "VALUE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txTime",
+            "columnName": "TX_TIME",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "STATE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fundedTransaction",
+            "columnName": "FUNDED_TRANSACTION",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "FUNDING_STAT__ADDRESS_ID",
+            "unique": false,
+            "columnNames": [
+              "ADDRESS_ID"
+            ],
+            "createSql": "CREATE  INDEX `FUNDING_STAT__ADDRESS_ID` ON `${TABLE_NAME}` (`ADDRESS_ID`)"
+          },
+          {
+            "name": "FUNDING_STAT__WALLET_ID",
+            "unique": false,
+            "columnNames": [
+              "WALLET_ID"
+            ],
+            "createSql": "CREATE  INDEX `FUNDING_STAT__WALLET_ID` ON `${TABLE_NAME}` (`WALLET_ID`)"
+          },
+          {
+            "name": "FUNDING_STAT__TSID",
+            "unique": false,
+            "columnNames": [
+              "TSID"
+            ],
+            "createSql": "CREATE  INDEX `FUNDING_STAT__TSID` ON `${TABLE_NAME}` (`TSID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ADDRESS",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ADDRESS_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "WALLET",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "WALLET_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "TRANSACTION_SUMMARY",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "TSID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "INTERNAL_NOTIFICATION",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `WALLET_ID` INTEGER, `MESSAGE` TEXT NOT NULL, `HAS_BEEN_SEEN` INTEGER NOT NULL, `MESSAGE_LEVEL` INTEGER NOT NULL, `SERVER_UUID` TEXT NOT NULL, `CLICK_ACTION` TEXT, FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "walletId",
+            "columnName": "WALLET_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "message",
+            "columnName": "MESSAGE",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasBeenSeen",
+            "columnName": "HAS_BEEN_SEEN",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "messageLevel",
+            "columnName": "MESSAGE_LEVEL",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverUUID",
+            "columnName": "SERVER_UUID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clickAction",
+            "columnName": "CLICK_ACTION",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "INTERNAL_NOTIFICATION__WALLET_ID",
+            "unique": false,
+            "columnNames": [
+              "WALLET_ID"
+            ],
+            "createSql": "CREATE  INDEX `INTERNAL_NOTIFICATION__WALLET_ID` ON `${TABLE_NAME}` (`WALLET_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "WALLET",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "WALLET_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "INVITE_TRANSACTION_SUMMARY",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `TO_USER_IDENTITY_ID` INTEGER, `FROM_USER_IDENTITY_ID` INTEGER, `WALLET_ID` INTEGER, `TRANSACTIONS_INVITES_SUMMARY_ID` INTEGER, `TYPE` INTEGER NOT NULL, `BTC_STATE` INTEGER NOT NULL, `SERVER_ID` TEXT NOT NULL, `BTC_TRANSACTION_ID` TEXT NOT NULL, `SENT_DATE` INTEGER NOT NULL, `ADDRESS` TEXT NOT NULL, `PUBKEY` TEXT NOT NULL, `VALUE_SATOSHIS` INTEGER NOT NULL, `VALUE_FEES_SATOSHIS` INTEGER NOT NULL, `HISTORIC_VALUE` INTEGER NOT NULL, FOREIGN KEY(`TO_USER_IDENTITY_ID`) REFERENCES `USER_IDENTITY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`FROM_USER_IDENTITY_ID`) REFERENCES `USER_IDENTITY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`TRANSACTIONS_INVITES_SUMMARY_ID`) REFERENCES `TRANSACTIONS_INVITES_SUMMARY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "toUserIdentityId",
+            "columnName": "TO_USER_IDENTITY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fromUserIdentityId",
+            "columnName": "FROM_USER_IDENTITY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "walletId",
+            "columnName": "WALLET_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "transactionsInvitesSummaryID",
+            "columnName": "TRANSACTIONS_INVITES_SUMMARY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "TYPE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "btcState",
+            "columnName": "BTC_STATE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "SERVER_ID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "btcTransactionId",
+            "columnName": "BTC_TRANSACTION_ID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sentDate",
+            "columnName": "SENT_DATE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "ADDRESS",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pubkey",
+            "columnName": "PUBKEY",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "valueSatoshis",
+            "columnName": "VALUE_SATOSHIS",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "valueFeesSatoshis",
+            "columnName": "VALUE_FEES_SATOSHIS",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "historicValue",
+            "columnName": "HISTORIC_VALUE",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "INVITE_TRANSACTION_SUMMARY__TO_USER_IDENTITY_ID",
+            "unique": false,
+            "columnNames": [
+              "TO_USER_IDENTITY_ID"
+            ],
+            "createSql": "CREATE  INDEX `INVITE_TRANSACTION_SUMMARY__TO_USER_IDENTITY_ID` ON `${TABLE_NAME}` (`TO_USER_IDENTITY_ID`)"
+          },
+          {
+            "name": "INVITE_TRANSACTION_SUMMARY__FROM_USER_IDENTITY_ID",
+            "unique": false,
+            "columnNames": [
+              "FROM_USER_IDENTITY_ID"
+            ],
+            "createSql": "CREATE  INDEX `INVITE_TRANSACTION_SUMMARY__FROM_USER_IDENTITY_ID` ON `${TABLE_NAME}` (`FROM_USER_IDENTITY_ID`)"
+          },
+          {
+            "name": "INVITE_TRANSACTION_SUMMARY__TRANSACTIONS_INVITES_SUMMARY_ID",
+            "unique": false,
+            "columnNames": [
+              "TRANSACTIONS_INVITES_SUMMARY_ID"
+            ],
+            "createSql": "CREATE  INDEX `INVITE_TRANSACTION_SUMMARY__TRANSACTIONS_INVITES_SUMMARY_ID` ON `${TABLE_NAME}` (`TRANSACTIONS_INVITES_SUMMARY_ID`)"
+          },
+          {
+            "name": "INVITE_TRANSACTION_SUMMARY__WALLET_ID",
+            "unique": false,
+            "columnNames": [
+              "WALLET_ID"
+            ],
+            "createSql": "CREATE  INDEX `INVITE_TRANSACTION_SUMMARY__WALLET_ID` ON `${TABLE_NAME}` (`WALLET_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "USER_IDENTITY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "TO_USER_IDENTITY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "USER_IDENTITY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "FROM_USER_IDENTITY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "TRANSACTIONS_INVITES_SUMMARY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "TRANSACTIONS_INVITES_SUMMARY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "WALLET",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "WALLET_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "LIGHTNING_ACCOUNT",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SERVER_ID` TEXT NOT NULL, `ADDRESS` TEXT NOT NULL, `BALANCE` INTEGER NOT NULL, `PENDING_IN` INTEGER NOT NULL, `PENDING_OUT` INTEGER NOT NULL, `CREATED_AT` TEXT NOT NULL, `UPDATED_AT` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "SERVER_ID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "ADDRESS",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "balance",
+            "columnName": "BALANCE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pendingIn",
+            "columnName": "PENDING_IN",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pendingOut",
+            "columnName": "PENDING_OUT",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "CREATED_AT",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "UPDATED_AT",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "LIGHTNING_ACCOUNT__SERVER_ID",
+            "unique": true,
+            "columnNames": [
+              "SERVER_ID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `LIGHTNING_ACCOUNT__SERVER_ID` ON `${TABLE_NAME}` (`SERVER_ID`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "LIGHTNING_INVOICE",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SERVER_ID` TEXT NOT NULL, `ACCOUNT_ID` INTEGER, `CREATED_AT` TEXT, `UPDATED_AT` TEXT, `EXPIRES_AT` TEXT, `STATUS` INTEGER, `TYPE` INTEGER, `DIRECTION` INTEGER, `GENERATED` INTEGER NOT NULL, `VALUE` INTEGER NOT NULL, `NETWORK_FEE` INTEGER NOT NULL, `PROCESSING_FEE` INTEGER NOT NULL, `ADD_INDEX` INTEGER, `MEMO` TEXT NOT NULL, `REQUEST` TEXT NOT NULL, `ERROR` TEXT NOT NULL, `IS_HIDDEN` INTEGER NOT NULL, FOREIGN KEY(`ACCOUNT_ID`) REFERENCES `LIGHTNING_ACCOUNT`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "SERVER_ID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountId",
+            "columnName": "ACCOUNT_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "CREATED_AT",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "UPDATED_AT",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "expiresAt",
+            "columnName": "EXPIRES_AT",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "STATUS",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "TYPE",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "direction",
+            "columnName": "DIRECTION",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isGenerated",
+            "columnName": "GENERATED",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "VALUE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "networkFee",
+            "columnName": "NETWORK_FEE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "processingFee",
+            "columnName": "PROCESSING_FEE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addIndex",
+            "columnName": "ADD_INDEX",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "memo",
+            "columnName": "MEMO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "request",
+            "columnName": "REQUEST",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "error",
+            "columnName": "ERROR",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isHidden",
+            "columnName": "IS_HIDDEN",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "LIGHTNING_INVOICE__ACCOUNT_ID",
+            "unique": false,
+            "columnNames": [
+              "ACCOUNT_ID"
+            ],
+            "createSql": "CREATE  INDEX `LIGHTNING_INVOICE__ACCOUNT_ID` ON `${TABLE_NAME}` (`ACCOUNT_ID`)"
+          },
+          {
+            "name": "LIGHTNING_INVOICE__SERVER_ID",
+            "unique": true,
+            "columnNames": [
+              "SERVER_ID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `LIGHTNING_INVOICE__SERVER_ID` ON `${TABLE_NAME}` (`SERVER_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "LIGHTNING_ACCOUNT",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ACCOUNT_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "TRANSACTION_SUMMARY",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `WALLET_ID` INTEGER, `TRANSACTIONS_INVITES_SUMMARY_ID` INTEGER, `TXID` TEXT NOT NULL, `SOUGHT_NOTIFICATION` INTEGER NOT NULL, `FEE` INTEGER, `TX_TIME` INTEGER, `NUM_CONFIRMATIONS` INTEGER NOT NULL, `BLOCKHASH` TEXT NOT NULL, `NUM_INPUTS` INTEGER NOT NULL, `NUM_OUTPUTS` INTEGER NOT NULL, `BLOCKHEIGHT` INTEGER, `HISTORIC_PRICE` INTEGER NOT NULL, `TRANSACTION_NOTIFICATION_ID` INTEGER, `MEM_POOL_STATE` INTEGER NOT NULL, FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`TRANSACTIONS_INVITES_SUMMARY_ID`) REFERENCES `TRANSACTIONS_INVITES_SUMMARY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "walletId",
+            "columnName": "WALLET_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "transactionsInvitesSummaryId",
+            "columnName": "TRANSACTIONS_INVITES_SUMMARY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txid",
+            "columnName": "TXID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "soughtNotification",
+            "columnName": "SOUGHT_NOTIFICATION",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fee",
+            "columnName": "FEE",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txTime",
+            "columnName": "TX_TIME",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "numConfirmations",
+            "columnName": "NUM_CONFIRMATIONS",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockhash",
+            "columnName": "BLOCKHASH",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numInputs",
+            "columnName": "NUM_INPUTS",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numOutputs",
+            "columnName": "NUM_OUTPUTS",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockheight",
+            "columnName": "BLOCKHEIGHT",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "historicPrice",
+            "columnName": "HISTORIC_PRICE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "transactionNotificationId",
+            "columnName": "TRANSACTION_NOTIFICATION_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "memPoolState",
+            "columnName": "MEM_POOL_STATE",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "TRANSACTION__WALLET_ID",
+            "unique": false,
+            "columnNames": [
+              "WALLET_ID"
+            ],
+            "createSql": "CREATE  INDEX `TRANSACTION__WALLET_ID` ON `${TABLE_NAME}` (`WALLET_ID`)"
+          },
+          {
+            "name": "TRANSACTION__TRANSACTIONS_INVITES_SUMMARY_ID",
+            "unique": true,
+            "columnNames": [
+              "TRANSACTIONS_INVITES_SUMMARY_ID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `TRANSACTION__TRANSACTIONS_INVITES_SUMMARY_ID` ON `${TABLE_NAME}` (`TRANSACTIONS_INVITES_SUMMARY_ID`)"
+          },
+          {
+            "name": "TRANSACTION__TXID",
+            "unique": true,
+            "columnNames": [
+              "TXID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `TRANSACTION__TXID` ON `${TABLE_NAME}` (`TXID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "WALLET",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "WALLET_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "TRANSACTIONS_INVITES_SUMMARY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "TRANSACTIONS_INVITES_SUMMARY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "TRANSACTIONS_INVITES_SUMMARY",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `INVITE_SUMMARY_ID` INTEGER, `TRANSACTION_SUMMARY_ID` INTEGER, `TO_USER_IDENTITY_ID` INTEGER, `FROM_USER_IDENTITY_ID` INTEGER, `INVITE_TIME` INTEGER NOT NULL, `BTC_TX_TIME` INTEGER NOT NULL, `TRANSACTION_TX_ID` TEXT, `INVITE_TX_ID` TEXT, FOREIGN KEY(`TRANSACTION_SUMMARY_ID`) REFERENCES `TRANSACTION_SUMMARY`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`INVITE_SUMMARY_ID`) REFERENCES `INVITE_TRANSACTION_SUMMARY`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`TO_USER_IDENTITY_ID`) REFERENCES `USER_IDENTITY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`FROM_USER_IDENTITY_ID`) REFERENCES `USER_IDENTITY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inviteSummaryID",
+            "columnName": "INVITE_SUMMARY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "transactionSummaryId",
+            "columnName": "TRANSACTION_SUMMARY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "toUserIdentityId",
+            "columnName": "TO_USER_IDENTITY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fromUserIdentityId",
+            "columnName": "FROM_USER_IDENTITY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "inviteTime",
+            "columnName": "INVITE_TIME",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "btcTxTime",
+            "columnName": "BTC_TX_TIME",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "transactionTxID",
+            "columnName": "TRANSACTION_TX_ID",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "inviteTxID",
+            "columnName": "INVITE_TX_ID",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "TRANSACTIONS_INVITES_SUMMARY__TRANSACTION_SUMMARY_ID",
+            "unique": true,
+            "columnNames": [
+              "TRANSACTION_SUMMARY_ID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `TRANSACTIONS_INVITES_SUMMARY__TRANSACTION_SUMMARY_ID` ON `${TABLE_NAME}` (`TRANSACTION_SUMMARY_ID`)"
+          },
+          {
+            "name": "TRANSACTIONS_INVITES_SUMMARY__INVITE_SUMMARY_ID",
+            "unique": true,
+            "columnNames": [
+              "INVITE_SUMMARY_ID"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `TRANSACTIONS_INVITES_SUMMARY__INVITE_SUMMARY_ID` ON `${TABLE_NAME}` (`INVITE_SUMMARY_ID`)"
+          },
+          {
+            "name": "TRANSACTIONS_INVITES_SUMMARY__TO_USER_IDENTITY_ID",
+            "unique": false,
+            "columnNames": [
+              "TO_USER_IDENTITY_ID"
+            ],
+            "createSql": "CREATE  INDEX `TRANSACTIONS_INVITES_SUMMARY__TO_USER_IDENTITY_ID` ON `${TABLE_NAME}` (`TO_USER_IDENTITY_ID`)"
+          },
+          {
+            "name": "TRANSACTIONS_INVITES_SUMMARY__FROM_USER_IDENTITY_ID",
+            "unique": false,
+            "columnNames": [
+              "FROM_USER_IDENTITY_ID"
+            ],
+            "createSql": "CREATE  INDEX `TRANSACTIONS_INVITES_SUMMARY__FROM_USER_IDENTITY_ID` ON `${TABLE_NAME}` (`FROM_USER_IDENTITY_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "TRANSACTION_SUMMARY",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "TRANSACTION_SUMMARY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "INVITE_TRANSACTION_SUMMARY",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "INVITE_SUMMARY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "USER_IDENTITY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "TO_USER_IDENTITY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "USER_IDENTITY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "FROM_USER_IDENTITY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "TRANSACTION_NOTIFICATION",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `MEMO` TEXT NOT NULL, `IS_SHARED` INTEGER NOT NULL, `AMOUNT` INTEGER NOT NULL, `AMOUNT_CURRENCY` TEXT NOT NULL, `TXID` TEXT NOT NULL, `TO_USER_IDENTITY_ID` INTEGER, `FROM_USER_IDENTITY_ID` INTEGER, FOREIGN KEY(`TO_USER_IDENTITY_ID`) REFERENCES `USER_IDENTITY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`FROM_USER_IDENTITY_ID`) REFERENCES `USER_IDENTITY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "memo",
+            "columnName": "MEMO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isShared",
+            "columnName": "IS_SHARED",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount",
+            "columnName": "AMOUNT",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amountCurrency",
+            "columnName": "AMOUNT_CURRENCY",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txid",
+            "columnName": "TXID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "toUserIdentityId",
+            "columnName": "TO_USER_IDENTITY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fromUserIdentityId",
+            "columnName": "FROM_USER_IDENTITY_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "TRANSACTION_NOTIFICATION__TO_USER_IDENTITY_ID",
+            "unique": false,
+            "columnNames": [
+              "TO_USER_IDENTITY_ID"
+            ],
+            "createSql": "CREATE  INDEX `TRANSACTION_NOTIFICATION__TO_USER_IDENTITY_ID` ON `${TABLE_NAME}` (`TO_USER_IDENTITY_ID`)"
+          },
+          {
+            "name": "TRANSACTION_NOTIFICATION__FROM_USER_IDENTITY_ID",
+            "unique": false,
+            "columnNames": [
+              "FROM_USER_IDENTITY_ID"
+            ],
+            "createSql": "CREATE  INDEX `TRANSACTION_NOTIFICATION__FROM_USER_IDENTITY_ID` ON `${TABLE_NAME}` (`FROM_USER_IDENTITY_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "USER_IDENTITY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "TO_USER_IDENTITY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "USER_IDENTITY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "FROM_USER_IDENTITY_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "TARGET_STAT",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `WALLET_ID` INTEGER, `ADDRESS_ID` INTEGER, `TSID` INTEGER, `ADDR` TEXT NOT NULL, `POSITION` INTEGER NOT NULL, `VALUE` INTEGER NOT NULL, `TX_TIME` INTEGER NOT NULL, `FUNDING_ID` INTEGER, `STATE` INTEGER NOT NULL, FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`ADDRESS_ID`) REFERENCES `ADDRESS`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`TSID`) REFERENCES `TRANSACTION_SUMMARY`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`FUNDING_ID`) REFERENCES `FUNDING_STAT`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "walletId",
+            "columnName": "WALLET_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "addressId",
+            "columnName": "ADDRESS_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "tsid",
+            "columnName": "TSID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "addr",
+            "columnName": "ADDR",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "POSITION",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "VALUE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txTime",
+            "columnName": "TX_TIME",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fundingId",
+            "columnName": "FUNDING_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "STATE",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "TARGET_STAT__WALLET_ID",
+            "unique": false,
+            "columnNames": [
+              "WALLET_ID"
+            ],
+            "createSql": "CREATE  INDEX `TARGET_STAT__WALLET_ID` ON `${TABLE_NAME}` (`WALLET_ID`)"
+          },
+          {
+            "name": "TARGET_STAT__ADDRESS_ID",
+            "unique": false,
+            "columnNames": [
+              "ADDRESS_ID"
+            ],
+            "createSql": "CREATE  INDEX `TARGET_STAT__ADDRESS_ID` ON `${TABLE_NAME}` (`ADDRESS_ID`)"
+          },
+          {
+            "name": "TARGET_STAT__TSID",
+            "unique": false,
+            "columnNames": [
+              "TSID"
+            ],
+            "createSql": "CREATE  INDEX `TARGET_STAT__TSID` ON `${TABLE_NAME}` (`TSID`)"
+          },
+          {
+            "name": "TARGET_STAT__FUNDING_ID",
+            "unique": false,
+            "columnNames": [
+              "FUNDING_ID"
+            ],
+            "createSql": "CREATE  INDEX `TARGET_STAT__FUNDING_ID` ON `${TABLE_NAME}` (`FUNDING_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "WALLET",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "WALLET_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "ADDRESS",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ADDRESS_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "TRANSACTION_SUMMARY",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "TSID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "FUNDING_STAT",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "FUNDING_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "USER",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `PIN` TEXT NOT NULL, `UID` TEXT NOT NULL, `COMPLETED_TRAINING` INTEGER NOT NULL, `LOCKED_UNTIL_TIME` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pin",
+            "columnName": "PIN",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uid",
+            "columnName": "UID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedTraining",
+            "columnName": "COMPLETED_TRAINING",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lockedUntilTime",
+            "columnName": "LOCKED_UNTIL_TIME",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "USER_IDENTITY",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `IDENTITY` TEXT NOT NULL, `TYPE` INTEGER NOT NULL, `DISPLAY_NAME` TEXT NOT NULL, `HANDLE` TEXT NOT NULL, `HASH` TEXT NOT NULL, `AVATAR` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identity",
+            "columnName": "IDENTITY",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "IdentityType",
+            "columnName": "TYPE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "DISPLAY_NAME",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "handle",
+            "columnName": "HANDLE",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hash",
+            "columnName": "HASH",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "avatar",
+            "columnName": "AVATAR",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "USER_IDENTITY__IDENTITY",
+            "unique": true,
+            "columnNames": [
+              "IDENTITY"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `USER_IDENTITY__IDENTITY` ON `${TABLE_NAME}` (`IDENTITY`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "WALLET",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `HD_INDEX` INTEGER NOT NULL, `USER_ID` INTEGER NOT NULL, `LAST_SYNC` INTEGER NOT NULL, `INTERNAL_INDEX` INTEGER NOT NULL, `EXTERNAL_INDEX` INTEGER NOT NULL, `BALANCE` INTEGER NOT NULL, `SPENDABLE_BALANCE` INTEGER NOT NULL, `BLOCK_TIP` INTEGER NOT NULL, `LAST_USDPRICE` INTEGER NOT NULL, `PURPOSE` INTEGER NOT NULL, `COIN_TYPE` INTEGER NOT NULL, `ACCOUNT_INDEX` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hdIndex",
+            "columnName": "HD_INDEX",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "USER_ID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSync",
+            "columnName": "LAST_SYNC",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "internalIndex",
+            "columnName": "INTERNAL_INDEX",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "externalIndex",
+            "columnName": "EXTERNAL_INDEX",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "balance",
+            "columnName": "BALANCE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "spendableBalance",
+            "columnName": "SPENDABLE_BALANCE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockTip",
+            "columnName": "BLOCK_TIP",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUSDPrice",
+            "columnName": "LAST_USDPRICE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purpose",
+            "columnName": "PURPOSE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "coinType",
+            "columnName": "COIN_TYPE",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountIndex",
+            "columnName": "ACCOUNT_INDEX",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "WORD",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `WALLET_ID` INTEGER, `WORD` TEXT NOT NULL, `SORT_ORDER` INTEGER NOT NULL, FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "walletId",
+            "columnName": "WALLET_ID",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "word",
+            "columnName": "WORD",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "SORT_ORDER",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "WORD__WALLET_ID",
+            "unique": false,
+            "columnNames": [
+              "WALLET_ID"
+            ],
+            "createSql": "CREATE  INDEX `WORD__WALLET_ID` ON `${TABLE_NAME}` (`WALLET_ID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "WALLET",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "WALLET_ID"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'adeb22107a611fd1498656f1250889a2')"
+    ]
+  }
+}

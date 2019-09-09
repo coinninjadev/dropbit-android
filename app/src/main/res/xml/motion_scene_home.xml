@@ -1,40 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <Transition
-        app:constraintSetEnd="@id/end"
-        app:constraintSetStart="@id/start">
-        <KeyFrameSet>
-
-            <KeyAttribute
-                android:elevation="-1dp"
-                app:framePosition="60"
-                app:motionTarget="@id/appbar_balance_large" />
-
-            <KeyAttribute
-                android:elevation="0dp"
-                app:framePosition="40"
-                app:motionTarget="@id/appbar_balance" />
-
-            <KeyAttribute
-                android:elevation="-1dp"
-                app:framePosition="40"
-                app:motionTarget="@id/appbar_charts" />
-
-            <KeyAttribute
-                android:elevation="-2dp"
-                app:framePosition="60"
-                app:motionTarget="@id/appbar_tabs" />
-
-        </KeyFrameSet>
-
-        <OnSwipe
-            app:dragDirection="dragUp"
-            app:touchAnchorId="@+id/home_pager"
-            app:touchAnchorSide="top" />
-
-
-    </Transition>
     <ConstraintSet android:id="@+id/start">
 
         <Constraint
@@ -87,7 +53,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
         <Constraint
             android:id="@+id/cn_content_container"
             android:layout_width="0dp"
@@ -97,6 +62,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/appbar_barrier" />
+
 
         <Constraint
             android:id="@+id/payment_bar_fragment"
@@ -109,6 +75,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintVertical_weight="1" />
+
+        <ImageButton
+            android:id="@+id/appbar_transfer_between_accounts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="6dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@id/appbar_balance_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/appbar_balance_large" />
 
     </ConstraintSet>
     <ConstraintSet android:id="@+id/end">
@@ -148,7 +124,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
         <Constraint
             android:id="@+id/payment_bar_fragment"
             android:layout_width="match_parent"
@@ -170,5 +145,53 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/appbar" />
 
+        <ImageButton
+            android:id="@id/appbar_transfer_between_accounts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/appbar_balance_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/appbar_balance_large" />
+
     </ConstraintSet>
+    <Transition
+        app:constraintSetEnd="@id/end"
+        app:constraintSetStart="@id/start">
+        <KeyFrameSet>
+
+            <KeyAttribute
+                android:elevation="-1dp"
+                app:framePosition="60"
+                app:motionTarget="@id/appbar_transfer_between_accounts" />
+
+            <KeyAttribute
+                android:elevation="-1dp"
+                app:framePosition="60"
+                app:motionTarget="@id/appbar_balance_large" />
+
+            <KeyAttribute
+                android:elevation="2dp"
+                app:framePosition="40"
+                app:motionTarget="@id/appbar_balance" />
+
+            <KeyAttribute
+                android:elevation="-1dp"
+                app:framePosition="40"
+                app:motionTarget="@id/appbar_charts" />
+
+            <KeyAttribute
+                android:elevation="-2dp"
+                app:framePosition="60"
+                app:motionTarget="@id/appbar_tabs" />
+
+        </KeyFrameSet>
+
+        <OnSwipe
+            app:dragDirection="dragUp"
+            app:touchAnchorId="@+id/home_pager"
+            app:touchAnchorSide="top" />
+
+
+    </Transition>
 </MotionScene>
