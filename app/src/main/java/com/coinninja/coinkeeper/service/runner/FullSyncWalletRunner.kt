@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.service.runner
 
+import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.account.RemoteAddressCache
 import com.coinninja.coinkeeper.cn.dropbit.DropBitMeServiceManager
@@ -13,8 +14,7 @@ import org.greenrobot.greendao.DaoException
 import javax.inject.Inject
 
 @Mockable
-class FullSyncWalletRunner @Inject
-internal constructor(internal val cnWalletManager: CNWalletManager,
+class FullSyncWalletRunner constructor(internal val cnWalletManager: CNWalletManager,
                      internal val accountDeverificationServiceRunner: AccountDeverificationServiceRunner,
                      internal val walletRegistrationRunner: WalletRegistrationRunner,
                      internal val currentBTCStateRunner: CurrentBTCStateRunner,
@@ -28,7 +28,8 @@ internal constructor(internal val cnWalletManager: CNWalletManager,
                      internal val dropbitAccountHelper: DropbitAccountHelper,
                      internal val localBroadCastUtil: LocalBroadCastUtil,
                      internal val remoteAddressCache: RemoteAddressCache,
-                     internal val dropBitMeServiceManager: DropBitMeServiceManager
+                     internal val dropBitMeServiceManager: DropBitMeServiceManager,
+                     internal val thunderDomeRepository: ThunderDomeRepository
 ) : Runnable {
 
     override fun run() {
@@ -44,10 +45,11 @@ internal constructor(internal val cnWalletManager: CNWalletManager,
             syncDropbits()
 
             syncRunnable.run()
+            thunderDomeRepository.sync()
             transactionConfirmationUpdateRunner.run()
             failedBroadcastCleaner.run()
             cnWalletManager.updateBalances()
-        } catch (e: DaoException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 

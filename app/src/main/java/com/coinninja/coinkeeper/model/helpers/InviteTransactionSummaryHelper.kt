@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionBroadcastResult
-import com.coinninja.coinkeeper.bitcoin.BroadcastResult
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.db.enums.BTCState
@@ -13,8 +13,6 @@ import com.coinninja.coinkeeper.model.query.InviteSummaryQueryManager
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite
 import com.coinninja.coinkeeper.service.client.model.SentInvite
 import com.coinninja.coinkeeper.util.DateUtil
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import javax.inject.Inject
 
 @Mockable
@@ -125,7 +123,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         transactionInviteSummaryHelper.populateWith(invite.transactionsInvitesSummary, invite)
     }
 
-    fun updateFulfilledInvite(invite: InviteTransactionSummary, txid:String) {
+    fun updateFulfilledInvite(invite: InviteTransactionSummary, txid: String) {
         updateInviteAsFulfilled(txid, invite)
     }
 

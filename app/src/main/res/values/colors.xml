@@ -99,6 +99,7 @@
     <color name="light">#ffffffff</color>
     <color name="light_border">#D8D8D8</color>
     <color name="dark">#DFDFDF</color>
+    <color name="empty_state_flat_button">#a2a2a2</color>
 
 
     <color name="lighter_btn">#b8ffffff</color>

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
@@ -24,7 +25,6 @@ import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import org.greenrobot.greendao.query.LazyList
 import javax.inject.Inject
 
@@ -142,11 +142,11 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     }
 
     private fun setupSwipeToRefresh() {
-        findViewById<SwipeRefreshLayout>(R.id.news_pull_to_refresh)?.setOnRefreshListener(this)
+        findViewById<SwipeRefreshLayout>(R.id.pull_to_refresh)?.setOnRefreshListener(this)
     }
 
     override fun onSyncStatusChanged() {
-        view?.findViewById<SwipeRefreshLayout>(R.id.news_pull_to_refresh)?.isRefreshing = false
+        view?.findViewById<SwipeRefreshLayout>(R.id.pull_to_refresh)?.isRefreshing = false
         refreshTransactions()
     }
 

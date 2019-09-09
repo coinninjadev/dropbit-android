@@ -5,12 +5,12 @@ import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.ui.base.TestableActivity
 import com.coinninja.coinkeeper.util.DefaultCurrencies
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any

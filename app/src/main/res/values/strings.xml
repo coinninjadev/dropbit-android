@@ -451,4 +451,39 @@
     <string name="_100_dollars">$100</string>
     <string name="oh_and_we_ll_cover_the_fees_every_time_you_load">OH, and we’ll cover the fees every time you load</string>
     <string name="nothing_s_here_yet_load_your_lightning_wallet">NOTHING’S HERE YET, LOAD YOUR LIGHITNG WALLET</string>
+    <string name="custom_amount">Custom Amount</string>
+
+    <!--- Lightning Invoice History -->
+    <string name="tx_history_transfer_lightning_in">Load Lightning</string>
+    <string name="tx_history_transfer_lightning_out">Lightning Withdraw</string>
+    <string name="lnd_state_pending">pending</string>
+
+    <!--- Lightning Deposit Screen -->
+    <string name="load_lightning">LOAD LIGHTNING</string>
+    <string name="load_lightning_invalid_amount">Must deposit at least %s.</string>
+    <string name="load_lightning_insufficient_funds">Attempting to deposit %s. Not enough spendable funds.</string>
+    <string name="load_lightning_over_max_limit">
+        Attempting to deposit %s which would put your account over the maximum balance.
+        Your current balance is %s.
+        Maximum balance allowed at this time is %s.</string>
+    <string name="load_lightning_under_min_deposit">Attempting to deposit %s. Minimum deposit size at this time is %s.</string>
+
+    <!--- Lightning Transfer Options Overlay -->
+    <string name="cancel_loading_lightning">cancel</string>
+    <string name="loading_option_load_lightning">Load Lightning Wallet</string>
+    <string name="loading_option_unload_lightning">Withdraw from Lightning Wallet</string>
+
+    <!--- Lightning Withdrawal Screen -->
+    <string name="withdrawal_lightning">WITHDRAW FROM LIGHTNING</string>
+    <string name="unload_minimum_amount_required">
+        Please enter an amount to withdrawal.
+    </string>
+    <string name="unload_lightning_insufficient_funds">
+        Attempting to withdrawal %s. Not enough funds in lightning account.
+    </string>
+    <string name="unload_minimum_amount_notification">Must withdraw at least %s sats.</string>
+    <string name="network_fee">Network Fee</string>
+    <string name="dropbit_fee">DropBit Fee</string>
+    <string name="lightning_fee_value">%s sats (%s)</string>
+    <string name="na">NA</string>
 </resources>

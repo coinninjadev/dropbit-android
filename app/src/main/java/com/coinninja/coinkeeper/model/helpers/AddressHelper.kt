@@ -53,6 +53,7 @@ class AddressHelper @Inject constructor(
                 TargetStatDao.Properties.FundingId.isNull).list()
 
         for (target in targets) {
+            val targetID = target.id
             val fundingStat = daoSessionManager.fundingStatDao.queryBuilder().where(
                     FundingStatDao.Properties.Position.eq(target.position),
                     FundingStatDao.Properties.Value.eq(target.value),

@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.view.fragment
 
 import android.content.Intent
 import android.view.View
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -11,6 +10,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.CryptoCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Views.clickOn
 import com.coinninja.android.helpers.Views.withId
 import com.coinninja.bindings.TransactionData
@@ -35,9 +37,6 @@ import com.coinninja.coinkeeper.util.android.ClipboardUtil
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
 import com.coinninja.coinkeeper.util.crypto.uri.UriException
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.CryptoCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.activity.PickUserActivity
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView
@@ -126,7 +125,7 @@ class PayDialogFragmentTest {
         paymentUtil.setAddress(address)
         start()
 
-        val receiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
+        val receiverView = withId<PaymentReceiverView>(dialog.view!!, R.id.payment_receiver)!!
 
         assertThat(receiverView.paymentAddress, equalTo(address))
     }
@@ -137,7 +136,7 @@ class PayDialogFragmentTest {
         whenever(bitcoinUtil.isValidBTCAddress(address)).thenReturn(true)
         paymentHolder.updateValue(USDCurrency(1.00))
         paymentUtil.setAddress(address)
-        whenever(transactionFundingManger.buildFundedTransactionData(any(), any(), any())).thenReturn(validTransactionData)
+        whenever(transactionFundingManger.buildFundedTransactionData(any(), any(), any(), eq(null))).thenReturn(validTransactionData)
         start()
 
         clickOn(dialog.findViewById(R.id.pay_footer_send_btn))
@@ -148,8 +147,8 @@ class PayDialogFragmentTest {
     @Test
     fun contact_sends_get_confirmed() {
         val identity = Identity(Contact(phoneNumber, "Joe Smoe", true))
-        whenever(transactionFundingManger.buildFundedTransactionData(any(), any(), any())).thenReturn(validTransactionData)
-        whenever(transactionFundingManger.buildFundedTransactionData(eq(null), any(), any())).thenReturn(validTransactionData)
+        whenever(transactionFundingManger.buildFundedTransactionData(any(), any(), any(), eq(null))).thenReturn(validTransactionData)
+        whenever(transactionFundingManger.buildFundedTransactionData(eq(null), any(), any(), eq(null))).thenReturn(validTransactionData)
         paymentUtil.setIdentity(identity)
         paymentHolder.publicKey = "-pub-key-"
         paymentHolder.paymentAddress = "-pay-address-"
@@ -166,8 +165,8 @@ class PayDialogFragmentTest {
     @Test
     fun verified_contacts_with_out_addresses_get_invited_without_help_confirmation() {
         whenever(userPreferences.shouldShowInviteHelp).thenReturn(true)
-        whenever(transactionFundingManger.buildFundedTransactionData(any(), any(), any())).thenReturn(validTransactionData)
-        whenever(transactionFundingManger.buildFundedTransactionData(eq(null), any(), any())).thenReturn(validTransactionData)
+        whenever(transactionFundingManger.buildFundedTransactionData(any(), any(), any(), eq(null))).thenReturn(validTransactionData)
+        whenever(transactionFundingManger.buildFundedTransactionData(eq(null), any(), any(), eq(null))).thenReturn(validTransactionData)
         val identity = Identity(Contact(phoneNumber, "Joe Smoe", true))
         paymentHolder.paymentAddress = ""
         paymentHolder.updateValue(USDCurrency(1.00))
@@ -175,7 +174,7 @@ class PayDialogFragmentTest {
         whenever(dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
         start()
 
-        clickOn(withId<View>(dialog.view, R.id.pay_footer_send_btn))
+        clickOn(withId<View>(dialog.view!!, R.id.pay_footer_send_btn))
 
         verify(paymentBarCallbacks).confirmInvite(paymentUtil, identity)
     }
@@ -210,7 +209,7 @@ class PayDialogFragmentTest {
         whenever(uri.satoshiAmount).thenReturn(100000000L)
         start()
 
-        clickOn(dialog.view, R.id.paste_address_btn)
+        clickOn(dialog.view!!, R.id.paste_address_btn)
 
         scenario.onActivity { activity -> assertThat(dialog.clipboardUtil, equalTo(clipboardUtil)) }
 
@@ -269,7 +268,7 @@ class PayDialogFragmentTest {
         start()
         paymentHolder.memo = ":grinning: hi"
 
-        withId<View>(dialog.view, R.id.pay_header_close_btn).performClick()
+        withId<View>(dialog.view!!, R.id.pay_header_close_btn)!!.performClick()
 
         assertThat(paymentHolder.memo, equalTo(""))
     }
@@ -290,7 +289,7 @@ class PayDialogFragmentTest {
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent)
         verify(cnAddressLookupDelegate).fetchAddressFor(eq(identity), argumentCaptor.capture())
         val callback = argumentCaptor.value
-        callback.onAddressLookupComplete(mock())
+        callback.onAddressLookupComplete(AddressLookupResult())
 
         verify(dialog.memoToggleView).showSharedMemoViews()
     }
@@ -334,7 +333,7 @@ class PayDialogFragmentTest {
     @Test
     fun sets_country_codes_on_payment_receiver_view() {
         start()
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)
 
         assertThat(paymentReceiverView.countryCodeLocales, equalTo(countryCodeLocales))
     }
@@ -346,9 +345,9 @@ class PayDialogFragmentTest {
         mockClipboardWithData(rawString)
         start()
 
-        withId<View>(dialog.view, R.id.paste_address_btn).performClick()
+        dialog.view!!.findViewById<View>(R.id.paste_address_btn).performClick()
 
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)!!
         assertThat(paymentReceiverView.paymentAddress, equalTo(rawString))
         assertThat(paymentUtil.getAddress(), equalTo(rawString))
         assertThat(paymentHolder.paymentAddress, equalTo(rawString))
@@ -362,9 +361,9 @@ class PayDialogFragmentTest {
         whenever(bitcoinUtil.parse(rawString)).thenThrow(UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58))
         start()
 
-        withId<View>(dialog.view, R.id.paste_address_btn).performClick()
+        dialog.findViewById<View>(R.id.paste_address_btn)!!.performClick()
 
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)!!
         assertThat(paymentReceiverView.paymentAddress, equalTo(""))
         assertThat(ShadowToast.getTextOfLatestToast(), equalTo("Address Failed Base 58 check"))
     }
@@ -379,10 +378,10 @@ class PayDialogFragmentTest {
         paymentHolder.paymentAddress = "--address--"
         start()
 
-        withId<View>(dialog.view, R.id.paste_address_btn).performClick()
+        dialog.view!!.findViewById<View>(R.id.paste_address_btn).performClick()
 
         assertThat(ShadowToast.getTextOfLatestToast(), equalTo("Nothing to paste"))
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)
         assertThat(paymentReceiverView.paymentAddress, equalTo(""))
         assertNull(paymentUtil.getAddress())
         assertThat(paymentHolder.paymentAddress, equalTo(""))
@@ -436,9 +435,9 @@ class PayDialogFragmentTest {
         start()
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent)
-        withId<View>(dialog.view, R.id.paste_address_btn).performClick()
+        dialog.view!!.findViewById<View>(R.id.paste_address_btn).performClick()
 
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)
         assertThat(paymentReceiverView, isVisible())
         assertThat(paymentReceiverView.paymentAddress, equalTo("3EqhexhZ2cuBCPMq9kPpqj9m3R6aFzCKoo"))
         assertThat(paymentReceiverView.phoneNumber, equalTo("+1"))
@@ -455,14 +454,12 @@ class PayDialogFragmentTest {
         whenever(bitcoinUri.address).thenReturn("38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4")
         start()
 
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
-        val primaryCurrency = withId<EditText>(dialog.view, R.id.primary_currency)
-        primaryCurrency.setText("$1.00")
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)
         dialog.onActivityResult(DropbitIntents.REQUEST_QR_FRAGMENT_SCAN, DropbitIntents.RESULT_SCAN_OK, data)
 
         assertThat(paymentReceiverView.paymentAddress, equalTo("38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4"))
         assertTrue(paymentHolder.primaryCurrency.isFiat)
-        assertThat(paymentHolder.primaryCurrency.toLong(), equalTo(100L))
+        assertThat(paymentHolder.primaryCurrency.toLong(), equalTo(500000L))
         assertThat(paymentHolder.isSharingMemo, equalTo(false))
     }
 
@@ -481,7 +478,7 @@ class PayDialogFragmentTest {
 
         dialog.onActivityResult(DropbitIntents.REQUEST_QR_FRAGMENT_SCAN, DropbitIntents.RESULT_SCAN_OK, data)
 
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)
         assertThat(paymentReceiverView.paymentAddress, equalTo("38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4"))
         assertTrue(paymentHolder.primaryCurrency.isCrypto)
         assertThat(paymentHolder.primaryCurrency.toLong(), equalTo(1542869L))
@@ -522,9 +519,9 @@ class PayDialogFragmentTest {
         start()
 
         val text = "0000000000"
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
-        withId<View>(paymentReceiverView, R.id.show_phone_input).performClick()
-        val phoneNumberInputView = withId<PhoneNumberInputView>(paymentReceiverView, R.id.phone_number_input)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)
+        paymentReceiverView.findViewById<View>(R.id.show_phone_input).performClick()
+        val phoneNumberInputView = withId<PhoneNumberInputView>(paymentReceiverView, R.id.phone_number_input)!!
         phoneNumberInputView.text = text
 
         assertThat(phoneNumberInputView.text, equalTo("+1"))
@@ -535,9 +532,9 @@ class PayDialogFragmentTest {
     fun sets_phone_number_on_payment_util_when_valid_input() {
         start()
 
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
-        withId<View>(paymentReceiverView, R.id.show_phone_input).performClick()
-        val phoneNumberInputView = withId<PhoneNumberInputView>(paymentReceiverView, R.id.phone_number_input)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)!!
+        paymentReceiverView.findViewById<View>(R.id.show_phone_input).performClick()
+        val phoneNumberInputView = paymentReceiverView.findViewById<PhoneNumberInputView>(R.id.phone_number_input)
         phoneNumberInputView.text = "3305551111"
 
         assertThat(paymentUtil.getIdentity()!!.value, equalTo(phoneNumber.toString()))
@@ -548,7 +545,7 @@ class PayDialogFragmentTest {
         whenever(dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
         start()
 
-        clickOn(withId<View>(dialog.view, R.id.contacts_btn))
+        clickOn(dialog.view!!.findViewById<View>(R.id.contacts_btn))
 
         Intents.intending(hasComponent(PickUserActivity::class.java.name))
         //TODO verify request code passed
@@ -560,7 +557,7 @@ class PayDialogFragmentTest {
         val identity = Identity(Contact(phoneNumber, "Joe Dirt", true))
         val intent = Intent()
         intent.putExtra(DropbitIntents.EXTRA_IDENTITY, identity)
-        val paymentReceiverView = withId<PaymentReceiverView>(dialog.view, R.id.payment_receiver)
+        val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)
         paymentReceiverView.paymentAddress = TestData.EXTERNAL_ADDRESSES[0]
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent)
@@ -591,8 +588,8 @@ class PayDialogFragmentTest {
 
         dialog.onActivityResult(PayDialogFragment.PICK_CONTACT_REQUEST, AppCompatActivity.RESULT_OK, intent)
 
-        assertThat(withId(dialog.view, R.id.contact_name), hasText("Joe Blow"))
-        assertThat(withId(dialog.view, R.id.contact_number), hasText(phoneNumber.toInternationalDisplayText()))
+        assertThat(dialog.view!!.findViewById(R.id.contact_name), hasText("Joe Blow"))
+        assertThat(dialog.view!!.findViewById(R.id.contact_number), hasText(phoneNumber.toInternationalDisplayText()))
         verify(cnAddressLookupDelegate).fetchAddressFor(eq(identity), any())
     }
 
@@ -657,7 +654,7 @@ class PayDialogFragmentTest {
         whenever(transactionFundingManger.buildFundedTransactionData(eq(null), any())).thenReturn(validTransactionData)
         start()
 
-        clickOn(withId<View>(dialog.view, R.id.send_max))
+        clickOn(withId<View>(dialog.view!!, R.id.send_max))
 
         assertTrue(paymentHolder.primaryCurrency is CryptoCurrency)
         assertThat(paymentHolder.primaryCurrency.toLong(), equalTo(paymentHolder.transactionData.amount))
@@ -668,8 +665,8 @@ class PayDialogFragmentTest {
         whenever(transactionFundingManger.buildFundedTransactionData(eq(null), any())).thenReturn(validTransactionData)
         start()
 
-        clickOn(withId<View>(dialog.view, R.id.send_max))
-        val view = withId<TextView>(dialog.view, R.id.primary_currency)
+        clickOn(withId<View>(dialog.view!!, R.id.send_max))
+        val view = withId<TextView>(dialog.view!!, R.id.primary_currency)!!
         view.text = "0"
 
         assertTrue(paymentHolder.primaryCurrency is CryptoCurrency)
@@ -709,6 +706,7 @@ class PayDialogFragmentTest {
         application.dropbitAccountHelper = dropbitAccountHelper
         application.countryCodeLocaleGenerator = mock()
         whenever(application.countryCodeLocaleGenerator!!.generate()).thenReturn(countryCodeLocales)
+        whenever(application.walletHelper.spendableBalance).thenReturn(BTCCurrency(10000000L))
         whenever(currencyPreference.currenciesPreference).thenReturn(defaultCurrencies)
         whenever(userPreferences.shouldShowInviteHelp).thenReturn(true)
         paymentHolder.updateValue(USDCurrency(5000.00))

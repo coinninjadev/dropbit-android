@@ -12,7 +12,7 @@ data class BroadcastTransactionDTO(
         var transactionData: TransactionData,
         var isMemoShared: Boolean = false,
         var memo: String? = "",
-        var identity: Identity?,
+        var identity: Identity? = null,
         var publicKey: String? = null
 ) : Parcelable {
 

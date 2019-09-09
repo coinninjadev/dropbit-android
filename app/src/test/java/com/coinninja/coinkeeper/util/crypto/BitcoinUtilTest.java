@@ -15,8 +15,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.IS_BC1;
-import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58;
 import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN;
 import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS;
 import static junit.framework.Assert.assertFalse;
@@ -220,6 +218,7 @@ public class BitcoinUtilTest {
         String sampleURI = "Hello, how are you today?";
 
         BitcoinUtil.ADDRESS_INVALID_REASON reason = null;
+
         try {
             bitcoinUtil.parse(sampleURI);
         } catch (UriException e) {
@@ -244,7 +243,7 @@ public class BitcoinUtilTest {
     }
 
     @Test
-    public void throw_exception_when_parsing_NOT_BASE58_address_test() throws Exception {
+    public void throw_exception_when_parsing_NOT_BASE58_address_test() {
         String sampleURI = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xaaaa";
         when(hdWallet.isBase58CheckEncoded(anyString())).thenReturn(false);
 
@@ -255,7 +254,7 @@ public class BitcoinUtilTest {
             reason = e.getReason();
         }
 
-        assertThat(reason, equalTo(NOT_BASE58));
+        assertThat(reason, equalTo(NOT_STANDARD_BTC_PATTERN));
     }
 
     @Test
@@ -270,6 +269,6 @@ public class BitcoinUtilTest {
             reason = e.getReason();
         }
 
-        assertThat(reason, equalTo(IS_BC1));
+        assertThat(reason, equalTo(NOT_STANDARD_BTC_PATTERN));
     }
 }

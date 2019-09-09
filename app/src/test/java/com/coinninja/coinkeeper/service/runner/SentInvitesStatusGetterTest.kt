@@ -2,12 +2,12 @@ package com.coinninja.coinkeeper.service.runner
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.BTCCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.Type
 import com.coinninja.coinkeeper.service.client.model.SentInvite
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nhaarman.mockitokotlin2.*

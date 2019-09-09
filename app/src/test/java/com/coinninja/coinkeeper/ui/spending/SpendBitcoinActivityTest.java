@@ -25,11 +25,10 @@ import org.robolectric.android.controller.ActivityController;
 
 import java.util.HashMap;
 
-import static com.coinninja.android.helpers.Views.clickOn;
-import static com.coinninja.android.helpers.Views.withId;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.shadows.ShadowView.clickOn;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -45,14 +44,14 @@ public class SpendBitcoinActivityTest {
 
     @Test
     public void clicking_on_where_to_buy_navigates_to_buy_gift_card() {
-        clickOn(withId(activity, R.id.buy_giftcard_button));
+        clickOn(activity.findViewById(R.id.buy_giftcard_button));
 
         verify(activityNavigationUtil).navigateToBuyGiftCard(activity);
     }
 
     @Test
     public void clicking_on_where_to_buy_navigates_to_where_to_buy() {
-        clickOn(withId(activity, R.id.online_button));
+        clickOn(activity.findViewById(R.id.online_button));
 
         verify(activityNavigationUtil).navigateToWhereToSpend(activity);
     }
@@ -62,7 +61,7 @@ public class SpendBitcoinActivityTest {
         when(locationUtil.canReadLocation()).thenReturn(true);
         when(locationUtil.getLastKnownLocation()).thenReturn(location);
 
-        clickOn(withId(activity, R.id.around_me_button));
+        clickOn(activity.findViewById(R.id.around_me_button));
 
         verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.Companion.EVENT_SPEND_AROUND_ME);
     }
@@ -71,7 +70,7 @@ public class SpendBitcoinActivityTest {
     public void requests_permission_when_spending_button_clicked() {
         when(locationUtil.canReadLocation()).thenReturn(false);
 
-        clickOn(withId(activity, R.id.around_me_button));
+        clickOn(activity.findViewById(R.id.around_me_button));
 
         verify(locationUtil).requestPermissionToAccessLocationFor(activity);
     }

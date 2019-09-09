@@ -53,13 +53,12 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation "com.google.dagger:dagger:$dagger_version"
-    annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
-    annotationProcessor "com.google.dagger:dagger-android-processor:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
     androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
     testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
     implementation "com.google.dagger:dagger-android:$dagger_version"
     implementation "com.google.dagger:dagger-android-support:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
 
     implementation "androidx.appcompat:appcompat:$rootProject.appcompat_version"
@@ -83,9 +82,9 @@ dependencies {
     testImplementation "androidx.test:runner:1.2.0"
     testImplementation "com.google.truth:truth:0.42"
     testImplementation "androidx.test.espresso:espresso-core:$rootProject.espresso_core_version"
-    implementation "androidx.fragment:fragment-testing:1.2.0-alpha01"
+    implementation "androidx.fragment:fragment-testing:1.2.0-alpha02"
     //--https://issuetracker.google.com/issues/122321150
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
     testImplementation "org.robolectric:robolectric:$rootProject.robolectric_version"
     testImplementation "org.mockito:mockito-core:3.0.0"
     testImplementation "androidx.test.espresso:espresso-intents:3.2.0"

@@ -16,8 +16,6 @@ import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.util.image.CircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
@@ -32,7 +30,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
+
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -107,12 +107,12 @@ public class TransactionHistoryDataAdapterTest {
         DefaultCurrencyChangeViewNotifier notifier = mock(DefaultCurrencyChangeViewNotifier.class);
         bindableTransaction.setSendState(BindableTransaction.SendState.SEND);
         adapter.setDefaultCurrencyChangeViewNotifier(notifier);
-        TransactionHistoryDataAdapter.ViewHolder viewHolder = adapter.onCreateViewHolder(withId(activity, R.id.test_root), 0);
+        TransactionHistoryDataAdapter.ViewHolder viewHolder = adapter.onCreateViewHolder(activity.findViewById(R.id.test_root), 0);
         viewHolder.setDefaultCurrencyChangeViewNotifier(notifier);
 
         viewHolder.bindToTransaction(bindableTransaction, defaultCurrencies, picasso, circleTransform);
 
-        verify(notifier).observeDefaultCurrencyChange(withId(viewHolder.itemView, R.id.default_currency_view));
+        verify(notifier).observeDefaultCurrencyChange(viewHolder.itemView.findViewById(R.id.default_currency_view));
     }
 
     @Test

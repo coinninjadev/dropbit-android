@@ -8,7 +8,6 @@ import com.coinninja.coinkeeper.cn.wallet.HDWallet;
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.crypto.uri.UriException;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder;
 import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter;
 
@@ -19,6 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
+
+import app.dropbit.commons.currency.BTCCurrency;
 
 import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN;
 import static com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS;
@@ -79,19 +80,6 @@ public class BitcoinUtil {
         return true;
     }
 
-    private boolean isValidBTCAddressPattern(String address) {
-        String parsedAddress = parseBTCAddressFromText(address);
-        if (parsedAddress == null) {
-            return false;
-        }
-
-        if (parsedAddress.isEmpty()) {
-            return false;
-        }
-
-        return parsedAddress.contains(address);
-    }
-
     public String parseBTCAddressFromText(String anyString) {
         if (anyString == null || anyString.isEmpty()) {
             return "";
@@ -115,14 +103,35 @@ public class BitcoinUtil {
         Pattern pattern = Pattern.compile(DropbitIntents.BITCOIN_URI_PATTERN);
         Matcher matcher = pattern.matcher(textData);
 
-        if (!matcher.find()) {
-            return parseBip70Uri(textData);
+        if (matcher.find() && matcher.groupCount() >= 1 && isValidBTCAddress(matcher.group(1))) {
+            return parseBitcoinUri(matcher);
         } else {
-            return parseBitcoinUri(textData, matcher);
+            return parseBip70Uri(textData);
         }
     }
 
-    private BitcoinUri parseBitcoinUri(String textData, Matcher matcher) throws UriException {
+    public boolean isValidBase58Address(String address) {
+        return hdWallet.isBase58CheckEncoded(address);
+    }
+
+    public ADDRESS_INVALID_REASON getInvalidReason() {
+        return addressInvalid;
+    }
+
+    private boolean isValidBTCAddressPattern(String address) {
+        String parsedAddress = parseBTCAddressFromText(address);
+        if (parsedAddress == null) {
+            return false;
+        }
+
+        if (parsedAddress.isEmpty()) {
+            return false;
+        }
+
+        return parsedAddress.contains(address);
+    }
+
+    private BitcoinUri parseBitcoinUri(Matcher matcher) throws UriException {
         String btcAddress;
         String amount;
 
@@ -178,14 +187,6 @@ public class BitcoinUtil {
         String bc1KeyNormalized = "bc1".toLowerCase();
         String addressNormalized = address.toLowerCase();
         return addressNormalized.startsWith(bc1KeyNormalized);
-    }
-
-    public boolean isValidBase58Address(String address) {
-        return hdWallet.isBase58CheckEncoded(address);
-    }
-
-    public ADDRESS_INVALID_REASON getInvalidReason() {
-        return addressInvalid;
     }
 
     public enum ADDRESS_INVALID_REASON {

@@ -54,6 +54,7 @@ class TransactionBroadcasterTest {
         assertThat(result.isSuccess).isTrue()
         assertThat(result.responseCode).isEqualTo(200)
         assertThat(result.message).isEqualTo("OK")
+        assertThat(result.transaction.txId).isEqualTo("--txid--")
         assertThat(result.provider).isEqualTo(BroadcastProvider.BLOCKCHAIN_INFO)
     }
 

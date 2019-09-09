@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.home
 
-import androidx.lifecycle.Lifecycle
 import dagger.Module
 import dagger.Provides
 
@@ -9,4 +8,5 @@ import dagger.Provides
 class HomeModule {
     @Provides
     fun provideHomeScreenViewPagerAdapterProvider(): HomePagerAdapterProvider = HomePagerAdapterProvider()
+
 }

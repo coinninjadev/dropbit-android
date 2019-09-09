@@ -9,10 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Views.withId
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.ui.home.HomeActivity
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.widget.DrawerLayout
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -64,7 +64,7 @@ class DrawerControllerTest {
         drawerController.inflateDrawer(activity, actionbarType)
 
         drawerController.openDrawer()
-        withId<View>(activity, R.id.drawer_setting).performClick()
+        activity.findViewById<View>(R.id.drawer_setting).performClick()
 
         verify(drawerController.activityNavigationUtil).navigateToSettings(activity)
     }
@@ -74,7 +74,7 @@ class DrawerControllerTest {
         val drawerController = createController()
         drawerController.inflateDrawer(activity, actionbarType)
 
-        withId<View>(activity, R.id.drawer_support).performClick()
+        withId<View>(activity, R.id.drawer_support)!!.performClick()
 
         verify(drawerController.activityNavigationUtil).navigateToSupport(activity)
     }
@@ -172,7 +172,7 @@ class DrawerControllerTest {
 
         verify(drawerController.badgeRenderer).renderBadge(toolbar)
         verify(drawerController.badgeRenderer).renderBadge(settings)
-        assertThat(withId<View>(activity, R.id.drawer_backup_now).visibility).isEqualTo(View.VISIBLE)
+        assertThat(withId<View>(activity, R.id.drawer_backup_now)!!.visibility).isEqualTo(View.VISIBLE)
     }
 
     @Test
@@ -195,7 +195,7 @@ class DrawerControllerTest {
         drawerController.inflateDrawer(activity, actionbarType)
         drawerController.showBackupNowDrawerActions()
 
-        withId<View>(activity, R.id.drawer_backup_now).performClick()
+        withId<View>(activity, R.id.drawer_backup_now)!!.performClick()
 
         verify(drawerController.activityNavigationUtil).navigateToBackupRecoveryWords(activity)
     }
@@ -206,7 +206,7 @@ class DrawerControllerTest {
         drawerController.inflateDrawer(activity, actionbarType)
         drawerController.drawerLayout = mock()
 
-        withId<View>(activity, R.id.drawer_phone).performClick()
+        withId<View>(activity, R.id.drawer_phone)!!.performClick()
 
         verify(drawerController.activityNavigationUtil).navigateToUserVerification(activity)
     }
@@ -268,6 +268,6 @@ class DrawerControllerTest {
 
         val priceView = withId<TextView>(activity, R.id.drawer_action_price_text)
 
-        assertThat(priceView.text).isEqualTo(price.toFormattedCurrency())
+        assertThat(priceView!!.text).isEqualTo(price.toFormattedCurrency())
     }
 }

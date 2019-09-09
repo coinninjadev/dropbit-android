@@ -10,14 +10,11 @@ import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.FeesManager
 import com.coinninja.coinkeeper.util.FeesManager.FeeType.*
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder
 import com.coinninja.coinkeeper.util.uri.routes.DropbitRoute
 import javax.inject.Inject
 
 class AdjustableFeesActivity : BaseActivity() {
-    @Inject
-    lateinit var activityNavigationUtil: ActivityNavigationUtil
 
     @Inject
     lateinit var dropbitUriBuilder: DropbitUriBuilder

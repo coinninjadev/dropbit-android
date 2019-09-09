@@ -18,8 +18,6 @@ import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Views.withId;
-
 public class TransactionDetailsActivity extends BaseActivity {
 
     @Inject
@@ -61,7 +59,7 @@ public class TransactionDetailsActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_details);
-        pager = withId(this, R.id.pager_transaction_details);
+        pager = findViewById(R.id.pager_transaction_details);
         intentFilter = new IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED);
         intentFilter.addAction(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE);
         intentFilter.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED);

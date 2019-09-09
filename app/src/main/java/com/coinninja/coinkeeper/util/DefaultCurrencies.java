@@ -3,10 +3,10 @@ package com.coinninja.coinkeeper.util;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
-import com.coinninja.coinkeeper.util.currency.Currency;
-
 import java.util.Objects;
+
+import app.dropbit.commons.currency.CryptoCurrency;
+import app.dropbit.commons.currency.Currency;
 
 public class DefaultCurrencies implements Parcelable {
     public static final Creator<DefaultCurrencies> CREATOR = new Creator<DefaultCurrencies>() {

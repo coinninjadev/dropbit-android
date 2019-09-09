@@ -22,6 +22,7 @@ public class ConfirmHoldButton extends ProgressBar implements View.OnTouchListen
     private Animation growAnimation;
     private OnConfirmHoldEndListener onConfirmHoldEndListener;
     private final Runnable countDownRunnable = () -> onCountDownEnd();
+    private OnConfirmHoldStartedListener onConfirmHoldStartedListener;
 
     public ConfirmHoldButton(Context context) {
         super(context);
@@ -60,6 +61,8 @@ public class ConfirmHoldButton extends ProgressBar implements View.OnTouchListen
     }
 
     public void startHold() {
+        if (onConfirmHoldStartedListener != null)
+            onConfirmHoldStartedListener.onHoldStarted();
         progressRingAnimation.start();
         startAnimation(growAnimation);
         growAnimation.start();
@@ -102,6 +105,10 @@ public class ConfirmHoldButton extends ProgressBar implements View.OnTouchListen
         return true;
     }
 
+    public void setOnConfirmHoldBeginListener(OnConfirmHoldStartedListener onConfirmHoldStartedListener) {
+        this.onConfirmHoldStartedListener = onConfirmHoldStartedListener;
+    }
+
     public void setOnConfirmHoldEndListener(OnConfirmHoldEndListener onConfirmHoldEndListener) {
         this.onConfirmHoldEndListener = onConfirmHoldEndListener;
     }
@@ -120,6 +127,10 @@ public class ConfirmHoldButton extends ProgressBar implements View.OnTouchListen
 
     public interface OnConfirmHoldEndListener {
         void onHoldCompleteSuccessfully();
+    }
+
+    public interface OnConfirmHoldStartedListener {
+        void onHoldStarted();
     }
 
 }

@@ -119,7 +119,7 @@ public class BroadcastActivityTest {
     public void stops_sync_when_broadcasting() {
         activityController.start().resume().visible();
 
-        verify(syncWalletManager).cancel30SecondSync();
+        verify(syncWalletManager).cancel60SecondSync();
     }
 
     @Test

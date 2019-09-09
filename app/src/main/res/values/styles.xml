@@ -348,6 +348,25 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="FlatButton.EmptySate">
+        <item name="android:textAppearance">@style/TextAppearance.FlatButton.EmptyState</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
+        <item name="background">@android:color/transparent</item>
+        <item name="colorControlHighlight">@color/colorFlatHover</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="TextAppearance.FlatButton" />
+
+    <style name="TextAppearance.FlatButton.EmptyState">
+        <item name="fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/empty_state_flat_button</item>
+        <item name="android:letterSpacing">.01</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
     <style name="FlatButton.Strong" parent="Base.Widget.AppCompat.Button.Borderless">
         <item name="fontFamily">@font/montserrat_medium</item>
         <item name="android:textAppearance">@style/TextAppearance</item>
@@ -527,9 +546,9 @@
     </style>
 
     <style name="TextAppearance.History.Address" parent="TextAppearance.AppCompat">
-        <item name="fontFamily">@font/montserrat_regular</item>
+        <item name="fontFamily">@font/montserrat_light</item>
         <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">16.8sp</item>
     </style>
 
     <style name="TextAppearance.Twitter.Handle" parent="TextAppearance.AppCompat">
@@ -556,7 +575,7 @@
 
     <style name="TextAppearance.History.Memo" parent="TextAppearance">
         <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="fontFamily">@font/montserrat_medium</item>
+        <item name="fontFamily">@font/montserrat_semibold</item>
         <item name="android:textSize">15sp</item>
     </style>
 
@@ -737,6 +756,13 @@
 
     <style name="TextAppearance.Lightning.Tx.EmptyState" />
 
+    <style name="TextAppearance.Lightning.LoadingOptions">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="fontFamily">@font/montserrat_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
     <style name="TextAppearance.Lightning.Tx.EmptyState.Header">
         <item name="android:textColor">@color/font_gray</item>
         <item name="fontFamily">@font/montserrat_medium</item>
@@ -756,6 +782,13 @@
         <item name="fontFamily">@font/montserrat_light</item>
         <item name="android:textSize">9.8sp</item>
         <item name="android:letterSpacing">0.00</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextAppearance.Payment.Header">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.11</item>
         <item name="android:gravity">center</item>
     </style>
 

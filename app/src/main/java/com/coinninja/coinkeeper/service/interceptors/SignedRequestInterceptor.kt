@@ -21,6 +21,8 @@ class SignedRequestInterceptor @Inject internal constructor(
         internal val uuidFactory: UuidFactory,
         internal val cnWalletManager: CNWalletManager) : Interceptor {
 
+    var isThunderDome = false
+
     @SuppressLint("NewApi")
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -33,9 +35,10 @@ class SignedRequestInterceptor @Inject internal constructor(
 
         builder.header(CN_AUTH_TIMESTAMP, currentTimeFormatted)
         builder.header(CN_AUTH_DEVICE_UUID, uuidFactory.provideUuid())
+        builder.header(CN_AUTH_PUBKEY, dataSigner.coinNinjaVerificationKey)
 
         val body = String(bodyToString(origRequest.body()))
-        if (body.isEmpty()) {
+        if (body.isEmpty() || isThunderDome) {
             builder.header(CN_AUTH_SIG, dataSigner.sign(currentTimeFormatted))
         } else {
             builder.header(CN_AUTH_SIG, dataSigner.sign(body))
@@ -58,11 +61,13 @@ class SignedRequestInterceptor @Inject internal constructor(
     }
 
     companion object {
-        internal const val CN_AUTH_SIG = "CN-Auth-Signature"
-        internal const val CN_AUTH_TIMESTAMP = "CN-Auth-Timestamp"
-        internal const val CN_AUTH_WALLET_ID = "CN-Auth-Wallet-ID"
-        internal const val CN_AUTH_USER_ID = "CN-Auth-User-ID"
-        internal const val CN_AUTH_DEVICE_UUID = "CN-Auth-Device-UUID"
+        internal const val CN_AUTH_SIG = "cn-auth-signature"
+        internal const val CN_AUTH_TIMESTAMP = "cn-auth-timestamp"
+        internal const val CN_AUTH_WALLET_ID = "cn-auth-wallet-id"
+        internal const val CN_AUTH_USER_ID = "cn-auth-user-id"
+        internal const val CN_AUTH_DEVICE_UUID = "cN-auth-device-uuid"
+        internal const val CN_AUTH_PUBKEY = "cn-auth-pubkeystring"
+
 
         fun bodyToString(request: RequestBody?): ByteArray {
             try {

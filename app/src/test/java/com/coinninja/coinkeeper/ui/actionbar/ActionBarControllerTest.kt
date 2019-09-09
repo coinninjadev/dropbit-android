@@ -8,12 +8,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.CryptoCurrency
+import app.dropbit.commons.currency.FiatCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.util.DefaultCurrencies
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.CryptoCurrency
-import com.coinninja.coinkeeper.util.currency.FiatCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView
 import com.google.android.material.tabs.TabLayout
 import com.google.common.truth.Truth.assertThat
@@ -29,9 +30,11 @@ class ActionBarControllerTest {
     private val charts: ImageButton = mock()
     private val appbarBalance: DefaultCurrencyDisplaySyncView = mock()
     private val appbarBalanceLarge: DefaultCurrencyDisplaySyncView = mock()
+    private val appbarTransferFunds: ImageButton = mock()
 
-    private fun createController(): ActionBarController = ActionBarController(mock()).also {
+    private fun createController(): ActionBarController = ActionBarController(mock(), mock()).also {
         whenever(charts.parent).thenReturn(root)
+        whenever(appbarTransferFunds.context).thenReturn(activity)
         whenever(appbarBalance.parent).thenReturn(root)
         whenever(appbarBalanceLarge.parent).thenReturn(root)
         whenever(activity.menuInflater).thenReturn(mock())
@@ -39,13 +42,15 @@ class ActionBarControllerTest {
         whenever(activity.supportActionBar!!.title).thenReturn("")
         whenever(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).thenReturn(appbarBalance)
         whenever(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance_large)).thenReturn(appbarBalanceLarge)
+        whenever(activity.findViewById<ImageButton>(R.id.appbar_transfer_between_accounts)).thenReturn(appbarTransferFunds)
         whenever(activity.findViewById<TextView>(R.id.appbar_title)).thenReturn(mock())
         whenever(activity.findViewById<ImageButton>(R.id.appbar_charts)).thenReturn(charts)
         whenever(activity.findViewById<ConstraintLayout>(R.id.cn_content_wrapper)).thenReturn(mock())
         whenever(it.walletViewModel.syncInProgress).thenReturn(mock())
-        whenever(it.walletViewModel.chainHoldings).thenReturn(mock())
-        whenever(it.walletViewModel.chainHoldingsWorth).thenReturn(mock())
+        whenever(it.walletViewModel.holdings).thenReturn(mock())
+        whenever(it.walletViewModel.holdingsWorth).thenReturn(mock())
         whenever(it.walletViewModel.defaultCurrencyPreference).thenReturn(mock())
+        whenever(it.walletViewModel.accountMode).thenReturn(mock())
     }
 
     @Test
@@ -286,9 +291,9 @@ class ActionBarControllerTest {
         verify(chartsIcon).visibility = View.VISIBLE
         verify(balanceView).visibility = View.GONE // HomeScreen will render this
         verify(controller.walletViewModel.syncInProgress, atLeastOnce()).observe(eq(activity), any())
-        verify(controller.walletViewModel.chainHoldingsWorth, atLeastOnce()).observe(eq(activity), any())
+        verify(controller.walletViewModel.holdingsWorth, atLeastOnce()).observe(eq(activity), any())
         verify(controller.walletViewModel.defaultCurrencyPreference, atLeastOnce()).observe(eq(activity), any())
-        verify(controller.walletViewModel.chainHoldings, atLeastOnce()).observe(eq(activity), any())
+        verify(controller.walletViewModel.holdings, atLeastOnce()).observe(eq(activity), any())
     }
 
     @Test
@@ -331,7 +336,7 @@ class ActionBarControllerTest {
         val holdings = BTCCurrency(1000L)
         val worth = USDCurrency(500.00)
         val currenciesPreferences = DefaultCurrencies(USDCurrency(), BTCCurrency())
-        whenever(controller.walletViewModel.chainHoldingsWorth.value).thenReturn(worth)
+        whenever(controller.walletViewModel.holdingsWorth.value).thenReturn(worth)
         whenever(controller.walletViewModel.defaultCurrencyPreference.value).thenReturn(currenciesPreferences)
         val argumentCaptor: ArgumentCaptor<Observer<CryptoCurrency>> = ArgumentCaptor.forClass(Observer::class.java)
                 as ArgumentCaptor<Observer<CryptoCurrency>>
@@ -341,7 +346,7 @@ class ActionBarControllerTest {
 
         controller.setTheme(activity, actionBarTyped)
 
-        verify(controller.walletViewModel.chainHoldings, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
+        verify(controller.walletViewModel.holdings, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
 
         argumentCaptor.value.onChanged(holdings)
 
@@ -355,7 +360,7 @@ class ActionBarControllerTest {
         val holdings = BTCCurrency(1000L)
         val worth = USDCurrency(500.00)
         val currenciesPreferences = DefaultCurrencies(USDCurrency(), BTCCurrency())
-        whenever(controller.walletViewModel.chainHoldings.value).thenReturn(holdings)
+        whenever(controller.walletViewModel.holdings.value).thenReturn(holdings)
         whenever(controller.walletViewModel.defaultCurrencyPreference.value).thenReturn(currenciesPreferences)
         val argumentCaptor: ArgumentCaptor<Observer<FiatCurrency>> = ArgumentCaptor.forClass(Observer::class.java)
                 as ArgumentCaptor<Observer<FiatCurrency>>
@@ -365,7 +370,7 @@ class ActionBarControllerTest {
 
         controller.setTheme(activity, actionBarTyped)
 
-        verify(controller.walletViewModel.chainHoldingsWorth, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
+        verify(controller.walletViewModel.holdingsWorth, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
 
         argumentCaptor.value.onChanged(worth)
         verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).renderValues(currenciesPreferences, holdings, worth)
@@ -378,8 +383,8 @@ class ActionBarControllerTest {
         val holdings = BTCCurrency(1000L)
         val worth = USDCurrency(500.00)
         val currenciesPreferences = DefaultCurrencies(USDCurrency(), BTCCurrency())
-        whenever(controller.walletViewModel.chainHoldings.value).thenReturn(holdings)
-        whenever(controller.walletViewModel.chainHoldingsWorth.value).thenReturn(worth)
+        whenever(controller.walletViewModel.holdings.value).thenReturn(holdings)
+        whenever(controller.walletViewModel.holdingsWorth.value).thenReturn(worth)
         val argumentCaptor: ArgumentCaptor<Observer<DefaultCurrencies>> = ArgumentCaptor.forClass(Observer::class.java)
                 as ArgumentCaptor<Observer<DefaultCurrencies>>
         val actionBarTyped = TypedValue().apply {
@@ -438,5 +443,46 @@ class ActionBarControllerTest {
         controller.addTab(activity, R.layout.home_appbar_tab_1, 0)
 
         verify(tab).setCustomView(R.layout.home_appbar_tab_1)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun updating_mode_to_lightning_updates_underling_view() {
+        val controller = createController()
+        val argumentCaptor: ArgumentCaptor<Observer<AccountMode>> = ArgumentCaptor.forClass(Observer::class.java)
+                as ArgumentCaptor<Observer<AccountMode>>
+
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on
+        }
+
+        controller.setTheme(activity, actionBarTyped)
+
+        verify(controller.walletViewModel.accountMode, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
+
+        argumentCaptor.value.onChanged(AccountMode.BLOCKCHAIN)
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).accountMode(AccountMode.BLOCKCHAIN)
+        argumentCaptor.value.onChanged(AccountMode.LIGHTNING)
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).accountMode(AccountMode.LIGHTNING)
+    }
+
+    @Test
+    fun clicking_transfer_button_presents_options_for_transfer() {
+        val controller = createController()
+        val argumentCaptor = argumentCaptor<View.OnClickListener>()
+
+        val actionBarTyped = TypedValue().apply {
+            resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on
+        }
+
+        controller.setTheme(activity, actionBarTyped)
+
+        verify(appbarTransferFunds).visibility = View.VISIBLE
+        verify(appbarTransferFunds).setOnClickListener(argumentCaptor.capture())
+
+        val listener = argumentCaptor.firstValue
+        listener.onClick(appbarTransferFunds)
+
+        verify(controller.activityNavigationUtil).showLoadLightningOptions(activity)
     }
 }

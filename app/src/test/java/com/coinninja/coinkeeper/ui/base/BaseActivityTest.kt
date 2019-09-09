@@ -22,7 +22,6 @@ import org.robolectric.android.controller.ActivityController
 @RunWith(AndroidJUnit4::class)
 class BaseActivityTest {
 
-
     private val activityController: ActivityController<SettingsActivity> = Robolectric.buildActivity(SettingsActivity::class.java)
     private val activity: BaseActivity = activityController.get()
     private val application get() = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()

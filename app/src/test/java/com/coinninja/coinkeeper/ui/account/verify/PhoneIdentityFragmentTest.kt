@@ -103,7 +103,7 @@ class PhoneIdentityFragmentTest {
         val scenario = startScenario()
 
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.verify_button))
+            clickOn(fragment.findViewById(R.id.verify_button))
         }
 
         verify(application.activityNavigationUtil).navigateToRegisterPhone(any())
@@ -120,7 +120,7 @@ class PhoneIdentityFragmentTest {
 
 
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.remove_verification))
+            clickOn(fragment.findViewById(R.id.remove_verification))
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
@@ -140,7 +140,7 @@ class PhoneIdentityFragmentTest {
         whenever(application.dropbitAccountHelper.phoneIdentity()).thenReturn(identity)
         val scenario = startScenario()
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.remove_verification))
+            clickOn(fragment.findViewById(R.id.remove_verification))
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
@@ -161,7 +161,7 @@ class PhoneIdentityFragmentTest {
         whenever(application.dropbitAccountHelper.phoneIdentity()).thenReturn(identity)
         val scenario = startScenario()
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.remove_verification))
+            clickOn(fragment.findViewById(R.id.remove_verification))
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
@@ -190,7 +190,7 @@ class PhoneIdentityFragmentTest {
         whenever(application.dropbitAccountHelper.phoneIdentity()).thenReturn(identity)
         val scenario = startScenario()
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.remove_verification))
+            clickOn(fragment.findViewById(R.id.remove_verification))
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog

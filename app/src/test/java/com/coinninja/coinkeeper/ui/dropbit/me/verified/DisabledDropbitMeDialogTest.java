@@ -13,7 +13,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropBitMeDialog;
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.home.HomeActivity;
@@ -44,8 +43,6 @@ public class DisabledDropbitMeDialogTest {
     private ActivityScenario<HomeActivity> scenario;
 
     @Mock
-    private WalletHelper walletHelper;
-    @Mock
     private LazyList transactions;
 
     @Mock
@@ -65,12 +62,11 @@ public class DisabledDropbitMeDialogTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         application = ApplicationProvider.getApplicationContext();
-        application.walletHelper = walletHelper;
         application.activityNavigationUtil = activityNavigationUtil;
         application.dropbitMeConfiguration = dropbitMeConfiguration;
         application.serviceWorkUtil = serviceWorkUtil;
         application.localBroadCastUtil = localBroadCastUtil;
-        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        when(application.walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(0);
 
         when(dropbitMeConfiguration.hasVerifiedAccount()).thenReturn(true);
@@ -85,7 +81,6 @@ public class DisabledDropbitMeDialogTest {
     @After
     public void tearDown() {
         scenario.close();
-        walletHelper = null;
         transactions = null;
         activityNavigationUtil = null;
         dropbitMeConfiguration = null;

@@ -1,1 +1,1 @@
-include ':twitter', ':common', ":app"
+include ':twitter', ':common', ':thunderdome', ':persistance', ":app"

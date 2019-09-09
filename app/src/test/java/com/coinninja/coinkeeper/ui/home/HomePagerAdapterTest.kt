@@ -2,7 +2,7 @@ package com.coinninja.coinkeeper.ui.home
 
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.coinninja.coinkeeper.ui.lightning.LightningHistoryFragment
+import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock

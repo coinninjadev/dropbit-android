@@ -158,7 +158,7 @@ public class AuthenticationImplTest {
         authenticationImpl.forceDeAuthenticate();
 
         assertThat(authenticationImpl.isAuthenticated(), equalTo(expectedFinalAuthState));
-        verify(syncWalletManager).cancel30SecondSync();
+        verify(syncWalletManager).cancel60SecondSync();
     }
 
     @Test

@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import app.dropbit.annotations.Mockable
-import com.coinninja.coinkeeper.ui.lightning.LightningHistoryFragment
+import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 
 @Mockable

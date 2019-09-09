@@ -229,6 +229,24 @@
             android:theme="@style/CoinKeeperTheme.UpOn" />
 
         <activity
+            android:name=".ui.lightning.deposit.LightningDepositActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn" />
+
+        <activity
+            android:name=".ui.lightning.withdrawal.LightningWithdrawalActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn" />
+
+        <activity
+            android:name=".ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn" />
+
+        <activity
             android:name=".ui.backup.BackupRecoveryWordsStartActivity"
             android:label="@string/backup_recovery_words_title"
             android:screenOrientation="portrait"

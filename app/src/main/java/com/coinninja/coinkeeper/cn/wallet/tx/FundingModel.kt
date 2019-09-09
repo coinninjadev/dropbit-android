@@ -47,6 +47,8 @@ class FundingModel(internal val libBitcoinProvider: LibBitcoinProvider,
                     HDWallet.INTERNAL, accountManager.nextChangeIndex)
         }
 
+    val nextReceiveAddress: String get() = accountManager.nextReceiveAddress
+
     val inputSizeInBytes: Int get() = inputSizeP2SH
 
     val changeSizeInBytes: Int get() = outputSizeP2SH

@@ -96,6 +96,15 @@ internal class FundingModelTest {
     inner class GenericTest {
 
         @Test
+        @DisplayName("provides access to next receive address")
+        internal fun provides_access_to_next_receive_address() {
+            val model = createFundingModel()
+            whenever(model.accountManager.nextReceiveAddress).thenReturn("--address--")
+
+            assertThat(model.nextReceiveAddress).isEqualTo("--address--")
+        }
+
+        @Test
         @DisplayName("provides access to dust size")
         internal fun `provides access to dust size`() {
             assertThat(createFundingModel().transactionDustValue).isEqualTo(1000L)

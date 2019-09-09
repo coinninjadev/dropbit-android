@@ -14,11 +14,10 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import static com.coinninja.android.helpers.Views.clickOn;
-import static com.coinninja.android.helpers.Views.withId;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.robolectric.shadows.ShadowView.clickOn;
 
 @RunWith(RobolectricTestRunner.class)
 public class PaymentBarViewTest {
@@ -33,10 +32,10 @@ public class PaymentBarViewTest {
     public void setUp() {
         activity = Robolectric.setupActivity(TestableActivity.class);
         activity.appendLayout(R.layout.fragment_payment_bar);
-        paymentBarView = withId(activity, R.id.payment_bar);
-        scanButton = withId(activity, R.id.scan_btn);
-        sendButton = withId(activity, R.id.send_btn);
-        requestButton = withId(activity, R.id.request_btn);
+        paymentBarView = activity.findViewById(R.id.payment_bar);
+        scanButton = activity.findViewById(R.id.scan_btn);
+        sendButton = activity.findViewById(R.id.send_btn);
+        requestButton = activity.findViewById(R.id.request_btn);
     }
 
     @Test

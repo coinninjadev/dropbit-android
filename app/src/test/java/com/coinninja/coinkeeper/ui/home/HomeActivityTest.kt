@@ -5,14 +5,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
+import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert
@@ -48,16 +51,44 @@ internal class HomeActivityTest {
 
         scenario.onActivity { activity ->
 
-            Mockito.verify(application.activityNavigationUtil).showTransactionDetail(activity, txid = txid)
+            verify(application.activityNavigationUtil).showTransactionDetail(activity, txid = txid)
             Assert.assertFalse(activity.intent.hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID))
         }
+
+        scenario.close()
+    }
+
+    @Test
+    fun changing_tabs_changes_account_modes() {
+        val scenario = setupActivity()
+        scenario.onActivity { activity ->
+
+            activity.tabs.selectTab(activity.tabs.getTabAt(1))
+            verify(activity.accountModeManger).changeMode(AccountMode.LIGHTNING)
+
+            activity.tabs.selectTab(activity.tabs.getTabAt(0))
+            verify(activity.accountModeManger, times(1)).changeMode(AccountMode.BLOCKCHAIN)
+        }
+        scenario.close()
     }
 
     @Test
     fun adds_tabs_to_appbar() {
-        setupActivity().onActivity {
+        val scenario = setupActivity()
+        scenario.onActivity {
             verify(it.actionBarController).addTab(it, R.layout.home_appbar_tab_1, 0)
             verify(it.actionBarController).addTab(it, R.layout.home_appbar_tab_2, 1)
         }
+        scenario.close()
+    }
+
+    @Test
+    fun sets_matches_mode_when_resumed() {
+        val scenario = setupActivity()
+        scenario.onActivity { activity ->
+
+            assertThat(activity.tabs.selectedTabPosition).isEqualTo(1)
+        }
+        scenario.close()
     }
 }

@@ -8,8 +8,6 @@ import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 
 import org.junit.After;
@@ -22,7 +20,9 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
+
 import static com.coinninja.matchers.ActivityMatchers.hasViewWithId;
 import static com.coinninja.matchers.IntentFilterMatchers.containsAction;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -157,7 +157,7 @@ public class TransactionDetailsActivityTest {
         startUp();
 
         assertThat(activity, hasViewWithId(R.id.pager_transaction_details));
-        ViewPager pager = withId(activity, R.id.pager_transaction_details);
+        ViewPager pager = activity.findViewById(R.id.pager_transaction_details);
         assertThat(pager.getAdapter(), equalTo(pageAdapter));
     }
 

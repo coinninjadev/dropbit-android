@@ -16,14 +16,11 @@ import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import javax.inject.Inject
 
 class VerifyPhoneVerificationCodeActivity : BaseActivity(), TextInputNotifierWatcher.OnInputEventListener, View.OnFocusChangeListener, DialogInterface.OnClickListener {
 
-    @Inject
-    internal lateinit var activityNavigationUtil: ActivityNavigationUtil
     @Inject
     internal lateinit var dropbitMeConfiguration: DropbitMeConfiguration
     @Inject

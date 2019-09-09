@@ -20,7 +20,6 @@ import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.FeesManager;
 import com.coinninja.coinkeeper.util.PaymentUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity;
 import com.coinninja.coinkeeper.view.activity.BroadcastActivity;
 import com.coinninja.coinkeeper.view.activity.InviteSendActivity;
@@ -32,7 +31,8 @@ import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+
 import static com.coinninja.coinkeeper.util.FeesManager.FeeType;
 import static com.coinninja.coinkeeper.util.FeesManager.FeeType.CHEAP;
 import static com.coinninja.coinkeeper.util.FeesManager.FeeType.FAST;
@@ -127,8 +127,13 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     }
 
     @Override
+    protected int getContentViewLayoutId() {
+        return R.layout.fragment_confirm_pay_dialog;
+    }
+
+    @Override
     public void onTabSelected(TabLayout.Tab tab) {
-        switch(tab.getPosition()) {
+        switch (tab.getPosition()) {
             case 0:
                 fundWithNewFee(FAST);
                 break;
@@ -149,11 +154,6 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
 
-    }
-
-    @Override
-    protected int getContentViewLayoutId() {
-        return R.layout.fragment_confirm_pay_dialog;
     }
 
     public void showPrice() {
@@ -199,7 +199,7 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
             transactionData = transactionFundingManager.buildFundedTransactionData(
                     paymentUtil.getAddress(),
                     feesManager.fee(feeType),
-                    getPaymentHolder().getTransactionData().getAmount()
+                    getPaymentHolder().getTransactionData().getAmount(), null
             );
         }
 
@@ -268,12 +268,12 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     private void setupSharedMemoFragment() {
         View sharedMemo = getView().findViewById(R.id.shared_transaction_subview);
         String displayText = identity == null ? "" : identity.getDisplayName();
-        SharedMemoView sharedMemoView = new SharedMemoView(sharedMemo, getPaymentHolder().getIsSharingMemo(), getPaymentHolder().getMemo(), displayText);
+        SharedMemoView sharedMemoView = new SharedMemoView(sharedMemo, getPaymentHolder().isSharingMemo(), getPaymentHolder().getMemo(), displayText);
         sharedMemoView.render();
     }
 
     private void setupClose() {
-        withId(getView(), R.id.confirm_pay_header_close_btn).setOnClickListener(v -> onCloseClicked());
+        findViewById(R.id.confirm_pay_header_close_btn).setOnClickListener(v -> onCloseClicked());
     }
 
     private void showSendAddressIfNecessary() {
@@ -295,7 +295,7 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     }
 
     private void showFees(BTCCurrency feeAmount) {
-        TextView fee = withId(getView(), R.id.network_fee);
+        TextView fee = findViewById(R.id.network_fee);
         fee.setText(Resources.INSTANCE.getString(fee.getContext(),
                 R.string.confirm_pay_fee,
                 feeAmount.toFormattedString(),
@@ -325,7 +325,7 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
                 getPaymentHolder().getTransactionData().getAmount(),
                 getPaymentHolder().getTransactionData().getFeeAmount(),
                 getPaymentHolder().getMemo(),
-                getPaymentHolder().getIsSharingMemo(),
+                getPaymentHolder().isSharingMemo(),
                 ""
         );
         Intent intent = new Intent(getActivity(), InviteSendActivity.class);
@@ -337,7 +337,7 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     private void broadcastTransaction() {
         Intent intent = new Intent(getActivity(), BroadcastActivity.class);
         BroadcastTransactionDTO broadcastTransactionDTO = new BroadcastTransactionDTO(getPaymentHolder().getTransactionData(),
-                getPaymentHolder().getIsSharingMemo(), getPaymentHolder().getMemo(), identity, getPaymentHolder().getPublicKey());
+                getPaymentHolder().isSharingMemo(), getPaymentHolder().getMemo(), identity, getPaymentHolder().getPublicKey());
         intent.putExtra(DropbitIntents.EXTRA_BROADCAST_DTO, broadcastTransactionDTO);
         startActivity(intent);
         dismiss();

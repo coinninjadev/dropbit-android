@@ -153,7 +153,7 @@
         app:layout_constraintTop_toBottomOf="@id/news_section_label" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/news_pull_to_refresh"
+        android:id="@+id/pull_to_refresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:paddingStart="23dp"

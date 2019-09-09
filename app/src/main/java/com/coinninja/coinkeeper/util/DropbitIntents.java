@@ -108,6 +108,8 @@ public class DropbitIntents {
     public static final String EXTRA_HIDE_SKIP_BUTTON = "EXTRA_HIDE_SKIP_BUTTON";
     public static final String EXTRA_SHOW_TWITTER_VERIFY_BUTTON = "EXTRA_SHOW_TWITTER_VERIFY_BUTTON";
     public static final String EXTRA_TWITTER_SNOWFLAKE = "EXTRA_TWITTER_SNOWFLAKE";
+    public static final String EXTRA_AMOUNT = "EXTRA_AMOUNT";
+    public static final String EXTRA_WITHDRAWAL_REQUEST = "EXTRA_WITHDRAWAL_REQUEST";
     /* Dropbit Service Intents */
     public static final String EXTRA_DROPBIT_TXID = "EXTRA_DROPBIT_TXID";
     public static final String EXTRA_DROPBIT_MEMO = "EXTRA_DROPBIT_MEMO";
@@ -139,13 +141,15 @@ public class DropbitIntents {
 
     /* PATTERNS */
     public static final String BITCOIN_ADDRESS_PATTERN;
+
     static {
         if (BuildConfig.COIN_TYPE == 1) {
-            BITCOIN_ADDRESS_PATTERN = "((?:bc1|[2])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
+            BITCOIN_ADDRESS_PATTERN = "((?:bc1|[123])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
         } else {
             BITCOIN_ADDRESS_PATTERN = "((?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
         }
     }
+
     public static final String BITCOIN_URI_PATTERN = BITCOIN_ADDRESS_PATTERN + "(\\?.*&?(?:amount=)((?:[0-9]{0,8})(?:\\.[0-9]{1,8})?))?";
 
     static {

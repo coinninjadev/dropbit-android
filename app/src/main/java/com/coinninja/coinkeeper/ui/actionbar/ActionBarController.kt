@@ -11,19 +11,23 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.CryptoCurrency
+import app.dropbit.commons.currency.FiatCurrency
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.ui.base.MenuItemClickListener
 import com.coinninja.coinkeeper.util.DefaultCurrencies
-import com.coinninja.coinkeeper.util.currency.CryptoCurrency
-import com.coinninja.coinkeeper.util.currency.FiatCurrency
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView
 import com.coinninja.coinkeeper.viewModel.WalletViewModel
 import com.google.android.material.tabs.TabLayout
 
 @Mockable
 class ActionBarController constructor(
-        internal val walletViewModel: WalletViewModel
+        internal val walletViewModel: WalletViewModel,
+        internal val activityNavigationUtil: ActivityNavigationUtil
 ) {
+
 
     companion object {
         val actionBarTypes: Array<Int> = arrayOf(
@@ -109,7 +113,7 @@ class ActionBarController constructor(
     }
 
     private fun hideTabs(activity: AppCompatActivity) {
-        activity.findViewById<View>(R.id.appbar_tabs)?.visibility=View.GONE
+        activity.findViewById<View>(R.id.appbar_tabs)?.visibility = View.GONE
     }
 
     private fun showChartsIfNecessary(activity: AppCompatActivity) {
@@ -148,6 +152,13 @@ class ActionBarController constructor(
                 this@ActionBarController.removeView(this)
             }
         }
+
+        if (isBalanceBelowTitle) {
+            activity.findViewById<ImageButton>(R.id.appbar_transfer_between_accounts)?.apply {
+                visibility = View.VISIBLE
+                setOnClickListener {activityNavigationUtil.showLoadLightningOptions(activity)}
+            }
+        }
     }
 
     private fun removeView(view: View) {
@@ -161,6 +172,9 @@ class ActionBarController constructor(
     }
 
     private fun setupObserversFor(activity: AppCompatActivity, defaultCurrencyDisplayView: DefaultCurrencyDisplaySyncView) {
+        walletViewModel.accountMode.observe(activity, Observer<AccountMode> { mode ->
+            defaultCurrencyDisplayView.accountMode(mode)
+        })
         walletViewModel.syncInProgress.observe(activity, Observer<Boolean> { isSyncing ->
             if (isSyncing == true) {
                 defaultCurrencyDisplayView.showSyncingUI()
@@ -168,23 +182,23 @@ class ActionBarController constructor(
                 defaultCurrencyDisplayView.hideSyncingUI()
             }
         })
-        walletViewModel.chainHoldings.observe(activity, Observer<CryptoCurrency> { holdings ->
+        walletViewModel.holdings.observe(activity, Observer<CryptoCurrency> { holdings ->
             walletViewModel.defaultCurrencyPreference.value?.let { defaults ->
-                walletViewModel.chainHoldingsWorth.value?.let { fiatCurrency ->
+                walletViewModel.holdingsWorth.value?.let { fiatCurrency ->
                     updateBalances(defaultCurrencyDisplayView, defaults, holdings, fiatCurrency)
                 }
             }
         })
-        walletViewModel.chainHoldingsWorth.observe(activity, Observer<FiatCurrency> { fiatCurrency ->
+        walletViewModel.holdingsWorth.observe(activity, Observer<FiatCurrency> { fiatCurrency ->
             walletViewModel.defaultCurrencyPreference.value?.let { defaults ->
-                walletViewModel.chainHoldings.value?.let { holdings ->
+                walletViewModel.holdings.value?.let { holdings ->
                     updateBalances(defaultCurrencyDisplayView, defaults, holdings, fiatCurrency)
                 }
             }
         })
         walletViewModel.defaultCurrencyPreference.observe(activity, Observer<DefaultCurrencies> { defaults ->
-            walletViewModel.chainHoldingsWorth.value?.let { fiatCurrency ->
-                walletViewModel.chainHoldings.value?.let { holdings ->
+            walletViewModel.holdingsWorth.value?.let { fiatCurrency ->
+                walletViewModel.holdings.value?.let { holdings ->
                     updateBalances(defaultCurrencyDisplayView, defaults, holdings, fiatCurrency)
                 }
             }

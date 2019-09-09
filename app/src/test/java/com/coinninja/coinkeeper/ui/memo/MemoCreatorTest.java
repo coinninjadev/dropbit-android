@@ -17,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.shadows.ShadowDialog;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,16 +55,16 @@ public class MemoCreatorTest {
         memoCreator.createMemo(activity, callback, text);
         AlertDialog latestAlertDialog = getAlertDialog();
         assertNotNull(latestAlertDialog);
-        assertNotNull(withId(latestAlertDialog, R.id.memo));
+        assertNotNull(latestAlertDialog.findViewById(R.id.memo));
     }
 
     @Test
     public void provides_text_to_callback() {
         memoCreator.createMemo(activity, callback, text);
-        EditText memo = withId(getAlertDialog(), R.id.memo);
+        EditText memo = getAlertDialog().findViewById(R.id.memo);
         memo.setText("foo my bar");
 
-        withId(getAlertDialog(), R.id.done).performClick();
+        getAlertDialog().findViewById(R.id.done).performClick();
 
         verify(callback).onMemoCreated("foo my bar");
     }
@@ -73,19 +72,19 @@ public class MemoCreatorTest {
     @Test
     public void no_callback_for_no_text() {
         memoCreator.createMemo(activity, callback, text);
-        EditText memo = withId(getAlertDialog(), R.id.memo);
+        EditText memo = getAlertDialog().findViewById(R.id.memo);
         memo.setText("");
-        withId(getAlertDialog(), R.id.done).performClick();
+        getAlertDialog().findViewById(R.id.done).performClick();
 
         memoCreator.createMemo(activity, callback, text);
-        memo = withId(getAlertDialog(), R.id.memo);
+        memo = getAlertDialog().findViewById(R.id.memo);
         memo.setText("\n");
-        withId(getAlertDialog(), R.id.done).performClick();
+        getAlertDialog().findViewById(R.id.done).performClick();
 
         memoCreator.createMemo(activity, callback, text);
-        memo = withId(getAlertDialog(), R.id.memo);
+        memo = getAlertDialog().findViewById(R.id.memo);
         memo.setText("       ");
-        withId(getAlertDialog(), R.id.done).performClick();
+        getAlertDialog().findViewById(R.id.done).performClick();
 
         verify(callback, times(0)).onMemoCreated(anyString());
     }
@@ -93,10 +92,10 @@ public class MemoCreatorTest {
     @Test
     public void dismisses_dialog_when_finished() {
         memoCreator.createMemo(activity, callback, text);
-        EditText memo = withId(getAlertDialog(), R.id.memo);
+        EditText memo = getAlertDialog().findViewById(R.id.memo);
         memo.setText("foo my bar");
 
-        withId(getAlertDialog(), R.id.done).performClick();
+        getAlertDialog().findViewById(R.id.done).performClick();
 
         assertFalse(getAlertDialog().isShowing());
     }
@@ -106,7 +105,7 @@ public class MemoCreatorTest {
         text = "some already entered text";
         memoCreator.createMemo(activity, callback, text);
 
-        EditText memo = withId(getAlertDialog(), R.id.memo);
+        EditText memo = getAlertDialog().findViewById(R.id.memo);
 
         assertThat(memo, hasText(text));
         assertThat(memo.getSelectionEnd(), equalTo(text.length()));

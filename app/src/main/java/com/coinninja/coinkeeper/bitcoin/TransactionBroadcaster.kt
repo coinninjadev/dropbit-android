@@ -14,7 +14,7 @@ class TransactionBroadcaster {
     }
 
     fun broadcast(transaction: Transaction): BroadcastResult {
-        val result = BroadcastResult()
+        val result = BroadcastResult(transaction = transaction)
         clients.forEach {
             assembleResponses(result, it.broadcastTransaction(transaction), it.broadcastProvider())
         }

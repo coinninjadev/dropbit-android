@@ -18,7 +18,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlertDialog;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -30,7 +29,7 @@ public class ViewsTest {
     public void finds_view_with_id___given_view() {
         A activity = Robolectric.setupActivity(A.class);
         View view = activity.findViewById(R.id.pager_transaction_details);
-        assertThat(withId(view, R.id.ic_send_state), equalTo(view.findViewById(R.id.ic_send_state)));
+        assertThat(activity.findViewById(R.id.ic_send_state), equalTo(view.findViewById(R.id.ic_send_state)));
     }
 
     @Test
@@ -40,14 +39,14 @@ public class ViewsTest {
         alertDialog.show(activity.getSupportFragmentManager(), GenericAlertDialog.class.getSimpleName());
 
         AlertDialog latestAlertDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
-        assertThat(withId(latestAlertDialog, android.R.id.message), equalTo(latestAlertDialog.findViewById(android.R.id.message)));
+        assertThat(latestAlertDialog.findViewById(android.R.id.message), equalTo(latestAlertDialog.findViewById(android.R.id.message)));
     }
 
     @Test
     public void finds_view_with_id___given_activity() {
         A activity = Robolectric.setupActivity(A.class);
 
-        assertThat(withId(activity, R.id.pager_transaction_details), equalTo(activity.findViewById(R.id.pager_transaction_details)));
+        assertThat(activity.findViewById(R.id.pager_transaction_details), equalTo(activity.findViewById(R.id.pager_transaction_details)));
     }
 
     public static class A extends AppCompatActivity {
