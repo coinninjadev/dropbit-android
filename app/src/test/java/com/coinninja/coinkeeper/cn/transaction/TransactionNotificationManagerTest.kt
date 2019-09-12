@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.cn.transaction
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.TransactionData
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.IdentityType

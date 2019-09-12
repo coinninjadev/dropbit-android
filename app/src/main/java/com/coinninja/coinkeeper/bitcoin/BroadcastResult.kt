@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.bitcoin
 
+import app.coinninja.cn.libbitcoin.model.Transaction
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.model.Transaction
 
 @Mockable
 data class BroadcastResult(
@@ -11,8 +11,8 @@ data class BroadcastResult(
         var transaction: Transaction = Transaction("", ""),
         var provider: BroadcastProvider = BroadcastProvider.NONE
 ) {
-    val txid: String get() = transaction.txId
-    val rawTx: String get() = transaction.rawTx
+    val txid: String get() = transaction.txid
+    val rawTx: String get() = transaction.encodedTransaction
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

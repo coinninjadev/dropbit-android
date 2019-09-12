@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.model.dto
 
-import com.coinninja.bindings.DerivationPath
+import app.coinninja.cn.libbitcoin.model.DerivationPath
 import com.coinninja.coinkeeper.model.db.Address
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock

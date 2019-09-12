@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.cn.account;
 
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
@@ -35,7 +35,7 @@ public class RemoteAddressCache {
             List<CNWalletAddress> cachedAddresses = (List<CNWalletAddress>) response.body();
 
             HashMap<String, AddressDTO> addressStringToDTO = accountManager
-                    .unusedAddressesToPubKey(HDWallet.EXTERNAL, NUM_ADDRESSES_TO_CACHE);
+                    .unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, NUM_ADDRESSES_TO_CACHE);
 
             removeUsedAddresses(cachedAddresses, addressStringToDTO);
             removeServerAddressesWithoutPublicKey(cachedAddresses);

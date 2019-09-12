@@ -44,6 +44,7 @@ class WalletFlags(val flag: Long) {
         }
 
         val purpose49v1: Long get() = compose(purpose49, v1).flag
+        val purpose84v2: Long get() = compose(purpose84, v2).flag
 
     }
 }

@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.bitcoin
 
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.TransactionData
-import com.coinninja.bindings.model.Transaction
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.Transaction
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
@@ -17,7 +17,7 @@ class BroadcastTransactionHelperTest {
 
     private fun createHelper(): BroadcastTransactionHelper {
         val helper = BroadcastTransactionHelper(mock(), mock(), mock(), mock())
-        whenever(helper.transactionBuilder.build(any())).thenReturn(transaction)
+        whenever(helper.hdWallet.transactionFrom(any())).thenReturn(transaction)
         return helper
     }
 
@@ -30,7 +30,7 @@ class BroadcastTransactionHelperTest {
 
         assertThat(result.isSuccess).isTrue()
         assertThat(result.responseCode).isEqualTo(200)
-        assertThat(result.txid).isEqualTo(transaction.txId)
+        assertThat(result.txid).isEqualTo(transaction.txid)
 
         val proprietiesCaptor = argumentCaptor<JSONObject>()
         verify(helper.analytics).trackEvent(eq(Analytics.EVENT_BROADCAST_COMPLETE), proprietiesCaptor.capture())

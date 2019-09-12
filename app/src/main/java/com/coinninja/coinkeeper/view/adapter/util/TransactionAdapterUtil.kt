@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.view.adapter.util
 
+import app.coinninja.cn.libbitcoin.HDWallet
 import app.dropbit.annotations.Mockable
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
@@ -142,11 +142,11 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
 
     internal fun translateTargets(transaction: TransactionSummary) {
 
-        if (transaction.receiver != null && !transaction.receiver.isEmpty())
+        if (transaction.receiver != null && transaction.receiver.isNotEmpty())
             bindableTransaction.targetAddress = transaction.receiver[0].addr
 
 
-        if (transaction.funder != null && !transaction.funder.isEmpty())
+        if (transaction.funder != null && transaction.funder.isNotEmpty())
             bindableTransaction.fundingAddress = transaction.funder[0].addr
 
     }
@@ -206,10 +206,10 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
 
     internal fun setupTransactionNotification(direction: SendState, transactionNotification: TransactionNotification?) {
         transactionNotification?.let { notification ->
-            bindableTransaction.memo = transactionNotification.memo
-            bindableTransaction.isSharedMemo = transactionNotification.isShared
+            bindableTransaction.memo = notification.memo
+            bindableTransaction.isSharedMemo = notification.isShared
 
-            setupIdentity(direction, transactionNotification.toUser, transactionNotification.fromUser)
+            setupIdentity(direction, notification.toUser, notification.fromUser)
         }
     }
 
@@ -251,19 +251,20 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
     }
 
     internal fun translateInviteType(invite: InviteTransactionSummary) {
-        val type = invite.type
-
-        when (type) {
+        when (invite.type) {
             Type.SENT -> {
                 bindableTransaction.sendState = SendState.SEND
             }
             Type.RECEIVED -> {
                 bindableTransaction.sendState = SendState.RECEIVE
             }
+            else -> {
+
+            }
         }
 
         if (bindableTransaction.inviteState === InviteState.EXPIRED || bindableTransaction.inviteState === InviteState.CANCELED) {
-            if (type == Type.SENT)
+            if (invite.type == Type.SENT)
                 bindableTransaction.sendState = SendState.SEND_CANCELED
             else
                 bindableTransaction.sendState = SendState.RECEIVE_CANCELED

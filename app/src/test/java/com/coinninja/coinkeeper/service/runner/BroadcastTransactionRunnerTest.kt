@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.service.runner
 
-import com.coinninja.bindings.TransactionData
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.bitcoin.BroadcastResult
 import com.coinninja.coinkeeper.service.client.CurrentState

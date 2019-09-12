@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.service.runner
 
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
+import app.coinninja.cn.libbitcoin.HDWallet
 import com.coinninja.coinkeeper.model.db.TransactionSummary
 import com.coinninja.coinkeeper.service.client.model.GsonAddress
 import com.coinninja.coinkeeper.service.client.model.TransactionDetail

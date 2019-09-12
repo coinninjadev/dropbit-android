@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionData
-import com.coinninja.bindings.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.db.FundingStat
 import com.coinninja.coinkeeper.model.db.FundingStatDao
 import com.coinninja.coinkeeper.model.db.TransactionSummary
@@ -14,17 +14,19 @@ class FundingStatHelper @Inject constructor(
         internal val daoSessionManager: DaoSessionManager,
         internal val addressHelper: AddressHelper
 ) {
-    internal fun fundingStatFor(transactionId: Long, input: VIn, address:String?=null): FundingStat? =
+    internal fun fundingStatFor(transactionId: Long, input: VIn, address: String? = null): FundingStat? =
             daoSessionManager.fundingStatDao.queryBuilder().where(
                     FundingStatDao.Properties.Tsid.eq(transactionId),
                     FundingStatDao.Properties.FundedTransaction.eq(input.txid),
                     FundingStatDao.Properties.Value.eq(input.previousOutput.value),
                     FundingStatDao.Properties.Position.eq(input.previousOutput.index),
-                    FundingStatDao.Properties.Addr.eq(address ?: input.previousOutput.scriptPubKey.addresses[0])
+                    FundingStatDao.Properties.Addr.eq(address
+                            ?: input.previousOutput.scriptPubKey.addresses[0])
             ).limit(1).unique()
 
-    fun getOrCreateFundingStat(transaction: TransactionSummary, input: VIn, address:String?=null): FundingStat =
-            (fundingStatFor(transaction.id, input, address) ?: daoSessionManager.newFundingStat()).also {
+    fun getOrCreateFundingStat(transaction: TransactionSummary, input: VIn, address: String? = null): FundingStat =
+            (fundingStatFor(transaction.id, input, address)
+                    ?: daoSessionManager.newFundingStat()).also {
                 it.addr = address ?: input.previousOutput.scriptPubKey.addresses[0]
                 it.position = input.previousOutput.index
                 it.transaction = transaction
@@ -38,12 +40,15 @@ class FundingStatHelper @Inject constructor(
             }
 
     internal fun createInputFor(utxo: UnspentTransactionOutput): FundingStat = daoSessionManager.newFundingStat().apply {
-        fundedTransaction = utxo.txId
-        position = utxo.index
-        value = utxo.amount
-        addressHelper.addressForPath(utxo.path)?.let {
-            address = it
-            addr = it.address
+        utxo.path?.let { path ->
+            fundedTransaction = utxo.txid
+            position = utxo.index
+            value = utxo.amount
+            addressHelper.addressForPath(path)?.let {
+                address = it
+                addr = it.address
+            }
+
         }
     }
 

@@ -1,8 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
-import com.coinninja.bindings.DerivationPath;
 import com.coinninja.coinkeeper.cn.account.AccountManager;
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.PhoneNumber;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
 import app.dropbit.commons.currency.BTCCurrency;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import okhttp3.MediaType;
@@ -96,7 +96,7 @@ public class IncomingInviteResponderTest {
         addresstoDTO.put(addressOne, setupAddress(addressOne, addressOnePubKey));
         addresstoDTO.put(addressTwo, setupAddress(addressTwo, addressTwoPubKey));
         sampleInvites = buildSampleInvites(sampleInviteServerID);
-        when(accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, sampleInvites.size())).thenReturn(addresstoDTO);
+        when(accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, sampleInvites.size())).thenReturn(addresstoDTO);
         when(walletHelper.getIncompleteReceivedInvites()).thenReturn(sampleInvites);
     }
 

@@ -1,9 +1,9 @@
 package com.coinninja.coinkeeper.model
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.*
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 
 @Mockable

@@ -3,17 +3,16 @@ package com.coinninja.coinkeeper.service
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.cn.service.PushNotificationDeviceManager
 import com.coinninja.coinkeeper.cn.service.PushNotificationEndpointManager
-import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
-import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
-import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
-import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
-import com.coinninja.coinkeeper.util.android.PreferencesUtil
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import dagger.Module
+import dagger.Provides
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.*
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.robolectric.Robolectric
 
 @RunWith(AndroidJUnit4::class)
@@ -21,14 +20,13 @@ class DeleteWalletServiceTest {
 
     fun setUp(): DeleteWalletService {
         val service = Robolectric.setupService(DeleteWalletService::class.java)
-        service.daoSessionManager = mock(DaoSessionManager::class.java)
-        service.localBroadCastUtil = mock(LocalBroadCastUtil::class.java)
-        service.analytics = mock(Analytics::class.java)
-        service.syncWalletManager = mock(SyncWalletManager::class.java)
-        service.apiClient = mock(SignedCoinKeeperApiClient::class.java)
-        service.pushNotificationEndpointManager = mock(PushNotificationEndpointManager::class.java)
-        service.pushNotificationDeviceManager = mock(PushNotificationDeviceManager::class.java)
-        service.preferenceUtil = mock(PreferencesUtil::class.java)
+        service.daoSessionManager = mock()
+        service.localBroadCastUtil = mock()
+        service.analytics = mock()
+        service.syncWalletManager = mock()
+        service.apiClient = mock()
+        service.pushNotificationDeviceManager = mock()
+        service.preferenceUtil = mock()
         return service
     }
 
@@ -193,5 +191,14 @@ class DeleteWalletServiceTest {
         service.onHandleIntent(null)
 
         verify(service.preferenceUtil).removeAll()
+    }
+
+    @Module
+    class DeleteWalletServiceTestModule {
+        @Provides
+        fun pushNotificationEndpointManager(): PushNotificationEndpointManager = mock()
+
+        @Provides
+        fun pushNotificationDeviceManager(): PushNotificationDeviceManager = mock()
     }
 }

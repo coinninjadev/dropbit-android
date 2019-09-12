@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.model.db;
 
-import com.coinninja.bindings.UnspentTransactionOutput;
-
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
@@ -11,6 +9,8 @@ import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.converter.PropertyConverter;
+
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput;
 
 @Entity(active = true)
 public class TargetStat {
@@ -246,9 +246,7 @@ public class TargetStat {
         return wallet;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 112459860)
     public void setWallet(Wallet wallet) {
         synchronized (this) {
@@ -314,9 +312,7 @@ public class TargetStat {
         return address;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 607080948)
     public void setAddress(Address address) {
         synchronized (this) {
@@ -348,9 +344,7 @@ public class TargetStat {
         return fundingStat;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1388994558)
     public void setFundingStat(FundingStat fundingStat) {
         synchronized (this) {

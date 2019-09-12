@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.service.client
 
+import app.coinninja.cn.libbitcoin.model.Transaction
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.util.removeRange
-import com.coinninja.bindings.model.Transaction
 import com.coinninja.coinkeeper.bitcoin.BroadcastProvider
 import com.coinninja.coinkeeper.bitcoin.BroadcastingClient
 import com.coinninja.coinkeeper.model.Contact
@@ -245,7 +245,7 @@ class SignedCoinKeeperApiClient(
     }
 
     override fun broadcastTransaction(transaction: Transaction): Response<Any> {
-        val requestBody = RequestBody.create(MediaType.parse("text/plain"), transaction.rawTx)
+        val requestBody = RequestBody.create(MediaType.parse("text/plain"), transaction.encodedTransaction)
         return executeCall(client.broadcastTransaction(requestBody))
     }
 

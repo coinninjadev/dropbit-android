@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import app.coinninja.cn.libbitcoin.HDWallet
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionData
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
 import com.coinninja.coinkeeper.model.db.TargetStat
 import com.coinninja.coinkeeper.model.db.TargetStatDao
@@ -21,13 +21,14 @@ class TargetStatHelper @Inject constructor(
         internal val dustProtectionPreference: DustProtectionPreference
 ) {
 
-    fun targetStatFor(transactionId: Long, output: VOut, address: String?=null): TargetStat? =
+    fun targetStatFor(transactionId: Long, output: VOut, address: String? = null): TargetStat? =
             daoSessionManager.targetStatDao.queryBuilder()
                     .where(
                             TargetStatDao.Properties.Tsid.eq(transactionId),
                             TargetStatDao.Properties.Value.eq(output.value),
                             TargetStatDao.Properties.Position.eq(output.index),
-                            TargetStatDao.Properties.Addr.eq(address ?: output.scriptPubKey.addresses[0])
+                            TargetStatDao.Properties.Addr.eq(address
+                                    ?: output.scriptPubKey.addresses[0])
                     )
                     .unique()
 

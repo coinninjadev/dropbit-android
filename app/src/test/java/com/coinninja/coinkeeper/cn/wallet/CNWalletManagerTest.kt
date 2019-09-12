@@ -21,12 +21,13 @@ class CNWalletManagerTest {
     }
 
     private fun createManager(): CNWalletManager {
-        val manager = CNWalletManager(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock())
+        val manager = CNWalletManager(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock())
         whenever(manager.bitcoinUtil.isValidBIP39Words(validWords)).thenReturn(true)
         whenever(manager.bitcoinUtil.isValidBIP39Words(invalidWords)).thenReturn(false)
         whenever(manager.walletHelper.seedWords).thenReturn(validWords)
         whenever(manager.walletHelper.wallet).thenReturn(mock())
         whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(0L))
+        whenever(manager.walletConfiguration.walletConfigurationFlags).thenReturn(18)
 
         return manager
     }
@@ -92,7 +93,7 @@ class CNWalletManagerTest {
 
         verify(manager.walletHelper).saveWords(validWords)
         verify(manager.preferencesUtil).savePreference(CNWalletManager.PREFERENCE_SKIPPED_BACKUP, true)
-        verify(manager.walletFlagsStorage).flags = WalletFlags.purpose49v1
+        verify(manager.walletFlagsStorage).flags = 18
     }
 
     @Test

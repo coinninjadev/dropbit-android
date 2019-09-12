@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertNotNull
@@ -22,6 +23,9 @@ class RequestDialogFragmentTest {
     private fun createRequestDialing(): RequestDialogFragment {
         ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>().apply {
             accountManager = mock { whenever(it.nextReceiveAddress).thenReturn("--address--") }
+            bitcoinUriBuilder = mock()
+            whenever(bitcoinUriBuilder.setAddress(any())).thenReturn(bitcoinUriBuilder)
+            whenever(bitcoinUriBuilder.build()).thenReturn(mock())
         }
         val dialog = RequestDialogFragment()
         scenario.onActivity { activity ->
@@ -31,7 +35,7 @@ class RequestDialogFragmentTest {
     }
 
     @Test
-    fun `allows user to close dialog`() {
+    fun allows_user_to_close_dialog() {
         val dialog = createRequestDialing()
 
         scenario.onActivity { activity ->

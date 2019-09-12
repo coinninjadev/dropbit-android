@@ -23,6 +23,7 @@ interface Analytics {
 
     fun setUserProperty(propertyName: String, value: Boolean)
     fun setUserProperty(propertyName: String, value: String)
+    fun setUserProperty(propertyName: String, value: Long)
 
     companion object {
         const val OS = "Android"
@@ -150,7 +151,7 @@ interface Analytics {
         const val PROPERTY_HAS_RECEIVED_ADDRESS = "Has Received"
         const val PROPERTY_HAS_DROPBIT_ME_ENABLED = "DropBitMe Enabled"
         const val PROPERTY_TWITTER_VERIFIED = "Twitter Verified"
-        const val PROPERTY_APP_V1 = "v1Wallet"
+        const val PROPERTY_WALLET_VERSION = "WalletVersion"
         const val PROPERTY_PLATFORM = "platform"
     }
 }

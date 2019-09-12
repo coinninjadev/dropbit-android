@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.bitcoin
 
-import com.coinninja.bindings.model.Transaction
+import app.coinninja.cn.libbitcoin.model.Transaction
 import com.coinninja.coinkeeper.service.client.BlockchainClient
 import com.coinninja.coinkeeper.service.client.BlockstreamClient
 import com.coinninja.coinkeeper.service.client.model.BlockchainTX
@@ -31,7 +31,7 @@ class TransactionBroadcasterTest {
         broadcaster.add(mock<BlockchainClient>())
         broadcaster.add(mock<BlockstreamClient>())
 
-        val transaction = Transaction("--raw--", "--txid--")
+        val transaction = Transaction("--txid--", "--raw--")
         broadcaster.broadcast(transaction)
 
         verify(broadcaster.clients[0]).broadcastTransaction(transaction)
@@ -41,7 +41,7 @@ class TransactionBroadcasterTest {
     @Test
     fun builds_single_response__second_failed() {
         val broadcaster = TransactionBroadcaster()
-        val transaction = Transaction("--raw--", "--txid--")
+        val transaction = Transaction("--txid--", "--raw--")
         broadcaster.add(mock<BlockchainClient>())
         whenever(broadcaster.clients[0].broadcastTransaction(transaction)).thenReturn(Response.success(Gson().fromJson(BLOCK_CHAIN_INFO, BlockchainTX::class.java)))
         whenever(broadcaster.clients[0].broadcastProvider()).thenReturn(BroadcastProvider.BLOCKCHAIN_INFO)
@@ -54,14 +54,14 @@ class TransactionBroadcasterTest {
         assertThat(result.isSuccess).isTrue()
         assertThat(result.responseCode).isEqualTo(200)
         assertThat(result.message).isEqualTo("OK")
-        assertThat(result.transaction.txId).isEqualTo("--txid--")
+        assertThat(result.transaction.txid).isEqualTo("--txid--")
         assertThat(result.provider).isEqualTo(BroadcastProvider.BLOCKCHAIN_INFO)
     }
 
     @Test
     fun builds_single_response__both_succeeded() {
         val broadcaster = TransactionBroadcaster()
-        val transaction = Transaction("--raw--", "--txid--")
+        val transaction = Transaction("--txid--", "--raw--")
         broadcaster.add(mock<BlockchainClient>())
         whenever(broadcaster.clients[0].broadcastTransaction(transaction)).thenReturn(Response.success(Gson().fromJson(BLOCK_CHAIN_INFO, BlockchainTX::class.java)))
         whenever(broadcaster.clients[0].broadcastProvider()).thenReturn(BroadcastProvider.BLOCKCHAIN_INFO)
@@ -80,7 +80,7 @@ class TransactionBroadcasterTest {
     @Test
     fun builds_single_response__both_failed() {
         val broadcaster = TransactionBroadcaster()
-        val transaction = Transaction("--raw--", "--txid--")
+        val transaction = Transaction("--txid--", "--raw--")
         broadcaster.add(mock<BlockchainClient>())
         whenever(broadcaster.clients[0].broadcastTransaction(transaction)).thenReturn(failedHttpResponse())
         whenever(broadcaster.clients[0].broadcastProvider()).thenReturn(BroadcastProvider.BLOCKCHAIN_INFO)

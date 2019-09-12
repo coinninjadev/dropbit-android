@@ -144,7 +144,7 @@ public class DropbitIntents {
 
     static {
         if (BuildConfig.COIN_TYPE == 1) {
-            BITCOIN_ADDRESS_PATTERN = "((?:bc1|[123])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
+            BITCOIN_ADDRESS_PATTERN = "((?:bc1|tb1|[123])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
         } else {
             BITCOIN_ADDRESS_PATTERN = "((?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
         }

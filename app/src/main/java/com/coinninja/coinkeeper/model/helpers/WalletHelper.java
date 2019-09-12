@@ -26,10 +26,12 @@ import com.coinninja.coinkeeper.util.FeesManager;
 
 import org.greenrobot.greendao.query.LazyList;
 import org.greenrobot.greendao.query.QueryBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
 import app.dropbit.commons.currency.BTCCurrency;
 import app.dropbit.commons.currency.USDCurrency;
 

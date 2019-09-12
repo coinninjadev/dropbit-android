@@ -13,8 +13,6 @@ import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.ui.base.BaseFragment
 import com.coinninja.coinkeeper.util.CNLogger
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
-import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder
-import com.coinninja.coinkeeper.util.uri.routes.BitcoinRoute
 import com.coinninja.coinkeeper.view.button.CopyToBufferButton
 import com.coinninja.coinkeeper.viewModel.QrViewModel
 import javax.inject.Inject
@@ -31,10 +29,11 @@ class PayRequestFragment : BaseFragment() {
     internal lateinit var accountManager: AccountManager
 
     @Inject
-    internal lateinit var bitcoinUriBuilder: BitcoinUriBuilder
+    internal lateinit var qrViewModel: QrViewModel
 
     @Inject
-    internal lateinit var qrViewModel: QrViewModel
+    internal lateinit var bitcoinUriBuilder: BitcoinUri.Builder
+
 
     private var qrImageURI: Uri? = null
 
@@ -51,8 +50,7 @@ class PayRequestFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        requestAddress = bitcoinUriBuilder.build(BitcoinRoute.DEFAULT.setAddress(accountManager.nextReceiveAddress))
-
+        requestAddress = bitcoinUriBuilder.setAddress(accountManager.nextReceiveAddress).build()
         view?.findViewById<CopyToBufferButton>(R.id.request_copy_button)?.text = requestAddress.address
         view?.findViewById<View>(R.id.request_funds)?.setOnClickListener { onRequestFunds() }
     }

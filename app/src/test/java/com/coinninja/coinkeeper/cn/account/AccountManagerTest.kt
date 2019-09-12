@@ -1,7 +1,8 @@
 package com.coinninja.coinkeeper.cn.account
 
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
+import app.coinninja.cn.libbitcoin.HDWallet
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.MetaAddress
 import com.coinninja.coinkeeper.model.db.Address
 import com.coinninja.coinkeeper.model.db.Wallet
 import com.google.common.truth.Truth.assertThat
@@ -73,7 +74,8 @@ class AccountManagerTest {
     @Test
     fun returns_first_receive_address_when_address_cache_empty() {
         val accountManager = createManager()
-        val address = "--address--"
+        val path = DerivationPath(49, 0, 0, 0, 0)
+        val address = MetaAddress("--address--", "--pubkey--", path)
         val addresses = ArrayList<Address>()
         val wallet = mock<Wallet>()
         whenever(wallet.purpose).thenReturn(49)
@@ -81,9 +83,9 @@ class AccountManagerTest {
         whenever(wallet.accountIndex).thenReturn(0)
         whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)
         whenever(accountManager.walletHelper.wallet).thenReturn(wallet)
-        whenever(accountManager.hdWallet.getAddressForPath(DerivationPath(49, 0, 0, 0, 0))).thenReturn(address)
+        whenever(accountManager.hdWallet.getAddressForPath(path)).thenReturn(address)
 
-        assertThat(accountManager.nextReceiveAddress).isEqualTo(address)
+        assertThat(accountManager.nextReceiveAddress).isEqualTo(address.address)
     }
 
     @Test
@@ -162,16 +164,16 @@ class AccountManagerTest {
         val accountManager = createManager()
         val addressOne = mock<Address>()
         whenever(addressOne.address).thenReturn("-- addr 1 --")
-        whenever(addressOne.derivationPath).thenReturn(DerivationPath("M/49/0/0/0/0"))
+        whenever(addressOne.derivationPath).thenReturn(DerivationPath.from("M/49/0/0/0/0"))
         val addressTwo: Address = mock()
         whenever(addressTwo.address).thenReturn("-- addr 4 --")
-        whenever(addressTwo.derivationPath).thenReturn(DerivationPath("M/49/0/0/0/4"))
+        whenever(addressTwo.derivationPath).thenReturn(DerivationPath.from("M/49/0/0/0/4"))
         val addressThree: Address = mock()
         whenever(addressThree.address).thenReturn("-- addr 7 --")
-        whenever(addressThree.derivationPath).thenReturn(DerivationPath("M/49/0/0/0/7"))
+        whenever(addressThree.derivationPath).thenReturn(DerivationPath.from("M/49/0/0/0/7"))
         val addressFour: Address = mock()
         whenever(addressFour.address).thenReturn("-- addr 8 --")
-        whenever(addressFour.derivationPath).thenReturn(DerivationPath("M/49/0/0/0/8"))
+        whenever(addressFour.derivationPath).thenReturn(DerivationPath.from("M/49/0/0/0/8"))
 
         val addresses = listOf(addressOne, addressTwo, addressThree, addressFour)
         whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)
@@ -190,10 +192,10 @@ class AccountManagerTest {
         val accountManager = createManager()
         val addressOne = mock<Address>()
         whenever(addressOne.address).thenReturn("-- addr 1 --")
-        whenever(addressOne.derivationPath).thenReturn(DerivationPath("M/49/0/0/0/0"))
+        whenever(addressOne.derivationPath).thenReturn(DerivationPath.from("M/49/0/0/0/0"))
         val addressTwo: Address = mock()
         whenever(addressTwo.address).thenReturn("-- addr 4 --")
-        whenever(addressTwo.derivationPath).thenReturn(DerivationPath("M/49/0/0/0/4"))
+        whenever(addressTwo.derivationPath).thenReturn(DerivationPath.from("M/49/0/0/0/4"))
 
         val addresses = listOf(addressOne, addressTwo)
         whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)

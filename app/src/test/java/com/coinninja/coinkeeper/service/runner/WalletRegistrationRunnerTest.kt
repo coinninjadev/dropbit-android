@@ -31,7 +31,7 @@ class WalletRegistrationRunnerTest {
 
     private fun createRunner(): WalletRegistrationRunner {
         val runner = WalletRegistrationRunner(mock(), mock(), mock(), mock(), mock(), mock(), mock())
-        whenever(runner.dataSigner.coinNinjaVerificationKey).thenReturn(SIGN_VERIFICATION_KEY)
+        whenever(runner.hdWallet.verificationKey).thenReturn(SIGN_VERIFICATION_KEY)
         whenever(runner.apiClient.registerWallet(any())).thenReturn(SUCCESSFUL_RESPONSE)
         return runner
     }
@@ -45,7 +45,6 @@ class WalletRegistrationRunnerTest {
 
         verify(runner.localBroadCastUtil).sendGlobalBroadcast(WalletRegistrationCompleteReceiver::class.java, DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE)
     }
-
 
     @Test
     fun notifies_system_that_new_wallet_registration_completed_successfully() {
@@ -111,7 +110,7 @@ class WalletRegistrationRunnerTest {
         runner.run()
 
         verify(runner.apiClient).registerWallet(WalletRegistrationPayload(SIGN_VERIFICATION_KEY, 1))
-        verify(runner.analytics).setUserProperty(Analytics.PROPERTY_APP_V1, true)
+        verify(runner.analytics).setUserProperty(Analytics.PROPERTY_WALLET_VERSION, 1)
     }
 
     @Test
@@ -121,6 +120,6 @@ class WalletRegistrationRunnerTest {
         runner.processSuccess(SUCCESSFUL_RESPONSE, 0)
 
         verify(runner.walletFlagsStorage).flags = 1
-        verify(runner.analytics).setUserProperty(Analytics.PROPERTY_APP_V1, true)
+        verify(runner.analytics).setUserProperty(Analytics.PROPERTY_WALLET_VERSION, 1)
     }
 }

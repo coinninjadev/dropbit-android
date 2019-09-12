@@ -28,7 +28,8 @@ import dagger.android.DaggerApplication
     AndroidFragmentBuilder::class,
     TransactionFundingProvider::class,
     SyncModule::class,
-    ThunderDomeModule::class
+    ThunderDomeModule::class,
+    LibBitcoinModule::class
 ])
 interface AppComponent : AndroidInjector<DaggerApplication>, CoinKeeperComponent {
 

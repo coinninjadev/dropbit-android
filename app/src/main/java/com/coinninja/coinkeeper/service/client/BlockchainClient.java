@@ -1,11 +1,11 @@
 package com.coinninja.coinkeeper.service.client;
 
-import com.coinninja.bindings.model.Transaction;
 import com.coinninja.coinkeeper.bitcoin.BroadcastProvider;
 import com.coinninja.coinkeeper.bitcoin.BroadcastingClient;
 
 import org.jetbrains.annotations.NotNull;
 
+import app.coinninja.cn.libbitcoin.model.Transaction;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -38,7 +38,7 @@ public class BlockchainClient extends NetworkingApiClient implements Broadcastin
 
     @Override
     public Response broadcastTransaction(Transaction transaction) {
-        return executeCall(client.pushTX(transaction.rawTx));
+        return executeCall(client.pushTX(transaction.getEncodedTransaction()));
     }
 
     @NotNull

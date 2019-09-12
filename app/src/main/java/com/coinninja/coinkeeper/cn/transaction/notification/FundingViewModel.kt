@@ -3,11 +3,11 @@ package com.coinninja.coinkeeper.cn.transaction.notification
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.cn.wallet.tx.FundingModel
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager
 import com.coinninja.coinkeeper.util.FeesManager

@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.service.runner;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.cn.transaction.TransactionNotificationManager;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
@@ -25,6 +24,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import app.coinninja.cn.libbitcoin.model.TransactionData;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -25,7 +25,6 @@ import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.crypto.uri.UriException
 import com.coinninja.coinkeeper.view.fragment.ConfirmPayDialogFragment
 import com.coinninja.coinkeeper.view.fragment.PayDialogFragment
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder
@@ -50,6 +49,9 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
     internal lateinit var bitcoinUtil: BitcoinUtil
 
     @Inject
+    lateinit var bitcoinUriBuilder: BitcoinUri.Builder
+
+    @Inject
     internal lateinit var walletHelper: WalletHelper
 
     @Inject
@@ -72,8 +74,7 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_payment_bar, container)
-        return view
+        return inflater.inflate(R.layout.fragment_payment_bar, container)
     }
 
     override fun onStart() {
@@ -144,13 +145,11 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
     }
 
     private fun launchPayScreenWithBitcoinUriIfNecessary(uri: Uri) {
-        try {
-            val bitcoinUri = bitcoinUtil.parse(uri.toString())
-            showPayDialogWithBitcoinUri(bitcoinUri)
-            creationIntent.data = null
-        } catch (e: UriException) {
+        val bitcoinUri = bitcoinUriBuilder.parse(uri.toString())
+        showPayDialogWithBitcoinUri(bitcoinUri)
+        creationIntent.data = null
+        if (!bitcoinUri.isValidPaymentAddress)
             AlertDialogBuilder.build(context, "Invalid bitcoin request received. Please try again").show()
-        }
     }
 
     private fun onRequestButtonPressed() {

@@ -24,7 +24,6 @@ import com.coinninja.coinkeeper.ui.settings.SettingsActivity
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity
-import com.coinninja.coinkeeper.util.TwitterUtil
 import com.coinninja.coinkeeper.view.activity.*
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -47,10 +46,6 @@ abstract class TestAndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
     internal abstract fun signupSelectionActivity(): SignUpSelectionActivity
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
-    internal abstract fun twitterUtil(): TwitterUtil
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
@@ -77,7 +72,7 @@ abstract class TestAndroidActivityBuilder {
     internal abstract fun backupRecoveryWordsStartActivity(): BackupRecoveryWordsStartActivity
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, BroadcastActivityTest.BroadcastActivityTestModule::class])
     internal abstract fun broadcastActivity(): BroadcastActivity
 
     @ActivityScope

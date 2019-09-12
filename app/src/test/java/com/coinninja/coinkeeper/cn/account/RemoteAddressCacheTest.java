@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.cn.account;
 
-import com.coinninja.bindings.DerivationPath;
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
@@ -20,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -86,7 +86,7 @@ public class RemoteAddressCacheTest {
         addressToPubKey.put(addressFour, addressDTOFour);
         addressToPubKey.put(addressFive, addressDTOFive);
 
-        when(accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 5)).thenReturn(addressToPubKey);
+        when(accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, 5)).thenReturn(addressToPubKey);
 
         for (Integer i = 0; i < 6; i++) {
             CNWalletAddress address = mock(CNWalletAddress.class);

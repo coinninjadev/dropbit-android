@@ -2,11 +2,9 @@ package com.coinninja.coinkeeper.service.runner;
 
 import android.util.Log;
 
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.db.Wallet;
-import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
-import com.coinninja.coinkeeper.service.client.CoinKeeperClient;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
 
 import java.io.IOException;
@@ -16,6 +14,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import app.coinninja.cn.libbitcoin.model.MetaAddress;
 import retrofit2.Response;
 
 import static com.coinninja.coinkeeper.service.client.CoinKeeperClient.ADDRESSES_RESULT_LIMIT;
@@ -27,12 +26,13 @@ public class AddressAPIUtil {
     public static final int INITIAL_GAP_LIMIT = 20;
     public static final int LOOK_AHEAD = 5;
     private CoinKeeperApiClient apiClient;
-    private HDWallet hdWallet;
+    private HDWalletWrapper hdWallet;
     private int largestIndexConsumed;
     private int lookAhead;
     private int numAddressesToFetch;
     private int numAddressesFetched;
     private int changeIndex;
+    private Wallet wallet;
 
     @Inject
     AddressAPIUtil(CoinKeeperApiClient apiClient) {
@@ -44,7 +44,11 @@ public class AddressAPIUtil {
         this.lookAhead = lookAhead;
     }
 
-    public List<GsonAddress> fetchAddresses(HDWallet hdWallet, int changeIndex, int start, int currentIndex) {
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
+
+    public List<GsonAddress> fetchAddresses(HDWalletWrapper hdWallet, int changeIndex, int start, int currentIndex) {
         this.hdWallet = hdWallet;
         this.changeIndex = changeIndex;
         largestIndexConsumed = 0;
@@ -135,7 +139,15 @@ public class AddressAPIUtil {
     }
 
     private String[] getBlockToRequest(int startIndex) {
-        return hdWallet.fillBlock(changeIndex, startIndex, calcBufferSize());
+        return toAddresses(hdWallet.fillBlock(wallet.getPurpose(), wallet.getCoinType(), wallet.getAccountIndex(), changeIndex, startIndex, calcBufferSize()));
+    }
+
+    private String[] toAddresses(MetaAddress[] metaAddresses) {
+        String[] addresses = new String[metaAddresses.length];
+        for (int i = 0; i < metaAddresses.length; i++) {
+            addresses[i] = metaAddresses[i].getAddress();
+        }
+        return addresses;
     }
 
     private List<GsonAddress> seekAhead() {

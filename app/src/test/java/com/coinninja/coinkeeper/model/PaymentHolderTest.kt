@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.model
 
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
-import com.coinninja.bindings.TransactionData
 import com.nhaarman.mockitokotlin2.mock
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.MatcherAssert.assertThat

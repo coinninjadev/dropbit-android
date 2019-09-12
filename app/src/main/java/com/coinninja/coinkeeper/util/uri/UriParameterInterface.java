@@ -1,7 +1,5 @@
 package com.coinninja.coinkeeper.util.uri;
 
-import android.net.Uri;
-
 import java.util.Map;
 
 public abstract class UriParameterInterface<RouteType, ParameterType, UriType> extends BasicUriInterface<RouteType, UriType> {

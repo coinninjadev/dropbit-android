@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.view.adapter.util
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
+import app.coinninja.cn.libbitcoin.HDWallet
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.IdentityType

@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
 import com.coinninja.coinkeeper.cn.account.AccountManager;
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
@@ -50,7 +50,7 @@ public class IncomingInviteResponder implements Runnable {
     @Override
     public void run() {
         List<InviteTransactionSummary> invites = walletHelper.getIncompleteReceivedInvites();
-        HashMap<String, AddressDTO> unusedAddressesToPubKey = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, invites.size());
+        HashMap<String, AddressDTO> unusedAddressesToPubKey = accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, invites.size());
         ArrayList<String> addresses = new ArrayList(unusedAddressesToPubKey.keySet());
 
         InviteTransactionSummary invite;

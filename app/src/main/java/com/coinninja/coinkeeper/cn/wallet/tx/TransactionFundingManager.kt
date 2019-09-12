@@ -1,8 +1,9 @@
 package com.coinninja.coinkeeper.cn.wallet.tx
 
+import app.coinninja.cn.libbitcoin.enum.ReplaceableOption
+import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionData
-import com.coinninja.bindings.UnspentTransactionOutput
 import javax.inject.Inject
 
 @Mockable
@@ -46,7 +47,7 @@ class TransactionFundingManager @Inject internal constructor(
                 changeAmount = calculateChange(amountToSend, fees)
                 utxos = unspentTransactionOutputs.toTypedArray()
                 rbf?.let {
-                    isReplaceable = rbf
+                    replaceableOption = if (rbf) ReplaceableOption.RBF_ALLOWED else ReplaceableOption.MUST_NOT_BE_RBF
                 }
             }
         }
@@ -67,7 +68,7 @@ class TransactionFundingManager @Inject internal constructor(
                 feeAmount = explicitFee
                 changeAmount = calculateChange(totalTransactionCost)
                 utxos = unspentTransactionOutputs.toTypedArray()
-                isReplaceable = true
+                replaceableOption = ReplaceableOption.MUST_BE_RBF
             }
         }
 
@@ -115,7 +116,7 @@ class TransactionFundingManager @Inject internal constructor(
 
 
     protected fun createTransactionData(): TransactionData {
-        return TransactionData(emptyArray<UnspentTransactionOutput>(), 0, 0, 0,
+        return TransactionData(emptyArray(), 0, 0, 0,
                 fundingModel.nextChangePath, "")
     }
 

@@ -58,14 +58,14 @@ test-dropbit:
 lint-dropbit:
   stage: build
   tags:
-    - linux
+    - android
   script:
     - ./gradlew app:lintProductionDebug
 
 assemble-dropbit:
   stage: build
   tags:
-    - linux
+    - android
   script:
     - ./gradlew app:assembleDebug
   artifacts:
@@ -78,7 +78,7 @@ assemble-dropbit:
 test-common:
   stage: test
   tags:
-    - linux
+    - android
   script:
     - ./gradlew common:lintRelease common:testReleaseUnitTest
   artifacts:
@@ -90,7 +90,7 @@ test-common:
 test-twitter:
   stage: test
   tags:
-    - linux
+    - android
   script:
     - ./gradlew twitter:lintRelease twitter:testReleaseUnitTest
   artifacts:
@@ -102,7 +102,7 @@ test-twitter:
 test-persistance:
   stage: test
   tags:
-    - linux
+    - android
   script:
     - ./gradlew persistance:lintRelease persistance:testReleaseUnitTest
   artifacts:
@@ -115,7 +115,7 @@ test-persistance:
 test-thunderdome:
   stage: test
   tags:
-    - linux
+    - android
   script:
     - ./gradlew thunderdome:lintRelease thunderdome:testReleaseUnitTest
   artifacts:
@@ -131,7 +131,7 @@ release-candidate:
   environment:
     name: internal
   tags:
-    - linux
+    - android
   artifacts:
     name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
     when: always
@@ -151,7 +151,7 @@ production-debug:
     - develop@cn/dropbit-android
     - /^[\d\.]+RC$/@cn/dropbit-android
   tags:
-    - linux
+    - android
   environment:
     name: internal
   artifacts:
@@ -169,7 +169,7 @@ staging-debug:
     - develop@cn/dropbit-android
     - /^[\d\.]+RC$/@cn/dropbit-android
   tags:
-    - linux
+    - android
   environment:
     name: internal
   artifacts:
@@ -187,7 +187,7 @@ regtest-debug:
     - develop@cn/dropbit-android
     - /^[\d\.]+RC$/@cn/dropbit-android
   tags:
-    - linux
+    - android
   environment:
     name: internal
   artifacts:

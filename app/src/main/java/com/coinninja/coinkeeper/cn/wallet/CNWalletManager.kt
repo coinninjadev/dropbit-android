@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.cn.wallet
 
+import app.coinninja.cn.libbitcoin.SeedWordGenerator
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.SeedWordGenerator
 import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.db.Account
@@ -25,13 +25,14 @@ class CNWalletManager @Inject internal constructor(
         internal val bitcoinUtil: BitcoinUtil,
         internal val accountManager: AccountManager,
         internal val preferencesUtil: PreferencesUtil,
-        internal val seedWordGenerator: SeedWordGenerator,
         internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
         internal val localBroadCastUtil: LocalBroadCastUtil,
         internal val dateUtil: DateUtil,
         internal val analytics: Analytics,
         internal val myTwitterProfile: MyTwitterProfile,
-        internal val walletFlagsStorage: WalletFlagsStorage
+        internal val walletFlagsStorage: WalletFlagsStorage,
+        internal val seedWordGenerator: SeedWordGenerator,
+        internal val walletConfiguration: WalletConfiguration
 ) {
 
     val hasBalance: Boolean get() = walletHelper.balance.toLong() > 0L
@@ -68,7 +69,7 @@ class CNWalletManager @Inject internal constructor(
     fun skipBackup(recoveryWords: Array<String>) {
         saveSeedWords(recoveryWords)
         preferencesUtil.savePreference(PREFERENCE_SKIPPED_BACKUP, true)
-        walletFlagsStorage.flags = WalletFlags.purpose49v1
+        walletFlagsStorage.flags = walletConfiguration.walletConfigurationFlags
     }
 
     fun syncCompleted() {

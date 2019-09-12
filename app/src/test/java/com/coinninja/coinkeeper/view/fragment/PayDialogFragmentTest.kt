@@ -10,12 +10,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.CryptoCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Views.clickOn
 import com.coinninja.android.helpers.Views.withId
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate
@@ -36,7 +36,6 @@ import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ClipboardUtil
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.crypto.uri.UriException
 import com.coinninja.coinkeeper.view.activity.PickUserActivity
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import com.coinninja.coinkeeper.view.widget.PaymentReceiverView
@@ -77,6 +76,7 @@ class PayDialogFragmentTest {
     private val dropbitAccountHelper: DropbitAccountHelper = mock()
     private val clipboardUtil: ClipboardUtil = mock()
     private val bitcoinUtil: BitcoinUtil = mock()
+    private val bitcoinUriBuilder: BitcoinUri.Builder = mock()
     private val userPreferences: UserPreferences = mock()
     private var paymentBarCallbacks: PaymentBarCallbacks = mock()
     private var cnAddressLookupDelegate: CNAddressLookupDelegate = mock()
@@ -180,13 +180,12 @@ class PayDialogFragmentTest {
     }
 
     @Test
-    @Throws(UriException::class)
     fun given_btc_as_primary_pasting_address_with_out_amount_keeps_btc() {
         val value = "bitcoin:34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R?amount=0"
         whenever(clipboardUtil.raw).thenReturn(value)
         paymentHolder.updateValue(BTCCurrency("1.0"))
         val uri: BitcoinUri = mock()
-        whenever(bitcoinUtil.parse(value)).thenReturn(uri)
+        whenever(bitcoinUriBuilder.parse(value)).thenReturn(uri)
         whenever(uri.address).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R")
         whenever(uri.satoshiAmount).thenReturn(0L)
         start()
@@ -199,14 +198,14 @@ class PayDialogFragmentTest {
     // PRIMARY / SECONDARY CURRENCIES
 
     @Test
-    @Throws(UriException::class)
     fun given_usd_as_primary_pasting_address_with_amount_toggles_primary_to_btc() {
         val value = "bitcoin:34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R?amount=100000000"
         whenever(clipboardUtil.raw).thenReturn(value)
         val uri: BitcoinUri = mock()
-        whenever(bitcoinUtil.parse(value)).thenReturn(uri)
+        whenever(bitcoinUriBuilder.parse(value)).thenReturn(uri)
         whenever(uri.address).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R")
         whenever(uri.satoshiAmount).thenReturn(100000000L)
+        whenever(uri.isValidPaymentAddress).thenReturn(true)
         start()
 
         clickOn(dialog.view!!, R.id.paste_address_btn)
@@ -339,7 +338,6 @@ class PayDialogFragmentTest {
     }
 
     @Test
-    @Throws(UriException::class)
     fun pasting_address_with_valid_address_sets_address_on_payment_receiver_view() {
         val rawString = "3EqhexhZ2cuBCPMq9kPpqj9m3R6aFzCKoo"
         mockClipboardWithData(rawString)
@@ -354,27 +352,25 @@ class PayDialogFragmentTest {
     }
 
     @Test
-    @Throws(UriException::class)
     fun pasting_invalid_address_shows_error_and_does_not_set_address() {
         val rawString = "3EqhexhZ2cuBCPMq9kPpqj9m3R6aFzCKooere"
         whenever(clipboardUtil.raw).thenReturn(rawString)
-        whenever(bitcoinUtil.parse(rawString)).thenThrow(UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58))
+        whenever(bitcoinUriBuilder.parse(rawString)).thenReturn(BitcoinUri())
         start()
 
         dialog.findViewById<View>(R.id.paste_address_btn)!!.performClick()
 
         val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)!!
         assertThat(paymentReceiverView.paymentAddress, equalTo(""))
-        assertThat(ShadowToast.getTextOfLatestToast(), equalTo("Address Failed Base 58 check"))
+        assertThat(ShadowToast.getTextOfLatestToast(), equalTo("Invalid BTC address"))
     }
 
     // PASTING ADDRESS
 
     @Test
-    @Throws(UriException::class)
     fun pasting_with_empty_clipboard_does_nothing() {
         whenever(clipboardUtil.raw).thenReturn("")
-        whenever(bitcoinUtil.parse("")).thenThrow(UriException(BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS))
+        whenever(bitcoinUriBuilder.parse("")).thenReturn(BitcoinUri())
         paymentHolder.paymentAddress = "--address--"
         start()
 
@@ -389,7 +385,6 @@ class PayDialogFragmentTest {
 
 
     @Test
-    @Throws(UriException::class)
     fun clears_pub_key_from_holder_when_pasting_address() {
         val address = "34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R"
         paymentHolder.publicKey = "--pub-key--"
@@ -397,7 +392,8 @@ class PayDialogFragmentTest {
         val uri = mock<BitcoinUri>()
         whenever(uri.address).thenReturn(address)
         whenever(uri.satoshiAmount).thenReturn(0L)
-        whenever(bitcoinUtil.parse(any())).thenReturn(uri)
+        whenever(uri.isValidPaymentAddress).thenReturn(true)
+        whenever(bitcoinUriBuilder.parse(any())).thenReturn(uri)
         start()
 
         dialog.onPasteClicked()
@@ -407,13 +403,12 @@ class PayDialogFragmentTest {
     }
 
     @Test
-    @Throws(UriException::class)
     fun given_usd_as_primary_pasting_address_with_out_amount_keeps_usd() {
         paymentHolder.updateValue(USDCurrency(1.0))
         val value = "bitcoin:34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R?amount=0"
         whenever(clipboardUtil.raw).thenReturn(value)
         val uri = mock<BitcoinUri>()
-        whenever(bitcoinUtil.parse(value)).thenReturn(uri)
+        whenever(bitcoinUriBuilder.parse(value)).thenReturn(uri)
         whenever(uri.address).thenReturn("34TpJP7AFps9JvoZHKFnFv3dRnYrC8jk8R")
         whenever(uri.satoshiAmount).thenReturn(0L)
         start()
@@ -425,7 +420,6 @@ class PayDialogFragmentTest {
     }
 
     @Test
-    @Throws(UriException::class)
     fun pasting_address_over_contact_clears_contact_and_shows_address() {
         val address = "3EqhexhZ2cuBCPMq9kPpqj9m3R6aFzCKoo"
         mockClipboardWithData(address)
@@ -444,14 +438,14 @@ class PayDialogFragmentTest {
     }
 
     @Test
-    @Throws(UriException::class)
     fun scanning_address__valid_address__no_amount() {
         val cryptoString = "bitcoin:38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4"
         val data = Intent()
         data.putExtra(DropbitIntents.EXTRA_SCANNED_DATA, cryptoString)
         val bitcoinUri = mock<BitcoinUri>()
-        whenever(bitcoinUtil.parse(cryptoString)).thenReturn(bitcoinUri)
+        whenever(bitcoinUriBuilder.parse(cryptoString)).thenReturn(bitcoinUri)
         whenever(bitcoinUri.address).thenReturn("38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4")
+        whenever(bitcoinUri.isValidPaymentAddress).thenReturn(true)
         start()
 
         val paymentReceiverView = dialog.view!!.findViewById<PaymentReceiverView>(R.id.payment_receiver)
@@ -464,15 +458,15 @@ class PayDialogFragmentTest {
     }
 
     @Test
-    @Throws(UriException::class)
     fun updates_btc_on_scan_with_amount() {
         val cryptoString = "bitcoin:38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4?amount=.01542869"
         val data = Intent()
         data.putExtra(DropbitIntents.EXTRA_SCANNED_DATA, cryptoString)
         val bitcoinUri = mock<BitcoinUri>()
-        whenever(bitcoinUtil.parse(cryptoString)).thenReturn(bitcoinUri)
+        whenever(bitcoinUriBuilder.parse(cryptoString)).thenReturn(bitcoinUri)
         whenever(bitcoinUri.satoshiAmount).thenReturn(1542869L)
         whenever(bitcoinUri.address).thenReturn("38Lo99XoFPTAsWxh65dkvPPdBNCaqXX4C4")
+        whenever(bitcoinUri.isValidPaymentAddress).thenReturn(true)
         dialog.memoToggleView = mock()
         start()
 
@@ -485,15 +479,15 @@ class PayDialogFragmentTest {
     }
 
     @Test
-    @Throws(UriException::class)
     fun clears_pub_key_when_scanning() {
         paymentHolder.publicKey = "--pub-key--"
         val data = Intent()
         val bitcoinUri = mock<BitcoinUri>()
-        val address = "xfdkjvhbw43hfbwkehvbw43jhkf"
+        val address = "--pay-address--"
+        data.putExtra(DropbitIntents.EXTRA_SCANNED_DATA, "bitcoin:--pay-address--")
+        whenever(bitcoinUriBuilder.parse(any())).thenReturn(bitcoinUri)
         whenever(bitcoinUri.address).thenReturn(address)
-        data.putExtra(DropbitIntents.EXTRA_SCANNED_DATA, "bitcoin:xfdkjvhbw43hfbwkehvbw43jhkf")
-        whenever(bitcoinUtil.parse(any())).thenReturn(bitcoinUri)
+        whenever(bitcoinUri.isValidPaymentAddress).thenReturn(true)
         start()
 
         dialog.onActivityResult(DropbitIntents.REQUEST_QR_FRAGMENT_SCAN, DropbitIntents.RESULT_SCAN_OK, data)
@@ -705,6 +699,7 @@ class PayDialogFragmentTest {
         application.countryCodeLocales = countryCodeLocales
         application.dropbitAccountHelper = dropbitAccountHelper
         application.countryCodeLocaleGenerator = mock()
+        application.bitcoinUriBuilder = bitcoinUriBuilder
         whenever(application.countryCodeLocaleGenerator!!.generate()).thenReturn(countryCodeLocales)
         whenever(application.walletHelper.spendableBalance).thenReturn(BTCCurrency(10000000L))
         whenever(currencyPreference.currenciesPreference).thenReturn(defaultCurrencies)
@@ -715,12 +710,12 @@ class PayDialogFragmentTest {
         paymentUtil.setFee(TransactionFee(5.0, 10.0, 15.0).slow)
     }
 
-    @Throws(UriException::class)
     private fun mockClipboardWithData(rawString: String) {
         whenever(clipboardUtil.raw).thenReturn(rawString)
         val bitcoinUri: BitcoinUri = mock()
         whenever(bitcoinUri.address).thenReturn(rawString)
-        whenever(bitcoinUtil.parse(rawString)).thenReturn(bitcoinUri)
+        whenever(bitcoinUri.isValidPaymentAddress).thenReturn(true)
+        whenever(bitcoinUriBuilder.parse(rawString)).thenReturn(bitcoinUri)
     }
 
     @Module

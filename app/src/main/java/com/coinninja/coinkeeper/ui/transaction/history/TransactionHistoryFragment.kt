@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
@@ -105,11 +104,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         super.onPause()
         transactionHistoryDataAdapter.setOnItemClickListener(null)
         localBroadCastUtil.unregisterReceiver(receiver)
-    }
-
-    //TODO Trigger by ViewModel
-    fun onPriceReceived(price: USDCurrency) {
-        transactionHistoryDataAdapter.notifyDataSetChanged()
     }
 
     //TODO Trigger by ViewModel

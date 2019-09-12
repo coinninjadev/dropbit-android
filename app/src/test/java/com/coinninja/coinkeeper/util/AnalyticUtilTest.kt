@@ -120,6 +120,15 @@ class AnalyticUtilTest {
     }
 
     @Test
+    fun proxies_long_properties() {
+        val util = createUtil()
+
+        util.setUserProperty(Analytics.PROPERTY_WALLET_VERSION, 2L)
+
+        verify(util.analytics.people).set(Analytics.PROPERTY_WALLET_VERSION, 2L)
+    }
+
+    @Test
     fun proxies_string_properties() {
         val util = createUtil()
 

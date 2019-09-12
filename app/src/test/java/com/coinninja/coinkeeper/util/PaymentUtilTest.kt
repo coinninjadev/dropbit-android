@@ -3,9 +3,9 @@ package com.coinninja.coinkeeper.util
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.Identity
@@ -13,7 +13,6 @@ import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.service.client.model.TransactionFee
 import com.coinninja.coinkeeper.util.PaymentUtil.PaymentMethod
-import com.coinninja.coinkeeper.util.crypto.BitcoinUtil.ADDRESS_INVALID_REASON.*
 import com.nhaarman.mockitokotlin2.*
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -44,10 +43,8 @@ class PaymentUtilTest {
     private val identity: Identity get() = Identity(Contact(PHONE_NUMBER, DISPLAY_NAME, false))
 
     private fun createUtil(): PaymentUtil = PaymentUtil(context, mock(), mock()).also {
-        whenever(it.bitcoinUtil.isValidBase58Address(any())).thenReturn(true)
         whenever(it.bitcoinUtil.isValidBTCAddress(BTC_ADDRESS)).thenReturn(true)
         whenever(it.bitcoinUtil.isValidBTCAddress(BASE58_BAD_ADDRESS)).thenReturn(false)
-        whenever(it.bitcoinUtil.isValidBTCAddress(BC1_ADDRESS)).thenReturn(false)
         whenever(it.bitcoinUtil.isValidBTCAddress(INVALID_BTC_ADDRESS)).thenReturn(false)
         it.setFee(transactionFee.slow)
         it.paymentHolder = createPaymentHolder()
@@ -63,31 +60,8 @@ class PaymentUtilTest {
     }
 
     @Test
-    fun bc1_addresses_are_not_supported() {
-        val paymentUtil = createUtil()
-        paymentUtil.setAddress(BC1_ADDRESS)
-        whenever(paymentUtil.bitcoinUtil.invalidReason).thenReturn(IS_BC1)
-
-        assertFalse(paymentUtil.isValid)
-        assertThat(paymentUtil.errorMessage, equalTo(context.resources.getString(R.string.bc1_error_message)))
-    }
-
-    @Test
-    fun bad_base58_address_check_test() {
-        val paymentUtil = createUtil()
-        whenever(paymentUtil.bitcoinUtil.isValidBase58Address(BASE58_BAD_ADDRESS)).thenReturn(false)
-        whenever(paymentUtil.bitcoinUtil.invalidReason).thenReturn(NOT_BASE58)
-
-        paymentUtil.setAddress(BASE58_BAD_ADDRESS)
-
-        assertFalse(paymentUtil.isValidPaymentMethod)
-        assertThat(paymentUtil.errorMessage, equalTo("Address Failed Base 58 check"))
-    }
-
-    @Test
     fun good_base58_address_check_test() {
         val paymentUtil = createUtil()
-        whenever(paymentUtil.bitcoinUtil.isValidBase58Address(BASE58_BAD_ADDRESS)).thenReturn(true)
 
         paymentUtil.setAddress(BTC_ADDRESS)
 
@@ -198,8 +172,8 @@ class PaymentUtilTest {
     @Test
     fun invalid_payment_method_makes_payment_not_valid() {
         val paymentUtil = createUtil()
+       
         paymentUtil.setAddress(INVALID_BTC_ADDRESS)
-        whenever(paymentUtil.bitcoinUtil.invalidReason).thenReturn(NOT_STANDARD_BTC_PATTERN)
 
         assertFalse(paymentUtil.isValid)
     }
@@ -225,7 +199,6 @@ class PaymentUtilTest {
     fun invalid_address_provides_error_message() {
         val paymentUtil = createUtil()
         paymentUtil.setAddress(INVALID_BTC_ADDRESS)
-        whenever(paymentUtil.bitcoinUtil.invalidReason).thenReturn(NOT_STANDARD_BTC_PATTERN)
 
         paymentUtil.isValid
 
@@ -236,7 +209,6 @@ class PaymentUtilTest {
     fun setting_invalid_address_is_not_valid() {
         val paymentUtil = createUtil()
         paymentUtil.setAddress(INVALID_BTC_ADDRESS)
-        whenever(paymentUtil.bitcoinUtil.invalidReason).thenReturn(NOT_STANDARD_BTC_PATTERN)
 
         paymentUtil.isValid
 
@@ -420,7 +392,7 @@ class PaymentUtilTest {
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(null), any())).thenReturn(txData1)
         whenever(paymentUtil.transactionFundingManager.buildFundedTransactionData(eq(BTC_ADDRESS), any())).thenReturn(txData2)
         paymentUtil.fundMax()
-        assertThat(paymentUtil.paymentHolder?.transactionData, equalTo(txData1))
+        assertThat(paymentUtil.paymentHolder.transactionData, equalTo(txData1))
 
         paymentUtil.setAddress(BTC_ADDRESS)
         assertThat(paymentUtil.paymentHolder.paymentAddress, equalTo(BTC_ADDRESS))
@@ -439,7 +411,6 @@ class PaymentUtilTest {
         private const val BASE58_BAD_ADDRESS = "3PxEH5t91Cio4B7LCZCEWQEGGxaqGW5HkXEEEEEE"
         private const val INVALID_BTC_ADDRESS = "---btc-address---"
         private const val DISPLAY_NAME = "Joe Smoe"
-        private const val BC1_ADDRESS = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
         private val PHONE_NUMBER = PhoneNumber("+13305551111")
     }
 }
