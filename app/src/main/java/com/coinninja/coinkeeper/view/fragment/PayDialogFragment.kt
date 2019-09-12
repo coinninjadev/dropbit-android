@@ -42,8 +42,6 @@ import com.coinninja.coinkeeper.util.PaymentUtil
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ClipboardUtil
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
-import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.crypto.uri.UriException
 import com.coinninja.coinkeeper.view.activity.PickUserActivity
 import com.coinninja.coinkeeper.view.activity.QrScanActivity
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
@@ -68,7 +66,7 @@ class PayDialogFragment : BaseBottomDialogFragment() {
     @Inject
     internal lateinit var dropbitAccountHelper: DropbitAccountHelper
     @Inject
-    internal lateinit var bitcoinUtil: BitcoinUtil
+    internal lateinit var bitcoinUriBuilder: BitcoinUri.Builder
     @Inject
     internal lateinit var clipboardUtil: ClipboardUtil
     @Inject
@@ -267,10 +265,10 @@ class PayDialogFragment : BaseBottomDialogFragment() {
         configurePaymentInput()
     }
 
-    private fun configurePaymentInput() = paymentInputView?.apply {
-        this.paymentHolder = paymentHolder
-        setOnSendMaxObserver(onSendMaxObserved)
-        setOnSendMaxClearedObserver(onSendMaxClearedObserved)
+    private fun configurePaymentInput() = paymentInputView?.also {
+        it.paymentHolder = paymentHolder
+        it.setOnSendMaxObserver(onSendMaxObserved)
+        it.setOnSendMaxClearedObserver(onSendMaxClearedObserved)
     }
 
     private val onSendMaxClearedObserved = object : PaymentInputView.OnSendMaxClearedObserver {
@@ -373,8 +371,8 @@ class PayDialogFragment : BaseBottomDialogFragment() {
     }
 
     private fun setupActionsForVerificationAlertBuilder(builder: AlertDialog.Builder) {
-        builder.setNegativeButton("Not now") { dialog, which -> }
-        builder.setPositiveButton("Verify") { dialog, which -> showUserVerificationActivity() }.show()
+        builder.setNegativeButton("Not now") { _, _ -> }
+        builder.setPositiveButton("Verify") { _, _ -> showUserVerificationActivity() }.show()
     }
 
     private fun showUserVerificationActivity() {
@@ -469,21 +467,19 @@ class PayDialogFragment : BaseBottomDialogFragment() {
 
     private fun onCryptoStringReceived(cryptoUriString: String) {
         resetPaymentHolderIfNecessary()
-        try {
-            val bitcoinUri = bitcoinUtil.parse(cryptoUriString)
+        val bitcoinUri = bitcoinUriBuilder.parse(cryptoUriString)
+        if (bitcoinUri.isValidPaymentAddress)
             processBitcoinUriIfNecessary(bitcoinUri)
-        } catch (e: UriException) {
-            onInvalidBitcoinUri(e.reason)
-        }
+        else
+            onInvalidBitcoinUri()
 
     }
 
     private fun processBitcoinUriIfNecessary(bitcoinUri: BitcoinUri?) {
-        if (bitcoinUri == null) {
-            return
+        bitcoinUri?.let {
+            onReceiveBitcoinUri(it)
+            checkForBip70Url(it)
         }
-        onReceiveBitcoinUri(bitcoinUri)
-        checkForBip70Url(bitcoinUri)
     }
 
     private fun resetPaymentHolderIfNecessary() {
@@ -491,12 +487,8 @@ class PayDialogFragment : BaseBottomDialogFragment() {
         paymentHolder.memo = ""
     }
 
-    private fun checkForBip70Url(bitcoinUri: BitcoinUri?) {
-        if (bitcoinUri == null) {
-            return
-        }
-        val bip70Uri = bitcoinUri.bip70UrlIfApplicable ?: return
-
+    private fun checkForBip70Url(bitcoinUri: BitcoinUri) {
+        val bip70Uri = bitcoinUri.merchantUri ?: return
         showIndeterminantProgress()
         bip70Client.getMerchantInformation(bip70Uri, bip70Callback)
     }
@@ -526,21 +518,13 @@ class PayDialogFragment : BaseBottomDialogFragment() {
         }
     }
 
-    private fun onReceiveBitcoinUri(bitcoinUri: BitcoinUri?) {
-        if (bitcoinUri == null || bitcoinUri.address == null) {
-            return
-        }
+    private fun onReceiveBitcoinUri(bitcoinUri: BitcoinUri) {
         onPaymentAddressChange(bitcoinUri.address)
         setAmount(bitcoinUri.satoshiAmount)
     }
 
-    private fun onInvalidBitcoinUri(pasteError: BitcoinUtil.ADDRESS_INVALID_REASON) {
-        when (pasteError) {
-            BitcoinUtil.ADDRESS_INVALID_REASON.NULL_ADDRESS -> showPasteAttemptFail(getString(R.string.invalid_bitcoin_address_error))
-            BitcoinUtil.ADDRESS_INVALID_REASON.IS_BC1 -> showPasteAttemptFail(getString(R.string.bc1_error_message))
-            BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58 -> showPasteAttemptFail(getString(R.string.invalid_btc_adddress__base58))
-            BitcoinUtil.ADDRESS_INVALID_REASON.NOT_STANDARD_BTC_PATTERN -> showPasteAttemptFail(getString(R.string.invalid_bitcoin_address_error))
-        }
+    private fun onInvalidBitcoinUri() {
+        showPasteAttemptFail(getString(R.string.invalid_bitcoin_address_error))
     }
 
     companion object {
@@ -562,7 +546,7 @@ class PayDialogFragment : BaseBottomDialogFragment() {
             val payFragment = PayDialogFragment()
             payFragment.paymentBarCallbacks = paymentBarCallbacks
             payFragment.paymentUtil = paymentUtil
-            payFragment.paymentHolder = paymentUtil.paymentHolder ?: PaymentHolder()
+            payFragment.paymentHolder = paymentUtil.paymentHolder
             paymentUtil.paymentHolder = payFragment.paymentHolder
             return payFragment
         }

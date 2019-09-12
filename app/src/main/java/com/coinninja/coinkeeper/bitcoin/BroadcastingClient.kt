@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.bitcoin
 
-import com.coinninja.bindings.model.Transaction
+import app.coinninja.cn.libbitcoin.model.Transaction
 import retrofit2.Response
 
 interface BroadcastingClient {

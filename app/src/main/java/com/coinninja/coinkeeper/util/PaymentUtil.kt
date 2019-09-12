@@ -165,22 +165,9 @@ class PaymentUtil @Inject constructor(
     }
 
     private fun validateAddress() {
-        val invalidBtcAddress = context.getString(R.string.invalid_bitcoin_address_error)
-
-        if (null == address) {
-            errorMessage = invalidBtcAddress
-            return
-        }
-
-        if (!bitcoinUtil.isValidBTCAddress(address)) {
-            val invalidReason = bitcoinUtil.invalidReason
+        if (!bitcoinUtil.isValidBTCAddress(address ?: "")) {
             paymentMethod = PaymentMethod.INVALID
-            errorMessage =
-                    when (invalidReason) {
-                        BitcoinUtil.ADDRESS_INVALID_REASON.IS_BC1 -> context.getString(R.string.bc1_error_message)
-                        BitcoinUtil.ADDRESS_INVALID_REASON.NOT_BASE58 -> context.getString(R.string.invalid_btc_adddress__base58)
-                        else -> invalidBtcAddress
-                    }
+            errorMessage = context.getString(R.string.invalid_bitcoin_address_error)
         }
     }
 

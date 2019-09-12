@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.bitcoin
 
-import com.coinninja.bindings.TransactionData
+import app.coinninja.cn.libbitcoin.model.TransactionData
 
 fun TransactionData.isValid(): Boolean = this.isFunded() && !paymentAddress.isNullOrEmpty()
 fun TransactionData.isFunded(): Boolean = utxos.isNotEmpty()

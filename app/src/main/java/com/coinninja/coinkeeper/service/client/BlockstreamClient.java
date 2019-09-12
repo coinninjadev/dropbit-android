@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.service.client;
 
-import com.coinninja.bindings.model.Transaction;
 import com.coinninja.coinkeeper.bitcoin.BroadcastProvider;
 import com.coinninja.coinkeeper.bitcoin.BroadcastingClient;
 
@@ -8,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
+import app.coinninja.cn.libbitcoin.model.Transaction;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Response;
@@ -16,10 +16,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class BlockstreamClient extends NetworkingApiClient implements BroadcastingClient {
     protected final static String URI_BASE = "https://blockstream.info/";
-    private BlockstreamInfoClient client;
-
     @Inject
     BlockstreamInfoClient blockstreamInfoClient;
+    private BlockstreamInfoClient client;
+
+    BlockstreamClient(BlockstreamInfoClient client) {
+        this.client = client;
+    }
 
     public static BlockstreamClient newInstance(String url) {
         BlockstreamInfoClient client = new Retrofit.Builder().
@@ -33,14 +36,10 @@ public class BlockstreamClient extends NetworkingApiClient implements Broadcasti
         return newInstance(URI_BASE);
     }
 
-    BlockstreamClient(BlockstreamInfoClient client) {
-        this.client = client;
-    }
-
     @NotNull
     @Override
     public Response broadcastTransaction(Transaction transaction) {
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), transaction.rawTx);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), transaction.getEncodedTransaction());
         return executeCall(client.pushTX(requestBody));
     }
 

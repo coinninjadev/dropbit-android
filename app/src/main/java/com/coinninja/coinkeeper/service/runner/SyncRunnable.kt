@@ -4,7 +4,7 @@ import android.util.Log
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.model.helpers.AddressHelper
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
@@ -21,7 +21,7 @@ class SyncRunnable @Inject internal constructor(
         internal val walletHelper: WalletHelper,
         internal val transactionHelper: TransactionHelper,
         internal val addressHelper: AddressHelper,
-        internal val hdWallet: HDWallet,
+        internal val hdWallet: HDWalletWrapper,
         internal val analytics: Analytics,
         internal val sharedMemoRetrievalRunner: SharedMemoRetrievalRunner
 ) : Runnable {
@@ -30,6 +30,7 @@ class SyncRunnable @Inject internal constructor(
         if (!cnWalletManager.hasWallet)
             return
 
+        addressAPIUtil.setWallet(walletHelper.wallet)
         accountManager.cacheAddresses()
         setGapLimit()
 
@@ -91,13 +92,13 @@ class SyncRunnable @Inject internal constructor(
     }
 
     private fun findInternalAddresses(): List<GsonAddress> {
-        val addresses = findAddresses(HDWallet.INTERNAL, accountManager.largestReportedChangeAddress + 1)
+        val addresses = findAddresses(HDWalletWrapper.INTERNAL, accountManager.largestReportedChangeAddress + 1)
         saveInternalIndexTo(addressAPIUtil.largestIndexConsumed)
         return addresses
     }
 
     private fun findExternalAddresses(): List<GsonAddress> {
-        val addresses = findAddresses(HDWallet.EXTERNAL, accountManager.largestReportedReceiveAddress + 1)
+        val addresses = findAddresses(HDWalletWrapper.EXTERNAL, accountManager.largestReportedReceiveAddress + 1)
         saveExternalIndexTo(addressAPIUtil.largestIndexConsumed)
         return addresses
     }

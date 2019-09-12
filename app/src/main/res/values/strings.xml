@@ -90,7 +90,6 @@
     <string name="drawer_close_descritpion">sidebar closed</string>
 
     <!-- PaymentBar Buttons -->
-    <string name="bc1_error_message">Bech 32 addresses are not supported at this time. Support is coming soon</string>
     <string name="pay_label">Send</string>
     <string name="request_label">Receive</string>
 
@@ -140,7 +139,6 @@
     <string name="pay_not_attempting_to_send">Attempting to send </string>
     <string name="invalid_bitcoin_address_error">Invalid BTC address</string>
     <string name="clipboard_empty_error_message">Nothing to paste</string>
-    <string name="invalid_btc_adddress__base58">Address Failed Base 58 check</string>
 
     <!-- Confirm Pay -->
     <string name="confirm_pay_hold_label_message_successful">TAP AND HOLD TO SEND</string>

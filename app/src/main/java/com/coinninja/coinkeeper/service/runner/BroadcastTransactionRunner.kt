@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.service.runner
 
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.bitcoin.BroadcastListener
@@ -25,10 +25,10 @@ class BroadcastTransactionRunner @Inject constructor(
     var broadcastListener: BroadcastListener? = null
 
     private constructor(application: CoinKeeperApplication,
-                broadcastTransactionHelper: BroadcastTransactionHelper,
-                apiClient: SignedCoinKeeperApiClient,
-                analytics: Analytics,
-                broadcastListener: BroadcastListener?): this(application, broadcastTransactionHelper, apiClient, analytics) {
+                        broadcastTransactionHelper: BroadcastTransactionHelper,
+                        apiClient: SignedCoinKeeperApiClient,
+                        analytics: Analytics,
+                        broadcastListener: BroadcastListener?) : this(application, broadcastTransactionHelper, apiClient, analytics) {
 
         @Suppress("LeakingThis")
         this.broadcastListener = broadcastListener

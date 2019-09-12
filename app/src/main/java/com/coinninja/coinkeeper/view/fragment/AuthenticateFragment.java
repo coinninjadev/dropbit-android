@@ -150,11 +150,13 @@ public class AuthenticateFragment extends BaseFragment implements AuthenticateFr
         pinInput.setEnabled(false);
         pinInput.setVisibility(View.INVISIBLE);
         pinErrorDisplay.setVisibility(View.INVISIBLE);
-        pinInput.postDelayed(new Runnable() {
-            @Override
-            public void run() {
+        pinInput.postDelayed(() -> {
+            try {
+                // could no longer have foreground
                 ((BaseActivity) getActivity()).muteViewsWithMessage(getString(R.string.locked_out_message));
+            } catch (Exception e) {
             }
+
         }, 100);
     }
 

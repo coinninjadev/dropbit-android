@@ -11,6 +11,7 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.view.button.CopyToBufferButton
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.inOrder
@@ -26,7 +27,7 @@ import java.io.ByteArrayInputStream
 class PayRequestFragmentTest {
 
     @Test
-    fun `set up copy button with bitcoin address`() {
+    fun set_up_copy_button_with_bitcoin_address() {
         val scenario = createScenario()
 
         scenario.onFragment { fragment ->
@@ -35,7 +36,7 @@ class PayRequestFragmentTest {
     }
 
     @Test
-    fun `clicking on request shows chooser`() {
+    fun clicking_on_request_shows_chooser() {
         val scenario = createScenario()
 
         scenario.onFragment { fragment ->
@@ -47,7 +48,7 @@ class PayRequestFragmentTest {
     }
 
     @Test
-    fun `request rendering of a qr code for given request`() {
+    fun request_rendering_of_a_qr_code_for_given_request() {
         val scenario = createScenario()
 
         scenario.onFragment { fragment ->
@@ -58,7 +59,7 @@ class PayRequestFragmentTest {
     }
 
     @Test
-    fun `removes observer from qr code view model when paused`() {
+    fun removes_observer_from_qr_code_view_model_when_paused() {
         val scenario = createScenario()
 
         scenario.onFragment { fragment ->
@@ -72,7 +73,7 @@ class PayRequestFragmentTest {
     }
 
     @Test
-    fun `updates qr code when generated`() {
+    fun updates_qr_code_when_generated() {
         val scenario = createScenario()
 
         scenario.onFragment { fragment ->
@@ -89,15 +90,17 @@ class PayRequestFragmentTest {
     }
 
     private fun createScenario(): FragmentScenario<PayRequestFragment> {
-        val scenario = FragmentScenario.launch(PayRequestFragment::class.java)
-        return scenario
-    }
+        val address = "--address--"
+        ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>().also { app ->
+            app.accountManager = mock()
+            app.bitcoinUriBuilder = mock()
+            val bitcoinUri: BitcoinUri = mock()
+            whenever(bitcoinUri.address).thenReturn(address)
+            whenever(app.accountManager.nextReceiveAddress).thenReturn(address)
+            whenever(app.bitcoinUriBuilder.setAddress(address)).thenReturn(app.bitcoinUriBuilder)
+            whenever(app.bitcoinUriBuilder.build()).thenReturn(bitcoinUri)
 
-    private val address: String get() = "--address--"
-
-    private val application = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>().also { app ->
-        app.accountManager = mock()
-        whenever(app.accountManager.nextReceiveAddress).thenReturn(address)
-
+        }
+        return FragmentScenario.launch(PayRequestFragment::class.java)
     }
 }

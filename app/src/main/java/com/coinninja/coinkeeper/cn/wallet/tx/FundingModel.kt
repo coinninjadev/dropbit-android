@@ -1,19 +1,19 @@
 package com.coinninja.coinkeeper.cn.wallet.tx
 
+import app.coinninja.cn.libbitcoin.AddressUtil
+import app.coinninja.cn.libbitcoin.HDWallet
+import app.coinninja.cn.libbitcoin.enum.AddressType
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.AddressType
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.UnspentTransactionOutput
 import com.coinninja.coinkeeper.cn.account.AccountManager
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
-import com.coinninja.coinkeeper.cn.wallet.LibBitcoinProvider
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.model.helpers.TargetStatHelper
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import kotlin.math.floor
 
 @Mockable
-class FundingModel(internal val libBitcoinProvider: LibBitcoinProvider,
+class FundingModel(internal val addressUtil: AddressUtil,
                    internal val targetStatHelper: TargetStatHelper,
                    internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
                    internal val walletHelper: WalletHelper,
@@ -49,15 +49,25 @@ class FundingModel(internal val libBitcoinProvider: LibBitcoinProvider,
 
     val nextReceiveAddress: String get() = accountManager.nextReceiveAddress
 
-    val inputSizeInBytes: Int get() = inputSizeP2SH
+    val inputSizeInBytes: Int
+        get() = when (walletHelper.wallet.purpose) {
+            84 -> inputSizeP2WSH
+            else -> inputSizeP2SH
+        }
 
-    val changeSizeInBytes: Int get() = outputSizeP2SH
+    val changeSizeInBytes: Int
+        get() = when (walletHelper.wallet.purpose) {
+            84 -> outputSizeP2WPKH
+            else -> outputSizeP2SH
+        }
 
     fun outPutSizeInBytesForAddress(address: String?): Int {
         address?.let {
-            when (libBitcoinProvider.provide().getTypeOfPaymentAddress(address)) {
+            when (addressUtil.typeOfPaymentAddress(address)) {
                 AddressType.P2PKH -> return outputSizeP2PKH
                 AddressType.P2SH -> return outputSizeP2SH
+                AddressType.P2WSH -> return outputSizeP2WSH
+                AddressType.P2WPKH -> return outputSizeP2WPKH
                 else -> return Int.MAX_VALUE
             }
         }
@@ -82,7 +92,10 @@ class FundingModel(internal val libBitcoinProvider: LibBitcoinProvider,
         const val minFee: Double = 5.0
         const val outputSizeP2PKH: Int = 34
         const val outputSizeP2SH: Int = 32
+        const val outputSizeP2WSH: Int = 32
+        const val outputSizeP2WPKH: Int = 31
         const val inputSizeP2SH: Int = 91
+        const val inputSizeP2WSH: Int = 68
     }
 
 }

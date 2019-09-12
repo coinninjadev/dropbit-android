@@ -11,19 +11,14 @@ import android.os.Handler
 import android.util.TypedValue
 import androidx.core.os.ConfigurationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import app.dropbit.commons.util.CoroutineContextProvider
-import app.dropbit.commons.util.TestCoroutineContextProvider
 import app.dropbit.twitter.Twitter
-import com.coinninja.bindings.TransactionBuilder
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
-import com.coinninja.coinkeeper.bitcoin.TransactionBroadcaster
 import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
-import com.coinninja.coinkeeper.cn.wallet.DataSigner
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
 import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate
@@ -42,7 +37,6 @@ import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter
 import com.coinninja.coinkeeper.service.ContactLookupService
-import com.coinninja.coinkeeper.service.client.BlockstreamClient
 import com.coinninja.coinkeeper.service.runner.*
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration
@@ -55,14 +49,12 @@ import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.*
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler
+import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator
 import com.coinninja.messaging.MessageCryptor
-import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
-import com.mixpanel.android.mpmetrics.MixpanelAPI
 import com.nhaarman.mockitokotlin2.mock
 import dagger.Module
 import dagger.Provides
@@ -73,33 +65,10 @@ import java.util.*
 class TestAppModule {
 
     @Provides
-    internal fun coroutineContextProvider(): CoroutineContextProvider {
-        return TestCoroutineContextProvider()
-    }
-
-    @Provides
-    internal fun firebaseInstanceId(): FirebaseInstanceId {
-        return mock(FirebaseInstanceId::class.java)
-    }
-
-    @Provides
-    internal fun coinNinjaContentResolver(permissionsUtil: PermissionsUtil, resolver: ContentResolver): CoinNinjaContactResolver {
-        return CoinNinjaContactResolver(permissionsUtil, resolver)
-    }
-
-    @Provides
-    internal fun analyticUtil(analyticsProvider: MixpanelAPI): AnalyticUtil {
-        return AnalyticUtil(analyticsProvider)
-    }
-
-    @Provides
-    internal fun errorLoggingUtil(): ErrorLoggingUtil {
-        return ErrorLoggingUtil()
-    }
-
-    @Provides
-    internal fun blockstreamClient(): BlockstreamClient {
-        return BlockstreamClient.newInstance()
+    internal fun bitcoinUriBuilder(app: TestCoinKeeperApplication): BitcoinUri.Builder {
+        if (app.bitcoinUriBuilder == null)
+            app.bitcoinUriBuilder = mock()
+        return app.bitcoinUriBuilder
     }
 
     @Provides
@@ -113,22 +82,14 @@ class TestAppModule {
     }
 
     @Provides
-    @CoinkeeperApplicationScope
-    internal fun bitcoinUrlBuilder(): BitcoinUriBuilder {
-        return BitcoinUriBuilder()
-    }
-
-
-    @Provides
     internal fun coinKeeperComponent(): CoinKeeperComponent {
-        return mock(CoinKeeperComponent::class.java)
+        return mock()
     }
 
     @Provides
-    @CoinkeeperApplicationScope
     internal fun coinKeeperLifecycleListener(app: TestCoinKeeperApplication): CoinKeeperLifecycleListener {
         if (app.coinKeeperLifecycleListener == null)
-            app.coinKeeperLifecycleListener = mock(CoinKeeperLifecycleListener::class.java)
+            app.coinKeeperLifecycleListener = mock()
         return app.coinKeeperLifecycleListener
     }
 
@@ -138,43 +99,39 @@ class TestAppModule {
     }
 
     @Provides
-    @CoinkeeperApplicationScope
     @ApplicationContext
     internal fun context(application: CoinKeeperApplication): Context {
         return application
     }
 
     @Provides
-    @CoinkeeperApplicationScope
     internal fun contentResolver(application: TestCoinKeeperApplication): ContentResolver {
         return application.contentResolver
     }
 
     @Provides
-    @CoinkeeperApplicationScope
     internal fun contactLookupService(): ContactLookupService {
         return ContactLookupService()
     }
 
     @Provides
-    @CoinkeeperApplicationScope
     internal fun analytics(app: TestCoinKeeperApplication): Analytics {
         if (app.analytics == null)
-            app.analytics = mock(Analytics::class.java)
+            app.analytics = mock()
         return app.analytics
     }
 
     @Provides
     internal fun messageCryptor(app: TestCoinKeeperApplication): MessageCryptor {
         if (app.messageCryptor == null)
-            app.messageCryptor = mock(MessageCryptor::class.java)
+            app.messageCryptor = mock()
         return app.messageCryptor
     }
 
     @Provides
     internal fun phoneNumberUtil(app: TestCoinKeeperApplication): PhoneNumberUtil {
         if (app.phoneNumberUtil == null)
-            app.phoneNumberUtil = mock(PhoneNumberUtil::class.java)
+            app.phoneNumberUtil = mock()
         return app.phoneNumberUtil
     }
 
@@ -194,35 +151,35 @@ class TestAppModule {
     @Provides
     internal fun localBroadCastUtil(app: TestCoinKeeperApplication): LocalBroadCastUtil {
         if (app.localBroadCastUtil == null)
-            app.localBroadCastUtil = mock(LocalBroadCastUtil::class.java)
+            app.localBroadCastUtil = mock()
         return app.localBroadCastUtil
     }
 
     @Provides
     internal fun clipboardManager(app: TestCoinKeeperApplication): ClipboardManager {
         if (app.clipboardManager == null)
-            app.clipboardManager = mock(ClipboardManager::class.java)
+            app.clipboardManager = mock()
         return app.clipboardManager
     }
 
     @Provides
-    internal fun hdWallet(app: TestCoinKeeperApplication): HDWallet {
+    internal fun hdWallet(app: TestCoinKeeperApplication): HDWalletWrapper {
         if (app.hdWallet == null)
-            app.hdWallet = mock(HDWallet::class.java)
+            app.hdWallet = mock()
         return app.hdWallet
     }
 
     @Provides
     internal fun bitcoinUtil(app: TestCoinKeeperApplication): BitcoinUtil {
         if (app.bitcoinUtil == null)
-            app.bitcoinUtil = mock(BitcoinUtil::class.java)
+            app.bitcoinUtil = mock()
         return app.bitcoinUtil
     }
 
     @Provides
     internal fun syncWalletManager(app: TestCoinKeeperApplication): SyncWalletManager {
         if (app.syncWalletManager == null) {
-            app.syncWalletManager = mock(SyncWalletManager::class.java)
+            app.syncWalletManager = mock()
         }
         return app.syncWalletManager
     }
@@ -230,7 +187,7 @@ class TestAppModule {
     @Provides
     internal fun sharedPreferences(app: TestCoinKeeperApplication): SharedPreferences {
         if (app.sharedPreferences == null) {
-            app.sharedPreferences = mock(SharedPreferences::class.java)
+            app.sharedPreferences = mock()
         }
         return app.sharedPreferences
     }
@@ -238,7 +195,7 @@ class TestAppModule {
     @Provides
     internal fun walletHelper(app: TestCoinKeeperApplication): WalletHelper {
         if (app.walletHelper == null) {
-            app.walletHelper = mock(WalletHelper::class.java)
+            app.walletHelper = mock()
         }
         return app.walletHelper
     }
@@ -246,23 +203,15 @@ class TestAppModule {
     @Provides
     internal fun account(app: TestCoinKeeperApplication): Account {
         if (app.account == null) {
-            app.account = mock(Account::class.java)
+            app.account = mock()
         }
         return app.account
     }
 
     @Provides
-    internal fun dataSigner(app: TestCoinKeeperApplication): DataSigner {
-        if (app.dataSigner == null) {
-            app.dataSigner = mock(DataSigner::class.java)
-        }
-        return app.dataSigner
-    }
-
-    @Provides
     internal fun jobServiceScheduler(app: TestCoinKeeperApplication): JobServiceScheduler {
         if (app.jobServiceScheduler == null) {
-            app.jobServiceScheduler = mock(JobServiceScheduler::class.java)
+            app.jobServiceScheduler = mock()
         }
         return app.jobServiceScheduler
     }
@@ -282,7 +231,7 @@ class TestAppModule {
     @Provides
     internal fun authentication(app: TestCoinKeeperApplication): Authentication {
         if (app.authentication == null) {
-            app.authentication = mock(Authentication::class.java)
+            app.authentication = mock()
         }
         return app.authentication
     }
@@ -290,7 +239,7 @@ class TestAppModule {
     @Provides
     internal fun pinEntry(app: TestCoinKeeperApplication): PinEntry {
         if (app.pinEntry == null) {
-            app.pinEntry = mock(PinEntry::class.java)
+            app.pinEntry = mock()
         }
         return app.pinEntry
     }
@@ -298,7 +247,7 @@ class TestAppModule {
     @Provides
     internal fun userHelper(app: TestCoinKeeperApplication): UserHelper {
         if (app.userHelper == null) {
-            app.userHelper = mock(UserHelper::class.java)
+            app.userHelper = mock()
         }
         return app.userHelper
     }
@@ -307,7 +256,7 @@ class TestAppModule {
     @Provides
     internal fun timeoutHandler(app: TestCoinKeeperApplication): Handler {
         if (app.handler == null) {
-            app.handler = mock(Handler::class.java)
+            app.handler = mock()
         }
         return app.handler
     }
@@ -321,7 +270,7 @@ class TestAppModule {
     @Provides
     internal fun cnWalletManager(app: TestCoinKeeperApplication): CNWalletManager {
         if (app.cnWalletManager == null) {
-            app.cnWalletManager = mock(CNWalletManager::class.java)
+            app.cnWalletManager = mock()
         }
         return app.cnWalletManager
     }
@@ -329,7 +278,7 @@ class TestAppModule {
     @Provides
     internal fun syncIncomingInvitesRunner(app: TestCoinKeeperApplication): SyncIncomingInvitesRunner {
         if (app.syncIncomingInvitesRunner == null) {
-            app.syncIncomingInvitesRunner = mock(SyncIncomingInvitesRunner::class.java)
+            app.syncIncomingInvitesRunner = mock()
         }
         return app.syncIncomingInvitesRunner
     }
@@ -337,7 +286,7 @@ class TestAppModule {
     @Provides
     internal fun fulfillSentInvitesRunner(app: TestCoinKeeperApplication): FulfillSentInvitesRunner {
         if (app.fulfillSentInvitesRunner == null) {
-            app.fulfillSentInvitesRunner = mock(FulfillSentInvitesRunner::class.java)
+            app.fulfillSentInvitesRunner = mock()
         }
         return app.fulfillSentInvitesRunner
     }
@@ -345,7 +294,7 @@ class TestAppModule {
     @Provides
     internal fun receivedInvitesStatusRunner(app: TestCoinKeeperApplication): ReceivedInvitesStatusRunner {
         if (app.receivedInvitesStatusRunner == null) {
-            app.receivedInvitesStatusRunner = mock(ReceivedInvitesStatusRunner::class.java)
+            app.receivedInvitesStatusRunner = mock()
         }
         return app.receivedInvitesStatusRunner
     }
@@ -353,7 +302,7 @@ class TestAppModule {
     @Provides
     internal fun negativeBalanceRunner(app: TestCoinKeeperApplication): NegativeBalanceRunner {
         if (app.negativeBalanceRunner == null) {
-            app.negativeBalanceRunner = mock(NegativeBalanceRunner::class.java)
+            app.negativeBalanceRunner = mock()
         }
         return app.negativeBalanceRunner
     }
@@ -361,7 +310,7 @@ class TestAppModule {
     @Provides
     internal fun failedBroadcastCleaner(app: TestCoinKeeperApplication): FailedBroadcastCleaner {
         if (app.failedBroadcastCleaner == null) {
-            app.failedBroadcastCleaner = mock(FailedBroadcastCleaner::class.java)
+            app.failedBroadcastCleaner = mock()
         }
         return app.failedBroadcastCleaner
     }
@@ -369,7 +318,7 @@ class TestAppModule {
     @Provides
     internal fun permissionsUtil(app: TestCoinKeeperApplication): PermissionsUtil {
         if (app.permissionsUtil == null) {
-            app.permissionsUtil = mock(PermissionsUtil::class.java)
+            app.permissionsUtil = mock()
         }
         return app.permissionsUtil
     }
@@ -377,19 +326,10 @@ class TestAppModule {
     @Provides
     internal fun cnServiceConnection(app: TestCoinKeeperApplication): CNServiceConnection {
         if (app.cnServiceConnection == null) {
-            app.cnServiceConnection = mock(CNServiceConnection::class.java)
+            app.cnServiceConnection = mock()
         }
         return app.cnServiceConnection
 
-    }
-
-
-    @Provides
-    internal fun transactionBuilder(app: TestCoinKeeperApplication): TransactionBuilder {
-        if (app.transactionBuilder == null) {
-            app.transactionBuilder = mock(TransactionBuilder::class.java)
-        }
-        return app.transactionBuilder
     }
 
     @NumAddressesToCache
@@ -402,7 +342,7 @@ class TestAppModule {
     @Provides
     internal fun accountManager(app: TestCoinKeeperApplication): AccountManager {
         if (app.accountManager == null) {
-            app.accountManager = mock(AccountManager::class.java)
+            app.accountManager = mock()
         }
         return app.accountManager
     }
@@ -411,7 +351,7 @@ class TestAppModule {
     @Provides
     internal fun typedValue(app: TestCoinKeeperApplication): TypedValue {
         if (app.typedValue == null) {
-            app.typedValue = mock(TypedValue::class.java)
+            app.typedValue = mock()
         }
         return app.typedValue
     }
@@ -428,7 +368,7 @@ class TestAppModule {
     @Provides
     internal fun transactionFundingManager(app: TestCoinKeeperApplication): TransactionFundingManager {
         if (app.transactionFundingManager == null) {
-            app.transactionFundingManager = mock(TransactionFundingManager::class.java)
+            app.transactionFundingManager = mock()
         }
 
         return app.transactionFundingManager
@@ -443,7 +383,7 @@ class TestAppModule {
     @Provides
     internal fun currencyPreference(app: TestCoinKeeperApplication): CurrencyPreference {
         if (app.currencyPreference == null) {
-            app.currencyPreference = mock(CurrencyPreference::class.java)
+            app.currencyPreference = mock()
         }
         return app.currencyPreference
     }
@@ -451,20 +391,20 @@ class TestAppModule {
     @Provides
     internal fun defaultCurrencies(app: TestCoinKeeperApplication): DefaultCurrencies {
         if (app.defaultCurrencies == null) {
-            app.defaultCurrencies = mock(DefaultCurrencies::class.java)
+            app.defaultCurrencies = mock()
         }
         return app.defaultCurrencies
     }
 
     @Provides
     internal fun provideLocationManager(): LocationManager {
-        return mock(LocationManager::class.java)
+        return mock()
     }
 
     @Provides
     internal fun activityNavigationUtil(app: TestCoinKeeperApplication): ActivityNavigationUtil {
         if (app.activityNavigationUtil == null) {
-            app.activityNavigationUtil = mock(ActivityNavigationUtil::class.java)
+            app.activityNavigationUtil = mock()
         }
         return app.activityNavigationUtil
     }
@@ -472,7 +412,7 @@ class TestAppModule {
     @Provides
     internal fun locationUtil(app: TestCoinKeeperApplication): LocationUtil {
         if (app.locationUtil == null) {
-            app.locationUtil = mock(LocationUtil::class.java)
+            app.locationUtil = mock()
         }
         return app.locationUtil
     }
@@ -485,7 +425,7 @@ class TestAppModule {
     @Provides
     internal fun InviteContactPresenter(app: TestCoinKeeperApplication): InviteContactPresenter {
         if (app.inviteContactPresenter == null) {
-            app.inviteContactPresenter = mock(InviteContactPresenter::class.java)
+            app.inviteContactPresenter = mock()
         }
         return app.inviteContactPresenter
     }
@@ -493,7 +433,7 @@ class TestAppModule {
     @Provides
     internal fun cnAddressLookupDelegate(app: TestCoinKeeperApplication): CNAddressLookupDelegate {
         if (app.cnAddressLookupDelegae == null) {
-            app.cnAddressLookupDelegae = mock(CNAddressLookupDelegate::class.java)
+            app.cnAddressLookupDelegae = mock()
         }
         return app.cnAddressLookupDelegae
     }
@@ -501,7 +441,7 @@ class TestAppModule {
     @Provides
     internal fun clipboardUtil(app: TestCoinKeeperApplication): ClipboardUtil {
         if (app.clipboardUtil == null) {
-            app.clipboardUtil = mock(ClipboardUtil::class.java)
+            app.clipboardUtil = mock()
         }
 
         return app.clipboardUtil
@@ -510,7 +450,7 @@ class TestAppModule {
     @Provides
     internal fun userPreferences(app: TestCoinKeeperApplication): UserPreferences {
         if (app.userPreferences == null) {
-            app.userPreferences = mock(UserPreferences::class.java)
+            app.userPreferences = mock()
         }
         return app.userPreferences
     }
@@ -518,7 +458,7 @@ class TestAppModule {
     @Provides
     internal fun verifyRecoveryWordsPresenter(app: TestCoinKeeperApplication): VerifyRecoveryWordsPresenter {
         if (app.verifyRecoveryWordsPresenter == null) {
-            app.verifyRecoveryWordsPresenter = mock(VerifyRecoveryWordsPresenter::class.java)
+            app.verifyRecoveryWordsPresenter = mock()
         }
         return app.verifyRecoveryWordsPresenter
     }
@@ -526,7 +466,7 @@ class TestAppModule {
     @Provides
     internal fun notificationUtil(app: TestCoinKeeperApplication): NotificationUtil {
         if (app.notificationUtil == null) {
-            app.notificationUtil = mock(NotificationUtil::class.java)
+            app.notificationUtil = mock()
         }
         return app.notificationUtil
     }
@@ -534,7 +474,7 @@ class TestAppModule {
     @Provides
     internal fun dropbitMeConfiguration(app: TestCoinKeeperApplication): DropbitMeConfiguration {
         if (app.dropbitMeConfiguration == null) {
-            app.dropbitMeConfiguration = mock(DropbitMeConfiguration::class.java)
+            app.dropbitMeConfiguration = mock()
         }
         return app.dropbitMeConfiguration
 
@@ -543,7 +483,7 @@ class TestAppModule {
     @Provides
     internal fun serviceWorkUtil(app: TestCoinKeeperApplication): ServiceWorkUtil {
         if (app.serviceWorkUtil == null) {
-            app.serviceWorkUtil = mock(ServiceWorkUtil::class.java)
+            app.serviceWorkUtil = mock()
         }
         return app.serviceWorkUtil
     }
@@ -551,7 +491,7 @@ class TestAppModule {
     @Provides
     internal fun remoteAddressLocalCache(app: TestCoinKeeperApplication): RemoteAddressLocalCache {
         if (app.remoteAddressLocalCache == null) {
-            app.remoteAddressLocalCache = mock(RemoteAddressLocalCache::class.java)
+            app.remoteAddressLocalCache = mock()
         }
         return app.remoteAddressLocalCache
     }
@@ -567,7 +507,7 @@ class TestAppModule {
     @Provides
     internal fun twitter(app: TestCoinKeeperApplication): Twitter {
         if (app.twitter == null) {
-            app.twitter = mock(Twitter::class.java)
+            app.twitter = mock()
         }
         return app.twitter
     }
@@ -575,7 +515,7 @@ class TestAppModule {
     @Provides
     internal fun hasher(app: TestCoinKeeperApplication): Hasher {
         if (app.hasher == null) {
-            app.hasher = mock(Hasher::class.java)
+            app.hasher = mock()
         }
         return app.hasher
     }
@@ -583,7 +523,7 @@ class TestAppModule {
     @Provides
     internal fun twitterVerificationController(app: TestCoinKeeperApplication): TwitterVerificationController {
         if (app.twitterVerificationController == null) {
-            app.twitterVerificationController = mock(TwitterVerificationController::class.java)
+            app.twitterVerificationController = mock()
         }
         return app.twitterVerificationController
     }
@@ -591,7 +531,7 @@ class TestAppModule {
     @Provides
     internal fun preferencesUtil(app: TestCoinKeeperApplication): PreferencesUtil {
         if (app.preferencesUtil == null) {
-            app.preferencesUtil = mock(PreferencesUtil::class.java)
+            app.preferencesUtil = mock()
         }
         return app.preferencesUtil
     }
@@ -599,7 +539,7 @@ class TestAppModule {
     @Provides
     internal fun countryCodeLocaleGenerator(app: TestCoinKeeperApplication): CountryCodeLocaleGenerator {
         if (app.countryCodeLocaleGenerator == null) {
-            app.countryCodeLocaleGenerator = mock(CountryCodeLocaleGenerator::class.java)
+            app.countryCodeLocaleGenerator = mock()
         }
         return app.countryCodeLocaleGenerator!!
     }
@@ -607,7 +547,7 @@ class TestAppModule {
     @Provides
     internal fun dustProtectionPreference(app: TestCoinKeeperApplication): DustProtectionPreference {
         if (app.dustProtectionPreference == null) {
-            app.dustProtectionPreference = mock(DustProtectionPreference::class.java)
+            app.dustProtectionPreference = mock()
         }
         return app.dustProtectionPreference
     }
@@ -615,7 +555,7 @@ class TestAppModule {
     @Provides
     internal fun deleteWalletPresenter(app: TestCoinKeeperApplication): DeleteWalletPresenter {
         if (app.deleteWalletPresenter == null) {
-            app.deleteWalletPresenter = mock(DeleteWalletPresenter::class.java)
+            app.deleteWalletPresenter = mock()
         }
         return app.deleteWalletPresenter
     }
@@ -623,7 +563,7 @@ class TestAppModule {
     @Provides
     internal fun yearlyHighViewModel(app: TestCoinKeeperApplication): YearlyHighViewModel {
         if (app.yearlyHighViewModel == null) {
-            app.yearlyHighViewModel = mock(YearlyHighViewModel::class.java)
+            app.yearlyHighViewModel = mock()
         }
         return app.yearlyHighViewModel
     }
@@ -631,7 +571,7 @@ class TestAppModule {
     @Provides
     internal fun defaultCurrencyChangeViewNotifier(app: TestCoinKeeperApplication): DefaultCurrencyChangeViewNotifier {
         if (app.defaultCurrencyChangeViewNotifier == null) {
-            app.defaultCurrencyChangeViewNotifier = mock(DefaultCurrencyChangeViewNotifier::class.java)
+            app.defaultCurrencyChangeViewNotifier = mock()
         }
         return app.defaultCurrencyChangeViewNotifier
     }
@@ -639,7 +579,7 @@ class TestAppModule {
     @Provides
     internal fun transactionHistoryDataAdapter(app: TestCoinKeeperApplication): TransactionHistoryDataAdapter {
         if (app.transactionHistoryDataAdapter == null) {
-            app.transactionHistoryDataAdapter = mock(TransactionHistoryDataAdapter::class.java)
+            app.transactionHistoryDataAdapter = mock()
         }
         return app.transactionHistoryDataAdapter
     }
@@ -647,11 +587,8 @@ class TestAppModule {
     @Provides
     internal fun syncManagerViewNotifier(app: TestCoinKeeperApplication): SyncManagerViewNotifier {
         if (app.syncManagerViewNotifier == null) {
-            app.syncManagerViewNotifier = mock(SyncManagerViewNotifier::class.java)
+            app.syncManagerViewNotifier = mock()
         }
         return app.syncManagerViewNotifier
     }
-
-    @Provides
-    internal fun broadcaster(): TransactionBroadcaster = mock()
 }

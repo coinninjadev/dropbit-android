@@ -18,14 +18,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import app.dropbit.commons.util.CoroutineContextProvider
 import app.dropbit.twitter.Twitter
 import app.dropbit.twitter.TwitterProvider
-import com.coinninja.bindings.SeedWordGenerator
-import com.coinninja.bindings.TransactionBuilder
 import com.coinninja.coinkeeper.BuildConfig
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener
 import com.coinninja.coinkeeper.bitcoin.TransactionBroadcaster
 import com.coinninja.coinkeeper.cn.transaction.notification.TransactionNotificationMapper
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
@@ -51,7 +48,6 @@ import com.coinninja.coinkeeper.util.*
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.PreferencesUtil
 import com.coinninja.coinkeeper.util.encryption.MessageEncryptor
-import com.coinninja.coinkeeper.util.uri.BitcoinUriBuilder
 import com.coinninja.coinkeeper.util.uuid.UuidFactory
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator
@@ -75,13 +71,7 @@ class AppModule {
 
     @Provides
     @CoinkeeperApplicationScope
-    internal fun seedWordGenerator(): SeedWordGenerator {
-        return SeedWordGenerator()
-    }
-
-    @Provides
-    @CoinkeeperApplicationScope
-    internal fun provideAccountModeManager():AccountModeManager = AccountModeManager(AccountMode.BLOCKCHAIN)
+    internal fun provideAccountModeManager(): AccountModeManager = AccountModeManager(AccountMode.BLOCKCHAIN)
 
     @Provides
     internal fun coroutineContextProvider(): CoroutineContextProvider {
@@ -137,12 +127,6 @@ class AppModule {
     }
 
     @Provides
-    @CoinkeeperApplicationScope
-    internal fun bitcoinUrlBuilder(): BitcoinUriBuilder {
-        return BitcoinUriBuilder()
-    }
-
-    @Provides
     internal fun provideI18PhoneNumberUtil(): com.google.i18n.phonenumbers.PhoneNumberUtil {
         return com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance()
     }
@@ -166,11 +150,6 @@ class AppModule {
     @Provides
     internal fun pinEntry(pinInteractor: PinInteractor): PinEntry {
         return PinEntryImpl(pinInteractor)
-    }
-
-    @Provides
-    internal fun messageEncryptor(hdWallet: HDWallet, addressHelper: AddressHelper, messageCryptor: MessageCryptor): MessageEncryptor {
-        return MessageEncryptor(hdWallet, addressHelper, messageCryptor)
     }
 
     @Provides
@@ -268,11 +247,6 @@ class AppModule {
     }
 
     @Provides
-    internal fun transactionBuilder(walletHelper: WalletHelper): TransactionBuilder {
-        return TransactionBuilder(walletHelper.seedWords)
-    }
-
-    @Provides
     internal fun typedValue(): TypedValue {
         return TypedValue()
     }
@@ -341,4 +315,16 @@ class AppModule {
     @isTestnet
     @Provides
     internal fun isTestnet(): Boolean = BuildConfig.COIN_TYPE == 1
+
+    @DefaultPurpose
+    @Provides
+    internal fun defaultPurpose(): Int = BuildConfig.PURPOSE
+
+    @DefaultCoin
+    @Provides
+    internal fun defaultCoin(): Int = BuildConfig.COIN_TYPE
+
+    @DefaultAccount
+    @Provides
+    internal fun defaultAccount(): Int = BuildConfig.ACCOUNT_INDEX
 }

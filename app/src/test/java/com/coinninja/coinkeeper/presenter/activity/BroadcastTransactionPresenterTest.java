@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
-import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.bitcoin.BroadcastResult;
 import com.coinninja.coinkeeper.service.runner.BroadcastTransactionRunner;
 
@@ -12,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import app.coinninja.cn.libbitcoin.model.TransactionData;
 import junitx.util.PrivateAccessor;
 
 import static org.hamcrest.CoreMatchers.equalTo;

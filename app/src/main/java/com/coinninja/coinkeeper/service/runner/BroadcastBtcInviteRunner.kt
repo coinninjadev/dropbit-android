@@ -1,9 +1,9 @@
 package com.coinninja.coinkeeper.service.runner
 
 import android.content.Context
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.bitcoin.BroadcastResult
 import com.coinninja.coinkeeper.bitcoin.BroadcastTransactionHelper
@@ -94,9 +94,8 @@ internal constructor(@ApplicationContext internal val context: Context,
         val btcSpent = BTCCurrency(invite.valueSatoshis)
         val messageAmount = btcSpent.toFormattedCurrency()
         val message = context.getString(R.string.invite_broadcast_real_btc_message, messageAmount, recipient)
-        val txID = txid
 
-        externalNotificationHelper.saveNotification(message, txID)
+        externalNotificationHelper.saveNotification(message, txid)
     }
 
     private fun saveInviteCanceledToExternalNotificationsDatabase(invite: InviteTransactionSummary) {

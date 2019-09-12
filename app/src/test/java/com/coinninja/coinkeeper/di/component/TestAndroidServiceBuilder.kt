@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.di.component
 
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService
 import com.coinninja.coinkeeper.cn.service.CNFirebaseMessagingService
+import com.coinninja.coinkeeper.cn.service.CNFirebaseMessagingServiceTest
 import com.coinninja.coinkeeper.cn.service.CNGlobalMessagingService
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletAddressRequestService
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService
@@ -18,7 +19,7 @@ abstract class TestAndroidServiceBuilder {
     @ContributesAndroidInjector
     internal abstract fun walletCreationIntentService(): WalletCreationIntentService
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [DeleteWalletServiceTest.DeleteWalletServiceTestModule::class])
     internal abstract fun deleteWalletService(): DeleteWalletService
 
     @ContributesAndroidInjector
@@ -27,10 +28,10 @@ abstract class TestAndroidServiceBuilder {
     @ContributesAndroidInjector(modules = [WalletTransactionRetrieverServiceTest.TestWalletTransactionRetrieverServiceModule::class])
     internal abstract fun walletTransactionRetrieverService(): WalletTransactionRetrieverService
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [CNFirebaseMessagingServiceTest.CNFirebaseMessagingServiceTestModule::class])
     internal abstract fun cnFirebaseMessagingService(): CNFirebaseMessagingService
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [PushNotificationEndpointRegistrationServiceTest.PushNotificationEndpointRegistrationServiceTestModule::class])
     internal abstract fun pushNotificationEndpointRegistrationService(): PushNotificationEndpointRegistrationService
 
     @ContributesAndroidInjector

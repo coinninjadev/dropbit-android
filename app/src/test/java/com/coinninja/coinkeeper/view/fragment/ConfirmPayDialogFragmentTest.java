@@ -9,9 +9,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.coinninja.bindings.DerivationPath;
-import com.coinninja.bindings.TransactionData;
-import com.coinninja.bindings.UnspentTransactionOutput;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.Contact;
@@ -44,6 +41,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.shadows.ShadowActivity;
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
+import app.coinninja.cn.libbitcoin.model.TransactionData;
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput;
 import app.dropbit.commons.currency.BTCCurrency;
 import app.dropbit.commons.currency.FiatCurrency;
 import app.dropbit.commons.currency.USDCurrency;

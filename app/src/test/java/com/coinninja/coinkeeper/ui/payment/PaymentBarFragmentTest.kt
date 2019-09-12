@@ -52,6 +52,7 @@ class PaymentBarFragmentTest {
         application.apply {
             currencyPreference = mock()
             bitcoinUtil = mock()
+            bitcoinUriBuilder = mock()
         }.also {
             whenever(it.walletHelper.latestPrice).thenReturn(USDCurrency(initialUSDValue))
             whenever(it.walletHelper.latestFee).thenReturn(initialFee)
@@ -59,7 +60,7 @@ class PaymentBarFragmentTest {
             whenever(it.currencyPreference.fiat).thenReturn(usdCurrency)
             if (withBitcoinUri) {
                 creationIntent.data = uri
-                whenever(application.bitcoinUtil.parse(uri.toString())).thenReturn(bitcoinUri)
+                whenever(application.bitcoinUriBuilder.parse(uri.toString())).thenReturn(bitcoinUri)
             }
         }
     }
@@ -90,7 +91,7 @@ class PaymentBarFragmentTest {
     fun shows_pay_dialog_when_creation_intent_contains_bitcoin_uri() {
         launchHome(true)
 
-        verify(paymentBarFragment.bitcoinUtil).parse("bitcoin:?r=https://bitpay.com/i/JHbWb7uRHL29bHhH6h5oTa")
+        verify(paymentBarFragment.bitcoinUriBuilder).parse("bitcoin:?r=https://bitpay.com/i/JHbWb7uRHL29bHhH6h5oTa")
         verify(paymentBarFragment.activityNavigationUtil).showDialogWithTag(eq(paymentBarFragment.childFragmentManager),
                 any(), eq(PayDialogFragment::class.java.simpleName))
 

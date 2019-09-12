@@ -4,9 +4,9 @@ import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.cn.transaction.FundingViewModelProvider
 import com.coinninja.coinkeeper.cn.transaction.notification.FundingViewModel

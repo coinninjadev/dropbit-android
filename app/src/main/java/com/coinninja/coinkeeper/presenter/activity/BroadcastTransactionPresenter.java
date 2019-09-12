@@ -1,11 +1,12 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
-import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.bitcoin.BroadcastListener;
 import com.coinninja.coinkeeper.bitcoin.BroadcastResult;
 import com.coinninja.coinkeeper.service.runner.BroadcastTransactionRunner;
 
 import javax.inject.Inject;
+
+import app.coinninja.cn.libbitcoin.model.TransactionData;
 
 public class BroadcastTransactionPresenter implements BroadcastListener {
 

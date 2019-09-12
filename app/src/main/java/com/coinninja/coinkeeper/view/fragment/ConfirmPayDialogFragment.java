@@ -6,7 +6,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.coinninja.android.helpers.Resources;
-import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
@@ -31,6 +30,7 @@ import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
+import app.coinninja.cn.libbitcoin.model.TransactionData;
 import app.dropbit.commons.currency.BTCCurrency;
 
 import static com.coinninja.coinkeeper.util.FeesManager.FeeType;

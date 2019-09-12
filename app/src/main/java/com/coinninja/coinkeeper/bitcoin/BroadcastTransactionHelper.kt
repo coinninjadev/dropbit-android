@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.bitcoin
 
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionBuilder
-import com.coinninja.bindings.TransactionData
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.util.ErrorLoggingUtil
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import org.json.JSONException
@@ -11,14 +11,14 @@ import javax.inject.Inject
 
 @Mockable
 class BroadcastTransactionHelper @Inject internal constructor(
-        internal val transactionBuilder: TransactionBuilder,
+        internal val hdWallet: HDWalletWrapper,
         internal val transactionBroadcaster: TransactionBroadcaster,
         internal val analytics: Analytics,
         internal val errorLoggingUtil: ErrorLoggingUtil
 ) {
 
     fun broadcast(transactionData: TransactionData): BroadcastResult {
-        val transaction = transactionBuilder.build(transactionData)
+        val transaction = hdWallet.transactionFrom(transactionData)
 
         val broadcastResult = if (transactionData.isValid()) {
             transactionBroadcaster.broadcast(transaction)

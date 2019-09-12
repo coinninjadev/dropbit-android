@@ -3,11 +3,11 @@ package com.coinninja.coinkeeper.ui.lightning.deposit
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.lifecycle.Observer
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.commons.currency.CryptoCurrency
 import app.dropbit.commons.currency.FiatCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.showKeyboard
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.bitcoin.isFunded
 import com.coinninja.coinkeeper.cn.transaction.FundingViewModelProvider
@@ -93,7 +93,7 @@ class LightningDepositActivity : BaseActivity() {
 
     internal val depositAmountView: PaymentInputView get() = findViewById(R.id.deposit_value)
     internal val close: ImageButton get() = findViewById(R.id.close_button)
-    internal val confirmButton: ConfirmHoldButton get() = findViewById(R.id.confirm_button)
+    private val confirmButton: ConfirmHoldButton get() = findViewById(R.id.confirm_button)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

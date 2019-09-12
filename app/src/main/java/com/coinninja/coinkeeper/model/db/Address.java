@@ -2,8 +2,6 @@ package com.coinninja.coinkeeper.model.db;
 
 import androidx.annotation.NonNull;
 
-import com.coinninja.bindings.DerivationPath;
-
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -15,6 +13,8 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
 
 import java.util.List;
+
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
 
 @Entity(active = true)
 public class Address {

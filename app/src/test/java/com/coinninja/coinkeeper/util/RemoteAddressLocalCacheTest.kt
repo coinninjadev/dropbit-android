@@ -1,6 +1,6 @@
 package com.coinninja.coinkeeper.util
 
-import com.coinninja.bindings.DerivationPath
+import app.coinninja.cn.libbitcoin.model.DerivationPath
 import com.coinninja.coinkeeper.model.dto.AddressDTO
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.PreferencesUtil
@@ -28,7 +28,7 @@ class RemoteAddressLocalCacheTest {
     fun retrieves_addressees_from_local_storage() {
         val path = DerivationPath(49, 0, 0, 1, 10)
         val address = AddressDTO("-- address--",
-                AddressDTO.toDerivationPathString(path),
+                path.toString(),
                 "-pub-key-")
         val cachedAddresses = ArrayList<AddressDTO>()
         cachedAddresses.add(address)
@@ -56,7 +56,7 @@ class RemoteAddressLocalCacheTest {
     fun saves_addresses_to_shared_preferences() {
         val path = DerivationPath(49, 0, 0, 1, 10)
         val address = AddressDTO("-- address--",
-                AddressDTO.toDerivationPathString(path),
+                path.toString(),
                 "-pub-key-")
         val addressesToCache = ArrayList<AddressDTO>()
         addressesToCache.add(address)

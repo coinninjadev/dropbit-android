@@ -1,9 +1,6 @@
 package com.coinninja.coinkeeper.util.encryption;
 
-import com.coinninja.bindings.DecryptionKeys;
-import com.coinninja.bindings.DerivationPath;
-import com.coinninja.bindings.EncryptionKeys;
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.helpers.AddressHelper;
 import com.coinninja.messaging.MessageCryptor;
@@ -14,6 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import app.coinninja.cn.libbitcoin.model.DecryptionKeys;
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
+import app.coinninja.cn.libbitcoin.model.EncryptionKeys;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.when;
 public class MessageEncryptorTest {
 
     @Mock
-    private HDWallet wallet;
+    private HDWalletWrapper wallet;
 
     @Mock
     private MessageCryptor cryptor;
@@ -49,7 +50,7 @@ public class MessageEncryptorTest {
     public void testEncrypt() {
         EncryptionKeys encryptionKeys = new EncryptionKeys(ENCRYPTION_KEY, HMAC_KEY,
                 EPHEMERAL_PUBLIC_KEY);
-        when(wallet.generateEncryptionKeys(publicKey)).thenReturn(encryptionKeys);
+        when(wallet.encryptionKeys(publicKey.getBytes())).thenReturn(encryptionKeys);
         when(cryptor.encryptAsBase64(PLAIN_TEXT_MESSAGE.getBytes(),
                 ENCRYPTION_KEY, HMAC_KEY, EPHEMERAL_PUBLIC_KEY)).thenReturn(ENCRYPTED_PAYLOAD);
 
@@ -60,13 +61,13 @@ public class MessageEncryptorTest {
 
     @Test
     public void testDecrypt() {
-        DerivationPath derivationPath = new DerivationPath("m/49/0/0/0/1");
+        DerivationPath derivationPath = DerivationPath.CREATOR.from("M/49/0/0/0/1");
         when(address.getDerivationPath()).thenReturn(derivationPath);
         DecryptionKeys decryptionKeys = new DecryptionKeys(ENCRYPTION_KEY, HMAC_KEY);
 
         when(addressHelper.addressForPubKey(publicKey)).thenReturn(address);
         when(cryptor.unpackEphemeralPublicKey(ENCRYPTED_PAYLOAD)).thenReturn(EPHEMERAL_PUBLIC_KEY);
-        when(wallet.generateDecryptionKeys(derivationPath, EPHEMERAL_PUBLIC_KEY)).thenReturn(decryptionKeys);
+        when(wallet.decryptionKeys(derivationPath, EPHEMERAL_PUBLIC_KEY)).thenReturn(decryptionKeys);
         when(cryptor.decrypt(ENCRYPTED_PAYLOAD, ENCRYPTION_KEY, HMAC_KEY)).thenReturn(
                 PLAIN_TEXT_MESSAGE.getBytes());
 

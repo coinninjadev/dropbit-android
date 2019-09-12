@@ -40,8 +40,8 @@ class SignedRequestInterceptorTest {
         whenever(chain.proceed(any())).thenReturn(response)
         whenever(interceptor.cnWalletManager.account).thenReturn(account)
         whenever(interceptor.uuidFactory.provideUuid()).thenReturn(CN_AUTH_DEVICE_UUID)
-        whenever(interceptor.dataSigner.sign(any())).thenReturn(SIGNED_CONTENT)
-        whenever(interceptor.dataSigner.coinNinjaVerificationKey).thenReturn(CN_PUBKEY)
+        whenever(interceptor.hdWallet.sign(any())).thenReturn(SIGNED_CONTENT)
+        whenever(interceptor.hdWallet.verificationKey).thenReturn(CN_PUBKEY)
         whenever(interceptor.dateUtil.getCurrentTimeFormatted()).thenReturn(CURRENT_TIME)
         return interceptor
     }
@@ -53,7 +53,7 @@ class SignedRequestInterceptorTest {
         whenever(interceptor.cnWalletManager.account.cnUserId).thenReturn(null)
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -66,7 +66,7 @@ class SignedRequestInterceptorTest {
     fun signs_timestamp_for_get_requests() {
         val interceptor = createInterceptor()
         var request = Request.Builder().url("http://localhost:8080").method("GET", null).build()
-        whenever(interceptor.dataSigner.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
+        whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
 
         request = interceptor.signRequest(request)
 
@@ -81,7 +81,7 @@ class SignedRequestInterceptorTest {
         val body = Gson().toJson(WithdrawalRequest(BTCCurrency(0), BTCCurrency(0), BTCCurrency(0), "--addr--").forPost())
         var request = Request.Builder().url("http://localhost:8080/api/v1/thunderdome/withdraw").method("POST",
                 RequestBody.create(MediaType.parse("application/json"), body)).build()
-        whenever(interceptor.dataSigner.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
+        whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
 
         request = interceptor.signRequest(request)
 
@@ -94,7 +94,7 @@ class SignedRequestInterceptorTest {
         val interceptor = createInterceptor()
         val body = RequestBody.create(MediaType.parse("application/json"), "")
         var request = Request.Builder().url("http://localhost:8080").method("POST", body).build()
-        whenever(interceptor.dataSigner.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
+        whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
 
         request = interceptor.signRequest(request)
 
@@ -122,7 +122,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -138,7 +138,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -155,7 +155,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -172,7 +172,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -189,7 +189,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value

@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.bitcoin
 
+import app.coinninja.cn.libbitcoin.model.Transaction
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.model.Transaction
 import okhttp3.ResponseBody
 import retrofit2.Response
 

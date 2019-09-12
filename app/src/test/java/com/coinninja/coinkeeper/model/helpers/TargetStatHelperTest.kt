@@ -1,9 +1,9 @@
 package com.coinninja.coinkeeper.model.helpers
 
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.TransactionData
-import com.coinninja.bindings.UnspentTransactionOutput
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
+import app.coinninja.cn.libbitcoin.HDWallet
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey
@@ -143,13 +143,13 @@ class TargetStatHelperTest {
 
         assertThat(unspentTransactionOutput.amount).isEqualTo(1000L)
         assertThat(unspentTransactionOutput.index).isEqualTo(1)
-        assertThat(unspentTransactionOutput.isReplaceable).isEqualTo(true)
-        assertThat(unspentTransactionOutput.txId).isEqualTo("--txid--")
-        assertThat(unspentTransactionOutput.path.purpose).isEqualTo(49)
-        assertThat(unspentTransactionOutput.path.coinType).isEqualTo(0)
-        assertThat(unspentTransactionOutput.path.account).isEqualTo(0)
-        assertThat(unspentTransactionOutput.path.change).isEqualTo(1)
-        assertThat(unspentTransactionOutput.path.index).isEqualTo(50)
+        assertThat(unspentTransactionOutput.replaceable).isEqualTo(true)
+        assertThat(unspentTransactionOutput.txid).isEqualTo("--txid--")
+        assertThat(unspentTransactionOutput.path!!.purpose).isEqualTo(49)
+        assertThat(unspentTransactionOutput.path!!.coin).isEqualTo(0)
+        assertThat(unspentTransactionOutput.path!!.account).isEqualTo(0)
+        assertThat(unspentTransactionOutput.path!!.chain).isEqualTo(1)
+        assertThat(unspentTransactionOutput.path!!.index).isEqualTo(50)
     }
 
     @Test

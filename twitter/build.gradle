@@ -41,7 +41,6 @@ android {
             returnDefaultValues = true
             all {
                 systemProperty "robolectric.logging.enabled", false
-                jvmArgs rootProject.jvmArgs
             }
         }
     }

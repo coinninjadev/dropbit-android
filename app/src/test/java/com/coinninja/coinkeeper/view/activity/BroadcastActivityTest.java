@@ -5,10 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.coinninja.bindings.DerivationPath;
-import com.coinninja.bindings.TransactionData;
-import com.coinninja.bindings.UnspentTransactionOutput;
-import com.coinninja.bindings.model.Transaction;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.bitcoin.BroadcastProvider;
@@ -38,6 +34,13 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
+import app.coinninja.cn.libbitcoin.model.Transaction;
+import app.coinninja.cn.libbitcoin.model.TransactionData;
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput;
+import dagger.Module;
+import dagger.Provides;
+
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,8 +54,6 @@ import static org.robolectric.Shadows.shadowOf;
 @RunWith(RobolectricTestRunner.class)
 @Config(application = TestCoinKeeperApplication.class)
 public class BroadcastActivityTest {
-    @Mock
-    private BroadcastTransactionPresenter broadcastPresenter;
     @Mock
     private SendingProgressView sendingProgressView;
     private BroadcastTransactionDTO broadcastActivityDTO;
@@ -75,7 +76,7 @@ public class BroadcastActivityTest {
                 outputs,
                 1000100L,
                 100L, 50000L,
-                new DerivationPath("m49/0/0/0/0/1"),
+                DerivationPath.CREATOR.from("M/49/0/0/0/0/1"),
                 "--payment-address");
         broadcastActivityDTO = new BroadcastTransactionDTO(transactionData, true, "memo", identity, "--pub-key--");
         broadcastActivityDTO.setMemoShared(true);
@@ -88,7 +89,6 @@ public class BroadcastActivityTest {
         activity = activityController.get();
         shadowActivity = shadowOf(activity);
 
-        activity.broadcastPresenter = broadcastPresenter;
         activity.sendingProgressView = sendingProgressView;
         activity.activityNavigationUtil = navigationUtil;
         activity.syncWalletManager = syncWalletManager;
@@ -96,7 +96,6 @@ public class BroadcastActivityTest {
 
     @After
     public void tearDown() {
-        broadcastPresenter = null;
         broadcastActivityDTO = null;
         sendingProgressView = null;
         navigationUtil = null;
@@ -111,7 +110,7 @@ public class BroadcastActivityTest {
     public void broadcastTransaction() {
         activityController.start().resume().visible();
 
-        verify(broadcastPresenter).broadcastTransaction(transactionData);
+        verify(activity.broadcastPresenter).broadcastTransaction(transactionData);
         assertThat(activity.sendState, equalTo(SendState.STARTED));
     }
 
@@ -167,7 +166,7 @@ public class BroadcastActivityTest {
     public void broadcastPresenter_attach() {
         activityController.start().resume().visible();
 
-        verify(broadcastPresenter).attachView(activity);
+        verify(activity.broadcastPresenter).attachView(activity);
     }
 
     @Test
@@ -241,7 +240,7 @@ public class BroadcastActivityTest {
         inState.putInt(BroadcastActivity.RESTORE_STATE, SendState.COMPLETED_FAILED.getValue());
         activityController.start().restoreInstanceState(inState).resume();
 
-        verify(broadcastPresenter, times(0)).broadcastTransaction(transactionData);
+        verify(activity.broadcastPresenter, times(0)).broadcastTransaction(transactionData);
         TextView sendLabel = activity.findViewById(R.id.broadcast_sending_progress_label);
         assertThat(sendLabel.getVisibility(), equalTo(View.VISIBLE));
         assertThat(sendLabel.getText().toString(), equalTo(activity.getString(R.string.broadcast_sent_failed)));
@@ -255,7 +254,7 @@ public class BroadcastActivityTest {
         inState.putString(BroadcastActivity.TRANSACTION_ID, "__txid__");
         activityController.start().restoreInstanceState(inState).resume().visible();
 
-        verify(broadcastPresenter, times(0)).broadcastTransaction(transactionData);
+        verify(activity.broadcastPresenter, times(0)).broadcastTransaction(transactionData);
         TextView sendLabel = activity.findViewById(R.id.broadcast_sending_progress_label);
         assertThat(sendLabel.getVisibility(), equalTo(View.VISIBLE));
         assertThat(sendLabel.getText().toString(), equalTo(activity.getString(R.string.broadcast_sent_label)));
@@ -266,7 +265,7 @@ public class BroadcastActivityTest {
 
     @Test
     public void saves_send_state_on_save() {
-        BroadcastResult broadcastResult = new BroadcastResult(200, true, "foo", new Transaction("", "__txid__"), BroadcastProvider.BLOCK_STREAM);
+        BroadcastResult broadcastResult = new BroadcastResult(200, true, "foo", new Transaction("__txid__", "__raw__"), BroadcastProvider.BLOCK_STREAM);
         activityController.start().resume();
         activity.showBroadcastSuccessful(broadcastResult);
 
@@ -277,4 +276,12 @@ public class BroadcastActivityTest {
         assertThat(outState.getString(BroadcastActivity.TRANSACTION_ID), equalTo("__txid__"));
     }
 
+    @Module
+    public static class BroadcastActivityTestModule {
+
+        @Provides
+        BroadcastTransactionPresenter broadcastPresenter() {
+            return mock(BroadcastTransactionPresenter.class);
+        }
+    }
 }

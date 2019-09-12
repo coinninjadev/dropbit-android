@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.service.client
 
-import com.coinninja.coinkeeper.cn.wallet.DataSigner
 import com.coinninja.coinkeeper.cn.wallet.WalletFlags
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
@@ -30,7 +29,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class SignedCoinKeeperApiClientTest {
-    private var dataSigner: DataSigner = mock()
     private var client: CoinKeeperClient = mock()
     private var webServer: MockWebServer = MockWebServer()
     private lateinit var signedCoinKeeperApiClient: SignedCoinKeeperApiClient

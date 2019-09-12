@@ -3,7 +3,7 @@ package com.coinninja.coinkeeper.service.interceptors
 import android.annotation.SuppressLint
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
-import com.coinninja.coinkeeper.cn.wallet.DataSigner
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.util.DateUtil
 import com.coinninja.coinkeeper.util.uuid.UuidFactory
 import okhttp3.Interceptor
@@ -17,7 +17,7 @@ import javax.inject.Inject
 @Mockable
 class SignedRequestInterceptor @Inject internal constructor(
         internal val dateUtil: DateUtil,
-        internal val dataSigner: DataSigner,
+        internal val hdWallet: HDWalletWrapper,
         internal val uuidFactory: UuidFactory,
         internal val cnWalletManager: CNWalletManager) : Interceptor {
 
@@ -35,13 +35,13 @@ class SignedRequestInterceptor @Inject internal constructor(
 
         builder.header(CN_AUTH_TIMESTAMP, currentTimeFormatted)
         builder.header(CN_AUTH_DEVICE_UUID, uuidFactory.provideUuid())
-        builder.header(CN_AUTH_PUBKEY, dataSigner.coinNinjaVerificationKey)
+        builder.header(CN_AUTH_PUBKEY, hdWallet.verificationKey)
 
         val body = String(bodyToString(origRequest.body()))
         if (body.isEmpty() || isThunderDome) {
-            builder.header(CN_AUTH_SIG, dataSigner.sign(currentTimeFormatted))
+            builder.header(CN_AUTH_SIG, hdWallet.sign(currentTimeFormatted))
         } else {
-            builder.header(CN_AUTH_SIG, dataSigner.sign(body))
+            builder.header(CN_AUTH_SIG, hdWallet.sign(body))
         }
 
         addAccountToHeaders(builder)
