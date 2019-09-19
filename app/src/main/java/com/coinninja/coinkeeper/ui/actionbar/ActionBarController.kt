@@ -48,6 +48,8 @@ class ActionBarController constructor(
         )
     }
 
+    var isLightningLocked = true;
+
     var menuItemClickListener: MenuItemClickListener? = null
     internal var actionBarType = TypedValue().also {
         it.resourceId = R.id.actionbar_up_on
@@ -153,10 +155,14 @@ class ActionBarController constructor(
             }
         }
 
-        if (isBalanceBelowTitle) {
+        updateTransferButton(activity)
+    }
+
+    private fun updateTransferButton(activity: AppCompatActivity) {
+        if (isBalanceBelowTitle && !isLightningLocked) {
             activity.findViewById<ImageButton>(R.id.appbar_transfer_between_accounts)?.apply {
                 visibility = View.VISIBLE
-                setOnClickListener {activityNavigationUtil.showLoadLightningOptions(activity)}
+                setOnClickListener { activityNavigationUtil.showLoadLightningOptions(activity) }
             }
         }
     }
@@ -172,6 +178,11 @@ class ActionBarController constructor(
     }
 
     private fun setupObserversFor(activity: AppCompatActivity, defaultCurrencyDisplayView: DefaultCurrencyDisplaySyncView) {
+        walletViewModel.isLightningLocked.observe(activity, Observer {
+            isLightningLocked = it
+            updateTransferButton(activity)
+        })
+
         walletViewModel.accountMode.observe(activity, Observer<AccountMode> { mode ->
             defaultCurrencyDisplayView.accountMode(mode)
         })

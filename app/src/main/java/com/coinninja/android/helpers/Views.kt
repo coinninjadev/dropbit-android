@@ -14,8 +14,17 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.util.DefaultCurrencies
+
+fun Fragment.show() {
+    this.view?.show()
+}
+
+fun Fragment.hide() {
+    this.view?.gone()
+}
 
 fun View.gone() {
     this.visibility = View.GONE

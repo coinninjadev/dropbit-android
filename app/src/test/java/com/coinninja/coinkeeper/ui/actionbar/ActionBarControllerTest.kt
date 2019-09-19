@@ -47,6 +47,7 @@ class ActionBarControllerTest {
         whenever(activity.findViewById<ImageButton>(R.id.appbar_charts)).thenReturn(charts)
         whenever(activity.findViewById<ConstraintLayout>(R.id.cn_content_wrapper)).thenReturn(mock())
         whenever(it.walletViewModel.syncInProgress).thenReturn(mock())
+        whenever(it.walletViewModel.isLightningLocked).thenReturn(mock())
         whenever(it.walletViewModel.holdings).thenReturn(mock())
         whenever(it.walletViewModel.holdingsWorth).thenReturn(mock())
         whenever(it.walletViewModel.defaultCurrencyPreference).thenReturn(mock())
@@ -470,6 +471,7 @@ class ActionBarControllerTest {
     fun clicking_transfer_button_presents_options_for_transfer() {
         val controller = createController()
         val argumentCaptor = argumentCaptor<View.OnClickListener>()
+        controller.isLightningLocked = false
 
         val actionBarTyped = TypedValue().apply {
             resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on

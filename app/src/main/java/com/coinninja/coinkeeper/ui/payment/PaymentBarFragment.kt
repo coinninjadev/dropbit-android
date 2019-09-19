@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import com.coinninja.android.helpers.gone
+import com.coinninja.android.helpers.show
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.PaymentHolder
