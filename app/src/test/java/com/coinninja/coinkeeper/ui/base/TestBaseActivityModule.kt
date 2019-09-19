@@ -52,6 +52,7 @@ class TestBaseActivityModule {
         whenever(walletViewModelProvider.provide(any<BaseActivity>())).thenReturn(walletViewModel)
         whenever(walletViewModel.fetchBtcLatestPrice()).thenReturn(mock())
         whenever(walletViewModel.fetchLightningBalance()).thenReturn(mock())
+        whenever(walletViewModel.isLightningLocked).thenReturn(mock())
         return walletViewModelProvider
     }
 }

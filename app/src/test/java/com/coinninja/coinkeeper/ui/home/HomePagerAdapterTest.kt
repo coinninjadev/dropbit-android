@@ -27,13 +27,15 @@ class HomePagerAdapterTest {
 
     @Test
     fun page_2_is_the_Lightning_History_Screen__when_lightning_unlocked() {
-        assertTrue(createHomePageAdapter().getItem(1) is LightningHistoryFragment)
+        val homePageAdapter = createHomePageAdapter()
+        homePageAdapter.isLightningLocked = false
+        assertTrue(homePageAdapter.getItem(1) is LightningHistoryFragment)
     }
 
     @Test
     fun page_2_is_the_Lightning_History_Screen__when_lightning_locked() {
-        assertTrue(createHomePageAdapter(true).getItem(1) is LightningLockedFragment)
+        assertTrue(createHomePageAdapter().getItem(1) is LightningLockedFragment)
     }
 
-    private fun createHomePageAdapter(isLightningLocked: Boolean = false): HomePagerAdapter = HomePagerAdapter(mock(), Lifecycle.State.CREATED.ordinal, isLightningLocked)
+    private fun createHomePageAdapter(): HomePagerAdapter = HomePagerAdapter(mock(), Lifecycle.State.CREATED.ordinal)
 }

@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
@@ -38,6 +39,7 @@ class WalletViewModel : ViewModel() {
         }
     }
 
+    val isLightningLocked: MutableLiveData<Boolean> = MutableLiveData()
     val accountMode: MutableLiveData<AccountMode> = MutableLiveData()
     val currentPrice: MutableLiveData<FiatCurrency> = MutableLiveData()
     val holdings: MutableLiveData<CryptoCurrency> = MutableLiveData()
@@ -52,6 +54,7 @@ class WalletViewModel : ViewModel() {
             syncInProgress.postValue(syncManagerViewNotifier.isSyncing)
             if (!syncManagerViewNotifier.isSyncing) {
                 invalidateBalances(accountModeManager.balanceAccountMode)
+                checkLightningLock()
             }
         }
     }
@@ -99,6 +102,18 @@ class WalletViewModel : ViewModel() {
             }
         }
         return currentPrice
+    }
+
+    fun checkLightningLock() {
+        viewModelScope.launch {
+            val isLocked = withContext(Dispatchers.IO) {
+                thunderDomeRepository.isLocked
+            }
+
+            withContext(Dispatchers.Main) {
+                isLightningLocked.value = isLocked
+            }
+        }
     }
 
     private fun invalidateBalances(accountMode: AccountMode) {

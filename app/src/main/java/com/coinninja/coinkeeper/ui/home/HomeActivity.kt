@@ -3,13 +3,18 @@ package com.coinninja.coinkeeper.ui.home
 import android.os.Bundle
 import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
+import com.coinninja.android.helpers.hide
+import com.coinninja.android.helpers.show
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.ui.base.BaseActivity
+import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.google.android.material.tabs.TabLayout
+import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
 class HomeActivity : BaseActivity() {
@@ -26,6 +31,15 @@ class HomeActivity : BaseActivity() {
 
     internal var currentPage = 0
 
+    internal var isLightningLocked = true
+
+    internal val isLightningLockedObserver: Observer<Boolean> = Observer {
+        onLightningLockChange(it)
+    }
+
+    internal val paymentBarFragment: PaymentBarFragment
+        get() = supportFragmentManager.findFragmentByTag("paymentBarFragment") as PaymentBarFragment
+
     internal val pager: ViewPager get() = findViewById(R.id.home_pager)
     internal val tabs: TabLayout get() = findViewById(R.id.appbar_tabs)
     internal val onTabSelectedListener: TabLayout.OnTabSelectedListener = object : TabLayout.OnTabSelectedListener {
@@ -35,8 +49,17 @@ class HomeActivity : BaseActivity() {
 
         override fun onTabSelected(tab: TabLayout.Tab?) {
             when (tabs.selectedTabPosition) {
-                1 -> accountModeManger.changeMode(AccountMode.LIGHTNING)
-                else -> accountModeManger.changeMode(AccountMode.BLOCKCHAIN)
+                1 -> {
+                    accountModeManger.changeMode(AccountMode.LIGHTNING)
+                    if (isLightningLocked)
+                        paymentBarFragment.hide()
+                }
+                else -> {
+                    accountModeManger.changeMode(AccountMode.BLOCKCHAIN)
+                    if (isLightningLocked) {
+                        paymentBarFragment.show()
+                    }
+                }
             }
         }
     }
@@ -44,6 +67,8 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        walletViewModel.isLightningLocked.observe(this, isLightningLockedObserver)
+        walletViewModel.checkLightningLock()
         findViewById<View>(R.id.appbar_balance_large)?.apply {
             visibility = View.VISIBLE
         }
@@ -104,6 +129,11 @@ class HomeActivity : BaseActivity() {
                 tabs.selectTab(tabs.getTabAt(0))
             }
         }
+    }
+
+    private fun onLightningLockChange(isLocked: Boolean) {
+        isLightningLocked = isLocked
+        (home_pager.adapter as HomePagerAdapter).isLightningLocked = isLightningLocked
     }
 
 }
