@@ -20,8 +20,8 @@ class TargetStatHelperTest {
 
     private fun createHelper(): TargetStatHelper {
         val statHelper = TargetStatHelper(mock(), mock(), mock(), mock())
-        whenever(statHelper.walletHelper.wallet).thenReturn(mock())
-        whenever(statHelper.walletHelper.wallet.id).thenReturn(1L)
+        whenever(statHelper.walletHelper.primaryWallet).thenReturn(mock())
+        whenever(statHelper.walletHelper.primaryWallet.id).thenReturn(1L)
         return statHelper
     }
 

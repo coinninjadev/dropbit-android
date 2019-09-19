@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.service.client.model.GsonAddress
 import org.greenrobot.greendao.query.QueryBuilder
@@ -10,9 +11,7 @@ import javax.inject.Singleton
 @Mockable
 class DaoSessionManager(
         internal val daoMaster: DaoMaster,
-        internal val purpose: Int = 49,
-        internal val coinType: Int = 0,
-        internal val accountIndex: Int = 0
+        internal val walletConfiguration: WalletConfiguration
 ) {
     internal lateinit var daoSession: DaoSession
 
@@ -28,9 +27,22 @@ class DaoSessionManager(
         val id = userDao.insert(user)
         val wallet = Wallet().also {
             it.userId = id
-            it.purpose = purpose
-            it.coinType = coinType
-            it.accountIndex = accountIndex
+            it.purpose = walletConfiguration.purpose
+            it.coinType = walletConfiguration.coin
+            it.accountIndex = walletConfiguration.account
+        }
+        val walletId = walletDao.insert(wallet)
+        wallet.id = walletId
+        wallet.__setDaoSession(daoSession)
+        return wallet
+    }
+
+    fun createWalletForUpdate(userId:Long): Wallet {
+        val wallet = Wallet().also {
+            it.userId = userId
+            it.purpose = walletConfiguration.purpose
+            it.coinType = walletConfiguration.coin
+            it.accountIndex = walletConfiguration.account
         }
         val walletId = walletDao.insert(wallet)
         wallet.id = walletId
@@ -111,7 +123,7 @@ class DaoSessionManager(
         daoSession.database.execSQL(query)
     }
 
-    fun qeuryForWallet(): QueryBuilder<Wallet> {
+    fun queryForWallet(): QueryBuilder<Wallet> {
         return walletDao.queryBuilder()
     }
 

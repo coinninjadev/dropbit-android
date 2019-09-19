@@ -41,7 +41,7 @@ class AccountManager @Inject internal constructor(
         get() = addressHelper.getLargestDerivationIndexReportedFor(HDWalletWrapper.EXTERNAL)
 
     private fun derivationPathForExternalIndex(index: Int): DerivationPath {
-        val wallet = walletHelper.wallet
+        val wallet = walletHelper.primaryWallet
         return DerivationPath(wallet.purpose, wallet.coinType, wallet.accountIndex, HDWalletWrapper.EXTERNAL, index)
     }
 

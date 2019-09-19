@@ -15,6 +15,7 @@ import com.coinninja.coinkeeper.ui.dropbit.me.verify.VerifyDropBitMeDialog
 import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragment
 import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragmentModule
 import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
+import com.coinninja.coinkeeper.ui.lightning.locked.LightningLockedFragment
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestFragment
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragment
@@ -143,4 +144,8 @@ abstract class AndroidFragmentBuilder {
     @ActivityScope
     @ContributesAndroidInjector()
     internal abstract fun lightningLoadingOptionsDialog(): LightningLoadingOptionsDialog
+
+    @ActivityScope
+    @ContributesAndroidInjector()
+    internal abstract fun lightningLockedFragment(): LightningLockedFragment
 }

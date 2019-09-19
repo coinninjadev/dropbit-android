@@ -15,7 +15,7 @@ class AddressCacheTest {
         whenever(wallet.purpose).thenReturn(49)
         whenever(wallet.coinType).thenReturn(0)
         whenever(wallet.accountIndex).thenReturn(0)
-        whenever(addressCache.walletHelper.wallet).thenReturn(wallet)
+        whenever(addressCache.walletHelper.primaryWallet).thenReturn(wallet)
         return addressCache
     }
 

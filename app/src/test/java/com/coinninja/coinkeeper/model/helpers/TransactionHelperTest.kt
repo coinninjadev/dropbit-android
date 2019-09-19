@@ -24,7 +24,7 @@ class TransactionHelperTest {
         val transaction: TransactionSummary = mock()
         val gsonAddress = GsonAddress(txid = "--txid--")
         val wallet: Wallet = mock()
-        whenever(helper.walletHelper.wallet).thenReturn(wallet)
+        whenever(helper.walletHelper.primaryWallet).thenReturn(wallet)
 
         helper.initializeTransaction(transaction, gsonAddress)
 
@@ -186,7 +186,7 @@ class TransactionHelperTest {
                 vInList = listOf(),
                 vOutList = listOf()
         )
-        whenever(helper.walletHelper.wallet).thenReturn(mock())
+        whenever(helper.walletHelper.primaryWallet).thenReturn(mock())
 
         helper.updateTransaction(transaction, detail, 100)
 
@@ -198,7 +198,7 @@ class TransactionHelperTest {
         ordered.verify(transaction).memPoolState = MemPoolState.MINED
         ordered.verify(transaction).numInputs = 0
         ordered.verify(transaction).numOutputs = 0
-        ordered.verify(transaction).wallet = helper.walletHelper.wallet
+        ordered.verify(transaction).wallet = helper.walletHelper.primaryWallet
         ordered.verify(transaction).update()
         ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction)
     }
@@ -436,7 +436,7 @@ class TransactionHelperTest {
         )
         val transaction: TransactionSummary = mock()
         whenever(helper.daoSessionManager.newTransactionSummary()).thenReturn(transaction)
-        whenever(helper.walletHelper.wallet).thenReturn(mock())
+        whenever(helper.walletHelper.primaryWallet).thenReturn(mock())
         whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(System.currentTimeMillis())
         whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(System.currentTimeMillis())
         whenever(identity.identityType).thenReturn(IdentityType.TWITTER)
@@ -449,7 +449,7 @@ class TransactionHelperTest {
 
         val ordered = inOrder(transaction, helper.daoSessionManager, helper.transactionInviteSummaryHelper, settlement, helper.fundingStatHelper, helper.targetStatHelper)
         ordered.verify(transaction).txid = completedBroadcastDTO.transactionId
-        ordered.verify(transaction).wallet = helper.walletHelper.wallet
+        ordered.verify(transaction).wallet = helper.walletHelper.primaryWallet
         ordered.verify(transaction).memPoolState = MemPoolState.PENDING
         ordered.verify(transaction).txTime = helper.dateUtil.getCurrentTimeInMillis()
         ordered.verify(helper.daoSessionManager).insert(transaction)

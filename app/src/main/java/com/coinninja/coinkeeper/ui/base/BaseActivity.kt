@@ -64,8 +64,6 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
     @Inject
     lateinit var cnWalletManager: CNWalletManager
     @Inject
-    internal lateinit var navigationUtil: ActivityNavigationUtil
-    @Inject
     lateinit var pinEntry: PinEntry
     @Inject
     internal lateinit var authentication: Authentication
@@ -144,10 +142,10 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
     private fun observeMarketSelection(onMarketSelectionObserver: OnMarketSelectionObserver) =
             drawerController.observeMarketSelection(onMarketSelectionObserver)
 
-    override fun onCloseClicked() = navigationUtil.navigateToHome(this)
-    override fun onSkipClicked() = navigationUtil.navigateToHome(this)
+    override fun onCloseClicked() = activityNavigationUtil.navigateToHome(this)
+    override fun onSkipClicked() = activityNavigationUtil.navigateToHome(this)
     override fun onShowMarketData() {
-        navigationUtil.showMarketCharts(this)
+        activityNavigationUtil.showMarketCharts(this)
         analytics.trackEvent(Analytics.EVENT_CHARTS_OPENED)
     }
 
@@ -273,10 +271,6 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         startActivity(intent)
     }
 
-    @Deprecated("use activity navigation util", replaceWith = ReplaceWith("ActivityNavigationUtil"), level = DeprecationLevel.WARNING)
-    protected fun navigateTo(activityClass: Class<*>) {
-        startActivity(Intent(this, activityClass))
-    }
 
     open fun showNext() {
         onCompletion()
@@ -299,7 +293,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
 
         if (!authentication.isAuthenticated) {
             if (!pinEntry.hasExistingPin() && !hasWallet) {
-                showStartActivity()
+                activityNavigationUtil.navigateToStartActivity(this)
             } else if (!pinEntry.hasExistingPin() && hasWallet
                     && javaClass.name != CreatePinActivity::class.java.name) {
                 startNewWalletFlow()
@@ -348,15 +342,9 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         localBroadCastUtil.sendGlobalBroadcast(AuthenticationCompleteReceiver::class.java, DropbitIntents.ACTION_ON_USER_AUTH_SUCCESSFULLY)
     }
 
-    private fun showStartActivity() {
-        if (PIN_IGNORE_LIST.contains(javaClass.name)) return
-        navigateTo(StartActivity::class.java)
-        finish()
-    }
-
     protected fun startRecoveryFlow() {
         cnWalletManager.createWallet()
-        navigateTo(RestoreWalletActivity::class.java)
+        activityNavigationUtil.navigateToRestoreWallet(this)
     }
 
     protected fun startInviteFlow() {

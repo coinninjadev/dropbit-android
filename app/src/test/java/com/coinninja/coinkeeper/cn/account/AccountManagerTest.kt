@@ -82,7 +82,7 @@ class AccountManagerTest {
         whenever(wallet.coinType).thenReturn(0)
         whenever(wallet.accountIndex).thenReturn(0)
         whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)
-        whenever(accountManager.walletHelper.wallet).thenReturn(wallet)
+        whenever(accountManager.walletHelper.primaryWallet).thenReturn(wallet)
         whenever(accountManager.hdWallet.getAddressForPath(path)).thenReturn(address)
 
         assertThat(accountManager.nextReceiveAddress).isEqualTo(address.address)

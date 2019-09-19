@@ -29,6 +29,7 @@ interface Analytics {
         const val OS = "Android"
 
         // EVENTS
+        const val ENTERED_DEACTIVATED_WORDS: String = "EnteredDeactivatedWords"
 
         // -- BROADCASTING
         const val EVENT_BROADCAST_STARTED = "BroadcastStart"
@@ -98,6 +99,7 @@ interface Analytics {
 
         //BACKUP / Recovery Words
         const val EVENT_VIEW_RECOVERY_WORDS = "ViewWords"
+        const val EVENT_VIEW_LEGACY_WORDS: String = "ViewLegacyWords"
 
         //Transaction history empty state
         const val EVENT_GET_BITCOIN = "GetBitcoin"
@@ -153,5 +155,9 @@ interface Analytics {
         const val PROPERTY_TWITTER_VERIFIED = "Twitter Verified"
         const val PROPERTY_WALLET_VERSION = "WalletVersion"
         const val PROPERTY_PLATFORM = "platform"
+        const val PROPERTY_LIGHTNING_UPGRADE_STARTED = "Lightning Upgrade Started"
+        const val PROPERTY_LIGHTNING_UPGRADE_COMPLETED = "Lightning Upgrade Completed"
+        const val PROPERTY_LIGHTNING_UPGRADE_FROM_RESTORE = "Lightning Upgraded From Restore"
+        const val PROPERTY_LIGHTNING_UPGRADE_WITH_FUNDS = "Lightning Upgraded Funds"
     }
 }

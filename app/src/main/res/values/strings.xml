@@ -190,6 +190,7 @@
     <string name="recover_wallet_label">Recovery Words</string>
     <string name="dust_protection">Dust Protection</string>
     <string name="settings_bitcoin_yearly_high_price_notification">Bitcoin Yearly High Price Notification</string>
+    <string name="settings_legacy_words">Legacy Words</string>
 
     <!-- Message System -->
     <string name="message_system_no_internet">Not connected. Please refresh to try again</string>
@@ -213,6 +214,7 @@
 
     <!-- Delete Auth Message -->
     <string name="authorize_delete_message">Enter pin to confirm deletion of your wallet.</string>
+    <string name="authorize_view_legacy_words">Enter pin to view your legacy words.</string>
 
     <!-- Contacts -->
     <string name="search_hint">Search</string>
@@ -484,4 +486,34 @@
     <string name="dropbit_fee">DropBit Fee</string>
     <string name="lightning_fee_value">%s sats (%s)</string>
     <string name="na">NA</string>
+
+    <!--- Segwit Wallet Upgrade -->
+    <string name="upgrade_notice">We are upgrading all DropBit wallets for Lightning support. Your new SegWit wallet will allow you to send Bitcoin faster, cheaper and with increased security.</string>
+    <string name="lightning_is_here">LIGHTNING IS HERE!</string>
+    <string name="upgrade_now">upgrade now</string>
+    <string name="new_recovery_words_notice">I understand that with this upgrade I will be getting a new set of 12 recovery words to write down on paper and store safely.</string>
+    <string name="transfer_wallet_funds_notice">I understand that DropBit will be transferring my funds of %s with a transaction fee of %s to my upgraded wallet.</string>
+    <string name="upgrade_now_help_url">https://dropbit.app/upgrade</string>
+    <string name="default_help_link_label">?</string>
+    <string name="creating_new_wallet">Creating new wallet</string>
+    <string name="updating_to_segwit">Updating to SegWit</string>
+    <string name="transferring_funds">Transferring Funds </string>
+    <string name="do_not_close">DO NOT CLOSE</string>
+    <string name="go_to_wallet">go to wallet</string>
+    <string name="upgrade_complete">Upgrade Complete!</string>
+    <string name="your_upgraded_wallet_is_lightning_ready">Your upgraded wallet is lightning ready!</string>
+    <string name="upgrade_failed_message">Upgrade failed. Please try again later.</string>
+    <string name="go_to_recovery_words">GET NEW RECOVERY WORDS</string>
+    <string name="recovered_wallet_already_upgraded"> You have entered recovery words from a legacy DropBit wallet. We are upgrading all wallets to a new version
+    of DropBit for enhanced security, lower transaction fees, and Lightning support. Please enter the new
+        recovery words you were given upon upgrading, or create a new wallet.</string>
+    <string name="recovered_wallet_requires_upgrade"> You have entered recovery words from a legacy DropBit wallet. We are upgrading all wallets to a new version
+    of DropBit for enhanced security, lower transaction fees, and Lightning support.</string>
+
+
+    <!--- Locked Lightning Screen -->
+    <string name="your_in_line">Your in line!</string>
+    <string name="check_back_every_day_to_see_if_you_re_unlocked">Check back every day to see if you’re unlocked!</string>
+    <string name="want_to_skip_the_line">Want to skip the line?</string>
+    <string name="find_a_dropbit_lightning_user">Find a DropBit Lightning user to send you a few sats using your verified phone number or Twitter handle</string>
 </resources>

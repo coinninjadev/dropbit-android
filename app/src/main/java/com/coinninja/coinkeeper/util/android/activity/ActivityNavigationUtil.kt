@@ -1,13 +1,16 @@
 package com.coinninja.coinkeeper.util.android.activity
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.net.Uri
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.USDCurrency
@@ -24,6 +27,9 @@ import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActiv
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
+import com.coinninja.coinkeeper.ui.segwit.PerformSegwitUpgradeActivity
+import com.coinninja.coinkeeper.ui.segwit.UpgradeToSegwitActivity
+import com.coinninja.coinkeeper.ui.segwit.UpgradeToSegwitCompleteActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity
@@ -240,4 +246,53 @@ class ActivityNavigationUtil @Inject constructor(
             activity.startActivity(it)
         }
     }
+
+    fun navigateToStartActivity(activity: AppCompatActivity) {
+        Intent(activity, StartActivity::class.java).also {
+            val nullableView: View? = activity.findViewById<View>(R.id.img_logo)
+            nullableView?.let { view ->
+                val options: ActivityOptions = ActivityOptions.makeSceneTransitionAnimation(activity, view, activity.getString(R.string.logo_slide))
+                activity.startActivity(it, options.toBundle())
+            }
+
+            if (nullableView == null)
+                activity.startActivity(it)
+
+        }
+    }
+
+    fun navigateToUpgradeToSegwit(activity: AppCompatActivity) {
+        Intent(activity, UpgradeToSegwitActivity::class.java).also {
+            activity.startActivity(it)
+        }
+    }
+
+    fun navigateToUpgradeToSegwitStepTwo(activity: AppCompatActivity, transactionData: TransactionData? = null) {
+        Intent(activity, PerformSegwitUpgradeActivity::class.java).also {
+            transactionData?.let { data ->
+                it.putExtra(DropbitIntents.EXTRA_TRANSACTION_DATA, data)
+            }
+            activity.startActivity(it)
+        }
+    }
+
+    fun navigateToUpgradeToSegwitSuccess(activity: AppCompatActivity) {
+        Intent(activity, UpgradeToSegwitCompleteActivity::class.java).also {
+            activity.startActivity(it)
+        }
+    }
+
+    fun showVerificationActivity(activity: AppCompatActivity) {
+        Intent(activity, VerificationActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, true)
+            activity.startActivity(it)
+        }
+    }
+
+    fun navigateToRestoreWallet(activity: AppCompatActivity) {
+        Intent(activity, RestoreWalletActivity::class.java).also {
+            activity.startActivity(it)
+        }
+    }
+
 }

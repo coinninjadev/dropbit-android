@@ -22,7 +22,7 @@ class SyncRunnableTest {
         whenever(it.addressAPIUtil.fetchAddresses(any(), any(), any(), any())).thenReturn(mutableListOf())
         whenever(it.addressHelper.addAddresses(any(), any())).thenReturn(mutableListOf())
         whenever(it.cnWalletManager.hasWallet).thenReturn(true)
-        whenever(it.walletHelper.wallet).thenReturn(mock())
+        whenever(it.walletHelper.primaryWallet).thenReturn(mock())
 
     }
 
@@ -233,7 +233,7 @@ class SyncRunnableTest {
 
         runner.run()
 
-        verify(runner.walletHelper.wallet, times(0)).externalIndex = any()
+        verify(runner.walletHelper.primaryWallet, times(0)).externalIndex = any()
     }
 
     @Test

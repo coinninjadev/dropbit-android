@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.db.migrations
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.db.TestOpenHelper
 import com.coinninja.coinkeeper.model.db.DaoMaster
 import com.coinninja.coinkeeper.model.db.enums.BTCState
@@ -119,7 +120,7 @@ class Migrate_V33_to_V34Test {
 
         Migrate_V33_to_V34().runMigration(db, 33)
 
-        val daoSessionManager = DaoSessionManager(DaoMaster(db), 49, 0, 0).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         verifyTransactionInviteSummaries(daoSessionManager)
         verifyInviteSummaries(daoSessionManager)
         verifyTransactionNotifications(daoSessionManager)

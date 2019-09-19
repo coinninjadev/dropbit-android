@@ -16,6 +16,7 @@ import com.coinninja.coinkeeper.ui.market.MarketChartModule
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.news.MarketNewsModule
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
+import com.coinninja.coinkeeper.ui.segwit.*
 import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity
@@ -156,4 +157,15 @@ abstract class AndroidActivityBuilder {
     @ContributesAndroidInjector(modules = [BaseActivityModule::class, LightningWithdrawalActivityModule::class])
     internal abstract fun lightningWithdrawalCompletedActivity(): LightningWithdrawalBroadcastActivity
 
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, UpgradeToSegwitActivityModule::class])
+    internal abstract fun upgradeToSegwitActivity(): UpgradeToSegwitActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, PerformSegwitUpgradeActivityModule::class])
+    internal abstract fun performSegwitUpgradeActivity(): PerformSegwitUpgradeActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class])
+    internal abstract fun upgradeToSegwitCompleteActivity(): UpgradeToSegwitCompleteActivity
 }

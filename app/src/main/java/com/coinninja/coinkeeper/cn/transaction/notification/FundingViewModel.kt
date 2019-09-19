@@ -71,4 +71,17 @@ class FundingViewModel : ViewModel() {
         }
 
     }
+
+    fun fundMaxForUpgrade(address:String) {
+        GlobalScope.launch(Dispatchers.Main) {
+            val data = withContext(Dispatchers.IO) {
+                transactionFundingManager.buildFundedTransactionData(
+                        address, feesManager.currentFee()
+                )
+            }
+            withContext(Dispatchers.Main) {
+                transactionData.value = data
+            }
+        }
+    }
 }

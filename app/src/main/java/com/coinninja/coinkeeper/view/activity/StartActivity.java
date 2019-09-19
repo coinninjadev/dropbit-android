@@ -11,8 +11,6 @@ import javax.inject.Inject;
 
 public class StartActivity extends BaseActivity {
 
-    @Inject
-    CNWalletManager cnWalletManager;
     private StartScreenAnimation startScreenAnimation;
 
     @Override

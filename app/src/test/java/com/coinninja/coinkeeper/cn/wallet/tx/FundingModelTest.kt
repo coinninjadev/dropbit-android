@@ -22,7 +22,7 @@ internal class FundingModelTest {
     private fun createFundingModel(): FundingModel {
         val wallet: Wallet = mock()
         val fundingModel = FundingModel(mock(), mock(), mock(), mock(), mock(), 1000)
-        whenever(fundingModel.walletHelper.wallet).thenReturn(wallet)
+        whenever(fundingModel.walletHelper.primaryWallet).thenReturn(wallet)
         whenever(wallet.purpose).thenReturn(49)
         whenever(wallet.coinType).thenReturn(0)
         whenever(wallet.accountIndex).thenReturn(0)
@@ -117,9 +117,9 @@ internal class FundingModelTest {
         @DisplayName("calculates change output size based on saved purpose")
         internal fun calculates_change_output_size_based_on_wallet_purpose() {
             val fundingModel = createFundingModel()
-            val wallet:Wallet = mock()
+            val wallet: Wallet = mock()
             whenever(wallet.purpose).thenReturn(49).thenReturn(84)
-            whenever(fundingModel.walletHelper.wallet).thenReturn(wallet)
+            whenever(fundingModel.walletHelper.primaryWallet).thenReturn(wallet)
 
             assertThat(fundingModel.inputSizeInBytes).isEqualTo(91)
             assertThat(fundingModel.inputSizeInBytes).isEqualTo(68)
@@ -129,9 +129,9 @@ internal class FundingModelTest {
         @DisplayName("calculates input size based on saved purpose")
         internal fun calculates_input_size_based_on_wallet_purpose() {
             val fundingModel = createFundingModel()
-            val wallet:Wallet = mock()
+            val wallet: Wallet = mock()
             whenever(wallet.purpose).thenReturn(49).thenReturn(84)
-            whenever(fundingModel.walletHelper.wallet).thenReturn(wallet)
+            whenever(fundingModel.walletHelper.primaryWallet).thenReturn(wallet)
 
             assertThat(fundingModel.changeSizeInBytes).isEqualTo(32)
             assertThat(fundingModel.changeSizeInBytes).isEqualTo(31)

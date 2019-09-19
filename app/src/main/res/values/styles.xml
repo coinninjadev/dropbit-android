@@ -310,6 +310,16 @@
         <item name="android:background">@drawable/lightning_button</item>
     </style>
 
+    <style name="Button.Lightning.Upgrade">
+        <item name="android:background">@drawable/lightning_upgrade_button</item>
+        <item name="android:textAppearance">@style/TextAppearance.Lightning.Upgrade.Button</item>
+    </style>
+
+    <style name="Button.Lightning.Upgrade.Secondary">
+        <item name="android:background">@drawable/lightning_upgrade_secondary_button</item>
+        <item name="android:textAppearance">@style/TextAppearance.Button</item>
+    </style>
+
     <style name="MarketGranularity" parent="Button">
         <item name="android:textAppearance">@style/TextAppearance.MarketGranularity</item>
         <item name="android:minHeight">0dip</item>
@@ -751,6 +761,90 @@
     <!-- Lightning -->
 
     <style name="TextAppearance.Lightning" />
+
+    <style name="TextAppearance.Lightning.Lock">
+        <item name="fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Lock.Header">
+        <item name="fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:textSize">19sp</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Lock.Header.Sub">
+        <item name="android:textColor">@color/upgrade_text_color</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Upgrade" />
+
+    <style name="TextAppearance.Lightning.Upgrade.Button">
+        <item name="android:textColor">@color/lightning_blue</item>
+        <item name="android:letterSpacing">.05</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Upgrade.Header">
+        <item name="fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:lineSpacingExtra">8sp</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Upgrade.Notice">
+        <item name="fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/upgrade_text_color</item>
+        <item name="android:lineSpacingExtra">8sp</item>
+        <item name="android:letterSpacing">.01</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Upgrade.Header.Complete">
+        <item name="fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/upgrade_text_color</item>
+        <item name="android:letterSpacing">.05</item>
+        <item name="android:textSize">16.6sp</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Upgrade.Subtext">
+        <item name="fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:letterSpacing">.05</item>
+        <item name="android:textSize">16.6sp</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Upgrade.Acknowledgement">
+        <item name="fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineSpacingExtra">5sp</item>
+        <item name="android:letterSpacing">.02</item>
+    </style>
+
+    <style name="CheckBox.Lightning.Upgrade" parent="Theme.AppCompat.Light">
+        <item name="android:background">@color/background_color_white</item>
+        <item name="colorControlNormal">@color/background_color_white</item>
+        <item name="colorControlActivated">@color/background_color_white</item>
+    </style>
+
+    <style name="TextAppearance.Lightning.Upgrade.CheckLabel">
+        <item name="fontFamily">@font/montserrat_light</item>
+        <item name="android:textColor">@color/font_white</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:letterSpacing">.05</item>
+    </style>
+
+    <style name="CheckBox.Lightning.Upgrade.Step2">
+        <item name="android:background">@null</item>
+        <item name="colorControlNormal">@null</item>
+        <item name="colorControlActivated">@null</item>
+        <item name="android:button">@drawable/segwit_upgrade_selector</item>
+        <item name="android:enabled">false</item>
+        <item name="android:checked">false</item>
+    </style>
 
     <style name="TextAppearance.Lightning.Tx" />
 

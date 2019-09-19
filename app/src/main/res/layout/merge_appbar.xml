@@ -5,19 +5,6 @@
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <ImageButton
-        android:id="@+id/appbar_charts"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/market_charts"
-        android:padding="20dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/ic_chart"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageButton
         android:id="@+id/appbar_transfer_between_accounts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,19 +19,6 @@
         app:layout_constraintTop_toTopOf="@id/appbar_balance_large"
         tools:ignore="ContentDescription" />
 
-    <TextView
-        android:id="@+id/appbar_title"
-        style="?attr/actionBarTitleStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appbar"
-        tools:text="I am a title" />
-
     <View
         android:id="@+id/appbar_back"
         android:layout_width="match_parent"
@@ -55,6 +29,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/appbar_title"
+        style="?attr/actionBarTitleStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar"
+        tools:text="I am a title" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/appbar_inner_barrier"
@@ -78,7 +65,7 @@
         android:id="@+id/appbar_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="fragment_dropbit_me,appbar,appbar_inner_barrier,appbar_balance_large,appbar_transfer_between_accounts" />
+        app:constraint_referenced_ids="fragment_dropbit_me,appbar,appbar_inner_barrier,appbar_balance_large,appbar_transfer_between_accounts,appbar_back" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -150,5 +137,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout="@layout/fragment_dropbit_me" />
+
+    <ImageButton
+        android:id="@+id/appbar_charts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/market_charts"
+        android:padding="20dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_chart"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </merge>

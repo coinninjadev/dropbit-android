@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.model.db.DaoSession
 import com.coinninja.coinkeeper.model.db.UserDao
 import com.coinninja.coinkeeper.model.db.Wallet
@@ -12,7 +13,7 @@ import org.junit.Test
 class DaoSessionManagerTest {
 
     private fun createSessionManager(): DaoSessionManager {
-        val daoSessionManager = DaoSessionManager(mock(), 49, 1, 0)
+        val daoSessionManager = DaoSessionManager(mock(), WalletConfiguration(49, 1, 0, false))
         val session = mock<DaoSession>()
         whenever(daoSessionManager.daoMaster.newSession()).thenReturn(session)
         whenever(session.database).thenReturn(mock())

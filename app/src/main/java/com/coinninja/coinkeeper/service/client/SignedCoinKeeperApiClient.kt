@@ -130,6 +130,14 @@ class SignedCoinKeeperApiClient(
         return executeCall(client.verifyWallet())
     }
 
+    fun disableWallet(): Response<CNWallet> {
+        return executeCall(client.disableWallet(DisableWalletRequest()))
+    }
+
+    fun replaceWalletWith(replaceWalletRequest: ReplaceWalletRequest): Response<CNWallet> {
+        return executeCall(client.replaceWalletWith(replaceWalletRequest))
+    }
+
     fun verifyAccount(): Response<CNUserAccount> {
         return executeCall(client.verifyUserAccount())
     }
@@ -258,5 +266,6 @@ class SignedCoinKeeperApiClient(
         jsonObject.addProperty("device_endpoint_id", deviceEndpoint)
         return jsonObject
     }
+
 
 }

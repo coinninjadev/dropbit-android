@@ -81,7 +81,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         invite.historicValue = totalUsdSpending.toLong()
         invite.valueSatoshis = pendingInviteDTO.inviteAmount
         invite.valueFeesSatoshis = pendingInviteDTO.inviteFee
-        invite.wallet = walletHelper.wallet
+        invite.wallet = walletHelper.primaryWallet
         invite.btcState = BTCState.UNACKNOWLEDGED
         invite.type = Type.SENT
         invite.update()
@@ -160,7 +160,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
                 it.sentDate = receivedInvite.created_at_millis
                 it.valueSatoshis = receivedInvite.metadata.amount.btc
                 it.valueFeesSatoshis = 0L
-                it.wallet = walletHelper.wallet
+                it.wallet = walletHelper.primaryWallet
                 it.address = receivedInvite.address
                 it.btcTransactionId = receivedInvite.txid
                 it.type = Type.RECEIVED

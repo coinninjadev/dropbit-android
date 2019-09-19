@@ -25,7 +25,7 @@ class SignedRequestInterceptorTest {
     private val chain: Interceptor.Chain = mock()
 
     private fun createInterceptor(): SignedRequestInterceptor {
-        val interceptor = SignedRequestInterceptor(mock(), mock(), mock(), mock())
+        val interceptor = SignedRequestInterceptor(mock(), mock(), mock(), "3.0", mock())
         val account: Account = mock()
         val response = Response.Builder()
                 .protocol(Protocol.HTTP_2)
@@ -47,6 +47,20 @@ class SignedRequestInterceptorTest {
     }
 
     @Test
+    fun adds_user_agent_and_version() {
+        val interceptor = createInterceptor()
+        var request = Request.Builder().url("http://localhost:8080").method("GET", null).build()
+        whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
+
+        request = interceptor.signRequest(request)
+
+        assertThat(request.headers().get(SignedRequestInterceptor.CN_APP_VERSION),
+                equalTo("3.0"))
+        assertThat(request.headers().get(SignedRequestInterceptor.CN_DEVICE_PLATFORM),
+                equalTo("android"))
+    }
+
+    @Test
     fun does_not_add_user_id_when_one_does_not_exist() {
         val interceptor = createInterceptor()
         val argument: ArgumentCaptor<Request> = ArgumentCaptor.forClass(Request::class.java)
@@ -60,7 +74,6 @@ class SignedRequestInterceptorTest {
 
         assertNull(request.headers().get(SignedRequestInterceptor.CN_AUTH_USER_ID))
     }
-
 
     @Test
     fun signs_timestamp_for_get_requests() {

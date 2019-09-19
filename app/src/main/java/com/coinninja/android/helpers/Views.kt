@@ -9,6 +9,7 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +27,14 @@ fun View.hide() {
 
 fun View.show() {
     this.visibility = View.VISIBLE
+}
+
+fun View.disable() {
+    this.isEnabled = false
+}
+
+fun View.enable() {
+    this.isEnabled = true
 }
 
 fun View.shakeInError() {
@@ -48,6 +57,13 @@ fun View.showKeyboard() {
     imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
 }
 
+fun CheckBox.uncheck() {
+    this.isChecked = false
+}
+
+fun CheckBox.check() {
+    this.isChecked = true
+}
 
 object Views {
 

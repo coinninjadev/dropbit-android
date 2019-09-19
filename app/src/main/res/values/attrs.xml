@@ -31,6 +31,10 @@
         <attr name="textAppearance" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="HelpLinkButton">
+        <attr name="url" format="string|reference" />
+    </declare-styleable>
+
     <declare-styleable name="DefaultCurrencyDisplayView">
         <attr name="sentTextAppearance" format="reference" />
         <attr name="receivedTextAppearance" format="reference" />

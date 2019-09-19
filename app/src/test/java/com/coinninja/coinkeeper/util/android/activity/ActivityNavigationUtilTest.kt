@@ -6,9 +6,11 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.libbitcoin.model.DerivationPath
 import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.commons.currency.BTCCurrency
@@ -25,6 +27,9 @@ import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActiv
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
+import com.coinninja.coinkeeper.ui.segwit.PerformSegwitUpgradeActivity
+import com.coinninja.coinkeeper.ui.segwit.UpgradeToSegwitActivity
+import com.coinninja.coinkeeper.ui.segwit.UpgradeToSegwitCompleteActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.Shuffler
@@ -68,6 +73,7 @@ class ActivityNavigationUtilTest {
 
     @After
     fun tearDown() {
+        scenario.moveToState(Lifecycle.State.DESTROYED)
         scenario.close()
     }
 
@@ -436,6 +442,87 @@ class ActivityNavigationUtilTest {
 
             val intent = Intent(activity, LightningWithdrawalBroadcastActivity::class.java)
             intent.putExtra(DropbitIntents.EXTRA_WITHDRAWAL_REQUEST, withdrawalRequest)
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_start_screen() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, StartActivity::class.java)
+
+            it.navigateToStartActivity(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_upgrade_segwit() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, UpgradeToSegwitActivity::class.java)
+
+            it.navigateToUpgradeToSegwit(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_upgrade_segwit__step_two() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, PerformSegwitUpgradeActivity::class.java)
+
+            it.navigateToUpgradeToSegwitStepTwo(activity, null)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_upgrade_segwit__step_two__with_transaction_transfer() {
+        createActivityNavigationUtil().also {
+            val transactionData: TransactionData = TransactionData(emptyArray(), 10_000, 1_000, 0,
+                    DerivationPath(49, 0, 0, 0, 0), "--address--")
+            val intent = Intent(activity, PerformSegwitUpgradeActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_TRANSACTION_DATA, transactionData)
+
+            it.navigateToUpgradeToSegwitStepTwo(activity, transactionData)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_upgrade_to_segwit_success() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, UpgradeToSegwitCompleteActivity::class.java)
+
+            it.navigateToUpgradeToSegwitSuccess(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_verification_activity() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, VerificationActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, true)
+
+            it.showVerificationActivity(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_restore_wallet_activity() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, RestoreWalletActivity::class.java)
+
+            it.navigateToRestoreWallet(activity)
+
             assertThat(activity, activityWithIntentStarted(intent))
         }
     }

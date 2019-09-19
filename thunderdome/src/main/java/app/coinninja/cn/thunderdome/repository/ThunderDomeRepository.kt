@@ -17,6 +17,7 @@ class ThunderDomeRepository(
 
     val lightningAccount: LightningAccount? get() = dropbitDatabase.lightningAccountDao().getAccount()
     val ledgerInvoices: LiveData<List<LightningInvoice>> get() = dropbitDatabase.lightningInvoiceDao().allVisibleLive()
+    val isLocked:Boolean = true
 
     fun sync() {
         syncAccount()

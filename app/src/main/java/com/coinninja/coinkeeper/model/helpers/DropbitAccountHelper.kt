@@ -51,6 +51,14 @@ internal constructor(internal val daoSessionManager: DaoSessionManager,
         }
     }
 
+    fun updateAccountIds(walletId: String, userId: String) {
+        walletHelper.userAccount?.let {
+            it.cnWalletId = walletId
+            it.cnUserId = userId
+            it.update()
+        }
+    }
+
     fun updateVerifiedAccount(cnUserAccount: CNUserAccount) {
         val account = walletHelper.userAccount ?: return
         account.isPrivate = cnUserAccount.isPrivate
@@ -161,5 +169,6 @@ internal constructor(internal val daoSessionManager: DaoSessionManager,
             return twitterIdentity()
         }
     }
+
 
 }

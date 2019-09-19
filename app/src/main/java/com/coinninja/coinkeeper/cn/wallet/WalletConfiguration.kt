@@ -20,4 +20,5 @@ class WalletConfiguration @Inject constructor(
                 WalletFlags.purpose84v2
             else
                 WalletFlags.purpose49v1
+
 }
