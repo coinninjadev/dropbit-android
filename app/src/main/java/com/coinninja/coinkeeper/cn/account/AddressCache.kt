@@ -26,7 +26,7 @@ class AddressCache @Inject internal constructor(
      */
     internal fun cacheAddressesFor(chainIndex: Int) {
         if (!shouldCacheAddressesForChain(chainIndex)) return
-        val wallet: Wallet = walletHelper.wallet
+        val wallet: Wallet = walletHelper.primaryWallet
         val addresses: Array<MetaAddress> = hdWallet.fillBlock(
                 wallet.purpose, wallet.coinType, wallet.accountIndex, chainIndex, 0,
                 largestAddressIndexReportedFor(chainIndex) + numAddressesToCache

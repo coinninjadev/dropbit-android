@@ -45,7 +45,7 @@ class TransactionHelper @Inject constructor(
     }
 
     fun initializeTransaction(transaction: TransactionSummary, gsonAddress: GsonAddress) {
-        transaction.wallet = walletHelper.wallet
+        transaction.wallet = walletHelper.primaryWallet
         transaction.txid = gsonAddress.txid
         transaction.memPoolState = MemPoolState.PENDING
         daoSessionManager.insert(transaction)
@@ -136,7 +136,7 @@ class TransactionHelper @Inject constructor(
         transaction.memPoolState = detail.mempoolState
         transaction.numInputs = detail.numberOfInputs
         transaction.numOutputs = detail.numberOfOutputs
-        transaction.wallet = walletHelper.wallet
+        transaction.wallet = walletHelper.primaryWallet
 
         try {
             for (input in detail.vInList) {
@@ -228,7 +228,7 @@ class TransactionHelper @Inject constructor(
         val identity = completedBroadcastActivityDTO.identity
         val transaction = daoSessionManager.newTransactionSummary()
         transaction.txid = transactionId
-        transaction.wallet = walletHelper.wallet
+        transaction.wallet = walletHelper.primaryWallet
         transaction.memPoolState = MemPoolState.PENDING
         transaction.txTime = dateUtil.getCurrentTimeInMillis()
         daoSessionManager.insert(transaction)

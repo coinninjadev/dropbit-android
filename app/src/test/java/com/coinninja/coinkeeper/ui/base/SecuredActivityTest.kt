@@ -204,8 +204,7 @@ class SecuredActivityTest {
 
         activity = Robolectric.setupActivity(HomeActivity::class.java)
 
-        assertThat(shadowActivity.nextStartedActivity.component.className,
-                equalTo(StartActivity::class.java.name))
+        verify(activity.activityNavigationUtil).navigateToStartActivity(activity)
     }
 
     @Test

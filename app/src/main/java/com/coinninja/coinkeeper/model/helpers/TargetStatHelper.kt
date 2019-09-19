@@ -86,7 +86,7 @@ class TargetStatHelper @Inject constructor(
 
     val spendableTargets: List<TargetStat>
         get() {
-            val wallet = walletHelper.wallet
+            val wallet = walletHelper.primaryWallet
             val dao = daoSessionManager.targetStatDao
             val queryBuilder = dao.queryBuilder()
             val transactionSummaryJoin = queryBuilder.join(TargetStatDao.Properties.Tsid, TransactionSummary::class.java)

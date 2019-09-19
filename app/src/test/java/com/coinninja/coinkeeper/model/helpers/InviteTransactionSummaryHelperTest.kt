@@ -27,7 +27,7 @@ class InviteTransactionSummaryHelperTest {
                 mock(), mock(), mock()
         )
 
-        whenever(helper.walletHelper.wallet).thenReturn(mock())
+        whenever(helper.walletHelper.primaryWallet).thenReturn(mock())
 
         return helper
     }
@@ -193,7 +193,7 @@ class InviteTransactionSummaryHelperTest {
         verify(invite).btcState = BTCState.UNACKNOWLEDGED
         verify(invite).valueSatoshis = pendingInviteDTO.inviteAmount
         verify(invite).valueFeesSatoshis = pendingInviteDTO.inviteFee
-        verify(invite).wallet = helper.walletHelper.wallet
+        verify(invite).wallet = helper.walletHelper.primaryWallet
         verify(invite).type = Type.SENT
         verify(invite).update()
 
@@ -276,7 +276,7 @@ class InviteTransactionSummaryHelperTest {
 
         val invite: InviteTransactionSummary = mock()
         val wallet: Wallet = mock()
-        whenever(helper.walletHelper.wallet).thenReturn(wallet)
+        whenever(helper.walletHelper.primaryWallet).thenReturn(wallet)
         whenever(helper.inviteSummaryQueryManager.getOrCreate("--server-id--")).thenReturn(invite)
         val fromUser: UserIdentity = mock()
         val toUser: UserIdentity = mock()

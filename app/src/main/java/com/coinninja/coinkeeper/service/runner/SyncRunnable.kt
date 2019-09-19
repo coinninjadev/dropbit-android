@@ -30,7 +30,7 @@ class SyncRunnable @Inject internal constructor(
         if (!cnWalletManager.hasWallet)
             return
 
-        addressAPIUtil.setWallet(walletHelper.wallet)
+        addressAPIUtil.setWallet(walletHelper.primaryWallet)
         accountManager.cacheAddresses()
         setGapLimit()
 

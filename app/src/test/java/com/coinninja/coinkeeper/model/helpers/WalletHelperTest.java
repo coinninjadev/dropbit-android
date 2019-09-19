@@ -63,7 +63,7 @@ public class WalletHelperTest {
     @Before
     public void setUp() {
         when(wallet.getId()).thenReturn(1L);
-        when(walletQueryManager.getWallet()).thenReturn(wallet);
+        when(walletQueryManager.getPrimaryWallet()).thenReturn(wallet);
     }
 
     @After
@@ -497,7 +497,7 @@ public class WalletHelperTest {
 
     @Test
     public void assert_that_getting_null_wallet_does_not_cause_null_pointer_exception() {
-        when(walletQueryManager.getWallet()).thenReturn(null);
+        when(walletQueryManager.getPrimaryWallet()).thenReturn(null);
         walletHelper.setLatestFee(new TransactionFee(20.0, 20.0, 20.0));
     }
 

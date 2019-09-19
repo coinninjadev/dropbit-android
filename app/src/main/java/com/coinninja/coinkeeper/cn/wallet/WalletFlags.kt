@@ -22,15 +22,15 @@ class WalletFlags(val flag: Long) {
     }
 
     companion object {
-        internal const val deactivated: Long = 0b0001
-        internal const val activated: Long = 0b0000
+        const val deactivated: Long = 0b0001
+        const val activated: Long = 0b0000
 
-        internal const val purpose49: Long = 0b0000
-        internal const val purpose84: Long = 0b0001
+        const val purpose49: Long = 0b0000
+        const val purpose84: Long = 0b0001
 
-        internal const val v0: Long = 0b0000
-        internal const val v1: Long = 0b0001
-        internal const val v2: Long = 0b0010
+        const val v0: Long = 0b0000
+        const val v1: Long = 0b0001
+        const val v2: Long = 0b0010
 
         internal fun compose(purpose: Long, version: Long, isActive: Boolean = true): WalletFlags {
 
@@ -44,6 +44,7 @@ class WalletFlags(val flag: Long) {
         }
 
         val purpose49v1: Long get() = compose(purpose49, v1).flag
+        val purpose49v1Disabled: Long get() = compose(purpose49, v1, false).flag
         val purpose84v2: Long get() = compose(purpose84, v2).flag
 
     }

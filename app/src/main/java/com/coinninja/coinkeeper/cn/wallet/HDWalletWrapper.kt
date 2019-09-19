@@ -4,20 +4,21 @@ import app.coinninja.cn.libbitcoin.enum.Network
 import app.coinninja.cn.libbitcoin.model.*
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
-import app.coinninja.cn.libbitcoin.HDWallet as Wallet
+import app.coinninja.cn.libbitcoin.HDWallet
+import com.coinninja.coinkeeper.model.db.Wallet
 
 @Mockable
 class HDWalletWrapper constructor(
         val walletHelper: WalletHelper,
         val walletConfiguration: WalletConfiguration
 ) {
-    private val wallet: Wallet
-        get() =
-            Wallet(walletHelper.seedWords, if (walletConfiguration.isTestNet)
-                Network.TESTNET
-            else
-                Network.MAINNET
-            )
+
+    val network:Network get() = if (walletConfiguration.isTestNet)
+            Network.TESTNET
+        else
+            Network.MAINNET
+
+    private val wallet: HDWallet get() = HDWallet(walletHelper.seedWords, network)
 
     val signingKey: String
         get() =
@@ -28,6 +29,15 @@ class HDWalletWrapper constructor(
 
     fun getAddressForPath(path: DerivationPath): MetaAddress =
             wallet.getAddressForPath(path)
+
+    fun getAddressForSegwitUpgrade(wallet: Wallet, path:DerivationPath):MetaAddress =
+        HDWallet(walletHelper.getSeedWordsForWallet(wallet), network).getAddressForPath(path)
+
+    fun verificationKeyFor(wallet: Wallet):String =
+            HDWallet(walletHelper.getSeedWordsForWallet(wallet), network).verificationKey
+
+    fun sign(wallet: Wallet, data:String):String =
+            HDWallet(walletHelper.getSeedWordsForWallet(wallet), network).sign(data)
 
     fun sign(data: String): String = wallet.sign(data)
 

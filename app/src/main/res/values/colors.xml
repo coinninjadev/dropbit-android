@@ -160,4 +160,17 @@
     <!-- Market Colors -->
     <color name="market_sentiment_up">#ff83cf1c</color>
     <color name="market_sentiment_down">#c25d5d</color>
+
+    <!-- Upgrade To Segwit Colors -->
+    <color name="upgrade_background">#63646c</color>
+    <color name="upgrade_text_color">#45d888</color>
+    <color name="upgrade_acknowledgement_background">#060651</color>
+    <color name="upgrade_progress_tint">#b3ffffff</color>
+
+    <color name="upgrade_secondary_button_color">#3f3fa7</color>
+    <color name="upgrade_secondary_button_color_pressed">#cc3f3fa7</color>
+    <color name="upgrade_secondary_button_color_disabled">#4d3f3fa7</color>
+
+    <!-- locked screen -->
+    <color name="lightning_locked_sub_back">#4dffffff</color>
 </resources>

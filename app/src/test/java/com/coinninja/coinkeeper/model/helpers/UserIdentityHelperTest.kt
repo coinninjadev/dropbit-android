@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.model.helpers
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.db.TestOpenHelper
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.DaoMaster
@@ -33,7 +34,7 @@ class UserIdentityHelperTest {
     @After
     fun tearDown() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         daoSessionManager.resetAll()
         db.close()
         ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>().deleteDatabase(TestOpenHelper.dbName)
@@ -42,7 +43,7 @@ class UserIdentityHelperTest {
     @Test
     fun `gets or creates user identity`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val uid = daoSessionManager.newUserIdentity()
         uid.type = IdentityType.TWITTER
         uid.identity = "12345667890"
@@ -66,7 +67,7 @@ class UserIdentityHelperTest {
     @Test
     fun `gets or creates user identity from type and identity string`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
 
         val fetchedUserIdentity = userIdentityHelper.getOrCreate(IdentityType.PHONE, "+13305551111")
@@ -83,7 +84,7 @@ class UserIdentityHelperTest {
     @Test
     fun `updates identity with values`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
         val identity = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Some Name")
         userIdentityHelper.getOrCreate(identity.identityType, identity.value)
@@ -101,7 +102,7 @@ class UserIdentityHelperTest {
     @Test
     fun `creates TWITER identity when does not exist during update`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
         val identity = Identity(IdentityType.TWITTER, "1233321", displayName = "Some Name", handle = "@Handle")
 
@@ -119,7 +120,7 @@ class UserIdentityHelperTest {
     @Test
     fun `creates PHONE identity when does not exist during update`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
         val identity = Identity(IdentityType.PHONE, "+13305551111", null, "Some Name")
 
@@ -136,7 +137,7 @@ class UserIdentityHelperTest {
     @Test
     fun `creates identity from dropbit me identity during update PHONE`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
         val dropbitMeIdentity = DropbitMeIdentity()
         dropbitMeIdentity.type = IdentityType.PHONE
@@ -156,7 +157,7 @@ class UserIdentityHelperTest {
     @Test
     fun `creates identity from dropbit me identity during update TWITTER`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
         val dropbitMeIdentity = DropbitMeIdentity()
         dropbitMeIdentity.type = IdentityType.TWITTER
@@ -177,7 +178,7 @@ class UserIdentityHelperTest {
     @Test
     fun `creates identity from InviteMetadata MetaDataContact`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
         val contact = MetadataContact("twitter", "12345678990", "@myHandle")
         val contact2 = MetadataContact("phone", "13305551111", "")
@@ -199,7 +200,7 @@ class UserIdentityHelperTest {
     @Test
     fun `returns phone identities that do not have names`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val userIdentityHelper = userIdentityHelper(daoSessionManager)
         val user1 = daoSessionManager.newUserIdentity()
         user1.identity = "+3305551111"

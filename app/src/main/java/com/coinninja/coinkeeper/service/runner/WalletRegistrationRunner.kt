@@ -30,7 +30,7 @@ class WalletRegistrationRunner @Inject constructor(
 
     override fun run() {
         if (walletHelper.hasAccount()) {
-            notifyOfWalletRegistrationCompleted()
+            notifyOfWalletRegistrationCompleted(walletFlagsStorage.flags)
             return
         }
 
@@ -45,7 +45,6 @@ class WalletRegistrationRunner @Inject constructor(
 
     internal fun processSuccess(response: Response<CNWallet>, currentFlags: Long) {
         walletHelper.saveRegistration(response.body())
-        notifyOfWalletRegistrationCompleted()
 
         val serverFlags = response.body()?.flags ?: 0
 
@@ -53,10 +52,21 @@ class WalletRegistrationRunner @Inject constructor(
             walletFlagsStorage.flags = serverFlags
 
         analytics.setUserProperty(Analytics.PROPERTY_WALLET_VERSION, WalletFlags(serverFlags).versionBit)
+        notifyOfWalletRegistrationCompleted(serverFlags)
     }
 
-    private fun notifyOfWalletRegistrationCompleted() {
-        localBroadCastUtil.sendGlobalBroadcast(WalletRegistrationCompleteReceiver::class.java, DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE)
+    internal fun notifyOfWalletRegistrationCompleted(flags: Long) {
+        val walletFlags = WalletFlags(flags)
+        when {
+            walletFlags.isActive() && !walletFlags.hasVersion(WalletFlags.v2) ->
+                localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_REQUIRES_UPGRADE)
+            !walletFlags.isActive() && !walletFlags.hasVersion(WalletFlags.v2) ->
+                localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_ALREADY_UPGRADED)
+            else -> {
+                localBroadCastUtil.sendGlobalBroadcast(WalletRegistrationCompleteReceiver::class.java, DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE)
+                localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE)
+            }
+        }
     }
 
     companion object {

@@ -42,7 +42,7 @@ class FundingModel(internal val addressUtil: AddressUtil,
 
     val nextChangePath: DerivationPath
         get() {
-            val wallet = walletHelper.wallet
+            val wallet = walletHelper.primaryWallet
             return DerivationPath(wallet.purpose, wallet.coinType, wallet.accountIndex,
                     HDWallet.INTERNAL, accountManager.nextChangeIndex)
         }
@@ -50,25 +50,25 @@ class FundingModel(internal val addressUtil: AddressUtil,
     val nextReceiveAddress: String get() = accountManager.nextReceiveAddress
 
     val inputSizeInBytes: Int
-        get() = when (walletHelper.wallet.purpose) {
+        get() = when (walletHelper.primaryWallet.purpose) {
             84 -> inputSizeP2WSH
             else -> inputSizeP2SH
         }
 
     val changeSizeInBytes: Int
-        get() = when (walletHelper.wallet.purpose) {
+        get() = when (walletHelper.primaryWallet.purpose) {
             84 -> outputSizeP2WPKH
             else -> outputSizeP2SH
         }
 
     fun outPutSizeInBytesForAddress(address: String?): Int {
         address?.let {
-            when (addressUtil.typeOfPaymentAddress(address)) {
-                AddressType.P2PKH -> return outputSizeP2PKH
-                AddressType.P2SH -> return outputSizeP2SH
-                AddressType.P2WSH -> return outputSizeP2WSH
-                AddressType.P2WPKH -> return outputSizeP2WPKH
-                else -> return Int.MAX_VALUE
+            return when (addressUtil.typeOfPaymentAddress(address)) {
+                AddressType.P2PKH -> outputSizeP2PKH
+                AddressType.P2SH -> outputSizeP2SH
+                AddressType.P2WSH -> outputSizeP2WSH
+                AddressType.P2WPKH -> outputSizeP2WPKH
+                else -> Int.MAX_VALUE
             }
         }
         return outputSizeP2PKH

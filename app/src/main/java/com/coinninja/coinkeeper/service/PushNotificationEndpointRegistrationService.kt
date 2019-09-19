@@ -50,10 +50,11 @@ class PushNotificationEndpointRegistrationService : JobIntentService() {
                 pushNotificationServiceManager.registerAsEndpoint()
                 yearlyHighSubscription.subscribe()
             }
-            
+
             pushNotificationServiceManager.subscribeToChannels()
         } else {
             pushNotificationServiceManager.acquireToken(observer = pushTokenVerifiedObserver)
         }
     }
+
 }

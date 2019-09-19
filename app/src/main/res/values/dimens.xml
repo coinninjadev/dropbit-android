@@ -21,7 +21,8 @@
 
 
     <!-- Padding -->
-    <dimen name="vertical_padding">15dp</dimen>
+    <dimen name="horizontal_padding">16dp</dimen>
+    <dimen name="vertical_padding">16dp</dimen>
     <dimen name="dialog_padding">20dp</dimen>
     <dimen name="appbar_ic_padding">8dp</dimen>
     <dimen name="button_horizontal_padding">14dp</dimen>

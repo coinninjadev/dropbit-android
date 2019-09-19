@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.db.migrations
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.db.TestOpenHelper
 import com.coinninja.coinkeeper.model.db.DaoMaster
 import com.coinninja.coinkeeper.model.db.WalletDao
@@ -50,7 +51,7 @@ class Migrate_V35_to_V36Test {
 
         Migrate_V35_to_V36().runMigration(db, 34)
 
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         verifyWallet(daoSessionManager)
 
         val cursor = db.rawQuery("select * from sqlite_master where tbl_name = \"TEMP_WALLET\"", null)

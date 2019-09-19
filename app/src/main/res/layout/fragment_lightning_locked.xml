@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/lightning_locked_background"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/locked_sub_bullet_background"
+            app:layout_constraintBottom_toBottomOf="@+id/skip_line_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/skip_line_header" />
+
+        <ImageView
+            android:id="@+id/lock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:src="@drawable/lock_locked"
+            app:layout_constraintBottom_toTopOf="@+id/header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:ignore="ContentDescription" />
+
+
+        <ImageView
+            android:id="@+id/dropbit_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/db_logo_lightning"
+            app:layout_constraintBottom_toBottomOf="@+id/skip_line_text"
+            app:layout_constraintEnd_toStartOf="@+id/skip_line_text"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/skip_line_text"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/check_back_every_day_to_see_if_you_re_unlocked"
+            android:textAppearance="@style/TextAppearance.Lightning.Lock"
+            app:layout_constraintBottom_toTopOf="@+id/skip_line_header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header" />
+
+
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/your_in_line"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.Lightning.Lock.Header"
+            app:layout_constraintBottom_toTopOf="@id/headline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lock" />
+
+        <TextView
+            android:id="@+id/skip_line_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:paddingTop="20dp"
+            android:text="@string/want_to_skip_the_line"
+            android:textAppearance="@style/TextAppearance.Lightning.Lock.Header.Sub"
+            app:layout_constraintBottom_toTopOf="@+id/skip_line_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/headline" />
+
+        <TextView
+            android:id="@+id/skip_line_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:paddingBottom="20dp"
+            android:layout_marginTop="16dp"
+            android:maxWidth="230dp"
+            android:text="@string/find_a_dropbit_lightning_user"
+            android:textAppearance="@style/TextAppearance.Lightning.Lock"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/dropbit_logo"
+            app:layout_constraintTop_toBottomOf="@+id/skip_line_header" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

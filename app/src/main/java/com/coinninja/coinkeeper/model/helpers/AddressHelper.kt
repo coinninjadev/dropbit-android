@@ -40,7 +40,7 @@ class AddressHelper @Inject constructor(
         addresses.forEach {
             if (!savedAddresses.contains(it.address) && !containsAddress(it.address)) {
                 savedAddresses.add(it.address)
-                daoSessionManager.newAddressFrom(it, walletHelper.wallet, changeIndex)
+                daoSessionManager.newAddressFrom(it, walletHelper.primaryWallet, changeIndex)
             }
         }
 
@@ -115,7 +115,7 @@ class AddressHelper @Inject constructor(
 
             address = Address()
             address.address = metaAddress.address
-            address.wallet = walletHelper.wallet
+            address.wallet = walletHelper.primaryWallet
             address.changeIndex = derivationPath.chain
             address.index = derivationPath.index
             daoSessionManager.addressDao.insert(address)

@@ -271,7 +271,7 @@ class TransactionFundingManagerTest {
         val walletHelper: WalletHelper = mock()
         whenever(wallet.purpose).thenReturn(49)
         whenever(transactionFundingManager.fundingModel.walletHelper).thenReturn(walletHelper)
-        whenever(transactionFundingManager.fundingModel.walletHelper.wallet).thenReturn(wallet)
+        whenever(transactionFundingManager.fundingModel.walletHelper.primaryWallet).thenReturn(wallet)
         whenever(transactionFundingManager.fundingModel.outPutSizeInBytesForAddress(payToAddress)).thenReturn(FundingModel.outputSizeP2SH)
         whenever(transactionFundingManager.fundingModel.calculateFeeForBytes(any(), any())).thenCallRealMethod()
         whenever(transactionFundingManager.fundingModel.spendableAmount).thenReturn(spendableAmount)

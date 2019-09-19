@@ -9,16 +9,20 @@ import android.widget.CompoundButton
 import android.widget.Switch
 import androidx.lifecycle.Observer
 import com.coinninja.android.helpers.Views.withId
+import com.coinninja.android.helpers.gone
+import com.coinninja.android.helpers.show
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.service.YearlyHighViewModel
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder
 import com.coinninja.coinkeeper.util.uri.UriUtil
 import com.coinninja.coinkeeper.util.uri.routes.DropbitRoute
 import com.coinninja.coinkeeper.view.activity.AuthorizedActionActivity
+import com.coinninja.coinkeeper.view.activity.BackupActivity
 import com.coinninja.coinkeeper.view.activity.LicensesActivity
 import com.coinninja.coinkeeper.view.activity.SplashActivity
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
@@ -42,6 +46,9 @@ class SettingsActivity : BaseActivity(), DialogInterface.OnClickListener {
         onYearlyHighSubscriptionChanged(isSubscribed)
     }
 
+    val legacyWalletDivider: View get() = findViewById(R.id.legacy_wallet_divider)
+    val legacyWalletButton: Button get() = findViewById(R.id.legacy_wallet)
+
     override fun onClick(dialog: DialogInterface, which: Int) {
         if (which == DialogInterface.BUTTON_POSITIVE && supportFragmentManager.findFragmentByTag(TAG_CONFIRM_DELETE_WALLET) != null) {
             authorizeDelete()
@@ -59,6 +66,8 @@ class SettingsActivity : BaseActivity(), DialogInterface.OnClickListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == DELETE_WALLET_REQUEST_CODE && resultCode == AuthorizedActionActivity.RESULT_AUTHORIZED) {
             deleteWalletPresenter.onDelete()
+        } else if (requestCode == legacyWalletRequestCode && resultCode == AuthorizedActionActivity.RESULT_AUTHORIZED) {
+            onViewLegacyWordsRequestAuthorized()
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
@@ -66,6 +75,7 @@ class SettingsActivity : BaseActivity(), DialogInterface.OnClickListener {
 
     override fun onResume() {
         super.onResume()
+        setupLegacyWallet()
         setupRecoverWallet()
         setupDeleteWallet()
         setupLicenses()
@@ -97,6 +107,13 @@ class SettingsActivity : BaseActivity(), DialogInterface.OnClickListener {
         val authMessage = getString(R.string.authorize_delete_message)
         authIntent.putExtra(DropbitIntents.EXTRA_AUTHORIZED_ACTION_MESSAGE, authMessage)
         startActivityForResult(authIntent, DELETE_WALLET_REQUEST_CODE)
+    }
+
+    internal fun authorizeViewLegacyWords() {
+        val authIntent = Intent(this, AuthorizedActionActivity::class.java)
+        val authMessage = getString(R.string.authorize_view_legacy_words)
+        authIntent.putExtra(DropbitIntents.EXTRA_AUTHORIZED_ACTION_MESSAGE, authMessage)
+        startActivityForResult(authIntent, legacyWalletRequestCode)
     }
 
     private fun setupDustProtection() {
@@ -141,6 +158,26 @@ class SettingsActivity : BaseActivity(), DialogInterface.OnClickListener {
         startActivity(Intent(this, LicensesActivity::class.java))
     }
 
+    internal fun setupLegacyWallet() {
+        if (cnWalletManager.hasLegacyWallet) {
+            legacyWalletButton.show()
+            legacyWalletDivider.show()
+            legacyWalletButton.setOnClickListener { authorizeViewLegacyWords() }
+        } else {
+            legacyWalletButton.gone()
+            legacyWalletDivider.gone()
+        }
+    }
+
+    internal fun onViewLegacyWordsRequestAuthorized() {
+        Intent(this, BackupActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_RECOVERY_WORDS, cnWalletManager.legacyWords)
+            it.putExtra(DropbitIntents.EXTRA_VIEW_STATE, DropbitIntents.EXTRA_VIEW)
+            analytics.trackEvent(Analytics.EVENT_VIEW_LEGACY_WORDS)
+            startActivity(it)
+        }
+    }
+
     private fun setupRecoverWallet() {
         if (cnWalletManager.hasSkippedBackup()) {
             findViewById<View>(R.id.not_backed_up_message).visibility = View.VISIBLE
@@ -170,7 +207,8 @@ class SettingsActivity : BaseActivity(), DialogInterface.OnClickListener {
     }
 
     companion object {
-        val TAG_CONFIRM_DELETE_WALLET = "tag_confirm_delete_wallet"
-        val DELETE_WALLET_REQUEST_CODE = 12
+        const val TAG_CONFIRM_DELETE_WALLET = "tag_confirm_delete_wallet"
+        const val DELETE_WALLET_REQUEST_CODE = 12
+        const val legacyWalletRequestCode = 13
     }
 }

@@ -27,11 +27,11 @@ import com.coinninja.coinkeeper.util.FeesManager;
 import org.greenrobot.greendao.query.LazyList;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import app.coinninja.cn.libbitcoin.model.DerivationPath;
 import app.dropbit.commons.currency.BTCCurrency;
 import app.dropbit.commons.currency.USDCurrency;
 
@@ -55,19 +55,24 @@ public class WalletHelper {
     }
 
     public void saveWords(String[] recoveryWords) {
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         for (int i = 0; i < recoveryWords.length; i++) {
             wordHelper.saveWord(wallet.getId(), recoveryWords[i], i);
         }
     }
 
     public String[] getSeedWords() {
-        if (null == getWallet()) {
+        Wallet wallet = getPrimaryWallet();
+        if (wallet == null) {
             return null;
         }
 
+        return getSeedWordsForWallet(wallet);
+    }
+
+    public String[] getSeedWordsForWallet(Wallet wallet) {
         List<Word> words = daoSessionManager.getWordDao().queryBuilder().
-                where(WordDao.Properties.WalletId.eq(getWallet().getId())).
+                where(WordDao.Properties.WalletId.eq(wallet.getId())).
                 orderAsc(WordDao.Properties.SortOrder).list();
         List<String> stringList = new ArrayList<>();
 
@@ -80,11 +85,12 @@ public class WalletHelper {
     }
 
     public USDCurrency getLatestPrice() {
-        return new USDCurrency(getWallet().getLastUSDPrice());
+        Wallet primaryWallet = getPrimaryWallet();
+        return (primaryWallet == null) ? new USDCurrency(0.0d) : new USDCurrency(primaryWallet.getLastUSDPrice());
     }
 
     public void setLatestPrice(USDCurrency price) {
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         if (wallet != null && price.toLong() > 0L) {
             wallet.setLastUSDPrice(price.toLong());
             wallet.update();
@@ -96,17 +102,21 @@ public class WalletHelper {
     }
 
     public void setLatestFee(TransactionFee transactionFee) {
-        if (getWallet() == null || transactionFee == null || transactionFee.getSlow() <= 0.0D) {
+        if (getPrimaryWallet() == null || transactionFee == null || transactionFee.getSlow() <= 0.0D) {
             return;
         }
 
         feesManager.setFees(transactionFee);
     }
 
-    public Wallet getWallet() {
-        return walletQueryManager.getWallet();
+    public Wallet getPrimaryWallet() {
+        return walletQueryManager.getPrimaryWallet();
     }
 
+    @Nullable
+    public Wallet getLegacyWallet() {
+        return walletQueryManager.getLegacyWallet();
+    }
 
     public void linkStatsWithAddressBook() {
         daoSessionManager.runRaw("update TARGET_STAT set ADDRESS_ID = (select _id from ADDRESS where address = TARGET_STAT.ADDR)");
@@ -152,15 +162,36 @@ public class WalletHelper {
         return getBalance().toUSD(getLatestPrice());
     }
 
-    void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
-        if (!hasAccount()) return;
+    @NotNull
+    public Wallet getOrCreateSegwitWalletForUpdate(String[] words) {
+        Wallet segwitWallet = walletQueryManager.getSegwitWallet();
+        if (segwitWallet == null) {
+            segwitWallet = daoSessionManager.createWalletForUpdate(getPrimaryWallet().getUserId());
+            for (int i = 0; i < words.length; i++) {
+                wordHelper.saveWord(segwitWallet.getId(), words[i], i);
+            }
+        }
+        return segwitWallet;
+    }
 
-        Account account = getUserAccount();
-        account.populateStatus(cnUserAccount.getStatus());
-        account.setCnUserId(cnUserAccount.getId());
-        account.setPhoneNumberHash(cnUserAccount.getPhoneNumberHash());
-        account.setPhoneNumber(phoneNumber.toPhoneNumber());
-        account.update();
+    public void rotateWallets(@NotNull Wallet newPrimary, Wallet oldPrimary) {
+        daoSessionManager.getTransactionsInvitesSummaryDao().deleteAll();
+        daoSessionManager.getInviteTransactionSummaryDao().deleteAll();
+        daoSessionManager.getTransactionSummaryDao().deleteAll();
+        daoSessionManager.getTargetStatDao().deleteAll();
+        daoSessionManager.getFundingStatDao().deleteAll();
+        daoSessionManager.getAddressDao().deleteAll();
+        long oldId = oldPrimary.getId();
+        long newId = newPrimary.getId();
+        long replacementId = newId + 1;
+        daoSessionManager.runRaw(String.format("UPDATE Wallet set _ID = %s where _ID = %s", replacementId, oldId));
+        daoSessionManager.runRaw(String.format("UPDATE Word set WALLET_ID = %s where WALLET_ID = %s", replacementId, oldId));
+        oldPrimary.setId(replacementId);
+        oldPrimary.update();
+    }
+
+    public void deleteAll() {
+        daoSessionManager.resetAll();
     }
 
     public void removeCurrentCnRegistration() {
@@ -177,7 +208,7 @@ public class WalletHelper {
     }
 
     public Account getUserAccount() {
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         if (wallet == null) return new Account();
 
         Account account = daoSessionManager.getAccountDao().queryBuilder().where(AccountDao.Properties.WalletId.eq(wallet.getId())).limit(1).unique();
@@ -193,7 +224,7 @@ public class WalletHelper {
         boolean useUnSpendableTargetStat = true;
         long balance = buildBalances(useUnSpendableTargetStat);
 
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         wallet.setBalance(Math.max(balance, 0));
         wallet.update();
     }
@@ -202,7 +233,7 @@ public class WalletHelper {
         boolean useUnSpendableTargetStat = false;
         long balance = buildBalances(useUnSpendableTargetStat);
 
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         wallet.setSpendableBalance(Math.max(balance, 0));
         wallet.update();
     }
@@ -210,7 +241,7 @@ public class WalletHelper {
     public long buildBalances(boolean useUnSpendableTargetStat) {
         long balance = 0L;
         // invalidate memory caches
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         wallet.refresh();
         wallet.resetFundingStats();
         wallet.resetTargetStats();
@@ -250,27 +281,27 @@ public class WalletHelper {
     }
 
     public int getCurrentExternalIndex() {
-        return getWallet().getExternalIndex();
+        return getPrimaryWallet().getExternalIndex();
     }
 
     public int getCurrentInternalIndex() {
-        return getWallet().getInternalIndex();
+        return getPrimaryWallet().getInternalIndex();
     }
 
     public void setExternalIndex(int position) {
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         wallet.setExternalIndex(position);
         wallet.update();
     }
 
     public void setInternalIndex(int index) {
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         wallet.setInternalIndex(index);
         wallet.update();
     }
 
     public void updateBlockHeight(int blockheight) {
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         wallet.refresh();
 
         if (wallet.getBlockTip() < blockheight) {
@@ -281,7 +312,7 @@ public class WalletHelper {
     }
 
     public int getBlockTip() {
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         wallet.refresh();
         return wallet.getBlockTip();
     }
@@ -300,15 +331,27 @@ public class WalletHelper {
     }
 
     public BTCCurrency getSpendableBalance() {
-        return new BTCCurrency(getWallet().getSpendableBalance());
+        return new BTCCurrency(getPrimaryWallet().getSpendableBalance());
     }
 
     public BTCCurrency getBalance() {
-        return new BTCCurrency(getWallet().getBalance());
+        Wallet primaryWallet = getPrimaryWallet();
+        return (primaryWallet == null) ? new BTCCurrency(0) : new BTCCurrency(primaryWallet.getBalance());
     }
 
     public TransactionSummary getTransactionByTxid(String txid) {
         return daoSessionManager.getTransactionSummaryDao().queryBuilder().where(TransactionSummaryDao.Properties.Txid.eq(txid)).unique();
+    }
+
+    void saveAccountRegistration(CNUserAccount cnUserAccount, CNPhoneNumber phoneNumber) {
+        if (!hasAccount()) return;
+
+        Account account = getUserAccount();
+        account.populateStatus(cnUserAccount.getStatus());
+        account.setCnUserId(cnUserAccount.getId());
+        account.setPhoneNumberHash(cnUserAccount.getPhoneNumberHash());
+        account.setPhoneNumber(phoneNumber.toPhoneNumber());
+        account.update();
     }
 
     long calculateInviteValue(InviteTransactionSummary invite) {
@@ -331,7 +374,7 @@ public class WalletHelper {
     private void clearRegistration(boolean clearId) {
         if (!hasAccount()) return;
 
-        getWallet().refresh();
+        getPrimaryWallet().refresh();
         Account account = getUserAccount();
         account.refresh();
 
@@ -347,7 +390,7 @@ public class WalletHelper {
     }
 
     private Account createAccount() {
-        Wallet wallet = getWallet();
+        Wallet wallet = getPrimaryWallet();
         Account account = new Account();
         account.setWallet(wallet);
         account.setStatus(AccountStatus.UNVERIFIED);

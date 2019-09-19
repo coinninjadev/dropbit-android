@@ -6,6 +6,7 @@ import android.provider.Settings
 import app.coinninja.cn.persistance.DropbitConnectionCallback
 import app.coinninja.cn.persistance.DropbitDatabase
 import com.coinninja.coinkeeper.BuildConfig
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.db.CoinKeeperOpenHelper
 import com.coinninja.coinkeeper.db.DatabaseSecretProvider
 import com.coinninja.coinkeeper.di.interfaces.*
@@ -21,8 +22,8 @@ class DaoSessionManagerModule {
 
     @Provides
     @CoinkeeperApplicationScope
-    internal fun daoSessionManager(daoMaster: DaoMaster): DaoSessionManager {
-        return DaoSessionManager(daoMaster, BuildConfig.PURPOSE, BuildConfig.COIN_TYPE, BuildConfig.ACCOUNT_INDEX).connect()
+    internal fun daoSessionManager(daoMaster: DaoMaster, walletConfiguration: WalletConfiguration): DaoSessionManager {
+        return DaoSessionManager(daoMaster, walletConfiguration).connect()
     }
 
     @Provides

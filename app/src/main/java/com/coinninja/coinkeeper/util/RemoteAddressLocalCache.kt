@@ -9,8 +9,10 @@ import java.util.*
 import javax.inject.Inject
 
 @Mockable
-class RemoteAddressLocalCache @Inject
-internal constructor(internal val preferencesUtil: PreferencesUtil, internal val localBroadCastUtil: LocalBroadCastUtil) {
+class RemoteAddressLocalCache @Inject internal constructor(
+        internal val preferencesUtil: PreferencesUtil,
+        internal val localBroadCastUtil: LocalBroadCastUtil
+) {
 
     var localRemoteAddressCache: List<AddressDTO>?
         get() {

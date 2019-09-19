@@ -52,7 +52,7 @@ public class InternalNotificationHelper {
             notification.setHasBeenSeen(false);
         }
 
-        notification.setWallet(walletHelper.getWallet());
+        notification.setWallet(walletHelper.getPrimaryWallet());
         notification.setMessage(message);
         notification.setPriority(priority);
         notification.setMessageLevel(level);

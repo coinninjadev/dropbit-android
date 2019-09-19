@@ -197,8 +197,8 @@ class SignedCoinKeeperApiClientTest {
 
         assertThat(walletAddress.address, equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"))
         assertThat(walletAddress.id, equalTo("6d1d7318-81b9-492c-b3f3-9d1b24f91d14"))
-        assertThat(walletAddress.createdAt, equalTo(1531921356000L))
-        assertThat(walletAddress.updateAt, equalTo(1531921357000L))
+        assertThat(walletAddress.createdAt, equalTo(1531921356L))
+        assertThat(walletAddress.updateAt, equalTo(1531921357L))
         assertThat(walletAddress.walletId, equalTo("f8e8c20e-ba44-4bac-9a96-44f3b7ae955d"))
     }
 
@@ -410,7 +410,7 @@ class SignedCoinKeeperApiClientTest {
 
         assertThat(response.code(), equalTo(200))
         assertThat(cnWalletAddress.address, equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"))
-        assertThat(cnWalletAddress.createdAt, equalTo(1531921356000L))
+        assertThat(cnWalletAddress.createdAt, equalTo(1531921356L))
         assertThat(cnWalletAddress.id, equalTo("6d1d7318-81b9-492c-b3f3-9d1b24f91d14"))
     }
 
@@ -1261,7 +1261,6 @@ class SignedCoinKeeperApiClientTest {
     }
 
     @Test
-    @Throws(InterruptedException::class)
     fun fetchingNewsWithOffsetTrimsList() {
         val json = TEST_DATA_PRICING.news
         val expectedResponse = MockResponse().setResponseCode(200).setBody(json)
@@ -1276,6 +1275,58 @@ class SignedCoinKeeperApiClientTest {
         assertThat(response.code(), equalTo(200))
         assertThat(articles.size, equalTo(2))
         assertThat<String>(articles[0].title, equalTo("Italy to Lead European Blockchain Partnership Until July 2020"))
+    }
+
+    @Test
+    fun marks_wallet_as_depricated() {
+        val json = "{\n" +
+                "\"id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\",\n" +
+                "\"public_key_string\": \"02262233847a69026f8f3ae027af347f2501adf008fe4f6087d31a1d975fd41473\",\n" +
+                "\"flags\": 257,\n" +
+                "\"created_at\": 1531921356,\n" +
+                "\"updated_at\": 1531921356,\n" +
+                "\"user_id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\"\n" +
+                "}"
+        val expectedResponse = MockResponse().setResponseCode(200).setBody(json)
+        webServer.enqueue(expectedResponse)
+
+        val response = signedCoinKeeperApiClient.disableWallet()
+        val walletResponse = response.body() as CNWallet
+        val recordedRequest = webServer.takeRequest()
+
+        assertThat(recordedRequest.path, equalTo("/wallet"))
+        assertThat(recordedRequest.method, equalTo("PATCH"))
+        assertThat(response.code(), equalTo(200))
+        assertThat(recordedRequest.body.readUtf8(), equalTo("{\"flags\":257}"))
+    }
+
+    @Test
+    fun replaces_wallet() {
+        val json = "{\n" +
+                "  \"id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\",\n" +
+                "  \"public_key_string\": \"02262233847a69026f8f3ae027af347f2501adf008fe4f6087d31a1d975fd41473\",\n" +
+                "  \"flags\": 18,\n" +
+                "  \"created_at\": 1531921356,\n" +
+                "  \"updated_at\": 1531921356,\n" +
+                "  \"user_id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\"\n" +
+                "}"
+        val expectedResponse = MockResponse().setResponseCode(200).setBody(json)
+        webServer.enqueue(expectedResponse)
+
+        val response = signedCoinKeeperApiClient.replaceWalletWith(
+                ReplaceWalletRequest(
+                       "--pub-key--",
+                        WalletFlags.purpose84v2,
+                        "2019-09-17T17:19:56.762Z",
+                        "--signature--"
+                ))
+        val walletResponse = response.body() as CNWallet
+        val recordedRequest = webServer.takeRequest()
+
+        assertThat(recordedRequest.path, equalTo("/wallet"))
+        assertThat(recordedRequest.method, equalTo("PUT"))
+        assertThat(response.code(), equalTo(200))
+        assertThat(recordedRequest.body.readUtf8(), equalTo("{\"public_key_string\":\"--pub-key--\",\"flags\":18,\"timestamp\":\"2019-09-17T17:19:56.762Z\",\"signature\":\"--signature--\"}"))
     }
 
     private fun createClient(host: String): SignedCoinKeeperApiClient {
