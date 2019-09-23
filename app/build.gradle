@@ -109,7 +109,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testCoverageEnabled false
             buildConfigField "String", "ANALYTICS_TOKEN", "\"${ANALYTICS_TOKEN_DEBUG}\""
-            buildConfigField "boolean", "CN_DB_ENCRYPTION_ENABLED", "true"
+            buildConfigField "boolean", "CN_DB_ENCRYPTION_ENABLED", "false"
             applicationIdSuffix ".debug"
             manifestPlaceholders = ["APP_LINKING_HOST": "dev.coinninja.net"]
             resValue "string", "app_version", "${defaultConfig.versionName}${versionNameSuffix}"

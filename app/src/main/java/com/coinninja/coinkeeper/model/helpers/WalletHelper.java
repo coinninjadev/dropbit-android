@@ -175,6 +175,11 @@ public class WalletHelper {
     }
 
     public void rotateWallets(@NotNull Wallet newPrimary, Wallet oldPrimary) {
+        Account account = getUserAccount();
+        if (account != null) {
+            account.setWallet(newPrimary);
+            account.update();
+        }
         daoSessionManager.getTransactionsInvitesSummaryDao().deleteAll();
         daoSessionManager.getInviteTransactionSummaryDao().deleteAll();
         daoSessionManager.getTransactionSummaryDao().deleteAll();

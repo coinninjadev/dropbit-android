@@ -233,10 +233,9 @@ class DropbitAccountHelperTest {
         val account: Account = mock()
         whenever(accountHelper.walletHelper.userAccount).thenReturn(account)
 
-        accountHelper.updateAccountIds("--wallet-id--", "--user-id--")
+        accountHelper.updateAccountIds("--wallet-id--")
 
         verify(account).cnWalletId = "--wallet-id--"
-        verify(account).cnUserId = "--user-id--"
         verify(account).update()
     }
 

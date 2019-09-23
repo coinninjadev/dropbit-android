@@ -105,7 +105,7 @@ class WalletUpgradeViewModel : ViewModel() {
             ).let {
                 if (it.isSuccessful) {
                     val cnWallet = it.body() as CNWallet
-                    dropbitAccountHelper.updateAccountIds(cnWallet.id, cnWallet.userId)
+                    dropbitAccountHelper.updateAccountIds(cnWallet.id)
                 }
             }
 

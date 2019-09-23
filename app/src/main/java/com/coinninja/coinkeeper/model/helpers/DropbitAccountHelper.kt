@@ -51,10 +51,9 @@ internal constructor(internal val daoSessionManager: DaoSessionManager,
         }
     }
 
-    fun updateAccountIds(walletId: String, userId: String) {
+    fun updateAccountIds(walletId: String) {
         walletHelper.userAccount?.let {
             it.cnWalletId = walletId
-            it.cnUserId = userId
             it.update()
         }
     }

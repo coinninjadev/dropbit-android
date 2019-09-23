@@ -140,7 +140,7 @@ class WalletUpgradeViewModelTest {
                 timestamp = timestamp,
                 signature = signature
         )
-        val cnWallet = CNWallet(id = "--wallet-id--", userId = "--user-id--")
+        val cnWallet = CNWallet(id = "--wallet-id--")
         whenever(viewModel.dateUtil.timeInMillis()).thenReturn(1568740796762)
         whenever(viewModel.dropbitAccountHelper.hasVerifiedAccount).thenReturn(true)
         whenever(viewModel.cnWalletManager.segwitWalletForUpgrade).thenReturn(segwitWallet)
@@ -162,7 +162,7 @@ class WalletUpgradeViewModelTest {
         verify(viewModel.cnWalletManager).replaceLegacyWithSegwit()
         verify(viewModel.cnClient).disableWallet()
         verify(viewModel.cnClient).replaceWalletWith(replaceWalletRequest)
-        verify(viewModel.dropbitAccountHelper).updateAccountIds(cnWallet.id, cnWallet.userId)
+        verify(viewModel.dropbitAccountHelper).updateAccountIds(cnWallet.id)
         //assertThat(viewModel.upgradeState.value).isEqualTo(UpgradeState.StepThreeCompleted)
     }
 
