@@ -5,9 +5,9 @@ import com.coinninja.coinkeeper.db.Migration
 import org.greenrobot.greendao.database.Database
 
 class Migrate_V36_to_V37 : AbstractMigration() {
-    override fun getPreviousMigration(): Migration = Migrate_V35_to_V36()
-    override fun getMigratedVersion(): Int = 37
-    override fun getTargetVersion(): Int = 36
+    override val previousMigration: Migration = Migrate_V35_to_V36()
+    override val migratedVersion: Int = 37
+    override val targetVersion: Int = 36
 
     override fun applyMigration(db: Database, currentVersion: Int) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `ACCOUNT` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `WALLET_ID` INTEGER, `CN_USER_ID` TEXT NOT NULL, `STATUS` INTEGER NOT NULL, `PHONE_NUMBER_HASH` TEXT NOT NULL, `PHONE_NUMBER` TEXT NOT NULL, `VERIFICATION_TTL` INTEGER NOT NULL, `IS_PRIVATE` INTEGER NOT NULL, FOREIGN KEY(`WALLET_ID`) REFERENCES `WALLET`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
