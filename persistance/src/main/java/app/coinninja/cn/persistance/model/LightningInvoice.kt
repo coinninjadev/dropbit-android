@@ -8,7 +8,6 @@ import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
 import java.util.*
 
-
 @Mockable
 @Entity(
         tableName = "LIGHTNING_INVOICE",

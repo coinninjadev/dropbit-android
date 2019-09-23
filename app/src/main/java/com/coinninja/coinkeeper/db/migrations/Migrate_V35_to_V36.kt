@@ -5,9 +5,9 @@ import com.coinninja.coinkeeper.db.Migration
 import org.greenrobot.greendao.database.Database
 
 class Migrate_V35_to_V36 : AbstractMigration() {
-    override fun getPreviousMigration(): Migration = Migrate_V34_to_V35()
-    override fun getMigratedVersion(): Int = 36
-    override fun getTargetVersion(): Int = 35
+    override val previousMigration: Migration = Migrate_V34_to_V35()
+    override val migratedVersion: Int = 36
+    override val targetVersion: Int = 35
 
     override fun applyMigration(db: Database, currentVersion: Int) {
         db.execSQL("ALTER TABLE WALLET RENAME TO TEMP_WALLET")

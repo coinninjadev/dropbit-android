@@ -7,11 +7,12 @@ import app.coinninja.cn.persistance.DropbitConnectionCallback
 import app.coinninja.cn.persistance.DropbitDatabase
 import com.coinninja.coinkeeper.BuildConfig
 import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
-import com.coinninja.coinkeeper.db.CoinKeeperOpenHelper
-import com.coinninja.coinkeeper.db.DatabaseSecretProvider
+import com.coinninja.coinkeeper.db.*
+import com.coinninja.coinkeeper.db.DatabaseOpenHelper
 import com.coinninja.coinkeeper.di.interfaces.*
 import com.coinninja.coinkeeper.model.db.DaoMaster
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
+import com.coinninja.coinkeeper.util.Hasher
 import com.commonsware.cwac.saferoom.SafeHelperFactory
 import dagger.Module
 import dagger.Provides
@@ -45,14 +46,33 @@ class DaoSessionManagerModule {
     @SuppressLint("HardwareIds")
     @Provides
     @AppSecret
-    internal fun secret(@ApplicationContext context: Context): String {
-        return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+    internal fun secret(@ApplicationContext context: Context): CharArray {
+        return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID).toCharArray()
     }
 
     @Provides
     @DefaultSecret
-    internal fun defaultSecret(): String {
-        return BuildConfig.DEFAULT_SALT
+    internal fun defaultSecret(): CharArray {
+        return BuildConfig.DEFAULT_SALT.toCharArray()
+    }
+
+    @Provides
+    internal fun coinkeeperOpenHandler(databaseOpenHelper: DatabaseOpenHelper,
+                                       databaseSecretProvider: DatabaseSecretProvider,
+                                       upgradeDBFormatStorage: UpgradeDBFormatStorage,
+                                       @DBEncryption withEncryption: Boolean
+    ): CoinKeeperOpenHelper {
+        return CoinKeeperOpenHelper(databaseOpenHelper, databaseSecretProvider, upgradeDBFormatStorage, withEncryption)
+    }
+
+    @Provides
+    internal fun databaseOpenHelper(@ApplicationContext context: Context): DatabaseOpenHelper {
+        return DatabaseOpenHelper(context, MigrationExecutor(), DaoMaster.SCHEMA_VERSION)
+    }
+
+    @Provides
+    internal fun databaseSecretProvider(@AppSecret secret: CharArray, @DefaultSecret defaultSecret: CharArray): DatabaseSecretProvider {
+        return DatabaseSecretProvider(Hasher(), secret, defaultSecret)
     }
 
     @Provides
@@ -61,10 +81,10 @@ class DaoSessionManagerModule {
                                  @DBEncryption withEncryption: Boolean): DropbitDatabase =
             if (withEncryption) {
                 try {
-                    val factory = SafeHelperFactory(secretProvider.secret.toByteArray())
+                    val factory = SafeHelperFactory(secretProvider.secret)
                     DropbitDatabase.getDatabase(context, COIN_KEEPER_DB_NAME, DropbitConnectionCallback(), factory)
                 } catch (ex: net.sqlcipher.database.SQLiteException) {
-                    val factory = SafeHelperFactory(secretProvider.default.toByteArray())
+                    val factory = SafeHelperFactory(secretProvider.default)
                     DropbitDatabase.getDatabase(context, COIN_KEEPER_DB_NAME, DropbitConnectionCallback(), factory)
                 }
             } else {
