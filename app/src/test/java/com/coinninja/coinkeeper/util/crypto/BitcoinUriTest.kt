@@ -55,7 +55,7 @@ class BitcoinUriTest {
     }
 
     @Test
-    fun builds_with_amount() {
+    fun builds_with_amount_param() {
         val builder = createBuilder()
         val address = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa"
         val btc = BTCCurrency("1.0")
@@ -70,6 +70,27 @@ class BitcoinUriTest {
         assertThat(uri.scheme).isEqualTo("bitcoin")
         assertThat(uri.isBip70).isFalse()
         assertThat(uri.isValidPaymentAddress).isTrue()
+    }
+
+    @Test
+    fun builds_with_amount() {
+        val builder = createBuilder()
+        val address = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa"
+
+        val uri = builder.setAddress(address).setAmount(BTCCurrency(150_000_000)).build()
+
+        assertThat(uri.toString()).isEqualTo("bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=1.50000000")
+    }
+
+    @Test
+    fun builder_can_remove_amount() {
+        val builder = createBuilder()
+        val address = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa"
+
+        val uri = builder.setAddress(address).setAmount(BTCCurrency(150_000_000)).build()
+        assertThat(uri.toString()).isEqualTo("bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=1.50000000")
+
+        assertThat(builder.removeAmount().build().toString()).isEqualTo("bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa")
     }
 
     // --------------

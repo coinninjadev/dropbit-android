@@ -9,10 +9,12 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.coinninja.coinkeeper.R
@@ -73,6 +75,23 @@ fun CheckBox.uncheck() {
 fun CheckBox.check() {
     this.isChecked = true
 }
+
+fun Button.styleAsBitcoin() {
+    when (this.id) {
+        R.id.send_btn -> background = ContextCompat.getDrawable(context, R.drawable.btc_payment_bar_send_button)
+        R.id.request_btn -> background = ContextCompat.getDrawable(context, R.drawable.btc_payment_bar_request_button)
+        else -> background = ContextCompat.getDrawable(context, R.drawable.btc_button)
+    }
+}
+
+fun Button.styleAsLightning() {
+    when (this.id) {
+        R.id.send_btn -> background = ContextCompat.getDrawable(context, R.drawable.lightning_payment_bar_send_button)
+        R.id.request_btn -> background = ContextCompat.getDrawable(context, R.drawable.lightning_payment_bar_request_button)
+        else -> background = ContextCompat.getDrawable(context, R.drawable.lightning_button)
+    }
+}
+
 
 object Views {
 

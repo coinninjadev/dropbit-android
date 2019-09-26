@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 37,
-    "identityHash": "adeb22107a611fd1498656f1250889a2",
+    "identityHash": "a434d6abf4dc05cef3579fe73ee163e8",
     "entities": [
       {
         "tableName": "ACCOUNT",
@@ -791,7 +791,7 @@
       },
       {
         "tableName": "LIGHTNING_ACCOUNT",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SERVER_ID` TEXT NOT NULL, `ADDRESS` TEXT NOT NULL, `BALANCE` INTEGER NOT NULL, `PENDING_IN` INTEGER NOT NULL, `PENDING_OUT` INTEGER NOT NULL, `CREATED_AT` TEXT NOT NULL, `UPDATED_AT` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `SERVER_ID` TEXT NOT NULL, `ADDRESS` TEXT, `BALANCE` INTEGER NOT NULL, `PENDING_IN` INTEGER NOT NULL, `PENDING_OUT` INTEGER NOT NULL, `CREATED_AT` TEXT NOT NULL, `UPDATED_AT` TEXT NOT NULL, `IS_LOCKED` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -809,7 +809,7 @@
             "fieldPath": "address",
             "columnName": "ADDRESS",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "balance",
@@ -840,6 +840,12 @@
             "columnName": "UPDATED_AT",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "isLocked",
+            "columnName": "IS_LOCKED",
+            "affinity": "INTEGER",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -1827,7 +1833,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'adeb22107a611fd1498656f1250889a2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a434d6abf4dc05cef3579fe73ee163e8')"
     ]
   }
 }

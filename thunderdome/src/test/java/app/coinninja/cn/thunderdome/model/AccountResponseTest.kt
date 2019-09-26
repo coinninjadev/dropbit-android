@@ -14,7 +14,8 @@ class AccountResponseTest {
                 "--address--",
                 3000L,
                 2000L,
-                1000L
+                1000L,
+                true
         )
 
         val lightningAccount = accountResponse.toLightningAccount()
@@ -25,6 +26,7 @@ class AccountResponseTest {
         assertThat(lightningAccount.balance.toLong()).isEqualTo(accountResponse.balance)
         assertThat(lightningAccount.pendingIn.toLong()).isEqualTo(accountResponse.pendingIn)
         assertThat(lightningAccount.pendingOut.toLong()).isEqualTo(accountResponse.pendingOut)
+        assertThat(lightningAccount.isLocked).isTrue()
     }
 
 

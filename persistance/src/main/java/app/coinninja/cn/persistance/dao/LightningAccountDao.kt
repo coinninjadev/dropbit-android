@@ -23,7 +23,6 @@ abstract class LightningAccountDao {
     @Query("DELETE FROM LIGHTNING_ACCOUNT")
     abstract fun deleteAll()
 
-
     @Query("SELECT * from LIGHTNING_ACCOUNT Where _id == 1 limit 1")
     abstract fun getAccount(): LightningAccount?
 
@@ -37,6 +36,7 @@ abstract class LightningAccountDao {
             it.pendingOut = lightningAccount.pendingOut
             it.createdAt = lightningAccount.createdAt
             it.updatedAt = lightningAccount.updatedAt
+            it.isLocked = lightningAccount.isLocked
             update(it)
             updated = true
         }

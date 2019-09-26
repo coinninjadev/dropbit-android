@@ -138,6 +138,21 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
+            android:name=".ui.payment.request.PayRequestActivity"
+            />
+
+        <activity
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
+            android:name=".ui.payment.request.LndInvoiceRequestActivity"
+            />
+
         <activity
             android:name=".ui.transaction.details.TransactionDetailsActivity"
             android:label=""

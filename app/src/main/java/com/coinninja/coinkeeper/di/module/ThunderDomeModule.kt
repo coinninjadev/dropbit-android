@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.di.module
 
 import app.coinninja.cn.persistance.DropbitDatabase
+import app.coinninja.cn.thunderdome.CreateInvoiceViewModel
 import app.coinninja.cn.thunderdome.client.ThunderDomeApiClient
 import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import com.coinninja.coinkeeper.BuildConfig
@@ -22,4 +23,8 @@ class ThunderDomeModule {
         return ThunderDomeApiClient.create(BuildConfig.THUNDERDOME_API_BASE, signedRequestInterceptor)
     }
 
+
+    @Provides
+    fun thunderDomeCreateInvoiceViewModel(thunderDomeRepository: ThunderDomeRepository)
+            = CreateInvoiceViewModel(thunderDomeRepository)
 }

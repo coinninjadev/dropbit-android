@@ -6,10 +6,7 @@ import app.coinninja.cn.persistance.dao.LightningInvoiceDao
 import app.coinninja.cn.persistance.model.LightningAccount
 import app.coinninja.cn.persistance.model.LightningInvoice
 import app.coinninja.cn.thunderdome.client.Testdata
-import app.coinninja.cn.thunderdome.model.AccountResponse
-import app.coinninja.cn.thunderdome.model.LedgerResponse
-import app.coinninja.cn.thunderdome.model.WithdrawalRequest
-import app.coinninja.cn.thunderdome.model.WithdrawalResponse
+import app.coinninja.cn.thunderdome.model.*
 import app.dropbit.commons.currency.BTCCurrency
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
@@ -151,6 +148,31 @@ class ThunderDomeRepositoryTest {
         assertThat(repository.estimateWithdrawal(withdrawalRequest)).isEqualTo(withdrawalResponse.result)
         assertThat(withdrawalRequest.isEstimate).isTrue()
         verifyZeroInteractions(repository.dropbitDatabase.lightningInvoiceDao())
+    }
+
+    @Test
+    fun provides_visibility_on_locked_lightning_account() {
+        val repository = createRepository()
+        whenever(repository.dropbitDatabase.lightningAccountDao()).thenReturn(mock())
+        whenever(repository.dropbitDatabase.lightningAccountDao().getAccount()).thenReturn(null).thenReturn(LightningAccount()).thenReturn(LightningAccount(isLocked = false))
+
+        // true when no account
+        assertThat(repository.isLocked).isTrue()
+
+        // true when locked
+        assertThat(repository.isLocked).isTrue()
+
+        // false when not locked
+        assertThat(repository.isLocked).isFalse()
+    }
+
+    @Test
+    fun creates_lad_invoice_for_payment_requests() {
+        val expectedResponse = "ln--invoice-id--"
+        val repository = createRepository()
+        whenever(repository.apiClient.createInvoiceFor(150_000, "--memo--")).thenReturn(Response.success(CreateInvoiceResponse(expectedResponse)))
+
+        assertThat(repository.createInvoiceFor(150_000, "--memo--")).isEqualTo(expectedResponse)
     }
 
     private fun createRepository(): ThunderDomeRepository = ThunderDomeRepository(mock(), mock())

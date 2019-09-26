@@ -1,9 +1,6 @@
 package app.coinninja.cn.thunderdome.client
 
-import app.coinninja.cn.thunderdome.model.AccountResponse
-import app.coinninja.cn.thunderdome.model.LedgerResponse
-import app.coinninja.cn.thunderdome.model.WithdrawalRequest
-import app.coinninja.cn.thunderdome.model.WithdrawalResponse
+import app.coinninja.cn.thunderdome.model.*
 import app.dropbit.annotations.Mockable
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -24,6 +21,7 @@ class ThunderDomeApiClient constructor(val client: Client) {
     fun ledger(): Response<LedgerResponse> = executeCall(client.ledger())
     fun withdraw(withdrawalRequest: WithdrawalRequest): Response<WithdrawalResponse> = executeCall(client.withdrawal(withdrawalRequest.forPost()))
     fun estimateWithdraw(withdrawalRequest: WithdrawalRequest): Response<WithdrawalResponse> = executeCall(client.withdrawal(withdrawalRequest.forPost()))
+    fun createInvoiceFor(amount: Long, memo: String): Response<CreateInvoiceResponse> = executeCall(client.createInvoice(CreateInvoiceRequest(amount, memo)))
 
 
     private fun <T> executeCall(call: Call<T>): Response<T> {

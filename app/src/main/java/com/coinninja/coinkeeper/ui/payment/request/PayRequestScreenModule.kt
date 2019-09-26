@@ -13,7 +13,7 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-class PayRequestScreenFragmentModule {
+class PayRequestScreenModule {
 
     @Provides
     fun provideQRViewModel(application: CoinKeeperApplication): QrViewModel = QrViewModel(

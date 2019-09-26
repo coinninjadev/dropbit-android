@@ -212,6 +212,18 @@
         <item name="background">@drawable/input_background</item>
     </style>
 
+    <style name="PaymentBalance">
+        <item name="fiatTextColor">@color/colorPrimaryDark</item>
+        <item name="cryptoTextColor">@color/bitcoin_orange</item>
+        <item name="primaryCryptoIconScale">1.8</item>
+        <item name="secondaryCryptoIconScale">1</item>
+        <item name="sentTextAppearance">@style/TextAppearance.Balance.TxDetails.Primary</item>
+        <item name="receivedTextAppearance">@style/TextAppearance.Balance.TxDetails.Primary</item>
+        <item name="secondaryTextAppearance">@style/TextAppearance.Balance.TxDetails.Secondary
+        </item>
+        <item name="useCryptoIcon">true</item>
+    </style>
+
     <style name="transactionDetailBalance">
         <item name="fiatTextColor">@color/colorPrimaryDark</item>
         <item name="cryptoTextColor">@color/bitcoin_orange</item>
@@ -270,9 +282,9 @@
     <style name="Button" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/primary_button</item>
         <item name="android:textAppearance">@style/TextAppearance.Button</item>
-        <item name="android:minHeight">48dip</item>
         <item name="android:minWidth">88dip</item>
         <item name="android:paddingTop">@dimen/button_vertical_padding</item>
+        <item name="android:minHeight">48dip</item>
         <item name="android:paddingBottom">@dimen/button_vertical_padding</item>
         <item name="android:paddingLeft">@dimen/button_horizontal_padding</item>
         <item name="android:paddingRight">@dimen/button_horizontal_padding</item>
@@ -288,6 +300,15 @@
 
 
     <style name="Button.Bitcoin">
+        <item name="android:background">@drawable/btc_button</item>
+    </style>
+
+    <style name="Button.Bitcoin.AccountMode">
+        <item name="android:minHeight">@null</item>
+        <item name="android:background">@drawable/tab_account_mode_bitcoin_selector</item>
+    </style>
+
+    <style name="Button.Bitcoin.AccountMode.Disabled">
         <item name="android:background">@drawable/btc_button</item>
     </style>
 
@@ -318,6 +339,15 @@
     <style name="Button.Lightning.Upgrade.Secondary">
         <item name="android:background">@drawable/lightning_upgrade_secondary_button</item>
         <item name="android:textAppearance">@style/TextAppearance.Button</item>
+    </style>
+
+    <style name="Button.Lightning.AccountMode">
+        <item name="android:minHeight">@null</item>
+        <item name="android:background">@drawable/tab_account_mode_lightning_selector</item>
+    </style>
+
+    <style name="Button.Lightning.AccountMode.Disabled">
+        <item name="android:background">@drawable/lightning_button</item>
     </style>
 
     <style name="MarketGranularity" parent="Button">
@@ -595,8 +625,24 @@
         <item name="android:textSize">11.6sp</item>
     </style>
 
-    <style name="TextAppearance.Error" parent="TextAppearance">
+    <style name="TextAppearance.Error">
         <item name="android:textColor">@color/color_error</item>
+    </style>
+
+    <style name="TextAppearance.Error.Pill" parent="TextAppearance">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/font_white</item>
+    </style>
+
+
+    <style name="TextAppearance.Balance.Payment.Primary" parent="TextAppearance">
+        <item name="android:textSize">30sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="TextAppearance.Balance.Payment.Secondary" parent="TextAppearance">
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.08</item>
     </style>
 
     <style name="TextAppearance.Balance.TxDetails" parent="TextAppearance">

@@ -26,6 +26,9 @@ import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDial
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
+import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequest
+import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
+import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.segwit.PerformSegwitUpgradeActivity
 import com.coinninja.coinkeeper.ui.segwit.UpgradeToSegwitActivity
@@ -291,6 +294,19 @@ class ActivityNavigationUtil @Inject constructor(
 
     fun navigateToRestoreWallet(activity: AppCompatActivity) {
         Intent(activity, RestoreWalletActivity::class.java).also {
+            activity.startActivity(it)
+        }
+    }
+
+    fun navigateToPaymentRequestScreen(activity: Activity) {
+        Intent(activity, PayRequestActivity::class.java).also {
+            activity.startActivity(it)
+        }
+    }
+
+    fun navigateToShowLndInvoice(activity: Activity, lndInvoiceRequest: LndInvoiceRequest) {
+        Intent(activity, LndInvoiceRequestActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, lndInvoiceRequest)
             activity.startActivity(it)
         }
     }

@@ -132,6 +132,9 @@
     <string name="request_copied_message">Bitcoin Request copied to clipboard</string>
     <string name="tap_address_to_save_to_clipboard">Tap address to save to clipboard</string>
     <string name="send_request">Send Request</string>
+    <string name="create_invoice">create invoice</string>
+    <string name="add_receive_amount">Add Receive Amount</string>
+    <string name="add_a_memo">Add a memo</string>
 
     <!-- Pay -->
     <string name="pay_not_enough_funds_error">Not enough spendable funds</string>
@@ -516,4 +519,14 @@
     <string name="check_back_every_day_to_see_if_you_re_unlocked">Check back every day to see if you’re unlocked!</string>
     <string name="want_to_skip_the_line">Want to skip the line?</string>
     <string name="find_a_dropbit_lightning_user">Find a DropBit Lightning user to send you a few sats using your verified phone number or Twitter handle</string>
+
+
+    <!-- Account Mode Selection Toggle button view -->
+    <string name="bitcoin">Bitcoin</string>
+    <string name="lightning">Lightning</string>
+
+    <!--- LND Invoice Request Screen -->
+    <string name="lightning_invoice">LIGHTNING INVOICE</string>
+    <string name="expires_in_24_hours">expires in 24 hours</string>
+    <string name="tap_invoice_to_save_to_clipboard">Tap invoice to save to clipboard</string>
 </resources>

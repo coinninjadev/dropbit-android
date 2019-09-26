@@ -29,4 +29,18 @@ class QrViewModel internal constructor(internal val qrFileManager: QRFileManager
             }
         }
     }
+
+    fun requestQrCodeFor(data: String) {
+        GlobalScope.launch(coroutineContextProvider.Main) {
+            val uri: Uri? = withContext(coroutineContextProvider.IO) {
+                qrFileManager.createQrCode(data)
+            }
+
+            uri?.let {
+                withContext(coroutineContextProvider.Main) {
+                    qrCodeUri.postValue(it)
+                }
+            }
+        }
+    }
 }

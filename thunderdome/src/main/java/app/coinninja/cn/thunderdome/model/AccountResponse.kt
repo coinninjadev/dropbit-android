@@ -9,16 +9,32 @@ import com.google.gson.annotations.SerializedName
 data class AccountResponse(
         val id: String,
         @SerializedName("created_at")
-        val createdAt: String,
+        val createdAt: String = "",
         @SerializedName("updated_at")
-        val updatedAt: String,
-        val address: String,
-        val balance: Long,
+        val updatedAt: String = "",
+        val address: String = "",
+        val balance: Long = 0,
         @SerializedName("pending_in")
-        val pendingIn: Long,
+        val pendingIn: Long = 0,
         @SerializedName("pending_out")
-        val pendingOut: Long
+        val pendingOut: Long = 0,
+        @SerializedName("locked")
+        val isLocked: Boolean = true
 ) {
+
+
+    fun toLightningAccount(): LightningAccount {
+        return LightningAccount(
+                serverId = id,
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+                address = address,
+                balance = BTCCurrency(balance),
+                pendingIn = BTCCurrency(pendingIn),
+                pendingOut = BTCCurrency(pendingOut),
+                isLocked = isLocked
+        )
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -33,6 +49,7 @@ data class AccountResponse(
         if (balance != other.balance) return false
         if (pendingIn != other.pendingIn) return false
         if (pendingOut != other.pendingOut) return false
+        if (isLocked != other.isLocked) return false
 
         return true
     }
@@ -45,18 +62,7 @@ data class AccountResponse(
         result = 31 * result + balance.hashCode()
         result = 31 * result + pendingIn.hashCode()
         result = 31 * result + pendingOut.hashCode()
+        result = 31 * result + isLocked.hashCode()
         return result
-    }
-
-    fun toLightningAccount(): LightningAccount {
-        return LightningAccount(
-                serverId = id,
-                createdAt = createdAt,
-                updatedAt = updatedAt,
-                address = address,
-                balance = BTCCurrency(balance),
-                pendingIn = BTCCurrency(pendingIn),
-                pendingOut = BTCCurrency(pendingOut)
-        )
     }
 }
