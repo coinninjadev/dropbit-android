@@ -66,4 +66,8 @@ object Testdata {
             "  }\n" +
             "}"
 
+    const val createRequest: String = "{\n" +
+            "  \"request\": \"ln-encoded-invoice\"\n" +
+            "}"
+
 }

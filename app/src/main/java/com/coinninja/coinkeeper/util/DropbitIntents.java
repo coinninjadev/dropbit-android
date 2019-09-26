@@ -116,6 +116,7 @@ public class DropbitIntents {
     /* Dropbit Service Intents */
     public static final String EXTRA_DROPBIT_TXID = "EXTRA_DROPBIT_TXID";
     public static final String EXTRA_DROPBIT_MEMO = "EXTRA_DROPBIT_MEMO";
+    public static final String EXTRA_LND_INVOICE_REQUEST = "EXTRA_LND_INVOICE_REQUEST";
     /* CN Rest API KEYS */
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ALL = "all";
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID = "android";

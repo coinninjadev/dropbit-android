@@ -54,10 +54,20 @@ class BitcoinUri {
                 _scheme = scheme
         }
 
+        fun setAmount(btcCurrency: BTCCurrency): Builder {
+            addParameter(BitcoinParameter.AMOUNT, btcCurrency.toUriFormattedString())
+            return this
+        }
+
         fun setAddress(address: String): Builder {
             if (bitcoinUtil.isValidBTCAddress(address)) {
                 _address = address
             }
+            return this
+        }
+
+        fun removeAmount(): Builder {
+            _parameters.remove(BitcoinParameter.AMOUNT)
             return this
         }
 
@@ -130,6 +140,7 @@ class BitcoinUri {
             }
             return ""
         }
+
     }
 
     internal class StringUri(val uriString: String) {

@@ -26,6 +26,9 @@ import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDial
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
+import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequest
+import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
+import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.segwit.PerformSegwitUpgradeActivity
 import com.coinninja.coinkeeper.ui.segwit.UpgradeToSegwitActivity
@@ -522,6 +525,30 @@ class ActivityNavigationUtilTest {
             val intent = Intent(activity, RestoreWalletActivity::class.java)
 
             it.navigateToRestoreWallet(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_payment_reqeust_screen() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, PayRequestActivity::class.java)
+
+            it.navigateToPaymentRequestScreen(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigate_to_review_created_invoice() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, LndInvoiceRequestActivity::class.java)
+            val lndInvoiceRequest = LndInvoiceRequest("--lnd-encoded_invoice", BTCCurrency(10_000), "--memo--")
+            intent.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, lndInvoiceRequest)
+
+            it.navigateToShowLndInvoice(activity, lndInvoiceRequest)
 
             assertThat(activity, activityWithIntentStarted(intent))
         }

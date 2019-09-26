@@ -12,9 +12,10 @@ import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Views.clickOn
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.service.client.model.TransactionFee
 import com.coinninja.coinkeeper.ui.home.HomeActivity
-import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.FeesManager
@@ -153,13 +154,12 @@ class PaymentBarFragmentTest {
     }
 
     @Test
-    fun shows_request_dialog() {
+    fun shows_payment_request_screen() {
         launchHome()
 
         clickOn(requestButton)
 
-        verify(application.activityNavigationUtil).showDialogWithTag(eq(paymentBarFragment.childFragmentManager),
-                any(), eq(RequestDialogFragment::class.java.simpleName))
+        verify(application.activityNavigationUtil).navigateToPaymentRequestScreen(any())
     }
 
     @Test
@@ -185,5 +185,11 @@ class PaymentBarFragmentTest {
             return manager
         }
 
+        @Provides
+        fun accountModeManager(): AccountModeManager {
+            val manager = mock<AccountModeManager>()
+            whenever(manager.accountMode).thenReturn(AccountMode.LIGHTNING)
+            return manager
+        }
     }
 }

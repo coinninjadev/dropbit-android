@@ -15,6 +15,9 @@ import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroad
 import com.coinninja.coinkeeper.ui.market.MarketChartModule
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.news.MarketNewsModule
+import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
+import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
+import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenModule
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
 import com.coinninja.coinkeeper.ui.segwit.*
 import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivity
@@ -168,4 +171,12 @@ abstract class AndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class])
     internal abstract fun upgradeToSegwitCompleteActivity(): UpgradeToSegwitCompleteActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, PayRequestScreenModule::class])
+    internal abstract fun payRequestActivity(): PayRequestActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, PayRequestScreenModule::class])
+    internal abstract fun lndInvoiceRequestActivity(): LndInvoiceRequestActivity
 }

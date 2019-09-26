@@ -10,15 +10,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import com.coinninja.android.helpers.gone
-import com.coinninja.android.helpers.show
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeChangeObserver
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks
 import com.coinninja.coinkeeper.ui.base.BaseFragment
-import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.FeesManager
@@ -59,7 +59,16 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
     @Inject
     internal lateinit var currencyPreference: CurrencyPreference
 
+    @Inject
+    internal lateinit var accountModeManager: AccountModeManager
+
     internal val paymentHolder: PaymentHolder = PaymentHolder()
+
+    internal val accountModeChangeObserver = object : AccountModeChangeObserver {
+        override fun onAccountModeChanged(accountMode: AccountMode) {
+            paymentBarView.accountMode = accountMode
+        }
+    }
 
     internal val paymentBarView: PaymentBarView get() = view as PaymentBarView
     internal val payDialogFragment: PayDialogFragment? get() = childFragmentManager.findFragmentByTag(PayDialogFragment::class.java.simpleName) as PayDialogFragment?
@@ -86,15 +95,29 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
         creationIntent.data?.let { uri ->
             launchPayScreenWithBitcoinUriIfNecessary(uri)
         }
+        accountModeManager.observeChanges(accountModeChangeObserver)
 
     }
 
     override fun onResume() {
         super.onResume()
-        paymentBarView.apply {
-            setOnRequestPressedObserver { this@PaymentBarFragment.onRequestButtonPressed() }
-            setOnSendPressedObserver { this@PaymentBarFragment.showPayDialogWithDefault() }
-            setOnScanPressedObserver { this@PaymentBarFragment.onQrScanPressed() }
+        paymentBarView.also {
+            it.setOnRequestPressedObserver(object : PaymentBarView.OnRequestPressedObserver {
+                override fun onRequestPressed() {
+                    this@PaymentBarFragment.onRequestButtonPressed()
+                }
+            })
+            it.setOnSendPressedObserver(object : PaymentBarView.OnSendPressedObserver {
+                override fun onSendPressed() {
+                    this@PaymentBarFragment.showPayDialogWithDefault()
+                }
+            })
+            it.setOnScanPressedObserver(object : PaymentBarView.OnScanPressedObserver {
+                override fun onScanPressed() {
+                    this@PaymentBarFragment.onQrScanPressed()
+                }
+
+            })
         }
     }
 
@@ -155,8 +178,9 @@ class PaymentBarFragment : BaseFragment(), PaymentBarCallbacks {
     }
 
     private fun onRequestButtonPressed() {
-        val requestDialog = RequestDialogFragment()
-        activityNavigationUtil.showDialogWithTag(childFragmentManager, requestDialog, RequestDialogFragment::class.java.simpleName)
+        activity?.let {
+            activityNavigationUtil.navigateToPaymentRequestScreen(it)
+        }
     }
 
 

@@ -27,7 +27,7 @@ data class LightningAccount(
         var serverId: String = "",
 
         @ColumnInfo(name = "ADDRESS")
-        var address: String = "",
+        var address: String? = "",
 
         @ColumnInfo(name = "BALANCE")
         var balance: BTCCurrency = BTCCurrency(0L),
@@ -42,6 +42,9 @@ data class LightningAccount(
         var createdAt: String = "",
 
         @ColumnInfo(name = "UPDATED_AT")
-        var updatedAt: String = ""
+        var updatedAt: String = "",
+
+        @ColumnInfo(name = "IS_LOCKED")
+        var isLocked: Boolean? = true
 )
 

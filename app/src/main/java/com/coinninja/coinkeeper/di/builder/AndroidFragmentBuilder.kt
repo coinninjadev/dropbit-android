@@ -17,10 +17,6 @@ import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragmentMod
 import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
 import com.coinninja.coinkeeper.ui.lightning.locked.LightningLockedFragment
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
-import com.coinninja.coinkeeper.ui.payment.request.PayRequestFragment
-import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragment
-import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragmentModule
-import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog
 import com.coinninja.coinkeeper.ui.twitter.TransactionTweetDialog
@@ -32,14 +28,6 @@ import dagger.android.ContributesAndroidInjector
 
 @Module
 abstract class AndroidFragmentBuilder {
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun payRequestScreenFragment(): PayRequestScreenFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [PayRequestScreenFragmentModule::class])
-    internal abstract fun payRequestFragment(): PayRequestFragment
 
     @ActivityScope
     @ContributesAndroidInjector
@@ -108,10 +96,6 @@ abstract class AndroidFragmentBuilder {
     @ActivityScope
     @ContributesAndroidInjector
     internal abstract fun payDialogFragment(): PayDialogFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun requestDialogFragment(): RequestDialogFragment
 
     @ActivityScope
     @ContributesAndroidInjector

@@ -17,7 +17,7 @@ class ThunderDomeRepository(
 
     val lightningAccount: LightningAccount? get() = dropbitDatabase.lightningAccountDao().getAccount()
     val ledgerInvoices: LiveData<List<LightningInvoice>> get() = dropbitDatabase.lightningInvoiceDao().allVisibleLive()
-    val isLocked:Boolean = true
+    val isLocked:Boolean get() = lightningAccount?.isLocked ?: true
 
     fun sync() {
         syncAccount()
@@ -83,5 +83,14 @@ class ThunderDomeRepository(
         return null
     }
 
+    fun createInvoiceFor(amount:Long, memo:String? = null):String? {
+        apiClient.createInvoiceFor(amount, memo?: "").let {response ->
+            return if (response.isSuccessful) {
+                response.body()?.request
+            } else {
+                null
+            }
+        }
+    }
 
 }

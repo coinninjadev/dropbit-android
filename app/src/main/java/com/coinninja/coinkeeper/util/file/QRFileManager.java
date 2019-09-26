@@ -45,6 +45,27 @@ public class QRFileManager {
         return null;
     }
 
+    public Uri createQrCode(String data) {
+        try {
+            byte[] qrCode = qrGeneratorUtil.generateFrom(data);
+            File file = createCacheFile(data);
+            fileUtil.delete(file);
+            fileUtil.createFile(file);
+            fileUtil.writeBytes(qrCode, file);
+            return fileProviderUtil.getUriForFile(context, file);
+        } catch (WriterException | IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @NonNull
+    private File createCacheFile(String data) {
+        File directory = context.getExternalFilesDir(TMP_QR_DIIRECTORY);
+        return new File(directory, String.format(QR_CODE_FILENAME, data.replace(" ", ""), ""));
+    }
+
     @NonNull
     private File createCacheFile(BitcoinUri uri) {
         File directory = context.getExternalFilesDir(TMP_QR_DIIRECTORY);

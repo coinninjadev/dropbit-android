@@ -99,11 +99,39 @@ class PaymentHolder(
         USDCurrency.setMaxLimit(evaluationCurrency as USDCurrency?)
     }
 
+
     private fun clearTransactionData() {
         transactionData = TransactionData(
                 emptyArray(), 0, 0, 0,
                 DerivationPath(49, 0, 0, 0, 0),
                 ""
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PaymentHolder
+
+        if (spendableBalance.toLong() != other.spendableBalance.toLong()) return false
+        if (isSharingMemo != other.isSharingMemo) return false
+        if (publicKey != other.publicKey) return false
+        if (memo != other.memo) return false
+        if (evaluationCurrency.toLong() != other.evaluationCurrency.toLong()) return false
+        if (transactionData != other.transactionData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = spendableBalance.hashCode()
+        result = 31 * result + isSharingMemo.hashCode()
+        result = 31 * result + publicKey.hashCode()
+        result = 31 * result + memo.hashCode()
+        result = 31 * result + defaultCurrencies.hashCode()
+        result = 31 * result + evaluationCurrency.hashCode()
+        result = 31 * result + transactionData.hashCode()
+        return result
     }
 }

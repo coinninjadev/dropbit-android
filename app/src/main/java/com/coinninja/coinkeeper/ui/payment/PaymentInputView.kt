@@ -45,6 +45,13 @@ class PaymentInputView @JvmOverloads constructor(
             invalidate()
 
         }
+
+    var canToggleCurrencies = true
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     var paymentHolder: PaymentHolder = PaymentHolder().also {
         it.defaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
     }
@@ -61,6 +68,7 @@ class PaymentInputView @JvmOverloads constructor(
     private var watcher: CurrencyFormattingTextWatcher = CurrencyFormattingTextWatcher()
     private var onSendMaxObserver: OnSendMaxObserver? = null
     private var sendMaxClearedObserver: OnSendMaxClearedObserver? = null
+    var onZeroedObserver: OnZeroedObserver? = null
     var onValidEntryObserver: OnValidEntryObserver? = null
     private var defaultSecondaryFontColor: Int = 0
     private var cryptoFontColor: Int = 0
@@ -109,6 +117,7 @@ class PaymentInputView @JvmOverloads constructor(
             sendMax.visibility = View.VISIBLE
 
         clearSendMaxIfNecessary()
+        onZeroedObserver?.onZeroed()
     }
 
     override fun onInput() {
@@ -235,8 +244,12 @@ class PaymentInputView @JvmOverloads constructor(
 
     private fun configureToggleCurrencyButton() {
         val toggleView = findViewById<View>(R.id.primary_currency_toggle)
-        toggleView.setOnClickListener { togglePrimaryCurrencies() }
-        toggleView.visibility = View.VISIBLE
+        if (canToggleCurrencies) {
+            toggleView.setOnClickListener { togglePrimaryCurrencies() }
+            toggleView.visibility = View.VISIBLE
+        } else {
+            toggleView.visibility = View.GONE
+        }
     }
 
     private fun invalidateSymbol() {
@@ -265,6 +278,10 @@ class PaymentInputView @JvmOverloads constructor(
 
     interface OnValidEntryObserver {
         fun onValidEntry()
+    }
+
+    interface OnZeroedObserver {
+        fun onZeroed()
     }
 
     companion object {
