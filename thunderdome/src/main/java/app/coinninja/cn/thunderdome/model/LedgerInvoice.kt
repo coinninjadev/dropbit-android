@@ -4,11 +4,12 @@ import app.coinninja.cn.persistance.model.LedgerDirection
 import app.coinninja.cn.persistance.model.LedgerStatus
 import app.coinninja.cn.persistance.model.LedgerType
 import app.coinninja.cn.persistance.model.LightningInvoice
+import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.util.asDateOrNull
 import com.google.gson.annotations.SerializedName
 
-
+@Mockable
 data class LedgerInvoice(
         val id: String = "",
 
@@ -23,25 +24,25 @@ data class LedgerInvoice(
 
         @SerializedName("expires_at")
         val expiresAt: String? = null,
-        val status: String,
-        val type: String,
-        val direction: String,
-        val generated: Boolean,
-        val value: Long,
+        val status: String = "",
+        val type: String = "",
+        val direction: String = "",
+        val generated: Boolean = false,
+        val value: Long = 0,
 
         @SerializedName("network_fee")
-        val networkFee: Long,
+        val networkFee: Long = 0,
 
         @SerializedName("processing_fee")
-        val processingFee: Long,
+        val processingFee: Long = 0,
 
         @SerializedName("add_index")
         val addIndex: Int? = null,
 
-        val memo: String,
-        val request: String,
-        val error: String,
-        val hidden: Boolean
+        val memo: String? = null,
+        val request: String? = null,
+        val error: String? = null,
+        val hidden: Boolean? = null
 ) {
 
     val networkFeeCurrency: BTCCurrency get() = BTCCurrency(networkFee)
@@ -61,10 +62,10 @@ data class LedgerInvoice(
                 networkFee = BTCCurrency(networkFee),
                 processingFee = BTCCurrency(processingFee),
                 addIndex = addIndex,
-                memo = memo,
-                request = request,
-                error = error,
-                isHidden = hidden
+                memo = memo ?: "",
+                request = request ?: "",
+                error = error ?: "",
+                isHidden = hidden ?: false
         )
     }
 

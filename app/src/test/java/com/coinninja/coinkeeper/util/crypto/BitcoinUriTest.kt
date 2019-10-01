@@ -36,6 +36,7 @@ class BitcoinUriTest {
         assertThat(uri.toString()).isEqualTo("bitcoin:")
         assertThat(uri.address).isEqualTo("")
         assertThat(uri.scheme).isEqualTo("bitcoin")
+        assertThat(uri.memo).isEqualTo("")
         assertThat(uri.isBip70).isFalse()
         assertThat(uri.isValidPaymentAddress).isFalse()
     }
@@ -51,6 +52,8 @@ class BitcoinUriTest {
         assertThat(uri.address).isEqualTo("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa")
         assertThat(uri.scheme).isEqualTo("bitcoin")
         assertThat(uri.isBip70).isFalse()
+        assertThat(uri.hasRequiredFee).isFalse()
+        assertThat(uri.requiredFee).isEqualTo(0.0)
         assertThat(uri.isValidPaymentAddress).isTrue()
     }
 
@@ -92,6 +95,46 @@ class BitcoinUriTest {
 
         assertThat(builder.removeAmount().build().toString()).isEqualTo("bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa")
     }
+
+    @Test
+    fun builder_can_add_a_memo() {
+        val builder = createBuilder()
+        val address = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa"
+        val memo = "Hello World"
+
+        val uri = builder.setAddress(address).setAmount(BTCCurrency(150_000_000)).setMemo(memo).build()
+        assertThat(uri.toString()).isEqualTo("bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=1.50000000&memo=Hello%2BWorld")
+        assertThat(uri.address).isEqualTo("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa")
+        assertThat(uri.satoshiAmount).isEqualTo(150_000_000)
+        assertThat(uri.memo).isEqualTo("Hello World")
+    }
+
+    @Test
+    fun builder_can_add_a_required_fee() {
+        val builder = createBuilder()
+        val address = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa"
+        val fee: Double = 5.0
+
+        val uri = builder.setAddress(address).setAmount(BTCCurrency(150_000_000)).setFee(fee).build()
+        assertThat(uri.toString()).isEqualTo("bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=1.50000000&required_fee=5.0")
+        assertThat(uri.address).isEqualTo("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa")
+        assertThat(uri.satoshiAmount).isEqualTo(150_000_000)
+        assertThat(uri.hasRequiredFee).isTrue()
+        assertThat(uri.requiredFee).isEqualTo(fee)
+    }
+
+    @Test
+    fun builder_clear() {
+        val builder = createBuilder()
+        val address = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa"
+        val fee: Double = 5.0
+
+        builder.setAddress(address).setAmount(BTCCurrency(150_000_000)).setFee(fee).setMemo("foo bar")
+        assertThat(builder.build().toString()).isEqualTo("bitcoin:35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa?amount=1.50000000&required_fee=5.0&memo=foo%2Bbar")
+
+        assertThat(builder.clear().build().toString()).isEqualTo("bitcoin:")
+    }
+
 
     // --------------
     // PARSING

@@ -47,7 +47,7 @@ class PayRequestActivityTest {
         val scenario = ActivityScenario.launch(PayRequestActivity::class.java)
         scenario.onActivity {
             it.latestPriceObserver.onChanged(USDCurrency(10_500_00))
-            it.accountModeToggleObserver.onSelectionChange(accountMode)
+            it.onAccountModeChanged(accountMode)
         }
         return scenario
     }
@@ -353,7 +353,7 @@ class PayRequestActivityTest {
     //Toggling between modes
 
     @Test
-    fun toggling_to_lightning_clears_input_and_shows_lightning() {
+    fun toggling_to_lightning_changes_mode_to_lightning() {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
@@ -366,18 +366,7 @@ class PayRequestActivityTest {
 
             activity.accountModeToggle.lightningButton.performClick()
 
-            assertThat(activity.accountModeToggle.mode).isEqualTo(AccountMode.LIGHTNING)
-            assertThat(activity.qrCodeImage.visibility).isEqualTo(View.GONE)
-            assertThat(activity.addAmountButton.visibility).isEqualTo(View.VISIBLE)
-            assertThat(activity.addMemoButton.visibility).isEqualTo(View.VISIBLE)
-            assertThat(activity.amountInputView.visibility).isEqualTo(View.GONE)
-            assertThat(activity.amountInputView.paymentHolder.primaryCurrency.isZero).isTrue()
-            assertThat(activity.copyToBufferButton.visibility).isEqualTo(View.GONE)
-            assertThat(activity.copyLabel.visibility).isEqualTo(View.GONE)
-            assertThat(activity.requestFundsButton.text).isEqualTo(activity.getText(R.string.create_invoice))
-            assertThat(activity.amountInputView.onValidEntryObserver).isNull()
-            assertThat(activity.amountInputView.onZeroedObserver).isNull()
-            verify(activity.qrViewModel.qrCodeUri, atLeast(1)).removeObserver(activity.qrCodeUriObserver)
+            verify(activity.walletViewModel, atLeast(1)).setMode(AccountMode.LIGHTNING)
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -386,8 +375,56 @@ class PayRequestActivityTest {
     }
 
     @Test
-    fun toggling_to_blockchain_clears_input_and_shows_blockchain() {
+    fun observing_mode_change_updates_to_that_mode___Lightning() {
         val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+            activity.isLightningLockedObserver.onChanged(false)
+            activity.amountInputView.show()
+            activity.addMemoButton.show()
+            activity.qrCodeImage.gone()
+            activity.addAmountButton.gone()
+            activity.amountInputView.paymentHolder.updateValue(USDCurrency(10_00))
+
+            activity.onAccountModeChanged(AccountMode.LIGHTNING)
+
+            assertThat(activity.accountModeToggle.mode).isEqualTo(AccountMode.LIGHTNING)
+            assertThat(activity.qrCodeImage.visibility).isEqualTo(View.GONE)
+            assertThat(activity.addAmountButton.visibility).isEqualTo(View.VISIBLE)
+            assertThat(activity.addMemoButton.visibility).isEqualTo(View.VISIBLE)
+            assertThat(activity.amountInputView.visibility).isEqualTo(View.GONE)
+            assertThat(activity.amountInputView.paymentHolder.primaryCurrency.isZero).isTrue()
+            assertThat(activity.copyToBufferButton.visibility).isEqualTo(View.INVISIBLE)
+            assertThat(activity.copyLabel.visibility).isEqualTo(View.INVISIBLE)
+            assertThat(activity.requestFundsButton.text).isEqualTo(activity.getText(R.string.create_invoice))
+            assertThat(activity.amountInputView.onValidEntryObserver).isNull()
+            assertThat(activity.amountInputView.onZeroedObserver).isNull()
+            verify(activity.qrViewModel.qrCodeUri, atLeast(1)).removeObserver(activity.qrCodeUriObserver)
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun toggling_to_blockchain_clears_input_and_shows_blockchain() {
+        val scenario = createScenario(AccountMode.LIGHTNING)
+
+        scenario.onActivity { activity ->
+
+            activity.accountModeToggle.blockchainButton.performClick()
+
+            verify(activity.walletViewModel, atLeast(1)).setMode(AccountMode.BLOCKCHAIN)
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+
+    }
+
+    @Test
+    fun observing_mode_change_updates_to_that_mode___Blockchain() {
+        val scenario = createScenario(AccountMode.LIGHTNING)
 
         scenario.onActivity { activity ->
             activity.isLightningLockedObserver.onChanged(false)
@@ -400,7 +437,7 @@ class PayRequestActivityTest {
             activity.copyLabel.gone()
             activity.amountInputView.paymentHolder.updateValue(USDCurrency(10_00))
 
-            activity.accountModeToggle.blockchainButton.performClick()
+            activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
 
             assertThat(activity.accountModeToggle.mode).isEqualTo(AccountMode.BLOCKCHAIN)
             assertThat(activity.qrCodeImage.visibility).isEqualTo(View.VISIBLE)
@@ -419,8 +456,8 @@ class PayRequestActivityTest {
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
         scenario.close()
-
     }
+
 
     @Module
     class PayRequestActivityTestModule {

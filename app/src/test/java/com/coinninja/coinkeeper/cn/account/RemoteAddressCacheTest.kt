@@ -4,6 +4,7 @@ import app.coinninja.cn.libbitcoin.model.DerivationPath
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.model.db.Address
 import com.coinninja.coinkeeper.model.dto.AddressDTO
+import com.coinninja.coinkeeper.service.client.model.AddAddressBodyRequest
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress
 import com.nhaarman.mockitokotlin2.*
 import okhttp3.MediaType
@@ -25,7 +26,7 @@ class RemoteAddressCacheTest {
         return AddressDTO(newAddress, pubKey)
     }
 
-    private fun createRemoteCache(): RemoteAddressCache = RemoteAddressCache(mock(), mock(), mock()).also {
+    private fun createRemoteCache(): RemoteAddressCache = RemoteAddressCache(mock(), mock(), mock(), mock()).also {
         addressToPubKey["-- addr 0"] = setupAddress("-- addr 0", "-- addr pub key 0")
         addressToPubKey["-- addr 1"] = setupAddress("-- addr 1", "-- addr pub key 1")
         addressToPubKey["-- addr 2"] = setupAddress("-- addr 2", "-- addr pub key 2")
@@ -33,6 +34,7 @@ class RemoteAddressCacheTest {
         addressToPubKey["-- addr 4"] = setupAddress("-- addr 4", "-- addr pub key 4")
         whenever(it.accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, 5)).thenReturn(addressToPubKey)
         whenever(it.apiClient.cnWalletAddresses).thenReturn(Response.success(cachedAddresses))
+        whenever(it.hdWalletWrapper.verificationKey).thenReturn("--verification-key--")
 
         addressToPubKey.keys.forEachIndexed { index, addr ->
             val address = CNWalletAddress(address = addr, publicKey = addressToPubKey[addr]?.uncompressedPublicKey)
@@ -58,21 +60,37 @@ class RemoteAddressCacheTest {
         remoteCache.cacheAddresses()
 
         verify(remoteCache.apiClient, times(0)).removeAddress(any())
-        verify(remoteCache.apiClient, times(0)).addAddress(any(), any())
+        verify(remoteCache.apiClient, times(0)).addAddress(any())
     }
 
     @Test
-    fun sends_five_addresses_when_no_addresses_cached() {
+    fun sends_five_addresses_when_no_addresses_cached_plus_generated_lnd() {
         val remoteCache = createRemoteCache()
         whenever(remoteCache.apiClient.cnWalletAddresses).thenReturn(Response.success(emptyList()))
 
         remoteCache.cacheAddresses()
 
-        verify(remoteCache.apiClient).addAddress("-- addr 0", "-- addr pub key 0")
-        verify(remoteCache.apiClient).addAddress("-- addr 1", "-- addr pub key 1")
-        verify(remoteCache.apiClient).addAddress("-- addr 2", "-- addr pub key 2")
-        verify(remoteCache.apiClient).addAddress("-- addr 3", "-- addr pub key 3")
-        verify(remoteCache.apiClient).addAddress("-- addr 4", "-- addr pub key 4")
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 0", pubKey = "-- addr pub key 0"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 1", pubKey = "-- addr pub key 1"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 2", pubKey = "-- addr pub key 2"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 3", pubKey = "-- addr pub key 3"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 4", pubKey = "-- addr pub key 4"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "generate", pubKey = "--verification-key--", addressType = "lightning"))
+    }
+
+    @Test
+    fun does_not_cache_lightning_when_it_already_is_cached() {
+        val remoteCache = createRemoteCache()
+        whenever(remoteCache.apiClient.cnWalletAddresses).thenReturn(Response.success(listOf(CNWalletAddress(address = "generate"))))
+
+        remoteCache.cacheAddresses()
+
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 0", pubKey = "-- addr pub key 0"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 1", pubKey = "-- addr pub key 1"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 2", pubKey = "-- addr pub key 2"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 3", pubKey = "-- addr pub key 3"))
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 4", pubKey = "-- addr pub key 4"))
+        verify(remoteCache.apiClient, times(0)).addAddress(AddAddressBodyRequest(address = "generate", pubKey = "--verification-key--", addressType = "lightning"))
     }
 
     @Test
@@ -98,8 +116,7 @@ class RemoteAddressCacheTest {
         val remoteCache = createRemoteCache()
         cachedAddresses.removeAt(3)
         remoteCache.cacheAddresses()
-        verify(remoteCache.apiClient, times(1)).addAddress(any(), any())
-        verify(remoteCache.apiClient).addAddress("-- addr 3", "-- addr pub key 3")
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "-- addr 3", pubKey = "-- addr pub key 3"))
     }
 
     @Test

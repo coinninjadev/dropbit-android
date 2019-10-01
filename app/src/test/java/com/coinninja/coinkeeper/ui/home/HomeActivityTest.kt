@@ -16,7 +16,6 @@ import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.android.synthetic.main.activity_home.*
@@ -134,10 +133,10 @@ internal class HomeActivityTest {
         scenario.onActivity { activity ->
 
             activity.tabs.selectTab(activity.tabs.getTabAt(1))
-            verify(activity.accountModeManger).changeMode(AccountMode.LIGHTNING)
+            verify(activity.walletViewModel).setMode(AccountMode.LIGHTNING)
 
             activity.tabs.selectTab(activity.tabs.getTabAt(0))
-            verify(activity.accountModeManger, times(1)).changeMode(AccountMode.BLOCKCHAIN)
+            verify(activity.walletViewModel).setMode(AccountMode.BLOCKCHAIN)
         }
         scenario.moveToState(Lifecycle.State.DESTROYED)
         scenario.close()

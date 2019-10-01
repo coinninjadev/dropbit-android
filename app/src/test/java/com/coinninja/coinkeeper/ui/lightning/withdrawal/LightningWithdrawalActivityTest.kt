@@ -45,8 +45,6 @@ class LightningWithdrawalActivityTest {
             assertThat(activity.withdrawalAmount.accountMode).isEqualTo(AccountMode.LIGHTNING)
             verify(activity.fundingViewModel.lightningWithdrawalDropbitFee).observe(activity, activity.dropbitFeeObserver)
             verify(activity.fundingViewModel.lightningWithdrawalNetworkFee).observe(activity, activity.networkFeeObserver)
-            verify(activity.walletViewModel.fetchLightningBalance()).observe(activity, activity.lightningBalanceObserver)
-            verify(activity.walletViewModel.fetchBtcLatestPrice()).observe(activity, activity.latestPriceObserver)
 
             activity.latestPriceObserver.onChanged(USDCurrency(10_500_00))
 

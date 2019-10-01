@@ -13,7 +13,6 @@ import com.coinninja.coinkeeper.model.Identity;
 import com.coinninja.coinkeeper.model.PaymentHolder;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
-import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.ui.base.BaseBottomDialogFragment;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.FeesManager;
@@ -53,20 +52,19 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
 
     FeeType feePref = FAST;
 
-    PaymentBarCallbacks paymentBarCallbacks;
     private Identity identity;
     private PaymentUtil paymentUtil;
 
-    public static ConfirmPayDialogFragment newInstance(Identity identity, PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks) {
+    public static ConfirmPayDialogFragment newInstance(Identity identity, PaymentUtil paymentUtil) {
         ConfirmPayDialogFragment fragment = new ConfirmPayDialogFragment();
         fragment.setIdentity(identity);
-        fragment.commonInit(paymentUtil, paymentBarCallbacks);
+        fragment.commonInit(paymentUtil);
         return fragment;
     }
 
-    public static ConfirmPayDialogFragment newInstance(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks) {
+    public static ConfirmPayDialogFragment newInstance(PaymentUtil paymentUtil) {
         ConfirmPayDialogFragment fragment = new ConfirmPayDialogFragment();
-        fragment.commonInit(paymentUtil, paymentBarCallbacks);
+        fragment.commonInit(paymentUtil);
         return fragment;
     }
 
@@ -96,7 +94,6 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     public void onResume() {
         super.onResume();
         feePref = feesManager.getFeePreference();
-        setupClose();
         analytics.trackEvent(Analytics.Companion.EVENT_CONFIRM_SCREEN_LOADED);
         analytics.flush();
 
@@ -170,9 +167,8 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         secondaryCurrencyView.setText(secondaryAmount);
     }
 
-    private void commonInit(PaymentUtil paymentUtil, PaymentBarCallbacks paymentBarCallbacks) {
+    private void commonInit(PaymentUtil paymentUtil) {
         this.paymentUtil = paymentUtil;
-        setPaymentBarCallbacks(paymentBarCallbacks);
     }
 
     private PaymentHolder getPaymentHolder() {
@@ -255,9 +251,6 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         updateWaitTime();
     }
 
-    private void setPaymentBarCallbacks(PaymentBarCallbacks paymentBarCallbacks) {
-        this.paymentBarCallbacks = paymentBarCallbacks;
-    }
 
     private void setupConfirmButton() {
         ConfirmHoldButton confirmHoldBtn = getView().findViewById(R.id.confirm_pay_hold_progress_btn);
@@ -270,10 +263,6 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         String displayText = identity == null ? "" : identity.getDisplayName();
         SharedMemoView sharedMemoView = new SharedMemoView(sharedMemo, getPaymentHolder().isSharingMemo(), getPaymentHolder().getMemo(), displayText);
         sharedMemoView.render();
-    }
-
-    private void setupClose() {
-        findViewById(R.id.confirm_pay_header_close_btn).setOnClickListener(v -> onCloseClicked());
     }
 
     private void showSendAddressIfNecessary() {
@@ -303,9 +292,6 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
         );
     }
 
-    private void onCloseClicked() {
-        paymentBarCallbacks.cancelPayment(this);
-    }
 
     private void startBroadcast() {
         if (shouldSendInvite()) {

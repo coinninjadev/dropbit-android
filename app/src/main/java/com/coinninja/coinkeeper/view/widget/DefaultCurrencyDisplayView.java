@@ -289,6 +289,7 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         String formattedCryptoValue = getFormattedCryptoValue();
         if (accountMode == AccountMode.LIGHTNING) {
             formattedCryptoValue = String.format("%s sats", new DecimalFormat("#,###.##").format(totalCrypto.toLong()));
+            Views.INSTANCE.clearCompoundDrawablesOn(cryptoView);
         } else if (useCryptoIcon) {
             Views.INSTANCE.renderBTCIconOnCurrencyViewPair(getContext(), defaultCurrencies, primaryCurrencyView,
                     useLargeStyles ? primaryIconLargeScale : primaryIconScale, secondaryCurrencyView, secondaryIconScale);

@@ -1,7 +1,10 @@
 package com.coinninja.coinkeeper.model
 
+import android.os.Parcel
+import android.os.Parcelable
 import app.coinninja.cn.libbitcoin.model.DerivationPath
 import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.*
 import com.coinninja.coinkeeper.util.DefaultCurrencies
@@ -13,9 +16,12 @@ class PaymentHolder(
         var isSharingMemo: Boolean = true,
         var publicKey: String = "",
         var memo: String = "",
-        var defaultCurrencies: DefaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
-) {
+        var defaultCurrencies: DefaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency()),
+        var toUser: Identity? = null
+) : Parcelable {
 
+
+    var requestInvoice: RequestInvoice? = null
     var evaluationCurrency: FiatCurrency = evaluationCurrency
         set(value) {
             field = value
@@ -55,6 +61,22 @@ class PaymentHolder(
             transactionData.paymentAddress = paymentAddress
         }
 
+    @Suppress("LeakingThis")
+    constructor(parcel: Parcel) : this(
+            USDCurrency(parcel.readLong()),
+            BTCCurrency(parcel.readLong()),
+            parcel.readByte() != 0.toByte(),
+            parcel.readString() ?: "",
+            parcel.readString() ?: "",
+            parcel.readParcelable(DefaultCurrencies::class.java.classLoader)
+                    ?: DefaultCurrencies(USDCurrency(), BTCCurrency())
+    ) {
+        transactionData = parcel.readParcelable(TransactionData::class.java.classLoader)
+                ?: TransactionData()
+        requestInvoice = parcel.readParcelable(RequestInvoice::class.java.classLoader)
+        toUser = parcel.readParcelable(Identity::class.java.classLoader) ?: null
+    }
+
 
     fun updateValue(currency: Currency): Currency {
         if (currency.isCrypto != primaryCurrency.isCrypto) {
@@ -93,6 +115,8 @@ class PaymentHolder(
         clearTransactionData()
         paymentAddress = ""
         primaryCurrency.zero()
+        requestInvoice = null
+        updateValue(primaryCurrency)
     }
 
     fun setMaxLimitForFiat() {
@@ -100,12 +124,29 @@ class PaymentHolder(
     }
 
 
-    private fun clearTransactionData() {
+    fun clearTransactionData() {
         transactionData = TransactionData(
                 emptyArray(), 0, 0, 0,
                 DerivationPath(49, 0, 0, 0, 0),
                 ""
         )
+    }
+
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(evaluationCurrency.toLong())
+        parcel.writeParcelable(spendableBalance, flags)
+        parcel.writeByte(if (isSharingMemo) 1 else 0)
+        parcel.writeString(publicKey)
+        parcel.writeString(memo)
+        parcel.writeParcelable(defaultCurrencies, flags)
+        parcel.writeParcelable(transactionData, flags)
+        parcel.writeParcelable(requestInvoice, flags)
+        parcel.writeParcelable(toUser, flags)
+    }
+
+    override fun describeContents(): Int {
+        return 0
     }
 
     override fun equals(other: Any?): Boolean {
@@ -114,11 +155,14 @@ class PaymentHolder(
 
         other as PaymentHolder
 
-        if (spendableBalance.toLong() != other.spendableBalance.toLong()) return false
+        if (spendableBalance != other.spendableBalance) return false
         if (isSharingMemo != other.isSharingMemo) return false
         if (publicKey != other.publicKey) return false
         if (memo != other.memo) return false
-        if (evaluationCurrency.toLong() != other.evaluationCurrency.toLong()) return false
+        if (defaultCurrencies != other.defaultCurrencies) return false
+        if (toUser != other.toUser) return false
+        if (requestInvoice != other.requestInvoice) return false
+        if (evaluationCurrency != other.evaluationCurrency) return false
         if (transactionData != other.transactionData) return false
 
         return true
@@ -130,8 +174,20 @@ class PaymentHolder(
         result = 31 * result + publicKey.hashCode()
         result = 31 * result + memo.hashCode()
         result = 31 * result + defaultCurrencies.hashCode()
+        result = 31 * result + (toUser?.hashCode() ?: 0)
+        result = 31 * result + (requestInvoice?.hashCode() ?: 0)
         result = 31 * result + evaluationCurrency.hashCode()
         result = 31 * result + transactionData.hashCode()
         return result
+    }
+
+    companion object CREATOR : Parcelable.Creator<PaymentHolder> {
+        override fun createFromParcel(parcel: Parcel): PaymentHolder {
+            return PaymentHolder(parcel)
+        }
+
+        override fun newArray(size: Int): Array<PaymentHolder?> {
+            return arrayOfNulls(size)
+        }
     }
 }

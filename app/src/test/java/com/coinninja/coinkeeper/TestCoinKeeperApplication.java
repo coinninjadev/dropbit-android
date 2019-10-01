@@ -17,7 +17,6 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference;
-import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate;
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection;
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager;
 import com.coinninja.coinkeeper.di.component.CoinKeeperComponent;
@@ -167,7 +166,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
     public TransactionFundingManager transactionFundingManager;
     public LocationUtil locationUtil;
-    public CNAddressLookupDelegate cnAddressLookupDelegae;
     public ClipboardUtil clipboardUtil;
     public UserPreferences userPreferences;
     public List<CountryCodeLocale> countryCodeLocales;
@@ -252,7 +250,6 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
         countryCodeLocales = null;
         clipboardUtil = null;
         messageCryptor = null;
-        cnAddressLookupDelegae = null;
         phoneNumberUtil = null;
         version_name = null;
         transactionHelper = null;

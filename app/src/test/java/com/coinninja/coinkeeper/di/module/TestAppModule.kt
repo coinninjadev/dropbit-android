@@ -21,7 +21,6 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
-import com.coinninja.coinkeeper.cn.wallet.service.CNAddressLookupDelegate
 import com.coinninja.coinkeeper.cn.wallet.service.CNServiceConnection
 import com.coinninja.coinkeeper.cn.wallet.tx.TransactionFundingManager
 import com.coinninja.coinkeeper.di.component.CoinKeeperComponent
@@ -428,14 +427,6 @@ class TestAppModule {
             app.inviteContactPresenter = mock()
         }
         return app.inviteContactPresenter
-    }
-
-    @Provides
-    internal fun cnAddressLookupDelegate(app: TestCoinKeeperApplication): CNAddressLookupDelegate {
-        if (app.cnAddressLookupDelegae == null) {
-            app.cnAddressLookupDelegae = mock()
-        }
-        return app.cnAddressLookupDelegae
     }
 
     @Provides

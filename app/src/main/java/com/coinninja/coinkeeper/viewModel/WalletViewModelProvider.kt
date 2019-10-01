@@ -7,7 +7,6 @@ import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.ui.base.BaseActivity
-import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.util.CurrencyPreference
 
@@ -32,6 +31,8 @@ class WalletViewModelProvider constructor(val syncWalletManager: SyncWalletManag
         walletViewModel.thunderDomeRepository = thunderDomeRepository
         walletViewModel.accountModeManager = accountModeManager
         walletViewModel.setupObservers()
+        walletViewModel.checkLightningLock()
+        walletViewModel.currentMode()
         return walletViewModel
     }
 }

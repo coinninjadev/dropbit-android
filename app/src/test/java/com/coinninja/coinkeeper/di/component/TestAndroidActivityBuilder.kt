@@ -6,7 +6,6 @@ import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserViewModel
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivity
-import com.coinninja.coinkeeper.ui.base.BaseActivityModule
 import com.coinninja.coinkeeper.ui.base.TestBaseActivityModule
 import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
@@ -18,6 +17,9 @@ import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroad
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.market.TestMarketChartModule
 import com.coinninja.coinkeeper.ui.news.TestMarketNewsModule
+import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity
+import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
+import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivityTest
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivityTest
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
@@ -188,5 +190,13 @@ abstract class TestAndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, LndInvoiceRequestActivityTest.LndInvoiceRequestActivityTestModule::class])
     internal abstract fun lndInvoiceRequestActivity(): LndInvoiceRequestActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, CreatePaymentActivityTest.CreatePaymentActivityTestModule::class])
+    internal abstract fun createPaymentActivity(): CreatePaymentActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
+    internal abstract fun confirmPaymentActivity(): ConfirmPaymentActivity
 }
 

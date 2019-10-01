@@ -40,11 +40,6 @@ class LndInvoiceRequestActivity : BaseActivity() {
 
     var latestPrice: USDCurrency = USDCurrency(0)
 
-    val latestPriceObserver: Observer<FiatCurrency> = Observer {
-        latestPrice = it as USDCurrency
-        renderAmount()
-    }
-
     var qrImageUri: Uri = Uri.EMPTY
         set(value) {
             field = value
@@ -58,7 +53,6 @@ class LndInvoiceRequestActivity : BaseActivity() {
     val qrCodeUriObserver = Observer<Uri> { uri ->
         qrImageUri = uri
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +69,6 @@ class LndInvoiceRequestActivity : BaseActivity() {
         super.onResume()
         copyToBufferButton.text = lndInvoiceRequest.request
         requestButton.setOnClickListener { onRequestFunds() }
-        walletViewModel.currentPrice.observe(this, latestPriceObserver)
         qrViewModel.qrCodeUri.observe(this, qrCodeUriObserver)
         qrViewModel.requestQrCodeFor(lndInvoiceRequest.request)
 
@@ -87,6 +80,17 @@ class LndInvoiceRequestActivity : BaseActivity() {
             memo.text = lndInvoiceRequest.memo
             memo.show()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        qrViewModel.qrCodeUri.removeObserver(qrCodeUriObserver)
+    }
+
+    override fun onLatestPriceChanged(currentPrice: FiatCurrency) {
+        super.onLatestPriceChanged(currentPrice)
+        latestPrice = currentPrice as USDCurrency
+        renderAmount()
     }
 
     private fun renderAmount() {
@@ -125,12 +129,6 @@ class LndInvoiceRequestActivity : BaseActivity() {
             startActivity(Intent.createChooser(intent, "Request Bitcoin"))
         }
 
-    }
-
-    override fun onPause() {
-        super.onPause()
-        walletViewModel.currentPrice.removeObserver(latestPriceObserver)
-        qrViewModel.qrCodeUri.removeObserver(qrCodeUriObserver)
     }
 
 }

@@ -33,12 +33,6 @@ class WalletViewModel : ViewModel() {
     internal lateinit var thunderDomeRepository: ThunderDomeRepository
     internal lateinit var accountModeManager: AccountModeManager
 
-    val modeChangeObserver: AccountModeChangeObserver = object : AccountModeChangeObserver {
-        override fun onAccountModeChanged(accountMode: AccountMode) {
-            setMode(accountModeManager.balanceAccountMode)
-        }
-    }
-
     val isLightningLocked: MutableLiveData<Boolean> = MutableLiveData()
     val accountMode: MutableLiveData<AccountMode> = MutableLiveData()
     val currentPrice: MutableLiveData<FiatCurrency> = MutableLiveData()
@@ -71,12 +65,12 @@ class WalletViewModel : ViewModel() {
     fun setupObservers() {
         syncManagerViewNotifier.observeSyncManagerChange(syncChangeObserver)
         accountMode.value = accountModeManager.balanceAccountMode
-        accountModeManager.observeChanges(modeChangeObserver)
     }
 
     fun setMode(accountMode: AccountMode) {
-        invalidateBalances(accountMode)
+        accountModeManager.changeMode(accountMode)
         this.accountMode.value = accountMode
+        invalidateBalances(accountMode)
     }
 
     fun loadHoldingBalances() {
@@ -114,6 +108,10 @@ class WalletViewModel : ViewModel() {
                 isLightningLocked.value = isLocked
             }
         }
+    }
+
+    fun currentMode() {
+        accountMode.value = accountModeManager.accountMode
     }
 
     private fun invalidateBalances(accountMode: AccountMode) {

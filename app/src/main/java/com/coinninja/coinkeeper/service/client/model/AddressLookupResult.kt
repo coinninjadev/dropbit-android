@@ -12,7 +12,10 @@ data class AddressLookupResult(
         var phoneNumberHash: String = "",
         var address: String = "",
         @SerializedName("address_pubkey")
-        var addressPubKey: String = "") : Parcelable {
+        var addressPubKey: String = "",
+        @SerializedName("address_type")
+        var addressType: String = ""
+) : Parcelable {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -33,4 +36,7 @@ data class AddressLookupResult(
         result = 31 * result + addressPubKey.hashCode()
         return result
     }
+
+    fun isBlockChain(): Boolean = addressType == "btc"
+    fun isLightning(): Boolean = addressType == "lightning"
 }

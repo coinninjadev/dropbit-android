@@ -7,7 +7,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 public class MerchantResponse implements Parcelable {
+    public static final Creator<MerchantResponse> CREATOR = new Creator<MerchantResponse>() {
+        @Override
+        public MerchantResponse createFromParcel(Parcel in) {
+            return new MerchantResponse(in);
+        }
+
+        @Override
+        public MerchantResponse[] newArray(int size) {
+            return new MerchantResponse[size];
+        }
+    };
     String network = "";
     String currency = "";
     double requiredFeeRate = 0L;
@@ -29,6 +42,11 @@ public class MerchantResponse implements Parcelable {
     }
 
     @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(network);
         dest.writeString(currency);
@@ -38,23 +56,6 @@ public class MerchantResponse implements Parcelable {
         dest.writeString(paymentUrl);
         dest.writeString(paymentId);
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<MerchantResponse> CREATOR = new Creator<MerchantResponse>() {
-        @Override
-        public MerchantResponse createFromParcel(Parcel in) {
-            return new MerchantResponse(in);
-        }
-
-        @Override
-        public MerchantResponse[] newArray(int size) {
-            return new MerchantResponse[size];
-        }
-    };
 
     public String getNetwork() {
         return network;
@@ -70,6 +71,26 @@ public class MerchantResponse implements Parcelable {
 
     public List<MerchantPaymentRequestOutput> getOutputs() {
         return outputs;
+    }
+
+    @Nullable
+    public String getPaymentAddress() {
+        if (getOutputs().size() > 0)
+            return outputs.get(0).getAddress();
+        return null;
+    }
+
+    public long getPaymentAmount() {
+        if (getOutputs().size() > 0)
+            return outputs.get(0).getAmount();
+        return 0;
+    }
+
+    public double getRequiredFee() {
+        if (requiredFeeRate != 0.0) {
+            return Math.ceil(requiredFeeRate);
+        }
+        return requiredFeeRate;
     }
 
     public Date getTime() {

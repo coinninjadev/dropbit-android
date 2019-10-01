@@ -1,5 +1,7 @@
 package app.dropbit.commons.util
 
+import java.net.URLDecoder
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -16,4 +18,12 @@ fun String.asDateOrNull(): Date? {
     } catch (e: Exception) {
         return null
     }
+}
+
+fun String.urlEncode(): String {
+    return URLEncoder.encode(this, "UTF-8")
+}
+
+fun String.urlDecode(): String {
+    return URLDecoder.decode(this, "UTF-8")
 }

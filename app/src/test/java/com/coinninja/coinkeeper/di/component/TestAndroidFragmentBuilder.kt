@@ -95,10 +95,6 @@ abstract class TestAndroidFragmentBuilder {
     internal abstract fun inviteHelpDialogFragment(): InviteHelpDialogFragment
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [PayDialogFragmentTest.TestPayDialogFragmentModule::class])
-    internal abstract fun payDialogFragment(): PayDialogFragment
-
-    @ActivityScope
     @ContributesAndroidInjector
     internal abstract fun verifyRecoverywordsFragment(): VerifyRecoverywordsFragment
 

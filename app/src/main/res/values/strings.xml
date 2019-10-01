@@ -207,13 +207,18 @@
     <string name="broadcast_sent_try_again">Try Again</string>
     <string name="loading_dialog">Loading....</string>
 
-    <!-- Payment dialog -->
+    <!-- Create Payment Screen -->
     <string name="pay_error_add_valid_bitcoin_address">Please add valid bitcoin address or phone number</string>
     <string name="pay_error_invalid_amount">Invalid amount</string>
     <string name="pay_error_too_little_transaction">Can not spend less than $1</string>
+    <string name="pay_error_insufficient_funds">Attempting to send %s. Not enough spendable funds.  Currently only %s available</string>
     <string name="payment_error_too_much_sent_to_contact">For security reasons we limit invite transactions to $100. Once your contact has the DropBit app there are no transaction limits.</string>
     <string name="payment_memo">What’s it for?</string>
     <string name="send_max">send max</string>
+    <string name="your_twitter_account_is_not_verified">Your twitter account is not verified, please verify.</string>
+    <string name="your_phone_is_not_verified">You do not have a verified account, please verify.</string>
+    <string name="not_now">Not now</string>
+    <string name="verify_now">Verify</string>
 
     <!-- Delete Auth Message -->
     <string name="authorize_delete_message">Enter pin to confirm deletion of your wallet.</string>

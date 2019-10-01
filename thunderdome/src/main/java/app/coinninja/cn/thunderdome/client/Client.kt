@@ -20,4 +20,9 @@ interface Client {
     @POST("/api/v1/thunderdome/create")
     fun createInvoice(@Body createRequest: CreateInvoiceRequest): Call<CreateInvoiceResponse>
 
+    @POST("/api/v1/thunderdome/decode")
+    fun decode(@Body decodeRequest: DecodeRequest): Call<RequestInvoice>
+
+    @POST("/api/v1/thunderdome/pay")
+    fun pay(@Body paymentRequest: PaymentRequest): Call<PaymentResponse>
 }

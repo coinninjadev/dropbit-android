@@ -88,7 +88,7 @@ public class SharedMemoToggleView implements ActivityViewType {
         return memoView.getText().toString();
     }
 
-    void toggleSharingMemo() {
+    public void toggleSharingMemo() {
         isSharing = !isSharing;
         updateSharingViews();
     }

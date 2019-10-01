@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.ui.lightning.withdrawal
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.annotation.CallSuper
 import androidx.lifecycle.Observer
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.commons.currency.BTCCurrency
@@ -38,15 +39,6 @@ class LightningWithdrawalActivity : BaseActivity() {
     internal var lightningBalance: CryptoCurrency = BTCCurrency(0)
     internal var dropBitFeeValue: BTCCurrency = BTCCurrency(0)
     internal var networkFeeValue: BTCCurrency = BTCCurrency(0)
-
-    internal val lightningBalanceObserver: Observer<CryptoCurrency> = Observer {
-        lightningBalance = it
-    }
-
-    val latestPriceObserver: Observer<FiatCurrency> = Observer {
-        paymentHolder.evaluationCurrency = it
-        withdrawalAmount.paymentHolder = paymentHolder
-    }
 
     val onValidEntryObserver = object : PaymentInputView.OnValidEntryObserver {
         override fun onValidEntry() {
@@ -90,14 +82,10 @@ class LightningWithdrawalActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lightning_withdrawal)
         fundingViewModel = fundingViewModelProvider.provide(this)
-        fundingViewModel.lightningWithdrawalDropbitFee.observe(this, dropbitFeeObserver)
-        fundingViewModel.lightningWithdrawalNetworkFee.observe(this, networkFeeObserver)
         closeButton.setOnClickListener { onBackPressed() }
         withdrawalAmount.postDelayed({ accountModeManager.changeMode(AccountMode.LIGHTNING) }, 300)
         withdrawalAmount.canSendMax = false
         withdrawalAmount.accountMode = AccountMode.LIGHTNING
-        walletViewModel.fetchBtcLatestPrice().observe(this, latestPriceObserver)
-        walletViewModel.fetchLightningBalance().observe(this, lightningBalanceObserver)
         withdrawalAmount.onValidEntryObserver = onValidEntryObserver
     }
 
@@ -109,6 +97,25 @@ class LightningWithdrawalActivity : BaseActivity() {
         }
         confirmButton.setOnConfirmHoldEndListener(onConfirmed)
         zeroFees()
+        fundingViewModel.lightningWithdrawalDropbitFee.observe(this, dropbitFeeObserver)
+        fundingViewModel.lightningWithdrawalNetworkFee.observe(this, networkFeeObserver)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        fundingViewModel.lightningWithdrawalDropbitFee.removeObserver(dropbitFeeObserver)
+        fundingViewModel.lightningWithdrawalNetworkFee.removeObserver(networkFeeObserver)
+    }
+
+    override fun onLatestPriceChanged(currentPrice: FiatCurrency) {
+        super.onLatestPriceChanged(currentPrice)
+        paymentHolder.evaluationCurrency = currentPrice
+        withdrawalAmount.paymentHolder = paymentHolder
+    }
+
+    override fun onLightningBalanceChanged(balance: CryptoCurrency) {
+        super.onLightningBalanceChanged(balance)
+        lightningBalance = balance
     }
 
     internal fun processWithdrawal() {
