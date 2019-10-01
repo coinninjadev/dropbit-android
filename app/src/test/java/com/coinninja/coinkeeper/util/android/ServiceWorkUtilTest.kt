@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService
-import com.coinninja.coinkeeper.cn.wallet.service.CNWalletAddressRequestService
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.matchers.IntentMatcher.equalTo
@@ -20,19 +19,6 @@ import org.robolectric.Shadows.shadowOf
 class ServiceWorkUtilTest {
 
     private fun createUtil(): ServiceWorkUtil = ServiceWorkUtil(ApplicationProvider.getApplicationContext(), mock())
-
-    @Test
-    fun starts_cn_wallet_address_lookup_service() {
-        val phoneNumberHash = "--hash--"
-        val serviceWorkUtil = createUtil()
-        val intent = Intent(serviceWorkUtil.context, CNWalletAddressRequestService::class.java)
-        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_HASH, phoneNumberHash)
-
-        serviceWorkUtil.lookupAddressForPhoneNumberHash(phoneNumberHash)
-
-        val startedService = shadowOf(serviceWorkUtil.context as Application).peekNextStartedService()
-        assertThat(startedService, equalTo(intent))
-    }
 
     @Test
     fun starts_service_to_register_users_phone() {

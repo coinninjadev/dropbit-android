@@ -1,9 +1,11 @@
 package com.coinninja.coinkeeper.model
 
 import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.nhaarman.mockitokotlin2.mock
+import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
@@ -145,6 +147,7 @@ class PaymentHolderTest {
         holder.transactionData = TransactionData(arrayOf(mock()), 10000000L, 1000L, 45000L, mock(), "")
         holder.publicKey = "-pub-key-"
         holder.paymentAddress = "-address-"
+        holder.requestInvoice = RequestInvoice()
         holder.updateValue(USDCurrency(1.0))
 
         holder.clearPayment()
@@ -156,6 +159,7 @@ class PaymentHolderTest {
         assertThat(holder.transactionData.feeAmount, equalTo(0L))
         assertThat(holder.transactionData.changeAmount, equalTo(0L))
         assertThat(holder.primaryCurrency.toLong(), equalTo(0L))
+        assertNull(holder.requestInvoice)
     }
 
     @Test

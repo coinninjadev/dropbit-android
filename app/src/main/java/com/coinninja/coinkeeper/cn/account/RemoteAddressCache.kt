@@ -4,6 +4,7 @@ import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.model.dto.AddressDTO
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
+import com.coinninja.coinkeeper.service.client.model.AddAddressBodyRequest
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress
 import com.coinninja.coinkeeper.util.RemoteAddressLocalCache
 import retrofit2.Response
@@ -13,6 +14,7 @@ import javax.inject.Inject
 @Mockable
 @Suppress("UNCHECKED_CAST")
 class RemoteAddressCache @Inject internal constructor(
+        internal val hdWalletWrapper: HDWalletWrapper,
         internal val apiClient: SignedCoinKeeperApiClient,
         internal val accountManager: AccountManager,
         internal val remoteAddressLocalCache: RemoteAddressLocalCache
@@ -26,9 +28,22 @@ class RemoteAddressCache @Inject internal constructor(
             removeUsedAddresses(cachedAddresses, addressStringToDTO)
             removeServerAddressesWithoutPublicKey(cachedAddresses)
             sendAddresses(cachedAddresses, addressStringToDTO)
+            addLightning(cachedAddresses)
         }
     }
 
+    private fun addLightning(cachedAddresses: List<CNWalletAddress>) {
+        var hasLightning = false
+        cachedAddresses.forEach {walletAddress ->
+            if (walletAddress.address == "generate") {
+                hasLightning = true
+            }
+        }
+
+        if (!hasLightning) {
+            apiClient.addAddress(AddAddressBodyRequest(pubKey = hdWalletWrapper.verificationKey, addressType = "lightning"))
+        }
+    }
 
     private fun cacheUnusedAddressesLocally(unusedAddresses: List<AddressDTO>) {
         remoteAddressLocalCache.localRemoteAddressCache = unusedAddresses
@@ -58,7 +73,7 @@ class RemoteAddressCache @Inject internal constructor(
 
         addressDTOHashMap.values.forEach { dto ->
             if (!cachedAddrs.contains(dto.address))
-                apiClient.addAddress(dto.address, dto.uncompressedPublicKey)
+                apiClient.addAddress(AddAddressBodyRequest(address = dto.address, pubKey = dto.uncompressedPublicKey))
         }
 
         cacheUnusedAddressesLocally(ArrayList(addressDTOHashMap.values))

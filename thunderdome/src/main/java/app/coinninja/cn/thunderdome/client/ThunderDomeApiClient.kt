@@ -22,7 +22,8 @@ class ThunderDomeApiClient constructor(val client: Client) {
     fun withdraw(withdrawalRequest: WithdrawalRequest): Response<WithdrawalResponse> = executeCall(client.withdrawal(withdrawalRequest.forPost()))
     fun estimateWithdraw(withdrawalRequest: WithdrawalRequest): Response<WithdrawalResponse> = executeCall(client.withdrawal(withdrawalRequest.forPost()))
     fun createInvoiceFor(amount: Long, memo: String): Response<CreateInvoiceResponse> = executeCall(client.createInvoice(CreateInvoiceRequest(amount, memo)))
-
+    fun decode(decodeRequest: DecodeRequest): Response<RequestInvoice> = executeCall(client.decode(decodeRequest))
+    fun pay(paymentRequest: PaymentRequest): Response<PaymentResponse> = executeCall(client.pay(paymentRequest))
 
     private fun <T> executeCall(call: Call<T>): Response<T> {
         val response: Response<T>

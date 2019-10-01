@@ -154,6 +154,20 @@
             />
 
         <activity
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
+            android:name=".ui.payment.create.CreatePaymentActivity"
+            />
+
+        <activity
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
+            android:name=".ui.payment.confirm.ConfirmPaymentActivity"
+            />
+
+        <activity
             android:name=".ui.transaction.details.TransactionDetailsActivity"
             android:label=""
             android:screenOrientation="portrait"
@@ -414,10 +428,6 @@
 
         <service
             android:name=".service.blockchain.BlockChainService"
-            android:exported="false" />
-
-        <service
-            android:name=".cn.wallet.service.CNWalletAddressRequestService"
             android:exported="false" />
 
         <service

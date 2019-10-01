@@ -11,6 +11,8 @@ import app.dropbit.commons.currency.BTCCurrency
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.*
+import okhttp3.MediaType
+import okhttp3.ResponseBody
 import org.junit.Test
 import retrofit2.Response
 
@@ -173,6 +175,81 @@ class ThunderDomeRepositoryTest {
         whenever(repository.apiClient.createInvoiceFor(150_000, "--memo--")).thenReturn(Response.success(CreateInvoiceResponse(expectedResponse)))
 
         assertThat(repository.createInvoiceFor(150_000, "--memo--")).isEqualTo(expectedResponse)
+    }
+
+    @Test
+    fun decodes_an_invoice_request() {
+        val encodedInvoice = "ln--encoded-invoice"
+        val repository = createRepository()
+        val decodeRequest = DecodeRequest(encodedInvoice)
+        val requestInvoice = RequestInvoice(
+                "--address--",
+                "--payment-hash--",
+                100_000,
+                "2019-08-22T22:34:46.481530Z",
+                "2019-08-22T22:34:46.481530Z",
+                "--description--",
+                "--desc--hash--",
+                "--fallback--",
+                "2019-08-22T22:34:46.481530Z"
+        )
+        val expected = RequestInvoice(
+                "--address--",
+                "--payment-hash--",
+                100_000,
+                "2019-08-22T22:34:46.481530Z",
+                "2019-08-22T22:34:46.481530Z",
+                "--description--",
+                "--desc--hash--",
+                "--fallback--",
+                "2019-08-22T22:34:46.481530Z"
+        )
+        expected.encoded = encodedInvoice
+        whenever(repository.apiClient.decode(decodeRequest)).thenReturn(Response.success(requestInvoice))
+
+        assertThat(repository.decode(encodedInvoice)).isEqualTo(expected)
+    }
+
+    @Test
+    fun processes_a_payment_request__estimate() {
+        val encodedInvoice = "ln--encoded-invoice"
+        val repository = createRepository()
+        val request = PaymentRequest(encodedInvoice, 10_000, true)
+        val expectedPaymentResponse = PaymentResponse(result = LedgerInvoice())
+        val response = Response.success(expectedPaymentResponse)
+        whenever(repository.apiClient.pay(request)).thenReturn(response)
+
+        repository.estimatePayment(encodedInvoice, 10_000)
+
+        assertThat(repository.estimatePayment(encodedInvoice, 10_000)).isEqualTo(expectedPaymentResponse.result)
+    }
+
+    @Test
+    fun processes_a_payment_request() {
+        val repository = createRepository()
+        val encodedInvoice = "ln--encoded-invoice"
+
+        val paymentRequest = PaymentRequest(encodedInvoice, 10_000)
+        val paymentResponse = PaymentResponse(result = LedgerInvoice())
+        val response = Response.success(paymentResponse)
+        whenever(repository.apiClient.pay(paymentRequest)).thenReturn(response)
+
+        assertThat(repository.pay(encodedInvoice, 10_000)).isEqualTo(paymentResponse.result)
+    }
+
+    @Test
+    fun payment_request_with_insufficient_funds() {
+        val repository = createRepository()
+        val encodedInvoice = "ln--encoded-invoice"
+
+        val paymentRequest = PaymentRequest(encodedInvoice, 10_000)
+        val response = Response.error<PaymentResponse>(
+                400, ResponseBody.create(
+                MediaType.parse("plain/text"), "Insufficient Funds"))
+        whenever(repository.apiClient.pay(paymentRequest)).thenReturn(response)
+
+        assertThat(repository.pay(encodedInvoice, 10_000)).isNotNull()
+
     }
 
     private fun createRepository(): ThunderDomeRepository = ThunderDomeRepository(mock(), mock())

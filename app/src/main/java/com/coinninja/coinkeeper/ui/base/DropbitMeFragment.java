@@ -17,6 +17,10 @@ import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration;
 import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity;
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity;
+import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity;
+import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity;
+import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity;
+import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity;
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
@@ -33,6 +37,10 @@ public class DropbitMeFragment extends BaseFragment {
             TransactionDetailsActivity.class.getName(),
             LightningDepositActivity.class.getName(),
             LightningWithdrawalActivity.class.getName(),
+            PayRequestActivity.class.getName(),
+            LndInvoiceRequestActivity.class.getName(),
+            CreatePaymentActivity.class.getName(),
+            ConfirmPaymentActivity.class.getName(),
     };
 
     @Inject

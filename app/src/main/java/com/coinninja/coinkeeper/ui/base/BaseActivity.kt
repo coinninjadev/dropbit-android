@@ -15,8 +15,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import app.dropbit.commons.currency.CryptoCurrency
+import app.dropbit.commons.currency.FiatCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.interactor.InternalNotificationsInteractor
 import com.coinninja.coinkeeper.interfaces.Authentication
@@ -99,10 +103,53 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
 
     var hasForeGround = true
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        actionBarController.inflateActionBarMenu(this, menu)
-        actionBarController.menuItemClickListener = this
-        return true
+    internal val isLightningLockedObserver: Observer<Boolean> = Observer {
+        onLightningLockedChanged(it)
+    }
+
+    internal val accountModeObserver: Observer<AccountMode> = Observer {
+        onAccountModeChanged(it)
+    }
+
+    internal val lightningBalanceObserver: Observer<CryptoCurrency> = Observer {
+        onLightningBalanceChanged(it)
+    }
+
+    internal val holdingsWorthObserver: Observer<FiatCurrency> = Observer {
+        onHoldingsWorthChanged(it)
+    }
+
+    internal val holdingsObserver: Observer<CryptoCurrency> = Observer {
+        onHoldingsChanged(it)
+    }
+
+
+    val latestPriceObserver: Observer<FiatCurrency> = Observer {
+        onLatestPriceChanged(it)
+    }
+
+    @CallSuper
+    open fun onLatestPriceChanged(currentPrice: FiatCurrency) {
+    }
+
+    @CallSuper
+    open fun onAccountModeChanged(mode: AccountMode) {
+    }
+
+    @CallSuper
+    open fun onLightningLockedChanged(isLightningLocked: Boolean) {
+    }
+
+    @CallSuper
+    open fun onHoldingsChanged(balance: CryptoCurrency) {
+    }
+
+    @CallSuper
+    open fun onHoldingsWorthChanged(value: FiatCurrency) {
+    }
+
+    @CallSuper
+    open fun onLightningBalanceChanged(balance: CryptoCurrency) {
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -133,6 +180,13 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         }
     }
 
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        actionBarController.inflateActionBarMenu(this, menu)
+        actionBarController.menuItemClickListener = this
+        return true
+    }
+
     fun updateActivityLabel(string: String) = actionBarController.displayTitle(this, string)
 
     fun addTabToAppBar(@LayoutRes tabResourceId: Int, tabIndex: Int) {
@@ -147,12 +201,6 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
     override fun onShowMarketData() {
         activityNavigationUtil.showMarketCharts(this)
         analytics.trackEvent(Analytics.EVENT_CHARTS_OPENED)
-    }
-
-    fun showKeyboard(view: View) {
-        view.requestFocus()
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
     }
 
     override fun setContentView(layoutResID: Int) {
@@ -191,18 +239,6 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         healthCheckRunner.setCallback(this)
     }
 
-    override fun onPause() {
-        hasForeGround = false
-        drawerController.closeDrawerNoAnimation()
-        queue.removeAllViews()
-        teardownMute()
-        super.onPause()
-        if (!MESSAGE_IGNORE_LIST.contains(javaClass.name)) {
-            notificationsInteractor.stopListeningForNotifications()
-        }
-        queue.removeCallbacks(healthCheckRunner)
-        analytics.onActivityStop(this)
-    }
 
     override fun onResume() {
         super.onResume()
@@ -230,8 +266,35 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
 
         if (authentication.isAuthenticated)
             healthCheckRunner.run()
+
+
+        walletViewModel.fetchBtcLatestPrice().observe(this, latestPriceObserver)
+        walletViewModel.fetchLightningBalance().observe(this, lightningBalanceObserver)
+        walletViewModel.currentPrice.observe(this, latestPriceObserver)
+        walletViewModel.isLightningLocked.observe(this, isLightningLockedObserver)
+        walletViewModel.accountMode.observe(this, accountModeObserver)
+        walletViewModel.holdings.observe(this, holdingsObserver)
+        walletViewModel.holdingsWorth.observe(this, holdingsWorthObserver)
+        walletViewModel.checkLightningLock()
+        walletViewModel.currentMode()
     }
 
+    override fun onPause() {
+        hasForeGround = false
+        drawerController.closeDrawerNoAnimation()
+        queue.removeAllViews()
+        teardownMute()
+        super.onPause()
+        if (!MESSAGE_IGNORE_LIST.contains(javaClass.name)) {
+            notificationsInteractor.stopListeningForNotifications()
+        }
+        queue.removeCallbacks(healthCheckRunner)
+        analytics.onActivityStop(this)
+        walletViewModel.currentPrice.removeObserver(latestPriceObserver)
+        walletViewModel.isLightningLocked.removeObserver(isLightningLockedObserver)
+        walletViewModel.fetchBtcLatestPrice().removeObserver(latestPriceObserver)
+        walletViewModel.fetchLightningBalance().removeObserver(lightningBalanceObserver)
+    }
 
     fun showLoading() {
         loadingDialog = loadingDialog ?: AlertDialogBuilder.buildIndefiniteProgress(this).also {
@@ -248,7 +311,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         mute.apply {
             dismissAllDialogs()
             this.visibility = View.VISIBLE
-            setOnTouchListener { view, event -> true }
+            setOnTouchListener { _, _ -> true }
         }
     }
 
@@ -271,6 +334,9 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         startActivity(intent)
     }
 
+    fun changeAccountMode(mode: AccountMode) {
+        walletViewModel.setMode(mode)
+    }
 
     open fun showNext() {
         onCompletion()
@@ -315,6 +381,12 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
                 broadcastAuthSuccessful()
             }
         }
+    }
+
+    fun showKeyboard(view: View) {
+        view.requestFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
     }
 
     override fun onHealthSuccess() {
@@ -376,7 +448,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
             return
         }
 
-        val completionIntent = intent.extras.get(DropbitIntents.EXTRA_ON_COMPLETION) as Intent?
+        val completionIntent = intent.extras?.get(DropbitIntents.EXTRA_ON_COMPLETION) as Intent?
         if (completionIntent != null) {
             startService(completionIntent)
         }

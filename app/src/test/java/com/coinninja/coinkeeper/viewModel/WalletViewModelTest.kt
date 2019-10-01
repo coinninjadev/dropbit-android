@@ -290,18 +290,6 @@ class WalletViewModelTest {
         assertThat(viewModel.currentPrice.value?.toFormattedCurrency()).isEqualTo("$10,000.00")
     }
 
-    @Test
-    fun observes_account_mode_changes() {
-        createScenario()
-        val viewModel = createViewModel()
-        whenever(viewModel.accountModeManager.balanceAccountMode).thenReturn(AccountMode.LIGHTNING)
-
-        verify(viewModel.accountModeManager).observeChanges(viewModel.modeChangeObserver)
-        viewModel.modeChangeObserver.onAccountModeChanged(AccountMode.LIGHTNING)
-
-        assertThat(viewModel.accountMode.value).isEqualTo(AccountMode.LIGHTNING)
-    }
-
     @Ignore
     @Test
     fun fetches_latest_price_of_btc() {

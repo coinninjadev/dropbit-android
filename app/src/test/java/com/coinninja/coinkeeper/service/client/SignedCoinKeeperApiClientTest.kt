@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.service.client
 
 import com.coinninja.coinkeeper.cn.wallet.WalletFlags
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.service.client.model.*
@@ -102,49 +103,30 @@ class SignedCoinKeeperApiClientTest {
 
     @Test
     fun querys_for_contacts_address() {
-        val json = "{" +
-                "  \"query\": {" +
-                "    \"terms\": {" +
-                "      \"phone_number_hash\": [" +
-                "        \"9906c77c0aa1f6e4760a68719c79bdf605d1f7819a15d06bc6dfc216c047339f\"" +
-                "      ]" +
-                "    }," +
-                "    \"address_pubkey\": true" +
-                "  }" +
-                "}"
-
-
-        val call = mock<Call<List<AddressLookupResult>>>()
-        whenever(call.execute()).thenReturn(Response.success(mock()))
-        whenever(client.queryWalletAddress(any())).thenReturn(call)
-        val captor = argumentCaptor<JsonObject>()
-        val apiClient = SignedCoinKeeperApiClient(client, FCM_APP_ID)
-        val phoneHash = "9906c77c0aa1f6e4760a68719c79bdf605d1f7819a15d06bc6dfc216c047339f"
-        apiClient.queryWalletAddress(phoneHash)
-
-        verify(client).queryWalletAddress(captor.capture())
-
-        assertThat(captor.firstValue.toString(), equalTo(json.replace("\\s".toRegex(), "")))
-    }
-
-    @Test
-    fun deserializes_results_for_contacts_address() {
         val json = "[\n" +
                 "  {\n" +
                 "    \"phone_number_hash\": \"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\",\n" +
                 "    \"address\": \"1JbJbAkCXtxpko39nby44hpPenpC1xKGYw\",\n" +
-                "    \"address_pubkey\": \"04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc\"\n" +
+                "    \"address_pubkey\": \"04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc\",\n" +
+                "    \"address_type\": \"btc\"\n" +
                 "  }\n" +
                 "]"
 
         webServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
-        val response = signedCoinKeeperApiClient.queryWalletAddress("--phone-hash--")
-        val results = response.body() as List<AddressLookupResult>
-        val (phoneNumberHash, address, addressPubKey) = results[0]
 
-        assertThat<String>(address, equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"))
-        assertThat<String>(phoneNumberHash, equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"))
-        assertThat<String>(addressPubKey, equalTo("04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc"))
+        val response = signedCoinKeeperApiClient.queryWalletAddress(
+                "498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49",
+                AccountMode.BLOCKCHAIN
+        )
+        val takeRequest = webServer.takeRequest()
+        val results = response.body() as List<AddressLookupResult>
+        val result: AddressLookupResult = results[0]
+
+        assertThat(takeRequest.body.readUtf8(), equalTo("{\"query\":{\"terms\":{\"phone_number_hash\":[\"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\"]},\"address_pubkey\":true,\"address_type\":\"btc\"}}"))
+        assertThat(result.address, equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"))
+        assertThat(result.phoneNumberHash, equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"))
+        assertThat(result.addressPubKey, equalTo("04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc"))
+        assertThat(result.addressType, equalTo("btc"))
     }
 
     @Test
@@ -191,7 +173,18 @@ class SignedCoinKeeperApiClientTest {
                 "  \"wallet_id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\"\n" +
                 "}"
         webServer.enqueue(MockResponse().setResponseCode(201).setBody(json))
-        val response = signedCoinKeeperApiClient.addAddress("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw", "--pub-key--")
+        val response = signedCoinKeeperApiClient.addAddress(
+                AddAddressBodyRequest(
+                        address = "--address--",
+                        pubKey = "--pub-key--",
+                        addressType = "btc"
+                ))
+        val recordedRequest = webServer.takeRequest()
+        assertThat(recordedRequest.method, equalTo("POST"))
+        assertThat(recordedRequest.path, equalTo("/wallet/addresses"))
+        assertThat(recordedRequest.body.readUtf8(), equalTo("{\"address\":\"--address--\"," +
+                "\"address_pubkey\":\"--pub-key--\"," +
+                "\"address_type\":\"btc\"}"))
         assertThat(response.code(), equalTo(201))
         val walletAddress = response.body() as CNWalletAddress
 
@@ -1315,7 +1308,7 @@ class SignedCoinKeeperApiClientTest {
 
         val response = signedCoinKeeperApiClient.replaceWalletWith(
                 ReplaceWalletRequest(
-                       "--pub-key--",
+                        "--pub-key--",
                         WalletFlags.purpose84v2,
                         "2019-09-17T17:19:56.762Z",
                         "--signature--"

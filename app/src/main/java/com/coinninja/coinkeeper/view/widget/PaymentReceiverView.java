@@ -19,7 +19,7 @@ public class PaymentReceiverView extends ConstraintLayout {
 
     private PhoneNumberInputView phoneNumberInputView;
     private Button showPhoneButton;
-    private View scanButton;
+    public View scanButton;
 
     public PaymentReceiverView(Context context) {
         this(context, null);

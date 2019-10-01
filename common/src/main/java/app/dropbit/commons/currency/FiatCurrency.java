@@ -1,4 +1,6 @@
 package app.dropbit.commons.currency;
 
-public interface FiatCurrency extends Currency {
+import android.os.Parcelable;
+
+public interface FiatCurrency extends Currency, Parcelable {
 }

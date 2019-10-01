@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService
-import com.coinninja.coinkeeper.cn.wallet.service.CNWalletAddressRequestService
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext
 import com.coinninja.coinkeeper.model.PhoneNumber
@@ -19,11 +18,6 @@ import javax.inject.Inject
 class ServiceWorkUtil @Inject
 internal constructor(@ApplicationContext internal val context: Context, val jobServiceScheduler: JobServiceScheduler) {
 
-    fun lookupAddressForPhoneNumberHash(phoneNumberHash: String) {
-        val intent = Intent(context, CNWalletAddressRequestService::class.java)
-        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_HASH, phoneNumberHash)
-        context.startService(intent)
-    }
 
     fun registerUsersPhone(phoneNumber: PhoneNumber) {
         val intent = Intent(context, DropBitService::class.java)
@@ -82,11 +76,11 @@ internal constructor(@ApplicationContext internal val context: Context, val jobS
     }
 
     fun registerForPushNotifications() {
-            jobServiceScheduler.enqueueWork(
-                    context,
-                    PushNotificationEndpointRegistrationService::class.java,
-                    JobServiceScheduler.ENDPOINT_REGISTRATION_SERVICE_JOB_ID,
-                    Intent(context, PushNotificationEndpointRegistrationService::class.java))
+        jobServiceScheduler.enqueueWork(
+                context,
+                PushNotificationEndpointRegistrationService::class.java,
+                JobServiceScheduler.ENDPOINT_REGISTRATION_SERVICE_JOB_ID,
+                Intent(context, PushNotificationEndpointRegistrationService::class.java))
     }
 
     fun deleteWallet() {

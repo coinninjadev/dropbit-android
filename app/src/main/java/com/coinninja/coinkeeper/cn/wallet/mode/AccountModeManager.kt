@@ -4,7 +4,7 @@ import app.dropbit.annotations.Mockable
 import java.lang.ref.WeakReference
 
 @Mockable
-data class AccountModeManager constructor(
+class AccountModeManager constructor(
         var accountMode: AccountMode,
         private var balanceModeOverride: AccountMode? = null
 ) {
@@ -21,11 +21,24 @@ data class AccountModeManager constructor(
         changeObservers.add(WeakReference(accountModeChangeObserver))
     }
 
+    fun removeObserver(observer: AccountModeChangeObserver) {
+        var index = -1
+        changeObservers.forEachIndexed { i, reference ->
+            reference.get()?.let {
+                if (it == observer) {
+                    index = 1
+                }
+            }
+        }
+
+        if (index >= 0 && changeObservers.size > index)
+            changeObservers.removeAt(index)
+    }
+
     fun changeMode(mode: AccountMode) {
         accountMode = mode
         notifyOfChange()
     }
-
 
     fun clearOverrides() {
         balanceModeOverride = null

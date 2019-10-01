@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.di.builder
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService
 import com.coinninja.coinkeeper.cn.service.CNFirebaseMessagingService
 import com.coinninja.coinkeeper.cn.service.CNGlobalMessagingService
-import com.coinninja.coinkeeper.cn.wallet.service.CNWalletAddressRequestService
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService
 import com.coinninja.coinkeeper.cn.wallet.service.CnWalletServiceModule
 import com.coinninja.coinkeeper.service.*
@@ -58,8 +57,4 @@ abstract class AndroidServiceBuilder {
 
     @ContributesAndroidInjector
     internal abstract fun dropBitService(): DropBitService
-
-    @ContributesAndroidInjector
-    internal abstract fun walletAddressRequestService(): CNWalletAddressRequestService
-
 }

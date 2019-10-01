@@ -4,6 +4,8 @@ import android.net.Uri
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.util.isNotNullOrEmpty
+import app.dropbit.commons.util.urlDecode
+import app.dropbit.commons.util.urlEncode
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.uri.parameter.BitcoinParameter
 import java.net.URLDecoder
@@ -35,7 +37,15 @@ class BitcoinUri {
             BTCCurrency(
                     baseUri.getQueryParameter(BitcoinParameter.AMOUNT.parameterKey) ?: ""
             ).toSatoshis()
+    val memo: String
+        get() = baseUri.getQueryParameter(BitcoinParameter.MEMO.parameterKey)?.urlDecode() ?: ""
 
+    val requiredFee: Double
+        get() = baseUri.getQueryParameter(BitcoinParameter.REQUIRED_FEE.parameterKey)?.toDouble()
+                ?: 0.0
+
+    val hasRequiredFee: Boolean
+        get() = baseUri.getQueryParameter(BitcoinParameter.REQUIRED_FEE.parameterKey).isNotNullOrEmpty()
 
     override fun toString(): String {
         return baseUri.toString().replace("://", ":")
@@ -54,8 +64,24 @@ class BitcoinUri {
                 _scheme = scheme
         }
 
+        fun clear(): Builder {
+            _address = ""
+            _parameters = mutableMapOf()
+            return this
+        }
+
         fun setAmount(btcCurrency: BTCCurrency): Builder {
             addParameter(BitcoinParameter.AMOUNT, btcCurrency.toUriFormattedString())
+            return this
+        }
+
+        fun setMemo(memo: String): Builder {
+            addParameter(BitcoinParameter.MEMO, memo.urlEncode())
+            return this
+        }
+
+        fun setFee(fee: Double): Builder {
+            addParameter(BitcoinParameter.REQUIRED_FEE, fee.toString())
             return this
         }
 

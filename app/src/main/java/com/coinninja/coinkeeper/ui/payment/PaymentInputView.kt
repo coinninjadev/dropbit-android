@@ -11,10 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
-import app.dropbit.commons.currency.BTCCurrency
-import app.dropbit.commons.currency.CryptoCurrency
-import app.dropbit.commons.currency.Currency
-import app.dropbit.commons.currency.USDCurrency
+import app.dropbit.commons.currency.*
 import app.dropbit.commons.util.decimalFormat
 import com.coinninja.android.helpers.Input
 import com.coinninja.android.helpers.Views.clearCompoundDrawablesOn
@@ -101,11 +98,17 @@ class PaymentInputView @JvmOverloads constructor(
     }
 
     override fun onValid(currency: Currency) {
-        paymentHolder.updateValue(currency)
+        try {
+            paymentHolder.updateValue(currency)
 
-        if (hasEvaluationCurrency())
-            updateSecondaryCurrencyWith(paymentHolder.secondaryCurrency)
-        onValidEntryObserver?.onValidEntry()
+            if (hasEvaluationCurrency())
+                updateSecondaryCurrencyWith(paymentHolder.secondaryCurrency)
+            onValidEntryObserver?.onValidEntry()
+        } catch (e: FormatNotValidException) {
+            val text = primaryCurrency.text.toString()
+            onInvalid(text)
+            primaryCurrency.setText(text.substring(0 until text.length - 1))
+        }
     }
 
     override fun onInvalid(text: String) {
@@ -253,6 +256,9 @@ class PaymentInputView @JvmOverloads constructor(
     }
 
     private fun invalidateSymbol() {
+        clearCompoundDrawablesOn(primaryCurrency)
+        clearCompoundDrawablesOn(secondaryCurrency)
+
         if (accountMode == AccountMode.BLOCKCHAIN) {
             renderBTCIconOnCurrencyViewPair(context, paymentHolder.defaultCurrencies,
                     primaryCurrency, PRIMARY_SCALE, secondaryCurrency, SECONDARY_SCALE)

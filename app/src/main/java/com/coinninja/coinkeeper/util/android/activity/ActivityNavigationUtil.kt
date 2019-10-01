@@ -14,8 +14,10 @@ import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.USDCurrency
+import app.dropbit.commons.util.isNotNull
 import com.coinninja.android.helpers.Resources
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
@@ -26,6 +28,8 @@ import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDial
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
+import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity
+import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequest
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
@@ -40,6 +44,7 @@ import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivit
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.TwitterUtil
 import com.coinninja.coinkeeper.util.analytics.Analytics
+import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder
 import com.coinninja.coinkeeper.util.uri.UriUtil
@@ -311,4 +316,27 @@ class ActivityNavigationUtil @Inject constructor(
         }
     }
 
+    @JvmOverloads
+    fun navigateToPaymentCreateScreen(activity: Activity, withScan: Boolean = false, bitcoinUri: BitcoinUri? = null) {
+        Intent(activity, CreatePaymentActivity::class.java).also {
+            if (withScan) it.putExtra(DropbitIntents.EXTRA_SHOULD_SCAN, true)
+            if (bitcoinUri.isNotNull()) it.putExtra(DropbitIntents.EXTRA_BITCOIN_URI, bitcoinUri.toString())
+            activity.startActivity(it)
+        }
+
+    }
+
+    fun startPickContactActivity(activity: Activity, action: String) {
+        Intent(activity, PickUserActivity::class.java).also {
+            it.action = action
+            activity.startActivityForResult(it, DropbitIntents.REQUEST_PICK_CONTACT)
+        }
+    }
+
+    fun navigateToConfirmPaymentScreen(activity: Activity, paymentHolder: PaymentHolder) {
+        Intent(activity, ConfirmPaymentActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, paymentHolder)
+            activity.startActivityForResult(it, DropbitIntents.REQUEST_PICK_CONTACT)
+        }
+    }
 }

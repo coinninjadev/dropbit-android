@@ -5,6 +5,7 @@ import app.dropbit.annotations.Mockable
 import app.dropbit.commons.util.removeRange
 import com.coinninja.coinkeeper.bitcoin.BroadcastProvider
 import com.coinninja.coinkeeper.bitcoin.BroadcastingClient
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.service.client.model.*
@@ -58,19 +59,24 @@ class SignedCoinKeeperApiClient(
         return executeCall(client.queryUsers(query))
     }
 
-    fun addAddress(address: String, publicKey: String): Response<CNWalletAddress> {
-        val json = JsonObject()
-        json.addProperty("address", address)
-        json.addProperty("address_pubkey", publicKey)
-        return executeCall(client.addAddressToCNWallet(json))
+    fun addAddress(addressBody: AddAddressBodyRequest): Response<CNWalletAddress> {
+        return executeCall(client.addAddressToCNWallet(addressBody))
     }
 
-    fun queryWalletAddress(phoneHash: String): Response<List<AddressLookupResult>> {
+    fun queryWalletAddress(phoneHash: String, mode: AccountMode): Response<List<AddressLookupResult>> {
         val numbers = JsonArray()
         numbers.add(phoneHash)
         val request = createQuery("phone_number_hash", numbers)
         val query = request.getAsJsonObject("query")
         query.addProperty("address_pubkey", true)
+        when (mode) {
+            AccountMode.LIGHTNING -> {
+                query.addProperty("address_type", "lightning")
+            }
+            else -> {
+                query.addProperty("address_type", "btc")
+            }
+        }
         return executeCall(client.queryWalletAddress(request))
     }
 

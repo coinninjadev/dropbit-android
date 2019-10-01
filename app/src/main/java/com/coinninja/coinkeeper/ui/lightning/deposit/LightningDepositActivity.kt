@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.ui.lightning.deposit
 
 import android.os.Bundle
 import android.widget.ImageButton
+import androidx.annotation.CallSuper
 import androidx.lifecycle.Observer
 import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.commons.currency.CryptoCurrency
@@ -38,20 +39,6 @@ class LightningDepositActivity : BaseActivity() {
     internal var confirmed: Boolean = false
     internal var transactionData: TransactionData? = null
     internal var lightningBalance: CryptoCurrency? = null
-
-    internal val lightningBalanceObserver: Observer<CryptoCurrency> = Observer {
-        lightningBalance = it
-    }
-
-    val latestPriceObserver: Observer<FiatCurrency> = Observer {
-        paymentHolder.evaluationCurrency = it
-        depositAmountView.paymentHolder = paymentHolder
-        if (intent.hasExtra(DropbitIntents.EXTRA_AMOUNT)) {
-            initWithAmount()
-        } else {
-            depositAmountView.showKeyboard()
-        }
-    }
 
     internal val transactionDataObserver: Observer<TransactionData> = Observer {
         transactionData = it
@@ -99,15 +86,13 @@ class LightningDepositActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lightning_deposit)
         fundingViewModel = fundingViewModelProvider.provide(this)
-        walletViewModel.fetchBtcLatestPrice().observe(this, latestPriceObserver)
-        walletViewModel.fetchLightningBalance().observe(this, lightningBalanceObserver)
-        fundingViewModel.transactionData.observe(this, transactionDataObserver)
         depositAmountView.canSendMax = false
         paymentHolder.updateValue(USDCurrency(0))
     }
 
     override fun onResume() {
         super.onResume()
+        fundingViewModel.transactionData.observe(this, transactionDataObserver)
         paymentHolder.defaultCurrencies = currencyPreference.currenciesPreference
         close.setOnClickListener { onBackPressed() }
         confirmButton.apply {
@@ -123,6 +108,28 @@ class LightningDepositActivity : BaseActivity() {
         depositAmountView.paymentHolder = paymentHolder
     }
 
+    override fun onLatestPriceChanged(currentPrice: FiatCurrency) {
+        super.onLatestPriceChanged(currentPrice)
+        paymentHolder.evaluationCurrency = currentPrice
+        depositAmountView.paymentHolder = paymentHolder
+        if (intent.hasExtra(DropbitIntents.EXTRA_AMOUNT)) {
+            initWithAmount()
+        } else {
+            depositAmountView.showKeyboard()
+
+        }
+    }
+
+    override fun onLightningBalanceChanged(balance: CryptoCurrency) {
+        super.onLightningBalanceChanged(balance)
+        lightningBalance = balance
+    }
+
+    override fun onPause() {
+        fundingViewModel.transactionData.removeObserver(transactionDataObserver)
+        accountModeManager.clearOverrides()
+        super.onPause()
+    }
 
     private fun initWithAmount() {
         intent.getParcelableExtra<USDCurrency>(DropbitIntents.EXTRA_AMOUNT)?.let { amount ->
@@ -130,12 +137,6 @@ class LightningDepositActivity : BaseActivity() {
             fundingViewModel.fundLightningDeposit(paymentHolder.cryptoCurrency.toLong())
             intent.removeExtra(DropbitIntents.EXTRA_AMOUNT)
         }
-    }
-
-
-    override fun onPause() {
-        accountModeManager.clearOverrides()
-        super.onPause()
     }
 
     private fun notifyOfMinimumDepositLimit() {
@@ -191,6 +192,7 @@ class LightningDepositActivity : BaseActivity() {
     private fun submitPaymentForBroadCast() {
         transactionData?.let {
             activityNavigationUtil.navigateToBroadcast(this, BroadcastTransactionDTO(it))
+            confirmed = false
         }
     }
 

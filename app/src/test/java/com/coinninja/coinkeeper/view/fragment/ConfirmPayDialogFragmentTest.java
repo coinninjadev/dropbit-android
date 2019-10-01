@@ -19,7 +19,6 @@ import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.presenter.activity.PaymentBarCallbacks;
 import com.coinninja.coinkeeper.ui.home.HomeActivity;
 import com.coinninja.coinkeeper.util.CurrencyPreference;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
@@ -69,8 +68,6 @@ public class ConfirmPayDialogFragmentTest {
     @Mock
     PaymentUtil paymentUtil;
     @Mock
-    private PaymentBarCallbacks paymentBarCallbacks;
-    @Mock
     private CurrencyPreference currencyPreference;
     @Mock
     private LazyList transactions;
@@ -89,7 +86,6 @@ public class ConfirmPayDialogFragmentTest {
     @After
     public void tearDown() {
         walletHelper = null;
-        paymentBarCallbacks = null;
         currencyPreference = null;
         defaultCurrencies = null;
         phoneNumber = null;
@@ -265,15 +261,6 @@ public class ConfirmPayDialogFragmentTest {
     }
 
     @Test
-    public void notifies_invoker_that_user_canceled_payment_request_by_close_button() {
-        show(paymentHolder);
-
-        dialog.getView().findViewById(R.id.confirm_pay_header_close_btn).performClick();
-
-        verify(paymentBarCallbacks).cancelPayment(dialog);
-    }
-
-    @Test
     public void init_without_calculating_fee() {
         show(paymentHolder);
         ConfirmHoldButton confirmHoldButton = dialog.getView().findViewById(R.id.confirm_pay_hold_progress_btn);
@@ -357,7 +344,7 @@ public class ConfirmPayDialogFragmentTest {
 
     private void show(Identity identity, PaymentHolder paymentHolder) {
         when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
-        dialog = ConfirmPayDialogFragment.newInstance(paymentUtil, paymentBarCallbacks);
+        dialog = ConfirmPayDialogFragment.newInstance(paymentUtil);
         dialog.setIdentity(identity);
         scenario.onActivity(activity -> {
             dialog.show(activity.getSupportFragmentManager(), dialog.getTag());
@@ -366,7 +353,7 @@ public class ConfirmPayDialogFragmentTest {
 
     private void show(PaymentHolder paymentHolder) {
         when(paymentUtil.getPaymentHolder()).thenReturn(paymentHolder);
-        dialog = ConfirmPayDialogFragment.newInstance(paymentUtil, paymentBarCallbacks);
+        dialog = ConfirmPayDialogFragment.newInstance(paymentUtil);
         scenario.onActivity(activity -> {
             dialog.show(activity.getSupportFragmentManager(), dialog.getTag());
         });

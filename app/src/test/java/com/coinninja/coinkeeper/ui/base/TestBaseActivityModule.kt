@@ -54,6 +54,9 @@ class TestBaseActivityModule {
         whenever(walletViewModel.fetchLightningBalance()).thenReturn(mock())
         whenever(walletViewModel.isLightningLocked).thenReturn(mock())
         whenever(walletViewModel.currentPrice).thenReturn(mock())
+        whenever(walletViewModel.accountMode).thenReturn(mock())
+        whenever(walletViewModel.holdingsWorth).thenReturn(mock())
+        whenever(walletViewModel.holdings).thenReturn(mock())
         return walletViewModelProvider
     }
 }

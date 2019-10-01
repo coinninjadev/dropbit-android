@@ -9,10 +9,7 @@ import android.widget.ImageView
 import androidx.lifecycle.Observer
 import app.coinninja.cn.thunderdome.CreateInvoiceViewModel
 import app.dropbit.commons.currency.FiatCurrency
-import com.coinninja.android.helpers.gone
-import com.coinninja.android.helpers.show
-import com.coinninja.android.helpers.styleAsBitcoin
-import com.coinninja.android.helpers.styleAsLightning
+import com.coinninja.android.helpers.*
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
@@ -61,11 +58,6 @@ class PayRequestActivity : BaseActivity() {
     val amountInputView: PaymentInputView get() = findViewById(R.id.payment_input_view)
     val copyLabel: View get() = findViewById(R.id.request_footer_copy_description_txt)
 
-    val latestPriceObserver: Observer<FiatCurrency> = Observer {
-        val paymentHolder = amountInputView.paymentHolder
-        paymentHolder.evaluationCurrency = it
-        amountInputView.paymentHolder = paymentHolder
-    }
 
     val validPaymentAmountObserver = object : PaymentInputView.OnValidEntryObserver {
         override fun onValidEntry() {
@@ -96,10 +88,6 @@ class PayRequestActivity : BaseActivity() {
         updateImageUri(uri)
     }
 
-    val isLightningLockedObserver: Observer<Boolean> = Observer {
-        accountModeToggle.isLightningLocked = it
-    }
-
     val createMemoCallback = object : MemoCreator.OnMemoCreatedCallback {
         override fun onMemoCreated(memo: String) {
             addMemoButton.text = if (memo.isEmpty()) getString(R.string.add_a_memo) else memo
@@ -108,10 +96,7 @@ class PayRequestActivity : BaseActivity() {
 
     val accountModeToggleObserver = object : AccountModeToggleButton.AccountModeSelectedObserver {
         override fun onSelectionChange(mode: AccountMode) {
-            when (mode) {
-                AccountMode.BLOCKCHAIN -> showBlockChain()
-                AccountMode.LIGHTNING -> showLightning()
-            }
+            changeAccountMode(mode)
         }
     }
 
@@ -126,8 +111,8 @@ class PayRequestActivity : BaseActivity() {
             paymentHolder = PaymentHolder()
         }
         addAmountButton.setOnClickListener {
-            amountInputView.visibility = View.VISIBLE
             amountInputView.requestFocus()
+            amountInputView.visibility = View.VISIBLE
             it.visibility = View.GONE
         }
 
@@ -142,26 +127,32 @@ class PayRequestActivity : BaseActivity() {
         copyToBufferButton.text = requestAddress.address
     }
 
-    override fun onResume() {
-        super.onResume()
-        walletViewModel.currentPrice.observe(this, latestPriceObserver)
-        walletViewModel.isLightningLocked.observe(this, isLightningLockedObserver)
-        walletViewModel.checkLightningLock()
+    override fun onPause() {
+        super.onPause()
+        qrViewModel.qrCodeUri.removeObserver(qrCodeUriObserver)
+        createInvoiceViewModel.request.removeObserver(createInvoiceRequestObserver)
+    }
 
-        when (accountModeManager.accountMode) {
+    override fun onAccountModeChanged(mode: AccountMode) {
+        super.onAccountModeChanged(mode)
+        amountInputView.accountMode = mode
+        when (mode) {
             AccountMode.BLOCKCHAIN -> showBlockChain()
             AccountMode.LIGHTNING -> showLightning()
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        qrViewModel.qrCodeUri.removeObserver(qrCodeUriObserver)
-        walletViewModel.currentPrice.removeObserver(latestPriceObserver)
-        walletViewModel.isLightningLocked.removeObserver(isLightningLockedObserver)
-        createInvoiceViewModel.request.removeObserver(createInvoiceRequestObserver)
+    override fun onLightningLockedChanged(isLightningLocked: Boolean) {
+        super.onLightningLockedChanged(isLightningLocked)
+        accountModeToggle.isLightningLocked = isLightningLocked
     }
 
+    override fun onLatestPriceChanged(currentPrice: FiatCurrency) {
+        super.onLatestPriceChanged(currentPrice)
+        val paymentHolder = amountInputView.paymentHolder
+        paymentHolder.evaluationCurrency = currentPrice
+        amountInputView.paymentHolder = paymentHolder
+    }
 
     private fun updateImageUri(uri: Uri) {
         qrCodeImage.apply {
@@ -175,12 +166,17 @@ class PayRequestActivity : BaseActivity() {
     private fun showLightning() {
         qrViewModel.qrCodeUri.removeObserver(qrCodeUriObserver)
         amountInputView.paymentHolder.clearPayment()
+        amountInputView.paymentHolder = amountInputView.paymentHolder
+        amountInputView.hideKeyboard()
         amountInputView.gone()
-        addMemoButton.show()
+        addMemoButton.apply {
+            text = ""
+            show()
+        }
         addAmountButton.show()
         qrCodeImage.gone()
-        copyToBufferButton.gone()
-        copyLabel.gone()
+        copyToBufferButton.hide()
+        copyLabel.hide()
         requestFundsButton.apply {
             text = getString(R.string.create_invoice)
             styleAsLightning()
@@ -193,8 +189,12 @@ class PayRequestActivity : BaseActivity() {
     }
 
     private fun showBlockChain() {
+        accountModeManager.changeMode(AccountMode.BLOCKCHAIN)
         amountInputView.paymentHolder.clearPayment()
+        amountInputView.paymentHolder = amountInputView.paymentHolder
+        amountInputView.invalidate()
         amountInputView.gone()
+        amountInputView.hideKeyboard()
         addMemoButton.gone()
         addAmountButton.show()
         qrCodeImage.show()

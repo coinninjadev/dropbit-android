@@ -1,9 +1,7 @@
 package app.coinninja.cn.thunderdome.client
 
-import app.coinninja.cn.thunderdome.model.AccountResponse
-import app.coinninja.cn.thunderdome.model.CreateInvoiceResponse
-import app.coinninja.cn.thunderdome.model.WithdrawalRequest
-import app.coinninja.cn.thunderdome.model.WithdrawalResponse
+import app.coinninja.cn.persistance.model.LedgerStatus
+import app.coinninja.cn.thunderdome.model.*
 import app.dropbit.commons.currency.BTCCurrency
 import com.google.common.truth.Truth.assertThat
 import okhttp3.mockwebserver.MockResponse
@@ -116,6 +114,62 @@ class ThunderDomeApiClientTest {
 
         val encodedInvoice = response.body()!!.request
         assertThat(encodedInvoice).isEqualTo("ln-encoded-invoice")
+    }
+
+    @Test
+    fun decode_encoded_invoice_request() {
+        val client = createClient()
+
+        server.enqueue(MockResponse().setResponseCode(200).setBody(Testdata.decodedInvoice))
+
+        val response: Response<RequestInvoice> = client.decode(DecodeRequest("ln-encoded-request"))
+        val takeRequest = server.takeRequest(100, TimeUnit.MILLISECONDS)
+
+        assertThat(takeRequest.requestUrl.encodedPath()).isEqualTo("/api/v1/thunderdome/decode")
+        assertThat(takeRequest.method).isEqualTo("POST")
+        assertThat(takeRequest.body.readUtf8()).isEqualTo("{\"request\":\"ln-encoded-request\"}")
+
+        val requestInvoice = response.body()!!
+        assertThat(requestInvoice.destination).isEqualTo("--address--")
+        assertThat(requestInvoice.numSatoshis).isEqualTo(10_000_000)
+        assertThat(requestInvoice.description).isEqualTo("--description--")
+        assertThat(requestInvoice.descriptionHash).isEqualTo("--desc-hash--")
+    }
+
+    @Test
+    fun payment_request_with_estimate() {
+        val client = createClient()
+
+        server.enqueue(MockResponse().setResponseCode(200).setBody(Testdata.payRequest))
+
+        val response: Response<PaymentResponse> = client.pay(PaymentRequest("ln-encoded-request", 10_000, true))
+        val takeRequest = server.takeRequest(100, TimeUnit.MILLISECONDS)
+
+        assertThat(takeRequest.requestUrl.encodedPath()).isEqualTo("/api/v1/thunderdome/pay")
+        assertThat(takeRequest.method).isEqualTo("POST")
+        assertThat(takeRequest.body.readUtf8()).isEqualTo("{\"request\":\"ln-encoded-request\",\"value\":10000,\"estimate\":true}")
+
+        val ledgerInvoice = response.body()!!.result
+        assertThat(ledgerInvoice.id).isEqualTo("--txid--")
+        assertThat(ledgerInvoice.status).isEqualTo(LedgerStatus.PENDING.name)
+    }
+
+    @Test
+    fun payment_request() {
+        val client = createClient()
+
+        server.enqueue(MockResponse().setResponseCode(200).setBody(Testdata.payRequest))
+
+        val response: Response<PaymentResponse> = client.pay(PaymentRequest("ln-encoded-request", 10_000))
+        val takeRequest = server.takeRequest(100, TimeUnit.MILLISECONDS)
+
+        assertThat(takeRequest.requestUrl.encodedPath()).isEqualTo("/api/v1/thunderdome/pay")
+        assertThat(takeRequest.method).isEqualTo("POST")
+        assertThat(takeRequest.body.readUtf8()).isEqualTo("{\"request\":\"ln-encoded-request\",\"value\":10000}")
+
+        val ledgerInvoice = response.body()!!.result
+        assertThat(ledgerInvoice.id).isEqualTo("--txid--")
+        assertThat(ledgerInvoice.status).isEqualTo(LedgerStatus.PENDING.name)
     }
 
     private fun createClient(): ThunderDomeApiClient {

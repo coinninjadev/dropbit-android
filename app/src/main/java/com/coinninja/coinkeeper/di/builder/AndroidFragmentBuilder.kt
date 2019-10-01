@@ -95,10 +95,6 @@ abstract class AndroidFragmentBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector
-    internal abstract fun payDialogFragment(): PayDialogFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
     internal abstract fun verifyRecoverywordsFragment(): VerifyRecoverywordsFragment
 
     @ActivityScope

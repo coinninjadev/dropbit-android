@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.ui.home
 import android.os.Bundle
 import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
 import com.coinninja.android.helpers.hide
 import com.coinninja.android.helpers.show
@@ -33,10 +32,6 @@ class HomeActivity : BaseActivity() {
 
     internal var isLightningLocked = true
 
-    internal val isLightningLockedObserver: Observer<Boolean> = Observer {
-        onLightningLockChange(it)
-    }
-
     internal val paymentBarFragment: PaymentBarFragment
         get() = supportFragmentManager.findFragmentByTag("paymentBarFragment") as PaymentBarFragment
 
@@ -50,12 +45,12 @@ class HomeActivity : BaseActivity() {
         override fun onTabSelected(tab: TabLayout.Tab?) {
             when (tabs.selectedTabPosition) {
                 1 -> {
-                    accountModeManger.changeMode(AccountMode.LIGHTNING)
+                    changeAccountMode(AccountMode.LIGHTNING)
                     if (isLightningLocked)
                         paymentBarFragment.hide()
                 }
                 else -> {
-                    accountModeManger.changeMode(AccountMode.BLOCKCHAIN)
+                    changeAccountMode(AccountMode.BLOCKCHAIN)
                     if (isLightningLocked) {
                         paymentBarFragment.show()
                     }
@@ -67,8 +62,6 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        walletViewModel.isLightningLocked.observe(this, isLightningLockedObserver)
-        walletViewModel.checkLightningLock()
         findViewById<View>(R.id.appbar_balance_large)?.apply {
             visibility = View.VISIBLE
         }
@@ -111,6 +104,12 @@ class HomeActivity : BaseActivity() {
         }
     }
 
+    override fun onLightningLockedChanged(isLightningLocked: Boolean) {
+        super.onLightningLockedChanged(isLightningLocked)
+        this.isLightningLocked = isLightningLocked
+        (home_pager.adapter as HomePagerAdapter).isLightningLocked = isLightningLocked
+    }
+
     private fun showDetailWithInitialIntent() {
         if (!intent.hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID)) return
 
@@ -130,10 +129,4 @@ class HomeActivity : BaseActivity() {
             }
         }
     }
-
-    private fun onLightningLockChange(isLocked: Boolean) {
-        isLightningLocked = isLocked
-        (home_pager.adapter as HomePagerAdapter).isLightningLocked = isLightningLocked
-    }
-
 }

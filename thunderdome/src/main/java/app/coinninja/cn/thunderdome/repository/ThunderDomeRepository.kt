@@ -5,8 +5,7 @@ import app.coinninja.cn.persistance.DropbitDatabase
 import app.coinninja.cn.persistance.model.LightningAccount
 import app.coinninja.cn.persistance.model.LightningInvoice
 import app.coinninja.cn.thunderdome.client.ThunderDomeApiClient
-import app.coinninja.cn.thunderdome.model.LedgerInvoice
-import app.coinninja.cn.thunderdome.model.WithdrawalRequest
+import app.coinninja.cn.thunderdome.model.*
 import app.dropbit.annotations.Mockable
 
 @Mockable
@@ -17,7 +16,7 @@ class ThunderDomeRepository(
 
     val lightningAccount: LightningAccount? get() = dropbitDatabase.lightningAccountDao().getAccount()
     val ledgerInvoices: LiveData<List<LightningInvoice>> get() = dropbitDatabase.lightningInvoiceDao().allVisibleLive()
-    val isLocked:Boolean get() = lightningAccount?.isLocked ?: true
+    val isLocked: Boolean get() = lightningAccount?.isLocked ?: true
 
     fun sync() {
         syncAccount()
@@ -67,7 +66,7 @@ class ThunderDomeRepository(
 
     }
 
-    fun estimateWithdrawal(withdrawalRequest: WithdrawalRequest):LedgerInvoice? {
+    fun estimateWithdrawal(withdrawalRequest: WithdrawalRequest): LedgerInvoice? {
         lightningAccount?.let { account ->
             withdrawalRequest.isEstimate = true
             val response = apiClient.estimateWithdraw(withdrawalRequest)
@@ -83,8 +82,8 @@ class ThunderDomeRepository(
         return null
     }
 
-    fun createInvoiceFor(amount:Long, memo:String? = null):String? {
-        apiClient.createInvoiceFor(amount, memo?: "").let {response ->
+    fun createInvoiceFor(amount: Long, memo: String? = null): String? {
+        apiClient.createInvoiceFor(amount, memo ?: "").let { response ->
             return if (response.isSuccessful) {
                 response.body()?.request
             } else {
@@ -92,5 +91,37 @@ class ThunderDomeRepository(
             }
         }
     }
+
+    fun decode(encodedInvoice: String): RequestInvoice? {
+        apiClient.decode(DecodeRequest(encodedInvoice)).let { response ->
+            return if (response.isSuccessful) {
+                val response = response.body()
+                response?.let {
+                    response.encoded = encodedInvoice
+                }
+                return response
+            } else {
+                null
+            }
+        }
+    }
+
+    fun estimatePayment(encodedInvoice: String, amount: Long): LedgerInvoice? {
+        return pay(encodedInvoice, amount, true)
+    }
+
+    fun pay(encodedInvoice: String, amount: Long, isEstimate: Boolean? = null): LedgerInvoice? {
+        apiClient.pay(PaymentRequest(encodedInvoice, amount, isEstimate)).let { response ->
+            return when (response.code()) {
+                200 -> response.body()?.result
+                400 -> {
+                    LedgerInvoice()
+                }
+                else -> null
+
+            }
+        }
+    }
+
 
 }

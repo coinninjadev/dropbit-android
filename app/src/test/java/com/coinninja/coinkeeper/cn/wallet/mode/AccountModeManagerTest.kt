@@ -44,4 +44,19 @@ class AccountModeManagerTest {
 
         verify(accountModeChangeObserver, times(2)).onAccountModeChanged(any())
     }
+
+    @Test
+    fun remove_observer() {
+        val observer1: AccountModeChangeObserver = mock()
+        val observer2: AccountModeChangeObserver = mock()
+        val accountModeManager = AccountModeManager(AccountMode.BLOCKCHAIN)
+
+        accountModeManager.observeChanges(observer1)
+        accountModeManager.observeChanges(observer2)
+
+        assertThat(accountModeManager.changeObservers.size).isEqualTo(2)
+
+        accountModeManager.removeObserver(observer1)
+        assertThat(accountModeManager.changeObservers.size).isEqualTo(1)
+    }
 }

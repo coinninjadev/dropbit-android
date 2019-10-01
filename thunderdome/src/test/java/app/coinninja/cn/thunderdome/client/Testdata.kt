@@ -70,4 +70,50 @@ object Testdata {
             "  \"request\": \"ln-encoded-invoice\"\n" +
             "}"
 
+    const val decodedInvoice: String = "{\n" +
+            "  \"destination\": \"--address--\",\n" +
+            "  \"payment_hash\": \"--payment-hash--\",\n" +
+            "  \"num_satoshis\": 10000000,\n" +
+            "  \"timestamp\": \"2019-09-03T14:41:30.018Z\",\n" +
+            "  \"expiry\": \"2019-09-03T14:41:30.018Z\",\n" +
+            "  \"description\": \"--description--\",\n" +
+            "  \"description_hash\": \"--desc-hash--\",\n" +
+            "  \"fallback_addr\": \"--fallback-addr--\",\n" +
+            "  \"cltv_expiry\": \"2019-09-03T14:41:30.018Z\",\n" +
+            "  \"route_hints\": [\n" +
+            "    {\n" +
+            "      \"hop_hints\": [\n" +
+            "        {\n" +
+            "          \"node_id\": \"string\",\n" +
+            "          \"chan_id\": \"string\",\n" +
+            "          \"fee_base_msat\": 0,\n" +
+            "          \"fee_proportional_millionths\": 0,\n" +
+            "          \"cltv_expiry_delta\": 0\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}"
+
+    const val payRequest: String = "{\n" +
+            "  \"result\": {\n" +
+            "    \"id\": \"--txid--\",\n" +
+            "    \"account_id\": \"--account-id--\",\n" +
+            "    \"created_at\": \"2019-09-03T14:41:30.018Z\",\n" +
+            "    \"updated_at\": \"2019-09-03T14:41:30.018Z\",\n" +
+            "    \"expires_at\": \"2019-09-03T14:41:30.018Z\",\n" +
+            "    \"status\": \"PENDING\",\n" +
+            "    \"type\": \"lightning\",\n" +
+            "    \"direction\": \"OUT\",\n" +
+            "    \"generated\": true,\n" +
+            "    \"value\": 10000,\n" +
+            "    \"network_fee\": 50,\n" +
+            "    \"processing_fee\": 500,\n" +
+            "    \"add_index\": \"0\",\n" +
+            "    \"memo\": \"\",\n" +
+            "    \"request\": \"\",\n" +
+            "    \"error\": \"\",\n" +
+            "    \"hidden\": false\n" +
+            "  }\n" +
+            "}"
 }
