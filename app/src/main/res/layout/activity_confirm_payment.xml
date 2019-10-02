@@ -10,24 +10,6 @@
     android:layout_marginEnd="8dp"
     android:background="@drawable/request_dialog_background">
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/adjustable_fee_configuration_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:constraint_referenced_ids="adjustable_fees" />
-
-    <TextView
-        android:id="@+id/confirm_pay_header_label"
-        style="@style/Dialog.Header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/pay_header"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ImageView
         android:id="@+id/close_button"
         android:layout_width="54dp"
@@ -41,51 +23,149 @@
         app:srcCompat="@drawable/ic_close"
         tools:ignore="ContentDescription" />
 
-    <TextView
-        android:id="@+id/primary_currency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/confirm_pay_header_label"
-        android:background="@android:color/transparent"
-        android:enabled="false"
-        android:gravity="center"
-        android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.Payment.Input"
-        app:layout_constraintBottom_toTopOf="@+id/secondary_currency"
+    <ImageView
+        android:id="@+id/avatar_image_view"
+        android:layout_width="51dp"
+        android:layout_height="51dp"
+        android:layout_marginTop="32dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toTopOf="@+id/confirm_pay_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/confirm_pay_header_label"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:text="$1,000.00" />
-
-    <TextView
-        android:id="@+id/secondary_currency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/primary_currency"
-        android:layout_marginTop="8dp"
-        android:textAppearance="@style/TextAppearance.Payment.SecondaryCurrency.Bitcoin"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/network_fee"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/primary_currency"
-        tools:text="BTC: 2.0000212" />
+        app:layout_constraintTop_toBottomOf="@+id/approximate_wait_time_label"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/ic_dropbit_me" />
 
     <TextView
         android:id="@+id/network_fee"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toTopOf="@+id/adjustable_fees"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/secondary_currency"
+        app:layout_constraintTop_toBottomOf="@+id/default_currency_view"
         tools:text="network fee 0.00026 ($0.06)" />
 
+
+    <TextView
+        android:id="@+id/approximate_wait_time_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/approximate_wait_time"
+        android:textAppearance="@style/TextAppearance.Fees.WaitLabel"
+        app:layout_constraintBottom_toTopOf="@+id/avatar_image_view"
+        app:layout_constraintEnd_toStartOf="@+id/estimated_delivery_time"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/adjustable_fees" />
+
+    <TextView
+        android:id="@+id/estimated_delivery_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/approximate_wait_time"
+        android:textAppearance="@style/TextAppearance.Fees.WaitTime"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/approximate_wait_time_label"
+        app:layout_constraintTop_toTopOf="@+id/approximate_wait_time_label"
+        tools:text="10 minutes" />
+
+    <TextView
+        android:id="@+id/confirm_pay_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:lines="1"
+        android:maxLines="1"
+        android:textColor="@color/fingerprint_standard"
+        android:textSize="@dimen/confirm_name_text"
+        app:layout_constraintBottom_toTopOf="@+id/confirm_pay_btc_address"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/avatar_image_view"
+        tools:text="Adam Wolff"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/confirm_pay_btc_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:lines="1"
+        android:maxLines="1"
+        android:textColor="@color/font_gray"
+        android:textSize="@dimen/pay_dialog_small_text"
+        app:layout_constraintBottom_toTopOf="@+id/shared_transaction"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirm_pay_name"
+        tools:text="13uhkJ5kmYOK45YuJKP09GLLVBDF67s7A" />
+
+    <TextView
+        android:id="@+id/confirm_pay_hold_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:text="@string/confirm_pay_hold_label_message_successful"
+        app:layout_constraintBottom_toTopOf="@+id/confirm_pay_hold_progress_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.coinninja.coinkeeper.view.button.ConfirmHoldButton
+        android:id="@+id/confirm_pay_hold_progress_btn"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="@dimen/confirm_hold_button_size"
+        android:layout_height="@dimen/confirm_hold_button_size"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="25dp"
+        android:progress="0"
+        android:progressDrawable="@drawable/confirm_progress_bar_bitcoin"
+        android:rotation="-90"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.coinninja.coinkeeper.view.widget.AccountModeToggleButton
+        android:id="@+id/account_mode_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView
+        android:id="@+id/default_currency_view"
+        style="@style/confirmationPaymentBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="24dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/network_fee"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/account_mode_toggle"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/adjustable_fees"
@@ -93,7 +173,6 @@
         android:layout_width="wrap_content"
         android:layout_height="32dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/approximate_wait_time_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -121,100 +200,8 @@
 
     </com.google.android.material.tabs.TabLayout>
 
-    <TextView
-        android:id="@+id/approximate_wait_time_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/approximate_wait_time"
-        android:textAppearance="@style/TextAppearance.Fees.WaitLabel"
-        app:layout_constraintBottom_toTopOf="@+id/upper"
-        app:layout_constraintEnd_toStartOf="@+id/estimated_delivery_time"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adjustable_fees" />
-
-    <TextView
-        android:id="@+id/estimated_delivery_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/approximate_wait_time"
-        android:textAppearance="@style/TextAppearance.Fees.WaitTime"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/approximate_wait_time_label"
-        app:layout_constraintTop_toTopOf="@+id/approximate_wait_time_label"
-        tools:text="10 minutes" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/upper"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:barrierDirection="top"
-        app:constraint_referenced_ids="confirm_pay_btc_address,avatar_image_view,confirm_pay_name"
-        tools:layout_editor_absoluteY="785dp" />
-
-    <ImageView
-        android:id="@+id/avatar_image_view"
-        android:layout_width="51dp"
-        android:layout_height="51dp"
-        android:scaleType="fitXY"
-        app:layout_constraintBottom_toTopOf="@+id/confirm_pay_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:ignore="ContentDescription"
-        tools:src="@drawable/ic_dropbit_me" />
-
-    <TextView
-        android:id="@+id/confirm_pay_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:ellipsize="end"
-        android:gravity="center"
-        android:lines="1"
-        android:maxLines="1"
-        android:textColor="@color/fingerprint_standard"
-        android:textSize="@dimen/confirm_name_text"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/avatar_image_view"
-        tools:text="Adam Wolff"
-        tools:visibility="visible" />
-
-    <TextView
-        android:id="@+id/confirm_pay_btc_address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:ellipsize="end"
-        android:gravity="center"
-        android:lines="1"
-        android:maxLines="1"
-        android:textColor="@color/font_gray"
-        android:textSize="@dimen/pay_dialog_small_text"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="13uhkJ5kmYOK45YuJKP09GLLVBDF67s7A" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/lower"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="confirm_pay_btc_address,avatar_image_view,confirm_pay_name" />
-
     <include
-        android:id="@+id/shared_transaction_subview"
+        android:id="@+id/shared_transaction"
         layout="@layout/shared_memo_container"
         android:layout_width="361dp"
         android:layout_height="wrap_content"
@@ -224,31 +211,12 @@
         app:layout_constraintBottom_toTopOf="@+id/confirm_pay_hold_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lower" />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/confirm_pay_hold_label"
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/adjustable_fee_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="25dp"
-        android:text="@string/confirm_pay_hold_label_message_successful"
-        app:layout_constraintBottom_toTopOf="@+id/confirm_pay_hold_progress_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <com.coinninja.coinkeeper.view.button.ConfirmHoldButton
-        android:id="@+id/confirm_pay_hold_progress_btn"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="@dimen/confirm_hold_button_size"
-        android:layout_height="@dimen/confirm_hold_button_size"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="25dp"
-        android:progress="0"
-        android:progressDrawable="@drawable/confirm_progress_bar_bitcoin"
-        android:rotation="-90"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:visibility="visible"
+        app:constraint_referenced_ids="adjustable_fees,approximate_wait_time_label,estimated_delivery_time" />
 </androidx.constraintlayout.widget.ConstraintLayout>

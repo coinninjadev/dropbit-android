@@ -52,7 +52,6 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     private TwitterUtil twitterUtil;
     private Analytics analytics;
     private TransactionDetailObserver transactionDetailObserver;
-    private SharedMemoView sharedMemoView;
     private DropbitUriBuilder dropbitUriBuilder;
     private DropbitRoute tooltipId;
     private DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
@@ -234,8 +233,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         } else {
             addMemoButton.setVisibility(View.GONE);
             memoView.setVisibility(View.VISIBLE);
-            sharedMemoView = new SharedMemoView(memoView, bindableTransaction.isSharedMemo(), bindableTransaction.getMemo(),
-                    bindableTransaction.getIdentity());
+            new SharedMemoView().render(memoView, bindableTransaction.isSharedMemo(), bindableTransaction.getMemo(), bindableTransaction.getIdentity());
         }
 
         if (bindableTransaction.getInviteState() == BindableTransaction.InviteState.CANCELED) {

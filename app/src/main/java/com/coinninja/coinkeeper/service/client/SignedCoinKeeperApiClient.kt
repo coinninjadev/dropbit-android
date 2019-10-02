@@ -15,6 +15,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import okhttp3.MediaType
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 
 @Mockable
@@ -258,7 +259,7 @@ class SignedCoinKeeperApiClient(
         return response
     }
 
-    override fun broadcastTransaction(transaction: Transaction): Response<Any> {
+    override fun broadcastTransaction(transaction: Transaction): Response<ResponseBody> {
         val requestBody = RequestBody.create(MediaType.parse("text/plain"), transaction.encodedTransaction)
         return executeCall(client.broadcastTransaction(requestBody))
     }

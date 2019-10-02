@@ -49,7 +49,7 @@ class PaymentHolder(
     val secondaryCurrency: Currency
         get() = defaultCurrencies.secondaryCurrency
 
-    val fiat: Currency
+    val fiat: FiatCurrency
         get() = defaultCurrencies.fiat
 
     val cryptoCurrency: CryptoCurrency

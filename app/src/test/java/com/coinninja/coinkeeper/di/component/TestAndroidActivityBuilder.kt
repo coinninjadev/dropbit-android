@@ -18,6 +18,7 @@ import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.market.TestMarketChartModule
 import com.coinninja.coinkeeper.ui.news.TestMarketNewsModule
 import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity
+import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivityTest
 import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
 import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivityTest
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
@@ -196,7 +197,7 @@ abstract class TestAndroidActivityBuilder {
     internal abstract fun createPaymentActivity(): CreatePaymentActivity
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, ConfirmPaymentActivityTest.ConfirmPaymentActivityTestModule::class])
     internal abstract fun confirmPaymentActivity(): ConfirmPaymentActivity
 }
 

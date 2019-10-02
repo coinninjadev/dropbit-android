@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.ui.segwit
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.CompoundButton
@@ -81,7 +80,6 @@ class UpgradeToSegwitActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         syncWalletManager.cancel60SecondSync()
-        syncManagerViewNotifier.observeSyncManagerChange(syncChangeObserver)
         fundingViewModel = fundingViewModelProvider.provide(this)
         fundingViewModel.transactionData.observe(this, fundingObserver)
         upgradeButton.apply {
@@ -96,6 +94,7 @@ class UpgradeToSegwitActivity : BaseActivity() {
         syncWalletManager.syncNow()
         upgradePermission.setOnCheckedChangeListener(onCheckedListener)
         transferPermission.setOnCheckedChangeListener(onCheckedListener)
+        syncManagerViewNotifier.observeSyncManagerChange(syncChangeObserver)
     }
 
     override fun onPause() {

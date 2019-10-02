@@ -22,7 +22,7 @@ class TransactionBroadcaster {
         return result
     }
 
-    private fun assembleResponses(broadcastResult: BroadcastResult, nullableResponse: Response<Any>?, broadcastProvider: BroadcastProvider) {
+    private fun assembleResponses(broadcastResult: BroadcastResult, nullableResponse: Response<ResponseBody>?, broadcastProvider: BroadcastProvider) {
         if (broadcastResult.isSuccess) return
         nullableResponse?.let { response ->
             broadcastResult.provider = broadcastProvider

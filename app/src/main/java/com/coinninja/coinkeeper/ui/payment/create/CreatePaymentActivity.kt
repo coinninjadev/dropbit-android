@@ -280,6 +280,7 @@ class CreatePaymentActivity : BaseActivity() {
 
     override fun onAccountModeChanged(mode: AccountMode) {
         super.onAccountModeChanged(mode)
+        clearPaymentInput()
         amountInputView.accountMode = mode
         when (mode) {
             AccountMode.BLOCKCHAIN -> showBlockChain()
@@ -318,6 +319,7 @@ class CreatePaymentActivity : BaseActivity() {
         observeLiveData()
         paymentHolder.paymentAddress = ""
         paymentHolder.clearTransactionData()
+        paymentReceiverView.paymentAddress = ""
     }
 
     private fun observeLiveData() {

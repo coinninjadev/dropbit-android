@@ -35,6 +35,11 @@ class AccountModeToggleButton @JvmOverloads constructor(
             if (value) gone() else show()
         }
 
+    var active: Boolean = true
+        set(value: Boolean) {
+            field = value
+            invalidateButtons()
+        }
 
     internal val lightningButton: Button get() = findViewById(R.id.view_lightning)
     internal val blockchainButton: Button get() = findViewById(R.id.view_btc)
@@ -47,17 +52,26 @@ class AccountModeToggleButton @JvmOverloads constructor(
     }
 
     private fun invalidateButtons() {
-        when (mode) {
-            AccountMode.LIGHTNING -> {
+        when {
+            mode == AccountMode.LIGHTNING && active -> {
                 lightningButton.disable()
                 blockchainButton.enable()
             }
-            AccountMode.BLOCKCHAIN -> {
+            mode == AccountMode.LIGHTNING && !active -> {
+                lightningButton.disable()
+                blockchainButton.gone()
+            }
+            mode == AccountMode.BLOCKCHAIN && active -> {
                 lightningButton.enable()
+                blockchainButton.disable()
+            }
+            mode == AccountMode.BLOCKCHAIN && !active -> {
+                lightningButton.gone()
                 blockchainButton.disable()
             }
         }
     }
+
 
     interface AccountModeSelectedObserver {
         fun onSelectionChange(mode: AccountMode)
