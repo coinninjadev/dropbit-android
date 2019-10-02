@@ -261,8 +261,7 @@ public class ConfirmPayDialogFragment extends BaseBottomDialogFragment implement
     private void setupSharedMemoFragment() {
         View sharedMemo = getView().findViewById(R.id.shared_transaction_subview);
         String displayText = identity == null ? "" : identity.getDisplayName();
-        SharedMemoView sharedMemoView = new SharedMemoView(sharedMemo, getPaymentHolder().isSharingMemo(), getPaymentHolder().getMemo(), displayText);
-        sharedMemoView.render();
+        new SharedMemoView().render(sharedMemo, getPaymentHolder().isSharingMemo(), getPaymentHolder().getMemo(), displayText);
     }
 
     private void showSendAddressIfNecessary() {

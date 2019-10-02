@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import app.dropbit.commons.currency.CryptoCurrency;
 import app.dropbit.commons.currency.Currency;
+import app.dropbit.commons.currency.FiatCurrency;
 
 public class DefaultCurrencies implements Parcelable {
     public static final Creator<DefaultCurrencies> CREATOR = new Creator<DefaultCurrencies>() {
@@ -44,10 +45,10 @@ public class DefaultCurrencies implements Parcelable {
         dest.writeParcelable(secondaryCurrency, flags);
     }
 
-    public Currency getFiat() {
+    public FiatCurrency getFiat() {
         return getPrimaryCurrency().isFiat() ?
-                getPrimaryCurrency() :
-                getSecondaryCurrency();
+                (FiatCurrency) getPrimaryCurrency() :
+                (FiatCurrency) getSecondaryCurrency();
     }
 
     public CryptoCurrency getCrypto() {

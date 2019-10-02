@@ -236,6 +236,18 @@
         <item name="useCryptoIcon">true</item>
     </style>
 
+    <style name="confirmationPaymentBalance">
+        <item name="fiatTextColor">@color/colorPrimaryDark</item>
+        <item name="cryptoTextColor">@color/bitcoin_orange</item>
+        <item name="primaryCryptoIconScale">1.8</item>
+        <item name="secondaryCryptoIconScale">1</item>
+        <item name="sentTextAppearance">@style/TextAppearance.Payment.Input</item>
+        <item name="receivedTextAppearance">@style/TextAppearance.Payment.Input</item>
+        <item name="secondaryTextAppearance">@style/TextAppearance.Payment.SecondaryCurrency.Bitcoin
+        </item>
+        <item name="useCryptoIcon">true</item>
+    </style>
+
     <style name="transactionHistoryBalance">
         <item name="fiatTextColor">@color/colorPrimaryDark</item>
         <item name="cryptoTextColor">@color/bitcoin_orange</item>

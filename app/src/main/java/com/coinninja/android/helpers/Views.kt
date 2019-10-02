@@ -19,6 +19,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.util.DefaultCurrencies
+import com.coinninja.coinkeeper.view.button.ConfirmHoldButton
 
 fun Fragment.show() {
     this.view?.show()
@@ -92,6 +93,21 @@ fun Button.styleAsLightning() {
     }
 }
 
+fun ConfirmHoldButton.styleAsLightning() {
+    this.progressDrawable = ResourcesCompat.getDrawable(
+            this.context.resources,
+            R.drawable.confirm_progress_bar_lightning,
+            this.context.theme
+    )
+}
+
+fun ConfirmHoldButton.styleAsBitcoin() {
+    this.progressDrawable = ResourcesCompat.getDrawable(
+            this.context.resources,
+            R.drawable.confirm_progress_bar_bitcoin,
+            this.context.theme
+    )
+}
 
 object Views {
 

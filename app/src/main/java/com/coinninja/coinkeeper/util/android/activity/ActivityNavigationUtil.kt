@@ -336,7 +336,7 @@ class ActivityNavigationUtil @Inject constructor(
     fun navigateToConfirmPaymentScreen(activity: Activity, paymentHolder: PaymentHolder) {
         Intent(activity, ConfirmPaymentActivity::class.java).also {
             it.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, paymentHolder)
-            activity.startActivityForResult(it, DropbitIntents.REQUEST_PICK_CONTACT)
+            activity.startActivity(it)
         }
     }
 }
