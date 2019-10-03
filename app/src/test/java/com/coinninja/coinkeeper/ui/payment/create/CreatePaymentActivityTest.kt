@@ -193,12 +193,12 @@ class CreatePaymentActivityTest {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
-            activity.isSendingMax = true
+            activity.paymentHolder.isSendingMax = true
             activity.onAccountModeChanged(AccountMode.LIGHTNING)
             assertThat(activity.amountInputView.accountMode).isEqualTo(AccountMode.LIGHTNING)
             assertThat(activity.amountInputView.canToggleCurrencies).isFalse()
             assertThat(activity.amountInputView.canSendMax).isFalse()
-            assertThat(activity.isSendingMax).isFalse()
+            assertThat(activity.paymentHolder.isSendingMax).isFalse()
             assertThat(activity.accountModeToggle.mode).isEqualTo(AccountMode.LIGHTNING)
 
             activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
@@ -240,9 +240,9 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.amountInputView.sendMax.performClick()
 
-            assertThat(activity.isSendingMax).isTrue()
+            assertThat(activity.paymentHolder.isSendingMax).isTrue()
             assertThat(activity.paymentHolder.transactionData.isFunded()).isFalse()
-            verify(activity.fundingViewModel).fundMax(null)
+            verify(activity.fundingViewModel).fundMax("")
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -255,7 +255,7 @@ class CreatePaymentActivityTest {
 
         scenario.onActivity { activity ->
             activity.amountInputView.sendMax.performClick()
-            assertThat(activity.isSendingMax).isTrue()
+            assertThat(activity.paymentHolder.isSendingMax).isTrue()
 
             activity.transactionDataObserver.onChanged(TransactionData(
                     arrayOf(mock()),
@@ -277,13 +277,13 @@ class CreatePaymentActivityTest {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
-            activity.isSendingMax = true
+            activity.paymentHolder.isSendingMax = true
             activity.amountInputView.sendMax.performClick()
 
             activity.amountInputView.primaryCurrency.setText("")
 
-            assertThat(activity.isSendingMax).isFalse()
-            verify(activity.fundingViewModel).fundMax(null)
+            assertThat(activity.paymentHolder.isSendingMax).isFalse()
+            verify(activity.fundingViewModel).fundMax("")
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -300,7 +300,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("")
             activity.amountInputView.primaryCurrency.setText("1")
 
-            assertThat(activity.isSendingMax).isFalse()
+            assertThat(activity.paymentHolder.isSendingMax).isFalse()
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -503,6 +503,28 @@ class CreatePaymentActivityTest {
     }
 
     @Test
+    fun validation__invites_can_not_exceed_100_usd() {
+        val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+            activity.accountModeObserver.onChanged(AccountMode.BLOCKCHAIN)
+            activity.amountInputView.primaryCurrency.setText("$100.01")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.onHoldingsWorthChanged(USDCurrency(1_000_00))
+            activity.onHoldingsChanged(BTCCurrency(500_000))
+            activity.onLatestPriceChanged(USDCurrency(10_000_00))
+            activity.nextButton.performClick()
+
+            val dialog = activity.supportFragmentManager.findFragmentByTag("ERROR_DIALOG") as GenericAlertDialog
+
+            assertThat(dialog.message).isEqualTo(activity.getString(R.string.payment_error_too_much_sent_to_contact))
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
     fun validation__insufficient_funds_for_lightning_invite() {
         val scenario = createScenario()
 
@@ -511,7 +533,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
             activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult())
 
             activity.nextButton.performClick()
@@ -534,7 +556,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
             activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
             activity.nextButton.performClick()
 
@@ -554,7 +576,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
             activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
             activity.nextButton.performClick()
             activity.pendingLedgerInvoiceObserver.onChanged(LedgerInvoice(value = 0))
@@ -633,7 +655,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$100.00")
             activity.onLatestPriceChanged(USDCurrency(10_000_00))
 
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.nextButton.performClick()
 
             verify(activity.fundingViewModel).fundTransactionForDropbit(1_000_000)
@@ -652,7 +674,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$100.00")
             activity.onLatestPriceChanged(USDCurrency(10_000_00))
 
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.nextButton.performClick()
 
             assertThat(activity.paymentHolder.memo).isEmpty()
@@ -674,7 +696,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$100.00")
             activity.onLatestPriceChanged(USDCurrency(10_000_00))
 
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.nextButton.performClick()
 
             assertThat(activity.paymentHolder.memo).isEqualTo("foo bar")
@@ -695,7 +717,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$100.00")
             activity.onLatestPriceChanged(USDCurrency(10_000_00))
 
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.nextButton.performClick()
 
             assertThat(activity.paymentHolder.memo).isEqualTo("foo bar")
@@ -717,7 +739,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$100.00")
             activity.onLatestPriceChanged(USDCurrency(10_000_00))
 
-            activity.toUser = null
+            activity.paymentHolder.toUser = null
             activity.nextButton.performClick()
 
             assertThat(activity.paymentHolder.memo).isEqualTo("foo bar")
@@ -735,7 +757,7 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.amountInputView.sendMax.performClick()
-            assertThat(activity.isSendingMax).isTrue()
+            assertThat(activity.paymentHolder.isSendingMax).isTrue()
 
             val bitcoinUri: BitcoinUri = mock()
             whenever(bitcoinUri.address).thenReturn("--address--")
@@ -760,7 +782,7 @@ class CreatePaymentActivityTest {
             activity.memoToggleView.setText("foo bar")
             activity.paymentHolder.paymentAddress = "--payment-address--"
             activity.amountInputView.sendMax.performClick()
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult("--hash--", "--address--", "--pub-key--", addressType = "btc"))
 
             activity.nextButton.performClick()
@@ -782,7 +804,7 @@ class CreatePaymentActivityTest {
             activity.memoToggleView.setText("foo bar")
             activity.paymentHolder.paymentAddress = "--payment-address--"
             activity.amountInputView.sendMax.performClick()
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult("--hash--", "--address--", "--pub-key--", addressType = "btc"))
 
             activity.nextButton.performClick()
@@ -803,7 +825,7 @@ class CreatePaymentActivityTest {
             activity.memoToggleView.setText("foo bar")
             activity.paymentHolder.paymentAddress = "--payment-address--"
             activity.amountInputView.sendMax.performClick()
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult("--hash--", "--address--", "--pub-key--", addressType = "btc"))
 
             activity.nextButton.performClick()
@@ -841,7 +863,7 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.onAccountModeChanged(AccountMode.LIGHTNING)
             activity.amountInputView.primaryCurrency.setText("$10.00")
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--",
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--",
                     "Joe Smoe", isVerified = true)
             activity.accountLookupResultObserver.onChanged(AddressLookupResult(
                     "--hash--",
@@ -870,7 +892,7 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.onAccountModeChanged(AccountMode.LIGHTNING)
             activity.amountInputView.primaryCurrency.setText("$10.00")
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--",
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--",
                     "Joe Smoe", isVerified = true)
             activity.accountLookupResultObserver.onChanged(AddressLookupResult(
                     "--hash--",
@@ -907,7 +929,7 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
             whenever(activity.userPreferences.shouldShowInviteHelp).thenReturn(true)
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = false)
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = false)
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.nextButton.performClick()
             activity.transactionDataObserver.onChanged(TransactionData(arrayOf(mock()),
@@ -928,7 +950,7 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
             whenever(activity.userPreferences.shouldShowInviteHelp).thenReturn(false)
-            activity.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = false)
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = false)
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.nextButton.performClick()
             activity.transactionDataObserver.onChanged(TransactionData(arrayOf(mock()),

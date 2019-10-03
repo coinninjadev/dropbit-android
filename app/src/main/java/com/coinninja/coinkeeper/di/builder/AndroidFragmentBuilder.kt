@@ -83,10 +83,6 @@ abstract class AndroidFragmentBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector
-    internal abstract fun confirmPayDialogFragment(): ConfirmPayDialogFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
     internal abstract fun fingerprintAuthDialog(): FingerprintAuthDialog
 
     @ActivityScope

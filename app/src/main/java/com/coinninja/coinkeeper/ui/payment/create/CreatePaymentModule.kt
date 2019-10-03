@@ -1,4 +1,4 @@
-package com.coinninja.coinkeeper.ui.payment.createi
+package com.coinninja.coinkeeper.ui.payment.create
 
 import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import com.coinninja.coinkeeper.cn.transaction.FundingViewModelProvider

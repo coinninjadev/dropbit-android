@@ -117,7 +117,7 @@ class ActivityNavigationUtilTest {
         activityNavigationUtil.navigateToHome(activity)
 
         val intent = Intent(activity, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         assertThat(activity, activityWithIntentStarted(intent))
     }
 

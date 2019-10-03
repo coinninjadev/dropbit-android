@@ -23,10 +23,9 @@ data class PendingInviteDTO(
             parcel.readLong(),
             parcel.readLong(),
             parcel.readLong(),
-            parcel.readString(),
+            parcel.readString()?: "",
             parcel.readByte() != 0.toByte(),
-            parcel.readString()) {
-    }
+            parcel.readString() ?: "")
 
     fun hasMemo(): Boolean {
         return memo.isNotEmpty()

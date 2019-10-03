@@ -25,8 +25,8 @@
 
     <ImageView
         android:id="@+id/avatar_image_view"
-        android:layout_width="51dp"
-        android:layout_height="51dp"
+        android:layout_width="61dp"
+        android:layout_height="61dp"
         android:layout_marginTop="32dp"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toTopOf="@+id/confirm_pay_name"

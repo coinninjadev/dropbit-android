@@ -65,8 +65,6 @@ class CreatePaymentActivity : BaseActivity() {
     lateinit var fundingViewModel: FundingViewModel
 
     var isReadyToProcess = false
-    var isSendingMax = false
-    var toUser: Identity? = null
     val paymentHolder = PaymentHolder()
     var bitcoinUri: BitcoinUri? = null
         set(value) {
@@ -164,15 +162,15 @@ class CreatePaymentActivity : BaseActivity() {
 
     val onSendMaxObserved: PaymentInputView.OnSendMaxObserver = object : PaymentInputView.OnSendMaxObserver {
         override fun onSendMax() {
-            isSendingMax = true
+            paymentHolder.isSendingMax = true
             paymentHolder.clearTransactionData()
-            fundingViewModel.fundMax(if (paymentHolder.paymentAddress.isEmpty()) null else paymentHolder.paymentAddress)
+            fundingViewModel.fundMax(paymentHolder.paymentAddress)
         }
     }
 
     val transactionDataObserver: Observer<TransactionData> = Observer {
         paymentHolder.transactionData = it
-        if (isSendingMax) {
+        if (paymentHolder.isSendingMax) {
             paymentHolder.updateValue(BTCCurrency(it.amount))
             amountInputView.paymentHolder = paymentHolder
         }
@@ -183,14 +181,14 @@ class CreatePaymentActivity : BaseActivity() {
 
     val onSendMaxClearedObserver = object : PaymentInputView.OnSendMaxClearedObserver {
         override fun onSendMaxCleared() {
-            isSendingMax = false
+            paymentHolder.isSendingMax = false
             paymentHolder.clearTransactionData()
         }
     }
 
     val onValidPaymentInputObserver = object : PaymentInputView.OnValidEntryObserver {
         override fun onValidEntry() {
-            isSendingMax = false
+            paymentHolder.isSendingMax = false
             paymentHolder.clearTransactionData()
         }
     }
@@ -343,8 +341,8 @@ class CreatePaymentActivity : BaseActivity() {
     internal fun onValidPhoneNumberInput(it: Phonenumber.PhoneNumber?) {
         val value = PhoneNumber(it)
         clearPaymentInput()
-        toUser = Identity(IdentityType.PHONE, value.toInternationalDisplayText(), value.toHash())
-        toUser?.let {
+        paymentHolder.toUser = Identity(IdentityType.PHONE, value.toInternationalDisplayText(), value.toHash())
+        paymentHolder.toUser?.let {
             fundingViewModel.lookupIdentityHash(it.hashForType, accountModeToggle.mode)
         }
         memoToggleView.showSharedMemoViews()
@@ -363,8 +361,13 @@ class CreatePaymentActivity : BaseActivity() {
             return
         }
 
-        if (paymentHolder.paymentAddress.isEmpty() && toUser == null) {
+        if (paymentHolder.paymentAddress.isEmpty() && paymentHolder.toUser == null) {
             showInvalidPaymentTarget()
+            return
+        }
+
+        if (paymentHolder.paymentAddress.isEmpty() && paymentHolder.toUser != null && paymentHolder.fiat.toLong() > inviteLimit) {
+            showTooMuchForInvite()
             return
         }
 
@@ -372,23 +375,23 @@ class CreatePaymentActivity : BaseActivity() {
 
         paymentHolder.memo = memoToggleView.memo
         paymentHolder.isSharingMemo = memoToggleView.isSharing
-                && toUser.isNotNull()
+                && paymentHolder.toUser.isNotNull()
                 && paymentHolder.memo.isNotEmpty()
 
-        if (isSendingMax) {
+        if (paymentHolder.isSendingMax) {
             fundingViewModel.fundMax(paymentHolder.paymentAddress)
         } else if (paymentHolder.hasPaymentAddress()) {
             fundingViewModel.fundTransaction(paymentHolder.paymentAddress, paymentHolder.cryptoCurrency.toLong())
-        } else if (toUser != null && paymentHolder.requestInvoice.isNotNull() && paymentHolder.requestInvoice?.encoded.isNotNull()) {
+        } else if (paymentHolder.toUser != null && paymentHolder.requestInvoice.isNotNull() && paymentHolder.requestInvoice?.encoded.isNotNull()) {
             paymentHolder.requestInvoice?.encoded?.let { fundingViewModel.estimateLightningPayment(it, paymentHolder.cryptoCurrency.toLong()) }
-        } else if (toUser != null && accountModeToggle.mode == AccountMode.LIGHTNING) {
+        } else if (paymentHolder.toUser != null && accountModeToggle.mode == AccountMode.LIGHTNING) {
             if (paymentHolder.cryptoCurrency.toLong() > holdings.toLong()) {
                 showInsufficientFundsMessage()
             } else {
-                toUser?.let { startContactInviteFlow(it) }
+                paymentHolder.toUser?.let { startContactInviteFlow(it) }
             }
 
-        } else if (toUser != null) {
+        } else if (paymentHolder.toUser != null) {
             fundingViewModel.fundTransactionForDropbit(paymentHolder.cryptoCurrency.toLong())
         }
 
@@ -404,10 +407,10 @@ class CreatePaymentActivity : BaseActivity() {
 
         if (paymentHolder.paymentAddress.isEmpty()
                 && paymentHolder.requestInvoice == null && paymentHolder.requestInvoice?.encoded == null) {
-            if (toUser == null) {
+            if (paymentHolder.toUser == null) {
                 showInvalidPaymentTarget()
             } else {
-                toUser?.let { startContactInviteFlow(it) }
+                paymentHolder.toUser?.let { startContactInviteFlow(it) }
             }
         } else {
             activityNavigationUtil.navigateToConfirmPaymentScreen(this, paymentHolder)
@@ -423,6 +426,12 @@ class CreatePaymentActivity : BaseActivity() {
     private fun showInvalidPaymentTarget() {
         GenericAlertDialog.newInstance(
                 getString(R.string.pay_error_add_valid_bitcoin_address)
+        ).show(supportFragmentManager, errorDialogTag)
+    }
+
+    private fun showTooMuchForInvite() {
+        GenericAlertDialog.newInstance(
+                getString(R.string.payment_error_too_much_sent_to_contact)
         ).show(supportFragmentManager, errorDialogTag)
     }
 
@@ -462,7 +471,7 @@ class CreatePaymentActivity : BaseActivity() {
         accountModeToggle.mode = AccountMode.LIGHTNING
         amountInputView.canToggleCurrencies = false
         amountInputView.canSendMax = false
-        isSendingMax = false
+        paymentHolder.isSendingMax = false
         amountInputView.paymentHolder = paymentHolder
     }
 
@@ -492,8 +501,8 @@ class CreatePaymentActivity : BaseActivity() {
         memoToggleView.showSharedMemoViews()
 
         if (data?.hasExtra(DropbitIntents.EXTRA_IDENTITY) == true) {
-            toUser = data.getParcelableExtra(DropbitIntents.EXTRA_IDENTITY)
-            toUser?.let { identity ->
+            paymentHolder.toUser = data.getParcelableExtra(DropbitIntents.EXTRA_IDENTITY)
+            paymentHolder.toUser?.let { identity ->
                 identity.hash?.let { fundingViewModel.lookupIdentityHash(it, accountModeToggle.mode) }
                 identity.displayName?.let {
                     if (it.isNotNullOrEmpty()) {
@@ -563,5 +572,6 @@ class CreatePaymentActivity : BaseActivity() {
 
     companion object {
         const val errorDialogTag: String = "ERROR_DIALOG"
+        const val inviteLimit: Long = 100_00
     }
 }
