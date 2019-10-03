@@ -20,9 +20,9 @@ public class ConfirmHoldButton extends ProgressBar implements View.OnTouchListen
     private int animationDurationMS;
     private ObjectAnimator progressRingAnimation;
     private Animation growAnimation;
-    private OnConfirmHoldEndListener onConfirmHoldEndListener;
+    public OnConfirmHoldEndListener onConfirmHoldEndListener;
     private final Runnable countDownRunnable = () -> onCountDownEnd();
-    private OnConfirmHoldStartedListener onConfirmHoldStartedListener;
+    public OnConfirmHoldStartedListener onConfirmHoldStartedListener;
 
     public ConfirmHoldButton(Context context) {
         super(context);

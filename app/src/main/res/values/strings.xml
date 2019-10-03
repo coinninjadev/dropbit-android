@@ -534,4 +534,8 @@
     <string name="lightning_invoice">LIGHTNING INVOICE</string>
     <string name="expires_in_24_hours">expires in 24 hours</string>
     <string name="tap_invoice_to_save_to_clipboard">Tap invoice to save to clipboard</string>
+
+
+    <!--- LND Down for Maintenance -->
+    <string name="thunderdome_unavailable">We are currently updating our servers. Don’t worry, your funds are safe, but please check back again shortly.</string>
 </resources>

@@ -1,21 +1,69 @@
 package com.coinninja.coinkeeper.model
 
+import android.os.Parcel
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.libbitcoin.enum.ReplaceableOption
+import app.coinninja.cn.libbitcoin.model.DerivationPath
 import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
+import com.coinninja.coinkeeper.model.db.enums.IdentityType
+import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.nhaarman.mockitokotlin2.mock
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class PaymentHolderTest {
 
     private fun createHolder(): PaymentHolder = PaymentHolder(
             USDCurrency(5000.00)
     )
+
+    @Test
+    fun is_parcelable() {
+        val holder = PaymentHolder(
+                USDCurrency(10_000),
+                BTCCurrency(20_000),
+                true,
+                "--pub-key--",
+                "--memo--",
+                defaultCurrencies = DefaultCurrencies(USDCurrency(0), BTCCurrency(0)),
+                toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", "", true)
+        )
+        holder.transactionData = TransactionData(
+                arrayOf(
+                        UnspentTransactionOutput("--txid---", 0, 5400,
+                                DerivationPath(84, 0, 0, 0, 1), true)
+                ),
+                5100, 200, 100,
+                DerivationPath(84, 0, 0, 1, 1),
+                "--payment-address--", ReplaceableOption.MUST_NOT_BE_RBF
+        )
+        holder.requestInvoice = RequestInvoice("--destination--", "--payment-hash--",
+                12345, "now", "later", "description",
+                "descripion hash", "--fallback-address--", "cltvExpiry")
+        holder.requestInvoice!!.encoded = "--encoded--invoice--"
+
+        val parcel = Parcel.obtain()
+        holder.writeToParcel(parcel, 0)
+        parcel.setDataPosition(0)
+        val pHolder = PaymentHolder.CREATOR.createFromParcel(parcel)
+
+        assertThat(pHolder.evaluationCurrency.toLong(), equalTo(holder.evaluationCurrency.toLong()))
+        assertThat(pHolder.spendableBalance.toLong(), equalTo(holder.spendableBalance.toLong()))
+        assertThat(pHolder.defaultCurrencies.fiat.toLong(), equalTo(holder.defaultCurrencies.fiat.toLong()))
+        assertThat(pHolder.defaultCurrencies.crypto.toLong(), equalTo(holder.defaultCurrencies.crypto.toLong()))
+        assertThat(pHolder.toUser, equalTo(holder.toUser))
+        assertThat(pHolder.transactionData, equalTo(holder.transactionData))
+        assertThat(pHolder.requestInvoice, equalTo(holder.requestInvoice))
+    }
 
     @Test
     fun copies_address_from_current_to_new_transaction_data_when_set() {

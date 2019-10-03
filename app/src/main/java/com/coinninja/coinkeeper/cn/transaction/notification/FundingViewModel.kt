@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.coinninja.cn.libbitcoin.model.TransactionData
-import app.coinninja.cn.persistance.model.LightningInvoice
 import app.coinninja.cn.thunderdome.model.LedgerInvoice
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
@@ -105,10 +104,14 @@ class FundingViewModel : ViewModel() {
     }
 
     fun fundMax(address: String?) {
+        fundMax(address, feesManager.currentFee())
+    }
+
+    fun fundMax(address: String?, fee: Double) {
         viewModelScope.launch(Dispatchers.Main) {
             val data = withContext(Dispatchers.IO) {
                 transactionFundingManager.buildFundedTransactionData(
-                        address, feesManager.currentFee()
+                        if (address.isNullOrEmpty()) null else address, fee
                 )
             }
             withContext(Dispatchers.Main) {
@@ -142,10 +145,14 @@ class FundingViewModel : ViewModel() {
     }
 
     fun fundTransaction(address: String? = null, amount: Long = 0) {
+        fundTransaction(address, amount, feesManager.currentFee())
+    }
+
+    fun fundTransaction(address: String? = null, amount: Long = 0, fee: Double) {
         viewModelScope.launch(Dispatchers.Main) {
             val data = withContext(Dispatchers.IO) {
                 transactionFundingManager.buildFundedTransactionData(
-                        address, feesManager.currentFee(), amount
+                        if (address.isNullOrEmpty()) null else address, fee, amount
                 )
             }
             withContext(Dispatchers.Main) {
@@ -155,7 +162,11 @@ class FundingViewModel : ViewModel() {
     }
 
     fun fundTransactionForDropbit(amount: Long) {
-        fundTransaction(amount = amount)
+        fundTransactionForDropbit(amount, feesManager.currentFee())
+    }
+
+    fun fundTransactionForDropbit(amount: Long, fee: Double) {
+        fundTransaction(amount = amount, fee = fee)
     }
 
     fun estimateLightningPayment(encodedInvoice: String, amount: Long) {

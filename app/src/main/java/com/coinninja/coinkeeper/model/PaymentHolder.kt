@@ -40,6 +40,8 @@ class PaymentHolder(
             field = value
         }
 
+    var isSendingMax = false
+
     val btcCurrency: BTCCurrency
         get() = cryptoCurrency as BTCCurrency
 
@@ -68,13 +70,17 @@ class PaymentHolder(
             parcel.readByte() != 0.toByte(),
             parcel.readString() ?: "",
             parcel.readString() ?: "",
-            parcel.readParcelable(DefaultCurrencies::class.java.classLoader)
-                    ?: DefaultCurrencies(USDCurrency(), BTCCurrency())
+            DefaultCurrencies(
+                    USDCurrency(parcel.readLong()),
+                    BTCCurrency(parcel.readLong())
+            ),
+            parcel.readParcelable(Identity::class.java.classLoader)
     ) {
         transactionData = parcel.readParcelable(TransactionData::class.java.classLoader)
                 ?: TransactionData()
         requestInvoice = parcel.readParcelable(RequestInvoice::class.java.classLoader)
-        toUser = parcel.readParcelable(Identity::class.java.classLoader) ?: null
+        paymentAddress = parcel.readString() ?: ""
+        isSendingMax = parcel.readByte() != 0.toByte()
     }
 
 
@@ -135,14 +141,17 @@ class PaymentHolder(
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(evaluationCurrency.toLong())
-        parcel.writeParcelable(spendableBalance, flags)
+        parcel.writeLong(spendableBalance.toLong())
         parcel.writeByte(if (isSharingMemo) 1 else 0)
         parcel.writeString(publicKey)
         parcel.writeString(memo)
-        parcel.writeParcelable(defaultCurrencies, flags)
+        parcel.writeLong(defaultCurrencies.fiat.toLong())
+        parcel.writeLong(defaultCurrencies.crypto.toLong())
+        parcel.writeParcelable(toUser, flags)
         parcel.writeParcelable(transactionData, flags)
         parcel.writeParcelable(requestInvoice, flags)
-        parcel.writeParcelable(toUser, flags)
+        parcel.writeString(paymentAddress)
+        parcel.writeByte(if (isSendingMax) 1 else 0)
     }
 
     override fun describeContents(): Int {

@@ -55,19 +55,23 @@ class AccountModeToggleButton @JvmOverloads constructor(
         when {
             mode == AccountMode.LIGHTNING && active -> {
                 lightningButton.disable()
+                lightningButton.show()
                 blockchainButton.enable()
             }
             mode == AccountMode.LIGHTNING && !active -> {
                 lightningButton.disable()
+                lightningButton.show()
                 blockchainButton.gone()
             }
             mode == AccountMode.BLOCKCHAIN && active -> {
                 lightningButton.enable()
                 blockchainButton.disable()
+                blockchainButton.show()
             }
             mode == AccountMode.BLOCKCHAIN && !active -> {
                 lightningButton.gone()
                 blockchainButton.disable()
+                blockchainButton.show()
             }
         }
     }

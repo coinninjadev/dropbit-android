@@ -28,7 +28,7 @@ class ConfirmHoldButtonTest {
     @Before
     fun setUp() {
         val activity = Robolectric.setupActivity(TestableActivity::class.java)
-        activity.appendLayout(R.layout.fragment_confirm_pay_dialog)
+        activity.appendLayout(R.layout.activity_confirm_payment)
         confirmHoldButton = activity.findViewById(R.id.confirm_pay_hold_progress_btn)
 
         whenever(motionEventDown.action).thenReturn(MotionEvent.ACTION_DOWN)

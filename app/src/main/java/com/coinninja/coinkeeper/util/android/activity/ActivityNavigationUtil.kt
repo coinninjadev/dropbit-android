@@ -20,6 +20,7 @@ import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO
+import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
@@ -91,7 +92,7 @@ class ActivityNavigationUtil @Inject constructor(
 
     fun navigateToHome(context: Context) {
         val intent = Intent(context, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)
     }
 
@@ -336,6 +337,13 @@ class ActivityNavigationUtil @Inject constructor(
     fun navigateToConfirmPaymentScreen(activity: Activity, paymentHolder: PaymentHolder) {
         Intent(activity, ConfirmPaymentActivity::class.java).also {
             it.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, paymentHolder)
+            activity.startActivity(it)
+        }
+    }
+
+    fun navigateToInviteSendScreen(activity: Activity, pendingInviteDTO: PendingInviteDTO) {
+        Intent(activity, InviteSendActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_INVITE_DTO, pendingInviteDTO)
             activity.startActivity(it)
         }
     }

@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.di.component
 
 import com.coinninja.coinkeeper.di.interfaces.ActivityScope
 import com.coinninja.coinkeeper.di.module.TestHomeModule
+import com.coinninja.coinkeeper.di.module.TestPicassoModule
 import com.coinninja.coinkeeper.service.tasks.CoinNinjaUserViewModel
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
@@ -197,7 +198,9 @@ abstract class TestAndroidActivityBuilder {
     internal abstract fun createPaymentActivity(): CreatePaymentActivity
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, ConfirmPaymentActivityTest.ConfirmPaymentActivityTestModule::class])
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class,
+        TestPicassoModule::class,
+        ConfirmPaymentActivityTest.ConfirmPaymentActivityTestModule::class])
     internal abstract fun confirmPaymentActivity(): ConfirmPaymentActivity
 }
 
