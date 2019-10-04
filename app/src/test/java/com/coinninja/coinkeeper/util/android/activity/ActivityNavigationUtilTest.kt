@@ -12,6 +12,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.coinninja.cn.libbitcoin.model.DerivationPath
 import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
@@ -24,6 +25,7 @@ import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.lightning.broadcast.BroadcastLightningPaymentActivity
 import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
 import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
@@ -117,7 +119,7 @@ class ActivityNavigationUtilTest {
         activityNavigationUtil.navigateToHome(activity)
 
         val intent = Intent(activity, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         assertThat(activity, activityWithIntentStarted(intent))
     }
 
@@ -628,6 +630,29 @@ class ActivityNavigationUtilTest {
             intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, holder)
 
             it.navigateToConfirmPaymentScreen(activity, holder)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_pay_lightning_invoice() {
+        createActivityNavigationUtil().also {
+            val holder = PaymentHolder(
+                    evaluationCurrency = USDCurrency(10_000_00),
+                    isSharingMemo = true,
+                    publicKey = "--pub-key--",
+                    memo = "--memo--",
+                    defaultCurrencies = DefaultCurrencies(BTCCurrency(1), USDCurrency(10_000_00)),
+                    toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = true)
+            )
+            holder.requestInvoice = RequestInvoice(numSatoshis = 10843)
+            holder.requestInvoice!!.encoded = "ld-encoded"
+
+            val intent = Intent(activity, BroadcastLightningPaymentActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, holder)
+
+            it.navigateToLightningBroadcast(activity, holder)
 
             assertThat(activity, activityWithIntentStarted(intent))
         }

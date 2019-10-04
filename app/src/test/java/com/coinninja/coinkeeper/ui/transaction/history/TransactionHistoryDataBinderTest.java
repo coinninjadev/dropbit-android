@@ -15,7 +15,7 @@ import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.util.image.CircleTransform;
+import com.coinninja.coinkeeper.util.image.TwitterCircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.SendState;
@@ -61,7 +61,7 @@ public class TransactionHistoryDataBinderTest {
     @Mock
     private Picasso picasso;
     @Mock
-    private CircleTransform circleTransform;
+    private TwitterCircleTransform circleTransform;
     @Mock
     private Analytics analytics;
     @Mock

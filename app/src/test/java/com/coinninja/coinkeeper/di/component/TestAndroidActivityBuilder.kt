@@ -9,6 +9,8 @@ import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.base.TestBaseActivityModule
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.lightning.broadcast.BroadcastLightningPaymentActivity
+import com.coinninja.coinkeeper.ui.lightning.broadcast.BroadcastLightningPaymentActivityTest
 import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
 import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivityTest
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
@@ -202,5 +204,10 @@ abstract class TestAndroidActivityBuilder {
         TestPicassoModule::class,
         ConfirmPaymentActivityTest.ConfirmPaymentActivityTestModule::class])
     internal abstract fun confirmPaymentActivity(): ConfirmPaymentActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class,
+        BroadcastLightningPaymentActivityTest.BroadcastLightningPaymentActivityTestModule::class])
+    internal abstract fun broadcastLightningPaymentActivity(): BroadcastLightningPaymentActivity
 }
 

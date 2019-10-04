@@ -24,6 +24,7 @@ import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
 import com.coinninja.coinkeeper.ui.account.verify.UserAccountVerificationActivity
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.lightning.broadcast.BroadcastLightningPaymentActivity
 import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
 import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
@@ -92,7 +93,7 @@ class ActivityNavigationUtil @Inject constructor(
 
     fun navigateToHome(context: Context) {
         val intent = Intent(context, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         context.startActivity(intent)
     }
 
@@ -344,6 +345,13 @@ class ActivityNavigationUtil @Inject constructor(
     fun navigateToInviteSendScreen(activity: Activity, pendingInviteDTO: PendingInviteDTO) {
         Intent(activity, InviteSendActivity::class.java).also {
             it.putExtra(DropbitIntents.EXTRA_INVITE_DTO, pendingInviteDTO)
+            activity.startActivity(it)
+        }
+    }
+
+    fun navigateToLightningBroadcast(activity: Activity, paymentHolder: PaymentHolder) {
+        Intent(activity, BroadcastLightningPaymentActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, paymentHolder)
             activity.startActivity(it)
         }
     }

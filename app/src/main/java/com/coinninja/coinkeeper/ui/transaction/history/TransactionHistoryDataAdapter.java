@@ -20,6 +20,7 @@ import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.image.CircleTransform;
+import com.coinninja.coinkeeper.util.image.TwitterCircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.InviteState;
@@ -38,7 +39,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
     static int FOOTER_TYPE = 1;
     static int STANDARD_TYPE = 0;
     private final Picasso picasso;
-    private final CircleTransform circleTransform;
+    private final TwitterCircleTransform circleTransform;
     private final WalletHelper walletHelper;
     private final Analytics analytics;
     private final ActivityNavigationUtil activityNavigationUtil;
@@ -51,7 +52,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
     @Inject
     public TransactionHistoryDataAdapter(TransactionAdapterUtil transactionAdapterUtil,
                                          DefaultCurrencies defaultCurrencies, Picasso picasso,
-                                         CircleTransform circleTransform, WalletHelper walletHelper,
+                                         TwitterCircleTransform circleTransform, WalletHelper walletHelper,
                                          Analytics analytics, ActivityNavigationUtil activityNavigationUtil
     ) {
         this.transactionAdapterUtil = transactionAdapterUtil;
@@ -187,7 +188,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             }
         }
 
-        protected void bindToTransaction(BindableTransaction transaction, DefaultCurrencies defaultCurrencies, Picasso picasso, CircleTransform circleTransform) {
+        protected void bindToTransaction(BindableTransaction transaction, DefaultCurrencies defaultCurrencies, Picasso picasso, TwitterCircleTransform circleTransform) {
             this.defaultCurrencies = defaultCurrencies;
             bindIcon(itemView.findViewById(R.id.icon), transaction, picasso, circleTransform);
             bindConfirmations(itemView.findViewById(R.id.confirmations), transaction);
@@ -219,29 +220,24 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             bindIdentifyingTarget(view, transaction);
         }
 
-        private void bindIcon(ImageView icon, BindableTransaction transaction, Picasso picasso, CircleTransform circleTransform) {
-            int accentColor = 0;
+        private void bindIcon(ImageView icon, BindableTransaction transaction, Picasso picasso, TwitterCircleTransform circleTransform) {
             switch (transaction.getSendState()) {
                 case TRANSFER:
                 case SEND:
-                    accentColor = ContextCompat.getColor(icon.getContext(), R.color.color_send);
                     icon.setTag(R.drawable.ic_transaction_send);
                     icon.setImageResource(R.drawable.ic_transaction_send);
                     break;
                 case RECEIVE:
-                    accentColor = ContextCompat.getColor(icon.getContext(), R.color.color_receive);
                     icon.setTag(R.drawable.ic_transaction_receive);
                     icon.setImageResource(R.drawable.ic_transaction_receive);
                     break;
                 default:
-                    accentColor = ContextCompat.getColor(icon.getContext(), R.color.color_error);
                     icon.setTag(R.drawable.ic_transaction_canceled);
                     icon.setImageResource(R.drawable.ic_transaction_canceled);
                     break;
             }
 
             if (transaction.getProfileUrl() != null) {
-                circleTransform.setAccentColor(accentColor);
                 picasso.load(transaction.getProfileUrl()).transform(circleTransform).into(icon);
             }
         }

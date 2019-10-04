@@ -16,7 +16,6 @@ import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
@@ -32,7 +31,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import app.dropbit.commons.currency.BTCCurrency;
 import app.dropbit.commons.currency.USDCurrency;
 
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
@@ -94,7 +92,6 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         adapter.refreshData();
         adapter.setShowTransactionDetailRequestObserver(observer);
-        adapter.onDefaultCurrencyChanged(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
 
         bindableTransaction.setSendState(BindableTransaction.SendState.SEND);
         bindableTransaction.setHistoricalInviteUSDValue(0L);
@@ -256,11 +253,8 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         adapter.bindTo(page, bindableTransaction, 0);
 
         TextView confirmations = page.findViewById(R.id.confirmations);
-        ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
 
-        assertThat(confirmationsView, configuredForDropbit());
-        assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_COMPLETE));
-        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmationsView.getContext(), R.string.confirmations_view_stage_5)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_5)));
     }
 
     @Test

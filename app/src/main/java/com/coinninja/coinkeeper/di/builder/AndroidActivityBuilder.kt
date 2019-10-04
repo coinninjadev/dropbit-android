@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.base.BaseActivityModule
 import com.coinninja.coinkeeper.ui.home.HomeActivity
 import com.coinninja.coinkeeper.ui.home.HomeModule
+import com.coinninja.coinkeeper.ui.lightning.broadcast.BroadcastLightningPaymentActivity
 import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
 import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivityModule
 import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
@@ -153,7 +154,7 @@ abstract class AndroidActivityBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class, LightningDepositActivityModule::class])
-    internal abstract fun LightningDepositActivity(): LightningDepositActivity
+    internal abstract fun lightningDepositActivity(): LightningDepositActivity
 
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class, LightningWithdrawalActivityModule::class])
@@ -190,4 +191,8 @@ abstract class AndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class, CreatePaymentModule::class])
     internal abstract fun confirmPaymentActivity(): ConfirmPaymentActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, CreatePaymentModule::class])
+    internal abstract fun broadcastLightningPaymentActivity(): BroadcastLightningPaymentActivity
 }

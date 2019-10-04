@@ -99,22 +99,23 @@
 
     <TextView
         android:id="@+id/confirm_pay_btc_address"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:ellipsize="end"
+        android:layout_marginEnd="24dp"
+        android:ellipsize="middle"
         android:gravity="center"
-        android:lines="1"
-        android:maxLines="1"
+        android:lines="3"
         android:textColor="@color/font_gray"
         android:textSize="@dimen/pay_dialog_small_text"
         app:layout_constraintBottom_toTopOf="@+id/shared_transaction"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/confirm_pay_name"
-        tools:text="13uhkJ5kmYOK45YuJKP09GLLVBDF67s7A" />
+        tools:text="lnbcrt1428570n1pwefs9zpp5rtjn6jw3nenp6fdtuadnhgcmt0xm2hukn7xl6rf528n8h6u4jgnsdqh235xjueqd9ejqcfqd4jk6mccqzpgxqyz5vq3e472634mw95ay7j0gn70p7tc7l9dwnlg6td639kfq25kfmt6e8zdf8xgvml2s4f8kj80t73s43w9yuyynqg5fd0ps5v9jns9p7th9cpradaqc" />
 
     <TextView
         android:id="@+id/confirm_pay_hold_label"

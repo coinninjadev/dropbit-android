@@ -21,6 +21,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -207,6 +208,93 @@ class LightningHistoryAdapterTest {
             type = LedgerType.BTC
             value = BTCCurrency(10000)
             status = LedgerStatus.COMPLETED
+        }
+
+        adapter.invoices = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transfer_out)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("Lightning Withdraw")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.confirmations).visibility).isEqualTo(View.GONE)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.transaction_memo).text).isEqualTo("")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.transaction_memo).visibility).isEqualTo(View.GONE)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(10000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(100)
+    }
+
+    @Ignore
+    @Test
+    fun lightning_invoice__request() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = createInvoice().apply {
+            direction = LedgerDirection.IN
+            type = LedgerType.LIGHTNING
+            value = BTCCurrency(10000)
+            status = LedgerStatus.PENDING
+            memo = "--memo--"
+        }
+
+        adapter.invoices = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transfer_out)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("Lightning Withdraw")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.confirmations).visibility).isEqualTo(View.GONE)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.transaction_memo).text).isEqualTo("")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.transaction_memo).visibility).isEqualTo(View.GONE)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(10000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(100)
+    }
+
+    @Ignore
+    @Test
+    fun lightning_invoice__request_expired() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = createInvoice().apply {
+            direction = LedgerDirection.IN
+            type = LedgerType.LIGHTNING
+            value = BTCCurrency(10000)
+            status = LedgerStatus.EXPIRED
+            memo = "--memo--"
+        }
+
+        adapter.invoices = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transfer_out)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("Lightning Withdraw")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.confirmations).visibility).isEqualTo(View.GONE)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.transaction_memo).text).isEqualTo("")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.transaction_memo).visibility).isEqualTo(View.GONE)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(10000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(100)
+    }
+
+    @Ignore
+    @Test
+    fun lightning_invoice__payment() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = createInvoice().apply {
+            direction = LedgerDirection.OUT
+            type = LedgerType.LIGHTNING
+            value = BTCCurrency(10000)
+            status = LedgerStatus.COMPLETED
+            memo = "--memo--"
         }
 
         adapter.invoices = listOf(invoice)

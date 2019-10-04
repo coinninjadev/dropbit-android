@@ -9,6 +9,7 @@ import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.nhaarman.mockitokotlin2.mock
@@ -229,5 +230,39 @@ class PaymentHolderTest {
         holder.evaluationCurrency = USDCurrency(4000_00)
 
         assertThat(holder.cryptoCurrency.toLong(), equalTo(125000000L))
+    }
+
+    @Test
+    fun lnd_when_request_invoice_not_null() {
+        val holder = createHolder()
+        assertThat(holder.isLnd(), equalTo(false))
+        holder.requestInvoice = RequestInvoice()
+        assertThat(holder.isLnd(), equalTo(true))
+    }
+
+    @Test
+    fun payment_knows_payment_type() {
+        val holder = PaymentHolder()
+        holder.accountMode = AccountMode.BLOCKCHAIN
+
+        assertThat(holder.paymentType(), equalTo(PaymentType.INVALID))
+
+        holder.toUser = Identity(IdentityType.PHONE, "+13305551111")
+        holder.transactionData = TransactionData(paymentAddress = "--payment-address--")
+        assertThat(holder.paymentType(), equalTo(PaymentType.BLOCKCHAIN))
+
+        holder.paymentAddress = ""
+        assertThat(holder.paymentType(), equalTo(PaymentType.BLOCKCHAIN_INVITE))
+
+        holder.requestInvoice = RequestInvoice()
+        holder.requestInvoice!!.encoded = "ld--encoded"
+        assertThat(holder.paymentType(), equalTo(PaymentType.LIGHTNING))
+
+        holder.requestInvoice!!.encoded = ""
+        assertThat(holder.paymentType(), equalTo(PaymentType.LIGHTNING_INVITE))
+
+        holder.accountMode = AccountMode.LIGHTNING
+        holder.requestInvoice = null
+        assertThat(holder.paymentType(), equalTo(PaymentType.LIGHTNING_INVITE))
     }
 }

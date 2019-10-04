@@ -7,7 +7,6 @@ import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -59,7 +58,6 @@ public class BroadcastActivity extends BaseActivity implements BroadcastTransact
     private TextView sendingProgressLabel;
     private TextView transactionIdLabel;
     private TextView transactionIdLink;
-    private ImageView transactionIdIcon;
     private Button transactionActionBtn;
     private String transactionId;
 
@@ -68,14 +66,12 @@ public class BroadcastActivity extends BaseActivity implements BroadcastTransact
         sendingProgressView.resetView();
         transactionIdLabel.setVisibility(View.INVISIBLE);
         transactionIdLink.setVisibility(View.INVISIBLE);
-        transactionIdIcon.setVisibility(View.INVISIBLE);
         transactionActionBtn.setVisibility(View.INVISIBLE);
         sendingProgressLabel.setText("");
         transactionActionBtn.setText("");
         transactionIdLink.setText("");
         transactionActionBtn.setOnClickListener(null);
         transactionIdLink.setOnClickListener(null);
-        transactionIdIcon.setOnClickListener(null);
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
 
@@ -117,10 +113,24 @@ public class BroadcastActivity extends BaseActivity implements BroadcastTransact
         sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
         transactionIdLabel = findViewById(R.id.transaction_id_label);
         transactionIdLink = findViewById(R.id.transaction_id_link);
-        transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
         if (getIntent().hasExtra(DropbitIntents.EXTRA_BROADCAST_DTO)) {
             broadcastDTO = getIntent().getParcelableExtra(DropbitIntents.EXTRA_BROADCAST_DTO);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        switch (sendState) {
+            case INIT:
+                startBroadcast(broadcastDTO.getTransactionData());
+                break;
+            case COMPLETED_SUCCESS:
+                showSuccess();
+                break;
+            case COMPLETED_FAILED:
+                genericFail();
         }
     }
 
@@ -158,21 +168,6 @@ public class BroadcastActivity extends BaseActivity implements BroadcastTransact
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        switch (sendState) {
-            case INIT:
-                startBroadcast(broadcastDTO.getTransactionData());
-                break;
-            case COMPLETED_SUCCESS:
-                showSuccess();
-                break;
-            case COMPLETED_FAILED:
-                genericFail();
-        }
-    }
-
     private void startBroadcast(TransactionData transactionData) {
         sendState = SendState.STARTED;
         broadcastPresenter.attachView(this);
@@ -205,14 +200,12 @@ public class BroadcastActivity extends BaseActivity implements BroadcastTransact
         sendingProgressLabel.setVisibility(View.VISIBLE);
         transactionIdLabel.setVisibility(View.VISIBLE);
         transactionIdLink.setVisibility(View.VISIBLE);
-        transactionIdIcon.setVisibility(View.VISIBLE);
         transactionActionBtn.setVisibility(View.VISIBLE);
         sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_label));
         transactionActionBtn.setText(getResources().getText(R.string.broadcast_sent_ok));
         transactionIdLink.setText(transactionId);
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
         transactionIdLink.setOnClickListener(view -> exploreBlock(view.getContext(), transactionId));
-        transactionIdIcon.setOnClickListener(view -> exploreBlock(view.getContext(), transactionId));
         transactionActionBtn.setOnClickListener(view -> activityNavigationUtil.navigateToHome(this));
         sendState = SendState.COMPLETED_SUCCESS;
         showTwitterShareCardIfNecessary();

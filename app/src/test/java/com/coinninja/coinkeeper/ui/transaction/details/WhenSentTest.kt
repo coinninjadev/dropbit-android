@@ -27,8 +27,8 @@ class WhenSentTest {
         it.sendState = BindableTransaction.SendState.SEND
     }
 
-    private fun createPageAdapter(bindableTransaction: BindableTransaction): TransactionDetailPageAdapter = TransactionDetailPageAdapter(mock(), mock(),
-            DefaultCurrencies(USDCurrency(), BTCCurrency()), mock(), mock(), mock()).also {
+    private fun createPageAdapter(bindableTransaction: BindableTransaction): TransactionDetailPageAdapter
+            = TransactionDetailPageAdapter(mock(), mock(), mock(), mock(), mock()).also {
 
         whenever(it.transactionAdapterUtil.translateTransaction(any<TransactionsInvitesSummary>())).thenReturn(bindableTransaction)
         whenever(it.walletHelper.latestPrice).thenReturn(USDCurrency(1000.00))

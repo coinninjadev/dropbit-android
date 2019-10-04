@@ -2,19 +2,15 @@ package com.coinninja.coinkeeper.ui.transaction.details;
 
 import android.database.DataSetObserver;
 
-import androidx.test.core.app.ApplicationProvider;
-
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionSummary;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.ui.memo.MemoCreator;
-import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.TwitterUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
 
 import org.greenrobot.greendao.query.LazyList;
@@ -62,7 +58,7 @@ public class TransactionDetailPageAdapterTest {
         activity.appendLayout(R.layout.page_transaction_detail);
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(100);
-        pageAdapter = new TransactionDetailPageAdapter(walletHelper, adapterUtil, new DefaultCurrencies(new USDCurrency(), new BTCCurrency()),
+        pageAdapter = new TransactionDetailPageAdapter(walletHelper, adapterUtil,
                 memoCreator, twitterUtil, analytics);
         pageAdapter.refreshData();
     }
@@ -136,29 +132,5 @@ public class TransactionDetailPageAdapterTest {
         pageAdapter.tearDown();
 
         verify(transactions).close();
-    }
-
-    @Test
-    public void binds_value_of_transaction_to_currency_view() {
-        DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier = mock(DefaultCurrencyChangeViewNotifier.class);
-        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
-        pageAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
-        pageAdapter.onDefaultCurrencyChanged(defaultCurrencies);
-
-        verify(defaultCurrencyChangeViewNotifier).observeDefaultCurrencyChange(pageAdapter);
-        assertThat(pageAdapter.getDefaultCurrencies(), equalTo(defaultCurrencies));
-    }
-
-    @Test
-    public void sets_observer_on_view_when_rendering() {
-        DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier = mock(DefaultCurrencyChangeViewNotifier.class);
-        pageAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
-        BindableTransaction bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), mock(WalletHelper.class));
-        bindableTransaction.setSendState(BindableTransaction.SendState.SEND);
-        bindableTransaction.setHistoricalInviteUSDValue(100L);
-
-        pageAdapter.bindTo(activity.findViewById(R.id.test_root), bindableTransaction, 0);
-
-        verify(defaultCurrencyChangeViewNotifier).observeDefaultCurrencyChange(activity.findViewById(R.id.default_currency_view));
     }
 }

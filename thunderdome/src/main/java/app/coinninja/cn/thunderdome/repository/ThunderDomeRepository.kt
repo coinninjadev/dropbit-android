@@ -7,6 +7,7 @@ import app.coinninja.cn.persistance.model.LightningInvoice
 import app.coinninja.cn.thunderdome.client.ThunderDomeApiClient
 import app.coinninja.cn.thunderdome.model.*
 import app.dropbit.annotations.Mockable
+import com.google.gson.Gson
 
 @Mockable
 class ThunderDomeRepository(
@@ -70,15 +71,27 @@ class ThunderDomeRepository(
         lightningAccount?.let { account ->
             withdrawalRequest.isEstimate = true
             val response = apiClient.estimateWithdraw(withdrawalRequest)
-            if (response.isSuccessful) {
-                response.body()?.let { body ->
-                    body.result.let { ledgerInvoice ->
-                        return ledgerInvoice
+            return when (response.code()) {
+                200 -> {
+                    response.body()?.let { body ->
+                        body.result.let { ledgerInvoice ->
+                            return ledgerInvoice
+                        }
                     }
                 }
+                400 -> {
+                    response.errorBody()?.let { body ->
+                        try {
+                            val error = Gson().fromJson<PayErrorResponse>(body.string(), PayErrorResponse::class.java)
+                            LedgerInvoice(error = error.code)
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+                else -> null
             }
         }
-
         return null
     }
 
@@ -115,9 +128,16 @@ class ThunderDomeRepository(
             return when (response.code()) {
                 200 -> response.body()?.result
                 400 -> {
-                    LedgerInvoice()
+                    response.errorBody()?.let { body ->
+                        try {
+                            val error = Gson().fromJson<PayErrorResponse>(body.string(), PayErrorResponse::class.java)
+                            LedgerInvoice(error = error.message)
+                        } catch (e: Exception) {
+                            LedgerInvoice()
+                        }
+                    }
                 }
-                else -> null
+                else -> LedgerInvoice()
 
             }
         }

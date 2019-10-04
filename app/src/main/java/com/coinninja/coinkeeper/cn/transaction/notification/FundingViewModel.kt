@@ -36,6 +36,7 @@ class FundingViewModel : ViewModel() {
     var lightningWithdrawalCompleted: MutableLiveData<Boolean> = MutableLiveData()
     var addressLookupResult: MutableLiveData<AddressLookupResult> = MutableLiveData()
     var pendingLedgerInvoice: MutableLiveData<LedgerInvoice> = MutableLiveData()
+    var ledgerInvoice: MutableLiveData<LedgerInvoice> = MutableLiveData()
 
     fun clear() {
         transactionData = MutableLiveData()
@@ -177,6 +178,19 @@ class FundingViewModel : ViewModel() {
             withContext(Dispatchers.Main) {
                 ledgerInvoice?.let {
                     pendingLedgerInvoice.value = it
+                }
+            }
+        }
+    }
+
+    fun performLightningPayment(encodedInvoice: String, amount: Long) {
+        viewModelScope.launch(Dispatchers.Main) {
+            val paidLedgerInvoice = withContext(Dispatchers.IO) {
+                thunderDomeRepository.pay(encodedInvoice, amount)
+            }
+            withContext(Dispatchers.Main) {
+                paidLedgerInvoice?.let {
+                    ledgerInvoice.value = it
                 }
             }
         }

@@ -16,7 +16,7 @@ import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.util.image.CircleTransform;
+import com.coinninja.coinkeeper.util.image.TwitterCircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
 import com.squareup.picasso.Picasso;
@@ -54,7 +54,7 @@ public class TransactionHistoryDataAdapterTest {
     @Mock
     private Picasso picasso;
     @Mock
-    private CircleTransform circleTransform;
+    private TwitterCircleTransform circleTransform;
     @Mock
     private Analytics analytics;
     @Mock

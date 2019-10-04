@@ -11,7 +11,7 @@ data class RequestInvoice(
         val paymentHash: String = "",
 
         @SerializedName("num_satoshis")
-        val numSatoshis: Long = 0,
+        var numSatoshis: Long = 0,
 
         @SerializedName("time_stamp")
         val timestamp: String = "",
