@@ -11,7 +11,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.base.BaseActivity;
-import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
@@ -19,9 +18,6 @@ import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import javax.inject.Inject;
 
 public class TransactionDetailsActivity extends BaseActivity {
-
-    @Inject
-    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
 
     @Inject
     LocalBroadCastUtil localBroadCastUtil;
@@ -45,8 +41,6 @@ public class TransactionDetailsActivity extends BaseActivity {
             if (DropbitIntents.ACTION_WALLET_SYNC_COMPLETE.equals(action) ||
                     DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED.equals(action)) {
                 onTransactionDataChanged();
-            } else if (DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED.equals(action) && intent.hasExtra(DropbitIntents.EXTRA_PREFERENCE)) {
-                defaultCurrencyChangeViewNotifier.onDefaultCurrencyChanged(intent.getParcelableExtra(DropbitIntents.EXTRA_PREFERENCE));
             }
         }
     };
@@ -67,6 +61,12 @@ public class TransactionDetailsActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        localBroadCastUtil.registerReceiver(receiver, intentFilter);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         setUpPager();
@@ -78,12 +78,6 @@ public class TransactionDetailsActivity extends BaseActivity {
         localBroadCastUtil.unregisterReceiver(receiver);
         pageAdapter.tearDown();
         super.onStop();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        localBroadCastUtil.registerReceiver(receiver, intentFilter);
     }
 
     private void onTransactionDataChanged() {
@@ -98,7 +92,6 @@ public class TransactionDetailsActivity extends BaseActivity {
     }
 
     private void setUpPager() {
-        pageAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
         pager.setAdapter(pageAdapter);
         pager.setClipToPadding(false);
         int gap = (int) getResources().getDimension(R.dimen.horizontal_margin);

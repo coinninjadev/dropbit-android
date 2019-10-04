@@ -7,6 +7,9 @@ import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.*
+import app.dropbit.commons.util.isNotNull
+import app.dropbit.commons.util.isNotNullOrEmpty
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 
 @Mockable
@@ -21,6 +24,7 @@ class PaymentHolder(
 ) : Parcelable {
 
 
+    var accountMode: AccountMode = AccountMode.BLOCKCHAIN
     var requestInvoice: RequestInvoice? = null
     var evaluationCurrency: FiatCurrency = evaluationCurrency
         set(value) {
@@ -81,6 +85,7 @@ class PaymentHolder(
         requestInvoice = parcel.readParcelable(RequestInvoice::class.java.classLoader)
         paymentAddress = parcel.readString() ?: ""
         isSendingMax = parcel.readByte() != 0.toByte()
+        accountMode = AccountMode.from(parcel.readInt())
     }
 
 
@@ -152,6 +157,7 @@ class PaymentHolder(
         parcel.writeParcelable(requestInvoice, flags)
         parcel.writeString(paymentAddress)
         parcel.writeByte(if (isSendingMax) 1 else 0)
+        parcel.writeInt(accountMode.which)
     }
 
     override fun describeContents(): Int {
@@ -189,6 +195,22 @@ class PaymentHolder(
         result = 31 * result + transactionData.hashCode()
         return result
     }
+
+    fun isLnd(): Boolean {
+        return requestInvoice.isNotNull()
+    }
+
+    fun paymentType(): PaymentType {
+        return when {
+            transactionData.paymentAddress.isNotNullOrEmpty() -> PaymentType.BLOCKCHAIN
+            requestInvoice?.encoded.isNotNullOrEmpty() -> PaymentType.LIGHTNING
+            requestInvoice.isNotNull() -> PaymentType.LIGHTNING_INVITE
+            toUser.isNotNull() && accountMode == AccountMode.BLOCKCHAIN -> PaymentType.BLOCKCHAIN_INVITE
+            toUser.isNotNull() && accountMode == AccountMode.LIGHTNING -> PaymentType.LIGHTNING_INVITE
+            else -> PaymentType.INVALID
+        }
+    }
+
 
     companion object CREATOR : Parcelable.Creator<PaymentHolder> {
         override fun createFromParcel(parcel: Parcel): PaymentHolder {

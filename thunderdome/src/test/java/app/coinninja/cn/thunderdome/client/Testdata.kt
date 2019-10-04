@@ -116,4 +116,10 @@ object Testdata {
             "    \"hidden\": false\n" +
             "  }\n" +
             "}"
+
+    const val maxRequestError: String = "{\n" +
+            "  \"error\": \"Max request value is 500000\",\n" +
+            "  \"code\": 3,\n" +
+            "  \"message\": \"Max request value is 500000\"\n" +
+            "}"
 }

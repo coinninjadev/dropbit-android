@@ -18,12 +18,12 @@ enum class LedgerStatus private constructor(val id: Int) {
             }
         }
 
-        fun from(status:String?): LedgerStatus? {
-            return when(status) {
-                "completed" -> LedgerStatus.COMPLETED
-                "expired" -> LedgerStatus.EXPIRED
-                "failed" -> LedgerStatus.FAILED
-                "pending" -> LedgerStatus.PENDING
+        fun from(status: String?): LedgerStatus? {
+            return when (status) {
+                "completed" -> COMPLETED
+                "expired" -> EXPIRED
+                "failed" -> FAILED
+                "pending" -> PENDING
                 else -> null
             }
         }

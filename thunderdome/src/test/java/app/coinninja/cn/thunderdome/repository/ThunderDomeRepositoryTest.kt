@@ -252,6 +252,19 @@ class ThunderDomeRepositoryTest {
 
     }
 
+    @Test
+    fun payment_request__with_max_limit_reached_error() {
+        val repository = createRepository()
+        val encodedInvoice = "ln--encoded-invoice"
+
+        val paymentRequest = PaymentRequest(encodedInvoice, 10_000)
+        val response = Response.error<PaymentResponse>(
+                400, ResponseBody.create(MediaType.parse("application/json"), Testdata.maxRequestError))
+        whenever(repository.apiClient.pay(paymentRequest)).thenReturn(response)
+
+        assertThat(repository.pay(encodedInvoice, 10_000)).isEqualTo(LedgerInvoice(error = "Max request value is 500000"))
+    }
+
     private fun createRepository(): ThunderDomeRepository = ThunderDomeRepository(mock(), mock())
 
 }

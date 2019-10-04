@@ -200,11 +200,13 @@ class CreatePaymentActivityTest {
             assertThat(activity.amountInputView.canSendMax).isFalse()
             assertThat(activity.paymentHolder.isSendingMax).isFalse()
             assertThat(activity.accountModeToggle.mode).isEqualTo(AccountMode.LIGHTNING)
+            assertThat(activity.paymentHolder.accountMode).isEqualTo(AccountMode.LIGHTNING)
 
             activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
             assertThat(activity.amountInputView.accountMode).isEqualTo(AccountMode.BLOCKCHAIN)
             assertThat(activity.amountInputView.canToggleCurrencies).isTrue()
             assertThat(activity.accountModeToggle.mode).isEqualTo(AccountMode.BLOCKCHAIN)
+            assertThat(activity.paymentHolder.accountMode).isEqualTo(AccountMode.BLOCKCHAIN)
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -323,8 +325,8 @@ class CreatePaymentActivityTest {
             activity.onValidPhoneNumberInput(phoneNumber)
 
             assertThat(activity.memoToggleView.isSharing).isTrue()
-            verify(activity.rawInputViewModel).clear()
-            verify(activity.fundingViewModel).clear()
+            verify(activity.rawInputViewModel, atLeast(1)).clear()
+            verify(activity.fundingViewModel, atLeast(1)).clear()
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -361,9 +363,9 @@ class CreatePaymentActivityTest {
             whenever(phoneNumber.countryCode).thenReturn(1)
             whenever(phoneNumber.nationalNumber).thenReturn(3305551111)
             activity.onValidPhoneNumberInput(phoneNumber)
-            verify(activity.fundingViewModel).lookupIdentityHash("710c3ec37d3bbab4d9b140656ea8ab28d14bad091e12b912dc73d0fbcd78664d", AccountMode.LIGHTNING)
+            verify(activity.fundingViewModel, atLeast(1)).lookupIdentityHash("710c3ec37d3bbab4d9b140656ea8ab28d14bad091e12b912dc73d0fbcd78664d", AccountMode.LIGHTNING)
             verify(activity.rawInputViewModel).clear()
-            verify(activity.fundingViewModel).clear()
+            verify(activity.fundingViewModel, atLeast(1)).clear()
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -548,26 +550,6 @@ class CreatePaymentActivityTest {
     }
 
     @Test
-    fun validation__funding_for_lightning() {
-        val scenario = createScenario()
-
-        scenario.onActivity { activity ->
-            activity.changeAccountMode(AccountMode.LIGHTNING)
-            activity.amountInputView.primaryCurrency.setText("$10.00")
-            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
-            activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
-            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
-            activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
-            activity.nextButton.performClick()
-
-            verify(activity.fundingViewModel).estimateLightningPayment("ln-address", activity.paymentHolder.cryptoCurrency.toLong())
-        }
-
-        scenario.moveToState(Lifecycle.State.DESTROYED)
-        scenario.close()
-    }
-
-    @Test
     fun validation__insufficient_funds_for_lightning() {
         val scenario = createScenario()
 
@@ -579,11 +561,34 @@ class CreatePaymentActivityTest {
             activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
             activity.nextButton.performClick()
-            activity.pendingLedgerInvoiceObserver.onChanged(LedgerInvoice(value = 0))
+            activity.pendingLedgerInvoiceObserver.onChanged(LedgerInvoice(value = activity.paymentHolder.cryptoCurrency.toLong()))
 
             verifyZeroInteractions(activity.activityNavigationUtil)
             val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
             assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, "$10.00", "$9.00"))
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun validation__max_amount_exceeded() {
+        val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+            activity.changeAccountMode(AccountMode.LIGHTNING)
+            activity.amountInputView.primaryCurrency.setText("$10.00")
+            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
+            activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
+            activity.nextButton.performClick()
+            activity.pendingLedgerInvoiceObserver.onChanged(LedgerInvoice(error = "Max request value is 500,000"))
+
+            verifyZeroInteractions(activity.activityNavigationUtil)
+            val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
+            assertThat(dialog.message).isEqualTo("Max request value is 500,000")
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -794,6 +799,45 @@ class CreatePaymentActivityTest {
         scenario.close()
     }
 
+    @Test
+    fun validation__lnd__request_invoice_only___verifies_amount() {
+        val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+            activity.onAccountModeChanged(AccountMode.LIGHTNING)
+            activity.amountInputView.primaryCurrency.setText("$10.00")
+            val requestInvoice = RequestInvoice()
+            requestInvoice.encoded = "ln--encoded"
+            activity.validRequestInvoiceObserver.onChanged(requestInvoice)
+            activity.nextButton.performClick()
+
+            verify(activity.fundingViewModel).estimateLightningPayment(requestInvoice.encoded, activity.paymentHolder.cryptoCurrency.toLong())
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun validation__lnd__request_invoice__with_contact() {
+        val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+            activity.changeAccountMode(AccountMode.LIGHTNING)
+            activity.amountInputView.primaryCurrency.setText("$10.00")
+            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
+            activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
+            activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
+            activity.nextButton.performClick()
+
+            verify(activity.fundingViewModel).estimateLightningPayment("ln-address", activity.paymentHolder.cryptoCurrency.toLong())
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
     // VERIFIED CONTACT
     @Test
     fun validation__caches_pub_key_when_present() {
@@ -857,11 +901,38 @@ class CreatePaymentActivityTest {
     }
 
     @Test
-    fun confirms_payment_for__lnd() {
+    fun confirms_payment_for__lnd__request_invoice_only() {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
             activity.onAccountModeChanged(AccountMode.LIGHTNING)
+            activity.amountInputView.primaryCurrency.setText("$10.00")
+            activity.onHoldingsChanged(BTCCurrency(70_000_000))
+            val requestInvoice = RequestInvoice()
+            requestInvoice.encoded = "ln--encoded"
+            activity.validRequestInvoiceObserver.onChanged(requestInvoice)
+            activity.nextButton.performClick()
+            activity.pendingLedgerInvoiceObserver.onChanged(
+                    LedgerInvoice(value = activity.paymentHolder.cryptoCurrency.toLong()))
+
+            assertThat(activity.paymentHolder.requestInvoice).isNotNull()
+            assertThat(activity.paymentHolder.requestInvoice!!.encoded).isEqualTo("ln--encoded")
+            assertThat(activity.paymentHolder.requestInvoice!!.numSatoshis).isEqualTo(activity.paymentHolder.cryptoCurrency.toLong())
+            verify(activity.activityNavigationUtil).navigateToConfirmPaymentScreen(activity, activity.paymentHolder)
+            assertThat(activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag)).isNull()
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun confirms_payment_for__lnd__verified_contact() {
+        val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+            activity.onAccountModeChanged(AccountMode.LIGHTNING)
+            activity.onHoldingsChanged(BTCCurrency(70_000_000))
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--",
                     "Joe Smoe", isVerified = true)
@@ -1040,9 +1111,9 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.validRawInputObserver.onChanged(bitcoinUri)
 
-            verify(activity.walletViewModel).setMode(AccountMode.BLOCKCHAIN)
+            verify(activity.walletViewModel, atLeast(1)).setMode(AccountMode.BLOCKCHAIN)
             verify(activity.rawInputViewModel).clear()
-            verify(activity.fundingViewModel).clear()
+            verify(activity.fundingViewModel, atLeast(1)).clear()
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -1199,6 +1270,7 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.onLatestPriceChanged(USDCurrency(10_000_00))
             activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
+            activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
 
             val requestInvoice = RequestInvoice(
                     "--addr--",
@@ -1219,6 +1291,7 @@ class CreatePaymentActivityTest {
             assertThat(activity.paymentReceiverView.visibility).isEqualTo(View.VISIBLE)
             assertThat(activity.paymentReceiverView.paymentAddress).isEqualTo(requestInvoice.encoded)
             assertThat(activity.paymentHolder.cryptoCurrency.toLong()).isEqualTo(1_000_000)
+            assertThat(activity.paymentHolder.toUser).isNull()
             assertThat(activity.amountInputView.primaryCurrency.text.toString()).isEqualTo("$100.00")
             assertThat(activity.memoToggleView.memo).isEqualTo("--description--")
             assertThat(activity.amountInputView.primaryCurrency.isEnabled).isFalse()

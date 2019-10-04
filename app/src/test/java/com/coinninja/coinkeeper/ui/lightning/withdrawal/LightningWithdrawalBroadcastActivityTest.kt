@@ -61,7 +61,6 @@ class LightningWithdrawalBroadcastActivityTest {
             }
 
             assertThat(activity.transactionIdLabel.visibility).isEqualTo(GONE)
-            assertThat(activity.transactionIdIcon.visibility).isEqualTo(GONE)
             assertThat(activity.transactionIdLink.visibility).isEqualTo(GONE)
 
             activity.transactionActionBtn.also {
@@ -93,7 +92,6 @@ class LightningWithdrawalBroadcastActivityTest {
             }
 
             assertThat(activity.transactionIdLabel.visibility).isEqualTo(GONE)
-            assertThat(activity.transactionIdIcon.visibility).isEqualTo(GONE)
             assertThat(activity.transactionIdLink.visibility).isEqualTo(GONE)
 
             activity.transactionActionBtn.also {
@@ -125,7 +123,6 @@ class LightningWithdrawalBroadcastActivityTest {
             }
 
             assertThat(activity.transactionIdLabel.visibility).isEqualTo(GONE)
-            assertThat(activity.transactionIdIcon.visibility).isEqualTo(GONE)
             assertThat(activity.transactionIdLink.visibility).isEqualTo(GONE)
 
             activity.transactionActionBtn.also {

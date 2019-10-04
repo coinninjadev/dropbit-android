@@ -21,8 +21,6 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.memo.MemoCreator;
-import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
-import com.coinninja.coinkeeper.ui.transaction.history.DefaultCurrencyChangeObserver;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.TwitterUtil;
@@ -43,7 +41,7 @@ import javax.inject.Inject;
 import app.dropbit.commons.currency.BTCCurrency;
 import app.dropbit.commons.currency.USDCurrency;
 
-public class TransactionDetailPageAdapter extends PagerAdapter implements DefaultCurrencyChangeObserver {
+public class TransactionDetailPageAdapter extends PagerAdapter {
 
     final WalletHelper walletHelper;
     TransactionAdapterUtil transactionAdapterUtil;
@@ -54,13 +52,14 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
     private TransactionDetailObserver transactionDetailObserver;
     private DropbitUriBuilder dropbitUriBuilder;
     private DropbitRoute tooltipId;
-    private DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
     private MemoCreator memoCreator;
 
     @Inject
-    TransactionDetailPageAdapter(WalletHelper walletHelper, TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies,
-                                 MemoCreator memoCreator, TwitterUtil twitterUtil, Analytics analytics) {
-        this.defaultCurrencies = defaultCurrencies;
+    TransactionDetailPageAdapter(WalletHelper walletHelper,
+                                 TransactionAdapterUtil transactionAdapterUtil,
+                                 MemoCreator memoCreator,
+                                 TwitterUtil twitterUtil, Analytics analytics) {
+        this.defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         this.twitterUtil = twitterUtil;
         this.analytics = analytics;
         dropbitUriBuilder = new DropbitUriBuilder();
@@ -137,20 +136,6 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
         return view == object;
     }
 
-    public void setDefaultCurrencyChangeViewNotifier(DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier) {
-        this.defaultCurrencyChangeViewNotifier = defaultCurrencyChangeViewNotifier;
-        defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(this);
-    }
-
-    @Override
-    public void onDefaultCurrencyChanged(DefaultCurrencies defaultCurrencies) {
-        this.defaultCurrencies = defaultCurrencies;
-    }
-
-    public DefaultCurrencies getDefaultCurrencies() {
-        return defaultCurrencies;
-    }
-
     void bindTo(View page, BindableTransaction bindableTransaction, int position) {
         page.findViewById(R.id.call_to_action).setVisibility(View.INVISIBLE);
         page.findViewById(R.id.ic_close).setOnClickListener(this::close);
@@ -218,9 +203,10 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
 
     private void bindTransactionValue(View page, BindableTransaction bindableTransaction) {
         DefaultCurrencyDisplayView view = page.findViewById(R.id.default_currency_view);
-        view.renderValues(defaultCurrencies, bindableTransaction.getBasicDirection(), bindableTransaction.totalCryptoForSendState(), bindableTransaction.totalFiatForSendState());
-        if (defaultCurrencyChangeViewNotifier != null)
-            defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(view);
+        view.renderValues(defaultCurrencies,
+                bindableTransaction.getBasicDirection(),
+                bindableTransaction.totalCryptoForSendState(),
+                bindableTransaction.totalFiatForSendState());
     }
 
     private void renderMemo(View page, BindableTransaction bindableTransaction) {
@@ -421,7 +407,8 @@ public class TransactionDetailPageAdapter extends PagerAdapter implements Defaul
                 confirmationsLabel.setText(R.string.confirmations_view_stage_4);
                 break;
             case CONFIRMED:
-                confirmationsView.setStage(ConfirmationsView.STAGE_COMPLETE);
+                confirmationsView.setStage(ConfirmationsView.STAGE_PENDING);
+                confirmationsView.setVisibility(View.GONE);
                 confirmationsLabel.setText(R.string.confirmations_view_stage_5);
         }
     }

@@ -27,6 +27,7 @@ import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.interactor.UserPreferences
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.PaymentHolder
+import com.coinninja.coinkeeper.model.PaymentType
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
@@ -145,10 +146,14 @@ class CreatePaymentActivity : BaseActivity() {
     }
 
     val pendingLedgerInvoiceObserver: Observer<LedgerInvoice> = Observer {
-        if (it.value == 0L && isReadyToProcess) {
+        if (it.error.isNotNullOrEmpty()) {
+            it.error?.let { message -> showServerSidedErrorMassage(message) }
+            isReadyToProcess = false
+        } else if (it.value > holdings.toLong() && isReadyToProcess) {
             showInsufficientFundsMessage()
             isReadyToProcess = false
         } else {
+            paymentHolder.requestInvoice?.numSatoshis = it.value
             confirmPayment()
         }
 
@@ -234,7 +239,7 @@ class CreatePaymentActivity : BaseActivity() {
         accountModeToggle.onModeSelectedObserver = accountModeToggleObserver
         observeLiveData()
         memoToggleView.render(this, findViewById<View>(R.id.transaction_memo))
-
+        renderToUser()
     }
 
 
@@ -278,12 +283,19 @@ class CreatePaymentActivity : BaseActivity() {
 
     override fun onAccountModeChanged(mode: AccountMode) {
         super.onAccountModeChanged(mode)
-        clearPaymentInput()
         amountInputView.accountMode = mode
+        paymentHolder.accountMode = mode
+
+        if (accountModeToggle.mode != mode) {
+            clearPaymentInput()
+            renderToUser()
+        }
+
         when (mode) {
             AccountMode.BLOCKCHAIN -> showBlockChain()
             AccountMode.LIGHTNING -> showLightning()
         }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -316,6 +328,7 @@ class CreatePaymentActivity : BaseActivity() {
         fundingViewModel.clear()
         observeLiveData()
         paymentHolder.paymentAddress = ""
+        paymentHolder.toUser = null
         paymentHolder.clearTransactionData()
         paymentReceiverView.paymentAddress = ""
     }
@@ -336,6 +349,7 @@ class CreatePaymentActivity : BaseActivity() {
         fundingViewModel.addressLookupResult.removeObserver(accountLookupResultObserver)
         fundingViewModel.transactionData.removeObserver(transactionDataObserver)
         fundingViewModel.pendingLedgerInvoice.removeObserver(pendingLedgerInvoiceObserver)
+        fundingViewModel.clear()
     }
 
     internal fun onValidPhoneNumberInput(it: Phonenumber.PhoneNumber?) {
@@ -361,12 +375,13 @@ class CreatePaymentActivity : BaseActivity() {
             return
         }
 
-        if (paymentHolder.paymentAddress.isEmpty() && paymentHolder.toUser == null) {
+        if (paymentHolder.paymentAddress.isEmpty() && paymentHolder.toUser == null && paymentHolder.requestInvoice == null) {
             showInvalidPaymentTarget()
             return
         }
 
-        if (paymentHolder.paymentAddress.isEmpty() && paymentHolder.toUser != null && paymentHolder.fiat.toLong() > inviteLimit) {
+        if (paymentHolder.paymentAddress.isEmpty() && paymentHolder.requestInvoice == null
+                && paymentHolder.toUser != null && paymentHolder.fiat.toLong() > inviteLimit) {
             showTooMuchForInvite()
             return
         }
@@ -382,8 +397,10 @@ class CreatePaymentActivity : BaseActivity() {
             fundingViewModel.fundMax(paymentHolder.paymentAddress)
         } else if (paymentHolder.hasPaymentAddress()) {
             fundingViewModel.fundTransaction(paymentHolder.paymentAddress, paymentHolder.cryptoCurrency.toLong())
-        } else if (paymentHolder.toUser != null && paymentHolder.requestInvoice.isNotNull() && paymentHolder.requestInvoice?.encoded.isNotNull()) {
-            paymentHolder.requestInvoice?.encoded?.let { fundingViewModel.estimateLightningPayment(it, paymentHolder.cryptoCurrency.toLong()) }
+        } else if (paymentHolder.requestInvoice.isNotNull() && paymentHolder.requestInvoice?.encoded.isNotNull()) {
+            paymentHolder.requestInvoice?.encoded?.let {
+                fundingViewModel.estimateLightningPayment(it, paymentHolder.cryptoCurrency.toLong())
+            }
         } else if (paymentHolder.toUser != null && accountModeToggle.mode == AccountMode.LIGHTNING) {
             if (paymentHolder.cryptoCurrency.toLong() > holdings.toLong()) {
                 showInsufficientFundsMessage()
@@ -401,19 +418,26 @@ class CreatePaymentActivity : BaseActivity() {
     private fun confirmPayment() {
         isReadyToProcess = false
 
-        if (paymentHolder.transactionData.isNotFunded()) {
+        if (paymentHolder.transactionData.isNotFunded() && paymentHolder.requestInvoice == null) {
             showInsufficientFundsMessage()
         }
 
-        if (paymentHolder.paymentAddress.isEmpty()
-                && paymentHolder.requestInvoice == null && paymentHolder.requestInvoice?.encoded == null) {
-            if (paymentHolder.toUser == null) {
-                showInvalidPaymentTarget()
-            } else {
+        when (paymentHolder.paymentType()) {
+            PaymentType.LIGHTNING_INVITE -> {
                 paymentHolder.toUser?.let { startContactInviteFlow(it) }
             }
-        } else {
-            activityNavigationUtil.navigateToConfirmPaymentScreen(this, paymentHolder)
+            PaymentType.BLOCKCHAIN_INVITE -> {
+                paymentHolder.toUser?.let { startContactInviteFlow(it) }
+            }
+            PaymentType.BLOCKCHAIN -> {
+                activityNavigationUtil.navigateToConfirmPaymentScreen(this, paymentHolder)
+            }
+            PaymentType.LIGHTNING -> {
+                activityNavigationUtil.navigateToConfirmPaymentScreen(this, paymentHolder)
+            }
+            else -> {
+                showInvalidPaymentTarget()
+            }
         }
     }
 
@@ -440,6 +464,10 @@ class CreatePaymentActivity : BaseActivity() {
                 amountInputView.paymentHolder.fiat.toFormattedCurrency(),
                 holdingsWorth.toFormattedCurrency()
         )).show(supportFragmentManager, errorDialogTag)
+    }
+
+    private fun showServerSidedErrorMassage(message: String) {
+        GenericAlertDialog.newInstance(message).show(supportFragmentManager, errorDialogTag)
     }
 
     private fun showBlockChain() {
@@ -493,31 +521,36 @@ class CreatePaymentActivity : BaseActivity() {
     }
 
     private fun onContactSelected(data: Intent?) {
+        if (data?.hasExtra(DropbitIntents.EXTRA_IDENTITY) == true) {
+            paymentHolder.toUser = data.getParcelableExtra(DropbitIntents.EXTRA_IDENTITY)
+            paymentHolder.toUser?.hash?.let { fundingViewModel.lookupIdentityHash(it, accountModeToggle.mode) }
+            renderToUser()
+        }
+    }
+
+    private fun renderToUser() {
         contactName.hide()
         contactNumber.hide()
         paymentReceiverView.paymentAddress = ""
         paymentHolder.paymentAddress = ""
-        paymentReceiverView.hide()
+        paymentReceiverView.show()
         memoToggleView.showSharedMemoViews()
 
-        if (data?.hasExtra(DropbitIntents.EXTRA_IDENTITY) == true) {
-            paymentHolder.toUser = data.getParcelableExtra(DropbitIntents.EXTRA_IDENTITY)
-            paymentHolder.toUser?.let { identity ->
-                identity.hash?.let { fundingViewModel.lookupIdentityHash(it, accountModeToggle.mode) }
-                identity.displayName?.let {
-                    if (it.isNotNullOrEmpty()) {
-                        contactName.apply {
-                            text = it
-                            show()
-                        }
-
-                    }
-                }
-                identity.secondaryDisplayName.let {
-                    contactNumber.apply {
+        paymentHolder.toUser?.let { identity ->
+            paymentReceiverView.hide()
+            identity.displayName?.let {
+                if (it.isNotNullOrEmpty()) {
+                    contactName.apply {
                         text = it
                         show()
                     }
+
+                }
+            }
+            identity.secondaryDisplayName.let {
+                contactNumber.apply {
+                    text = it
+                    show()
                 }
             }
         }
@@ -573,5 +606,6 @@ class CreatePaymentActivity : BaseActivity() {
     companion object {
         const val errorDialogTag: String = "ERROR_DIALOG"
         const val inviteLimit: Long = 100_00
+        const val maxLightningAmount: Long = 500_000
     }
 }

@@ -6,7 +6,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 
@@ -19,9 +18,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
-
-import app.dropbit.commons.currency.BTCCurrency;
-import app.dropbit.commons.currency.USDCurrency;
 
 import static com.coinninja.matchers.ActivityMatchers.hasViewWithId;
 import static com.coinninja.matchers.IntentFilterMatchers.containsAction;
@@ -38,14 +34,11 @@ import static org.mockito.Mockito.when;
 public class TransactionDetailsActivityTest {
 
     @Mock
+    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
+    @Mock
     private TransactionDetailDialogController transactionDetailDialogController;
-
     @Mock
     private TransactionDetailPageAdapter pageAdapter;
-
-    @Mock
-    DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
-
     private ActivityController<TransactionDetailsActivity> activityController;
     private TransactionDetailsActivity activity;
 
@@ -55,12 +48,7 @@ public class TransactionDetailsActivityTest {
         activityController = Robolectric.buildActivity(TransactionDetailsActivity.class).create();
         activity = activityController.get();
         activity.pageAdapter = pageAdapter;
-        activity.defaultCurrencyChangeViewNotifier = defaultCurrencyChangeViewNotifier;
         activity.transactionDetailDialogController = transactionDetailDialogController;
-    }
-
-    private void startUp() {
-        activityController.start().resume().visible();
     }
 
     @After
@@ -224,22 +212,7 @@ public class TransactionDetailsActivityTest {
         verify(transactionDetailDialogController).showTransaction(activity, transaction);
     }
 
-    @Test
-    public void sets_default_currency_notifier_on_page_adapter() {
-        startUp();
-
-        verify(pageAdapter).setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
-    }
-
-    @Test
-    public void observes_currency_preference_change() {
-        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
-        Intent intent = new Intent(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED);
-        intent.putExtra(DropbitIntents.EXTRA_PREFERENCE, defaultCurrencies);
-        startUp();
-
-        activity.receiver.onReceive(activity, intent);
-
-        verify(defaultCurrencyChangeViewNotifier).onDefaultCurrencyChanged(defaultCurrencies);
+    private void startUp() {
+        activityController.start().resume().visible();
     }
 }

@@ -6,6 +6,7 @@
     android:background="@android:color/transparent">
 
     <androidx.viewpager.widget.ViewPager
+        android:layout_marginTop="16dp"
         android:id="@+id/pager_transaction_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

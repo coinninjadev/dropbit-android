@@ -209,6 +209,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
         <activity
+            android:name=".ui.lightning.broadcast.BroadcastLightningPaymentActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.UpOff" />
+        <activity
             android:name=".view.activity.BroadcastActivity"
             android:label=""
             android:screenOrientation="portrait"

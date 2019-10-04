@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -54,7 +53,6 @@ public class InviteSendActivity extends BaseActivity implements InviteContactPre
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
         TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
         TextView transactionIdLink = findViewById(R.id.transaction_id_link);
-        ImageView transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
 
         sendingProgressView.setProgress(0);
@@ -62,7 +60,6 @@ public class InviteSendActivity extends BaseActivity implements InviteContactPre
 
         transactionIdLabel.setVisibility(View.INVISIBLE);
         transactionIdLink.setVisibility(View.INVISIBLE);
-        transactionIdIcon.setVisibility(View.INVISIBLE);
         transactionActionBtn.setVisibility(View.INVISIBLE);
 
         sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_label));
@@ -70,7 +67,6 @@ public class InviteSendActivity extends BaseActivity implements InviteContactPre
         transactionIdLink.setText("");
         transactionActionBtn.setOnClickListener(null);
         transactionIdLink.setOnClickListener(null);
-        transactionIdIcon.setOnClickListener(null);
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
 
@@ -78,7 +74,6 @@ public class InviteSendActivity extends BaseActivity implements InviteContactPre
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
         TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
         TextView transactionIdLink = findViewById(R.id.transaction_id_link);
-        ImageView transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
 
         sendingProgressView.setProgress(100);
@@ -86,7 +81,6 @@ public class InviteSendActivity extends BaseActivity implements InviteContactPre
 
         transactionIdLabel.setVisibility(View.VISIBLE);
         transactionIdLink.setVisibility(View.INVISIBLE);
-        transactionIdIcon.setVisibility(View.INVISIBLE);
         transactionActionBtn.setVisibility(View.INVISIBLE);
 
         sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_failed));
@@ -94,7 +88,6 @@ public class InviteSendActivity extends BaseActivity implements InviteContactPre
         transactionIdLabel.setText(getResources().getText(R.string.invite_failed));
 
         transactionIdLink.setOnClickListener(null);
-        transactionIdIcon.setOnClickListener(null);
     }
 
     @Override

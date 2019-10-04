@@ -14,7 +14,6 @@ import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
@@ -31,7 +30,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import app.dropbit.commons.currency.BTCCurrency;
 import app.dropbit.commons.currency.USDCurrency;
 
 import static com.coinninja.matchers.ActivityMatchers.noServiceStarted;
@@ -83,7 +81,6 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         adapter.refreshData();
         adapter.setShowTransactionDetailRequestObserver(observer);
-        adapter.onDefaultCurrencyChanged(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
 
         bindableTransaction.setSendState(BindableTransaction.SendState.RECEIVE);
         bindableTransaction.setValue(0);
@@ -201,8 +198,6 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
         TextView confirmations = page.findViewById(R.id.confirmations);
         ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
 
-        assertThat(confirmationsView, configuredForDropbit());
-        assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_COMPLETE));
         assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmationsView.getContext(), R.string.confirmations_view_stage_5)));
     }
 

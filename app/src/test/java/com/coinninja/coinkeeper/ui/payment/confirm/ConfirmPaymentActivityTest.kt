@@ -457,6 +457,22 @@ class ConfirmPaymentActivityTest {
         scenario.close()
     }
 
+    @Test
+    fun reciepiant__pay_to_lnd_invoice() {
+        val requestInvoice = RequestInvoice(numSatoshis = 95238)
+        requestInvoice.encoded = "ln--encoded-invoice"
+        val scenario = createScenario(
+                requestInvoice = requestInvoice
+        )
+
+        scenario.onActivity { activity ->
+            assertThat(activity.addressField.text).isEqualTo(requestInvoice.encoded)
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
     // MEMO RENDERING
 
     @Test
@@ -495,7 +511,7 @@ class ConfirmPaymentActivityTest {
     }
 
     @Test
-    fun authorization_success__invites_contact() {
+    fun authorization_success__invites_contact__blockchain() {
         val paymentHolder = PaymentHolder(
                 evaluationCurrency = USDCurrency(10_500),
                 toUser = Identity(IdentityType.TWITTER, "1234567890", hash = "1234567890",
@@ -533,7 +549,7 @@ class ConfirmPaymentActivityTest {
     }
 
     @Test
-    fun authorization_success__sends_funds() {
+    fun authorization_success__sends_funds__blockchain() {
         val paymentHolder = PaymentHolder(
                 evaluationCurrency = USDCurrency(10_500),
                 toUser = Identity(IdentityType.TWITTER, "1234567890", hash = "1234567890",
@@ -561,6 +577,32 @@ class ConfirmPaymentActivityTest {
             activity.onActivityResult(ConfirmPaymentActivity.authRequestCode, AuthorizedActionActivity.RESULT_AUTHORIZED, null)
 
             verify(activity.activityNavigationUtil).navigateToBroadcast(activity, dto)
+            assertThat(activity.isFinishing).isTrue()
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun authorization_success__sends_funds__lightning() {
+        val paymentHolder = PaymentHolder(
+                evaluationCurrency = USDCurrency(10_500),
+                toUser = Identity(IdentityType.TWITTER, "1234567890", hash = "1234567890",
+                        handle = "@Joe", avatarUrl = "http://avatar", isVerified = true),
+                memo = "Yo Joe!",
+                publicKey = "--pub-key--",
+                isSharingMemo = true
+        )
+        paymentHolder.requestInvoice = RequestInvoice(numSatoshis = 100418)
+        paymentHolder.requestInvoice!!.encoded = "ln--encoded-invoice"
+
+        val scenario = createScenario(paymentHolder, mode = AccountMode.BLOCKCHAIN, memo = paymentHolder.memo)
+
+        scenario.onActivity { activity ->
+            activity.onActivityResult(ConfirmPaymentActivity.authRequestCode, AuthorizedActionActivity.RESULT_AUTHORIZED, null)
+
+            verify(activity.activityNavigationUtil).navigateToLightningBroadcast(activity, paymentHolder)
             assertThat(activity.isFinishing).isTrue()
         }
 

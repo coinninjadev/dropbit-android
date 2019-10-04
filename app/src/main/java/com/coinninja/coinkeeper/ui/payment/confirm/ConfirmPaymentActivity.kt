@@ -21,6 +21,7 @@ import com.coinninja.coinkeeper.cn.transaction.FundingViewModelProvider
 import com.coinninja.coinkeeper.cn.transaction.notification.FundingViewModel
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.PaymentHolder
+import com.coinninja.coinkeeper.model.PaymentType
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
@@ -161,18 +162,28 @@ class ConfirmPaymentActivity : BaseActivity() {
 
 
     private fun startBroadcast() {
-        if (shouldSendInvite()) {
-            sendInvite()
-        } else {
-            broadcastTransaction()
+        when(paymentHolder.paymentType()) {
+            PaymentType.LIGHTNING -> {
+                activityNavigationUtil.navigateToLightningBroadcast(this, paymentHolder)
+                finish()
+            }
+            PaymentType.BLOCKCHAIN -> {
+                broadcastTransaction()
+            }
+            PaymentType.LIGHTNING_INVITE -> {
+                Toast.makeText(this, "Lightning Invites Coming Soon", Toast.LENGTH_LONG).show()
+            }
+            PaymentType.BLOCKCHAIN_INVITE -> {
+                sendBlockchainInvite()
+            }
+            else -> {
+                Toast.makeText(this, "Missing Payment Data", Toast.LENGTH_LONG).show()
+                finish()
+            }
         }
     }
 
-    private fun shouldSendInvite(): Boolean {
-        return paymentHolder.toUser != null && !paymentHolder.hasPaymentAddress()
-    }
-
-    private fun sendInvite() {
+    private fun sendBlockchainInvite() {
         paymentHolder.toUser?.let { toUser ->
             activityNavigationUtil.navigateToInviteSendScreen(this, PendingInviteDTO(
                     toUser,
@@ -284,7 +295,11 @@ class ConfirmPaymentActivity : BaseActivity() {
                 }
             }
         }
-        addressField.text = paymentHolder.paymentAddress
+
+        addressField.text = if (paymentHolder.isLnd())
+            paymentHolder.requestInvoice?.encoded ?: ""
+        else
+            paymentHolder.transactionData.paymentAddress
     }
 
     private fun paymentDataFromCreation() {
