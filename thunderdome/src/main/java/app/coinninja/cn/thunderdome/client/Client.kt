@@ -5,6 +5,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface Client {
 
@@ -12,7 +13,7 @@ interface Client {
     fun account(): Call<AccountResponse>
 
     @GET("/api/v1/thunderdome/ledger")
-    fun ledger(): Call<LedgerResponse>
+    fun ledger(@Query("limit") limit:Int=1_000): Call<LedgerResponse>
 
     @POST("/api/v1/thunderdome/withdraw")
     fun withdrawal(@Body withdrawalRequest: WithdrawalRequest.WithdrawalPostRequest): Call<WithdrawalResponse>

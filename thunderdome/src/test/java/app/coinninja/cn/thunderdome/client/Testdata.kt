@@ -28,6 +28,20 @@ object Testdata {
             "      \"error\": \"\"\n" +
             "    },\n" +
             "    {\n" +
+            "      \"created_at\": \"2019-08-22T22:34:46.481530Z\",\n" +
+            "      \"updated_at\": \"2019-08-22T22:41:42.903254Z\",\n" +
+            "      \"id\": \"3228fe64710af215840ec2fa96a0cbde4ca9dd15e6931743fe68d0259cba432d\",\n" +
+            "      \"status\": \"completed\",\n" +
+            "      \"type\": \"btc\",\n" +
+            "      \"direction\": \"in\",\n" +
+            "      \"value\": 476190,\n" +
+            "      \"network_fee\": 10,\n" +
+            "      \"processing_fee\": 200,\n" +
+            "      \"memo\": \"\",\n" +
+            "      \"request\": \"\",\n" +
+            "      \"error\": \"\"\n" +
+            "    },\n" +
+            "    {\n" +
             "      \"created_at\": \"2019-08-22T22:39:38.107282Z\",\n" +
             "      \"updated_at\": \"2019-08-22T22:41:42.915568Z\",\n" +
             "      \"id\": \"a33d41727be679d425b8f3a84dd3620822b3f4c0e44c1c9dcdcb420521ac1987:0\",\n" +

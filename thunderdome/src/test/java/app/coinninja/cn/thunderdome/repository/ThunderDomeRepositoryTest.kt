@@ -61,7 +61,7 @@ class ThunderDomeRepositoryTest {
 
         repository.syncLedger()
 
-        verify(invoiceDao, times(2)).insertOrUpdate(any())
+        verify(invoiceDao, atLeast(1)).insertOrUpdate(any())
     }
 
     @Test

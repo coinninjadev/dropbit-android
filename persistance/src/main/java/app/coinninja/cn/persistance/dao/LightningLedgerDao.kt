@@ -17,11 +17,11 @@ abstract class LightningInvoiceDao {
     abstract fun all(): List<LightningInvoice>
 
     @WorkerThread
-    @Insert(onConflict = OnConflictStrategy.FAIL)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insert(lightningLedger: LightningInvoice)
 
     @WorkerThread
-    @Update(onConflict = OnConflictStrategy.FAIL)
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     abstract fun update(lightningLedger: LightningInvoice)
 
     @WorkerThread

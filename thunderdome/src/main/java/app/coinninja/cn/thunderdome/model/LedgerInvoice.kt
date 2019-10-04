@@ -50,7 +50,7 @@ data class LedgerInvoice(
 
     fun toLightningLedger(): LightningInvoice {
         return LightningInvoice(
-                serverId = id,
+                serverId = id.split(":")[0],
                 createdAt = createdAt.asDateOrNull(),
                 updatedAt = updatedAt.asDateOrNull(),
                 expiresAt = expiresAt?.asDateOrNull(),
