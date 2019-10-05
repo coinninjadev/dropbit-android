@@ -118,6 +118,18 @@ public class TransactionDetailPageAdapterTest__SendTransaction {
     }
 
     @Test
+    public void load_lightning_send_icon() {
+        bindableTransaction.setSendState(BindableTransaction.SendState.LOAD_LIGHTNING);
+        adapter.bindTo(page, bindableTransaction, 0);
+
+        ImageView icon = page.findViewById(R.id.ic_send_state);
+        assertThat(icon, hasTag(R.drawable.ic_transfer_out));
+
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        assertThat(confirmations, hasText("Load Lightning"));
+    }
+
+    @Test
     public void renders_send_icon() {
         adapter.bindTo(page, bindableTransaction, 0);
 

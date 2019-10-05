@@ -18,7 +18,9 @@ class HomePagerAdapter(fm: FragmentManager, behavior: Int) : FragmentStatePagerA
     var isLightningLocked = true
     private var fragments = listOf(TransactionHistoryFragment(), LightningHistoryFragment(), LightningLockedFragment())
 
-    override fun getItem(position: Int): Fragment = fragments[if(position == 1 && isLightningLocked) 2 else position]
+    override fun getItem(position: Int): Fragment {
+        return fragments[if (position == 1 && isLightningLocked) 2 else position]
+    }
 
     override fun getCount(): Int = numPages
 

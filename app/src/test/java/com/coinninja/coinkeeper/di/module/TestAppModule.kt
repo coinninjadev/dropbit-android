@@ -11,6 +11,7 @@ import android.os.Handler
 import android.util.TypedValue
 import androidx.core.os.ConfigurationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import app.dropbit.twitter.Twitter
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.CoinKeeperLifecycleListener
@@ -69,6 +70,10 @@ class TestAppModule {
             app.bitcoinUriBuilder = mock()
         return app.bitcoinUriBuilder
     }
+
+    @Provides
+    @LightningDepositAddress
+    fun lightningDepositAddress(): String =  "--lightning-deposit-address--"
 
     @Provides
     internal fun coinKeeperApplication(application: Application): CoinKeeperApplication {

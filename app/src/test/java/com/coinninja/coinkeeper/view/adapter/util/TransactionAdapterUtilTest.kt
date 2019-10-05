@@ -7,11 +7,8 @@ import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.model.db.enums.Type
-import com.coinninja.coinkeeper.util.DateFormatUtil
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.*
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -20,7 +17,7 @@ import org.mockito.Mockito.times
 @RunWith(AndroidJUnit4::class)
 class TransactionAdapterUtilTest {
     private fun createUtil(): TransactionAdapterUtil {
-        val util = TransactionAdapterUtil(mock(DateFormatUtil::class.java), mock(BindableTransaction::class.java))
+        val util = TransactionAdapterUtil(mock(), mock(), "--deposit-address--")
         whenever(util.bindableTransaction.basicDirection).thenReturn(SendState.SEND)
         return util
     }
@@ -38,6 +35,7 @@ class TransactionAdapterUtilTest {
         whenever(transaction.receiver.get(1).value).thenReturn(2000L)
         whenever(transaction.funder.get(0).addr).thenReturn("-- from addr 1 --")
         whenever(transaction.funder.get(0).value).thenReturn(5000)
+        whenever(transaction.isLightningWithdraw).thenReturn(false)
         return transaction
     }
 
@@ -252,7 +250,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `receive edge conditions`() {
+    fun receive_edge_conditions() {
         val util = createUtil()
         val transaction = mockReceivedTransaction()
         whenever(util.bindableTransaction.sendState).thenReturn(SendState.RECEIVE)
@@ -267,6 +265,65 @@ class TransactionAdapterUtilTest {
         util.translateMempoolState(transaction)
 
         verify(util.bindableTransaction, times(3)).sendState = SendState.FAILED_TO_BROADCAST_RECEIVE
+    }
+
+    @Test
+    fun builds_Transaction_details_for_LOAD_LIGHTNING() {
+        val util = createUtil()
+        val transaction = mockSentTransaction()
+        whenever(transaction.receiver.get(0).addr).thenReturn("--deposit-address--")
+        whenever(util.bindableTransaction.targetAddress).thenReturn("--deposit-address--")
+
+        util.setSendState(transaction)
+        util.translateSend(transaction)
+
+        verify(util.bindableTransaction).targetAddress = "--deposit-address--"
+
+        val ordered = inOrder(util.bindableTransaction)
+        ordered.verify(util.bindableTransaction).sendState = SendState.SEND
+        ordered.verify(util.bindableTransaction).sendState = SendState.LOAD_LIGHTNING
+    }
+
+    @Test
+    fun builds_Transaction_details_for_WITHDRAW_LIGHTNING() {
+        val util = createUtil()
+        val transaction = mockReceivedTransaction()
+        whenever(transaction.isLightningWithdraw).thenReturn(true)
+
+        util.setSendState(transaction)
+
+        whenever(util.bindableTransaction.sendState).thenReturn(SendState.UNLOAD_LIGHTNING)
+        util.translateReceive(transaction)
+
+        verify(util.bindableTransaction).sendState = SendState.UNLOAD_LIGHTNING
+        verify(util.bindableTransaction, times(0)).sendState = SendState.RECEIVE
+    }
+
+    @Test
+    fun builds_Transaction_details_for_LOAD_LIGHTNING_sets_addresses() {
+        val util = createUtil()
+        val transaction = mockSentTransaction()
+        whenever(transaction.receiver.get(0).addr).thenReturn("--deposit-address--")
+        whenever(util.bindableTransaction.sendState).thenReturn(SendState.LOAD_LIGHTNING)
+
+        util.translateMempoolState(transaction)
+
+        verify(util.bindableTransaction).targetAddress = "--deposit-address--"
+        verify(util.bindableTransaction).fundingAddress = "-- from addr 1 --"
+        verify(util.bindableTransaction).value = 1000L
+    }
+
+    @Test
+    fun `builds Transaction details for WITHDRAW_LIGHTNING sets addresses`() {
+        val util = createUtil()
+        val transaction = mockReceivedTransaction()
+        whenever(util.bindableTransaction.sendState).thenReturn(SendState.UNLOAD_LIGHTNING)
+
+        util.translateMempoolState(transaction)
+
+        verify(util.bindableTransaction).targetAddress = "-- to addr 1 --"
+        verify(util.bindableTransaction).fundingAddress = "-- from addr 1 --"
+        verify(util.bindableTransaction).value = 1000L
     }
 
     @Test

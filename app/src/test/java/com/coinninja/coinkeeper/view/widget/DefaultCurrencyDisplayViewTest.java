@@ -178,7 +178,7 @@ public class DefaultCurrencyDisplayViewTest {
         DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         defaultCurrencyDisplayView.useCryptoSymbol(true);
         defaultCurrencyDisplayView.useCryptoIcon(false);
-        defaultCurrencyDisplayView.accountMode(AccountMode.LIGHTNING);
+        defaultCurrencyDisplayView.setAccountMode(AccountMode.LIGHTNING);
 
         defaultCurrencyDisplayView.renderValues(defaultCurrencies, BindableTransaction.SendState.SEND, totalCrypto, fiatValue);
 

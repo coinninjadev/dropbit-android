@@ -127,6 +127,8 @@
     <string name="send_to_self">Sent to myself</string>
     <string name="share_transaction_intent_title">Share Transaction</string>
     <string name="history_failed_to_broadcast">Failed to Broadcast</string>
+    <string name="failed">failed</string>
+    <string name="expired">expired</string>
 
     <!-- Request -->
     <string name="request_copied_message">Bitcoin Request copied to clipboard</string>
@@ -464,6 +466,8 @@
     <!--- Lightning Invoice History -->
     <string name="tx_history_transfer_lightning_in">Load Lightning</string>
     <string name="tx_history_transfer_lightning_out">Lightning Withdraw</string>
+    <string name="tx_history_lightning_out">Paid Invoice</string>
+    <string name="tx_history_lightning_in">Lightning Invoice</string>
     <string name="lnd_state_pending">pending</string>
 
     <!--- Lightning Deposit Screen -->
@@ -538,4 +542,8 @@
 
     <!--- LND Down for Maintenance -->
     <string name="thunderdome_unavailable">We are currently updating our servers. Don’t worry, your funds are safe, but please check back again shortly.</string>
+    <string name="tx_history_load_lightning">Load Lightning</string>
+    <string name="tx_history_withdraw_lightning">Lightning Withdraw</string>
+    <string name="transaction_details_load_lightning">Load Lightning</string>
+    <string name="transaction_details_withdraw_from_lightning">Withdraw from Lightning</string>
 </resources>

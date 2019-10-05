@@ -85,6 +85,9 @@ data class TransactionSummary(
         var transactionNotificationId: Long? = null,
 
         @ColumnInfo(name = "MEM_POOL_STATE")
-        var memPoolState: MemPoolState = MemPoolState.INIT
+        var memPoolState: MemPoolState = MemPoolState.INIT,
+
+        @ColumnInfo(name = "IS_LIGHTNING_WITHDRAW")
+        var isLightningWithdraw: Boolean = false
 
 )

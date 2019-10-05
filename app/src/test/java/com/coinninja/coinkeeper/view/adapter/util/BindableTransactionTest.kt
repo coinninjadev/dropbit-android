@@ -78,12 +78,16 @@ class BindableTransactionTest {
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.SEND))
         bindableTransaction.sendState = SendState.FAILED_TO_BROADCAST_SEND
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.SEND))
+        bindableTransaction.sendState = SendState.LOAD_LIGHTNING
+        assertThat(bindableTransaction.basicDirection, equalTo(SendState.SEND))
 
         bindableTransaction.sendState = SendState.RECEIVE
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.RECEIVE))
         bindableTransaction.sendState = SendState.RECEIVE_CANCELED
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.RECEIVE))
         bindableTransaction.sendState = SendState.FAILED_TO_BROADCAST_RECEIVE
+        assertThat(bindableTransaction.basicDirection, equalTo(SendState.RECEIVE))
+        bindableTransaction.sendState = SendState.UNLOAD_LIGHTNING
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.RECEIVE))
 
         bindableTransaction.sendState = SendState.TRANSFER

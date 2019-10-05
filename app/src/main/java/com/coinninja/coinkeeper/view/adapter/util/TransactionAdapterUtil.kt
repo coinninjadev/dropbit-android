@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.view.adapter.util
 
 import app.coinninja.cn.libbitcoin.HDWallet
 import app.dropbit.annotations.Mockable
+import com.coinninja.coinkeeper.di.interfaces.LightningDepositAddress
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
@@ -12,8 +13,11 @@ import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.SendState
 import javax.inject.Inject
 
 @Mockable
-class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: DateFormatUtil,
-                                                 internal val bindableTransaction: BindableTransaction) {
+class TransactionAdapterUtil @Inject constructor(
+        internal val dateFormatter: DateFormatUtil,
+        internal val bindableTransaction: BindableTransaction,
+        @LightningDepositAddress internal val lightningDepositAddress: String
+) {
 
     fun translateTransaction(summary: TransactionsInvitesSummary): BindableTransaction {
         bindableTransaction.reset()
@@ -56,12 +60,12 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
                 isReceive = true
             }
         }
-        if (isSend && isReceive) {
-            bindableTransaction.sendState = SendState.TRANSFER
-        } else if (isSend) {
-            bindableTransaction.sendState = SendState.SEND
-        } else {
-            bindableTransaction.sendState = SendState.RECEIVE
+
+        when {
+            transaction.isLightningWithdraw -> bindableTransaction.sendState = SendState.UNLOAD_LIGHTNING
+            isSend && isReceive -> bindableTransaction.sendState = SendState.TRANSFER
+            isSend -> bindableTransaction.sendState = SendState.SEND
+            else -> bindableTransaction.sendState = SendState.RECEIVE
         }
     }
 
@@ -94,8 +98,8 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
             SendState.TRANSFER -> {
                 translateTargets(transaction)
             }
-            SendState.RECEIVE_CANCELED, SendState.RECEIVE -> translateReceive(transaction)
-            SendState.SEND_CANCELED, SendState.SEND -> translateSend(transaction)
+            SendState.UNLOAD_LIGHTNING, SendState.RECEIVE_CANCELED, SendState.RECEIVE -> translateReceive(transaction)
+            SendState.LOAD_LIGHTNING, SendState.SEND_CANCELED, SendState.SEND -> translateSend(transaction)
             else -> {
             }
         }
@@ -106,9 +110,10 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
         var value = 0L
 
         for (stat in transaction.receiver) {
-            if (bindableTransaction.sendState === SendState.SEND && stat.address == null) {
+            if ((bindableTransaction.sendState === SendState.SEND || bindableTransaction.sendState === SendState.LOAD_LIGHTNING)
+                    && stat.address == null) {
                 value += stat.value
-            } else if (bindableTransaction.sendState === SendState.RECEIVE && stat.address != null) {
+            } else if ((bindableTransaction.sendState === SendState.RECEIVE || bindableTransaction.sendState === SendState.UNLOAD_LIGHTNING) && stat.address != null) {
                 value += stat.value
             }
         }
@@ -136,7 +141,9 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
             }
         }
 
-        if (bindableTransaction.sendState !== SendState.RECEIVE_CANCELED || bindableTransaction.sendState !== SendState.SEND_CANCELED)
+        if (bindableTransaction.sendState !== SendState.RECEIVE_CANCELED
+                && bindableTransaction.sendState !== SendState.UNLOAD_LIGHTNING
+                && bindableTransaction.sendState !== SendState.SEND_CANCELED)
             bindableTransaction.sendState = SendState.RECEIVE
     }
 
@@ -166,8 +173,12 @@ class TransactionAdapterUtil @Inject constructor(internal val dateFormatter: Dat
             }
         }
 
+        if (bindableTransaction.targetAddress == lightningDepositAddress)
+            bindableTransaction.sendState = SendState.LOAD_LIGHTNING
 
-        if (bindableTransaction.sendState !== SendState.RECEIVE_CANCELED || bindableTransaction.sendState !== SendState.SEND_CANCELED)
+        if (bindableTransaction.sendState !== SendState.RECEIVE_CANCELED
+                && bindableTransaction.sendState !== SendState.SEND_CANCELED
+                && bindableTransaction.sendState !== SendState.LOAD_LIGHTNING)
             bindableTransaction.sendState = SendState.SEND
     }
 

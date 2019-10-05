@@ -59,7 +59,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
                                  TransactionAdapterUtil transactionAdapterUtil,
                                  MemoCreator memoCreator,
                                  TwitterUtil twitterUtil, Analytics analytics) {
-        this.defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         this.twitterUtil = twitterUtil;
         this.analytics = analytics;
         dropbitUriBuilder = new DropbitUriBuilder();
@@ -158,13 +158,30 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         renderMemo(page, bindableTransaction);
         renderTooltip(page, bindableTransaction);
         renderTwitterShare(page, bindableTransaction);
+        renderLightningLoad(page, bindableTransaction);
+    }
+
+    private void renderLightningLoad(View page, BindableTransaction bindableTransaction) {
+        BindableTransaction.SendState sendState = bindableTransaction.getSendState();
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        if (sendState == BindableTransaction.SendState.UNLOAD_LIGHTNING) {
+            confirmations.setText(R.string.transaction_details_withdraw_from_lightning);
+        } else if (sendState == BindableTransaction.SendState.LOAD_LIGHTNING) {
+            confirmations.setText(R.string.transaction_details_load_lightning);
+
+        }
     }
 
     private void renderTwitterShare(View page, BindableTransaction bindableTransaction) {
-        if (bindableTransaction.getTxID() == null || bindableTransaction.getTxID() == "") {
+        if (bindableTransaction.getTxID() == null || bindableTransaction.getTxID().isEmpty()) {
             page.findViewById(R.id.share_twitter_button).setVisibility(View.GONE);
         } else {
             page.findViewById(R.id.share_twitter_button).setVisibility(View.VISIBLE);
+        }
+
+        BindableTransaction.SendState sendState = bindableTransaction.getSendState();
+        if (sendState == BindableTransaction.SendState.LOAD_LIGHTNING || sendState == BindableTransaction.SendState.UNLOAD_LIGHTNING) {
+            page.findViewById(R.id.share_twitter_button).setVisibility(View.GONE);
         }
     }
 
@@ -377,6 +394,14 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
                 icon.setImageDrawable(Resources.INSTANCE.getDrawable(context, R.drawable.ic_transaction_receive));
                 icon.setTag(R.drawable.ic_transaction_receive);
                 icon.setContentDescription(Resources.INSTANCE.getString(context, R.string.transaction_detail_cd_send_state__dropbit_received));
+                break;
+            case LOAD_LIGHTNING:
+                icon.setImageDrawable(Resources.INSTANCE.getDrawable(context, R.drawable.ic_transfer_out));
+                icon.setTag(R.drawable.ic_transfer_out);
+                break;
+            case UNLOAD_LIGHTNING:
+                icon.setImageDrawable(Resources.INSTANCE.getDrawable(context, R.drawable.ic_transfer_in));
+                icon.setTag(R.drawable.ic_transfer_in);
                 break;
             default:
                 icon.setImageDrawable(Resources.INSTANCE.getDrawable(context, R.drawable.ic_transaction_canceled));

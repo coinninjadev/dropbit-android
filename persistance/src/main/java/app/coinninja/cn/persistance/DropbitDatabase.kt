@@ -37,7 +37,7 @@ import app.coinninja.cn.persistance.model.*
             Wallet::class,
             Word::class
         ],
-        version = 37,
+        version = 38,
         exportSchema = true
 )
 
@@ -63,6 +63,7 @@ abstract class DropbitDatabase : RoomDatabase() {
 
             synchronized(this) {
                 val databaseBuilder = Room.databaseBuilder(context.applicationContext, DropbitDatabase::class.java, databaseName)
+                        .allowMainThreadQueries()
                         .addMigrations(MIGRATION_1_2)
                         .addCallback(dropbitDatabaseConnectionCallback)
 

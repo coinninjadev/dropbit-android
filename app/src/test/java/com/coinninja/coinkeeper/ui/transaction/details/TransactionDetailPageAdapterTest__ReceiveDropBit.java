@@ -102,6 +102,19 @@ public class TransactionDetailPageAdapterTest__ReceiveDropBit {
     }
 
     @Test
+    public void renders_transfer_in_icon() {
+        bindableTransaction.setSendState(BindableTransaction.SendState.UNLOAD_LIGHTNING);
+        adapter.bindTo(page, bindableTransaction, 0);
+
+        ImageView icon = page.findViewById(R.id.ic_send_state);
+
+        assertThat(icon, hasTag(R.drawable.ic_transfer_in));
+
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        assertThat(confirmations, hasText("Withdraw from Lightning"));
+    }
+
+    @Test
     public void renders_receive_icon() {
         adapter.bindTo(page, bindableTransaction, 0);
 
