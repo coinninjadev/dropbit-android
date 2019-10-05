@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.coinninja.android.helpers.Views;
@@ -19,7 +18,6 @@ import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.util.image.CircleTransform;
 import com.coinninja.coinkeeper.util.image.TwitterCircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
@@ -54,6 +52,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
                                          DefaultCurrencies defaultCurrencies, Picasso picasso,
                                          TwitterCircleTransform circleTransform, WalletHelper walletHelper,
                                          Analytics analytics, ActivityNavigationUtil activityNavigationUtil
+
     ) {
         this.transactionAdapterUtil = transactionAdapterUtil;
         this.defaultCurrencies = defaultCurrencies;
@@ -186,6 +185,12 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             } else {
                 Views.INSTANCE.clearCompoundDrawablesOn(view);
             }
+
+            if (transaction.getSendState() == BindableTransaction.SendState.LOAD_LIGHTNING) {
+                view.setText(R.string.tx_history_load_lightning);
+            } else if (transaction.getSendState() == BindableTransaction.SendState.UNLOAD_LIGHTNING) {
+                view.setText(R.string.tx_history_withdraw_lightning);
+            }
         }
 
         protected void bindToTransaction(BindableTransaction transaction, DefaultCurrencies defaultCurrencies, Picasso picasso, TwitterCircleTransform circleTransform) {
@@ -200,7 +205,8 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
 
         private void bindValue(BindableTransaction transaction) {
             DefaultCurrencyDisplayView view = itemView.findViewById(R.id.default_currency_view);
-            view.renderValues(defaultCurrencies, transaction.getBasicDirection(), transaction.totalCryptoForSendState(), transaction.totalFiatForSendState());
+            view.renderValues(defaultCurrencies, transaction.getBasicDirection(),
+                    transaction.totalCryptoForSendState(), transaction.totalFiatForSendState());
             if (defaultCurrencyChangeViewNotifier != null)
                 defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(view);
         }
@@ -230,6 +236,14 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
                 case RECEIVE:
                     icon.setTag(R.drawable.ic_transaction_receive);
                     icon.setImageResource(R.drawable.ic_transaction_receive);
+                    break;
+                case UNLOAD_LIGHTNING:
+                    icon.setTag(R.drawable.ic_transfer_in);
+                    icon.setImageResource(R.drawable.ic_transfer_in);
+                    break;
+                case LOAD_LIGHTNING:
+                    icon.setTag(R.drawable.ic_transfer_out);
+                    icon.setImageResource(R.drawable.ic_transfer_out);
                     break;
                 default:
                     icon.setTag(R.drawable.ic_transaction_canceled);

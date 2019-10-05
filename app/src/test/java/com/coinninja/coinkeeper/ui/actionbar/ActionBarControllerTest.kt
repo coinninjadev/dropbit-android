@@ -462,9 +462,9 @@ class ActionBarControllerTest {
         verify(controller.walletViewModel.accountMode, atLeastOnce()).observe(eq(activity), argumentCaptor.capture())
 
         argumentCaptor.value.onChanged(AccountMode.BLOCKCHAIN)
-        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).accountMode(AccountMode.BLOCKCHAIN)
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).setAccountMode(AccountMode.BLOCKCHAIN)
         argumentCaptor.value.onChanged(AccountMode.LIGHTNING)
-        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).accountMode(AccountMode.LIGHTNING)
+        verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).setAccountMode(AccountMode.LIGHTNING)
     }
 
     @Test

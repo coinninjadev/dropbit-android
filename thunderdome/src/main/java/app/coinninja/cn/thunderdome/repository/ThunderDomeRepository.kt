@@ -2,6 +2,8 @@ package app.coinninja.cn.thunderdome.repository
 
 import androidx.lifecycle.LiveData
 import app.coinninja.cn.persistance.DropbitDatabase
+import app.coinninja.cn.persistance.model.LedgerDirection
+import app.coinninja.cn.persistance.model.LedgerType
 import app.coinninja.cn.persistance.model.LightningAccount
 import app.coinninja.cn.persistance.model.LightningInvoice
 import app.coinninja.cn.thunderdome.client.ThunderDomeApiClient
@@ -18,6 +20,8 @@ class ThunderDomeRepository(
     val lightningAccount: LightningAccount? get() = dropbitDatabase.lightningAccountDao().getAccount()
     val ledgerInvoices: LiveData<List<LightningInvoice>> get() = dropbitDatabase.lightningInvoiceDao().allVisibleLive()
     val isLocked: Boolean get() = lightningAccount?.isLocked ?: true
+    val withdrawsFromAccount: Array<LightningInvoice> get() =
+        dropbitDatabase.lightningInvoiceDao().allByDirectionAndType(LedgerDirection.OUT.id, LedgerType.BTC.id)
 
     fun sync() {
         syncAccount()

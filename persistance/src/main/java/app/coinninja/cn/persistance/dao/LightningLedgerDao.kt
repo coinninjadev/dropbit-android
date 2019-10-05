@@ -16,6 +16,9 @@ abstract class LightningInvoiceDao {
     @Query("Select * from LIGHTNING_INVOICE order by CREATED_AT DESC")
     abstract fun all(): List<LightningInvoice>
 
+    @Query("select * from LIGHTNING_INVOICE where DIRECTION = :direction and TYPE = :type")
+    abstract fun allByDirectionAndType(direction:Int, type:Int): Array<LightningInvoice>
+
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insert(lightningLedger: LightningInvoice)
@@ -56,5 +59,6 @@ abstract class LightningInvoiceDao {
         if (!updated)
             insert(ledger)
     }
+
 
 }

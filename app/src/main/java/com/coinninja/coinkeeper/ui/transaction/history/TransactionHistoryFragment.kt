@@ -23,7 +23,6 @@ import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
 import org.greenrobot.greendao.query.LazyList
 import javax.inject.Inject
 
@@ -31,8 +30,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
 
     @Inject
     internal lateinit var localBroadCastUtil: LocalBroadCastUtil
-    @Inject
-    internal lateinit var bitcoinUtil: BitcoinUtil
     @Inject
     internal lateinit var walletHelper: WalletHelper
     @Inject
@@ -48,7 +45,9 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     @Inject
     internal lateinit var syncManagerViewNotifier: SyncManagerViewNotifier
 
-    internal val intentFilter = IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED)
+    internal val intentFilter = IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED).also {
+        it.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED)
+    }
 
     internal lateinit var transactions: LazyList<TransactionsInvitesSummary>
 
@@ -70,12 +69,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
 
     override fun onRefresh() {
         syncWalletManager.syncNow()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        intentFilter.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED)
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

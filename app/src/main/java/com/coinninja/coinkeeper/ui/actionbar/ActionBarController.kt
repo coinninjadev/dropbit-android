@@ -184,7 +184,7 @@ class ActionBarController constructor(
         })
 
         walletViewModel.accountMode.observe(activity, Observer<AccountMode> { mode ->
-            defaultCurrencyDisplayView.accountMode(mode)
+            defaultCurrencyDisplayView.setAccountMode(mode)
         })
         walletViewModel.syncInProgress.observe(activity, Observer<Boolean> { isSyncing ->
             if (isSyncing == true) {

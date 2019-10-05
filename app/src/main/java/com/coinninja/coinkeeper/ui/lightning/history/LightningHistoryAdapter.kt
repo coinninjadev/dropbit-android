@@ -14,6 +14,7 @@ import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.gone
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DefaultCurrencies
@@ -76,19 +77,29 @@ class LightningHistoryAdapter constructor(
         holder.bindIconWith(invoice)
                 .bindAddressWith(invoice)
                 .bindAmount(invoice, defaultCurrencies, walletHelper.latestPrice)
-                .bindState(invoice)
                 .bindMemo(invoice)
+                .bindState(invoice)
     }
 
     class ViewHolder(itemView: View, val type: Int) : RecyclerView.ViewHolder(itemView) {
         fun bindIconWith(invoice: LightningInvoice): ViewHolder {
             itemView.findViewById<ImageView>(R.id.icon).also {
-                if (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.BTC) {
-                    it.lightningTransferIn()
-                } else if (invoice.direction == LedgerDirection.OUT && invoice.type == LedgerType.BTC) {
-                    it.lightningTransferOut()
-                } else {
-                    it.clear()
+                when {
+                    (invoice.status == LedgerStatus.FAILED) ->
+                        it.failedInvoice()
+                    (invoice.status == LedgerStatus.EXPIRED) ->
+                        it.expiredInvoice()
+                    (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.BTC) ->
+                        it.lightningTransferIn()
+                    (invoice.direction == LedgerDirection.OUT && invoice.type == LedgerType.BTC) ->
+                        it.lightningTransferOut()
+                    (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.LIGHTNING && invoice.status == LedgerStatus.PENDING) ->
+                        it.lightningPendingInvoice()
+                    (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.LIGHTNING && invoice.status == LedgerStatus.COMPLETED) ->
+                        it.lightningCompletedInvoice()
+                    (invoice.direction == LedgerDirection.OUT && invoice.type == LedgerType.LIGHTNING) ->
+                        it.lightningPayedInvoice()
+                    else -> it.clear()
                 }
             }
             return this
@@ -96,12 +107,16 @@ class LightningHistoryAdapter constructor(
 
         fun bindAddressWith(invoice: LightningInvoice): ViewHolder {
             itemView.findViewById<TextView>(R.id.address).also {
-                if (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.BTC) {
-                    it.lightningTransferIn()
-                } else if (invoice.direction == LedgerDirection.OUT && invoice.type == LedgerType.BTC) {
-                    it.lightningTransferOut()
-                } else {
-                    it.text = ""
+                when {
+                    (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.BTC) ->
+                        it.lightningTransferIn()
+                    (invoice.direction == LedgerDirection.OUT && invoice.type == LedgerType.BTC) ->
+                        it.lightningTransferOut()
+                    (invoice.direction == LedgerDirection.OUT && invoice.type == LedgerType.LIGHTNING) ->
+                        it.lightningPaidOut()
+                    (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.LIGHTNING) ->
+                        it.lightningRequestIn()
+                    else -> it.text = ""
                 }
             }
             return this
@@ -109,7 +124,24 @@ class LightningHistoryAdapter constructor(
 
         fun bindAmount(invoice: LightningInvoice, defaultCurrencies: DefaultCurrencies, latestPrice: USDCurrency): ViewHolder {
             itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view).apply {
+                accountMode = AccountMode.LIGHTNING
                 renderValues(defaultCurrencies, invoice.value, invoice.value.toFiat(latestPrice))
+                when {
+                    (invoice.status == LedgerStatus.FAILED) -> failedInvoice()
+                    (invoice.status == LedgerStatus.EXPIRED) -> expiredInvoice()
+                    (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.BTC) ->
+                        lightningTransferIn()
+                    (invoice.direction == LedgerDirection.OUT && invoice.type == LedgerType.BTC) ->
+                        lightningTransferOut()
+                    (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.LIGHTNING && invoice.status == LedgerStatus.PENDING) ->
+                        lightningPendingInvoice()
+                    (invoice.direction == LedgerDirection.IN && invoice.type == LedgerType.LIGHTNING && invoice.status == LedgerStatus.COMPLETED) ->
+                        lightningCompletedInvoice()
+                    (invoice.direction == LedgerDirection.OUT && invoice.type == LedgerType.LIGHTNING) ->
+                        lightningPayedInvoice()
+                    else -> clear()
+                }
+
             }
             return this
         }
@@ -117,7 +149,10 @@ class LightningHistoryAdapter constructor(
         fun bindState(invoice: LightningInvoice): ViewHolder {
             itemView.findViewById<TextView>(R.id.confirmations).also {
                 it.gone()
-                if (invoice.status == LedgerStatus.PENDING) {
+                if (invoice.status == LedgerStatus.PENDING
+                        && invoice.direction == LedgerDirection.IN
+                        && invoice.type == LedgerType.BTC
+                ) {
                     it.historyItemPending()
                 }
             }
@@ -125,7 +160,11 @@ class LightningHistoryAdapter constructor(
         }
 
         fun bindMemo(invoice: LightningInvoice): ViewHolder {
-            itemView.findViewById<TextView>(R.id.transaction_memo).setMemo(invoice.memo)
+            val memo = itemView.findViewById<TextView>(R.id.transaction_memo)
+            when {
+                invoice.type == LedgerType.BTC -> memo.gone()
+                else -> memo.setMemo(invoice.memo)
+            }
             return this
         }
     }

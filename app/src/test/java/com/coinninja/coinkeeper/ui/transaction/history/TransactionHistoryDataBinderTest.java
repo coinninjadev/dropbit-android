@@ -290,6 +290,32 @@ public class TransactionHistoryDataBinderTest {
     }
 
     @Test
+    public void sets_lightning_deposit_image_for_icon() {
+        setupSend();
+        bindableTransaction.setSendState(SendState.LOAD_LIGHTNING);
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        ImageView icon = view.findViewById(R.id.icon);
+        assertThat(icon.getTag(), equalTo(R.drawable.ic_transfer_out));
+        TextView address = view.findViewById(R.id.address);
+        assertThat(address.getText().toString(), equalTo("Load Lightning"));
+    }
+
+    @Test
+    public void sets_lightning_withdraw_image_for_icon() {
+        setupReceive();
+        bindableTransaction.setSendState(SendState.UNLOAD_LIGHTNING);
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        ImageView icon = view.findViewById(R.id.icon);
+        assertThat(icon.getTag(), equalTo(R.drawable.ic_transfer_in));
+        TextView address = view.findViewById(R.id.address);
+        assertThat(address.getText().toString(), equalTo("Lightning Withdraw"));
+    }
+
+    @Test
     public void sets_receive_image_for_icon() {
         setupReceive();
         adapter.onBindViewHolder(viewHolder, 0);

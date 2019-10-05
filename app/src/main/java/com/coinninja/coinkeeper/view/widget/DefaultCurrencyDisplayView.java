@@ -9,7 +9,9 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
@@ -26,9 +28,9 @@ import app.dropbit.commons.currency.CryptoCurrency;
 import app.dropbit.commons.currency.FiatCurrency;
 
 public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultCurrencyChangeObserver {
-    protected TextView secondaryCurrencyView;
-    protected TextView primaryCurrencyView;
-    protected DefaultCurrencies defaultCurrencies;
+    public TextView secondaryCurrencyView;
+    public TextView primaryCurrencyView;
+    public DefaultCurrencies defaultCurrencies;
     protected BindableTransaction.SendState sendState;
     protected CryptoCurrency totalCrypto;
     protected FiatCurrency fiatValue;
@@ -135,7 +137,7 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
         }
     }
 
-    public void accountMode(@NotNull AccountMode accountMode) {
+    public void setAccountMode(@NotNull AccountMode accountMode) {
         this.accountMode = accountMode;
         invalidateValues();
     }
@@ -230,6 +232,11 @@ public class DefaultCurrencyDisplayView extends LinearLayout implements DefaultC
 
             typedArray.recycle();
         }
+    }
+
+    public void setPillResource(@DrawableRes int resourceId) {
+        receivedBackground = ResourcesCompat.getDrawable(getContext().getResources(), resourceId, getContext().getTheme());
+        invalidateValues();
     }
 
     protected void invalidateValues() {

@@ -95,7 +95,7 @@ class LndInvoiceRequestActivity : BaseActivity() {
 
     private fun renderAmount() {
         val view = amountDisplayView
-        view.accountMode(AccountMode.LIGHTNING)
+        view.setAccountMode(AccountMode.LIGHTNING)
         val btcCurrency = lndInvoiceRequest.btcCurrency
         if (btcCurrency.toLong() > 0) {
             view.renderValues(

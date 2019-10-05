@@ -5,6 +5,7 @@ import app.coinninja.cn.thunderdome.CreateInvoiceViewModel
 import app.coinninja.cn.thunderdome.client.ThunderDomeApiClient
 import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import com.coinninja.coinkeeper.BuildConfig
+import com.coinninja.coinkeeper.di.interfaces.LightningDepositAddress
 import com.coinninja.coinkeeper.service.interceptors.SignedRequestInterceptor
 import dagger.Module
 import dagger.Provides
@@ -25,6 +26,11 @@ class ThunderDomeModule {
 
 
     @Provides
-    fun thunderDomeCreateInvoiceViewModel(thunderDomeRepository: ThunderDomeRepository)
-            = CreateInvoiceViewModel(thunderDomeRepository)
+    fun thunderDomeCreateInvoiceViewModel(thunderDomeRepository: ThunderDomeRepository) = CreateInvoiceViewModel(thunderDomeRepository)
+
+    @LightningDepositAddress
+    @Provides
+    fun lightningDepositAddress(thunderDomeRepository: ThunderDomeRepository): String {
+        return thunderDomeRepository.lightningAccount?.address ?: ""
+    }
 }

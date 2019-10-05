@@ -162,7 +162,7 @@ class ConfirmPaymentActivity : BaseActivity() {
 
 
     private fun startBroadcast() {
-        when(paymentHolder.paymentType()) {
+        when (paymentHolder.paymentType()) {
             PaymentType.LIGHTNING -> {
                 activityNavigationUtil.navigateToLightningBroadcast(this, paymentHolder)
                 finish()
@@ -210,7 +210,7 @@ class ConfirmPaymentActivity : BaseActivity() {
 
     private fun renderAsBlockchain() {
         confirmHoldButton.styleAsBitcoin()
-        amountView.accountMode(AccountMode.BLOCKCHAIN)
+        amountView.setAccountMode(AccountMode.BLOCKCHAIN)
         renderAmount()
         renderFee()
         if (feesManager.isAdjustableFeesEnabled) {
@@ -223,7 +223,7 @@ class ConfirmPaymentActivity : BaseActivity() {
 
     private fun renderAsLightning() {
         confirmHoldButton.styleAsLightning()
-        amountView.accountMode(AccountMode.LIGHTNING)
+        amountView.setAccountMode(AccountMode.LIGHTNING)
         renderAmount()
         networkFeeView.gone()
         adjustableFeesVisibilityGroup.gone()

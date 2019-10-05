@@ -13,7 +13,6 @@ import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
 class HomeActivity : BaseActivity() {
@@ -107,7 +106,10 @@ class HomeActivity : BaseActivity() {
     override fun onLightningLockedChanged(isLightningLocked: Boolean) {
         super.onLightningLockedChanged(isLightningLocked)
         this.isLightningLocked = isLightningLocked
-        (home_pager.adapter as HomePagerAdapter).isLightningLocked = isLightningLocked
+
+        pager.adapter?.let {
+            (it as HomePagerAdapter).isLightningLocked = isLightningLocked
+        }
     }
 
     private fun showDetailWithInitialIntent() {
