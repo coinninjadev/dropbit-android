@@ -103,7 +103,7 @@ public class AuthenticationImplTest {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
 
         assertThat(authenticationImpl.isAuthenticated(), equalTo(expectedFinalAuthState));
-        verify(syncWalletManager).schedule60SecondSync();
+        verify(syncWalletManager).schedule30SecondSync();
     }
 
     @Test
@@ -120,7 +120,7 @@ public class AuthenticationImplTest {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
 
         assertThat(authenticationImpl.isAuthenticated(), equalTo(expectedFinalAuthState));
-        verify(syncWalletManager).schedule60SecondSync();
+        verify(syncWalletManager).schedule30SecondSync();
     }
 
     @Test
@@ -158,14 +158,14 @@ public class AuthenticationImplTest {
         authenticationImpl.forceDeAuthenticate();
 
         assertThat(authenticationImpl.isAuthenticated(), equalTo(expectedFinalAuthState));
-        verify(syncWalletManager).cancel60SecondSync();
+        verify(syncWalletManager).cancel30SecondSync();
     }
 
     @Test
     public void setAuthenticated() {
         authenticationImpl.setAuthenticated();
         assertTrue(authenticationImpl.isAuthenticated());
-        verify(syncWalletManager).schedule60SecondSync();
+        verify(syncWalletManager).schedule30SecondSync();
     }
 
     @Test

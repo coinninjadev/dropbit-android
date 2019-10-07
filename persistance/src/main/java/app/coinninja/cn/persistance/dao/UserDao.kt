@@ -14,11 +14,11 @@ abstract class UserDao {
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insert(lightningAccount: LightningAccount)
+    abstract fun insert(user: User)
 
     @WorkerThread
     @Update(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun update(lightningAccount: LightningAccount)
+    abstract fun update(user: User)
 
     @WorkerThread
     @Query("DELETE FROM lightning_account")

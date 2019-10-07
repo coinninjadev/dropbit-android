@@ -7,10 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import app.coinninja.cn.persistance.model.LedgerDirection
-import app.coinninja.cn.persistance.model.LedgerStatus
-import app.coinninja.cn.persistance.model.LedgerType
-import app.coinninja.cn.persistance.model.LightningInvoice
+import app.coinninja.cn.persistance.model.*
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
@@ -23,6 +20,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class LightningHistoryAdapterTest {
@@ -30,7 +28,7 @@ class LightningHistoryAdapterTest {
     private fun createAdapter(): LightningHistoryAdapter {
         val currencyPreference: CurrencyPreference = mock()
         whenever(currencyPreference.currenciesPreference).thenReturn(DefaultCurrencies(USDCurrency(), BTCCurrency()))
-        val adapter = LightningHistoryAdapter(mock(), mock(), currencyPreference)
+        val adapter = LightningHistoryAdapter(mock(), mock(), currencyPreference, mock(), mock())
         adapter.registerAdapterDataObserver(mock())
         whenever(adapter.walletHelper.latestPrice).thenReturn(USDCurrency(10_000_00))
         return adapter
@@ -51,7 +49,7 @@ class LightningHistoryAdapterTest {
     @Test
     fun returns_item_view_type_when_invoices() {
         val adapter = createAdapter()
-        adapter.invoices = listOf(mock())
+        adapter.settlements = listOf(mock())
         assertThat(adapter.getItemViewType(0)).isEqualTo(LightningHistoryAdapter.ITEM_VIEW_TYPE)
     }
 
@@ -127,24 +125,22 @@ class LightningHistoryAdapterTest {
     }
 
     // Loading Lightning
-    private fun createInvoice(): LightningInvoice = LightningInvoice()
-
-    // Loading Lightning
 
     @Test
-    fun generic__funds_fromatted_in_satoshis() {
+    fun generic__funds_formatted_in_satoshis() {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.IN
-            type = LedgerType.BTC
-            value = BTCCurrency(10000)
-            status = LedgerStatus.PENDING
-            memo = "Deposit 10,000..."
-        }
+        val settlement = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.IN,
+                invoiceType = LedgerType.BTC,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.PENDING,
+                invoiceMemo = "Deposit 10,000...",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(settlement)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -161,15 +157,16 @@ class LightningHistoryAdapterTest {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.IN
-            type = LedgerType.BTC
-            value = BTCCurrency(10000)
-            status = LedgerStatus.PENDING
-            memo = "Deposit 10,000..."
-        }
+        val invoice = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.IN,
+                invoiceType = LedgerType.BTC,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.PENDING,
+                invoiceMemo = "Deposit 10,000...",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(invoice)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -189,15 +186,16 @@ class LightningHistoryAdapterTest {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.IN
-            type = LedgerType.BTC
-            value = BTCCurrency(10000)
-            status = LedgerStatus.COMPLETED
-            memo = "Withdraw 10,000..."
-        }
+        val invoice = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.IN,
+                invoiceType = LedgerType.BTC,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.COMPLETED,
+                invoiceMemo = "Withdraw 10,000...",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(invoice)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -216,15 +214,16 @@ class LightningHistoryAdapterTest {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.OUT
-            type = LedgerType.BTC
-            value = BTCCurrency(10000)
-            status = LedgerStatus.COMPLETED
-            memo = "Withdraw 10,000..."
-        }
+        val invoice = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.OUT,
+                invoiceType = LedgerType.BTC,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.COMPLETED,
+                invoiceMemo = "Withdraw 10,000...",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(invoice)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -243,15 +242,16 @@ class LightningHistoryAdapterTest {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.IN
-            type = LedgerType.LIGHTNING
-            value = BTCCurrency(10000)
-            status = LedgerStatus.PENDING
-            memo = "--memo--"
-        }
+        val invoice = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.IN,
+                invoiceType = LedgerType.LIGHTNING,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.PENDING,
+                invoiceMemo = "--memo--",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(invoice)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -271,15 +271,16 @@ class LightningHistoryAdapterTest {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.IN
-            type = LedgerType.LIGHTNING
-            value = BTCCurrency(10000)
-            status = LedgerStatus.EXPIRED
-            memo = "--memo--"
-        }
+        val invoice = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.IN,
+                invoiceType = LedgerType.LIGHTNING,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.EXPIRED,
+                invoiceMemo = "--memo--",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(invoice)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -301,15 +302,16 @@ class LightningHistoryAdapterTest {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.IN
-            type = LedgerType.LIGHTNING
-            value = BTCCurrency(10000)
-            status = LedgerStatus.FAILED
-            memo = "--memo--"
-        }
+        val invoice = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.IN,
+                invoiceType = LedgerType.LIGHTNING,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.FAILED,
+                invoiceMemo = "--memo--",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(invoice)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -331,15 +333,16 @@ class LightningHistoryAdapterTest {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.IN
-            type = LedgerType.LIGHTNING
-            value = BTCCurrency(10000)
-            status = LedgerStatus.COMPLETED
-            memo = "--memo--"
-        }
+        val invoice = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.IN,
+                invoiceType = LedgerType.LIGHTNING,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.COMPLETED,
+                invoiceMemo = "--memo--",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(invoice)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -359,15 +362,16 @@ class LightningHistoryAdapterTest {
         val adapter = createAdapter()
         val parent = createParent()
 
-        val invoice = createInvoice().apply {
-            direction = LedgerDirection.OUT
-            type = LedgerType.LIGHTNING
-            value = BTCCurrency(10000)
-            status = LedgerStatus.COMPLETED
-            memo = "--memo--"
-        }
+        val invoice = LedgerSettlementDetail(
+                invoiceDirection = LedgerDirection.OUT,
+                invoiceType = LedgerType.LIGHTNING,
+                invoiceValue = 10000,
+                invoiceStatus = LedgerStatus.COMPLETED,
+                invoiceMemo = "--memo--",
+                createdAt = Date(System.currentTimeMillis())
+        )
 
-        adapter.invoices = listOf(invoice)
+        adapter.settlements = listOf(invoice)
         val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
         adapter.onBindViewHolder(holder, 0)
 
@@ -380,5 +384,247 @@ class LightningHistoryAdapterTest {
                 .totalCrypto.toLong()).isEqualTo(10000)
         assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
                 .fiatValue.toLong()).isEqualTo(100)
+    }
+
+    @Test
+    fun invites__sent__phone__pending() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = LedgerSettlementDetail(
+                inviteState = BTCState.UNFULFILLED,
+                inviteType = SendType.LIGHTNING_SENT,
+                inviteUsdValue = 10_00,
+                inviteValue = 100_000,
+                toUserIdentity = "+13305550000",
+                toUserType = IdentityType.PHONE,
+                fromUserIdentity = "+13305551111",
+                fromUserType = IdentityType.PHONE,
+                createdAt = Date(System.currentTimeMillis())
+        )
+
+        adapter.settlements = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transaction_send)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(100_000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(10_00)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("+1 330-555-0000")
+    }
+
+    @Test
+    fun invites__sent__phone__complete() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = LedgerSettlementDetail(
+                inviteState = BTCState.FULFILLED,
+                inviteType = SendType.LIGHTNING_SENT,
+                inviteUsdValue = 10_00,
+                inviteValue = 100_000,
+                toUserIdentity = "+13305550000",
+                toUserType = IdentityType.PHONE,
+                fromUserIdentity = "+13305551111",
+                fromUserType = IdentityType.PHONE,
+                createdAt = Date(System.currentTimeMillis())
+        )
+
+        adapter.settlements = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transaction_send)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(100_000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(10_00)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("+1 330-555-0000")
+    }
+
+    @Test
+    fun invites__sent__phone__canceled() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = LedgerSettlementDetail(
+                inviteState = BTCState.CANCELED,
+                inviteType = SendType.LIGHTNING_SENT,
+                inviteUsdValue = 10_00,
+                inviteValue = 100_000,
+                toUserIdentity = "+13305550000",
+                toUserType = IdentityType.PHONE,
+                fromUserIdentity = "+13305551111",
+                fromUserType = IdentityType.PHONE,
+                createdAt = Date(System.currentTimeMillis())
+        )
+
+        adapter.settlements = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transaction_canceled)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(100_000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(10_00)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .primaryCurrencyText).isEqualTo("canceled")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("+1 330-555-0000")
+    }
+
+    @Test
+    fun invites__sent__phone__expired() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = LedgerSettlementDetail(
+                inviteState = BTCState.EXPIRED,
+                inviteType = SendType.LIGHTNING_SENT,
+                inviteUsdValue = 10_00,
+                inviteValue = 100_000,
+                toUserIdentity = "+13305550000",
+                toUserType = IdentityType.PHONE,
+                toUserDisplayName = "Joe",
+                fromUserIdentity = "+13305551111",
+                fromUserType = IdentityType.PHONE,
+                createdAt = Date(System.currentTimeMillis())
+        )
+
+        adapter.settlements = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transaction_canceled)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(100_000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(10_00)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .primaryCurrencyText).isEqualTo("expired")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("Joe")
+    }
+
+    @Test
+    fun invites__receive__phone__pending() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = LedgerSettlementDetail(
+                inviteState = BTCState.UNFULFILLED,
+                inviteType = SendType.LIGHTNING_RECEIVED,
+                inviteUsdValue = 10_00,
+                inviteValue = 100_000,
+                toUserIdentity = "+13305550000",
+                toUserType = IdentityType.PHONE,
+                fromUserIdentity = "+13305551111",
+                fromUserType = IdentityType.PHONE,
+                createdAt = Date(System.currentTimeMillis())
+        )
+
+        adapter.settlements = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transaction_receive)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(100_000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(10_00)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("+1 330-555-1111")
+    }
+
+    @Test
+    fun invites__receive__phone__complete() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = LedgerSettlementDetail(
+                inviteState = BTCState.FULFILLED,
+                inviteType = SendType.LIGHTNING_RECEIVED,
+                inviteUsdValue = 10_00,
+                inviteValue = 100_000,
+                toUserIdentity = "+13305550000",
+                toUserType = IdentityType.PHONE,
+                fromUserIdentity = "+13305551111",
+                fromUserType = IdentityType.PHONE,
+                createdAt = Date(System.currentTimeMillis())
+        )
+
+        adapter.settlements = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transaction_receive)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(100_000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(10_00)
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("+1 330-555-1111")
+    }
+
+    @Test
+    fun invites__receive__phone__canceled() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = LedgerSettlementDetail(
+                inviteState = BTCState.CANCELED,
+                inviteType = SendType.LIGHTNING_RECEIVED,
+                inviteUsdValue = 10_00,
+                inviteValue = 100_000,
+                toUserIdentity = "+13305550000",
+                toUserType = IdentityType.PHONE,
+                fromUserIdentity = "+13305551111",
+                fromUserDisplayName = "[-_-]",
+                fromUserType = IdentityType.PHONE,
+                createdAt = Date(System.currentTimeMillis())
+        )
+
+        adapter.settlements = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transaction_canceled)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(100_000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(10_00)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .primaryCurrencyText).isEqualTo("canceled")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("[-_-]")
+    }
+
+    @Test
+    fun invites__receive__phone__expired() {
+        val adapter = createAdapter()
+        val parent = createParent()
+
+        val invoice = LedgerSettlementDetail(
+                inviteState = BTCState.EXPIRED,
+                inviteType = SendType.LIGHTNING_RECEIVED,
+                inviteUsdValue = 10_00,
+                inviteValue = 100_000,
+                toUserIdentity = "+13305550000",
+                toUserType = IdentityType.PHONE,
+                fromUserIdentity = "+13305551111",
+                fromUserType = IdentityType.PHONE,
+                createdAt = Date(System.currentTimeMillis())
+        )
+
+        adapter.settlements = listOf(invoice)
+        val holder = adapter.onCreateViewHolder(parent, LightningHistoryAdapter.ITEM_VIEW_TYPE)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertThat(holder.itemView.findViewById<ImageView>(R.id.icon).tag).isEqualTo(R.drawable.ic_transaction_canceled)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .totalCrypto.toLong()).isEqualTo(100_000)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .fiatValue.toLong()).isEqualTo(10_00)
+        assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
+                .primaryCurrencyText).isEqualTo("expired")
+        assertThat(holder.itemView.findViewById<TextView>(R.id.address).text).isEqualTo("+1 330-555-1111")
     }
 }

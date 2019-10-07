@@ -47,6 +47,7 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation "androidx.room:room-guava:$room_version"
+    implementation 'com.googlecode.libphonenumber:libphonenumber:8.9.4' // Keep 8.9.4
     testImplementation "androidx.room:room-testing:$room_version"
 
 

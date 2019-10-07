@@ -166,7 +166,7 @@ public class WalletHelperTest {
         long expectedBalance = 15;
 
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        invite.setType(Type.RECEIVED);
+        invite.setType(Type.BLOCKCHAIN_RECEIVED);
         invite.setBtcState(BTCState.UNFULFILLED);
         invite.setValueSatoshis(500l);
         invite.setValueFeesSatoshis(500l);
@@ -194,7 +194,7 @@ public class WalletHelperTest {
         List<InviteTransactionSummary> invites = buildSampleInviteTransactionSummarys();
 
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        invite.setType(Type.SENT);
+        invite.setType(Type.BLOCKCHAIN_SENT);
         invite.setBtcState(BTCState.FULFILLED);
         invite.setValueSatoshis(500l);
         invite.setValueFeesSatoshis(500l);
@@ -225,7 +225,7 @@ public class WalletHelperTest {
         List<InviteTransactionSummary> invites = buildSampleInviteTransactionSummarys();
 
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        invite.setType(Type.SENT);
+        invite.setType(Type.BLOCKCHAIN_SENT);
         invite.setBtcState(BTCState.CANCELED);
         invite.setValueSatoshis(200l);
         invite.setValueFeesSatoshis(620l);
@@ -256,7 +256,7 @@ public class WalletHelperTest {
         List<InviteTransactionSummary> invites = buildSampleInviteTransactionSummarys();
 
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        invite.setType(Type.SENT);
+        invite.setType(Type.BLOCKCHAIN_SENT);
         invite.setBtcState(BTCState.EXPIRED);
         invite.setValueSatoshis(200l);
         invite.setValueFeesSatoshis(620l);
@@ -295,7 +295,7 @@ public class WalletHelperTest {
 
     @Test
     public void calculate_invites_balance_sent_value_test() {
-        InviteTransactionSummary invite = buildInvite(Type.SENT, null);
+        InviteTransactionSummary invite = buildInvite(Type.BLOCKCHAIN_SENT, null);
 
         long value = walletHelper.calculateInviteValue(invite);
 
@@ -304,7 +304,7 @@ public class WalletHelperTest {
 
     @Test
     public void calculate_invites_balance_received_value_test() {
-        InviteTransactionSummary invite = buildInvite(Type.RECEIVED, "");
+        InviteTransactionSummary invite = buildInvite(Type.BLOCKCHAIN_RECEIVED, "");
 
         long value = walletHelper.calculateInviteValue(invite);
 
@@ -313,7 +313,7 @@ public class WalletHelperTest {
 
     @Test
     public void calculate_invites_balance_sent_value_fulfilled_invites_test() {
-        InviteTransactionSummary invite = buildInvite(Type.SENT, "some - tx id");
+        InviteTransactionSummary invite = buildInvite(Type.BLOCKCHAIN_SENT, "some - tx id");
 
         long value = walletHelper.calculateInviteValue(invite);
 
@@ -333,7 +333,7 @@ public class WalletHelperTest {
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        invite.setType(Type.SENT);
+        invite.setType(Type.BLOCKCHAIN_SENT);
         invite.setBtcState(BTCState.UNFULFILLED);
         invite.setValueSatoshis(30l);
         invite.setValueFeesSatoshis(5l);
@@ -350,7 +350,7 @@ public class WalletHelperTest {
         List<FundingStat> fundingStats = buildSampleFundingStats();
         List<InviteTransactionSummary> invites = buildSampleInviteTransactionSummarys();
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        invite.setType(Type.SENT);
+        invite.setType(Type.BLOCKCHAIN_SENT);
         invite.setBtcState(BTCState.UNFULFILLED);
         invite.setValueSatoshis(500l);
         invite.setValueFeesSatoshis(500l);
@@ -372,7 +372,7 @@ public class WalletHelperTest {
         List<FundingStat> fundingStats = buildSampleFundingStats();
         List<InviteTransactionSummary> invites = buildSampleInviteTransactionSummarys();
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        invite.setType(Type.SENT);
+        invite.setType(Type.BLOCKCHAIN_SENT);
         invite.setBtcState(BTCState.UNFULFILLED);
         invite.setValueSatoshis(500l);
         invite.setValueFeesSatoshis(500l);
@@ -393,7 +393,7 @@ public class WalletHelperTest {
         List<FundingStat> fundingStats = buildSampleFundingStats();
         List<InviteTransactionSummary> invites = buildSampleInviteTransactionSummarys();
         InviteTransactionSummary invite = new InviteTransactionSummary();
-        invite.setType(Type.SENT);
+        invite.setType(Type.BLOCKCHAIN_SENT);
         invite.setBtcState(BTCState.UNFULFILLED);
         invite.setValueSatoshis(500l);
         invite.setValueFeesSatoshis(500l);
@@ -601,18 +601,18 @@ public class WalletHelperTest {
         List<InviteTransactionSummary> inviteTransactionSummaries = new ArrayList<>();
 
         InviteTransactionSummary invite1 = new InviteTransactionSummary();
-        invite1.setType(Type.SENT);
+        invite1.setType(Type.BLOCKCHAIN_SENT);
         invite1.setBtcState(BTCState.FULFILLED);
         invite1.setValueSatoshis(5l);
         invite1.setValueFeesSatoshis(2l);
 
         InviteTransactionSummary invite2 = new InviteTransactionSummary();
-        invite2.setType(Type.RECEIVED);
+        invite2.setType(Type.BLOCKCHAIN_RECEIVED);
         invite2.setValueSatoshis(5l);
         invite2.setValueFeesSatoshis(null);
 
         InviteTransactionSummary invite3 = new InviteTransactionSummary();
-        invite3.setType(Type.SENT);
+        invite3.setType(Type.BLOCKCHAIN_SENT);
         invite3.setBtcState(BTCState.UNFULFILLED);
         invite3.setBtcTransactionId("some - tx -id");
         invite3.setValueSatoshis(2l);

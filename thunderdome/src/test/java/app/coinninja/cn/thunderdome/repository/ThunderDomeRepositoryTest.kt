@@ -1,8 +1,10 @@
 package app.coinninja.cn.thunderdome.repository
 
 import androidx.lifecycle.LiveData
+import app.coinninja.cn.persistance.dao.LedgerSettlementDao
 import app.coinninja.cn.persistance.dao.LightningAccountDao
 import app.coinninja.cn.persistance.dao.LightningInvoiceDao
+import app.coinninja.cn.persistance.model.LedgerSettlementDetail
 import app.coinninja.cn.persistance.model.LightningAccount
 import app.coinninja.cn.persistance.model.LightningInvoice
 import app.coinninja.cn.thunderdome.client.Testdata
@@ -54,14 +56,40 @@ class ThunderDomeRepositoryTest {
         val accountDao: LightningAccountDao = mock()
         val invoiceDao: LightningInvoiceDao = mock()
         val account: LightningAccount = mock()
+        val settlementDao: LedgerSettlementDao = mock()
         whenever(repository.dropbitDatabase.lightningAccountDao()).thenReturn(accountDao)
         whenever(repository.dropbitDatabase.lightningInvoiceDao()).thenReturn(invoiceDao)
         whenever(accountDao.getAccount()).thenReturn(account)
         whenever(account.id).thenReturn(1)
+        whenever(repository.dropbitDatabase.ledgerSettlementDao).thenReturn(settlementDao)
 
         repository.syncLedger()
 
         verify(invoiceDao, atLeast(1)).insertOrUpdate(any())
+    }
+
+    @Test
+    fun settlement__created_for_invoices_that_do_not_have_settlements() {
+        val repository = createRepository()
+        val invoice: LedgerInvoice = mock()
+        val lightningInvoice = LightningInvoice(serverId = "--server-id--")
+        val account: LightningAccount = mock()
+        val invoiceDao: LightningInvoiceDao = mock()
+        val settlementDao: LedgerSettlementDao = mock()
+        whenever(invoice.toLightningLedger()).thenReturn(lightningInvoice)
+        whenever(account.id).thenReturn(1)
+        whenever(repository.dropbitDatabase.lightningInvoiceDao()).thenReturn(invoiceDao)
+        whenever(repository.dropbitDatabase.ledgerSettlementDao).thenReturn(settlementDao)
+
+        val dbLedger: LightningInvoice = mock()
+        whenever(dbLedger.id).thenReturn(100)
+        whenever(invoiceDao.ledgerByServerId("--server-id--")).thenReturn(dbLedger)
+
+        repository.saveLedgerInvoice(invoice, account)
+
+        verify(invoiceDao).insertOrUpdate(lightningInvoice)
+        verify(invoiceDao).ledgerByServerId("--server-id--")
+        verify(settlementDao).createSettlementFor(dbLedger)
     }
 
     @Test
@@ -90,12 +118,12 @@ class ThunderDomeRepositoryTest {
     @Test
     fun provides_access_to_ledger_data() {
         val repository = createRepository()
-        val invoiceDao: LightningInvoiceDao = mock()
-        val liveData: LiveData<List<LightningInvoice>> = mock()
-        whenever(repository.dropbitDatabase.lightningInvoiceDao()).thenReturn(invoiceDao)
-        whenever(invoiceDao.allVisibleLive()).thenReturn(liveData)
+        val settlementDao: LedgerSettlementDao = mock()
+        val liveData: LiveData<List<LedgerSettlementDetail>> = mock()
+        whenever(repository.dropbitDatabase.ledgerSettlementDao).thenReturn(settlementDao)
+        whenever(settlementDao.allVisibleLive()).thenReturn(liveData)
 
-        assertThat(repository.ledgerInvoices).isEqualTo(liveData)
+        assertThat(repository.visibleSettlements).isEqualTo(liveData)
     }
 
     @Test

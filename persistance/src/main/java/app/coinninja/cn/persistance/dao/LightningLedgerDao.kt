@@ -20,7 +20,7 @@ abstract class LightningInvoiceDao {
     abstract fun allByDirectionAndType(direction:Int, type:Int): Array<LightningInvoice>
 
     @WorkerThread
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(lightningLedger: LightningInvoice)
 
     @WorkerThread

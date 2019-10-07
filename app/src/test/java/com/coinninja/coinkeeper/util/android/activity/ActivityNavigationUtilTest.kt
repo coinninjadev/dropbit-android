@@ -33,6 +33,7 @@ import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroad
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity
 import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
+import com.coinninja.coinkeeper.ui.payment.invite.InviteContactActivity
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequest
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
@@ -653,6 +654,27 @@ class ActivityNavigationUtilTest {
             intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, holder)
 
             it.navigateToLightningBroadcast(activity, holder)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_invite_contact() {
+        createActivityNavigationUtil().also {
+            val holder = PaymentHolder(
+                    evaluationCurrency = USDCurrency(10_000_00),
+                    isSharingMemo = true,
+                    publicKey = "--pub-key--",
+                    memo = "--memo--",
+                    defaultCurrencies = DefaultCurrencies(BTCCurrency(1), USDCurrency(10_000_00)),
+                    toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = true)
+            )
+
+            val intent = Intent(activity, InviteContactActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, holder)
+
+            it.navigateToInviteContactScreen(activity, holder)
 
             assertThat(activity, activityWithIntentStarted(intent))
         }

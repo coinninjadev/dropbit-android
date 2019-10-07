@@ -79,7 +79,7 @@ class UpgradeToSegwitActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        syncWalletManager.cancel60SecondSync()
+        syncWalletManager.cancel30SecondSync()
         fundingViewModel = fundingViewModelProvider.provide(this)
         fundingViewModel.transactionData.observe(this, fundingObserver)
         upgradeButton.apply {

@@ -485,11 +485,11 @@ class TransactionAdapterUtilTest {
         whenever(invite.localeFriendlyDisplayIdentityForReceiver).thenReturn("to user name")
         whenever(invite.localeFriendlyDisplayIdentityForSender).thenReturn("from user name")
 
-        whenever(invite.type).thenReturn(Type.SENT)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         util.translateInviteIdentity(invite)
         verify(util.bindableTransaction).identity = "to user name"
 
-        whenever(invite.type).thenReturn(Type.RECEIVED)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_RECEIVED)
         util.translateInviteIdentity(invite)
         verify(util.bindableTransaction).identity = "from user name"
     }
@@ -518,23 +518,23 @@ class TransactionAdapterUtilTest {
         verify(util.bindableTransaction).inviteState = InviteState.CANCELED
 
         whenever(invite.btcState).thenReturn(BTCState.UNFULFILLED)
-        whenever(invite.type).thenReturn(Type.SENT)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         whenever(invite.address).thenReturn("")
         util.translateInviteState(invite)
         verify(util.bindableTransaction).inviteState = InviteState.SENT_PENDING
 
         whenever(invite.address).thenReturn("--address--")
-        whenever(invite.type).thenReturn(Type.SENT)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         util.translateInviteState(invite)
         verify(util.bindableTransaction).inviteState = InviteState.SENT_ADDRESS_PROVIDED
 
-        whenever(invite.type).thenReturn(Type.RECEIVED)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_RECEIVED)
         whenever(invite.address).thenReturn("")
         util.translateInviteState(invite)
         verify(util.bindableTransaction).inviteState = InviteState.RECEIVED_PENDING
 
         whenever(invite.address).thenReturn("--address--")
-        whenever(invite.type).thenReturn(Type.RECEIVED)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_RECEIVED)
         util.translateInviteState(invite)
         verify(util.bindableTransaction).inviteState = InviteState.RECEIVED_ADDRESS_PROVIDED
     }
@@ -545,11 +545,11 @@ class TransactionAdapterUtilTest {
         val invite = createMockInvite()
 
         whenever(invite.btcState).thenReturn(BTCState.FULFILLED)
-        whenever(invite.type).thenReturn(Type.RECEIVED)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_RECEIVED)
         util.translateInviteType(invite)
         verify(util.bindableTransaction).sendState = SendState.RECEIVE
 
-        whenever(invite.type).thenReturn(Type.SENT)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         util.translateInviteType(invite)
         verify(util.bindableTransaction).sendState = SendState.SEND
     }
@@ -560,12 +560,12 @@ class TransactionAdapterUtilTest {
         val invite = createMockInvite()
 
         whenever(util.bindableTransaction.inviteState).thenReturn(InviteState.EXPIRED)
-        whenever(invite.type).thenReturn(Type.RECEIVED)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_RECEIVED)
         util.translateInviteType(invite)
         verify(util.bindableTransaction).sendState = SendState.RECEIVE_CANCELED
 
         whenever(invite.btcState).thenReturn(BTCState.EXPIRED)
-        whenever(invite.type).thenReturn(Type.SENT)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         util.translateInviteType(invite)
         verify(util.bindableTransaction).sendState = SendState.SEND_CANCELED
     }
@@ -577,12 +577,12 @@ class TransactionAdapterUtilTest {
         val invite = createMockInvite()
 
         whenever(util.bindableTransaction.inviteState).thenReturn(InviteState.CANCELED)
-        whenever(invite.type).thenReturn(Type.RECEIVED)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_RECEIVED)
         util.translateInviteType(invite)
         verify(util.bindableTransaction).sendState = SendState.RECEIVE_CANCELED
 
         whenever(invite.btcState).thenReturn(BTCState.CANCELED)
-        whenever(invite.type).thenReturn(Type.SENT)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         util.translateInviteType(invite)
         verify(util.bindableTransaction).sendState = SendState.SEND_CANCELED
 

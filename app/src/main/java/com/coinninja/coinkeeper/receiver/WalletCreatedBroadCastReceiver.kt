@@ -24,7 +24,7 @@ class WalletCreatedBroadCastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         AndroidInjection.inject(this, context)
         analytics.setUserProperty(Analytics.PROPERTY_HAS_WALLET, true)
-        syncWalletManager.schedule60SecondSync()
+        syncWalletManager.schedule30SecondSync()
         syncWalletManager.syncNow()
         syncWalletManager.scheduleHourlySync()
         jobServiceScheduler.enqueueWork(

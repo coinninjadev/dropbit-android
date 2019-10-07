@@ -37,7 +37,7 @@ class WalletCreatedBroadCastReceiverTest {
 
     @Test
     fun schedules_30_second_sync() {
-        verify(createWalletReceiver().syncWalletManager).schedule60SecondSync()
+        verify(createWalletReceiver().syncWalletManager).schedule30SecondSync()
     }
 
     @Test

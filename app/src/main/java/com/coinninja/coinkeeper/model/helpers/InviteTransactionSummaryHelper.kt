@@ -3,6 +3,9 @@ package com.coinninja.coinkeeper.model.helpers
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
+import com.coinninja.coinkeeper.model.Identity
+import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.model.db.enums.BTCState
@@ -29,6 +32,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
 
     val allUnacknowledgedInvitations: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.allUnacknowledgedInvitations
     val unfulfilledSentInvites: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.unfulfilledSentInvites
+    val unfulfilledLightningSentInvites: List<InviteTransactionSummary> get() = inviteSummaryQueryManager.unfulfilledSentLightningInvites
 
     fun getInviteSummaryByCnId(id: String): InviteTransactionSummary? {
         return inviteSummaryQueryManager.getInviteSummaryByCnId(id)
@@ -64,37 +68,66 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         return inviteTransactionSummary
     }
 
-    fun saveTemporaryInvite(pendingInviteDTO: PendingInviteDTO): InviteTransactionSummary {
-        val invite = createInviteTransactionSummary(pendingInviteDTO.requestId)
-        val conversionCurrency = USDCurrency(pendingInviteDTO.bitcoinPrice)
-        val btcCurrency = BTCCurrency(pendingInviteDTO.inviteAmount + pendingInviteDTO.inviteFee)
-        val totalUsdSpending = btcCurrency.toUSD(conversionCurrency)
+    fun saveTemporaryInvite(toUser: Identity, inviteValue: Long, feeValue: Long, totalUsd: Long,
+                            requestId: String, inviteType: Type): InviteTransactionSummary {
 
-        val dropbitMeIdentity = dropbitAccountHelper.identityForType(pendingInviteDTO.identity.identityType)
+        val invite = createInviteTransactionSummary(requestId)
+        val dropbitMeIdentity = dropbitAccountHelper.identityForType(toUser.identityType)
         dropbitMeIdentity?.let {
             val fromUser = userIdentityHelper.updateFrom(dropbitMeIdentity)
             invite.fromUser = fromUser
         }
 
-        val toUser = userIdentityHelper.updateFrom(pendingInviteDTO.identity)
-        invite.toUser = toUser
-        invite.historicValue = totalUsdSpending.toLong()
-        invite.valueSatoshis = pendingInviteDTO.inviteAmount
-        invite.valueFeesSatoshis = pendingInviteDTO.inviteFee
+        invite.toUser = userIdentityHelper.updateFrom(toUser)
+        invite.historicValue = totalUsd
+        invite.valueSatoshis = inviteValue
+        invite.valueFeesSatoshis = feeValue
         invite.wallet = walletHelper.primaryWallet
         invite.btcState = BTCState.UNACKNOWLEDGED
-        invite.type = Type.SENT
+        invite.type = inviteType
         invite.update()
 
         return invite
     }
 
-    private fun acknowledgeSentInvite(invite: InviteTransactionSummary, cnId: String) {
+    fun saveTemporaryInvite(pendingInviteDTO: PendingInviteDTO): InviteTransactionSummary {
+        val conversionCurrency = USDCurrency(pendingInviteDTO.bitcoinPrice)
+        val btcCurrency = BTCCurrency(pendingInviteDTO.inviteAmount + pendingInviteDTO.inviteFee)
+        val totalUsdSpending = btcCurrency.toUSD(conversionCurrency).toLong()
+        return saveTemporaryInvite(
+                pendingInviteDTO.identity,
+                pendingInviteDTO.inviteAmount,
+                pendingInviteDTO.inviteFee,
+                totalUsdSpending,
+                pendingInviteDTO.requestId,
+                Type.BLOCKCHAIN_SENT
+        )
+
+    }
+
+    fun saveTemporaryInvite(paymentHolder: PaymentHolder): InviteTransactionSummary? {
+        return paymentHolder.toUser?.let { user ->
+            return saveTemporaryInvite(
+                    user,
+                    paymentHolder.cryptoCurrency.toLong(),
+                    paymentHolder.transactionData.feeAmount,
+                    paymentHolder.fiat.toLong(),
+                    paymentHolder.requestId,
+                    if (paymentHolder.accountMode == AccountMode.LIGHTNING)
+                        Type.LIGHTNING_SENT
+                    else
+                        Type.BLOCKCHAIN_SENT
+            )
+        }
+    }
+
+    fun acknowledgeSentInvite(invite: InviteTransactionSummary, cnId: String) {
         invite.serverId = cnId
         invite.sentDate = dateUtil.getCurrentTimeInMillis()
         invite.btcState = BTCState.UNFULFILLED
         invite.update()
-        transactionInviteSummaryHelper.getOrCreateParentSettlementFor(invite)
+        if (invite.type == Type.BLOCKCHAIN_SENT)
+            transactionInviteSummaryHelper.getOrCreateParentSettlementFor(invite)
     }
 
     fun acknowledgeInviteTransactionSummary(completedInviteDTO: CompletedInviteDTO): InviteTransactionSummary? {
@@ -151,8 +184,9 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         }
     }
 
-    fun saveReceivedInviteTransaction(receivedInvite: ReceivedInvite) =
+    fun saveReceivedInviteTransaction(receivedInvite: ReceivedInvite): InviteTransactionSummary =
             inviteSummaryQueryManager.getOrCreate(receivedInvite.id).also {
+                val type = Type.receivedFrom(receivedInvite.address_type)
                 it.btcState = BTCState.from(receivedInvite.status)
                 it.historicValue = receivedInvite.metadata.amount.usd
                 it.toUser = userIdentityHelper.updateFrom(receivedInvite.metadata.receiver)
@@ -163,9 +197,11 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
                 it.wallet = walletHelper.primaryWallet
                 it.address = receivedInvite.address
                 it.btcTransactionId = receivedInvite.txid
-                it.type = Type.RECEIVED
+                it.type = type
                 it.update()
-                transactionInviteSummaryHelper.getOrCreateParentSettlementFor(it)
+
+                if (type == Type.BLOCKCHAIN_RECEIVED)
+                    transactionInviteSummaryHelper.getOrCreateParentSettlementFor(it)
             }
 
     fun updateInviteAddressTransaction(cnId: String, address: String) {

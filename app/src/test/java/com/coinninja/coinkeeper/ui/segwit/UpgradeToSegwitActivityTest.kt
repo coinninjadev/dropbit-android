@@ -12,7 +12,6 @@ import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.cn.transaction.FundingViewModelProvider
 import com.coinninja.coinkeeper.cn.transaction.notification.FundingViewModel
 import com.coinninja.coinkeeper.model.db.Wallet
-import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -66,7 +65,7 @@ class UpgradeToSegwitActivityTest {
             assertThat(activity.upgradePermission.visibility).isEqualTo(View.GONE)
             assertThat(activity.transferPermission.visibility).isEqualTo(View.GONE)
             assertThat(activity.syncProgressView.visibility).isEqualTo(View.VISIBLE)
-            verify(activity.syncWalletManager).cancel60SecondSync()
+            verify(activity.syncWalletManager).cancel30SecondSync()
             verify(activity.syncWalletManager).syncNow()
             verify(activity.syncManagerViewNotifier).observeSyncManagerChange(activity.syncChangeObserver)
             verify(activity.fundingViewModel.transactionData).observe(activity, activity.fundingObserver)

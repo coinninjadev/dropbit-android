@@ -246,7 +246,7 @@ class TransactionAdapterUtil @Inject constructor(
     }
 
     internal fun translateInviteIdentity(invite: InviteTransactionSummary) {
-        if (invite.type == Type.SENT) {
+        if (invite.type == Type.BLOCKCHAIN_SENT) {
             bindableTransaction.identity = invite.localeFriendlyDisplayIdentityForReceiver
         } else {
             bindableTransaction.identity = invite.localeFriendlyDisplayIdentityForSender
@@ -263,10 +263,10 @@ class TransactionAdapterUtil @Inject constructor(
 
     internal fun translateInviteType(invite: InviteTransactionSummary) {
         when (invite.type) {
-            Type.SENT -> {
+            Type.BLOCKCHAIN_SENT -> {
                 bindableTransaction.sendState = SendState.SEND
             }
-            Type.RECEIVED -> {
+            Type.BLOCKCHAIN_RECEIVED -> {
                 bindableTransaction.sendState = SendState.RECEIVE
             }
             else -> {
@@ -275,7 +275,7 @@ class TransactionAdapterUtil @Inject constructor(
         }
 
         if (bindableTransaction.inviteState === InviteState.EXPIRED || bindableTransaction.inviteState === InviteState.CANCELED) {
-            if (invite.type == Type.SENT)
+            if (invite.type == Type.BLOCKCHAIN_SENT)
                 bindableTransaction.sendState = SendState.SEND_CANCELED
             else
                 bindableTransaction.sendState = SendState.RECEIVE_CANCELED
@@ -292,8 +292,8 @@ class TransactionAdapterUtil @Inject constructor(
 
     internal fun translatePendingInviteStateFromType(invite: InviteTransactionSummary) {
         val address = invite.address
-        if (invite.type == Type.SENT) translateSendInviteState(address)
-        else if (invite.type == Type.RECEIVED) translateReceiveInviteState(address)
+        if (invite.type == Type.BLOCKCHAIN_SENT) translateSendInviteState(address)
+        else if (invite.type == Type.BLOCKCHAIN_RECEIVED) translateReceiveInviteState(address)
     }
 
     internal fun translateReceiveInviteState(address: String?) {

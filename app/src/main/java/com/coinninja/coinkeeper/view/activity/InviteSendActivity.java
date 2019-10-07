@@ -246,6 +246,7 @@ public class InviteSendActivity extends BaseActivity implements InviteContactPre
 
     private void saveInvite(InvitedContact invitedContact) {
         Intent intent = new Intent(this, SaveInviteService.class);
+
         CompletedInviteDTO completedInviteDTO = pendingInviteDTO.completeInviteWith(invitedContact);
         intent.putExtra(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO, completedInviteDTO);
         startService(intent);

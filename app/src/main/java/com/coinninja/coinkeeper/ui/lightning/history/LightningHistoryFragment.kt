@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import app.coinninja.cn.persistance.model.LightningInvoice
+import app.coinninja.cn.persistance.model.LedgerSettlementDetail
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.ui.base.BaseFragment
@@ -36,9 +36,9 @@ class LightningHistoryFragment : BaseFragment() {
         syncWalletManager.syncNow()
     }
 
-    val invoiceChangeObserver = Observer<List<LightningInvoice>> { invoices ->
+    val invoiceChangeObserver = Observer<List<LedgerSettlementDetail>> { invoices ->
         history?.let {
-            (it.adapter as LightningHistoryAdapter).invoices = invoices
+            (it.adapter as LightningHistoryAdapter).settlements = invoices
         }
     }
 

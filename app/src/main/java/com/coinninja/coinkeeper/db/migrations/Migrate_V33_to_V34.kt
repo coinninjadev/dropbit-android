@@ -94,7 +94,7 @@ class Migrate_V33_to_V34 : AbstractMigration() {
                 var toUser: Long
                 var fromUser: Long
 
-                if (type == Type.SENT.id) {
+                if (type == Type.BLOCKCHAIN_SENT.id) {
                     toUser = getOrCreateUserIdentityRecord(db = db, identity = receiverPhone, name = inviteName)
                     fromUser = getOrCreateUserIdentityRecord(db = db, identity = sendersPhone)
                 } else {

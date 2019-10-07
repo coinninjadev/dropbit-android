@@ -4,6 +4,7 @@ import androidx.room.*
 import app.coinninja.cn.persistance.converter.BTCStateConverter
 import app.coinninja.cn.persistance.converter.SendTypeConverter
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
 
 @Mockable
@@ -76,7 +77,7 @@ data class InviteTransactionSummary(
         var transactionsInvitesSummaryID: Long? = null,
 
         @ColumnInfo(name = "TYPE")
-        var type: SendType = SendType.RECEIVED,
+        var type: SendType = SendType.BLOCKCHAIN_RECEIVED,
 
         @ColumnInfo(name = "BTC_STATE")
         var btcState: BTCState = BTCState.UNFULFILLED,
@@ -97,10 +98,10 @@ data class InviteTransactionSummary(
         var pubkey: String = "",
 
         @ColumnInfo(name = "VALUE_SATOSHIS")
-        var valueSatoshis: Long = 0,
+        var valueSatoshis: BTCCurrency = BTCCurrency(0),
 
         @ColumnInfo(name = "VALUE_FEES_SATOSHIS")
-        var valueFeesSatoshis: Long = 0,
+        var valueFeesSatoshis: BTCCurrency = BTCCurrency(0),
 
         @ColumnInfo(name = "HISTORIC_VALUE")
         var historicValue: USDCurrency = USDCurrency(0)

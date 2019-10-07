@@ -1,13 +1,17 @@
 package app.coinninja.cn.persistance.model
 
 enum class SendType constructor(val id: Int) {
-    SENT(0),
-    RECEIVED(10);
+    BLOCKCHAIN_SENT(0),
+    BLOCKCHAIN_RECEIVED(10),
+    LIGHTNING_SENT(20),
+    LIGHTNING_RECEIVED(30);
 
     companion object {
         fun from(id: Int?): SendType? = when (id) {
-            0 -> SENT
-            10 -> RECEIVED
+            0 -> BLOCKCHAIN_SENT
+            10 -> BLOCKCHAIN_RECEIVED
+            20 -> LIGHTNING_SENT
+            30 -> LIGHTNING_RECEIVED
             else -> null
         }
     }
