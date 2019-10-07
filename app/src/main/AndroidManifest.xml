@@ -218,6 +218,13 @@
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOff" />
+
+        <activity
+            android:name=".ui.payment.invite.InviteContactActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.UpOff" />
+
         <activity
             android:name=".view.activity.InviteSendActivity"
             android:label=""

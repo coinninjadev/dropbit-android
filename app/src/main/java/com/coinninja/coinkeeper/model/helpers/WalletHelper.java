@@ -275,7 +275,7 @@ public class WalletHelper {
         }
 
         for (InviteTransactionSummary invite : invites) {
-            if (invite.getType() == Type.SENT &&
+            if (invite.getType() == Type.BLOCKCHAIN_SENT &&
                     invite.getBtcState() == BTCState.UNFULFILLED) {
                 long inviteTotalValue = calculateInviteValue(invite);
                 balance -= inviteTotalValue;
@@ -328,7 +328,7 @@ public class WalletHelper {
                 whereOr(InviteTransactionSummaryDao.Properties.Address.isNull(),
                         InviteTransactionSummaryDao.Properties.Address.eq(""))
                 .where(
-                        InviteTransactionSummaryDao.Properties.Type.eq(Type.RECEIVED.getId()),
+                        InviteTransactionSummaryDao.Properties.Type.eq(Type.BLOCKCHAIN_RECEIVED.getId()),
                         InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId())
                 );
 
@@ -369,7 +369,7 @@ public class WalletHelper {
         long value = invite.getValueSatoshis();
         long fee = 0;
 
-        if (type == Type.SENT) {
+        if (type == Type.BLOCKCHAIN_SENT) {
             fee = invite.getValueFeesSatoshis();
         }
 

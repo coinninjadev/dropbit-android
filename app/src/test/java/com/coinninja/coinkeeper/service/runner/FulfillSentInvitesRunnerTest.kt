@@ -1,7 +1,9 @@
 package com.coinninja.coinkeeper.service.runner
 
+import app.coinninja.cn.thunderdome.model.LedgerInvoice
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
-import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
+import com.coinninja.coinkeeper.model.db.enums.BTCState
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
@@ -10,14 +12,8 @@ import org.mockito.Mockito.*
 
 class FulfillSentInvitesRunnerTest {
 
-    private fun createRunner(): FulfillSentInvitesRunner {
-        return FulfillSentInvitesRunner(
-                mock(InviteTransactionSummaryHelper::class.java),
-                mock(SentInvitesStatusGetter::class.java),
-                mock(SentInvitesStatusSender::class.java),
-                mock(BroadcastBtcInviteRunner::class.java)
-        )
-    }
+    private fun createRunner(): FulfillSentInvitesRunner =
+            FulfillSentInvitesRunner(mock(), mock(), mock(), mock(), mock(), mock())
 
     @Test
     fun successful_full_flow() {
@@ -40,6 +36,28 @@ class FulfillSentInvitesRunnerTest {
         ordered.verify(runner.broadcastBtcInviteRunner).run()
 
         ordered.verify(runner.sentInvitesStatusSender).run()
+    }
+
+    @Test
+    fun broadcast_invites_on_thunderdome() {
+        val runner = createRunner()
+        val pendingInvite: InviteTransactionSummary = mock()
+        whenever(pendingInvite.serverId).thenReturn("--server-id--")
+        val invite: InviteTransactionSummary = mock()
+        whenever(invite.serverId).thenReturn("--server-id--")
+        whenever(invite.address).thenReturn("--ln-invoice-id--")
+        whenever(invite.valueSatoshis).thenReturn(100_000)
+        whenever(runner.thunderDomeRepository.pay("--ln-invoice-id--", 100_000))
+                .thenReturn(LedgerInvoice(value = 100_000, id = "--txid--"))
+
+        runner.broadcastInvitesOnThunderDome(listOf(pendingInvite, invite))
+
+        val ordered = inOrder(runner.thunderDomeRepository, invite, runner.cnClient)
+
+        ordered.verify(runner.thunderDomeRepository).pay("--ln-invoice-id--", 100_000)
+        ordered.verify(invite).btcState = BTCState.FULFILLED
+        ordered.verify(invite).update()
+        ordered.verify(runner.cnClient).updateInviteStatusCompleted("--server-id--", "--txid--")
     }
 
     @Test

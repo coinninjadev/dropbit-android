@@ -6,10 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import app.dropbit.annotations.Mockable
-import app.dropbit.commons.currency.BTCCurrency
-import app.dropbit.commons.currency.CryptoCurrency
-import app.dropbit.commons.currency.FiatCurrency
-import app.dropbit.commons.currency.USDCurrency
+import app.dropbit.commons.currency.*
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeChangeObserver
@@ -125,7 +122,7 @@ class WalletViewModel : ViewModel() {
     private fun invalidateLightning() {
         GlobalScope.launch(Dispatchers.Main) {
             val lightningAccount = withContext(Dispatchers.IO) { thunderDomeRepository.lightningAccount }
-            val balance = lightningAccount?.balance ?: BTCCurrency(0)
+            val balance = thunderDomeRepository.availableBalance.toBTCCurrency()
             holdings.value = balance
             holdingsWorth.value = balance.toUSD(walletHelper.latestPrice) ?: USDCurrency(0.00)
             lightningHoldings.value = balance

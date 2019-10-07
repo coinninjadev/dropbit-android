@@ -13,8 +13,7 @@ import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.nhaarman.mockitokotlin2.mock
-import junit.framework.TestCase.assertNull
-import junit.framework.TestCase.assertTrue
+import junit.framework.TestCase.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Test
@@ -64,6 +63,14 @@ class PaymentHolderTest {
         assertThat(pHolder.toUser, equalTo(holder.toUser))
         assertThat(pHolder.transactionData, equalTo(holder.transactionData))
         assertThat(pHolder.requestInvoice, equalTo(holder.requestInvoice))
+        assertThat(pHolder.requestId, equalTo(holder.requestId))
+    }
+
+    @Test
+    fun generates_payment_request_id() {
+        val holder = PaymentHolder()
+
+        assertNotNull(holder.requestId)
     }
 
     @Test

@@ -115,7 +115,7 @@ internal constructor(@ApplicationContext internal val context: Context,
     }
 
     private fun getContact(invite: InviteTransactionSummary): String {
-        return if (invite.type == Type.SENT) {
+        return if (invite.type == Type.BLOCKCHAIN_SENT || invite.type == Type.LIGHTNING_SENT) {
             invite.localeFriendlyDisplayIdentityForReceiver
         } else {
             invite.localeFriendlyDisplayIdentityForSender

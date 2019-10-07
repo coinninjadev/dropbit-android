@@ -57,6 +57,7 @@ class ConfirmPaymentActivityTest {
         requestInvoice?.let { paymentHolder.requestInvoice = it }
         paymentHolder.memo = memo
         paymentHolder.isSendingMax = isSendingMax
+        paymentHolder.accountMode = mode
 
         intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, paymentHolder)
 
@@ -67,7 +68,6 @@ class ConfirmPaymentActivityTest {
         }
         return scenario
     }
-
 
     @Test
     fun lifecycle__inits_observes_view_models() {
@@ -538,7 +538,8 @@ class ConfirmPaymentActivityTest {
                     10_000,
                     500,
                     "Yo Joe!",
-                    true
+                    true,
+                    paymentHolder.requestId
             ))
 
             assertThat(activity.isFinishing).isTrue()
@@ -597,12 +598,38 @@ class ConfirmPaymentActivityTest {
         paymentHolder.requestInvoice = RequestInvoice(numSatoshis = 100418)
         paymentHolder.requestInvoice!!.encoded = "ln--encoded-invoice"
 
-        val scenario = createScenario(paymentHolder, mode = AccountMode.BLOCKCHAIN, memo = paymentHolder.memo)
+        val scenario = createScenario(paymentHolder, mode = AccountMode.LIGHTNING, memo = paymentHolder.memo)
 
         scenario.onActivity { activity ->
             activity.onActivityResult(ConfirmPaymentActivity.authRequestCode, AuthorizedActionActivity.RESULT_AUTHORIZED, null)
 
             verify(activity.activityNavigationUtil).navigateToLightningBroadcast(activity, paymentHolder)
+            assertThat(activity.isFinishing).isTrue()
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun authorization_success__invites_contact__lightning() {
+        val paymentHolder = PaymentHolder(
+                evaluationCurrency = USDCurrency(10_500),
+                toUser = Identity(IdentityType.TWITTER, "1234567890", hash = "1234567890",
+                        handle = "@Joe", avatarUrl = "http://avatar", isVerified = true),
+                memo = "Yo Joe!",
+                publicKey = "--pub-key--",
+                isSharingMemo = true
+        )
+
+        val scenario = createScenario(paymentHolder,
+                mode = AccountMode.LIGHTNING,
+                memo = paymentHolder.memo)
+
+        scenario.onActivity { activity ->
+            activity.onActivityResult(ConfirmPaymentActivity.authRequestCode, AuthorizedActionActivity.RESULT_AUTHORIZED, null)
+
+            verify(activity.activityNavigationUtil).navigateToInviteContactScreen(activity, paymentHolder)
             assertThat(activity.isFinishing).isTrue()
         }
 

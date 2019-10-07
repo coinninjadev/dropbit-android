@@ -198,7 +198,7 @@ class LightningDepositActivity : BaseActivity() {
 
     companion object {
         val MIN_DEPOSIT_AMOUNT = USDCurrency(5_00)
-        val MAX_DEPOSIT_AMOUNT = USDCurrency(500_00)
+        val MAX_DEPOSIT_AMOUNT = USDCurrency(200_00)
     }
 }
 

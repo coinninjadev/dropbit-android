@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.IBinder
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.service.CNWalletBinder
-import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope
 import com.coinninja.coinkeeper.di.interfaces.ThreadHandler
@@ -30,7 +29,7 @@ class SyncWalletManager @Inject constructor(
     internal var binder: CNWalletBinder? = null
     internal var timeOutRunnable = Runnable {
         syncNow()
-        schedule60SecondSync()
+        schedule30SecondSync()
     }
 
     override fun onServiceConnected(name: ComponentName, binder: IBinder) {
@@ -42,16 +41,16 @@ class SyncWalletManager @Inject constructor(
         binder = null
     }
 
-    fun schedule60SecondSync() {
+    fun schedule30SecondSync() {
         if (null == binder) serviceWorkUtil.bindToCNWalletService(this)
 
-        if (cnWalletManager.hasWallet)  {
-            timeoutHandler.postDelayed(timeOutRunnable, REPEAT_FREQUENCY_60_SECONDS)
+        if (cnWalletManager.hasWallet) {
+            timeoutHandler.postDelayed(timeOutRunnable, REPEAT_FREQUENCY_30_SECONDS)
         }
     }
 
     fun scheduleHourlySync() {
-        if (cnWalletManager.hasWallet){
+        if (cnWalletManager.hasWallet) {
             jobServiceScheduler.schedule(context, JobServiceScheduler.SYNC_HOURLY_SERVICE_JOB_ID,
                     WalletTransactionRetrieverService::class.java, NETWORK_TYPE_ANY, REPEAT_FREQUENCY_1_HOUR, true)
         }
@@ -65,19 +64,19 @@ class SyncWalletManager @Inject constructor(
         }
     }
 
-    fun cancel60SecondSync() {
+    fun cancel30SecondSync() {
         timeoutHandler.removeCallbacks(timeOutRunnable)
     }
 
     fun cancelAllScheduledSync() {
         context.stopService(Intent(context, WalletTransactionRetrieverService::class.java))
-        cancel60SecondSync()
+        cancel30SecondSync()
         jobServiceScheduler.cancelJob(JobServiceScheduler.SYNC_HOURLY_SERVICE_JOB_ID)
     }
 
     companion object {
         const val NETWORK_TYPE_ANY = 1
-        const val REPEAT_FREQUENCY_60_SECONDS = 60 * 1000.toLong()
+        const val REPEAT_FREQUENCY_30_SECONDS = 30 * 1000.toLong()
         const val REPEAT_FREQUENCY_1_HOUR = 60 * 60 * 1000.toLong()
     }
 

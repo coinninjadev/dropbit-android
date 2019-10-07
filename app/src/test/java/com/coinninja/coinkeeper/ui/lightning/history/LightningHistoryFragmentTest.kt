@@ -2,7 +2,7 @@ package com.coinninja.coinkeeper.ui.lightning.history
 
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import app.coinninja.cn.persistance.model.LightningInvoice
+import app.coinninja.cn.persistance.model.LedgerSettlementDetail
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -19,7 +19,7 @@ class LightningHistoryFragmentTest {
         return FragmentScenario.launchInContainer(LightningHistoryFragment::class.java)
     }
 
-    // Lightning invoices
+    // Lightning settlements
 
     @Test
     fun observes_lighting_invoice_changes() {
@@ -31,11 +31,11 @@ class LightningHistoryFragmentTest {
     @Test
     fun forwards_lightning_invoice_changes_to_adapter_when_observed() {
         createFragment().onFragment { fragment ->
-            val invoices: List<LightningInvoice> = emptyList()
+            val settlements: List<LedgerSettlementDetail> = emptyList()
 
-            fragment.invoiceChangeObserver.onChanged(invoices)
+            fragment.invoiceChangeObserver.onChanged(settlements)
 
-            verify(fragment.lightningHistoryAdapter).invoices = invoices
+            verify(fragment.lightningHistoryAdapter).settlements = settlements
         }
     }
 

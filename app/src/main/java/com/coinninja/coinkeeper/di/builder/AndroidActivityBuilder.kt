@@ -19,6 +19,7 @@ import com.coinninja.coinkeeper.ui.news.MarketNewsModule
 import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity
 import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
 import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentModule
+import com.coinninja.coinkeeper.ui.payment.invite.InviteContactActivity
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenModule
@@ -195,4 +196,8 @@ abstract class AndroidActivityBuilder {
     @ActivityScope
     @ContributesAndroidInjector(modules = [BaseActivityModule::class, CreatePaymentModule::class])
     internal abstract fun broadcastLightningPaymentActivity(): BroadcastLightningPaymentActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, CreatePaymentModule::class])
+    internal abstract fun inviteContactActivity(): InviteContactActivity
 }

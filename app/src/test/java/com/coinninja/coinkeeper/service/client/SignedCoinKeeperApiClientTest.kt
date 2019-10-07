@@ -37,7 +37,6 @@ class SignedCoinKeeperApiClientTest {
     @Before
     fun setUp() {
         signedCoinKeeperApiClient = createClient(webServer.url("").toString())
-
     }
 
     @After
@@ -341,7 +340,7 @@ class SignedCoinKeeperApiClientTest {
         assertThat(recordedRequest.body.readUtf8(), equalTo("{\"amount\":{\"btc\":120000000,\"usd\":8292280}," +
                 "\"sender\":{\"type\":\"phone\",\"identity\":\"15554441234\"}," +
                 "\"receiver\":{\"type\":\"phone\",\"identity\":\"15554440000\"}," +
-                "\"request_id\":\"--request-id--\"}"))
+                "\"request_id\":\"--request-id--\",\"suppress\":false,\"address_type\":\"btc\"}"))
     }
 
     @Test
@@ -398,7 +397,9 @@ class SignedCoinKeeperApiClientTest {
                 "}"
 
         webServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
-        val response = signedCoinKeeperApiClient.sendAddressForInvite("6d1d7318-81b9-492c-b3f3-9d1b24f91d14", "1JbJbAkCXtxpko39nby44hpPenpC1xKGYw", addressPubKey)
+        val response = signedCoinKeeperApiClient.sendAddressForInvite(
+                "6d1d7318-81b9-492c-b3f3-9d1b24f91d14",
+                "1JbJbAkCXtxpko39nby44hpPenpC1xKGYw", addressPubKey,"btc")
         val cnWalletAddress = response.body() as CNWalletAddress
 
         assertThat(response.code(), equalTo(200))
@@ -512,7 +513,8 @@ class SignedCoinKeeperApiClientTest {
         val inviteID = "a1bb1d88-bfc8-4085-8966-e0062278237c"
 
         webServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
-        val response = signedCoinKeeperApiClient.sendAddressForInvite(inviteID, addressToSend, addressPubKey)
+        val response = signedCoinKeeperApiClient.sendAddressForInvite(inviteID,
+                addressToSend, addressPubKey, "btc")
 
 
         assertThat(response.code(), equalTo(200))

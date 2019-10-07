@@ -7,10 +7,12 @@ import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.*
+import app.dropbit.commons.currency.Currency
 import app.dropbit.commons.util.isNotNull
 import app.dropbit.commons.util.isNotNullOrEmpty
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.util.DefaultCurrencies
+import java.util.*
 
 @Mockable
 class PaymentHolder(
@@ -24,6 +26,7 @@ class PaymentHolder(
 ) : Parcelable {
 
 
+    var requestId: String = UUID.randomUUID().toString()
     var accountMode: AccountMode = AccountMode.BLOCKCHAIN
     var requestInvoice: RequestInvoice? = null
     var evaluationCurrency: FiatCurrency = evaluationCurrency
@@ -86,6 +89,7 @@ class PaymentHolder(
         paymentAddress = parcel.readString() ?: ""
         isSendingMax = parcel.readByte() != 0.toByte()
         accountMode = AccountMode.from(parcel.readInt())
+        requestId = parcel.readString() ?: UUID.randomUUID().toString()
     }
 
 
@@ -158,6 +162,7 @@ class PaymentHolder(
         parcel.writeString(paymentAddress)
         parcel.writeByte(if (isSendingMax) 1 else 0)
         parcel.writeInt(accountMode.which)
+        parcel.writeString(requestId)
     }
 
     override fun describeContents(): Int {
@@ -204,7 +209,7 @@ class PaymentHolder(
         return when {
             transactionData.paymentAddress.isNotNullOrEmpty() -> PaymentType.BLOCKCHAIN
             requestInvoice?.encoded.isNotNullOrEmpty() -> PaymentType.LIGHTNING
-            requestInvoice.isNotNull() -> PaymentType.LIGHTNING_INVITE
+            requestInvoice.isNotNull() && toUser.isNotNull() -> PaymentType.LIGHTNING_INVITE
             toUser.isNotNull() && accountMode == AccountMode.BLOCKCHAIN -> PaymentType.BLOCKCHAIN_INVITE
             toUser.isNotNull() && accountMode == AccountMode.LIGHTNING -> PaymentType.LIGHTNING_INVITE
             else -> PaymentType.INVALID

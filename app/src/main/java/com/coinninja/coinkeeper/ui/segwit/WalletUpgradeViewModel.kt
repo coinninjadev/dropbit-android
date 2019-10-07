@@ -129,7 +129,7 @@ class WalletUpgradeViewModel : ViewModel() {
 
     internal suspend fun executeCleanup() = withContext(Dispatchers.IO) {
         syncWalletManager.syncNow()
-        syncWalletManager.schedule60SecondSync()
+        syncWalletManager.schedule30SecondSync()
         serviceWorkUtil.registerForPushNotifications()
         gotoSleep()
         UpgradeState.Finished

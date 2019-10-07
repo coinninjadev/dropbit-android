@@ -171,7 +171,8 @@ class ConfirmPaymentActivity : BaseActivity() {
                 broadcastTransaction()
             }
             PaymentType.LIGHTNING_INVITE -> {
-                Toast.makeText(this, "Lightning Invites Coming Soon", Toast.LENGTH_LONG).show()
+                activityNavigationUtil.navigateToInviteContactScreen(this, paymentHolder)
+                finish()
             }
             PaymentType.BLOCKCHAIN_INVITE -> {
                 sendBlockchainInvite()
@@ -191,7 +192,8 @@ class ConfirmPaymentActivity : BaseActivity() {
                     paymentHolder.transactionData.amount,
                     paymentHolder.transactionData.feeAmount,
                     paymentHolder.memo,
-                    paymentHolder.isSharingMemo
+                    paymentHolder.isSharingMemo,
+                    paymentHolder.requestId
             ))
         }
         finish()

@@ -32,6 +32,7 @@ import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroad
 import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
 import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity
 import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
+import com.coinninja.coinkeeper.ui.payment.invite.InviteContactActivity
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequest
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
@@ -351,6 +352,13 @@ class ActivityNavigationUtil @Inject constructor(
 
     fun navigateToLightningBroadcast(activity: Activity, paymentHolder: PaymentHolder) {
         Intent(activity, BroadcastLightningPaymentActivity::class.java).also {
+            it.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, paymentHolder)
+            activity.startActivity(it)
+        }
+    }
+
+    fun navigateToInviteContactScreen(activity: Activity, paymentHolder: PaymentHolder) {
+        Intent(activity, InviteContactActivity::class.java).also {
             it.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, paymentHolder)
             activity.startActivity(it)
         }

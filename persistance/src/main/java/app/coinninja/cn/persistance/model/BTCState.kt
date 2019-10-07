@@ -16,5 +16,13 @@ enum class BTCState constructor(val id: Int) {
             4 -> UNACKNOWLEDGED
             else -> null
         }
+
+        fun from(value: String?): BTCState? = when (value) {
+            "expired" -> EXPIRED
+            "completed" -> FULFILLED
+            "canceled" -> CANCELED
+            "new" -> UNFULFILLED
+            else -> null
+        }
     }
 }

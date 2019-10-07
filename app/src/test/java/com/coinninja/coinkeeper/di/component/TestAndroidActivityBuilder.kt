@@ -24,6 +24,8 @@ import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity
 import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivityTest
 import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
 import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivityTest
+import com.coinninja.coinkeeper.ui.payment.invite.InviteContactActivity
+import com.coinninja.coinkeeper.ui.payment.invite.InviteContactActivityTest
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
 import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivityTest
 import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
@@ -209,5 +211,10 @@ abstract class TestAndroidActivityBuilder {
     @ContributesAndroidInjector(modules = [TestBaseActivityModule::class,
         BroadcastLightningPaymentActivityTest.BroadcastLightningPaymentActivityTestModule::class])
     internal abstract fun broadcastLightningPaymentActivity(): BroadcastLightningPaymentActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class,
+        InviteContactActivityTest.InviteContactActivityTestModule::class])
+    internal abstract fun inviteContactActivity(): InviteContactActivity
 }
 

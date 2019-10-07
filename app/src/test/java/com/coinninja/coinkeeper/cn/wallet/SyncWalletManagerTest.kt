@@ -53,9 +53,9 @@ class SyncWalletManagerTest {
     fun schedules_sync_for_30_second_intervals() {
         val manager = createManager()
 
-        manager.schedule60SecondSync()
+        manager.schedule30SecondSync()
 
-        verify(manager.timeoutHandler).postDelayed(manager.timeOutRunnable, 60 * 1000.toLong())
+        verify(manager.timeoutHandler).postDelayed(manager.timeOutRunnable, 30 * 1000.toLong())
     }
 
     @Test
@@ -63,7 +63,7 @@ class SyncWalletManagerTest {
         val manager = createManager()
         manager.binder = null
 
-        manager.schedule60SecondSync()
+        manager.schedule30SecondSync()
 
         verify(manager.serviceWorkUtil).bindToCNWalletService(manager)
     }
@@ -81,7 +81,7 @@ class SyncWalletManagerTest {
     @Test
     fun cancels_30_second_sync() {
         val manager = createManager()
-        manager.cancel60SecondSync()
+        manager.cancel30SecondSync()
         verify(manager.timeoutHandler).removeCallbacks(manager.timeOutRunnable)
     }
 
@@ -90,7 +90,7 @@ class SyncWalletManagerTest {
         val manager = createManager()
         whenever(manager.cnWalletManager.hasWallet).thenReturn(false)
 
-        manager.schedule60SecondSync()
+        manager.schedule30SecondSync()
 
         verify(manager.timeoutHandler, times(0)).postDelayed(any(), any())
     }

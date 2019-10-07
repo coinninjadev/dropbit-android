@@ -162,9 +162,9 @@ class SentInvitesStatusGetterTest {
         newSummary = mock()
         oldSummary = mock()
         whenever(newSummary.btcState).thenReturn(BTCState.from(status))
-        whenever(newSummary.type).thenReturn(Type.SENT)
+        whenever(newSummary.type).thenReturn(Type.BLOCKCHAIN_SENT)
         whenever(newSummary.valueSatoshis).thenReturn(1000L)
-        whenever(oldSummary.type).thenReturn(Type.SENT)
+        whenever(oldSummary.type).thenReturn(Type.BLOCKCHAIN_SENT)
 
         if (simulateChange) {
             whenever(oldSummary.btcState).thenReturn(BTCState.UNFULFILLED)

@@ -6,7 +6,7 @@ data class CreateInvoiceRequest(
         @SerializedName("value")
         val amount: Long = 0,
         val memo: String = "",
-        val expires: Long = 86400
+        val expires: Long = 172800
 ) {
 
     override fun equals(other: Any?): Boolean {

@@ -138,13 +138,13 @@ public class BroadcastActivity extends BaseActivity implements BroadcastTransact
     protected void onStart() {
         super.onStart();
         showInitTransaction();
-        syncWalletManager.cancel60SecondSync();
+        syncWalletManager.cancel30SecondSync();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        syncWalletManager.schedule60SecondSync();
+        syncWalletManager.schedule30SecondSync();
     }
 
     @Override

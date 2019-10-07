@@ -12,6 +12,7 @@ data class ReceivedInvite(
         var status: String = "new",
         var request_ttl: String = "",
         var txid: String? = null,
+        var address_type: String = "",
         var metadata: InviteMetadata = InviteMetadata()
 ) {
 

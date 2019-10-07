@@ -110,7 +110,7 @@ class ThunderDomeApiClientTest {
 
         assertThat(takeRequest.requestUrl.encodedPath()).isEqualTo("/api/v1/thunderdome/create")
         assertThat(takeRequest.method).isEqualTo("POST")
-        assertThat(takeRequest.body.readUtf8()).isEqualTo("{\"value\":10000,\"memo\":\"--memo--\",\"expires\":86400}")
+        assertThat(takeRequest.body.readUtf8()).isEqualTo("{\"value\":10000,\"memo\":\"--memo--\",\"expires\":172800}")
 
         val encodedInvoice = response.body()!!.request
         assertThat(encodedInvoice).isEqualTo("ln-encoded-invoice")

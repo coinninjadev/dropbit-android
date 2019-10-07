@@ -10,6 +10,7 @@ import app.coinninja.cn.persistance.converter.BTCCurrencyConverter
 import app.coinninja.cn.persistance.converter.DateTimeConverter
 import app.coinninja.cn.persistance.converter.USDCurrencyConverter
 import app.coinninja.cn.persistance.converter.UriConverter
+import app.coinninja.cn.persistance.dao.LedgerSettlementDao
 import app.coinninja.cn.persistance.dao.LightningAccountDao
 import app.coinninja.cn.persistance.dao.LightningInvoiceDao
 import app.coinninja.cn.persistance.migration.MIGRATION_1_2.Companion.MIGRATION_1_2
@@ -26,6 +27,7 @@ import app.coinninja.cn.persistance.model.*
             FundingStat::class,
             InternalNotification::class,
             InviteTransactionSummary::class,
+            LedgerSettlement::class,
             LightningAccount::class,
             LightningInvoice::class,
             TransactionSummary::class,
@@ -37,7 +39,7 @@ import app.coinninja.cn.persistance.model.*
             Wallet::class,
             Word::class
         ],
-        version = 38,
+        version = 39,
         exportSchema = true
 )
 
@@ -51,6 +53,7 @@ abstract class DropbitDatabase : RoomDatabase() {
 
     abstract fun lightningAccountDao(): LightningAccountDao
     abstract fun lightningInvoiceDao(): LightningInvoiceDao
+    abstract val ledgerSettlementDao: LedgerSettlementDao
 
     companion object {
         @Volatile

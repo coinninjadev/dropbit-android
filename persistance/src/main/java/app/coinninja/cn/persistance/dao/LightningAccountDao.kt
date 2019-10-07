@@ -26,6 +26,19 @@ abstract class LightningAccountDao {
     @Query("SELECT * from LIGHTNING_ACCOUNT Where _id == 1 limit 1")
     abstract fun getAccount(): LightningAccount?
 
+    @Query("""
+        SELECT  SUM(balance) available
+        FROM
+        (
+            select balance from LIGHTNING_ACCOUNT Where _id == 1
+            UNION ALL
+            select (sum(VALUE_SATOSHIS + VALUE_FEES_SATOSHIS) * -1) as balance 
+            from INVITE_TRANSACTION_SUMMARY as ITS where TYPE = 0 and BTC_STATE = 0
+        ) s
+        
+    """)
+    abstract fun availableBalance(): Long
+
     fun insertOrUpdate(lightningAccount: LightningAccount) {
         var updated = false
         getAccount()?.let {

@@ -129,6 +129,7 @@
     <string name="history_failed_to_broadcast">Failed to Broadcast</string>
     <string name="failed">failed</string>
     <string name="expired">expired</string>
+    <string name="canceled">canceled</string>
 
     <!-- Request -->
     <string name="request_copied_message">Bitcoin Request copied to clipboard</string>
@@ -536,7 +537,7 @@
 
     <!--- LND Invoice Request Screen -->
     <string name="lightning_invoice">LIGHTNING INVOICE</string>
-    <string name="expires_in_24_hours">expires in 24 hours</string>
+    <string name="expires_in_48_hours">expires in 48 hours</string>
     <string name="tap_invoice_to_save_to_clipboard">Tap invoice to save to clipboard</string>
 
 

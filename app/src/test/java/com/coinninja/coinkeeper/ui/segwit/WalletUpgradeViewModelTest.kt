@@ -257,7 +257,7 @@ class WalletUpgradeViewModelTest {
             runCurrent()
         }
 
-        verify(viewModel.syncWalletManager).schedule60SecondSync()
+        verify(viewModel.syncWalletManager).schedule30SecondSync()
         verify(viewModel.syncWalletManager).syncNow()
         verify(viewModel.serviceWorkUtil).registerForPushNotifications()
         assertThat(viewModel.upgradeState.value).isEqualTo(UpgradeState.Finished)

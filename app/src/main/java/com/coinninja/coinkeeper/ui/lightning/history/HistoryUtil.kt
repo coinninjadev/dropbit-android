@@ -119,6 +119,14 @@ fun DefaultCurrencyDisplayView.expiredInvoice() {
     else secondaryCurrencyView.text = resources.getString(R.string.expired)
 }
 
+fun DefaultCurrencyDisplayView.canceledInvoice() {
+    tag = R.drawable.primary_expires_pill
+    setPillResource(R.drawable.primary_expires_pill)
+    if (defaultCurrencies.primaryCurrency is FiatCurrency)
+        primaryCurrencyView.text = resources.getString(R.string.canceled)
+    else secondaryCurrencyView.text = resources.getString(R.string.canceled)
+}
+
 fun DefaultCurrencyDisplayView.clear() {
     tag = R.drawable.primary_expires_pill
     setPillResource(R.drawable.primary_expires_pill)

@@ -1,8 +1,12 @@
 package com.coinninja.coinkeeper.model.helpers
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.bitcoin.BroadcastResult
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.Identity
+import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.BTCState
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
@@ -11,6 +15,7 @@ import com.coinninja.coinkeeper.model.dto.CompletedInviteDTO
 import com.coinninja.coinkeeper.model.dto.PendingInviteDTO
 import com.coinninja.coinkeeper.service.client.model.*
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -80,6 +85,7 @@ class InviteTransactionSummaryHelperTest {
         val invite: InviteTransactionSummary = mock()
         whenever(invite.toUser).thenReturn(mock())
         whenever(invite.fromUser).thenReturn(mock())
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId("--request-id--")).thenReturn(invite)
 
         val createdAt = System.currentTimeMillis()
@@ -111,6 +117,7 @@ class InviteTransactionSummaryHelperTest {
         val invite: InviteTransactionSummary = mock()
         whenever(invite.toUser).thenReturn(mock())
         whenever(invite.fromUser).thenReturn(mock())
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId("--request-id--")).thenReturn(invite)
 
         val createdAt = System.currentTimeMillis()
@@ -136,6 +143,39 @@ class InviteTransactionSummaryHelperTest {
         ordered.verify(invite).btcState = BTCState.UNFULFILLED
         ordered.verify(invite).update()
         ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(invite)
+    }
+
+    @Test
+    fun acknowledging_observed_invite_does_not_create_join_for_LIGHTNING_sends() {
+        val helper = createHelper()
+        val invite: InviteTransactionSummary = mock()
+        whenever(invite.toUser).thenReturn(mock())
+        whenever(invite.fromUser).thenReturn(mock())
+        whenever(invite.type).thenReturn(Type.LIGHTNING_SENT)
+        whenever(helper.inviteSummaryQueryManager.getInviteSummaryByCnId("--request-id--")).thenReturn(invite)
+
+        val createdAt = System.currentTimeMillis()
+        whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(createdAt)
+        val sentInvite = SentInvite().apply {
+            id = "--server-id--"
+            metadata = InviteMetadata().apply {
+                request_id = "--request-id--"
+
+            }
+        }
+
+        helper.acknowledgeInviteTransactionSummary(sentInvite)
+
+        verify(invite).sentDate = createdAt
+        verify(invite).btcState = BTCState.UNFULFILLED
+        verify(invite).update()
+        verify(helper.transactionInviteSummaryHelper, times(0)).getOrCreateParentSettlementFor(invite)
+
+        val ordered = inOrder(invite)
+        ordered.verify(invite).serverId = sentInvite.id
+        ordered.verify(invite).sentDate = createdAt
+        ordered.verify(invite).btcState = BTCState.UNFULFILLED
+        ordered.verify(invite).update()
     }
 
     @Test
@@ -172,7 +212,7 @@ class InviteTransactionSummaryHelperTest {
     }
 
     @Test
-    fun saves_temporary_sent_invite() {
+    fun saves_temporary_sent_invite__blockchain() {
         val invite = mock<InviteTransactionSummary>()
         val helper = createHelper()
         val pendingInviteDTO = createPendingToPhoneInviteDTO()
@@ -187,14 +227,50 @@ class InviteTransactionSummaryHelperTest {
 
         val createdInvite = helper.saveTemporaryInvite(pendingInviteDTO)
 
-        verify(invite).historicValue = 34000L
+        verify(invite).historicValue = 340_00L
         verify(invite).toUser = toUser
         verify(invite).fromUser = fromUser
         verify(invite).btcState = BTCState.UNACKNOWLEDGED
         verify(invite).valueSatoshis = pendingInviteDTO.inviteAmount
         verify(invite).valueFeesSatoshis = pendingInviteDTO.inviteFee
         verify(invite).wallet = helper.walletHelper.primaryWallet
-        verify(invite).type = Type.SENT
+        verify(invite).type = Type.BLOCKCHAIN_SENT
+        verify(invite).serverId = "--request-id--"
+        verify(invite).update()
+
+        assertThat(createdInvite, equalTo(invite))
+    }
+
+    @Test
+    fun saves_temporary_sent_invite__lightning() {
+        val invite = mock<InviteTransactionSummary>()
+        val helper = createHelper()
+        val paymentHolder = PaymentHolder(evaluationCurrency = USDCurrency(10_000))
+        paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
+        paymentHolder.updateValue(BTCCurrency(100_000))
+        paymentHolder.requestId = "--request-id--"
+        paymentHolder.accountMode = AccountMode.LIGHTNING
+
+        val phoneIdentity = mock<DropbitMeIdentity>()
+        val toUser = mock<UserIdentity>()
+        val fromUser = mock<UserIdentity>()
+        whenever(helper.dropbitAccountHelper.identityForType(paymentHolder.toUser!!.identityType)).thenReturn(phoneIdentity)
+        whenever(helper.userIdentityHelper.updateFrom(paymentHolder.toUser!!)).thenReturn(toUser)
+        whenever(helper.userIdentityHelper.updateFrom(phoneIdentity)).thenReturn(fromUser)
+
+        whenever(helper.daoSessionManager.newInviteTransactionSummary()).thenReturn(invite)
+
+        val createdInvite = helper.saveTemporaryInvite(paymentHolder)
+
+        verify(invite).historicValue = paymentHolder.fiat.toLong()
+        verify(invite).toUser = toUser
+        verify(invite).fromUser = fromUser
+        verify(invite).btcState = BTCState.UNACKNOWLEDGED
+        verify(invite).valueSatoshis = paymentHolder.cryptoCurrency.toLong()
+        verify(invite).valueFeesSatoshis = paymentHolder.transactionData.feeAmount
+        verify(invite).wallet = helper.walletHelper.primaryWallet
+        verify(invite).type = Type.LIGHTNING_SENT
+        verify(invite).serverId = "--request-id--"
         verify(invite).update()
 
         assertThat(createdInvite, equalTo(invite))
@@ -255,7 +331,7 @@ class InviteTransactionSummaryHelperTest {
     }
 
     @Test
-    fun saves_received_invite() {
+    fun saves_received_invite__creates_settlement_for_blockchain() {
         val helper = createHelper()
         val createdAt = System.currentTimeMillis() / 1000
         val receivedInvite = ReceivedInvite(
@@ -267,6 +343,7 @@ class InviteTransactionSummaryHelperTest {
                 sender = "--sender--",
                 status = "completed",
                 txid = "--txid--",
+                address_type = "btc",
                 metadata = InviteMetadata(
                         MetadataAmount(26236L, 100L),
                         MetadataContact("phone", "--sender-phone--"),
@@ -289,7 +366,7 @@ class InviteTransactionSummaryHelperTest {
         verify(invite).valueSatoshis = 26236L
         verify(invite).valueFeesSatoshis = 0L
         verify(invite).btcState = BTCState.FULFILLED
-        verify(invite).type = Type.RECEIVED
+        verify(invite).type = Type.BLOCKCHAIN_RECEIVED
         verify(invite).wallet = wallet
         verify(invite).btcTransactionId = "--txid--"
         verify(invite).address = "--address--"
@@ -299,6 +376,54 @@ class InviteTransactionSummaryHelperTest {
         verify(invite).update()
 
         verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(invite)
+    }
+
+    @Test
+    fun saves_received_invite__does_not_create_parent_settlement_when_lightning() {
+        val helper = createHelper()
+        val createdAt = System.currentTimeMillis() / 1000
+        val receivedInvite = ReceivedInvite(
+                id = "--server-id--",
+                created_at = createdAt,
+                updated_at = createdAt,
+                address = "--address--",
+                request_ttl = "--ttl--",
+                sender = "--sender--",
+                status = "completed",
+                txid = "--txid--",
+                address_type = "lightning",
+                metadata = InviteMetadata(
+                        MetadataAmount(26236L, 100L),
+                        MetadataContact("phone", "--sender-phone--"),
+                        MetadataContact("phone", "--receiver-phone--")
+                )
+        )
+
+        val invite: InviteTransactionSummary = mock()
+        val wallet: Wallet = mock()
+        whenever(helper.walletHelper.primaryWallet).thenReturn(wallet)
+        whenever(helper.inviteSummaryQueryManager.getOrCreate("--server-id--")).thenReturn(invite)
+        val fromUser: UserIdentity = mock()
+        val toUser: UserIdentity = mock()
+        whenever(helper.userIdentityHelper.updateFrom(receivedInvite.metadata.sender)).thenReturn(fromUser)
+        whenever(helper.userIdentityHelper.updateFrom(receivedInvite.metadata.receiver)).thenReturn(toUser)
+
+        helper.saveReceivedInviteTransaction(receivedInvite)
+
+        verify(invite).historicValue = 100L
+        verify(invite).valueSatoshis = 26236L
+        verify(invite).valueFeesSatoshis = 0L
+        verify(invite).btcState = BTCState.FULFILLED
+        verify(invite).type = Type.LIGHTNING_RECEIVED
+        verify(invite).wallet = wallet
+        verify(invite).btcTransactionId = "--txid--"
+        verify(invite).address = "--address--"
+        verify(invite).sentDate = createdAt * 1000
+        verify(invite).toUser = toUser
+        verify(invite).fromUser = fromUser
+        verify(invite).update()
+
+        verify(helper.transactionInviteSummaryHelper, times(0)).getOrCreateParentSettlementFor(invite)
     }
 
     @Test

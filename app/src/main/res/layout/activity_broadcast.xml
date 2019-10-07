@@ -9,6 +9,7 @@
         android:id="@+id/broadcast_sending_progress_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         android:text="@string/broadcast_sent_label"
         android:textColor="@color/broadcast_sending_progress_label_text_color"
         android:textSize="@dimen/broadcast_sending_progress_label_text"
@@ -17,31 +18,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
         tools:visibility="visible" />
 
     <com.coinninja.coinkeeper.view.progress.SendingProgressView
         android:id="@+id/broadcast_sending_progress"
         android:layout_width="@dimen/broadcast_sending_progress_size"
         android:layout_height="@dimen/broadcast_sending_progress_size"
-        android:layout_marginTop="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/transaction_id_label"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/broadcast_sending_progress_label" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/transaction_id_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/vertical_margin_xlarge"
+        android:layout_marginTop="32dp"
         android:text="@string/transaction_id"
         android:textColor="@color/broadcast_sending_progress_label_text_color"
         android:textSize="@dimen/broadcast_sending_progress_normal_text"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/transaction_id_link"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,7 +55,6 @@
         android:textColor="@color/primary"
         android:textSize="@dimen/broadcast_sending_progress_small_text"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/transaction_complete_action_button"
         app:layout_constraintStart_toStartOf="@+id/transaction_complete_action_button"
         app:layout_constraintTop_toBottomOf="@+id/transaction_id_label"

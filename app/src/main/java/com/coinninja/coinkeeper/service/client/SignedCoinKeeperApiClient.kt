@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.service.client
 
+import app.coinninja.cn.libbitcoin.enum.AddressType
 import app.coinninja.cn.libbitcoin.model.Transaction
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.util.removeRange
@@ -85,12 +86,13 @@ class SignedCoinKeeperApiClient(
         return executeCall(client.inviteUser(inviteUserPayload))
     }
 
-    fun sendAddressForInvite(inviteId: String, btcAddress: String, addressPubKey: String): Response<CNWalletAddress> {
+    fun sendAddressForInvite(inviteId: String, btcAddress: String, addressPubKey: String, addressType: String): Response<CNWalletAddress> {
         val query = JsonObject()
 
         query.addProperty("wallet_address_request_id", inviteId)
         query.addProperty("address", btcAddress)
         query.addProperty("address_pubkey", addressPubKey)
+        query.addProperty("address_type", addressType)
 
         return executeCall(client.sendAddress(query))
     }
