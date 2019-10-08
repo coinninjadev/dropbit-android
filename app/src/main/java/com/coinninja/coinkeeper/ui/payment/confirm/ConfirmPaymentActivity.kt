@@ -19,6 +19,7 @@ import com.coinninja.android.helpers.styleAsLightning
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.transaction.FundingViewModelProvider
 import com.coinninja.coinkeeper.cn.transaction.notification.FundingViewModel
+import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.model.PaymentType
@@ -73,6 +74,9 @@ class ConfirmPaymentActivity : BaseActivity() {
     @Inject
     lateinit var fundingViewModelProvider: FundingViewModelProvider
 
+    @Inject
+    lateinit var syncWalletManager: SyncWalletManager
+
     lateinit var fundingViewModel: FundingViewModel
 
     lateinit var feePreference: FeeType
@@ -101,6 +105,7 @@ class ConfirmPaymentActivity : BaseActivity() {
         closeButton.setOnClickListener { activityNavigationUtil.navigateToHome(this) }
         sharedMemoView.render(sharedMemoViewGroup, paymentHolder.isSharingMemo, paymentHolder.memo, paymentHolder.toUser?.displayName)
         accountModeToggleButton.active = false
+        syncWalletManager.cancel30SecondSync()
         adjustableFeesTabs.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
 

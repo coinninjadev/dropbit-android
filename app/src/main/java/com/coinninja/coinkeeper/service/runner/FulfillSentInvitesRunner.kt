@@ -34,13 +34,13 @@ class FulfillSentInvitesRunner @Inject internal constructor(
     }
 
     internal fun broadcastInvitesOnThunderDome(invites: List<InviteTransactionSummary>) {
-        invites.forEach {
-            if (it.address.isNotNullOrEmpty()) {
-                thunderDomeRepository.pay(it.address, it.valueSatoshis)?.let {invoice ->
-                    if (invoice.value == it.valueSatoshis) {
-                        it.btcState = BTCState.FULFILLED
-                        it.update()
-                        cnClient.updateInviteStatusCompleted(it.serverId, invoice.id)
+        invites.forEach { invite ->
+            if (invite.address.isNotNullOrEmpty()) {
+                thunderDomeRepository.pay(invite.address, invite.valueSatoshis)?.let { invoice ->
+                    invoice.id.let { id ->
+                        invite.btcState = BTCState.FULFILLED
+                        invite.update()
+                        cnClient.updateInviteStatusCompleted(invite.serverId, id.split(":")[0])
                     }
 
                 }

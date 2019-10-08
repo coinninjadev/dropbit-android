@@ -36,9 +36,10 @@ class GetIncomingInviteRunner @Inject constructor(
     }
 
     internal fun saveInvite(invite: ReceivedInvite) {
-        val invite = inviteTransactionSummaryHelper.saveReceivedInviteTransaction(invite)
-        if (invite.type == Type.LIGHTNING_RECEIVED) {
-            thunderDomeRepository.createSettlementForInvite(invite.id, invite.toUser.id, invite.fromUser.id, invite.sentDate)
+        inviteTransactionSummaryHelper.saveReceivedInviteTransaction(invite)?.let { invite ->
+            if (invite.type == Type.LIGHTNING_RECEIVED) {
+                thunderDomeRepository.createSettlementForInvite(invite.id, invite.toUser.id, invite.fromUser.id, invite.sentDate)
+            }
         }
     }
 

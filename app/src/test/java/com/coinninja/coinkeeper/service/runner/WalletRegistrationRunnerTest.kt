@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.service.runner
 
 import com.coinninja.coinkeeper.cn.wallet.WalletFlags
+import com.coinninja.coinkeeper.model.db.Wallet
 import com.coinninja.coinkeeper.receiver.WalletRegistrationCompleteReceiver
 import com.coinninja.coinkeeper.service.client.model.CNWallet
 import com.coinninja.coinkeeper.service.client.model.WalletRegistrationPayload
@@ -117,6 +118,8 @@ class WalletRegistrationRunnerTest {
         val runner = createRunner()
         when_server_responds_with_flags(runner, WalletFlags.purpose49v1)
         whenever(runner.walletFlagsStorage.flags).thenReturn(WalletFlags.purpose49v1)
+        val wallet: Wallet = mock()
+        whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
 
         runner.run()
 
@@ -130,6 +133,8 @@ class WalletRegistrationRunnerTest {
         val runner = createRunner()
         when_server_responds_with_flags(runner, WalletFlags.purpose49v1)
         whenever(runner.walletFlagsStorage.flags).thenReturn(WalletFlags.purpose84v2)
+        val wallet: Wallet = mock()
+        whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
 
         runner.run()
 
@@ -140,18 +145,26 @@ class WalletRegistrationRunnerTest {
     @Test
     fun notifies_that_wallet_has_already_been_disabled() {
         val runner = createRunner()
+        val wallet: Wallet = mock()
+        whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
 
         runner.notifyOfWalletRegistrationCompleted(WalletFlags.purpose49v1Disabled)
 
+        verify(wallet).purpose = 49
+        verify(wallet).update()
         verify(runner.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_WALLET_ALREADY_UPGRADED)
     }
 
     @Test
     fun notifies_that_wallet_requires_upgrade() {
         val runner = createRunner()
+        val wallet: Wallet = mock()
+        whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
 
         runner.notifyOfWalletRegistrationCompleted(WalletFlags.purpose49v1)
 
+        verify(wallet).purpose = 49
+        verify(wallet).update()
         verify(runner.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_WALLET_REQUIRES_UPGRADE)
     }
 }

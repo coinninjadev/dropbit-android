@@ -45,6 +45,18 @@ internal class HomeActivityTest {
     }
 
     @Test
+    fun schedules_30_second_sync() {
+        val scenario = setupActivity()
+
+        scenario.onActivity { activity ->
+            verify(activity.syncWalletManager).schedule30SecondSync()
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
     fun checks_for_locked_lightning_account() {
         val scenario = setupActivity()
 

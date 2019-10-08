@@ -23,17 +23,17 @@ abstract class LightningAccountDao {
     @Query("DELETE FROM LIGHTNING_ACCOUNT")
     abstract fun deleteAll()
 
-    @Query("SELECT * from LIGHTNING_ACCOUNT Where _id == 1 limit 1")
+    @Query("SELECT * from LIGHTNING_ACCOUNT limit 1")
     abstract fun getAccount(): LightningAccount?
 
     @Query("""
         SELECT  SUM(balance) available
         FROM
         (
-            select balance from LIGHTNING_ACCOUNT Where _id == 1
+            select balance from LIGHTNING_ACCOUNT 
             UNION ALL
             select (sum(VALUE_SATOSHIS + VALUE_FEES_SATOSHIS) * -1) as balance 
-            from INVITE_TRANSACTION_SUMMARY as ITS where TYPE = 0 and BTC_STATE = 0
+            from INVITE_TRANSACTION_SUMMARY as ITS where TYPE = 20 and BTC_STATE = 0
         ) s
         
     """)

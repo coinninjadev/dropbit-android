@@ -138,6 +138,10 @@ order by createdAt DESC;
     @Query("DELETE FROM ledger_settlement")
     abstract fun deleteAll()
 
+    @WorkerThread
+    @Delete
+    abstract fun delete(ledgerSettlement: LedgerSettlement)
+
     fun createSettlementFor(invoice: LightningInvoice?) {
         invoice?.let {
             if (settlementByInvoiceId(it.id) == null) {

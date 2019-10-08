@@ -76,6 +76,7 @@ class ConfirmPaymentActivityTest {
         scenario.onActivity { activity ->
 
             verify(activity.fundingViewModel.transactionData).observe(activity, activity.transactionDataChangeObserver)
+            verify(activity.syncWalletManager).cancel30SecondSync()
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)

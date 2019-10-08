@@ -45,6 +45,7 @@ class SyncWalletManager @Inject constructor(
         if (null == binder) serviceWorkUtil.bindToCNWalletService(this)
 
         if (cnWalletManager.hasWallet) {
+            cancel30SecondSync()
             timeoutHandler.postDelayed(timeOutRunnable, REPEAT_FREQUENCY_30_SECONDS)
         }
     }

@@ -6,6 +6,7 @@ import app.coinninja.cn.persistance.model.LedgerType
 import app.coinninja.cn.persistance.model.LightningInvoice
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.util.asDateOrNow
 import app.dropbit.commons.util.asDateOrNull
 import com.google.gson.annotations.SerializedName
 
@@ -51,9 +52,9 @@ data class LedgerInvoice(
     fun toLightningLedger(): LightningInvoice {
         return LightningInvoice(
                 serverId = id.split(":")[0],
-                createdAt = createdAt.asDateOrNull(),
-                updatedAt = updatedAt.asDateOrNull(),
-                expiresAt = expiresAt?.asDateOrNull(),
+                createdAt = createdAt.asDateOrNow(),
+                updatedAt = updatedAt.asDateOrNow(),
+                expiresAt = expiresAt?.asDateOrNow(),
                 status = LedgerStatus.from(status),
                 type = LedgerType.from(type),
                 direction = LedgerDirection.from(direction),

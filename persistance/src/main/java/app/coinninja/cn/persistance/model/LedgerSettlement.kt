@@ -87,4 +87,31 @@ class LedgerSettlement(
         var createdAt: Date? = null
 ) {
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as LedgerSettlement
+
+        if (id != other.id) return false
+        if (invoiceId != other.invoiceId) return false
+        if (toUserIdentityId != other.toUserIdentityId) return false
+        if (fromUserIdentityId != other.fromUserIdentityId) return false
+        if (inviteId != other.inviteId) return false
+        if (transactionNotificationId != other.transactionNotificationId) return false
+        if (createdAt != other.createdAt) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (invoiceId?.hashCode() ?: 0)
+        result = 31 * result + (toUserIdentityId?.hashCode() ?: 0)
+        result = 31 * result + (fromUserIdentityId?.hashCode() ?: 0)
+        result = 31 * result + (inviteId?.hashCode() ?: 0)
+        result = 31 * result + (transactionNotificationId?.hashCode() ?: 0)
+        result = 31 * result + (createdAt?.hashCode() ?: 0)
+        return result
+    }
 }

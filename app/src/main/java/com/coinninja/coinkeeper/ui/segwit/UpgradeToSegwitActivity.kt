@@ -42,6 +42,7 @@ class UpgradeToSegwitActivity : BaseActivity() {
 
     lateinit var fundingViewModel: FundingViewModel
 
+    var syncCount = 0
     val upgradeButton: Button get() = findViewById(R.id.upgrade_button)
     val transferPermission: CheckBox get() = findViewById(R.id.transfer_permission)
     val upgradePermission: CheckBox get() = findViewById(R.id.new_words_permission)
@@ -57,7 +58,10 @@ class UpgradeToSegwitActivity : BaseActivity() {
         }
 
     val syncChangeObserver: SyncManagerChangeObserver = SyncManagerChangeObserver {
-        if (!syncManagerViewNotifier.isSyncing) {
+        if (!syncManagerViewNotifier.isSyncing && syncCount == 0) {
+            syncWalletManager.syncNow()
+            syncCount += 1
+        } else if (!syncManagerViewNotifier.isSyncing) {
             onSyncCompleted()
         }
     }

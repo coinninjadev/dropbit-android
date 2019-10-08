@@ -5,6 +5,7 @@ import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.account.RemoteAddressCache
 import com.coinninja.coinkeeper.cn.dropbit.DropBitMeServiceManager
 import com.coinninja.coinkeeper.cn.service.runner.AccountDeverificationServiceRunner
+import com.coinninja.coinkeeper.cn.transaction.LightningInviteLinker
 import com.coinninja.coinkeeper.cn.transaction.LightningWithdrawalLinker
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
@@ -29,7 +30,8 @@ class FullSyncWalletRunner constructor(internal val cnWalletManager: CNWalletMan
                                        internal val remoteAddressCache: RemoteAddressCache,
                                        internal val dropBitMeServiceManager: DropBitMeServiceManager,
                                        internal val thunderDomeRepository: ThunderDomeRepository,
-                                       internal val lightningWithdrawlLinker: LightningWithdrawalLinker
+                                       internal val lightningWithdrawlLinker: LightningWithdrawalLinker,
+                                       internal val lightningInviteLinker: LightningInviteLinker
 ) : Runnable {
 
     override fun run() {
@@ -46,6 +48,7 @@ class FullSyncWalletRunner constructor(internal val cnWalletManager: CNWalletMan
 
             syncRunnable.run()
             thunderDomeRepository.sync()
+            lightningInviteLinker.linkInvitesToInvoices()
             lightningWithdrawlLinker.linkWithdraws()
             transactionConfirmationUpdateRunner.run()
             failedBroadcastCleaner.run()
