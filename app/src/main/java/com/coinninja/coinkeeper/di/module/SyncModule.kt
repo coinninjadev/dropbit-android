@@ -4,6 +4,7 @@ import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import com.coinninja.coinkeeper.cn.account.RemoteAddressCache
 import com.coinninja.coinkeeper.cn.dropbit.DropBitMeServiceManager
 import com.coinninja.coinkeeper.cn.service.runner.AccountDeverificationServiceRunner
+import com.coinninja.coinkeeper.cn.transaction.LightningInviteLinker
 import com.coinninja.coinkeeper.cn.transaction.LightningWithdrawalLinker
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
@@ -33,13 +34,14 @@ class SyncModule {
             remoteAddressCache: RemoteAddressCache,
             dropBitMeServiceManager: DropBitMeServiceManager,
             thunderDomeRepository: ThunderDomeRepository,
-            lightningWithdrawalLinker: LightningWithdrawalLinker
+            lightningWithdrawalLinker: LightningWithdrawalLinker,
+            lightningInviteLinker: LightningInviteLinker
     ): FullSyncWalletRunner = FullSyncWalletRunner(
             cnWalletManager, accountDeverificationServiceRunner, walletRegistrationRunner,
             currentBTCStateRunner, syncRunnable, transactionConfirmationUpdateRunner,
             failedBroadcastCleaner, syncIncomingInvitesRunner, fulfillSentInvitesRunner,
             receivedInvitesStatusRunner, negativeBalanceRunner, dropbitAccountHelper,
             localBroadCastUtil, remoteAddressCache, dropBitMeServiceManager, thunderDomeRepository,
-            lightningWithdrawalLinker
+            lightningWithdrawalLinker, lightningInviteLinker
     )
 }

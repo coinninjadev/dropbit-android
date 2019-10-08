@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.ui.payment.invite
 
 import android.os.Bundle
+import android.provider.Telephony
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -48,12 +49,8 @@ class InviteContactActivity : BaseActivity() {
         setContentView(R.layout.activity_broadcast)
         paymentDataFromCreation()
         fundingViewModel = fundingViewModelProvider.provide(this)
-        retry()
-    }
-
-    override fun onResume() {
-        super.onResume()
         fundingViewModel.invitedContactResponse.observe(this, invitedContactResponseObserver)
+        retry()
     }
 
     override fun onPause() {

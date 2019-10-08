@@ -327,8 +327,10 @@ public class WalletHelper {
         QueryBuilder query = daoSessionManager.getInviteTransactionSummaryDao().queryBuilder().
                 whereOr(InviteTransactionSummaryDao.Properties.Address.isNull(),
                         InviteTransactionSummaryDao.Properties.Address.eq(""))
-                .where(
+                .whereOr(
                         InviteTransactionSummaryDao.Properties.Type.eq(Type.BLOCKCHAIN_RECEIVED.getId()),
+                        InviteTransactionSummaryDao.Properties.Type.eq(Type.LIGHTNING_RECEIVED.getId())
+                ).where(
                         InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.getId())
                 );
 

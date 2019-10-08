@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.service
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import com.coinninja.coinkeeper.cn.service.PushNotificationDeviceManager
 import com.coinninja.coinkeeper.cn.service.PushNotificationEndpointManager
 import com.coinninja.coinkeeper.util.DropbitIntents
@@ -183,10 +184,22 @@ class DeleteWalletServiceTest {
         verify(service.pushNotificationDeviceManager).removeCNDevice()
     }
 
+    @Test
+    fun deletes_lightning_wallet() {
+        val service = setUp()
+
+        service.onHandleIntent(null)
+
+        verify(service.thunderDomeRepository).deleteAll()
+    }
+
     @Module
     class DeleteWalletServiceTestModule {
         @Provides
         fun pushNotificationEndpointManager(): PushNotificationEndpointManager = mock()
+
+        @Provides
+        fun thunderDome(): ThunderDomeRepository = mock()
 
         @Provides
         fun pushNotificationDeviceManager(): PushNotificationDeviceManager = mock()

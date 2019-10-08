@@ -13,10 +13,7 @@ import com.coinninja.coinkeeper.cn.transaction.FundingViewModelProvider
 import com.coinninja.coinkeeper.cn.transaction.notification.FundingViewModel
 import com.coinninja.coinkeeper.model.db.Wallet
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import dagger.Module
 import dagger.Provides
 import org.junit.Test
@@ -84,6 +81,8 @@ class UpgradeToSegwitActivityTest {
             given_no_wallet_balance(activity)
 
             when_sync_state_changed(activity)
+            verify(activity.syncWalletManager, times(2)).syncNow()
+            when_sync_state_changed(activity)
 
             assertThat(activity.upgradeButton.isEnabled).isFalse()
             assertThat(activity.upgradePermission.visibility).isEqualTo(View.VISIBLE)
@@ -104,6 +103,8 @@ class UpgradeToSegwitActivityTest {
             given_syncing_state_of(activity, false)
             given_a_wallet_balance(activity)
 
+            when_sync_state_changed(activity)
+            verify(activity.syncWalletManager, times(2)).syncNow()
             when_sync_state_changed(activity)
 
             assertThat(activity.upgradeButton.isEnabled).isFalse()

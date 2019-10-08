@@ -258,11 +258,22 @@ class ThunderDomeRepositoryTest {
         val encodedInvoice = "ln--encoded-invoice"
 
         val paymentRequest = PaymentRequest(encodedInvoice, 10_000)
-        val paymentResponse = PaymentResponse(result = LedgerInvoice())
+        val result: LedgerInvoice = mock()
+        val ledger: LightningInvoice = mock()
+        whenever(result.toLightningLedger()).thenReturn(ledger)
+        whenever(repository.dropbitDatabase.ledgerSettlementDao).thenReturn(mock())
+        whenever(repository.dropbitDatabase.lightningInvoiceDao()).thenReturn(mock())
+        whenever(ledger.serverId).thenReturn("--server-id--")
+        whenever(repository.dropbitDatabase.lightningInvoiceDao()
+                .ledgerByServerId("--server-id--")).thenReturn(ledger)
+
+        val paymentResponse = PaymentResponse(result = result)
         val response = Response.success(paymentResponse)
         whenever(repository.apiClient.pay(paymentRequest)).thenReturn(response)
 
         assertThat(repository.pay(encodedInvoice, 10_000)).isEqualTo(paymentResponse.result)
+        verify(repository.dropbitDatabase.lightningInvoiceDao()).insertOrUpdate(ledger)
+        verify(repository.dropbitDatabase.ledgerSettlementDao).createSettlementFor(ledger)
     }
 
     @Test

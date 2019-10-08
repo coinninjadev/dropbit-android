@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.service
 
 import android.app.IntentService
 import android.content.Intent
+import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.cn.service.PushNotificationDeviceManager
 import com.coinninja.coinkeeper.cn.service.PushNotificationEndpointManager
@@ -34,6 +35,8 @@ class DeleteWalletService @JvmOverloads constructor(name: String = TAG) : Intent
     internal lateinit var syncWalletManager: SyncWalletManager
     @Inject
     internal lateinit var myTwitterProfile: MyTwitterProfile
+    @Inject
+    internal lateinit var thunderDomeRepository: ThunderDomeRepository
 
     override fun onCreate() {
         AndroidInjection.inject(this)
@@ -50,6 +53,7 @@ class DeleteWalletService @JvmOverloads constructor(name: String = TAG) : Intent
         pushNotificationDeviceManager.removeCNDevice()
         apiClient.resetWallet()
         cnWalletManager.deleteWallet()
+        thunderDomeRepository.deleteAll()
         resetAnalyticsProperties()
         myTwitterProfile.clear()
         localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_ON_WALLET_DELETED)

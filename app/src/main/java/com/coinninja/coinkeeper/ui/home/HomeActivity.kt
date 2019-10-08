@@ -7,6 +7,7 @@ import androidx.viewpager.widget.ViewPager
 import com.coinninja.android.helpers.hide
 import com.coinninja.android.helpers.show
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.ui.base.BaseActivity
@@ -26,6 +27,9 @@ class HomeActivity : BaseActivity() {
 
     @Inject
     internal lateinit var accountModeManger: AccountModeManager
+
+    @Inject
+    lateinit var syncWalletManager: SyncWalletManager
 
     internal var currentPage = 0
 
@@ -79,6 +83,7 @@ class HomeActivity : BaseActivity() {
         addTabToAppBar(R.layout.home_appbar_tab_1, 0)
 
         tabs.addOnTabSelectedListener(onTabSelectedListener)
+        syncWalletManager.schedule30SecondSync()
     }
 
     override fun onResume() {

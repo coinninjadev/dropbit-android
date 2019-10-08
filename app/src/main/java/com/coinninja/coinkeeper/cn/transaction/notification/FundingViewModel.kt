@@ -226,13 +226,14 @@ class FundingViewModel : ViewModel() {
                     Amount(paymentHolder.cryptoCurrency.toLong(), paymentHolder.fiat.toLong()),
                     getSenderForIdentityInvite(invite.fromUser),
                     getReceiverFromIdentity(invite.toUser),
-                    paymentHolder.requestId
+                    paymentHolder.requestId,
+                    address_type = if (paymentHolder.accountMode == AccountMode.LIGHTNING) "lightning" else "btc"
             )
 
             val response = cnApiClient.inviteUser(payload)
 
             val invitedContact = if (response.isSuccessful) {
-                handleSuccessfulInvite(response, invite) ?: InvitedContact()
+                handleSuccessfulInvite(response, invite)
             } else {
                 InvitedContact()
             }
@@ -240,19 +241,22 @@ class FundingViewModel : ViewModel() {
         }
     }
 
-    private fun handleSuccessfulInvite(response: Response<InvitedContact>, invite: InviteTransactionSummary): InvitedContact? {
-        return response.body()?.let { invitedContact ->
-            inviteTransactionSummaryHelper.acknowledgeSentInvite(invite, invitedContact.id)
+    private fun handleSuccessfulInvite(response: Response<InvitedContact>, invite: InviteTransactionSummary): InvitedContact {
+        val inviteResponse = response.body()
+        if (inviteResponse == null) {
+            return InvitedContact()
+        } else {
+            val acknowledgedInvite = inviteTransactionSummaryHelper.acknowledgeSentInvite(invite, inviteResponse.id)
             // TODO save shared memo
             if (invite.type == Type.LIGHTNING_SENT) {
                 thunderDomeRepository.createSettlementForInvite(
-                        invite.id,
-                        invite.toUser.id,
-                        invite.fromUser.id,
-                        invite.sentDate
+                        acknowledgedInvite.id,
+                        acknowledgedInvite.toUser.id,
+                        acknowledgedInvite.fromUser.id,
+                        acknowledgedInvite.sentDate
                 )
             }
-            invitedContact
+            return inviteResponse
         }
     }
 

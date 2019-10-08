@@ -18,11 +18,23 @@ class InviteSummaryQueryManager @Inject internal constructor(
         get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
                 .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNACKNOWLEDGED.id)).list()
 
+    val completedLightningInvites: List<InviteTransactionSummary>
+        get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
+                .whereOr(
+                        InviteTransactionSummaryDao.Properties.Type.eq(Type.LIGHTNING_SENT.id),
+                        InviteTransactionSummaryDao.Properties.Type.eq(Type.LIGHTNING_RECEIVED.id)
+                )
+                .where(
+                        InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.FULFILLED.id)
+                )
+                .list()
+
     val unfulfilledSentLightningInvites: List<InviteTransactionSummary>
         get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
                 .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.id),
                         InviteTransactionSummaryDao.Properties.Type.eq(Type.LIGHTNING_SENT.id))
                 .list()
+
     val unfulfilledSentInvites: List<InviteTransactionSummary>
         get() = daoSessionManager.inviteTransactionSummaryDao.queryBuilder()
                 .where(InviteTransactionSummaryDao.Properties.BtcState.eq(BTCState.UNFULFILLED.id),

@@ -57,11 +57,19 @@ class WalletRegistrationRunner @Inject constructor(
 
     internal fun notifyOfWalletRegistrationCompleted(flags: Long) {
         val walletFlags = WalletFlags(flags)
+        val primaryWallet = walletHelper.primaryWallet
         when {
-            walletFlags.isActive() && !walletFlags.hasVersion(WalletFlags.v2) ->
+            walletFlags.isActive() && !walletFlags.hasVersion(WalletFlags.v2) -> {
+                primaryWallet.purpose = 49
+                primaryWallet.update()
                 localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_REQUIRES_UPGRADE)
-            !walletFlags.isActive() && !walletFlags.hasVersion(WalletFlags.v2) ->
+            }
+
+            !walletFlags.isActive() && !walletFlags.hasVersion(WalletFlags.v2) -> {
+                primaryWallet.purpose = 49
+                primaryWallet.update()
                 localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_ALREADY_UPGRADED)
+            }
             else -> {
                 localBroadCastUtil.sendGlobalBroadcast(WalletRegistrationCompleteReceiver::class.java, DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE)
                 localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_REGISTRATION_COMPLETE)

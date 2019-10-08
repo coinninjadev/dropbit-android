@@ -103,10 +103,23 @@ class ThunderDomeRepository(
         return pay(encodedInvoice, amount, true)
     }
 
-    fun pay(encodedInvoice: String, amount: Long, isEstimate: Boolean? = null, inviteId: Long? = null): LedgerInvoice? {
-        val invoice = apiClient.pay(PaymentRequest(encodedInvoice, amount, isEstimate)).let { response ->
-            when (response.code()) {
-                200 -> response.body()?.result
+    fun pay(encodedInvoice: String, amount: Long, isEstimate: Boolean? = null): LedgerInvoice? {
+        apiClient.pay(PaymentRequest(encodedInvoice, amount, isEstimate)).let { response ->
+            return when (response.code()) {
+                200 -> {
+                    val invoice = response.body()?.result
+                    invoice?.let {
+                        if (isEstimate != true) {
+                            val ledger = it.toLightningLedger()
+                            dropbitDatabase.lightningInvoiceDao().insertOrUpdate(ledger)
+                            dropbitDatabase.lightningInvoiceDao().ledgerByServerId(ledger.serverId)?.let { savedInvoice ->
+                                dropbitDatabase.ledgerSettlementDao.createSettlementFor(savedInvoice)
+                            }
+                        }
+                        invoice
+                    }
+                    invoice
+                }
                 400 -> {
                     response.errorBody()?.let { body ->
                         try {
@@ -122,20 +135,6 @@ class ThunderDomeRepository(
             }
         }
 
-        invoice?.let {
-            if (it.value > 0L) {
-                dropbitDatabase.lightningInvoiceDao().insertOrUpdate(it.toLightningLedger())
-                dropbitDatabase.lightningInvoiceDao().ledgerByServerId(it.id)?.let { savedInvoice ->
-                    if (inviteId != null) {
-                        dropbitDatabase.ledgerSettlementDao.addInvoiceToInvite(inviteId, savedInvoice.id)
-                    } else {
-                        dropbitDatabase.ledgerSettlementDao.createSettlementFor(savedInvoice)
-                    }
-                }
-            }
-        }
-
-        return invoice
     }
 
     internal fun syncAccount() {
@@ -175,6 +174,12 @@ class ThunderDomeRepository(
                 fromUserId,
                 Date(createdMillis)
         )
+    }
+
+    fun deleteAll() {
+        dropbitDatabase.ledgerSettlementDao.deleteAll()
+        dropbitDatabase.lightningInvoiceDao().deleteAll()
+        dropbitDatabase.lightningAccountDao().deleteAll()
     }
 
 }

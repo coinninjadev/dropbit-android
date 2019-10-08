@@ -121,8 +121,7 @@ class WalletViewModel : ViewModel() {
 
     private fun invalidateLightning() {
         GlobalScope.launch(Dispatchers.Main) {
-            val lightningAccount = withContext(Dispatchers.IO) { thunderDomeRepository.lightningAccount }
-            val balance = thunderDomeRepository.availableBalance.toBTCCurrency()
+            val balance = BTCCurrency(withContext(Dispatchers.IO) { thunderDomeRepository.availableBalance })
             holdings.value = balance
             holdingsWorth.value = balance.toUSD(walletHelper.latestPrice) ?: USDCurrency(0.00)
             lightningHoldings.value = balance

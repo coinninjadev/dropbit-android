@@ -10,7 +10,7 @@ class FullSyncWalletRunnerTest {
 
     private fun createRunner(): FullSyncWalletRunner {
         val runner = FullSyncWalletRunner(mock(), mock(), mock(), mock(), mock(), mock(), mock(),
-                mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock())
+                mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock())
 
         whenever(runner.cnWalletManager.hasWallet).thenReturn(true)
         return runner
@@ -34,7 +34,7 @@ class FullSyncWalletRunnerTest {
                 runner.dropBitMeServiceManager, runner.currentBTCStateRunner, runner.syncRunnable, runner.transactionConfirmationUpdateRunner,
                 runner.syncIncomingInvitesRunner, runner.fulfillSentInvitesRunner, runner.receivedInvitesStatusRunner, runner.cnWalletManager,
                 runner.negativeBalanceRunner, runner.failedBroadcastCleaner, runner.localBroadCastUtil,
-                runner.remoteAddressCache, runner.thunderDomeRepository, runner.lightningWithdrawlLinker)
+                runner.remoteAddressCache, runner.thunderDomeRepository, runner.lightningWithdrawlLinker, runner.lightningInviteLinker)
 
         runner.run()
 
@@ -51,6 +51,7 @@ class FullSyncWalletRunnerTest {
 
         inOrder.verify(runner.syncRunnable).run()
         inOrder.verify(runner.thunderDomeRepository).sync()
+        inOrder.verify(runner.lightningInviteLinker).linkInvitesToInvoices()
         inOrder.verify(runner.lightningWithdrawlLinker).linkWithdraws()
         inOrder.verify(runner.transactionConfirmationUpdateRunner).run()
         inOrder.verify(runner.failedBroadcastCleaner).run()

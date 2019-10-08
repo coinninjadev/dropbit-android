@@ -234,6 +234,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         walletViewModel = walletViewModelProvider.provide(this)
+        walletViewModel.checkLightningLock()
         actionBarController = actionbarControllerProvider.provide(walletViewModel, activityNavigationUtil)
         drawerController = drawerControllerProvider.provide(walletViewModel, activityNavigationUtil)
         healthCheckRunner.setCallback(this)
@@ -275,7 +276,6 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         walletViewModel.accountMode.observe(this, accountModeObserver)
         walletViewModel.holdings.observe(this, holdingsObserver)
         walletViewModel.holdingsWorth.observe(this, holdingsWorthObserver)
-        walletViewModel.checkLightningLock()
         walletViewModel.currentMode()
     }
 

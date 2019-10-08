@@ -285,6 +285,7 @@ class InviteTransactionSummaryHelperTest {
         val transactionBroadcastResult = mock<BroadcastResult>()
         whenever(transactionBroadcastResult.txid).thenReturn(txid)
         whenever(invite.transactionsInvitesSummary).thenReturn(transactionsInvitesSummary)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         val orderedOperations = inOrder(invite, helper.transactionInviteSummaryHelper)
 
         helper.updateFulfilledInvite(invite, txid)
@@ -302,6 +303,7 @@ class InviteTransactionSummaryHelperTest {
         val helper = createHelper()
         val invite: InviteTransactionSummary = mock()
         whenever(helper.getInviteSummaryByCnId(cnId)).thenReturn(invite)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
         val settlement: TransactionsInvitesSummary = mock()
         whenever(invite.transactionsInvitesSummary).thenReturn(settlement)
 
@@ -448,10 +450,10 @@ class InviteTransactionSummaryHelperTest {
         }
         val invite: InviteTransactionSummary = mock()
         whenever(helper.getInviteSummaryByCnId("--cn-id--")).thenReturn(invite)
+        whenever(invite.type).thenReturn(Type.BLOCKCHAIN_SENT)
 
         helper.updateInviteAddressTransaction(sentInvite)
 
-        verify(invite).btcState = BTCState.UNFULFILLED
         verify(invite).address = "--address--"
         verify(invite).pubkey = "--pub-key--"
         verify(invite).update()

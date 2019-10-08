@@ -10,6 +10,14 @@ fun String.hexToBytes(): ByteArray =
 
 fun String?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
 
+fun String.asDateOrNow(): Date? {
+    if (isNullOrEmpty()) {
+        return Date(System.currentTimeMillis())
+    } else {
+        return asDateOrNull()
+    }
+}
+
 fun String.asDateOrNull(): Date? {
     val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'")
     formatter.timeZone = TimeZone.getTimeZone("GMT")

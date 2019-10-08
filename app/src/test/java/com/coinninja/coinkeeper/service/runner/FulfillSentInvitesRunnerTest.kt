@@ -47,14 +47,15 @@ class FulfillSentInvitesRunnerTest {
         whenever(invite.serverId).thenReturn("--server-id--")
         whenever(invite.address).thenReturn("--ln-invoice-id--")
         whenever(invite.valueSatoshis).thenReturn(100_000)
-        whenever(runner.thunderDomeRepository.pay("--ln-invoice-id--", 100_000))
+        whenever(invite.id).thenReturn(2)
+        whenever(runner.thunderDomeRepository.pay("--ln-invoice-id--", 100_000, null))
                 .thenReturn(LedgerInvoice(value = 100_000, id = "--txid--"))
 
         runner.broadcastInvitesOnThunderDome(listOf(pendingInvite, invite))
 
         val ordered = inOrder(runner.thunderDomeRepository, invite, runner.cnClient)
 
-        ordered.verify(runner.thunderDomeRepository).pay("--ln-invoice-id--", 100_000)
+        ordered.verify(runner.thunderDomeRepository).pay("--ln-invoice-id--", 100_000, null)
         ordered.verify(invite).btcState = BTCState.FULFILLED
         ordered.verify(invite).update()
         ordered.verify(runner.cnClient).updateInviteStatusCompleted("--server-id--", "--txid--")
