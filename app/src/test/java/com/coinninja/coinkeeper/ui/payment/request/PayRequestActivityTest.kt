@@ -63,7 +63,6 @@ class PayRequestActivityTest {
             assertThat(activity.amountInputView.paymentHolder.evaluationCurrency.toLong()).isEqualTo(10_500_00)
             verify(activity.walletViewModel.currentPrice).observe(activity, activity.latestPriceObserver)
             verify(activity.walletViewModel.isLightningLocked).observe(activity, activity.isLightningLockedObserver)
-            verify(activity.walletViewModel).checkLightningLock()
             assertThat(activity.accountModeToggle.onModeSelectedObserver).isEqualTo(activity.accountModeToggleObserver)
         }
 

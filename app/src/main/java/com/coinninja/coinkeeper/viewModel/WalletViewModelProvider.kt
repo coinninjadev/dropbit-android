@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.ui.base.BaseActivity
+import com.coinninja.coinkeeper.ui.base.BaseFragment
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.util.CurrencyPreference
 
@@ -21,6 +22,10 @@ class WalletViewModelProvider constructor(val syncWalletManager: SyncWalletManag
 ) {
     fun <T : BaseActivity> provide(activity: T): WalletViewModel {
         return bind(ViewModelProviders.of(activity)[WalletViewModel::class.java])
+    }
+
+    fun <T : BaseFragment> provide(fragment: T): WalletViewModel {
+        return bind(ViewModelProviders.of(fragment)[WalletViewModel::class.java])
     }
 
     private fun bind(walletViewModel: WalletViewModel): WalletViewModel {

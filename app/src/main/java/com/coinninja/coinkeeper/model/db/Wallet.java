@@ -78,6 +78,9 @@ public class Wallet {
     @Property
     private int accountIndex;
 
+    @Property
+    private long flags;
+
 
     /**
      * Used to resolve relations
@@ -112,10 +115,10 @@ public class Wallet {
     public Wallet() {
     }
 
-    @Generated(hash = 1456873090)
+    @Generated(hash = 369162676)
     public Wallet(Long id, int hdIndex, Long userId, long lastSync, int internalIndex,
             int externalIndex, long balance, long spendableBalance, int blockTip, long lastUSDPrice,
-            int purpose, int coinType, int accountIndex) {
+            int purpose, int coinType, int accountIndex, long flags) {
         this.id = id;
         this.hdIndex = hdIndex;
         this.userId = userId;
@@ -129,6 +132,7 @@ public class Wallet {
         this.purpose = purpose;
         this.coinType = coinType;
         this.accountIndex = accountIndex;
+        this.flags = flags;
     }
 
     public Long getId() {
@@ -466,6 +470,14 @@ public class Wallet {
 
     public void setAccountIndex(int accountIndex) {
         this.accountIndex = accountIndex;
+    }
+
+    public long getFlags() {
+        return this.flags;
+    }
+
+    public void setFlags(long flags) {
+        this.flags = flags;
     }
 
     /** called by internal mechanisms, do not call yourself. */

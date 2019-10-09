@@ -20,7 +20,7 @@ class TestBaseActivityModule {
     @Provides
     fun provideActionbarController(): ActionbarControllerProvider {
         val actionbarControllerProvider: ActionbarControllerProvider = mock()
-        whenever(actionbarControllerProvider.provide(any(), any())).thenReturn(mock())
+        whenever(actionbarControllerProvider.provide(any())).thenReturn(mock())
         return actionbarControllerProvider
     }
 
@@ -57,6 +57,8 @@ class TestBaseActivityModule {
         whenever(walletViewModel.accountMode).thenReturn(mock())
         whenever(walletViewModel.holdingsWorth).thenReturn(mock())
         whenever(walletViewModel.holdings).thenReturn(mock())
+        whenever(walletViewModel.syncInProgress).thenReturn(mock())
+        whenever(walletViewModel.defaultCurrencyPreference).thenReturn(mock())
         return walletViewModelProvider
     }
 }

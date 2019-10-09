@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
+import com.coinninja.coinkeeper.cn.wallet.WalletFlags
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.service.client.model.GsonAddress
 import org.greenrobot.greendao.query.QueryBuilder
@@ -43,6 +44,7 @@ class DaoSessionManager(
             it.purpose = walletConfiguration.purpose
             it.coinType = walletConfiguration.coin
             it.accountIndex = walletConfiguration.account
+            it.flags = WalletFlags.purpose84v2
         }
         val walletId = walletDao.insert(wallet)
         wallet.id = walletId

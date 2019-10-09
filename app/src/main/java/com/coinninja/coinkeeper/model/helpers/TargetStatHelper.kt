@@ -84,6 +84,34 @@ class TargetStatHelper @Inject constructor(
     }
 
 
+    val allUnspentOutputs: List<TargetStat>
+        get() {
+            val wallet = walletHelper.primaryWallet
+            val dao = daoSessionManager.targetStatDao
+            val queryBuilder = dao.queryBuilder()
+            val transactionSummaryJoin = queryBuilder.join(TargetStatDao.Properties.Tsid, TransactionSummary::class.java)
+            transactionSummaryJoin.where(
+                    TransactionSummaryDao.Properties.MemPoolState.notIn(
+                            MemPoolState.FAILED_TO_BROADCAST.id,
+                            MemPoolState.DOUBLE_SPEND.id,
+                            MemPoolState.ORPHANED
+                    )
+            )
+
+            queryBuilder.where(
+                    TargetStatDao.Properties.State.notEq(TargetStat.State.CANCELED.id),
+                    TargetStatDao.Properties.WalletId.eq(wallet.id),
+                    TargetStatDao.Properties.FundingId.isNull,
+                    TargetStatDao.Properties.Value.gt(spendableMinimum),
+                    TargetStatDao.Properties.AddressId.isNotNull
+            )
+
+
+            queryBuilder.orderAsc(TargetStatDao.Properties.TxTime)
+            return queryBuilder.list()
+        }
+
+
     val spendableTargets: List<TargetStat>
         get() {
             val wallet = walletHelper.primaryWallet

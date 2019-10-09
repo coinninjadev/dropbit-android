@@ -9,22 +9,23 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.CryptoCurrency
 import app.dropbit.commons.currency.FiatCurrency
+import app.dropbit.commons.currency.USDCurrency
+import com.coinninja.android.helpers.gone
+import com.coinninja.android.helpers.show
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.ui.base.MenuItemClickListener
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplaySyncView
-import com.coinninja.coinkeeper.viewModel.WalletViewModel
 import com.google.android.material.tabs.TabLayout
 
 @Mockable
 class ActionBarController constructor(
-        internal val walletViewModel: WalletViewModel,
         internal val activityNavigationUtil: ActivityNavigationUtil
 ) {
 
@@ -47,8 +48,6 @@ class ActionBarController constructor(
                 R.id.actionbar_up_off_skip_on
         )
     }
-
-    var isLightningLocked = true;
 
     var menuItemClickListener: MenuItemClickListener? = null
     internal var actionBarType = TypedValue().also {
@@ -101,6 +100,13 @@ class ActionBarController constructor(
 
     private var _title: String = ""
 
+    private var accountMode: AccountMode = AccountMode.BLOCKCHAIN
+    private var isCurrentlySyncing: Boolean = false
+    private var holdingsWorth: FiatCurrency = USDCurrency(0)
+    private var holdings: CryptoCurrency = BTCCurrency(0)
+    private var defaultCurrencies: DefaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
+    var currencyModeChangeListener: CurrencyModeChangeListener? = null
+
     fun setTheme(activity: AppCompatActivity, actionBarType: TypedValue) {
         if (!actionBarTypes.contains(actionBarType.resourceId)) {
             throw IllegalStateException("R.attr.actionBarMenuType not set")
@@ -131,8 +137,15 @@ class ActionBarController constructor(
 
     fun updateBalanceViewPreference(activity: AppCompatActivity) {
         activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)?.apply {
+            this.accountMode = this@ActionBarController.accountMode
+            renderValues(this@ActionBarController.defaultCurrencies, holdings, holdingsWorth)
+            if (isCurrentlySyncing) {
+                showSyncingUI()
+            } else {
+                hideSyncingUI()
+            }
             if (isBalanceOn) {
-                setupObserversFor(activity, this)
+                setupObserversFor(this)
                 if (isBalanceBelowTitle) {
                     visibility = View.GONE
                 } else {
@@ -143,9 +156,16 @@ class ActionBarController constructor(
             }
         }
         activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance_large)?.apply {
+            this.accountMode = this@ActionBarController.accountMode
+            renderValues(this@ActionBarController.defaultCurrencies, holdings, holdingsWorth)
+            if (isCurrentlySyncing) {
+                showSyncingUI()
+            } else {
+                hideSyncingUI()
+            }
             if (isBalanceOn) {
                 if (isBalanceBelowTitle) {
-                    setupObserversFor(activity, this)
+                    setupObserversFor(this)
                     View.VISIBLE
                 } else {
                     this@ActionBarController.removeView(this)
@@ -155,69 +175,59 @@ class ActionBarController constructor(
             }
         }
 
-        updateTransferButton(activity)
+        onLightningLockedChange(activity)
     }
 
-    private fun updateTransferButton(activity: AppCompatActivity) {
-        if (isBalanceBelowTitle && !isLightningLocked) {
-            activity.findViewById<ImageButton>(R.id.appbar_transfer_between_accounts)?.apply {
-                visibility = View.VISIBLE
+    fun onLightningLockedChange(activity: AppCompatActivity, isLocked: Boolean = true) {
+        activity.findViewById<ImageButton>(R.id.appbar_transfer_between_accounts)?.apply {
+            if (isBalanceBelowTitle && isLocked) {
+                show()
                 setOnClickListener { activityNavigationUtil.showLoadLightningOptions(activity) }
+            } else if (isBalanceBelowTitle && !isLocked) {
+                postDelayed({
+                    try {
+                        this.gone()
+                    } catch (e: Exception) {
+                    }
+                }, 300)
+            } else {
+                gone()
             }
         }
+    }
+
+    fun onAccountModeChange(activity: AppCompatActivity, mode: AccountMode) {
+        accountMode = mode
+        updateBalanceViewPreference(activity)
+    }
+
+    fun onSyncStatusChange(activity: AppCompatActivity, isSyncing: Boolean) {
+        isCurrentlySyncing = isSyncing
+        updateBalanceViewPreference(activity)
+    }
+
+    fun onHoldingsChanged(activity: AppCompatActivity, value: CryptoCurrency) {
+        holdings = value
+        updateBalanceViewPreference(activity)
+    }
+
+    fun onHoldingsWorthChanged(activity: AppCompatActivity, value: FiatCurrency) {
+        holdingsWorth = value
+        updateBalanceViewPreference(activity)
+    }
+
+    fun onDefaultCurrencyChanged(activity: AppCompatActivity, defaultCurrencies: DefaultCurrencies) {
+        this.defaultCurrencies = defaultCurrencies
+        updateBalanceViewPreference(activity)
     }
 
     private fun removeView(view: View) {
         (view.parent as ViewGroup).removeView(view)
     }
 
-    private fun updateBalances(defaultCurrencyDisplayView: DefaultCurrencyDisplaySyncView, defaultCurrencies: DefaultCurrencies
-                               , cryptoCurrency: CryptoCurrency, fiatCurrency: FiatCurrency) {
-        defaultCurrencyDisplayView.renderValues(defaultCurrencies, cryptoCurrency, fiatCurrency)
 
-    }
-
-    private fun setupObserversFor(activity: AppCompatActivity, defaultCurrencyDisplayView: DefaultCurrencyDisplaySyncView) {
-        walletViewModel.isLightningLocked.observe(activity, Observer {
-            isLightningLocked = it
-            updateTransferButton(activity)
-        })
-
-        walletViewModel.accountMode.observe(activity, Observer<AccountMode> { mode ->
-            defaultCurrencyDisplayView.setAccountMode(mode)
-        })
-        walletViewModel.syncInProgress.observe(activity, Observer<Boolean> { isSyncing ->
-            if (isSyncing == true) {
-                defaultCurrencyDisplayView.showSyncingUI()
-            } else {
-                defaultCurrencyDisplayView.hideSyncingUI()
-            }
-        })
-        walletViewModel.holdings.observe(activity, Observer<CryptoCurrency> { holdings ->
-            walletViewModel.defaultCurrencyPreference.value?.let { defaults ->
-                walletViewModel.holdingsWorth.value?.let { fiatCurrency ->
-                    updateBalances(defaultCurrencyDisplayView, defaults, holdings, fiatCurrency)
-                }
-            }
-        })
-        walletViewModel.holdingsWorth.observe(activity, Observer<FiatCurrency> { fiatCurrency ->
-            walletViewModel.defaultCurrencyPreference.value?.let { defaults ->
-                walletViewModel.holdings.value?.let { holdings ->
-                    updateBalances(defaultCurrencyDisplayView, defaults, holdings, fiatCurrency)
-                }
-            }
-        })
-        walletViewModel.defaultCurrencyPreference.observe(activity, Observer<DefaultCurrencies> { defaults ->
-            walletViewModel.holdingsWorth.value?.let { fiatCurrency ->
-                walletViewModel.holdings.value?.let { holdings ->
-                    updateBalances(defaultCurrencyDisplayView, defaults, holdings, fiatCurrency)
-                }
-            }
-        })
-
-        defaultCurrencyDisplayView.setOnClickListener { walletViewModel.toggleDefaultCurrencyPreference() }
-        walletViewModel.loadHoldingBalances()
-        walletViewModel.loadCurrencyDefaults()
+    private fun setupObserversFor(defaultCurrencyDisplayView: DefaultCurrencyDisplaySyncView) {
+        defaultCurrencyDisplayView.setOnClickListener { currencyModeChangeListener?.onChange() }
     }
 
 
@@ -285,5 +295,9 @@ class ActionBarController constructor(
             visibility = View.VISIBLE
             getTabAt(index)?.setCustomView(resourceId)
         }
+    }
+
+    interface CurrencyModeChangeListener {
+        fun onChange()
     }
 }

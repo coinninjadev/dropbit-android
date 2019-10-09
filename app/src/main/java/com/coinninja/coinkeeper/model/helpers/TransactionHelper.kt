@@ -48,6 +48,7 @@ class TransactionHelper @Inject constructor(
         transaction.wallet = walletHelper.primaryWallet
         transaction.txid = gsonAddress.txid
         transaction.memPoolState = MemPoolState.PENDING
+        transaction.blockhash = ""
         daoSessionManager.insert(transaction)
     }
 
@@ -231,6 +232,7 @@ class TransactionHelper @Inject constructor(
         transaction.wallet = walletHelper.primaryWallet
         transaction.memPoolState = MemPoolState.PENDING
         transaction.txTime = dateUtil.getCurrentTimeInMillis()
+        transaction.blockhash = ""
         daoSessionManager.insert(transaction)
         fundingStatHelper.createInputsFor(transaction, completedBroadcastActivityDTO.transactionData)
         targetStatHelper.createOutputsFor(transaction, completedBroadcastActivityDTO.transactionData)

@@ -106,7 +106,7 @@ class FundingViewModel : ViewModel() {
     fun fundMaxForUpgrade(address: String) {
         viewModelScope.launch(Dispatchers.Main) {
             val data = withContext(Dispatchers.IO) {
-                transactionFundingManager.buildFundedTransactionData(
+                transactionFundingManager.buildFundedTransactionDataForUpgrade(
                         address, feesManager.currentFee()
                 )
             }

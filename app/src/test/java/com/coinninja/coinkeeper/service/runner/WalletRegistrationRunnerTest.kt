@@ -37,9 +37,11 @@ class WalletRegistrationRunnerTest {
     }
 
     private fun createRunner(): WalletRegistrationRunner {
-        val runner = WalletRegistrationRunner(mock(), mock(), mock(), mock(), mock(), mock(), mock())
+        val runner = WalletRegistrationRunner(mock(), mock(), mock(), mock(), mock(), mock())
+        val wallet: Wallet = mock()
+        whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
+        whenever(runner.walletHelper.primaryWallet.flags).thenReturn(18)
         whenever(runner.hdWallet.verificationKey).thenReturn(SIGN_VERIFICATION_KEY)
-        whenever(runner.walletFlagsStorage.flags).thenReturn(18)
         when_server_responds_with_flags(runner, WalletFlags.purpose84v2)
         return runner
     }
@@ -117,9 +119,10 @@ class WalletRegistrationRunnerTest {
     fun registers_user_with_CN() {
         val runner = createRunner()
         when_server_responds_with_flags(runner, WalletFlags.purpose49v1)
-        whenever(runner.walletFlagsStorage.flags).thenReturn(WalletFlags.purpose49v1)
+        whenever(runner.walletHelper.primaryWallet.flags).thenReturn(WalletFlags.purpose49v1)
         val wallet: Wallet = mock()
         whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
+        whenever(runner.walletHelper.primaryWallet.flags).thenReturn(1)
 
         runner.run()
 
@@ -132,13 +135,14 @@ class WalletRegistrationRunnerTest {
     fun updates_flags_from_server_when_different() {
         val runner = createRunner()
         when_server_responds_with_flags(runner, WalletFlags.purpose49v1)
-        whenever(runner.walletFlagsStorage.flags).thenReturn(WalletFlags.purpose84v2)
-        val wallet: Wallet = mock()
-        whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
+        whenever(runner.walletHelper.primaryWallet.flags).thenReturn(WalletFlags.purpose84v2)
 
         runner.run()
 
-        verify(runner.walletFlagsStorage).flags = 1
+        val wallet = runner.walletHelper.primaryWallet
+        val ordered = inOrder(wallet)
+        ordered.verify(wallet).flags = 1
+        ordered.verify(wallet).update()
         verify(runner.analytics).setUserProperty(Analytics.PROPERTY_WALLET_VERSION, 1)
     }
 

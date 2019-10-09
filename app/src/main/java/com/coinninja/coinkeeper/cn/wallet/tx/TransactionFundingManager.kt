@@ -30,6 +30,27 @@ class TransactionFundingManager @Inject internal constructor(
         }
     }
 
+    fun buildFundedTransactionDataForUpgrade(payToAddress: String, feeRate: Double): TransactionData {
+        val transactionData = createTransactionData()
+        val walletValue = fundingModel.availableAmount
+        val builtInput: BuiltInput = if (walletValue > 0) {
+            buildInputsWithFeesForUpgrade(payToAddress, feeRate, walletValue)
+        } else BuiltInput()
+
+        val amountSending = walletValue - builtInput.fees
+
+        if (amountSending > 0) {
+            transactionData.apply {
+                amount = amountSending
+                feeAmount = builtInput.fees
+                utxos = builtInput.utxos
+                paymentAddress = payToAddress
+            }
+        }
+
+        return transactionData
+    }
+
     fun buildFundedTransactionData(payToAddress: String?, feeRate: Double): TransactionData {
         val transactionData = createTransactionData()
         val walletValue = fundingModel.spendableAmount
@@ -100,6 +121,37 @@ class TransactionFundingManager @Inject internal constructor(
     }
 
 
+    internal fun buildInputsWithFeesForUpgrade(payToAddress: String?, feeRate: Double, amountToSend: Long, explicitFee: Long? = null): BuiltInput {
+        val unspentTransactionOutputs: MutableList<UnspentTransactionOutput> = mutableListOf()
+        var inputsValue: Long = 0
+        var txBytes = FundingModel.baseTransactionBytes + fundingModel.outPutSizeInBytesForAddress(payToAddress)
+        var currentFee: Long = explicitFee ?: 0
+        var totalSendingValue: Long
+
+        fundingModel.allTransactionOutputs.forEach funding@{ unspentTransactionOutput ->
+            totalSendingValue = amountToSend + currentFee
+
+            if (totalSendingValue > inputsValue) {
+                unspentTransactionOutputs.add(unspentTransactionOutput)
+                inputsValue += unspentTransactionOutput.amount
+                txBytes += fundingModel.inputSizeInBytes
+                currentFee = explicitFee ?: fundingModel.calculateFeeForBytes(txBytes, feeRate)
+                totalSendingValue = amountToSend + currentFee
+
+                val changeValue = inputsValue - totalSendingValue
+                if (changeValue > 0 && changeValue < costOFPotentialChangeAndDust(feeRate)) {
+                    currentFee += changeValue
+                    return@funding
+                } else if (changeValue > 0) {
+                    txBytes += fundingModel.changeSizeInBytes
+                    currentFee = explicitFee ?: fundingModel.calculateFeeForBytes(txBytes, feeRate)
+                    return@funding
+                }
+            }
+        }
+        return BuiltInput(currentFee, unspentTransactionOutputs.toTypedArray())
+    }
+
     internal fun buildInputsWithFees(payToAddress: String?, feeRate: Double, amountToSend: Long, explicitFee: Long? = null): BuiltInput {
         val unspentTransactionOutputs: MutableList<UnspentTransactionOutput> = mutableListOf()
         var inputsValue: Long = 0
@@ -147,4 +199,5 @@ class TransactionFundingManager @Inject internal constructor(
         }
         return value - totalTransactionCost - fees
     }
+
 }

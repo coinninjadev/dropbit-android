@@ -525,7 +525,7 @@
 
 
     <!--- Locked Lightning Screen -->
-    <string name="your_in_line">Your in line!</string>
+    <string name="your_in_line">You’re in line!</string>
     <string name="check_back_every_day_to_see_if_you_re_unlocked">Check back every day to see if you’re unlocked!</string>
     <string name="want_to_skip_the_line">Want to skip the line?</string>
     <string name="find_a_dropbit_lightning_user">Find a DropBit Lightning user to send you a few sats using your verified phone number or Twitter handle</string>
