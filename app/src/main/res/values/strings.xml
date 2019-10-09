@@ -461,7 +461,8 @@
     <string name="_50_dollars">$50</string>
     <string name="_100_dollars">$100</string>
     <string name="oh_and_we_ll_cover_the_fees_every_time_you_load">OH, and we’ll cover the fees every time you load</string>
-    <string name="nothing_s_here_yet_load_your_lightning_wallet">NOTHING’S HERE YET, LOAD YOUR LIGHITNG WALLET</string>
+    <string name="nothing_s_here_yet_load_your_lightning_wallet">NOTHING’S HERE YET, LOAD
+        YOUR LIGHTNING WALLET</string>
     <string name="custom_amount">Custom Amount</string>
 
     <!--- Lightning Invoice History -->
@@ -504,8 +505,8 @@
     <string name="upgrade_notice">We are upgrading all DropBit wallets for Lightning support. Your new SegWit wallet will allow you to send Bitcoin faster, cheaper and with increased security.</string>
     <string name="lightning_is_here">LIGHTNING IS HERE!</string>
     <string name="upgrade_now">upgrade now</string>
-    <string name="new_recovery_words_notice">I understand that with this upgrade I will be getting a new set of 12 recovery words to write down on paper and store safely.</string>
-    <string name="transfer_wallet_funds_notice">I understand that DropBit will be transferring my funds of %s with a transaction fee of %s to my upgraded wallet.</string>
+    <string name="new_recovery_words_notice">I understand that with this upgrade <b>I will be getting a new set of 12 recovery words</b> to write down on paper and store safely.</string>
+    <string name="transfer_wallet_funds_notice">I understand that DropBit will be transferring my <b>funds of %s with a transaction fee of %s</b> to my upgraded wallet.</string>
     <string name="upgrade_now_help_url">https://dropbit.app/upgrade</string>
     <string name="default_help_link_label">?</string>
     <string name="creating_new_wallet">Creating new wallet</string>

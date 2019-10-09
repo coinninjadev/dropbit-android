@@ -50,7 +50,7 @@ test-dropbit:
     - ./gradlew app:testProductionDebugUnitTest
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/debug/*.apk
       - ./app/build/outputs/apk/staging/debug/*.apk
@@ -70,7 +70,7 @@ assemble-dropbit:
     - ./gradlew app:assembleDebug
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/debug/*.apk
       - ./app/build/outputs/apk/staging/debug/*.apk
@@ -83,7 +83,7 @@ test-common:
     - ./gradlew common:lintRelease common:testReleaseUnitTest
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./common/build/outputs/aar/*.aar
 
@@ -95,7 +95,7 @@ test-twitter:
     - ./gradlew twitter:lintRelease twitter:testReleaseUnitTest
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./twitter/build/outputs/aar/*.aar
 
@@ -107,7 +107,7 @@ test-persistance:
     - ./gradlew persistance:lintRelease persistance:testReleaseUnitTest
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./persistance/build/outputs/aar/*.aar
 
@@ -120,7 +120,7 @@ test-thunderdome:
     - ./gradlew thunderdome:lintRelease thunderdome:testReleaseUnitTest
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./thunderdome/build/outputs/aar/*.aar
 
@@ -135,7 +135,7 @@ release-candidate:
   artifacts:
     name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/**/*.apk
   <<: *build_and_sign
@@ -157,7 +157,7 @@ production-debug:
   artifacts:
     name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/debug/*.apk
 
@@ -175,7 +175,7 @@ staging-debug:
   artifacts:
     name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/debug/*.apk
 
@@ -193,6 +193,6 @@ regtest-debug:
   artifacts:
     name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/debug/*.apk

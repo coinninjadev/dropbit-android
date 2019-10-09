@@ -21,7 +21,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="132dp"
+        android:layout_height="142dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/rounded"
         app:layout_constraintBottom_toTopOf="@+id/cancel"

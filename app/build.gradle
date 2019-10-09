@@ -35,6 +35,7 @@ def DEBUG_FCM_APP_KEY = System.getenv("DEBUG_FCM_APP_KEY") ? System.getenv("DEBU
 def PROD_FCM_APP_KEY = System.getenv("PROD_FCM_APP_KEY") ? System.getenv("PROD_FCM_APP_KEY") : PROD_FCM_APP_KEY
 def PHONE_HASH_SALT = System.getenv("PHONE_HASH_SALT") ? System.getenv("PHONE_HASH_SALT") : PHONE_HASH_SALT
 def PHONE_HASH_ITERATIONS = System.getenv("PHONE_HASH_ITERATIONS") ? System.getenv("PHONE_HASH_ITERATIONS") : PHONE_HASH_ITERATIONS
+def THUNDERDOME_API_BASE__REG_TEST = System.getenv("THUNDERDOME_API_BASE__REG_TEST") ? System.getenv("THUNDERDOME_API_BASE__REG_TEST") : THUNDERDOME_API_BASE__REG_TEST
 def THUNDERDOME_API_BASE__STAGING = System.getenv("THUNDERDOME_API_BASE__STAGING") ? System.getenv("THUNDERDOME_API_BASE__STAGING") : THUNDERDOME_API_BASE__STAGING
 def THUNDERDOME_API_BASE = System.getenv("THUNDERDOME_API_BASE") ? System.getenv("THUNDERDOME_API_BASE") : THUNDERDOME_API_BASE
 
@@ -133,7 +134,7 @@ android {
             applicationId "com.coinninja.regtest.coinkeeper"
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE__REG_TEST}\""
-            buildConfigField "String", "THUNDERDOME_API_BASE", "\"${THUNDERDOME_API_BASE__STAGING}\""
+            buildConfigField "String", "THUNDERDOME_API_BASE", "\"${THUNDERDOME_API_BASE__REG_TEST}\""
             buildConfigField "boolean", "IS_PRODUCTION", "false"
             buildConfigField "int", "COIN_TYPE", "1"
             buildConfigField "int", "PURPOSE", "49"
@@ -147,7 +148,7 @@ android {
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE__STAGING}\""
             buildConfigField "String", "THUNDERDOME_API_BASE", "\"${THUNDERDOME_API_BASE__STAGING}\""
-            buildConfigField "boolean", "IS_PRODUCTION", "false"
+            buildConfigField "boolean", "IS_PRODUCTION", "true"
             versionNameSuffix "-staging"
             buildConfigField "String", "FCM_APPLICATION_KEY", "\"${DEBUG_FCM_APP_KEY}\""
         }
