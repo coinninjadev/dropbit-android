@@ -322,7 +322,7 @@ class CreatePaymentActivity : BaseActivity() {
         }
     }
 
-    private fun clearPaymentInput() {
+    private fun clearPaymentInput(clearPaymentView: Boolean = true) {
         removeObservers()
         rawInputViewModel.clear()
         fundingViewModel.clear()
@@ -330,7 +330,9 @@ class CreatePaymentActivity : BaseActivity() {
         paymentHolder.paymentAddress = ""
         paymentHolder.toUser = null
         paymentHolder.clearTransactionData()
-        paymentReceiverView.paymentAddress = ""
+
+        if (clearPaymentView)
+            paymentReceiverView.paymentAddress = ""
     }
 
     private fun observeLiveData() {
@@ -354,7 +356,7 @@ class CreatePaymentActivity : BaseActivity() {
 
     internal fun onValidPhoneNumberInput(it: Phonenumber.PhoneNumber?) {
         val value = PhoneNumber(it)
-        clearPaymentInput()
+        clearPaymentInput(clearPaymentView = false)
         paymentHolder.toUser = Identity(IdentityType.PHONE, value.toInternationalDisplayText(), value.toHash())
         paymentHolder.toUser?.let {
             fundingViewModel.lookupIdentityHash(it.hashForType, accountModeToggle.mode)

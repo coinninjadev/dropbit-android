@@ -20,12 +20,16 @@ class CoinKeeperOpenHelper internal constructor(
         }
 
     private fun encryptedWritableDb(): Database {
-        if (!upgradeDBFormatStorage.isUpgraded) {
-            try {
-                databaseOpenHelper.updateDatabaseFormat(databaseSecretProvider.secret)
-            } catch (ex: SQLiteException) {
-                databaseOpenHelper.updateDatabaseFormat(databaseSecretProvider.default)
+        try {
+            if (!upgradeDBFormatStorage.isUpgraded) {
+                try {
+                    databaseOpenHelper.updateDatabaseFormat(databaseSecretProvider.secret)
+                } catch (ex: SQLiteException) {
+                    databaseOpenHelper.updateDatabaseFormat(databaseSecretProvider.default)
+                }
+                upgradeDBFormatStorage.isUpgraded = true
             }
+        } catch (e: Exception) {
             upgradeDBFormatStorage.isUpgraded = true
         }
 

@@ -21,7 +21,7 @@ class CNWalletManagerTest {
     }
 
     private fun createManager(): CNWalletManager {
-        val manager = CNWalletManager(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock())
+        val manager = CNWalletManager(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock())
         whenever(manager.bitcoinUtil.isValidBIP39Words(validWords)).thenReturn(true)
         whenever(manager.bitcoinUtil.isValidBIP39Words(invalidWords)).thenReturn(false)
         whenever(manager.walletHelper.seedWords).thenReturn(validWords)
@@ -112,12 +112,17 @@ class CNWalletManagerTest {
     @Test
     fun allows_user_to_skip_backup() {
         val manager = createManager()
+        val wallet:Wallet = mock()
+        whenever(manager.walletHelper.primaryWallet).thenReturn(wallet)
         whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
         manager.skipBackup(validWords)
 
         verify(manager.walletHelper).saveWords(validWords)
         verify(manager.preferencesUtil).savePreference(CNWalletManager.PREFERENCE_SKIPPED_BACKUP, true)
-        verify(manager.walletFlagsStorage).flags = 18
+
+        val ordered = inOrder(wallet)
+        ordered.verify(wallet).flags = 18
+        ordered.verify(wallet).update()
     }
 
     @Test
@@ -134,11 +139,16 @@ class CNWalletManagerTest {
     fun verifying_words_saves_words() {
         val manager = createManager()
         whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
+        val wallet:Wallet = mock()
+        whenever(manager.walletHelper.primaryWallet).thenReturn(wallet)
 
         manager.userVerifiedWords(validWords)
 
         verify(manager.walletHelper).saveWords(validWords)
-        verify(manager.walletFlagsStorage).flags = 18
+
+        val ordered = inOrder(wallet)
+        ordered.verify(wallet).flags = 18
+        ordered.verify(wallet).update()
     }
 
     @Test

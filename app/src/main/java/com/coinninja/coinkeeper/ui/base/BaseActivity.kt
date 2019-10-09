@@ -35,6 +35,7 @@ import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerController
 import com.coinninja.coinkeeper.ui.actionbar.managers.DrawerControllerProvider
 import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
+import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
@@ -115,12 +116,26 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         onLightningBalanceChanged(it)
     }
 
+    internal val syncInProgressObserver: Observer<Boolean> = Observer {
+        onSyncStatusChanged(it)
+    }
+
+    internal val defaultCurrencyPreferenceObserver: Observer<DefaultCurrencies> = Observer {
+        defaultCurrencyChanged(it)
+    }
+
     internal val holdingsWorthObserver: Observer<FiatCurrency> = Observer {
         onHoldingsWorthChanged(it)
     }
 
     internal val holdingsObserver: Observer<CryptoCurrency> = Observer {
         onHoldingsChanged(it)
+    }
+
+    internal val currencyModeChangeListener = object : ActionBarController.CurrencyModeChangeListener {
+        override fun onChange() {
+            walletViewModel.toggleDefaultCurrencyPreference()
+        }
     }
 
 
@@ -134,18 +149,32 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
 
     @CallSuper
     open fun onAccountModeChanged(mode: AccountMode) {
+        actionBarController.onAccountModeChange(this, mode)
     }
 
     @CallSuper
     open fun onLightningLockedChanged(isLightningLocked: Boolean) {
+        actionBarController.onLightningLockedChange(this, isLightningLocked)
     }
 
     @CallSuper
     open fun onHoldingsChanged(balance: CryptoCurrency) {
+        actionBarController.onHoldingsChanged(this, balance)
     }
 
     @CallSuper
     open fun onHoldingsWorthChanged(value: FiatCurrency) {
+        actionBarController.onHoldingsWorthChanged(this, value)
+    }
+
+    @CallSuper
+    open fun defaultCurrencyChanged(defaultCurrencies: DefaultCurrencies) {
+        actionBarController.onDefaultCurrencyChanged(this, defaultCurrencies)
+    }
+
+    @CallSuper
+    open fun onSyncStatusChanged(isSyncing: Boolean) {
+        actionBarController.onSyncStatusChange(this, isSyncing)
     }
 
     @CallSuper
@@ -235,7 +264,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         super.onCreate(savedInstanceState)
         walletViewModel = walletViewModelProvider.provide(this)
         walletViewModel.checkLightningLock()
-        actionBarController = actionbarControllerProvider.provide(walletViewModel, activityNavigationUtil)
+        actionBarController = actionbarControllerProvider.provide(activityNavigationUtil)
         drawerController = drawerControllerProvider.provide(walletViewModel, activityNavigationUtil)
         healthCheckRunner.setCallback(this)
     }
@@ -269,6 +298,10 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
             healthCheckRunner.run()
 
 
+        setupObservers()
+    }
+
+    private fun setupObservers() {
         walletViewModel.fetchBtcLatestPrice().observe(this, latestPriceObserver)
         walletViewModel.fetchLightningBalance().observe(this, lightningBalanceObserver)
         walletViewModel.currentPrice.observe(this, latestPriceObserver)
@@ -276,7 +309,26 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         walletViewModel.accountMode.observe(this, accountModeObserver)
         walletViewModel.holdings.observe(this, holdingsObserver)
         walletViewModel.holdingsWorth.observe(this, holdingsWorthObserver)
+        walletViewModel.syncInProgress.observe(this, syncInProgressObserver)
+        walletViewModel.defaultCurrencyPreference.observe(this, defaultCurrencyPreferenceObserver)
+        walletViewModel.loadHoldingBalances()
+        walletViewModel.loadCurrencyDefaults()
         walletViewModel.currentMode()
+        actionBarController.currencyModeChangeListener = currencyModeChangeListener
+        walletViewModel.checkLightningLock()
+    }
+
+    private fun removeObservers() {
+        walletViewModel.fetchBtcLatestPrice().removeObserver(latestPriceObserver)
+        walletViewModel.fetchLightningBalance().removeObserver(lightningBalanceObserver)
+        walletViewModel.currentPrice.removeObserver(latestPriceObserver)
+        walletViewModel.isLightningLocked.removeObserver(isLightningLockedObserver)
+        walletViewModel.holdings.removeObserver(holdingsObserver)
+        walletViewModel.holdingsWorth.removeObserver(holdingsWorthObserver)
+        walletViewModel.accountMode.removeObserver(accountModeObserver)
+        walletViewModel.syncInProgress.removeObserver(syncInProgressObserver)
+        walletViewModel.defaultCurrencyPreference.removeObserver(defaultCurrencyPreferenceObserver)
+        actionBarController.currencyModeChangeListener = null
     }
 
     override fun onPause() {
@@ -290,11 +342,9 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         }
         queue.removeCallbacks(healthCheckRunner)
         analytics.onActivityStop(this)
-        walletViewModel.currentPrice.removeObserver(latestPriceObserver)
-        walletViewModel.isLightningLocked.removeObserver(isLightningLockedObserver)
-        walletViewModel.fetchBtcLatestPrice().removeObserver(latestPriceObserver)
-        walletViewModel.fetchLightningBalance().removeObserver(lightningBalanceObserver)
+        removeObservers()
     }
+
 
     fun showLoading() {
         loadingDialog = loadingDialog ?: AlertDialogBuilder.buildIndefiniteProgress(this).also {

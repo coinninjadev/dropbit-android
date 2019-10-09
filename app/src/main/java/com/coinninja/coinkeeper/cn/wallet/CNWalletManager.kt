@@ -33,7 +33,6 @@ class CNWalletManager @Inject internal constructor(
         internal val dateUtil: DateUtil,
         internal val analytics: Analytics,
         internal val myTwitterProfile: MyTwitterProfile,
-        internal val walletFlagsStorage: WalletFlagsStorage,
         internal val seedWordGenerator: SeedWordGenerator,
         internal val walletConfiguration: WalletConfiguration
 ) {
@@ -143,7 +142,9 @@ class CNWalletManager @Inject internal constructor(
             walletHelper.saveWords(recoveryWords)
             accountManager.cacheAddresses()
             localBroadCastUtil.sendGlobalBroadcast(WalletCreatedBroadCastReceiver::class.java, DropbitIntents.ACTION_WALLET_CREATED)
-            walletFlagsStorage.flags = walletConfiguration.walletConfigurationFlags
+            val primaryWallet = walletHelper.primaryWallet
+            primaryWallet.flags = walletConfiguration.walletConfigurationFlags
+            primaryWallet.update()
             true
         }
     }

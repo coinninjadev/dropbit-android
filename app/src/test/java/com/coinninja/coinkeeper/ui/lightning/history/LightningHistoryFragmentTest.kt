@@ -1,9 +1,14 @@
 package com.coinninja.coinkeeper.ui.lightning.history
 
+import android.view.View
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.coinninja.cn.persistance.model.LedgerSettlementDetail
+import com.coinninja.coinkeeper.ui.base.BaseFragment
+import com.coinninja.coinkeeper.viewModel.WalletViewModel
+import com.coinninja.coinkeeper.viewModel.WalletViewModelProvider
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -29,6 +34,13 @@ class LightningHistoryFragmentTest {
     }
 
     @Test
+    fun init__observes_view_models() {
+        createFragment().onFragment { fragment ->
+            verify(fragment.walletViewModel.isLightningLocked).observe(fragment, fragment.isLightningLockedObserver)
+        }
+    }
+
+    @Test
     fun forwards_lightning_invoice_changes_to_adapter_when_observed() {
         createFragment().onFragment { fragment ->
             val settlements: List<LedgerSettlementDetail> = emptyList()
@@ -38,6 +50,28 @@ class LightningHistoryFragmentTest {
             verify(fragment.lightningHistoryAdapter).settlements = settlements
         }
     }
+
+    //LOCK
+    @Test
+    fun lock__shows_lock_when_locked() {
+        createFragment().onFragment { fragment ->
+            fragment.isLightningLockedObserver.onChanged(true)
+
+            assertThat(fragment.swipeToRefresh?.visibility).isEqualTo(View.GONE)
+            assertThat(fragment.lightningLock?.visibility).isEqualTo(View.VISIBLE)
+        }
+    }
+
+    @Test
+    fun lock__shows_transactions_when_not_locked() {
+        createFragment().onFragment { fragment ->
+            fragment.isLightningLockedObserver.onChanged(false)
+
+            assertThat(fragment.swipeToRefresh?.visibility).isEqualTo(View.VISIBLE)
+            assertThat(fragment.lightningLock?.visibility).isEqualTo(View.GONE)
+        }
+    }
+
 
     // Sync
 
@@ -81,6 +115,15 @@ class LightningHistoryFragmentTest {
             val viewModel = mock<LightningHistoryViewModel>()
             whenever(viewModel.loadInvoices()).thenReturn(mock())
             return viewModel
+        }
+
+        @Provides
+        fun provideWalletViewModelProvider(): WalletViewModelProvider {
+            val walletViewModelProvider: WalletViewModelProvider = mock()
+            val walletViewModel: WalletViewModel = mock()
+            whenever(walletViewModelProvider.provide(any<BaseFragment>())).thenReturn(walletViewModel)
+            whenever(walletViewModel.isLightningLocked).thenReturn(mock())
+            return walletViewModelProvider
         }
     }
 }

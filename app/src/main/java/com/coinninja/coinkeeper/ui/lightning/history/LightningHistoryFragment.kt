@@ -11,11 +11,15 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.coinninja.cn.persistance.model.LedgerSettlementDetail
+import com.coinninja.android.helpers.gone
+import com.coinninja.android.helpers.show
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.ui.base.BaseFragment
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.history.SyncManagerChangeObserver
+import com.coinninja.coinkeeper.viewModel.WalletViewModel
+import com.coinninja.coinkeeper.viewModel.WalletViewModelProvider
 import javax.inject.Inject
 
 class LightningHistoryFragment : BaseFragment() {
@@ -29,8 +33,28 @@ class LightningHistoryFragment : BaseFragment() {
     @Inject
     lateinit var lightningHistoryAdapter: LightningHistoryAdapter
 
+    @Inject
+    lateinit var walletViewModelProvider: WalletViewModelProvider
+
+    lateinit var walletViewModel: WalletViewModel
+
+    var isLightningLocked: Boolean = true
+        set(value: Boolean) {
+            val current = field
+            field = value
+
+            if (current != field) {
+                renderLockedState()
+            }
+        }
+
     val swipeToRefresh: SwipeRefreshLayout? get() = findViewById(R.id.pull_to_refresh)
     val history: RecyclerView? get() = findViewById(R.id.transaction_history)
+    val lightningLock: View? get() = findViewById(R.id.lightning_lock)
+
+    val isLightningLockedObserver: Observer<Boolean> = Observer {
+        isLightningLocked = it
+    }
 
     val onRefreshListener: OnRefreshListener = OnRefreshListener {
         syncWalletManager.syncNow()
@@ -48,7 +72,14 @@ class LightningHistoryFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_transaction_history, container, false)
+        return inflater.inflate(R.layout.fragment_lightning_history, container, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        walletViewModel = walletViewModelProvider.provide(this)
+        walletViewModel.isLightningLocked.observe(this, isLightningLockedObserver)
+        walletViewModel.checkLightningLock()
     }
 
     override fun onResume() {
@@ -63,5 +94,28 @@ class LightningHistoryFragment : BaseFragment() {
         swipeToRefresh?.setOnRefreshListener(onRefreshListener)
         syncManagerViewNotifier.observeSyncManagerChange(syncManagerChangeObserver)
         lightningHistoryViewModel.loadInvoices().observe(this, invoiceChangeObserver)
+        renderLockedState()
+    }
+
+    private fun renderLockedState() {
+        if (!isLightningLocked)
+            showHistory()
+        else
+            showLock()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        walletViewModel.isLightningLocked.removeObserver(isLightningLockedObserver)
+    }
+
+    private fun showLock() {
+        swipeToRefresh?.gone()
+        lightningLock?.show()
+    }
+
+    private fun showHistory() {
+        lightningLock?.gone()
+        swipeToRefresh?.show()
     }
 }

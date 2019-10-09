@@ -43,7 +43,7 @@ kapt {
 }
 
 greendao {
-    schemaVersion 39
+    schemaVersion 40
 }
 
 hockeyapp {
@@ -154,7 +154,6 @@ android {
 
         production {
             dimension "dropbit"
-            //buildConfigField "int", "PURPOSE", "49"
             applicationId "com.coinninja.coinkeeper"
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE}\""

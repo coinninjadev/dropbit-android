@@ -22,6 +22,7 @@ import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog
 import com.coinninja.coinkeeper.ui.twitter.TransactionTweetDialog
 import com.coinninja.coinkeeper.ui.twitter.TwitterTweetModule
 import com.coinninja.coinkeeper.view.fragment.*
+import com.coinninja.coinkeeper.viewModel.WalletViewModelModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -114,7 +115,7 @@ abstract class AndroidFragmentBuilder {
     internal abstract fun twitterIdentityFragment(): TwitterIdentityFragment
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [LightningHistoryFragmentModule::class])
+    @ContributesAndroidInjector(modules = [LightningHistoryFragmentModule::class, WalletViewModelModule::class])
     internal abstract fun lightningHistoryFragment(): LightningHistoryFragment
 
     @ActivityScope

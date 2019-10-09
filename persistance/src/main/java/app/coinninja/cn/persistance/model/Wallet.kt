@@ -49,5 +49,8 @@ data class Wallet(
         var coinType: Int = 0,
 
         @ColumnInfo(name = "ACCOUNT_INDEX")
-        var accountIndex: Int = 0
+        var accountIndex: Int = 0,
+
+        @ColumnInfo(name = "FLAGS")
+        var flags: Long = 0
 )

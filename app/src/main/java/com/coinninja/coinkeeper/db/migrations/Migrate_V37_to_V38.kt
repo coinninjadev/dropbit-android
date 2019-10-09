@@ -12,12 +12,11 @@ class Migrate_V37_to_V38 : AbstractMigration() {
     override val targetVersion: Int = 37
 
     override fun applyMigration(db: Database, currentVersion: Int) {
-        val _db = db.rawDatabase as SQLiteDatabase
-        _db.execSQL("alter table TRANSACTION_SUMMARY rename to TEMP_TRANSACTION_SUMMARY")
+        db.execSQL("alter table TRANSACTION_SUMMARY rename to TEMP_TRANSACTION_SUMMARY")
 
         Log.w("upgrade v38", "create temp table")
 
-        _db.execSQL("""
+        db.execSQL("""
          CREATE TABLE IF NOT EXISTS `TRANSACTION_SUMMARY` (
           `_id`                             INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
           `WALLET_ID`                       INTEGER,
@@ -46,7 +45,7 @@ class Migrate_V37_to_V38 : AbstractMigration() {
 
         Log.w("upgrade v38", "create create table")
 
-        _db.execSQL("""
+        db.execSQL("""
             insert into `TRANSACTION_SUMMARY` 
             (
                 `_id`,
@@ -87,10 +86,10 @@ class Migrate_V37_to_V38 : AbstractMigration() {
         """)
         Log.w("upgrade v38", "populate from old data")
 
-        _db.execSQL("drop table TEMP_TRANSACTION_SUMMARY")
+        db.execSQL("drop table TEMP_TRANSACTION_SUMMARY")
         Log.w("upgrade v38", "remove temp table")
 
-        _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fb7656fe776f84c0dafb448328cc31e7')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fb7656fe776f84c0dafb448328cc31e7')");
         Log.w("upgrade v38", "update room version")
     }
 }

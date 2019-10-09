@@ -20,6 +20,14 @@ class FundingModel(internal val addressUtil: AddressUtil,
                    internal val accountManager: AccountManager,
                    val transactionDustValue: Long) {
 
+    val allTransactionOutputs: MutableList<UnspentTransactionOutput>
+        get() {
+            val list = mutableListOf<UnspentTransactionOutput>()
+            targetStatHelper.allUnspentOutputs.forEach { target ->
+                list.add(target.toUnspentTransactionOutput())
+            }
+            return list
+        }
     val unspentTransactionOutputs: MutableList<UnspentTransactionOutput>
         get() {
             val list = mutableListOf<UnspentTransactionOutput>()
@@ -27,6 +35,17 @@ class FundingModel(internal val addressUtil: AddressUtil,
                 list.add(target.toUnspentTransactionOutput())
             }
             return list
+        }
+
+    val availableAmount: Long
+        get() {
+            var value = 0L
+
+            targetStatHelper.allUnspentOutputs.forEach { targetStat ->
+                value += targetStat.value
+            }
+
+            return value
         }
 
     val spendableAmount: Long

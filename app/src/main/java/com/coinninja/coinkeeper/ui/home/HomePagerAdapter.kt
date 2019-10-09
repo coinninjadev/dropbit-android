@@ -6,7 +6,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragment
-import com.coinninja.coinkeeper.ui.lightning.locked.LightningLockedFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 
 @Mockable
@@ -15,16 +14,12 @@ class HomePagerAdapter(fm: FragmentManager, behavior: Int) : FragmentStatePagerA
         const val numPages = 2
     }
 
-    var isLightningLocked = true
-    private var fragments = listOf(TransactionHistoryFragment(), LightningHistoryFragment(), LightningLockedFragment())
+    private var fragments = listOf(TransactionHistoryFragment(), LightningHistoryFragment())
 
-    override fun getItem(position: Int): Fragment {
-        return fragments[if (position == 1 && isLightningLocked) 2 else position]
-    }
+    override fun getItem(position: Int): Fragment = fragments[position]
 
     override fun getCount(): Int = numPages
 
-    override fun destroyItem(container: ViewGroup, position: Int, obj: Any) {
-    }
+    override fun destroyItem(container: ViewGroup, position: Int, obj: Any) { }
 }
 

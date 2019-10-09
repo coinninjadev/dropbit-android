@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.service.runner
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.cn.wallet.WalletFlags
-import com.coinninja.coinkeeper.cn.wallet.WalletFlagsStorage
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.receiver.WalletRegistrationCompleteReceiver
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
@@ -23,18 +22,17 @@ class WalletRegistrationRunner @Inject constructor(
         internal val hdWallet: HDWalletWrapper,
         internal val walletHelper: WalletHelper,
         internal val logger: CNLogger,
-        internal val analytics: Analytics,
-        internal val walletFlagsStorage: WalletFlagsStorage
+        internal val analytics: Analytics
 
 ) : Runnable {
 
     override fun run() {
         if (walletHelper.hasAccount()) {
-            notifyOfWalletRegistrationCompleted(walletFlagsStorage.flags)
+            notifyOfWalletRegistrationCompleted(walletHelper.primaryWallet.flags)
             return
         }
 
-        val walletFlags = walletFlagsStorage.flags
+        val walletFlags = walletHelper.primaryWallet.flags
         val response = apiClient.registerWallet(WalletRegistrationPayload(hdWallet.verificationKey, walletFlags))
         if (response.code() == 200 || response.code() == 201) {
             processSuccess(response, walletFlags)
@@ -48,8 +46,11 @@ class WalletRegistrationRunner @Inject constructor(
 
         val serverFlags = response.body()?.flags ?: 0
 
-        if (serverFlags != currentFlags)
-            walletFlagsStorage.flags = serverFlags
+        if (serverFlags != currentFlags) {
+            val wallet = walletHelper.primaryWallet
+            wallet.flags = serverFlags
+            wallet.update()
+        }
 
         analytics.setUserProperty(Analytics.PROPERTY_WALLET_VERSION, WalletFlags(serverFlags).versionBit)
         notifyOfWalletRegistrationCompleted(serverFlags)
