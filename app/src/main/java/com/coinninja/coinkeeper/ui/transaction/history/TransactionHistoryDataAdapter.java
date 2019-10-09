@@ -280,6 +280,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
                     break;
                 case UNCONFIRMED:
                     text = view.getResources().getString(R.string.confirmations_view_stage_4);
+                    view.setVisibility(View.GONE);
                     break;
                 default:
                     text = view.getResources().getString(R.string.confirmations_view_stage_3);

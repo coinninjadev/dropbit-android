@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.ui.lightning.withdrawal
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.annotation.CallSuper
 import androidx.lifecycle.Observer
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.commons.currency.BTCCurrency
@@ -147,12 +146,7 @@ class LightningWithdrawalActivity : BaseActivity() {
                 true
             }
 
-    private val totalWithdrawalAmount: BTCCurrency
-        get() =
-            BTCCurrency(paymentHolder.cryptoCurrency.toLong()
-                    + networkFeeValue.toLong()
-                    + dropBitFeeValue.toLong())
-
+    private val totalWithdrawalAmount: BTCCurrency get() = paymentHolder.cryptoCurrency as BTCCurrency
 
     private val isFunded: Boolean
         get() {

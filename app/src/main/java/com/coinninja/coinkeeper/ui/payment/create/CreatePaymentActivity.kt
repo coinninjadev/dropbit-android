@@ -119,7 +119,7 @@ class CreatePaymentActivity : BaseActivity() {
 
         if (it.numSatoshis > 0) {
             paymentHolder.updateValue(BTCCurrency(it.numSatoshis))
-            paymentHolder.updateValue(paymentHolder.fiat)
+            //paymentHolder.updateValue(paymentHolder.fiat)
             amountInputView.paymentHolder = paymentHolder
             amountInputView.primaryCurrency.disable()
         }

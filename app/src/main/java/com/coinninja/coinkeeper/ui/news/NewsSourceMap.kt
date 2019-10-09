@@ -14,6 +14,7 @@ class NewsSourceMap {
             "reddit" -> return R.drawable.reddit
             "coindesk" -> return R.drawable.coindesk
             "theblock" -> return R.drawable.the_block
+            "bitcoinmagazine" -> return R.drawable.bitcoin_magazine
             else -> return null
         }
     }

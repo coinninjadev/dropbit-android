@@ -121,6 +121,7 @@ class LndInvoiceRequestActivityTest {
 
         scenario.onActivity { activity ->
             activity.latestPriceObserver.onChanged(USDCurrency(10_000_00))
+            activity.latestPriceObserver.onChanged(USDCurrency(10_500_00))
 
             assertThat(activity.amountDisplayView.secondaryCurrencyText).isEqualTo("150,000,000 sats")
             assertThat(activity.amountDisplayView.primaryCurrencyText).isEqualTo("$15,000.00")
