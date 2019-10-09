@@ -446,24 +446,4 @@ class ActionBarControllerTest {
         argumentCaptor.value.onChanged(AccountMode.LIGHTNING)
         verify(activity.findViewById<DefaultCurrencyDisplaySyncView>(R.id.appbar_balance)).setAccountMode(AccountMode.LIGHTNING)
     }
-
-    @Test
-    fun clicking_transfer_button_presents_options_for_transfer() {
-        val controller = createController()
-        val argumentCaptor = argumentCaptor<View.OnClickListener>()
-
-        val actionBarTyped = TypedValue().apply {
-            resourceId = R.id.actionbar_up_on_with_nav_bar_balance_on_charts_on
-        }
-
-        controller.setTheme(activity, actionBarTyped)
-
-        verify(appbarTransferFunds).visibility = View.VISIBLE
-        verify(appbarTransferFunds).setOnClickListener(argumentCaptor.capture())
-
-        val listener = argumentCaptor.firstValue
-        listener.onClick(appbarTransferFunds)
-
-        verify(controller.activityNavigationUtil).showLoadLightningOptions(activity)
-    }
 }

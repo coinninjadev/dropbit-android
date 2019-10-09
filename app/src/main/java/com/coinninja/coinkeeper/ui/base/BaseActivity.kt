@@ -138,6 +138,12 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         }
     }
 
+    internal val lightningTransferPressedListener = object : ActionBarController.LightningTransferPressedListener {
+        override fun onLightningTransfer() {
+            if (walletViewModel.isLightningLocked.value == false)
+                activityNavigationUtil.showLoadLightningOptions(this@BaseActivity)
+        }
+    }
 
     val latestPriceObserver: Observer<FiatCurrency> = Observer {
         onLatestPriceChanged(it)
@@ -315,6 +321,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), MenuItemClickListener, 
         walletViewModel.loadCurrencyDefaults()
         walletViewModel.currentMode()
         actionBarController.currencyModeChangeListener = currencyModeChangeListener
+        actionBarController.lightningTransferPressedListener = lightningTransferPressedListener
         walletViewModel.checkLightningLock()
     }
 

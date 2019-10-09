@@ -106,6 +106,7 @@ class ActionBarController constructor(
     private var holdings: CryptoCurrency = BTCCurrency(0)
     private var defaultCurrencies: DefaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
     var currencyModeChangeListener: CurrencyModeChangeListener? = null
+    var lightningTransferPressedListener: LightningTransferPressedListener? = null
 
     fun setTheme(activity: AppCompatActivity, actionBarType: TypedValue) {
         if (!actionBarTypes.contains(actionBarType.resourceId)) {
@@ -180,16 +181,9 @@ class ActionBarController constructor(
 
     fun onLightningLockedChange(activity: AppCompatActivity, isLocked: Boolean = true) {
         activity.findViewById<ImageButton>(R.id.appbar_transfer_between_accounts)?.apply {
-            if (isBalanceBelowTitle && isLocked) {
+            if (isBalanceBelowTitle) {
                 show()
-                setOnClickListener { activityNavigationUtil.showLoadLightningOptions(activity) }
-            } else if (isBalanceBelowTitle && !isLocked) {
-                postDelayed({
-                    try {
-                        this.gone()
-                    } catch (e: Exception) {
-                    }
-                }, 300)
+                setOnClickListener { lightningTransferPressedListener?.onLightningTransfer() }
             } else {
                 gone()
             }
@@ -299,5 +293,9 @@ class ActionBarController constructor(
 
     interface CurrencyModeChangeListener {
         fun onChange()
+    }
+
+    interface LightningTransferPressedListener {
+        fun onLightningTransfer()
     }
 }
