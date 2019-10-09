@@ -58,8 +58,8 @@ class PaymentInputView @JvmOverloads constructor(
         }
 
     internal val sendMax: Button
-    internal val secondaryCurrency: TextView
-    internal val primaryCurrency: EditText
+    val secondaryCurrency: TextView
+    val primaryCurrency: EditText
 
     private var isSendingMax = false
     private var watcher: CurrencyFormattingTextWatcher = CurrencyFormattingTextWatcher()

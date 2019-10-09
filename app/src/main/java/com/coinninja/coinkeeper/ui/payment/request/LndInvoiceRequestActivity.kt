@@ -89,8 +89,10 @@ class LndInvoiceRequestActivity : BaseActivity() {
 
     override fun onLatestPriceChanged(currentPrice: FiatCurrency) {
         super.onLatestPriceChanged(currentPrice)
-        latestPrice = currentPrice as USDCurrency
-        renderAmount()
+        if (latestPrice.isZero) {
+            latestPrice = currentPrice as USDCurrency
+            renderAmount()
+        }
     }
 
     private fun renderAmount() {

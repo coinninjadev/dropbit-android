@@ -139,15 +139,15 @@ class LightningWithdrawalActivityTest {
         val scenario = createScenario()
         scenario.onActivity { activity ->
             activity.latestPriceObserver.onChanged(USDCurrency(10_500_00))
-            activity.paymentHolder.updateValue(BTCCurrency(150_000))
-            activity.dropbitFeeObserver.onChanged(BTCCurrency(5_000))
-            activity.networkFeeObserver.onChanged(BTCCurrency(50_000))
-            activity.lightningBalanceObserver.onChanged(BTCCurrency(155_000))
+            activity.lightningBalanceObserver.onChanged(USDCurrency(20_00).toBTC(activity.paymentHolder.evaluationCurrency))
+            activity.paymentHolder.updateValue(USDCurrency(21_00).toBTC(activity.paymentHolder.evaluationCurrency))
+            activity.dropbitFeeObserver.onChanged(USDCurrency(10).toBTC(activity.paymentHolder.evaluationCurrency))
+            activity.networkFeeObserver.onChanged(USDCurrency(50).toBTC(activity.paymentHolder.evaluationCurrency))
 
             activity.processWithdrawal()
 
             val dialog = activity.supportFragmentManager.findFragmentByTag("INVALID_WITHDRAWAL") as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo("Attempting to withdrawal $21.53. Not enough funds in lightning account.")
+            assertThat(dialog.message).isEqualTo("Attempting to withdrawal $21.00. Not enough funds in lightning account.")
             assertThat(activity.confirmed).isFalse()
         }
         scenario.close()

@@ -2,7 +2,9 @@ package com.coinninja.coinkeeper.cn.account
 
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
+import com.coinninja.coinkeeper.cn.wallet.WalletFlags
 import com.coinninja.coinkeeper.model.dto.AddressDTO
+import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.AddAddressBodyRequest
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress
@@ -17,6 +19,7 @@ class RemoteAddressCache @Inject internal constructor(
         internal val hdWalletWrapper: HDWalletWrapper,
         internal val apiClient: SignedCoinKeeperApiClient,
         internal val accountManager: AccountManager,
+        internal val walletHelper: WalletHelper,
         internal val remoteAddressLocalCache: RemoteAddressLocalCache
 ) {
     fun cacheAddresses() {
@@ -34,13 +37,14 @@ class RemoteAddressCache @Inject internal constructor(
 
     private fun addLightning(cachedAddresses: List<CNWalletAddress>) {
         var hasLightning = false
-        cachedAddresses.forEach {walletAddress ->
+        cachedAddresses.forEach { walletAddress ->
             if (walletAddress.address == "generate") {
                 hasLightning = true
             }
         }
 
-        if (!hasLightning) {
+        val wallet = walletHelper.primaryWallet
+        if (!hasLightning && wallet.purpose == 84) {
             apiClient.addAddress(AddAddressBodyRequest(pubKey = hdWalletWrapper.verificationKey, addressType = "lightning"))
         }
     }
