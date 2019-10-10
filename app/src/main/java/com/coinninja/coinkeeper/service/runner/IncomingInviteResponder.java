@@ -60,12 +60,12 @@ public class IncomingInviteResponder implements Runnable {
         InviteTransactionSummary invite;
         String address;
         String pubkey;
-        String addressType= "btc";
+        String addressType = "btc";
         AddressDTO addressDTO;
 
         for (int i = 0; i < invites.size(); i++) {
             invite = invites.get(i);
-            if (invite.getType() == Type.LIGHTNING_RECEIVED) {
+            if (invite.getType() == Type.LIGHTNING_RECEIVED && walletHelper.getPrimaryWallet().getPurpose() == 84) {
                 address = "generate";
                 pubkey = hdWalletWrapper.getVerificationKey();
                 addressType = "lightning";

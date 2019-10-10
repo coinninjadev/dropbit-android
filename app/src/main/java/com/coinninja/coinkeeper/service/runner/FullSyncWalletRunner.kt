@@ -47,7 +47,10 @@ class FullSyncWalletRunner constructor(internal val cnWalletManager: CNWalletMan
             syncDropbits()
 
             syncRunnable.run()
-            thunderDomeRepository.sync()
+
+            if (!cnWalletManager.isSegwitUpgradeRequired) {
+                thunderDomeRepository.sync()
+            }
             lightningInviteLinker.linkInvitesToInvoices()
             lightningWithdrawlLinker.linkWithdraws()
             transactionConfirmationUpdateRunner.run()
