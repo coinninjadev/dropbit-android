@@ -4,6 +4,7 @@ import com.coinninja.coinkeeper.cn.account.AccountManager;
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
+import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
@@ -110,6 +111,9 @@ public class IncomingInviteResponderTest {
         when(sampleInvite.getType()).thenReturn(Type.LIGHTNING_RECEIVED);
         sampleInvites.add(sampleInvite);
         when(walletHelper.getIncompleteReceivedInvites()).thenReturn(sampleInvites);
+        Wallet wallet = mock(Wallet.class);
+        when(walletHelper.getPrimaryWallet()).thenReturn(wallet);
+        when(walletHelper.getPrimaryWallet().getPurpose()).thenReturn(84);
         when(hdWalletWrapper.getVerificationKey()).thenReturn("--42-pub-key--");
         when(accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, sampleInvites.size())).thenReturn(addresstoDTO);
         when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString(), anyString())).thenReturn(getResponse(response));
