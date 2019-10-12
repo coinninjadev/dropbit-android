@@ -58,7 +58,8 @@ class RawInputViewModel @Inject constructor(
     }
 
     fun processCryptoUriInput(cryptoUriString: String) {
-        if (cryptoUriString.startsWith("ln")) {
+        if (cryptoUriString.startsWith("ln")
+                || cryptoUriString.startsWith("lightning:")) {
             assumeLightning(cryptoUriString)
         } else {
             assumeBlockchain(cryptoUriString)
@@ -67,12 +68,13 @@ class RawInputViewModel @Inject constructor(
     }
 
     private fun assumeLightning(cryptoUriString: String) {
+        val value = if (cryptoUriString.startsWith("lightning:")) cryptoUriString.split(":")[1] else cryptoUriString
         viewModelScope.launch {
             // TODO validate locally validity of encoded value before unpacking it
             // prefix: ln + BIP-0173 currency prefix (e.g. lnbc for Bitcoin mainnet, lntb for Bitcoin testnet, and lnbcrt for Bitcoin regtest)
             // consider bech32 validation on pattern
             val requestInvoice = withContext(Dispatchers.IO) {
-                thunderDomeRepository.decode(cryptoUriString)
+                thunderDomeRepository.decode(value)
             }
 
             withContext(Dispatchers.Main) {
