@@ -7,6 +7,7 @@ import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
 import dagger.Module
 import dagger.Provides
@@ -22,7 +23,8 @@ class PerformSegwitUpgradeActivityModule {
             remoteAddressCache: RemoteAddressCache,
             transactionBroadcaster: TransactionBroadcaster,
             hdWalletWrapper: HDWalletWrapper,
-            serviceWorkUtil: ServiceWorkUtil
+            serviceWorkUtil: ServiceWorkUtil,
+            analytics: Analytics
     )
             : WalletUpgradeModelProvider = WalletUpgradeModelProvider(
             cnClient,
@@ -32,7 +34,8 @@ class PerformSegwitUpgradeActivityModule {
             remoteAddressCache,
             transactionBroadcaster,
             hdWalletWrapper,
-            serviceWorkUtil
+            serviceWorkUtil,
+            analytics
     )
 
 }

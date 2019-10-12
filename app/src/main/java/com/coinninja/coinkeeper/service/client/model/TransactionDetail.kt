@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName
 @Mockable
 data class TransactionDetail(
         var txid: String = "",
-        var hash: String? = null,
+        var hash: String = "",
         var size: Int = 0,
         var vsize: Int = 0,
         var weight: Long = 0,
@@ -18,7 +18,7 @@ data class TransactionDetail(
         var isCoinbase: Boolean = false,
         @SerializedName("txinwitness")
         var witnesses: Array<String> = emptyArray(),
-        var blockhash: String? = null,
+        var blockhash: String = "",
         var height: Int = 0,
         var blockheight: Int = 0,
         var time: Long = 0,
@@ -32,7 +32,7 @@ data class TransactionDetail(
 ) {
     val numberOfInputs: Int get() = vInList.size
     val numberOfOutputs: Int get() = vOutList.size
-    val mempoolState: MemPoolState get() = if (blockhash.isNullOrEmpty()) MemPoolState.ACKNOWLEDGE else MemPoolState.MINED
+    val mempoolState: MemPoolState get() = if (blockhash.isEmpty()) MemPoolState.ACKNOWLEDGE else MemPoolState.MINED
     val timeMillis: Long get() = (if (blocktime > 0) blocktime else if (time > 0) time else receivedTime) * 1000
     fun numConfirmations(currentBlockHeight: Int): Int =
             if (blockheight > 0)
