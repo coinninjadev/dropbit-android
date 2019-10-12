@@ -6,9 +6,9 @@ import org.greenrobot.greendao.database.Database
 
 class Migrate_V34_to_V35 : AbstractMigration() {
 
-    override fun getMigratedVersion(): Int {
-        return 35
-    }
+    override val migratedVersion: Int = 35
+    override val targetVersion: Int = 34
+    override val previousMigration: Migration = Migrate_V33_to_V34()
 
     override fun applyMigration(db: Database, currentVersion: Int) {
         dropFeeColumnFromWallet(db)
@@ -52,11 +52,4 @@ class Migrate_V34_to_V35 : AbstractMigration() {
         db.execSQL("drop table TEMP_WALLET")
     }
 
-    override fun getTargetVersion(): Int {
-        return 34
-    }
-
-    override fun getPreviousMigration(): Migration {
-        return Migrate_V33_to_V34()
-    }
 }

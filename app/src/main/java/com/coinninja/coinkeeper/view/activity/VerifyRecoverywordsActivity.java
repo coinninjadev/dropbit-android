@@ -13,16 +13,16 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.VerifyRecoveryWordsPresenter;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.NotificationUtil;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.fragment.VerifyRecoverywordsFragment;
 
 import javax.inject.Inject;
 
-public class VerifyRecoverywordsActivity extends SecuredActivity implements VerifyRecoveryWordsPresenter.View {
+public class VerifyRecoverywordsActivity extends BaseActivity implements VerifyRecoveryWordsPresenter.View {
 
     public static final String DATA_RECOVERY_WORDS = "DATA_RECOVERY_WORDS";
     public static final String TAG_FRAGMENT = "CHALLENGE";
@@ -54,16 +54,6 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
         setContentView(R.layout.verify_recovery_words_activity);
         recoveryWords = (String[]) getIntent().getExtras().get(DATA_RECOVERY_WORDS);
         presenter.attach(this, recoveryWords, NUM_CHALLENGES);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        currentTag = getNextTag();
-        Fragment fragment = VerifyRecoverywordsFragment.newInstance(presenter);
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.wrapper, fragment, currentTag);
-        fragmentTransaction.commit();
     }
 
     @Override
@@ -107,10 +97,19 @@ public class VerifyRecoverywordsActivity extends SecuredActivity implements Veri
         }
     }
 
-
     @Override
     public Context getContext() {
         return getApplicationContext();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        currentTag = getNextTag();
+        Fragment fragment = VerifyRecoverywordsFragment.newInstance(presenter);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.add(R.id.wrapper, fragment, currentTag);
+        fragmentTransaction.commit();
     }
 
     private String getNextTag() {

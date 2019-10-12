@@ -2,13 +2,13 @@ package com.coinninja.coinkeeper.util
 
 import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
-import com.coinninja.matchers.IntentMatcher.equalTo
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
+import com.coinninja.matchers.IntentMatcher
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.equalTo
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -31,7 +31,6 @@ class CurrencyPreferenceTest {
         verify(currencyPreference.preferencesUtil).savePreference(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, secondary.symbol)
     }
 
-    /**/
     @Test
     fun provides_access_to_currency_preference() {
         val currencyPreference = createCurrencyPreference()
@@ -86,7 +85,7 @@ class CurrencyPreferenceTest {
 
         verify(currencyPreference.localBroadCastUtil).sendBroadcast(argumentCaptor.capture())
         val intent = argumentCaptor.value
-        assertThat(intent, equalTo(expected))
+        assertThat(intent, IntentMatcher.equalTo(expected))
     }
 
 }

@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 
 import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.CoinKeeperApplication;
@@ -25,7 +24,6 @@ import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.coinkeeper.util.DropbitIntents.ACTION_DROPBIT_ME_ACCOUNT_DISABLED;
 
 public class VerifiedDropbitMeDialog extends DropBitMeDialog {
@@ -65,28 +63,10 @@ public class VerifiedDropbitMeDialog extends DropBitMeDialog {
         View view = getView();
         if (view == null) return;
 
-        Button button = withId(view, R.id.dropbit_me_url);
+        Button button = findViewById(R.id.dropbit_me_url);
         button.setText(dropbitMeConfiguration.getShareUrl());
         localBroadCastUtil.registerReceiver(receiver, intentFilter);
         setupAvatarUI();
-    }
-
-    private void setupAvatarUI() {
-        String avatar = dropbitMeConfiguration.getAvatar();
-
-        if (avatar == null) {
-            withId(getView(), R.id.twitter_profile_picture).setVisibility(View.GONE);
-        } else {
-            withId(getView(), R.id.twitter_profile_picture).setVisibility(View.VISIBLE);
-            picasso.invalidate(avatar);
-            picasso.get().load(avatar).transform(CoinKeeperApplication.appComponent.provideCircleTransform()).into(((ImageView) getView().findViewById(R.id.twitter_profile_picture)));
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        localBroadCastUtil.unregisterReceiver(receiver);
     }
 
     @Override
@@ -107,6 +87,24 @@ public class VerifiedDropbitMeDialog extends DropBitMeDialog {
     protected void configureSecondaryButton(Button button) {
         button.setText(getString(R.string.dropbit_me_disable_account_button_label));
         button.setOnClickListener(v -> onDisableAccount());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        localBroadCastUtil.unregisterReceiver(receiver);
+    }
+
+    private void setupAvatarUI() {
+        String avatar = dropbitMeConfiguration.getAvatar();
+
+        if (avatar == null) {
+            findViewById(R.id.twitter_profile_picture).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.twitter_profile_picture).setVisibility(View.VISIBLE);
+            picasso.invalidate(avatar);
+            picasso.get().load(avatar).transform(CoinKeeperApplication.appComponent.provideCircleTransform()).into(((ImageView) getView().findViewById(R.id.twitter_profile_picture)));
+        }
     }
 
     private void onDisableAccount() {

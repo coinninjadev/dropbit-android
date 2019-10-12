@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.db.migrations
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.db.TestOpenHelper
 import com.coinninja.coinkeeper.model.db.DaoMaster
 import com.coinninja.coinkeeper.model.db.enums.BTCState
@@ -119,7 +120,7 @@ class Migrate_V33_to_V34Test {
 
         Migrate_V33_to_V34().runMigration(db, 33)
 
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         verifyTransactionInviteSummaries(daoSessionManager)
         verifyInviteSummaries(daoSessionManager)
         verifyTransactionNotifications(daoSessionManager)
@@ -203,7 +204,7 @@ class Migrate_V33_to_V34Test {
         assertThat(invite.walletId, equalTo(1L))
         assertThat(invite.transactionsInvitesSummaryID, equalTo(1L))
         assertThat(invite.transactionNotificationId, equalTo(1L))
-        assertThat(invite.type, equalTo(Type.SENT))
+        assertThat(invite.type, equalTo(Type.BLOCKCHAIN_SENT))
         assertThat(invite.btcState, equalTo(BTCState.FULFILLED))
         assertThat(invite.serverId, equalTo("--server-id--"))
         assertThat(invite.btcTransactionId, equalTo("--txid--"))
@@ -230,7 +231,7 @@ class Migrate_V33_to_V34Test {
         assertThat(invite.walletId, equalTo(1L))
         assertThat(invite.transactionsInvitesSummaryID, equalTo(2L))
         assertThat(invite.transactionNotificationId, equalTo(2L))
-        assertThat(invite.type, equalTo(Type.RECEIVED))
+        assertThat(invite.type, equalTo(Type.BLOCKCHAIN_RECEIVED))
         assertThat(invite.btcState, equalTo(BTCState.UNFULFILLED))
         assertThat(invite.serverId, equalTo("--server-id-1--"))
         assertNull(invite.btcTransactionId)

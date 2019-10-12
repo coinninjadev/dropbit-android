@@ -4,13 +4,12 @@ import android.graphics.drawable.Drawable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.CryptoCurrency;
-import com.coinninja.coinkeeper.util.currency.FiatCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 
 import org.hamcrest.MatcherAssert;
@@ -18,9 +17,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.CryptoCurrency;
+import app.dropbit.commons.currency.FiatCurrency;
+import app.dropbit.commons.currency.USDCurrency;
+
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DefaultCurrencyDisplayViewTest {
 
     private DefaultCurrencyDisplayView defaultCurrencyDisplayView;
@@ -43,10 +45,10 @@ public class DefaultCurrencyDisplayViewTest {
         TestableActivity activity = Robolectric.setupActivity(TestableActivity.class);
         activity.appendLayout(R.layout.adapter_item_transaction_record);
         defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
-        defaultCurrencyDisplayView = withId(activity, R.id.default_currency_view);
+        defaultCurrencyDisplayView = activity.findViewById(R.id.default_currency_view);
         defaultCurrencyDisplayView.useCryptoSymbol(false);
-        primaryCurrencyView = withId(defaultCurrencyDisplayView, R.id.primary_currency);
-        secondaryCurrencyView = withId(defaultCurrencyDisplayView, R.id.secondary_currency);
+        primaryCurrencyView = defaultCurrencyDisplayView.findViewById(R.id.primary_currency);
+        secondaryCurrencyView = defaultCurrencyDisplayView.findViewById(R.id.secondary_currency);
     }
 
     @Test
@@ -153,6 +155,7 @@ public class DefaultCurrencyDisplayViewTest {
     public void renders_crypto_symbol_primary() {
         DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new BTCCurrency(), new USDCurrency());
         defaultCurrencyDisplayView.useCryptoSymbol(true);
+        defaultCurrencyDisplayView.useCryptoIcon(false);
 
         defaultCurrencyDisplayView.renderValues(defaultCurrencies, BindableTransaction.SendState.SEND, totalCrypto, fiatValue);
 
@@ -163,9 +166,22 @@ public class DefaultCurrencyDisplayViewTest {
     public void renders_crypto_symbol_secondary() {
         DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
         defaultCurrencyDisplayView.useCryptoSymbol(true);
+        defaultCurrencyDisplayView.useCryptoIcon(false);
 
         defaultCurrencyDisplayView.renderValues(defaultCurrencies, BindableTransaction.SendState.SEND, totalCrypto, fiatValue);
 
         assertThat(secondaryCurrencyView, hasText("\u20BF 0.0001"));
+    }
+
+    @Test
+    public void renders_crypto_in_sats__mode_LIGHTNING() {
+        DefaultCurrencies defaultCurrencies = new DefaultCurrencies(new USDCurrency(), new BTCCurrency());
+        defaultCurrencyDisplayView.useCryptoSymbol(true);
+        defaultCurrencyDisplayView.useCryptoIcon(false);
+        defaultCurrencyDisplayView.setAccountMode(AccountMode.LIGHTNING);
+
+        defaultCurrencyDisplayView.renderValues(defaultCurrencies, BindableTransaction.SendState.SEND, totalCrypto, fiatValue);
+
+        assertThat(secondaryCurrencyView, hasText("10,000 sats"));
     }
 }

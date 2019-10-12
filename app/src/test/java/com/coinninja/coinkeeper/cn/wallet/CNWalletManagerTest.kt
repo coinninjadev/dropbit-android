@@ -1,16 +1,17 @@
 package com.coinninja.coinkeeper.cn.wallet
 
+import app.dropbit.commons.currency.BTCCurrency
 import com.coinninja.coinkeeper.model.PhoneNumber
+import com.coinninja.coinkeeper.model.db.Wallet
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver
 import com.coinninja.coinkeeper.service.client.CNUserAccount
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.analytics.AnalyticsBalanceRange
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 
 class CNWalletManagerTest {
@@ -24,15 +25,41 @@ class CNWalletManagerTest {
         whenever(manager.bitcoinUtil.isValidBIP39Words(validWords)).thenReturn(true)
         whenever(manager.bitcoinUtil.isValidBIP39Words(invalidWords)).thenReturn(false)
         whenever(manager.walletHelper.seedWords).thenReturn(validWords)
-        whenever(manager.walletHelper.wallet).thenReturn(mock())
+        whenever(manager.walletHelper.primaryWallet).thenReturn(mock())
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(0L))
+        whenever(manager.walletConfiguration.walletConfigurationFlags).thenReturn(18)
+        whenever(manager.seedWordGenerator.generate()).thenReturn(validWords)
 
         return manager
     }
 
     @Test
+    fun provides_access_to_check_if_wallet_upgrade_required() {
+        val manager = createManager()
+
+        whenever(manager.walletHelper.seedWords).thenReturn(null).thenReturn(validWords)
+        whenever(manager.walletHelper.primaryWallet.purpose).thenReturn(49).thenReturn(84)
+        whenever(manager.walletConfiguration.purpose).thenReturn(84)
+
+        assertThat(manager.isSegwitUpgradeRequired).isFalse()
+        assertThat(manager.isSegwitUpgradeRequired).isTrue()
+        assertThat(manager.isSegwitUpgradeRequired).isFalse()
+
+    }
+
+    @Test
+    fun provides_access_to_segwit_wallet_during_update() {
+        val manager = createManager()
+        val segwitWallet: Wallet = mock()
+        whenever(manager.walletHelper.getOrCreateSegwitWalletForUpdate(validWords)).thenReturn(segwitWallet)
+
+        assertThat(manager.segwitWalletForUpgrade).isEqualTo(segwitWallet)
+    }
+
+    @Test
     fun returns_false_if_wallet_last_sync_greater_than_0() {
         val manager = createManager()
-        whenever(manager.walletHelper.wallet.lastSync).thenReturn(0L).thenReturn(System.currentTimeMillis())
+        whenever(manager.walletHelper.primaryWallet.lastSync).thenReturn(0L).thenReturn(System.currentTimeMillis())
 
         assertTrue(manager.isFirstSync)
         assertFalse(manager.isFirstSync)
@@ -46,14 +73,14 @@ class CNWalletManagerTest {
 
         manager.syncCompleted()
 
-        verify(manager.walletHelper.wallet).lastSync = time
-        verify(manager.walletHelper.wallet).update()
+        verify(manager.walletHelper.primaryWallet).lastSync = time
+        verify(manager.walletHelper.primaryWallet).update()
     }
 
     @Test
     fun knows_no_wallet_exists_when_no_wallet_no_words() {
         val manager = createManager()
-        whenever(manager.walletHelper.seedWords).thenReturn(null).thenReturn(arrayOfNulls(0))
+        whenever(manager.walletHelper.seedWords).thenReturn(null).thenReturn(emptyArray())
         assertFalse(manager.hasWallet)
         assertFalse(manager.hasWallet)
     }
@@ -85,16 +112,21 @@ class CNWalletManagerTest {
     @Test
     fun allows_user_to_skip_backup() {
         val manager = createManager()
-        whenever(manager.walletHelper.seedWords).thenReturn(arrayOfNulls(0))
+        val wallet:Wallet = mock()
+        whenever(manager.walletHelper.primaryWallet).thenReturn(wallet)
+        whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
         manager.skipBackup(validWords)
 
         verify(manager.walletHelper).saveWords(validWords)
         verify(manager.preferencesUtil).savePreference(CNWalletManager.PREFERENCE_SKIPPED_BACKUP, true)
-        verify(manager.walletFlagsStorage).flags = WalletFlags.purpose49v1
+
+        val ordered = inOrder(wallet)
+        ordered.verify(wallet).flags = 18
+        ordered.verify(wallet).update()
     }
 
     @Test
-    fun verifying_words_do_not_save_words_when_they_are_saved() {
+    fun verifying_words_do_not_save_words_when_they_are_already_saved() {
         val manager = createManager()
         whenever(manager.walletHelper.seedWords).thenReturn(validWords)
 
@@ -106,18 +138,24 @@ class CNWalletManagerTest {
     @Test
     fun verifying_words_saves_words() {
         val manager = createManager()
-        whenever(manager.walletHelper.seedWords).thenReturn(arrayOfNulls(0))
+        whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
+        val wallet:Wallet = mock()
+        whenever(manager.walletHelper.primaryWallet).thenReturn(wallet)
 
         manager.userVerifiedWords(validWords)
 
         verify(manager.walletHelper).saveWords(validWords)
+
+        val ordered = inOrder(wallet)
+        ordered.verify(wallet).flags = 18
+        ordered.verify(wallet).update()
     }
 
     @Test
     fun caches_addresses_after_wallet_saved() {
         val manager = createManager()
         val inOrder = inOrder(manager.walletHelper, manager.accountManager, manager.localBroadCastUtil)
-        whenever(manager.walletHelper.seedWords).thenReturn(arrayOfNulls(0))
+        whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
 
         manager.userVerifiedWords(validWords)
 
@@ -146,7 +184,7 @@ class CNWalletManagerTest {
     fun success_when_words_are_saved_test() {
         val manager = createManager()
         val sampleSeedWords = validWords
-        whenever(manager.walletHelper.seedWords).thenReturn(arrayOfNulls(0))
+        whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
 
         val savedSuccessfully = manager.saveSeedWords(sampleSeedWords)
 
@@ -200,14 +238,14 @@ class CNWalletManagerTest {
         val manager = createManager()
         whenever(manager.seedWordGenerator.generate()).thenReturn(validWords)
 
-        assertThat(manager.generateRecoveryWords(), equalTo(validWords))
+        assertThat(manager.generateRecoveryWords()).isEqualTo(validWords)
     }
 
     @Test
     fun notifies_system_that_wallet_was_created() {
         val manager = createManager()
         whenever(manager.bitcoinUtil.isValidBIP39Words(validWords)).thenReturn(true)
-        whenever(manager.walletHelper.seedWords).thenReturn(arrayOfNulls(0))
+        whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
 
         manager.saveSeedWords(validWords)
 
@@ -217,11 +255,11 @@ class CNWalletManagerTest {
     @Test
     fun returns_true_when_user_has_btc_balance() {
         val manager = createManager()
-        whenever(manager.walletHelper.balance).thenReturn(100L)
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(100L))
 
         assertTrue(manager.hasBalance)
 
-        whenever(manager.walletHelper.balance).thenReturn(0L)
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(0L))
         assertFalse(manager.hasBalance)
     }
 
@@ -233,7 +271,7 @@ class CNWalletManagerTest {
         whenever(manager.walletHelper.userAccount.phoneNumber).thenReturn(phoneNumber)
 
         val actualPhone = manager.contact.phoneNumber
-        assertThat(actualPhone, equalTo(phoneNumber))
+        assertThat(actualPhone).isEqualTo(phoneNumber)
     }
 
     @Test
@@ -264,7 +302,7 @@ class CNWalletManagerTest {
     @Test
     fun track_balance_ranges__no_balance() {
         val manager = createManager()
-        whenever(manager.walletHelper.balance).thenReturn(0)
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(0))
 
         manager.updateBalances()
 
@@ -275,7 +313,7 @@ class CNWalletManagerTest {
     @Test
     fun track_balance_ranges__with_balance() {
         val manager = createManager()
-        whenever(manager.walletHelper.balance).thenReturn(99_999)
+        whenever(manager.walletHelper.balance).thenReturn(BTCCurrency(99_999))
 
         manager.updateBalances()
 
@@ -292,5 +330,57 @@ class CNWalletManagerTest {
         manager.updateAccount(account)
 
         verify(manager.walletHelper).saveAccountRegistration(account)
+    }
+
+    @Test
+    fun expose_marking_backup_as_skipped() {
+        val manager = createManager()
+
+        manager.markWalletBackupAsSkipped()
+
+        verify(manager.preferencesUtil).savePreference(CNWalletManager.PREFERENCE_SKIPPED_BACKUP, true)
+    }
+
+    @Test
+    fun upgrades_to_segwit() {
+        val manager = createManager()
+        val segwitWallet: Wallet = mock()
+        val legacyWallet: Wallet = mock()
+        whenever(manager.walletHelper.getOrCreateSegwitWalletForUpdate(any())).thenReturn(segwitWallet)
+        whenever(manager.walletHelper.primaryWallet).thenReturn(legacyWallet)
+
+        manager.replaceLegacyWithSegwit()
+
+        verify(manager.preferencesUtil).savePreference(CNWalletManager.PREFERENCE_SKIPPED_BACKUP, true)
+        verify(manager.walletHelper).rotateWallets(segwitWallet, legacyWallet)
+    }
+
+    @Test
+    fun has_legacy_wallet_when_primary_is_segwit_and_legacy_is_present() {
+        val manager = createManager()
+        val legacyWallet: Wallet = mock()
+        whenever(legacyWallet.purpose).thenReturn(49)
+        val segwitWallet: Wallet = mock()
+        whenever(segwitWallet.purpose).thenReturn(84)
+        whenever(manager.walletHelper.primaryWallet)
+                .thenReturn(null)
+                .thenReturn(legacyWallet)
+                .thenReturn(segwitWallet)
+
+        whenever(manager.walletHelper.legacyWallet).thenReturn(legacyWallet)
+
+        assertThat(manager.hasLegacyWallet).isFalse()
+        assertThat(manager.hasLegacyWallet).isFalse()
+        assertThat(manager.hasLegacyWallet).isTrue()
+    }
+
+    @Test
+    fun delete_wallet_removes_all_data_and_clears_preferences() {
+        val manager = createManager()
+
+        manager.deleteWallet()
+
+        verify(manager.walletHelper).deleteAll()
+        verify(manager.preferencesUtil).removeAll()
     }
 }

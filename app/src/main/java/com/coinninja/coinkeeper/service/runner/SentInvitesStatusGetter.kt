@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.service.runner
 import android.annotation.SuppressLint
 import android.content.Context
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.BTCCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
@@ -13,7 +14,6 @@ import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.SentInvite
 import com.coinninja.coinkeeper.util.CNLogger
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
 import javax.inject.Inject
 
 @Mockable
@@ -115,7 +115,7 @@ internal constructor(@ApplicationContext internal val context: Context,
     }
 
     private fun getContact(invite: InviteTransactionSummary): String {
-        return if (invite.type == Type.SENT) {
+        return if (invite.type == Type.BLOCKCHAIN_SENT || invite.type == Type.LIGHTNING_SENT) {
             invite.localeFriendlyDisplayIdentityForReceiver
         } else {
             invite.localeFriendlyDisplayIdentityForSender

@@ -4,9 +4,13 @@ package com.coinninja.coinkeeper.model.helpers
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.db.TestOpenHelper
 import com.coinninja.coinkeeper.model.PhoneNumber
-import com.coinninja.coinkeeper.model.db.*
+import com.coinninja.coinkeeper.model.db.Account
+import com.coinninja.coinkeeper.model.db.DaoMaster
+import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
+import com.coinninja.coinkeeper.model.db.UserIdentity
 import com.coinninja.coinkeeper.model.db.enums.AccountStatus
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.query.WalletQueryManager
@@ -37,9 +41,9 @@ class DropbitAccountHelperTest {
     }
 
     @Test
-    fun `returns number of verified identities`() {
+    fun returns_number_of_verified_identities() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val helper = createDropbitAccountHelper(daoSessionManager, accountStatus = AccountStatus.VERIFIED)
         val dropbitMeIdentity = DropbitMeIdentity()
         dropbitMeIdentity.account = helper.walletHelper.userAccount
@@ -100,7 +104,7 @@ class DropbitAccountHelperTest {
     }
 
     @Test
-    fun `creates phone identity from server identity`() {
+    fun creates_phone_identity_from_server_identity() {
         val helper = createDropbitAccountHelper()
         val dropbitMeIdentity = mock(DropbitMeIdentity::class.java)
         whenever(helper.daoSessionManager.newDropbitMeIdentity()).thenReturn(dropbitMeIdentity)
@@ -125,7 +129,7 @@ class DropbitAccountHelperTest {
     }
 
     @Test
-    fun `creates twitter identity from server identity`() {
+    fun creates_twitter_identity_from_server_identity() {
         val helper = createDropbitAccountHelper()
         val dropbitMeIdentity = mock(DropbitMeIdentity::class.java)
         whenever(helper.daoSessionManager.newDropbitMeIdentity()).thenReturn(dropbitMeIdentity)
@@ -152,7 +156,7 @@ class DropbitAccountHelperTest {
     @Test
     fun has_verified_account__false_when_pending_verification_status() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val helper = createDropbitAccountHelper(daoSessionManager)
         val dropbitMeIdentity = DropbitMeIdentity()
         dropbitMeIdentity.account = helper.walletHelper.userAccount
@@ -165,7 +169,7 @@ class DropbitAccountHelperTest {
     @Test
     fun has_verified_account__true_when_verified_status() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val helper = createDropbitAccountHelper(daoSessionManager, accountStatus = AccountStatus.VERIFIED)
         val dropbitMeIdentity = DropbitMeIdentity()
         dropbitMeIdentity.account = helper.walletHelper.userAccount
@@ -177,10 +181,10 @@ class DropbitAccountHelperTest {
     }
 
     @Test
-    fun `fetches a dropbit account for the desired toUser identity type -- resulting in identity of same type`() {
+    fun fetches_a_dropbit_account_for_the_desired_toUser_identity_type____resulting_in_identity_of_same_type() {
         val userIdentity = mock(UserIdentity::class.java)
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         whenever(userIdentity.type).thenReturn(IdentityType.PHONE)
         val account = Account()
         account.status = AccountStatus.VERIFIED
@@ -206,10 +210,10 @@ class DropbitAccountHelperTest {
     }
 
     @Test
-    fun `fetches a dropbit account for the desired toUser identity type -- resulting in whatever is verified`() {
+    fun fetches_a_dropbit_account_for_the_desired_toUser_identity_type__resulting_in_whatever_is_verified() {
         val userIdentity = mock(UserIdentity::class.java)
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         whenever(userIdentity.type).thenReturn(IdentityType.PHONE)
         val dropbitAccountHelper = createDropbitAccountHelper(daoSessionManager, accountStatus = AccountStatus.VERIFIED)
         val twitterIdentity = DropbitMeIdentity()
@@ -221,6 +225,18 @@ class DropbitAccountHelperTest {
 
         assertThat(profile).isNotNull()
         assertThat(profile!!.type).isEqualTo(IdentityType.TWITTER)
+    }
+
+    @Test
+    fun updates_account_with_new_ids() {
+        val accountHelper = createDropbitAccountHelper()
+        val account: Account = mock()
+        whenever(accountHelper.walletHelper.userAccount).thenReturn(account)
+
+        accountHelper.updateAccountIds("--wallet-id--")
+
+        verify(account).cnWalletId = "--wallet-id--"
+        verify(account).update()
     }
 
     private fun createDropbitAccountHelper(daoSessionManager: DaoSessionManager, accountStatus: AccountStatus = AccountStatus.PENDING_VERIFICATION): DropbitAccountHelper {

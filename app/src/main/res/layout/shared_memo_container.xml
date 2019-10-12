@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/rounded_view"
+    android:background="@drawable/rounded_with_stroke"
     android:orientation="vertical"
     android:windowSoftInputMode="stateVisible">
 
@@ -29,7 +29,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_height="39dp"/>
+        android:layout_height="39dp" />
 
     <TextView
         android:id="@+id/shared_memo_status_text_view"

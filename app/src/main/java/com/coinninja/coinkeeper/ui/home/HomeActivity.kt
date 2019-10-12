@@ -1,66 +1,99 @@
 package com.coinninja.coinkeeper.ui.home
 
 import android.os.Bundle
+import android.view.View
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.viewpager.widget.ViewPager
+import com.coinninja.android.helpers.hide
+import com.coinninja.android.helpers.show
 import com.coinninja.coinkeeper.R
-import com.coinninja.coinkeeper.ui.market.OnMarketSelectionObserver
+import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
+import com.coinninja.coinkeeper.ui.base.BaseActivity
+import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.util.DropbitIntents
-import com.coinninja.coinkeeper.util.analytics.Analytics
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.view.activity.base.BalanceBarActivity
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 
-class HomeActivity : BalanceBarActivity() {
+class HomeActivity : BaseActivity() {
 
     companion object {
         const val currentPageKey = "current_page"
     }
 
     @Inject
-    internal lateinit var activityNavigationUtil: ActivityNavigationUtil
+    internal lateinit var homePagerAdapterProvider: HomePagerAdapterProvider
 
     @Inject
-    internal lateinit var homePagerAdapterProvider: HomePagerAdapterProvider
-    var currentPage = 1
+    internal lateinit var accountModeManger: AccountModeManager
 
-    val onPageChangeListener = object : ViewPager.OnPageChangeListener {
-        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
-        override fun onPageScrollStateChanged(state: Int) {}
-        override fun onPageSelected(position: Int) {
-            if (position == 0)
-                analytics.trackEvent(Analytics.EVENT_CHARTS_OPENED)
+    @Inject
+    lateinit var syncWalletManager: SyncWalletManager
+
+    internal var currentPage = 0
+
+    internal var isLightningLocked = true
+
+    internal val paymentBarFragment: PaymentBarFragment
+        get() = supportFragmentManager.findFragmentByTag("paymentBarFragment") as PaymentBarFragment
+
+    internal val pager: ViewPager get() = findViewById(R.id.home_pager)
+    internal val tabs: TabLayout get() = findViewById(R.id.appbar_tabs)
+    internal val onTabSelectedListener: TabLayout.OnTabSelectedListener = object : TabLayout.OnTabSelectedListener {
+        override fun onTabReselected(tab: TabLayout.Tab?) {}
+
+        override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+        override fun onTabSelected(tab: TabLayout.Tab?) {
+            paymentBarFragment.show()
+            when (tabs.selectedTabPosition) {
+                1 -> {
+                    changeAccountMode(AccountMode.LIGHTNING)
+                    if (isLightningLocked)
+                        pager.postDelayed({
+                            if (isLightningLocked)
+                                try {
+                                    paymentBarFragment.hide()
+                                } catch (e: Exception) {
+                                }
+                        }, 300)
+                }
+                else -> {
+                    changeAccountMode(AccountMode.BLOCKCHAIN)
+                }
+            }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        observeMarketSelection(object : OnMarketSelectionObserver {
-            override fun onShowMarket() {
-                showMarketPage()
-            }
-        })
-        findViewById<ViewPager>(R.id.home_pager)?.apply {
-            addOnPageChangeListener(this@HomeActivity.onPageChangeListener)
+        findViewById<View>(R.id.appbar_balance_large)?.apply {
+            visibility = View.VISIBLE
+        }
+        findViewById<MotionLayout>(R.id.cn_content_wrapper)?.apply {
+            updateState()
+            rebuildScene()
+        }
+
+        pager.apply {
             adapter = homePagerAdapterProvider.provide(supportFragmentManager, lifecycle.currentState)
             setCurrentItem(currentPage, false)
-        }.also {
-            findViewById<TabLayout>(R.id.pager_tabs)?.apply {
-                setupWithViewPager(it)
-            }
+            tabs.setupWithViewPager(this)
         }
-    }
 
-    internal fun showMarketPage() {
-        findViewById<ViewPager>(R.id.home_pager)?.apply {
-            setCurrentItem(0, true)
-        }
+        addTabToAppBar(R.layout.home_appbar_tab_2, 1)
+        addTabToAppBar(R.layout.home_appbar_tab_1, 0)
+
+        tabs.addOnTabSelectedListener(onTabSelectedListener)
+        syncWalletManager.schedule30SecondSync()
     }
 
     override fun onResume() {
         super.onResume()
         showDetailWithInitialIntent()
+        selectTabForMode()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
@@ -79,6 +112,11 @@ class HomeActivity : BalanceBarActivity() {
         }
     }
 
+    override fun onLightningLockedChanged(isLightningLocked: Boolean) {
+        super.onLightningLockedChanged(isLightningLocked)
+        this.isLightningLocked = isLightningLocked
+    }
+
     private fun showDetailWithInitialIntent() {
         if (!intent.hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID)) return
 
@@ -86,4 +124,16 @@ class HomeActivity : BalanceBarActivity() {
         intent.removeExtra(DropbitIntents.EXTRA_TRANSACTION_ID)
     }
 
+    private fun selectTabForMode() {
+        when (accountModeManger.accountMode) {
+            AccountMode.LIGHTNING -> {
+                val tabs = tabs
+                tabs.selectTab(tabs.getTabAt(1))
+            }
+            else -> {
+                val tabs = tabs
+                tabs.selectTab(tabs.getTabAt(0))
+            }
+        }
+    }
 }

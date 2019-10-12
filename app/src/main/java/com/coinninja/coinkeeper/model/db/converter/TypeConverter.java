@@ -17,7 +17,7 @@ public class TypeConverter implements PropertyConverter<Type, Integer> {
             }
         }
 
-        return Type.SENT;
+        return Type.BLOCKCHAIN_SENT;
     }
 
     @Override

@@ -17,8 +17,8 @@ import androidx.annotation.Nullable;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.presenter.fragment.AuthenticateFragmentPresenter;
 import com.coinninja.coinkeeper.presenter.fragment.FingerprintAuthPresenter;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.base.BaseFragment;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.edittext.PinEditText;
 
 import javax.inject.Inject;
@@ -150,11 +150,13 @@ public class AuthenticateFragment extends BaseFragment implements AuthenticateFr
         pinInput.setEnabled(false);
         pinInput.setVisibility(View.INVISIBLE);
         pinErrorDisplay.setVisibility(View.INVISIBLE);
-        pinInput.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ((SecuredActivity) getActivity()).muteViewsWithMessage(getString(R.string.locked_out_message));
+        pinInput.postDelayed(() -> {
+            try {
+                // could no longer have foreground
+                ((BaseActivity) getActivity()).muteViewsWithMessage(getString(R.string.locked_out_message));
+            } catch (Exception e) {
             }
+
         }, 100);
     }
 
@@ -168,7 +170,7 @@ public class AuthenticateFragment extends BaseFragment implements AuthenticateFr
     @Override
     public void onWalletLockRemoved() {
         try {
-            ((SecuredActivity) getActivity()).teardownMute();
+            ((BaseActivity) getActivity()).teardownMute();
         } catch (Exception e) {
             //pass
         }

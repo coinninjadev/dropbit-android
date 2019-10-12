@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.cn.transaction
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.TransactionData
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
@@ -28,7 +28,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `sends encrypted notification when invite with transaction notification`() {
+    fun sends_encrypted_notification_when_invite_with_transaction_notification() {
         val transactionNotificationManager = createManager()
         val json = "--v<*>-json--"
         val encryption = "--encryption--"
@@ -54,7 +54,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `sends empty notification when invite with transaction notification but no pubkey`() {
+    fun sends_empty_notification_when_invite_with_transaction_notification_but_no_pubkey() {
         val transactionNotificationManager = createManager()
         val pubkey: String? = null
         val invite: InviteTransactionSummary = mock()
@@ -76,7 +76,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `sends empty notification when invite has no transaction notification`() {
+    fun sends_empty_notification_when_invite_has_no_transaction_notification() {
         val transactionNotificationManager = createManager()
         val invite: InviteTransactionSummary = mock()
         val toUser: UserIdentity = mock()
@@ -95,7 +95,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `only saves notification for invite when memo exists`() {
+    fun only_saves_notification_for_invite_when_memo_exists() {
         val transactionNotificationManager = createManager()
         val inviteSummary: InviteTransactionSummary = mock()
         val completedInviteDTO = createCompletedInviteDTO()
@@ -110,7 +110,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `saves transaction locally for given invite`() {
+    fun saves_transaction_locally_for_given_invite() {
         val transactionNotificationManager = createManager()
         val completedInviteDTO = createCompletedInviteDTO()
         val inviteSummary: InviteTransactionSummary = mock()
@@ -127,7 +127,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `saves transaction locally for given transaction`() {
+    fun saves_transaction_locally_for_given_transaction() {
         val transactionNotificationManager = createManager()
         val completedBroadcastDTO = createCompletedBroadCastDTO()
         completedBroadcastDTO.transactionId = TXID
@@ -155,7 +155,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `sends transaction notification to cn`() {
+    fun sends_transaction_notification_to_cn() {
         val transactionNotificationManager = createManager()
         val completedBroadcastDTO = createCompletedBroadCastDTO()
         val json = "--transaction-v*-as-json--"
@@ -177,7 +177,7 @@ class TransactionNotificationManagerTest {
     }
 
     @Test
-    fun `failures in sending memos are logged`() {
+    fun failures_in_sending_memos_are_logged() {
         val transactionNotificationManager = createManager()
         val completedBroadcastDTO = createCompletedBroadCastDTO()
         val json = "--transaction-v*-as-json--"

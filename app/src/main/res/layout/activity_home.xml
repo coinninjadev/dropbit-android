@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cn_content_wrapper"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:layoutDescription="@xml/motion_scene_home">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/pager_tabs"
+    <include layout="@layout/merge_appbar" />
+
+    <fragment
+        android:id="@+id/payment_bar_fragment"
+        android:name="com.coinninja.coinkeeper.ui.payment.PaymentBarFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:focusable="false"
-        app:layout_constraintBottom_toTopOf="@+id/home_pager"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tabBackground="@drawable/page_tabs_selector"
-        app:tabGravity="center"
-        app:tabIndicator="@null"
-        app:tabMaxWidth="16dp"
-        app:tabPaddingEnd="6dp"
-        app:tabPaddingStart="6dp"
-        app:tabRippleColor="@color/colorTransparent" />
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:background="@color/background_color_white"
+        android:elevation="4dp"
+        android:tag="paymentBarFragment"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintVertical_weight="1" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/home_pager"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pager_tabs" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/home_page_background"
+        android:elevation="4dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toTopOf="@+id/payment_bar_fragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbar_balance_large" />
+
+    <include layout="@layout/merge_system_messages" />
+</androidx.constraintlayout.motion.widget.MotionLayout>

@@ -52,18 +52,21 @@ public class SendingProgressView extends RelativeLayout {
         progressBar.setProgress(0);
 
         checkBox.setImageResource(R.drawable.ic_sending_check_idle);
+        setTag(R.drawable.ic_sending_check_idle);
     }
 
     public void completeSuccess() {
         Drawable progressDrawable = getResources().getDrawable(R.drawable.sending_progress_success);
         progressBar.setProgressDrawable(progressDrawable);
         checkBox.setImageResource(R.drawable.ic_sending_check_success);
+        setTag(R.drawable.ic_sending_check_success);
     }
 
     public void completeFail() {
         Drawable progressDrawable = getResources().getDrawable(R.drawable.sending_progress_fail);
         progressBar.setProgressDrawable(progressDrawable);
         checkBox.setImageResource(R.drawable.ic_sending_x_fail);
+        setTag(R.drawable.ic_sending_x_fail);
     }
 
     public void setProgress(int progress) {
@@ -71,5 +74,9 @@ public class SendingProgressView extends RelativeLayout {
             resetView();
         }
         progressBar.setProgress(progress);
+    }
+
+    public int getProgress() {
+        return progressBar.getProgress();
     }
 }

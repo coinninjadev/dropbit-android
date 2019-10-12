@@ -23,11 +23,13 @@ interface Analytics {
 
     fun setUserProperty(propertyName: String, value: Boolean)
     fun setUserProperty(propertyName: String, value: String)
+    fun setUserProperty(propertyName: String, value: Long)
 
     companion object {
         const val OS = "Android"
 
         // EVENTS
+        const val ENTERED_DEACTIVATED_WORDS: String = "EnteredDeactivatedWords"
 
         // -- BROADCASTING
         const val EVENT_BROADCAST_STARTED = "BroadcastStart"
@@ -82,10 +84,12 @@ interface Analytics {
         // -- Button Pressed -- History
         const val EVENT_BUTTON_SHARE_TRANS_ID = "ShareTransID" // - user taps share transaction ID button
         //json keys
+        const val EVENT_BROADCAST_JSON_KEY_BLOCK_STREAM_CODE = "BlockStreamCode"
+        const val EVENT_BROADCAST_JSON_KEY_BLOCK_STREAM_MSG = "BlockStreamMessage"
         const val EVENT_BROADCAST_JSON_KEY_LIB_CODE = "LibCode"
         const val EVENT_BROADCAST_JSON_KEY_LIB_MSG = "LibMsg"
-        const val EVENT_BROADCAST_JSON_KEY_BLOCK_CODE = "BlockCode"
-        const val EVENT_BROADCAST_JSON_KEY_BLOCK_MSG = "BlockMsg"
+        const val EVENT_BROADCAST_JSON_KEY_BLOCK_CODE = "BlockChainCode"
+        const val EVENT_BROADCAST_JSON_KEY_BLOCK_MSG = "BlockChainMsg"
         const val EVENT_BROADCAST_JSON_KEY_CHECK_IN_FAIL = "Message"
         const val EVENT_MEMO_JSON_KEY_DID_SHARE = "SharingEnabled"
         //check-in
@@ -95,6 +99,7 @@ interface Analytics {
 
         //BACKUP / Recovery Words
         const val EVENT_VIEW_RECOVERY_WORDS = "ViewWords"
+        const val EVENT_VIEW_LEGACY_WORDS: String = "ViewLegacyWords"
 
         //Transaction history empty state
         const val EVENT_GET_BITCOIN = "GetBitcoin"
@@ -148,7 +153,11 @@ interface Analytics {
         const val PROPERTY_HAS_RECEIVED_ADDRESS = "Has Received"
         const val PROPERTY_HAS_DROPBIT_ME_ENABLED = "DropBitMe Enabled"
         const val PROPERTY_TWITTER_VERIFIED = "Twitter Verified"
-        const val PROPERTY_APP_V1 = "v1Wallet"
+        const val PROPERTY_WALLET_VERSION = "WalletVersion"
         const val PROPERTY_PLATFORM = "platform"
+        const val PROPERTY_LIGHTNING_UPGRADE_STARTED = "Lightning Upgrade Started"
+        const val PROPERTY_LIGHTNING_UPGRADE_COMPLETED = "Lightning Upgrade Completed"
+        const val PROPERTY_LIGHTNING_UPGRADE_FROM_RESTORE = "Lightning Upgraded From Restore"
+        const val PROPERTY_LIGHTNING_UPGRADE_WITH_FUNDS = "Lightning Upgraded Funds"
     }
 }

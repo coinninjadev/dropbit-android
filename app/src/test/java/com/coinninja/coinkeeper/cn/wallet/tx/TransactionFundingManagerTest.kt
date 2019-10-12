@@ -1,23 +1,43 @@
 package com.coinninja.coinkeeper.cn.wallet.tx
 
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.UnspentTransactionOutput
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
+import app.coinninja.cn.libbitcoin.HDWallet
+import app.coinninja.cn.libbitcoin.enum.ReplaceableOption
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.db.TargetStat
+import com.coinninja.coinkeeper.model.db.Wallet
+import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyDouble
-import org.mockito.Mockito.mock
 import kotlin.math.floor
 
 class TransactionFundingManagerTest {
     private val feeRate: Double get() = 5.0
     private val payToAddress get() = "--address--"
+
+    @Test
+    fun building_transaction_data_with_RBF_set_to_false_overrides_UTXOS_preference() {
+        val transactionFundingManager = createTransactionFundingManager()
+        val unspentTransactionOutputs: MutableList<UnspentTransactionOutput> = mutableListOf()
+        mockTargets(transactionFundingManager, unspentTransactionOutputs, 9999L, 50000L, 100000L)
+        unspentTransactionOutputs.remove(unspentTransactionOutputs[2])
+        unspentTransactionOutputs.remove(unspentTransactionOutputs[1])
+
+        val transactionData = transactionFundingManager.buildFundedTransactionData(
+                payToAddress, feeRate, 5000L, false)
+
+        assertThat(transactionData.amount, equalTo(5000L))
+        assertThat(transactionData.feeAmount, equalTo(830L))
+        assertThat(transactionData.changeAmount, equalTo(4169L))
+        assertThat(transactionData.utxos, equalTo(unspentTransactionOutputs.toTypedArray()))
+        assertThat(transactionData.replaceableOption, equalTo(ReplaceableOption.MUST_NOT_BE_RBF))
+    }
 
     @Test
     fun `check to see if new fee can fund the transaction`() {
@@ -45,7 +65,7 @@ class TransactionFundingManagerTest {
         assertThat(transactionData.feeAmount, equalTo(500L))
         assertThat(transactionData.changeAmount, equalTo(4499L))
         assertThat(transactionData.utxos, equalTo(unspentTransactionOutputs.toTypedArray()))
-        assertThat(transactionData.isReplaceable, equalTo(true))
+        assertThat(transactionData.replaceableOption, equalTo(ReplaceableOption.MUST_BE_RBF))
     }
 
     @Test
@@ -226,7 +246,7 @@ class TransactionFundingManagerTest {
 
     private fun createTransactionFundingManager(): TransactionFundingManager {
         val expectedChangePath = DerivationPath(49, 0, 0, HDWallet.INTERNAL, 25)
-        val fundingModel = mock(FundingModel::class.java)
+        val fundingModel: FundingModel = mock()
         val unspentTransactionOutputs: MutableList<UnspentTransactionOutput> = mutableListOf()
         whenever(fundingModel.nextChangePath).thenReturn(expectedChangePath)
         whenever(fundingModel.unspentTransactionOutputs).thenReturn(unspentTransactionOutputs)
@@ -238,16 +258,22 @@ class TransactionFundingManagerTest {
 
         for (value in values) {
             spendableAmount += value
-            val stat = mock(TargetStat::class.java)
-            val unspentTransactionOutput = mock(UnspentTransactionOutput::class.java)
-            whenever(unspentTransactionOutput.amount).thenReturn(value)
+            val stat: TargetStat = mock()
+            val unspentTransactionOutput: UnspentTransactionOutput = UnspentTransactionOutput(
+                    amount = value
+            )
             whenever(stat.value).thenReturn(value)
             whenever(stat.toUnspentTransactionOutput()).thenReturn(unspentTransactionOutput)
             unspentTransactionOutputs.add(unspentTransactionOutput)
         }
         transactionFundingManager.fundingModel.unspentTransactionOutputs.addAll(unspentTransactionOutputs)
+        val wallet: Wallet = mock()
+        val walletHelper: WalletHelper = mock()
+        whenever(wallet.purpose).thenReturn(49)
+        whenever(transactionFundingManager.fundingModel.walletHelper).thenReturn(walletHelper)
+        whenever(transactionFundingManager.fundingModel.walletHelper.primaryWallet).thenReturn(wallet)
         whenever(transactionFundingManager.fundingModel.outPutSizeInBytesForAddress(payToAddress)).thenReturn(FundingModel.outputSizeP2SH)
-        whenever(transactionFundingManager.fundingModel.calculateFeeForBytes(any(), anyDouble())).thenCallRealMethod()
+        whenever(transactionFundingManager.fundingModel.calculateFeeForBytes(any(), any())).thenCallRealMethod()
         whenever(transactionFundingManager.fundingModel.spendableAmount).thenReturn(spendableAmount)
         whenever(transactionFundingManager.fundingModel.transactionDustValue).thenReturn(1000L)
         whenever(transactionFundingManager.fundingModel.inputSizeInBytes).thenCallRealMethod()

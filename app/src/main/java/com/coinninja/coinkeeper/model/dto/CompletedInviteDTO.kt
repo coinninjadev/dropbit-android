@@ -22,14 +22,14 @@ data class CompletedInviteDTO(
     val cnId: String? get() = invitedContact?.id
 
     constructor(parcel: Parcel) : this(
-            parcel.readParcelable(Identity::class.java.classLoader),
-            parcel.readLong(),
-            parcel.readLong(),
-            parcel.readLong(),
-            parcel.readString(),
-            parcel.readByte() != 0.toByte(),
-            parcel.readString(),
-            parcel.readParcelable(InvitedContact::class.java.classLoader)) {
+            identity = parcel.readParcelable(Identity::class.java.classLoader),
+            bitcoinPrice = parcel.readLong(),
+            inviteAmount = parcel.readLong(),
+            inviteFee = parcel.readLong(),
+            memo = parcel.readString() ?: "",
+            isMemoIsShared = parcel.readByte() != 0.toByte(),
+            requestId = parcel.readString() ?: "",
+            invitedContact = parcel.readParcelable(InvitedContact::class.java.classLoader)) {
     }
 
 

@@ -38,7 +38,8 @@ public class WalletSyncCompletedReceiver extends BroadcastReceiver {
                 JobServiceScheduler.BROADCAST_NOTIFICATION_SERVICE,
                 new Intent(context, BtcBroadcastNotificationService.class));
 
-        analytics.setUserProperty(Analytics.Companion.PROPERTY_HAS_BTC_BALANCE, cnWalletManager.getHasBalance());
+        if (cnWalletManager.getHasWallet())
+            analytics.setUserProperty(Analytics.Companion.PROPERTY_HAS_BTC_BALANCE, cnWalletManager.getHasBalance());
 
         jobServiceScheduler.enqueueWork(context,
                 ContactLookupService.class,

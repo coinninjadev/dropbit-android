@@ -7,17 +7,14 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.FeesManager
 import com.coinninja.coinkeeper.util.FeesManager.FeeType.*
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder
 import com.coinninja.coinkeeper.util.uri.routes.DropbitRoute
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import javax.inject.Inject
 
-class AdjustableFeesActivity : SecuredActivity() {
-    @Inject
-    lateinit var activityNavigationUtil: ActivityNavigationUtil
+class AdjustableFeesActivity : BaseActivity() {
 
     @Inject
     lateinit var dropbitUriBuilder: DropbitUriBuilder

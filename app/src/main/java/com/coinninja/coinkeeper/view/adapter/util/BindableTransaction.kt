@@ -2,20 +2,20 @@ package com.coinninja.coinkeeper.view.adapter.util
 
 import android.content.Context
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.CryptoCurrency
+import app.dropbit.commons.currency.FiatCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.CryptoCurrency
-import com.coinninja.coinkeeper.util.currency.FiatCurrency
 import javax.inject.Inject
 
 @Mockable
 class BindableTransaction @Inject constructor(
         @ApplicationContext internal val context: Context,
         internal val walletHelper: WalletHelper) {
-    var profileUrl: String?  = null
+    var profileUrl: String? = null
     var txTime: String? = null
     var confirmationState: ConfirmationState? = null
     var inviteState: InviteState? = null
@@ -57,10 +57,12 @@ class BindableTransaction @Inject constructor(
 
     val basicDirection: SendState
         get() {
-            when (sendState) {
-                SendState.FAILED_TO_BROADCAST_SEND, SendState.SEND_CANCELED, SendState.SEND -> return SendState.SEND
-                SendState.FAILED_TO_BROADCAST_TRANSFER, SendState.TRANSFER -> return SendState.TRANSFER
-                SendState.FAILED_TO_BROADCAST_RECEIVE, SendState.RECEIVE_CANCELED, SendState.RECEIVE -> return SendState.RECEIVE
+            return when (sendState) {
+                SendState.LOAD_LIGHTNING, SendState.FAILED_TO_BROADCAST_SEND,
+                SendState.SEND_CANCELED, SendState.SEND -> SendState.SEND
+                SendState.FAILED_TO_BROADCAST_TRANSFER, SendState.TRANSFER -> SendState.TRANSFER
+                SendState.UNLOAD_LIGHTNING, SendState.FAILED_TO_BROADCAST_RECEIVE,
+                SendState.RECEIVE_CANCELED, SendState.RECEIVE -> SendState.RECEIVE
                 else -> return SendState.RECEIVE
             }
         }
@@ -105,7 +107,15 @@ class BindableTransaction @Inject constructor(
     }
 
     enum class SendState {
-        RECEIVE, TRANSFER, SEND, SEND_CANCELED, RECEIVE_CANCELED, FAILED_TO_BROADCAST_TRANSFER, FAILED_TO_BROADCAST_SEND, FAILED_TO_BROADCAST_RECEIVE, DOUBLESPEND_SEND
+        RECEIVE, TRANSFER,
+        SEND, SEND_CANCELED,
+        RECEIVE_CANCELED,
+        FAILED_TO_BROADCAST_TRANSFER,
+        FAILED_TO_BROADCAST_SEND,
+        FAILED_TO_BROADCAST_RECEIVE,
+        DOUBLESPEND_SEND,
+        LOAD_LIGHTNING,
+        UNLOAD_LIGHTNING
     }
 
     enum class ConfirmationState {

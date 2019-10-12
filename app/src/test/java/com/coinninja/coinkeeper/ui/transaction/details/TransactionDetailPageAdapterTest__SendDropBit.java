@@ -16,10 +16,7 @@ import com.coinninja.coinkeeper.cn.dropbit.DropBitService;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
 import com.coinninja.coinkeeper.util.DropbitIntents;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
@@ -34,11 +31,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import app.dropbit.commons.currency.USDCurrency;
+
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtraWithKey;
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.ConfirmationViewMatcher.configuredForDropbit;
 import static com.coinninja.matchers.ConfirmationViewMatcher.stageIs;
 import static com.coinninja.matchers.ImageViewMatchers.hasContentDescription;
@@ -85,7 +83,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
             activity.appendLayout(R.layout.page_transaction_detail);
         });
 
-        page = withId(activity, R.id.page);
+        page = activity.findViewById(R.id.page);
         when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(0L));
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
@@ -94,7 +92,6 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         adapter.refreshData();
         adapter.setShowTransactionDetailRequestObserver(observer);
-        adapter.onDefaultCurrencyChanged(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
 
         bindableTransaction.setSendState(BindableTransaction.SendState.SEND);
         bindableTransaction.setHistoricalInviteUSDValue(0L);
@@ -125,7 +122,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView memoView = withId(activity, R.id.shared_memo_text_view);
+        TextView memoView = activity.findViewById(R.id.shared_memo_text_view);
 
         assertThat(memoView, hasText(memo));
     }
@@ -136,7 +133,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        View memoView = withId(activity, R.id.shared_transaction_subview);
+        View memoView = activity.findViewById(R.id.shared_transaction_subview);
 
         assertThat(memoView, isGone());
     }
@@ -147,7 +144,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        View memoView = withId(activity, R.id.shared_transaction_subview);
+        View memoView = activity.findViewById(R.id.shared_transaction_subview);
 
         assertThat(memoView, isGone());
     }
@@ -156,7 +153,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
     public void clicking_close_finishes_activity() {
         adapter.bindTo(page, bindableTransaction, 0);
 
-        withId(activity, R.id.ic_close).performClick();
+        activity.findViewById(R.id.ic_close).performClick();
 
         assertTrue(activity.isFinishing());
     }
@@ -165,7 +162,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
     public void renders_send_icon() {
         adapter.bindTo(page, bindableTransaction, 0);
 
-        ImageView icon = withId(page, R.id.ic_send_state);
+        ImageView icon = page.findViewById(R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_send));
     }
 
@@ -176,10 +173,10 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        ImageView icon = withId(page, R.id.ic_send_state);
+        ImageView icon = page.findViewById(R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
-        assertThat(withId(page, R.id.confirmation_beads), isGone());
-        assertThat(withId(page, R.id.confirmations), hasText(Resources.INSTANCE.getString(activity, R.string.transaction_details_dropbit_canceled)));
+        assertThat(page.findViewById(R.id.confirmation_beads), isGone());
+        assertThat(page.findViewById(R.id.confirmations), hasText(Resources.INSTANCE.getString(activity, R.string.transaction_details_dropbit_canceled)));
     }
 
     @Test
@@ -189,17 +186,17 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        ImageView icon = withId(page, R.id.ic_send_state);
+        ImageView icon = page.findViewById(R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_canceled));
-        assertThat(withId(page, R.id.confirmation_beads), isGone());
-        assertThat(withId(page, R.id.confirmations), hasText(Resources.INSTANCE.getString(activity, R.string.transaction_details_dropbit_expired)));
+        assertThat(page.findViewById(R.id.confirmation_beads), isGone());
+        assertThat(page.findViewById(R.id.confirmations), hasText(Resources.INSTANCE.getString(activity, R.string.transaction_details_dropbit_expired)));
     }
 
     @Test
     public void sets_content_description_for_icon() {
         adapter.bindTo(page, bindableTransaction, 0);
 
-        ImageView icon = withId(page, R.id.ic_send_state);
+        ImageView icon = page.findViewById(R.id.ic_send_state);
         String contentDescription = Resources.INSTANCE.getString(page.getContext(), R.string.transaction_detail_cd_send_state__dropbit_sent);
         assertThat(icon, hasContentDescription(contentDescription));
     }
@@ -211,8 +208,8 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView confirmations = withId(page, R.id.confirmations);
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_DROPBIT_SENT));
@@ -225,8 +222,8 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView confirmations = withId(page, R.id.confirmations);
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_ADDRESS_RECEIVED));
@@ -240,8 +237,8 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView confirmations = withId(page, R.id.confirmations);
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
 
         assertThat(confirmationsView, configuredForDropbit());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_PENDING));
@@ -255,12 +252,9 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView confirmations = withId(page, R.id.confirmations);
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
+        TextView confirmations = page.findViewById(R.id.confirmations);
 
-        assertThat(confirmationsView, configuredForDropbit());
-        assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_COMPLETE));
-        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmationsView.getContext(), R.string.confirmations_view_stage_5)));
+        assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_5)));
     }
 
     @Test
@@ -271,14 +265,14 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         bindableTransaction.setTxID("-- txid --");
 
         adapter.bindTo(page, bindableTransaction, 0);
-        Button seeDetails = withId(page, R.id.call_to_action);
+        Button seeDetails = page.findViewById(R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer).onTransactionDetailsRequested(bindableTransaction);
 
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
         adapter.bindTo(page, bindableTransaction, 1);
-        seeDetails = withId(page, R.id.call_to_action);
+        seeDetails = page.findViewById(R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer, times(2)).onTransactionDetailsRequested(bindableTransaction);
@@ -292,7 +286,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView contact = withId(page, R.id.identity);
+        TextView contact = page.findViewById(R.id.identity);
         assertThat(contact, hasText(name));
     }
 
@@ -305,7 +299,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        DefaultCurrencyDisplayView view = page.findViewById(R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(50010L));
         assertThat(view.getTotalCrypto().toLong(), equalTo(50010000L));
     }
@@ -319,7 +313,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        DefaultCurrencyDisplayView view = page.findViewById(R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(50010L));
         assertThat(view.getTotalCrypto().toLong(), equalTo(50010000L));
     }
@@ -331,7 +325,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        DefaultCurrencyDisplayView view = page.findViewById(R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(50010L));
         assertThat(view.getTotalCrypto().toLong(), equalTo(50010000L));
     }
@@ -342,7 +336,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView value = withId(page, R.id.transaction_date);
+        TextView value = page.findViewById(R.id.transaction_date);
         assertThat(value, hasText("April 24, 2018 01:24am"));
     }
 
@@ -350,27 +344,27 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
     public void does_not_allow_user_to_cancel_dropbit_when_not_pending() {
         bindableTransaction.setInviteState(BindableTransaction.InviteState.SENT_ADDRESS_PROVIDED);
         adapter.bindTo(page, bindableTransaction, 0);
-        TextView pendingDropbit = withId(page, R.id.button_cancel_dropbit);
+        TextView pendingDropbit = page.findViewById(R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
         bindableTransaction.setInviteState(BindableTransaction.InviteState.RECEIVED_ADDRESS_PROVIDED);
         adapter.bindTo(page, bindableTransaction, 0);
-        pendingDropbit = withId(page, R.id.button_cancel_dropbit);
+        pendingDropbit = page.findViewById(R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
         bindableTransaction.setInviteState(BindableTransaction.InviteState.CANCELED);
         adapter.bindTo(page, bindableTransaction, 0);
-        pendingDropbit = withId(page, R.id.button_cancel_dropbit);
+        pendingDropbit = page.findViewById(R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
         bindableTransaction.setInviteState(BindableTransaction.InviteState.EXPIRED);
         adapter.bindTo(page, bindableTransaction, 0);
-        pendingDropbit = withId(page, R.id.button_cancel_dropbit);
+        pendingDropbit = page.findViewById(R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
 
         bindableTransaction.setInviteState(BindableTransaction.InviteState.CONFIRMED);
         adapter.bindTo(page, bindableTransaction, 0);
-        pendingDropbit = withId(page, R.id.button_cancel_dropbit);
+        pendingDropbit = page.findViewById(R.id.button_cancel_dropbit);
         assertThat(pendingDropbit, isInvisible());
     }
 
@@ -382,7 +376,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        Button cancelButton = withId(page, R.id.button_cancel_dropbit);
+        Button cancelButton = page.findViewById(R.id.button_cancel_dropbit);
         assertThat(cancelButton, hasText(Resources.INSTANCE.getString(cancelButton.getContext(), R.string.cancel_dropbit)));
         assertThat(cancelButton, isVisible());
         assertThat(cancelButton, hasTag(inviteId));
@@ -395,7 +389,7 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
         bindableTransaction.setServerInviteId(inviteId);
         adapter.bindTo(page, bindableTransaction, 0);
 
-        withId(page, R.id.button_cancel_dropbit).performClick();
+        page.findViewById(R.id.button_cancel_dropbit).performClick();
 
         Intents.intending(hasAction(DropbitIntents.ACTION_CANCEL_DROPBIT));
         Intents.intending(hasComponent(DropBitService.class.getName()));
@@ -407,6 +401,6 @@ public class TransactionDetailPageAdapterTest__SendDropBit {
     public void bind_hides_call_show_details() {
         adapter.bindTo(page, bindableTransaction, 0);
 
-        assertThat(withId(page, R.id.call_to_action), isInvisible());
+        assertThat(page.findViewById(R.id.call_to_action), isInvisible());
     }
 }

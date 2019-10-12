@@ -28,25 +28,22 @@ import org.robolectric.shadows.ShadowDialog;
 
 import java.util.HashMap;
 
-import static com.coinninja.android.helpers.Views.clickOn;
-import static com.coinninja.android.helpers.Views.withId;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
+import static org.robolectric.shadows.ShadowView.clickOn;
 
 @RunWith(AndroidJUnit4.class)
 public class BuyBitcoinActivityTest {
+    @Mock
+    UserPreferences userPreferences;
+    BuyBitcoinActivity activity;
     @Mock
     private Location location;
     @Mock
     private LocationUtil locationUtil;
     @Mock
     private ActivityNavigationUtil activityNavigationUtil;
-    @Mock
-    UserPreferences userPreferences;
-
-    BuyBitcoinActivity activity;
-
     private HashMap<CoinNinjaParameter, String> parameters;
     private ActivityScenario<BuyBitcoinActivity> scenario;
 
@@ -65,13 +62,6 @@ public class BuyBitcoinActivityTest {
         });
     }
 
-    private void configureDI() {
-        TestCoinKeeperApplication testCoinKeeperApplication = ApplicationProvider.getApplicationContext();
-        testCoinKeeperApplication.activityNavigationUtil = activityNavigationUtil;
-        testCoinKeeperApplication.locationUtil = locationUtil;
-        testCoinKeeperApplication.userPreferences = userPreferences;
-    }
-
     @After
     public void tearDown() {
         activity = null;
@@ -83,7 +73,7 @@ public class BuyBitcoinActivityTest {
 
     @Test
     public void forwards_buy_with_credit_card() {
-        clickOn(withId(activity, R.id.buy_with_credit_card));
+        clickOn(activity.findViewById(R.id.buy_with_credit_card));
 
         Dialog alertDialog = ShadowDialog.getLatestDialog();
         assert alertDialog != null;
@@ -95,7 +85,7 @@ public class BuyBitcoinActivityTest {
 
     @Test
     public void forwards_buy_with_gift_card() {
-        clickOn(withId(activity, R.id.buy_with_gift_card));
+        clickOn(activity.findViewById(R.id.buy_with_gift_card));
 
         Dialog alertDialog = ShadowDialog.getLatestDialog();
         assert alertDialog != null;
@@ -109,7 +99,7 @@ public class BuyBitcoinActivityTest {
     public void forwards_find_atm_on_click__when_permission_to_access_location() {
         when(locationUtil.canReadLocation()).thenReturn(true);
 
-        clickOn(withId(activity, R.id.buy_at_atm));
+        clickOn(activity.findViewById(R.id.buy_at_atm));
 
         verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.Companion.EVENT_BUY_BITCOIN_AT_ATM);
     }
@@ -118,7 +108,7 @@ public class BuyBitcoinActivityTest {
     public void requests_location_permission_on_atm_click__when_no_permission_to_access_location() {
         when(locationUtil.canReadLocation()).thenReturn(false);
 
-        clickOn(withId(activity, R.id.buy_at_atm));
+        clickOn(activity.findViewById(R.id.buy_at_atm));
 
         verify(locationUtil).requestPermissionToAccessLocationFor(activity);
     }
@@ -143,6 +133,13 @@ public class BuyBitcoinActivityTest {
         activity.onRequestPermissionsResult(DropbitIntents.REQUEST_PERMISSIONS_LOCATION, new String[0], grantResults);
 
         verify(activityNavigationUtil).navigatesToMapWith(activity, parameters, location, Analytics.Companion.EVENT_BUY_BITCOIN_AT_ATM);
+    }
+
+    private void configureDI() {
+        TestCoinKeeperApplication testCoinKeeperApplication = ApplicationProvider.getApplicationContext();
+        testCoinKeeperApplication.activityNavigationUtil = activityNavigationUtil;
+        testCoinKeeperApplication.locationUtil = locationUtil;
+        testCoinKeeperApplication.userPreferences = userPreferences;
     }
 
 }

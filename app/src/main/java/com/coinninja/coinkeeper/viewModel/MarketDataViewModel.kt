@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.currency.USDCurrency
 import app.dropbit.commons.util.CoroutineContextProvider
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
@@ -14,7 +15,6 @@ import com.coinninja.coinkeeper.service.client.model.HistoricalPriceRecord
 import com.coinninja.coinkeeper.ui.market.Granularity
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

@@ -4,16 +4,13 @@ import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
 
-import javax.inject.Inject;
-
 public class SaveRecoveryWordsRunner implements Runnable {
     private final CNWalletManager cnWalletManager;
     private final LocalBroadCastUtil localBroadCastUtil;
 
     private String[] words;
 
-    @Inject
-    SaveRecoveryWordsRunner(CNWalletManager cnWalletManager,
+    public SaveRecoveryWordsRunner(CNWalletManager cnWalletManager,
                             LocalBroadCastUtil localBroadCastUtil) {
 
         this.cnWalletManager = cnWalletManager;

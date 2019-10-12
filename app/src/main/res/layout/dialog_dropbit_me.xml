@@ -7,9 +7,9 @@
 
     <com.coinninja.coinkeeper.view.widget.DropbitMeImageView
         android:id="@+id/dropbit_me"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="40dp"
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        android:layout_marginTop="48dp"
         android:scaleType="fitXY"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

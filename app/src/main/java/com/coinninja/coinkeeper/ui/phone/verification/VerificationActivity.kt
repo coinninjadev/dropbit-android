@@ -5,30 +5,26 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import app.dropbit.twitter.ui.login.TwitterLoginActivity
-import com.coinninja.android.helpers.Views.withId
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController
 import com.coinninja.coinkeeper.ui.account.verify.twitter.TwitterVerificationController.Companion.TWITTER_LOGIN_REQUEST_CODE
+import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocaleGenerator
 import com.coinninja.coinkeeper.view.widget.phonenumber.PhoneVerificationView
 import com.google.i18n.phonenumbers.Phonenumber
 import javax.inject.Inject
 
-class VerificationActivity : SecuredActivity() {
+class VerificationActivity : BaseActivity() {
 
     var countryCodeLocales: List<CountryCodeLocale> = emptyList()
 
     @Inject
     internal lateinit var countryCodeLocaleGenerator: CountryCodeLocaleGenerator
-    @Inject
-    internal lateinit var activityNavigationUtil: ActivityNavigationUtil
     @Inject
     internal lateinit var serviceWorkUtil: ServiceWorkUtil
     @Inject
@@ -52,7 +48,7 @@ class VerificationActivity : SecuredActivity() {
         super.onCreate(savedInstanceState)
         countryCodeLocales = countryCodeLocaleGenerator.generate()
         setContentView(R.layout.activity_verify_phone)
-        phoneVerificationView = withId(this, R.id.verification_view)
+        phoneVerificationView = findViewById(R.id.verification_view)
 
         if (intent != null && intent.getBooleanExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, false)) {
             setupTwitterVerificationButton()
@@ -87,9 +83,7 @@ class VerificationActivity : SecuredActivity() {
 
 
     override fun onSkipClicked() {
-        if (analytics != null) {
-            analytics.trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SKIPPED)
-        }
+        analytics.trackEvent(Analytics.EVENT_PHONE_VERIFICATION_SKIPPED)
         activityNavigationUtil.navigateToHome(this)
     }
 

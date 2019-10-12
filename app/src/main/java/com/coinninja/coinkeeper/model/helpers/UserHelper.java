@@ -40,10 +40,4 @@ public class UserHelper {
         return getUser().getLockedUntilTime();
     }
 
-    public void setCompletedTraining(boolean completedTraining) {
-        User user = getUser();
-        user.setCompletedTraining(completedTraining);
-        user.update();
-        user.refresh();
-    }
 }

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:padding="16dp"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <Button
+        android:id="@+id/view_btc"
+        style="@style/Button.Bitcoin.AccountMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:drawableStart="@drawable/ic_btc_symbol"
+        android:drawablePadding="8dp"
+        android:text="@string/bitcoin"
+        android:textColor="@color/account_mode_toggle_selector"
+        app:drawableTint="@color/account_mode_toggle_selector"
+        app:layout_constraintEnd_toStartOf="@+id/view_lightning"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:enabled="false" />
+
+    <Button
+        android:id="@+id/view_lightning"
+        style="@style/Button.Lightning.AccountMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:drawableStart="@drawable/ic_lightning_symbol"
+        android:drawablePadding="8dp"
+        android:text="@string/lightning"
+        android:textColor="@color/account_mode_toggle_selector"
+        app:drawableTint="@color/account_mode_toggle_selector"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/view_btc"
+        tools:enabled="true" />
+
+</merge>

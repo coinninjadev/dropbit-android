@@ -2,6 +2,9 @@ package com.coinninja.coinkeeper.view.activity;
 
 import android.content.Intent;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.interfaces.PinEntry;
@@ -19,10 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
-import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 import static junit.framework.Assert.assertNotNull;
@@ -35,8 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class CreatePinActivityTest {
 
     @Mock
@@ -45,12 +44,11 @@ public class CreatePinActivityTest {
     private CreatePinActivity activity;
     private PinFragmentPresenter pinFragmentPresenter;
     private ShadowActivity shadowActivity;
-    private TestCoinKeeperApplication application;
+    private TestCoinKeeperApplication application = ApplicationProvider.getApplicationContext();
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        application = (TestCoinKeeperApplication) RuntimeEnvironment.application;
         application.pinEntry = pinEntry;
         pinFragmentPresenter = mock(PinFragmentPresenter.class);
     }
@@ -205,7 +203,7 @@ public class CreatePinActivityTest {
         verify(activity.confirmFragment, never()).showPinMismatch();
         verify(activity.confirmFragment).onDismissRequest();
         verify(pinFragmentPresenter).clearPin();
-        verify(activity.actionBarController).updateTitle(activity.getString(R.string.set_pin_header));
+        verify(activity.getActionBarController()).displayTitle(activity, activity.getString(R.string.set_pin_header));
     }
 
     private void initWithIntent(Intent intent) {

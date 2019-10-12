@@ -3,6 +3,7 @@ package com.coinninja.coinkeeper.model.db
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.WalletConfiguration
 import com.coinninja.coinkeeper.db.TestOpenHelper
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
@@ -25,7 +26,7 @@ class TransactionsInvitesSummaryTest {
     @After
     fun tearDown() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         daoSessionManager.resetAll()
         db.close()
         ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>().deleteDatabase(TestOpenHelper.dbName)
@@ -34,7 +35,7 @@ class TransactionsInvitesSummaryTest {
     @Test
     fun `returns locale friendly identity string`() {
         val db = getWritableDB()
-        val daoSessionManager = DaoSessionManager(DaoMaster(db)).connect()
+        val daoSessionManager = DaoSessionManager(DaoMaster(db), WalletConfiguration(49, 0, 0, false)).connect()
         val invitesSummary = TransactionsInvitesSummary()
         daoSessionManager.insert(invitesSummary)
         val toUser = UserIdentityHelper(daoSessionManager)

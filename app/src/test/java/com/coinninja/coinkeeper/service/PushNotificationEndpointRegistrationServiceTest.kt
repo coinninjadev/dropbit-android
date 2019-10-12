@@ -4,8 +4,11 @@ import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.service.PushNotificationServiceManager
 import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler
 import com.nhaarman.mockitokotlin2.*
+import dagger.Module
+import dagger.Provides
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -19,7 +22,6 @@ class PushNotificationEndpointRegistrationServiceTest {
 
     private fun createService(): PushNotificationEndpointRegistrationService {
         val service = Robolectric.setupService(PushNotificationEndpointRegistrationService::class.java)
-        service.pushNotificationServiceManager = mock()
         service.yearlyHighSubscription = mock()
         service.uuid = "--uuid--"
         service.jobServiceScheduler = mock()
@@ -99,5 +101,11 @@ class PushNotificationEndpointRegistrationServiceTest {
         assertThatIntent(intent)
                 .hasComponent(application.packageName,
                         PushNotificationEndpointRegistrationService::class.java.name)
+    }
+
+    @Module
+    class PushNotificationEndpointRegistrationServiceTestModule {
+        @Provides
+        fun pushNotificationServiceManager(): PushNotificationServiceManager = mock()
     }
 }

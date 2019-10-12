@@ -7,16 +7,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.coinninja.android.helpers.Views;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
+import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.image.CircleTransform;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
+import com.coinninja.coinkeeper.util.image.TwitterCircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.InviteState;
@@ -29,12 +31,16 @@ import org.greenrobot.greendao.query.LazyList;
 import javax.inject.Inject;
 
 import static androidx.recyclerview.widget.RecyclerView.Adapter;
-import static com.coinninja.android.helpers.Views.withId;
 
 public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDataAdapter.ViewHolder> implements DefaultCurrencyChangeObserver {
 
+    static int FOOTER_TYPE = 1;
+    static int STANDARD_TYPE = 0;
     private final Picasso picasso;
-    private final CircleTransform circleTransform;
+    private final TwitterCircleTransform circleTransform;
+    private final WalletHelper walletHelper;
+    private final Analytics analytics;
+    private final ActivityNavigationUtil activityNavigationUtil;
     private LazyList<TransactionsInvitesSummary> transactions;
     private OnItemClickListener onItemClickListener;
     private TransactionAdapterUtil transactionAdapterUtil;
@@ -42,33 +48,49 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
     private DefaultCurrencyChangeViewNotifier defaultCurrencyChangeViewNotifier;
 
     @Inject
-    public TransactionHistoryDataAdapter(TransactionAdapterUtil transactionAdapterUtil, DefaultCurrencies defaultCurrencies, Picasso picasso, CircleTransform circleTransform) {
+    public TransactionHistoryDataAdapter(TransactionAdapterUtil transactionAdapterUtil,
+                                         DefaultCurrencies defaultCurrencies, Picasso picasso,
+                                         TwitterCircleTransform circleTransform, WalletHelper walletHelper,
+                                         Analytics analytics, ActivityNavigationUtil activityNavigationUtil
+
+    ) {
         this.transactionAdapterUtil = transactionAdapterUtil;
         this.defaultCurrencies = defaultCurrencies;
         this.picasso = picasso;
         this.circleTransform = circleTransform;
+        this.walletHelper = walletHelper;
+        this.analytics = analytics;
+        this.activityNavigationUtil = activityNavigationUtil;
     }
 
     @Override
     public TransactionHistoryDataAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_item_transaction_record, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        if (!transactions.isClosed()) {
-            BindableTransaction transaction =
-                    transactionAdapterUtil.translateTransaction(transactions.get(position));
-            holder.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
-            holder.bindToTransaction(transaction, defaultCurrencies, picasso, circleTransform);
-            holder.getItemView().setOnClickListener(v -> onClick(holder.getItemView(), position));
+        if (viewType == STANDARD_TYPE) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_item_transaction_record, parent, false);
+            return new ViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_empty_transactions, parent, false);
+            return new ViewHolder(view);
         }
     }
 
     @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        if (getItemViewType(position) == STANDARD_TYPE) {
+            bindToTransactionRecord(holder, position);
+        } else {
+            bindToFooter(holder);
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position >= transactions.size() ? FOOTER_TYPE : STANDARD_TYPE;
+    }
+
+    @Override
     public int getItemCount() {
-        return transactions.size();
+        return transactions.size() < 2 ? transactions.size() + 1 : transactions.size();
     }
 
     public void setTransactions(LazyList<TransactionsInvitesSummary> transactions) {
@@ -103,6 +125,35 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             onItemClickListener.onItemClick(view, position);
     }
 
+    private void bindToFooter(ViewHolder holder) {
+        TransactionEmptyStateView emptyStateView = holder.itemView.findViewById(R.id.empty_state_view);
+        emptyStateView.setupUIForWallet(transactions.size(), walletHelper.getBalance().toSatoshis());
+        emptyStateView.setGetBitcoinButtonClickListener(v -> {
+            analytics.trackEvent(Analytics.EVENT_GET_BITCOIN);
+            activityNavigationUtil.navigateToBuyBitcoin(v.getContext());
+        });
+
+        emptyStateView.setLearnBitcoinButtonClickListener(v -> {
+            analytics.trackEvent(Analytics.EVENT_LEARN_BITCOIN);
+            activityNavigationUtil.navigateToLearnBitcoin(v.getContext());
+        });
+
+        emptyStateView.setSpendBitcoinButtonClickListener(v -> {
+            analytics.trackEvent(Analytics.EVENT_SPEND_BITCOIN);
+            activityNavigationUtil.navigateToSpendBitcoin(v.getContext());
+        });
+    }
+
+    private void bindToTransactionRecord(ViewHolder holder, int position) {
+        if (!transactions.isClosed()) {
+            BindableTransaction transaction =
+                    transactionAdapterUtil.translateTransaction(transactions.get(position));
+            holder.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier);
+            holder.bindToTransaction(transaction, defaultCurrencies, picasso, circleTransform);
+            holder.getItemView().setOnClickListener(v -> onClick(holder.getItemView(), position));
+        }
+    }
+
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
     }
@@ -129,33 +180,39 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
         public void bindIdentifyingTarget(TextView view, BindableTransaction transaction) {
             view.setText(transaction.getIdentifiableTarget());
             if (transaction.getIdentityType() == IdentityType.TWITTER) {
-                Views.setCompondDrawableOnStart(view, R.drawable.twitter_icon_blue, .6F);
+                Views.INSTANCE.setCompondDrawableOnStart(view, R.drawable.twitter_icon_blue, .6F);
                 view.setCompoundDrawablePadding(10);
             } else {
-                Views.clearCompoundDrawablesOn(view);
+                Views.INSTANCE.clearCompoundDrawablesOn(view);
+            }
+
+            if (transaction.getSendState() == BindableTransaction.SendState.LOAD_LIGHTNING) {
+                view.setText(R.string.tx_history_load_lightning);
+            } else if (transaction.getSendState() == BindableTransaction.SendState.UNLOAD_LIGHTNING) {
+                view.setText(R.string.tx_history_withdraw_lightning);
             }
         }
 
-        protected void bindToTransaction(BindableTransaction transaction, DefaultCurrencies defaultCurrencies, Picasso picasso, CircleTransform circleTransform) {
+        protected void bindToTransaction(BindableTransaction transaction, DefaultCurrencies defaultCurrencies, Picasso picasso, TwitterCircleTransform circleTransform) {
             this.defaultCurrencies = defaultCurrencies;
             bindIcon(itemView.findViewById(R.id.icon), transaction, picasso, circleTransform);
             bindConfirmations(itemView.findViewById(R.id.confirmations), transaction);
             bindAddress(itemView.findViewById(R.id.address), transaction);
-            bindTransactionTime(itemView.findViewById(R.id.blocktime), transaction);
             bindValue(transaction);
             bindSendState(itemView, transaction);
             bindMemo(itemView, transaction);
         }
 
         private void bindValue(BindableTransaction transaction) {
-            DefaultCurrencyDisplayView view = withId(itemView, R.id.default_currency_view);
-            view.renderValues(defaultCurrencies, transaction.getBasicDirection(), transaction.totalCryptoForSendState(), transaction.totalFiatForSendState());
+            DefaultCurrencyDisplayView view = itemView.findViewById(R.id.default_currency_view);
+            view.renderValues(defaultCurrencies, transaction.getBasicDirection(),
+                    transaction.totalCryptoForSendState(), transaction.totalFiatForSendState());
             if (defaultCurrencyChangeViewNotifier != null)
                 defaultCurrencyChangeViewNotifier.observeDefaultCurrencyChange(view);
         }
 
         private void bindMemo(View itemView, BindableTransaction transaction) {
-            TextView memoView = withId(itemView, R.id.transaction_memo);
+            TextView memoView = itemView.findViewById(R.id.transaction_memo);
             if ("".equals(transaction.getMemo())) {
                 memoView.setVisibility(View.GONE);
                 return;
@@ -164,37 +221,37 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
             memoView.setVisibility(View.VISIBLE);
         }
 
-        private void bindTransactionTime(TextView view, BindableTransaction transaction) {
-            view.setText(transaction.getTxTime());
-        }
 
         private void bindAddress(TextView view, BindableTransaction transaction) {
             bindIdentifyingTarget(view, transaction);
         }
 
-        private void bindIcon(ImageView icon, BindableTransaction transaction, Picasso picasso, CircleTransform circleTransform) {
-            int accentColor = 0;
+        private void bindIcon(ImageView icon, BindableTransaction transaction, Picasso picasso, TwitterCircleTransform circleTransform) {
             switch (transaction.getSendState()) {
                 case TRANSFER:
                 case SEND:
-                    accentColor = ContextCompat.getColor(icon.getContext(), R.color.color_send);
                     icon.setTag(R.drawable.ic_transaction_send);
                     icon.setImageResource(R.drawable.ic_transaction_send);
                     break;
                 case RECEIVE:
-                    accentColor = ContextCompat.getColor(icon.getContext(), R.color.color_receive);
                     icon.setTag(R.drawable.ic_transaction_receive);
                     icon.setImageResource(R.drawable.ic_transaction_receive);
                     break;
+                case UNLOAD_LIGHTNING:
+                    icon.setTag(R.drawable.ic_transfer_in);
+                    icon.setImageResource(R.drawable.ic_transfer_in);
+                    break;
+                case LOAD_LIGHTNING:
+                    icon.setTag(R.drawable.ic_transfer_out);
+                    icon.setImageResource(R.drawable.ic_transfer_out);
+                    break;
                 default:
-                    accentColor = ContextCompat.getColor(icon.getContext(), R.color.color_error);
                     icon.setTag(R.drawable.ic_transaction_canceled);
                     icon.setImageResource(R.drawable.ic_transaction_canceled);
                     break;
             }
 
             if (transaction.getProfileUrl() != null) {
-                circleTransform.setAccentColor(accentColor);
                 picasso.load(transaction.getProfileUrl()).transform(circleTransform).into(icon);
             }
         }
@@ -223,6 +280,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
                     break;
                 case UNCONFIRMED:
                     text = view.getResources().getString(R.string.confirmations_view_stage_4);
+                    view.setVisibility(View.GONE);
                     break;
                 default:
                     text = view.getResources().getString(R.string.confirmations_view_stage_3);

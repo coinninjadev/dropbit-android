@@ -1,18 +1,18 @@
 package com.coinninja.coinkeeper.view.notifications;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.CoinKeeperApplication;
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.model.db.InternalNotification;
 import com.coinninja.coinkeeper.model.db.enums.MessageLevel;
 
@@ -20,12 +20,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowApplication;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
@@ -35,13 +31,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class InternalNotificationViewTest {
 
     private InternalNotificationView internalNotificationView;
     private ViewGroup baseLayout;
-    private CoinKeeperApplication application;
+    private CoinKeeperApplication application = ApplicationProvider.getApplicationContext();
     private ShadowApplication shadowActivity;
 
     @After
@@ -54,12 +49,11 @@ public class InternalNotificationViewTest {
 
     @Before
     public void setUp() throws Exception {
-        application = (CoinKeeperApplication) RuntimeEnvironment.application;
-        Context context = ApplicationProvider.getApplicationContext();
-        baseLayout = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.activity_messenger, null, false);
-        baseLayout = withId(baseLayout, R.id.message_queue);
+        baseLayout = new LinearLayout(application);
+        LayoutInflater.from(application).inflate(R.layout.merge_system_messages, baseLayout, true);
+        baseLayout = baseLayout.findViewById(R.id.message_queue);
 
-        internalNotificationView = new InternalNotificationView((ViewGroup) baseLayout);
+        internalNotificationView = new InternalNotificationView(baseLayout);
         shadowActivity = shadowOf(application);
     }
 

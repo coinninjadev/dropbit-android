@@ -5,7 +5,11 @@ import app.dropbit.annotations.Mockable
 @Mockable
 class DateUtil {
     fun timeInSeconds(): Long {
-        return System.currentTimeMillis() / 1000
+        return timeInMillis() / 1000
+    }
+
+    fun timeInMillis():Long {
+        return System.currentTimeMillis()
     }
 
 }

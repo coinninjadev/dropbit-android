@@ -79,7 +79,7 @@ class VerificationActivityTest {
 
         scenario.onActivity { activity ->
             val phoneVerificationView = Views.withId<PhoneVerificationView>(activity, R.id.verification_view)
-            assertThat(phoneVerificationView.countryCodeLocales.size, equalTo(1))
+            assertThat(phoneVerificationView!!.countryCodeLocales.size, equalTo(1))
         }
 
         scenario.close()

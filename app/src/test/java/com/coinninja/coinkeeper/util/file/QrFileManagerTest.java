@@ -63,7 +63,7 @@ public class QrFileManagerTest {
 
     @Test
     public void provides_sharable_qr_uri() {
-        String file = "content://com.coinninja.coinkeeper.debug.provider/qr_code/qr_code_--address--_1000.png";
+        String file = "content://com.coinninja.coinkeeper.debug.broadcastProvider/qr_code/qr_code_--address--_1000.png";
         when(uri.toString()).thenReturn(file);
         when(fileProviderUtil.getUriForFile(any(Context.class), any(File.class))).thenReturn(uri);
 

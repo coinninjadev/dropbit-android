@@ -1,6 +1,9 @@
 package com.coinninja.coinkeeper.service.interceptors
 
+import app.coinninja.cn.thunderdome.model.WithdrawalRequest
+import app.dropbit.commons.currency.BTCCurrency
 import com.coinninja.coinkeeper.model.db.Account
+import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -22,7 +25,7 @@ class SignedRequestInterceptorTest {
     private val chain: Interceptor.Chain = mock()
 
     private fun createInterceptor(): SignedRequestInterceptor {
-        val interceptor = SignedRequestInterceptor(mock(), mock(), mock(), mock())
+        val interceptor = SignedRequestInterceptor(mock(), mock(), mock(), "3.0", mock())
         val account: Account = mock()
         val response = Response.Builder()
                 .protocol(Protocol.HTTP_2)
@@ -37,9 +40,24 @@ class SignedRequestInterceptorTest {
         whenever(chain.proceed(any())).thenReturn(response)
         whenever(interceptor.cnWalletManager.account).thenReturn(account)
         whenever(interceptor.uuidFactory.provideUuid()).thenReturn(CN_AUTH_DEVICE_UUID)
-        whenever(interceptor.dataSigner.sign(any())).thenReturn(SIGNED_CONTENT)
+        whenever(interceptor.hdWallet.sign(any())).thenReturn(SIGNED_CONTENT)
+        whenever(interceptor.hdWallet.verificationKey).thenReturn(CN_PUBKEY)
         whenever(interceptor.dateUtil.getCurrentTimeFormatted()).thenReturn(CURRENT_TIME)
         return interceptor
+    }
+
+    @Test
+    fun adds_user_agent_and_version() {
+        val interceptor = createInterceptor()
+        var request = Request.Builder().url("http://localhost:8080").method("GET", null).build()
+        whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
+
+        request = interceptor.signRequest(request)
+
+        assertThat(request.headers().get(SignedRequestInterceptor.CN_APP_VERSION),
+                equalTo("3.0"))
+        assertThat(request.headers().get(SignedRequestInterceptor.CN_DEVICE_PLATFORM),
+                equalTo("android"))
     }
 
     @Test
@@ -49,7 +67,7 @@ class SignedRequestInterceptorTest {
         whenever(interceptor.cnWalletManager.account.cnUserId).thenReturn(null)
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -57,12 +75,26 @@ class SignedRequestInterceptorTest {
         assertNull(request.headers().get(SignedRequestInterceptor.CN_AUTH_USER_ID))
     }
 
-
     @Test
     fun signs_timestamp_for_get_requests() {
         val interceptor = createInterceptor()
         var request = Request.Builder().url("http://localhost:8080").method("GET", null).build()
-        whenever(interceptor.dataSigner.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
+        whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
+
+        request = interceptor.signRequest(request)
+
+        assertThat(request.headers().get(SignedRequestInterceptor.CN_AUTH_SIG),
+                equalTo(SIGNED_TIME_STAMP))
+    }
+
+    @Test
+    fun signs_timestamp_for_thunder_dome_endpoints() {
+        val interceptor = createInterceptor()
+        interceptor.isThunderDome = true
+        val body = Gson().toJson(WithdrawalRequest(BTCCurrency(0), BTCCurrency(0), BTCCurrency(0), "--addr--").forPost())
+        var request = Request.Builder().url("http://localhost:8080/api/v1/thunderdome/withdraw").method("POST",
+                RequestBody.create(MediaType.parse("application/json"), body)).build()
+        whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
 
         request = interceptor.signRequest(request)
 
@@ -75,7 +107,7 @@ class SignedRequestInterceptorTest {
         val interceptor = createInterceptor()
         val body = RequestBody.create(MediaType.parse("application/json"), "")
         var request = Request.Builder().url("http://localhost:8080").method("POST", body).build()
-        whenever(interceptor.dataSigner.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
+        whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)
 
         request = interceptor.signRequest(request)
 
@@ -85,13 +117,25 @@ class SignedRequestInterceptorTest {
     }
 
     @Test
+    fun adds_pubkey_string_as_auth() {
+        val interceptor = createInterceptor()
+        val body = RequestBody.create(MediaType.parse("application/json"), "")
+        var request = Request.Builder().url("http://localhost:8080").method("POST", body).build()
+
+        request = interceptor.signRequest(request)
+
+        assertThat(request.headers().get(SignedRequestInterceptor.CN_AUTH_PUBKEY),
+                equalTo(CN_PUBKEY))
+    }
+
+    @Test
     fun adds_UUID_to_header_test() {
         val interceptor = createInterceptor()
         val argument = ArgumentCaptor.forClass(Request::class.java)
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -107,7 +151,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -124,7 +168,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -141,7 +185,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -158,7 +202,7 @@ class SignedRequestInterceptorTest {
 
         interceptor.intercept(chain)
 
-        verify(interceptor.dataSigner).sign(content)
+        verify(interceptor.hdWallet).sign(content)
         verify(chain).proceed(argument.capture())
 
         val request = argument.value
@@ -186,6 +230,7 @@ class SignedRequestInterceptorTest {
         private const val CN_WALLET_ID = "----wallet-id---"
         private const val CURRENT_TIME = "2018-05-09T23:45:22Z"
         private const val CN_USER_ID = "----USER-id---"
+        private const val CN_PUBKEY = "--PUB-KEY---"
         private const val CN_AUTH_DEVICE_UUID = "----96a5d785-c449-4fc2-a92f-9c7884b29b31---"
     }
 }

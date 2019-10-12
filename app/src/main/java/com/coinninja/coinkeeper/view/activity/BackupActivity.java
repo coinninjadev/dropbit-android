@@ -5,20 +5,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.ViewPager;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.adapter.SeedWordsPagerAdapter;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
 import com.coinninja.coinkeeper.presenter.activity.RecoveryWordsPresenter;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-import androidx.viewpager.widget.ViewPager;
-
-public class BackupActivity extends SecuredActivity implements ViewPager.OnPageChangeListener, RecoveryWordsPresenter.View {
+public class BackupActivity extends BaseActivity implements ViewPager.OnPageChangeListener, RecoveryWordsPresenter.View {
 
     @Inject
     ActivityNavigationUtil activityNavigationUtil;

@@ -8,17 +8,17 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.PermissionsUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-
-public class QrScanActivity extends SecuredActivity {
+public class QrScanActivity extends BaseActivity {
 
     @Inject
     CNQRScanManager qrScanManager;
@@ -93,7 +93,7 @@ public class QrScanActivity extends SecuredActivity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (hasCameraPermission()) {
             qrScanManager.stopCapture();

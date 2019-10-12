@@ -1,10 +1,13 @@
 package com.coinninja.coinkeeper.cn.wallet
 
+import app.coinninja.cn.libbitcoin.SeedWordGenerator
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.SeedWordGenerator
+import app.dropbit.commons.util.isNotNull
 import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.db.Account
+import com.coinninja.coinkeeper.model.db.Wallet
+import com.coinninja.coinkeeper.model.db.isSegwit
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.receiver.WalletCreatedBroadCastReceiver
@@ -25,22 +28,41 @@ class CNWalletManager @Inject internal constructor(
         internal val bitcoinUtil: BitcoinUtil,
         internal val accountManager: AccountManager,
         internal val preferencesUtil: PreferencesUtil,
-        internal val seedWordGenerator: SeedWordGenerator,
         internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
         internal val localBroadCastUtil: LocalBroadCastUtil,
         internal val dateUtil: DateUtil,
         internal val analytics: Analytics,
         internal val myTwitterProfile: MyTwitterProfile,
-        internal val walletFlagsStorage: WalletFlagsStorage
+        internal val seedWordGenerator: SeedWordGenerator,
+        internal val walletConfiguration: WalletConfiguration
 ) {
 
-    val hasBalance: Boolean get() = walletHelper.balance > 0L
-    val hasWallet: Boolean get() = walletHelper.seedWords != null && walletHelper.seedWords!!.size == 12
+    val segwitWalletForUpgrade: Wallet get() = walletHelper.getOrCreateSegwitWalletForUpdate(seedWordGenerator.generate())
+    val walletPurpose: Int get() = walletHelper.primaryWallet.purpose
+    val isSegwitUpgradeRequired: Boolean get() = hasWallet && walletPurpose != walletConfiguration.purpose
+    val hasBalance: Boolean get() = walletHelper.balance.toLong() > 0L
+    val hasWallet: Boolean get() = walletHelper.seedWords != null && walletHelper.seedWords?.size == 12
+    val hasLegacyWallet: Boolean
+        get() {
+            val primaryWallet = walletHelper.primaryWallet
+            val legacyWallet = walletHelper.legacyWallet
+            return primaryWallet != null && legacyWallet != null && primaryWallet.isSegwit()
+        }
+    val legacyWords: Array<String>
+        get() {
+            val wallet = walletHelper.legacyWallet
+            return if (wallet.isNotNull()) {
+                walletHelper.getSeedWordsForWallet(wallet)
+            } else {
+                emptyArray()
+            }
+        }
+
     val account: Account get() = walletHelper.userAccount
 
     val recoveryWords: Array<String>? get() = if (!hasWallet) null else walletHelper.seedWords
 
-    val isFirstSync: Boolean get() = walletHelper.wallet.lastSync <= 0L
+    val isFirstSync: Boolean get() = walletHelper.primaryWallet.lastSync <= 0L
 
     val contact: Contact
         get() {
@@ -67,12 +89,15 @@ class CNWalletManager @Inject internal constructor(
 
     fun skipBackup(recoveryWords: Array<String>) {
         saveSeedWords(recoveryWords)
+        markWalletBackupAsSkipped()
+    }
+
+    fun markWalletBackupAsSkipped() {
         preferencesUtil.savePreference(PREFERENCE_SKIPPED_BACKUP, true)
-        walletFlagsStorage.flags = WalletFlags.purpose49v1
     }
 
     fun syncCompleted() {
-        val wallet = walletHelper.wallet
+        val wallet = walletHelper.primaryWallet
         wallet.lastSync = dateUtil.getCurrentTimeInMillis()
         wallet.update()
     }
@@ -82,7 +107,7 @@ class CNWalletManager @Inject internal constructor(
         walletHelper.updateSpendableBalances()
         localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE)
         analytics.setUserProperty(Analytics.PROPERTY_HAS_BTC_BALANCE, hasBalance)
-        analytics.setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.fromBalance(walletHelper.balance).label)
+        analytics.setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.fromBalance(walletHelper.balance.toLong()).label)
     }
 
     fun deVerifyAccount() {
@@ -95,6 +120,17 @@ class CNWalletManager @Inject internal constructor(
         analytics.flush()
     }
 
+    fun deleteWallet() {
+        walletHelper.deleteAll()
+        preferencesUtil.removeAll()
+    }
+
+    fun replaceLegacyWithSegwit() {
+        walletHelper.rotateWallets(segwitWalletForUpgrade, walletHelper.primaryWallet)
+        markWalletBackupAsSkipped()
+    }
+
+
     private fun wordListIsValid(recoveryWords: Array<String>): Boolean = bitcoinUtil.isValidBIP39Words(recoveryWords)
 
     internal fun saveSeedWords(recoveryWords: Array<String>): Boolean {
@@ -106,6 +142,9 @@ class CNWalletManager @Inject internal constructor(
             walletHelper.saveWords(recoveryWords)
             accountManager.cacheAddresses()
             localBroadCastUtil.sendGlobalBroadcast(WalletCreatedBroadCastReceiver::class.java, DropbitIntents.ACTION_WALLET_CREATED)
+            val primaryWallet = walletHelper.primaryWallet
+            primaryWallet.flags = walletConfiguration.walletConfigurationFlags
+            primaryWallet.update()
             true
         }
     }
@@ -125,7 +164,7 @@ class CNWalletManager @Inject internal constructor(
 
     companion object {
 
-        internal val PREFERENCE_SKIPPED_BACKUP = "preference_skipped_backup"
+        internal const val PREFERENCE_SKIPPED_BACKUP = "preference_skipped_backup"
 
         fun calcConfirmations(currentBlockHeight: Int, transactionBlock: Int): Int {
             return currentBlockHeight - transactionBlock + 1

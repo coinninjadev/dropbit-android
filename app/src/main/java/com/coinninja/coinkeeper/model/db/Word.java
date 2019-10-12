@@ -1,5 +1,7 @@
 package com.coinninja.coinkeeper.model.db;
 
+import androidx.annotation.NonNull;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -38,6 +40,11 @@ public class Word {
                 evalWord.getWord() == word;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return getWord();
+    }
 
     /**
      * Used to resolve relations
@@ -62,6 +69,7 @@ public class Word {
     @Generated(hash = 3342184)
     public Word() {
     }
+
 
     public Long getId() {
         return id;

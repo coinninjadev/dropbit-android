@@ -39,8 +39,6 @@ public class VerifyDropBitMeDialogTest {
     private ActivityScenario<HomeActivity> scenario;
 
     @Mock
-    private WalletHelper walletHelper;
-    @Mock
     private LazyList transactions;
 
     @Mock
@@ -50,9 +48,8 @@ public class VerifyDropBitMeDialogTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         TestCoinKeeperApplication application = ApplicationProvider.getApplicationContext();
-        application.walletHelper = walletHelper;
         application.activityNavigationUtil = activityNavigationUtil;
-        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        when(application.walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(0);
 
         scenario = ActivityScenario.launch(HomeActivity.class);
@@ -63,7 +60,6 @@ public class VerifyDropBitMeDialogTest {
     public void tearDown() {
         scenario.close();
         transactions = null;
-        walletHelper = null;
     }
 
     @Test

@@ -42,6 +42,8 @@ public class TransactionSummary {
     @Property
     boolean soughtNotification;
     @Property
+    boolean isLightningWithdraw;
+    @Property
     long walletId;
     @Property
     long fee;
@@ -88,17 +90,17 @@ public class TransactionSummary {
     private transient TransactionSummaryDao myDao;
 
 
-    @Generated(hash = 1265541453)
-    public TransactionSummary(Long id, String txid,
-                              Long transactionsInvitesSummaryID, boolean soughtNotification,
-                              long walletId, long fee, long txTime, int numConfirmations,
-                              String blockhash, int numInputs, int numOutputs, int blockheight,
-                              long historicPrice, Long transactionNotificationId,
-                              MemPoolState memPoolState) {
+    @Generated(hash = 269021187)
+    public TransactionSummary(Long id, String txid, Long transactionsInvitesSummaryID,
+            boolean soughtNotification, boolean isLightningWithdraw, long walletId, long fee,
+            long txTime, int numConfirmations, String blockhash, int numInputs, int numOutputs,
+            int blockheight, long historicPrice, Long transactionNotificationId,
+            MemPoolState memPoolState) {
         this.id = id;
         this.txid = txid;
         this.transactionsInvitesSummaryID = transactionsInvitesSummaryID;
         this.soughtNotification = soughtNotification;
+        this.isLightningWithdraw = isLightningWithdraw;
         this.walletId = walletId;
         this.fee = fee;
         this.txTime = txTime;
@@ -429,6 +431,14 @@ public class TransactionSummary {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
+    }
+
+    public boolean getIsLightningWithdraw() {
+        return this.isLightningWithdraw;
+    }
+
+    public void setIsLightningWithdraw(boolean isLightningWithdraw) {
+        this.isLightningWithdraw = isLightningWithdraw;
     }
 
     /** called by internal mechanisms, do not call yourself. */

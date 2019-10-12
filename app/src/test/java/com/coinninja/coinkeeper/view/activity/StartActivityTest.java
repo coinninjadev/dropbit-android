@@ -48,8 +48,7 @@ public class StartActivityTest {
     public void clicking_restore_wallet_navigates_to_restore_wallet_activity() {
         activity.findViewById(R.id.start_btn_restore).performClick();
 
-        Intent intent = shadowActivity.getNextStartedActivity();
-        assertThat(intent.getComponent().getClassName(), equalTo(RestoreWalletActivity.class.getName()));
+        verify(activity.activityNavigationUtil).navigateToRestoreWallet(activity);
     }
 
     @Test

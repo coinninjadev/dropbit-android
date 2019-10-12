@@ -3,7 +3,8 @@ package com.coinninja.coinkeeper.service.interceptors
 import android.annotation.SuppressLint
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
-import com.coinninja.coinkeeper.cn.wallet.DataSigner
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
+import com.coinninja.coinkeeper.di.interfaces.BuildVersionName
 import com.coinninja.coinkeeper.util.DateUtil
 import com.coinninja.coinkeeper.util.uuid.UuidFactory
 import okhttp3.Interceptor
@@ -17,9 +18,12 @@ import javax.inject.Inject
 @Mockable
 class SignedRequestInterceptor @Inject internal constructor(
         internal val dateUtil: DateUtil,
-        internal val dataSigner: DataSigner,
+        internal val hdWallet: HDWalletWrapper,
         internal val uuidFactory: UuidFactory,
+        @BuildVersionName internal val versionName: String,
         internal val cnWalletManager: CNWalletManager) : Interceptor {
+
+    var isThunderDome = false
 
     @SuppressLint("NewApi")
     @Throws(IOException::class)
@@ -33,12 +37,15 @@ class SignedRequestInterceptor @Inject internal constructor(
 
         builder.header(CN_AUTH_TIMESTAMP, currentTimeFormatted)
         builder.header(CN_AUTH_DEVICE_UUID, uuidFactory.provideUuid())
+        builder.header(CN_AUTH_PUBKEY, hdWallet.verificationKey)
+        builder.header(CN_DEVICE_PLATFORM, "android")
+        builder.header(CN_APP_VERSION, versionName)
 
         val body = String(bodyToString(origRequest.body()))
-        if (body.isEmpty()) {
-            builder.header(CN_AUTH_SIG, dataSigner.sign(currentTimeFormatted))
+        if (body.isEmpty() || isThunderDome) {
+            builder.header(CN_AUTH_SIG, hdWallet.sign(currentTimeFormatted))
         } else {
-            builder.header(CN_AUTH_SIG, dataSigner.sign(body))
+            builder.header(CN_AUTH_SIG, hdWallet.sign(body))
         }
 
         addAccountToHeaders(builder)
@@ -63,6 +70,10 @@ class SignedRequestInterceptor @Inject internal constructor(
         internal const val CN_AUTH_WALLET_ID = "CN-Auth-Wallet-ID"
         internal const val CN_AUTH_USER_ID = "CN-Auth-User-ID"
         internal const val CN_AUTH_DEVICE_UUID = "CN-Auth-Device-UUID"
+        internal const val CN_AUTH_PUBKEY = "CN-Auth-PubkeyString"
+        internal const val CN_DEVICE_PLATFORM = "CN-Device-Platform"
+        internal const val CN_APP_VERSION = "CN-App-Version"
+
 
         fun bodyToString(request: RequestBody?): ByteArray {
             try {

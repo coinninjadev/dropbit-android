@@ -1,19 +1,19 @@
 package com.coinninja.coinkeeper.service
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import com.coinninja.coinkeeper.cn.service.PushNotificationDeviceManager
 import com.coinninja.coinkeeper.cn.service.PushNotificationEndpointManager
-import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
-import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
-import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
-import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
-import com.coinninja.coinkeeper.util.android.PreferencesUtil
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import dagger.Module
+import dagger.Provides
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.*
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.robolectric.Robolectric
 
 @RunWith(AndroidJUnit4::class)
@@ -21,19 +21,17 @@ class DeleteWalletServiceTest {
 
     fun setUp(): DeleteWalletService {
         val service = Robolectric.setupService(DeleteWalletService::class.java)
-        service.daoSessionManager = mock(DaoSessionManager::class.java)
-        service.localBroadCastUtil = mock(LocalBroadCastUtil::class.java)
-        service.analytics = mock(Analytics::class.java)
-        service.syncWalletManager = mock(SyncWalletManager::class.java)
-        service.apiClient = mock(SignedCoinKeeperApiClient::class.java)
-        service.pushNotificationEndpointManager = mock(PushNotificationEndpointManager::class.java)
-        service.pushNotificationDeviceManager = mock(PushNotificationDeviceManager::class.java)
-        service.preferenceUtil = mock(PreferencesUtil::class.java)
+        service.cnWalletManager = mock()
+        service.localBroadCastUtil = mock()
+        service.analytics = mock()
+        service.syncWalletManager = mock()
+        service.apiClient = mock()
+        service.pushNotificationDeviceManager = mock()
         return service
     }
 
     @Test
-    fun `disables sync`() {
+    fun disables_sync() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -42,7 +40,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `flushes analytics`() {
+    fun flushes_analytics() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -51,7 +49,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `tracks disabling account`() {
+    fun tracks_disabling_account() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -60,7 +58,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `sets property for user to no longer has a balance`() {
+    fun sets_property_for_user_to_no_longer_has_a_balance() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -69,7 +67,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `sets property for user to no longer have backed up wallet`() {
+    fun sets_property_for_user_to_no_longer_have_backed_up_wallet() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -78,7 +76,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `sets property for user to no longer be verified`() {
+    fun sets_property_for_user_to_no_longer_be_verified() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -87,7 +85,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `identifies user property to not have a wallet`() {
+    fun identifies_user_property_to_not_have_a_wallet() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -96,7 +94,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `instructs CN to reset wallet`() {
+    fun instructs_CN_to_reset_wallet() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -105,16 +103,16 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `resets all data`() {
+    fun resets_all_data() {
         val service = setUp()
 
         service.onHandleIntent(null)
 
-        verify(service.daoSessionManager).resetAll()
+        verify(service.cnWalletManager).deleteWallet()
     }
 
     @Test
-    fun `notifies delete completed`() {
+    fun notifies_delete_completed() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -123,7 +121,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `send analytics`() {
+    fun send_analytics() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -132,7 +130,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `removes endpoint locally when endpoint is present`() {
+    fun removes_endpoint_locally_when_endpoint_is_present() {
         val service = setUp()
 
         whenever(service.pushNotificationEndpointManager.hasEndpoint()).thenReturn(true)
@@ -144,7 +142,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `does not remove endpoint locally when endpoint is not present`() {
+    fun does_not_remove_endpoint_locally_when_endpoint_is_not_present() {
         val service = setUp()
 
         whenever(service.pushNotificationEndpointManager.hasEndpoint()).thenReturn(false)
@@ -156,7 +154,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `removes endpoint remote when endpoint is present`() {
+    fun removes_endpoint_remote_when_endpoint_is_present() {
         val service = setUp()
 
         whenever(service.pushNotificationEndpointManager.hasEndpoint()).thenReturn(true)
@@ -167,7 +165,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `does not removes endpoint remote when endpoint is not present`() {
+    fun does_not_removes_endpoint_remote_when_endpoint_is_not_present() {
         val service = setUp()
 
         whenever(service.pushNotificationEndpointManager.hasEndpoint()).thenReturn(false)
@@ -178,7 +176,7 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `removes cn device id locally`() {
+    fun removes_cn_device_id_locally() {
         val service = setUp()
 
         service.onHandleIntent(null)
@@ -187,11 +185,23 @@ class DeleteWalletServiceTest {
     }
 
     @Test
-    fun `removes all saved preferences`() {
+    fun deletes_lightning_wallet() {
         val service = setUp()
 
         service.onHandleIntent(null)
 
-        verify(service.preferenceUtil).removeAll()
+        verify(service.thunderDomeRepository).deleteAll()
+    }
+
+    @Module
+    class DeleteWalletServiceTestModule {
+        @Provides
+        fun pushNotificationEndpointManager(): PushNotificationEndpointManager = mock()
+
+        @Provides
+        fun thunderDome(): ThunderDomeRepository = mock()
+
+        @Provides
+        fun pushNotificationDeviceManager(): PushNotificationDeviceManager = mock()
     }
 }

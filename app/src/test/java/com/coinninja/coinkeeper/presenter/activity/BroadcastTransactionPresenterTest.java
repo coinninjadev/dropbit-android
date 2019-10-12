@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.presenter.activity;
 
-import com.coinninja.bindings.TransactionBroadcastResult;
-import com.coinninja.bindings.TransactionData;
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult;
 import com.coinninja.coinkeeper.service.runner.BroadcastTransactionRunner;
 
 import org.junit.Before;
@@ -12,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import app.coinninja.cn.libbitcoin.model.TransactionData;
 import junitx.util.PrivateAccessor;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -64,21 +64,20 @@ public class BroadcastTransactionPresenterTest {
 
     @Test
     public void onBroadcastSuccessful() {
-        TransactionBroadcastResult mockResult = mock(TransactionBroadcastResult.class);
+        BroadcastResult result = mock(BroadcastResult.class);
 
-        broadcastTransactionPresenter.onBroadcastSuccessful(mockResult);
+        broadcastTransactionPresenter.onBroadcastSuccessful(result);
 
-        verify(view).showBroadcastSuccessful(mockResult);
+        verify(view).showBroadcastSuccessful(result);
     }
-
 
     @Test
     public void onBroadcastError() {
-        TransactionBroadcastResult mockResult = mock(TransactionBroadcastResult.class);
+        BroadcastResult result = mock(BroadcastResult.class);
 
-        broadcastTransactionPresenter.onBroadcastError(mockResult);
+        broadcastTransactionPresenter.onBroadcastError(result);
 
-        verify(view).showBroadcastFail(mockResult);
+        verify(view).showBroadcastFail(result);
     }
 
     @Test

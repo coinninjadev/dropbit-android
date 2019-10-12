@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.service.runner;
 
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
+import com.coinninja.coinkeeper.model.db.Wallet;
 import com.coinninja.coinkeeper.service.client.CoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.CoinKeeperClient;
 import com.coinninja.coinkeeper.service.client.model.GsonAddress;
@@ -9,6 +10,7 @@ import com.coinninja.coinkeeper.wallet.data.TestData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -16,12 +18,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
+import app.coinninja.cn.libbitcoin.model.MetaAddress;
 import retrofit2.Response;
 
 import static com.coinninja.coinkeeper.service.client.CoinKeeperClient.ADDRESSES_TO_QUERY_AT_A_TIME;
 import static com.coinninja.coinkeeper.service.runner.AddressAPIUtil.INITIAL_GAP_LIMIT;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,23 +34,32 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AddressAPIUtilTest {
 
-    public static final int DEFAULT_PAGE = 1;
+    private static final int DEFAULT_PAGE = 1;
+    @InjectMocks
     private AddressAPIUtil addressAPIUtil;
 
     @Mock
     private CoinKeeperApiClient apiClient;
-
     @Mock
-    private HDWallet wallet;
+    private HDWalletWrapper hdWallet;
     private String[] block1;
     private String[] block2;
     private String[] block3;
     private String[] block4;
 
+    private MetaAddress[] metaBlock1;
+    private MetaAddress[] metaBlock2;
+    private MetaAddress[] metaBlock3;
+    private MetaAddress[] metaBlock4;
+
     @Before
     public void setUp() {
-        addressAPIUtil = new AddressAPIUtil(apiClient);
+        Wallet wallet = mock(Wallet.class);
+        when(wallet.getPurpose()).thenReturn(49);
+        when(wallet.getCoinType()).thenReturn(0);
+        when(wallet.getAccountIndex()).thenReturn(0);
         addressAPIUtil.setLookAhead(AddressAPIUtil.LOOK_AHEAD);
+        addressAPIUtil.setWallet(wallet);
     }
 
     @Test
@@ -53,7 +67,7 @@ public class AddressAPIUtilTest {
         // indexes are 0 based so the 27th index really means fetch 28 addresses
         mockIndex22();
 
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 22);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
         assertThat(addressAPIUtil.getNumberOfAddressesToFetch(), equalTo(27));
     }
@@ -62,25 +76,25 @@ public class AddressAPIUtilTest {
     public void limits_blocks_by_API_query_limit() {
         mockIndex22();
 
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 22);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
-        verify(wallet).fillBlock(HDWallet.EXTERNAL, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
+        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
     }
 
     @Test
     public void only_requests_addresses_that_are_needed__small_index() {
         mockIndex2();
 
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 2);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 2);
 
-        verify(wallet).fillBlock(HDWallet.EXTERNAL, 0, 7);
+        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 7);
     }
 
     @Test
     public void requests_address_information_from_API() {
         mockIndex22();
 
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 22);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
         verify(apiClient).queryAddressesFor(block1, DEFAULT_PAGE);
     }
@@ -89,10 +103,10 @@ public class AddressAPIUtilTest {
     public void requests_all_of_necessary_address_indexes_recursively() {
         mockIndex22();
 
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 22);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
-        verify(wallet).fillBlock(HDWallet.EXTERNAL, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
-        verify(wallet).fillBlock(HDWallet.EXTERNAL, 25, 2);
+        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
+        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2);
 
         verify(apiClient).queryAddressesFor(block1, DEFAULT_PAGE);
         verify(apiClient).queryAddressesFor(block2, DEFAULT_PAGE);
@@ -103,9 +117,11 @@ public class AddressAPIUtilTest {
     public void will_look_ahead_when_partial_returned__LOOK_AHEAD_ANY() {
         block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, INITIAL_GAP_LIMIT);
         block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 5, 25);
+        metaBlock1 = toMetaBlock(block1);
+        metaBlock2 = toMetaBlock(block2);
 
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 20)).thenReturn(block1);
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 5, 20)).thenReturn(block2);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 20)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 20)).thenReturn(metaBlock2);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, 5));
         when(apiClient.queryAddressesFor(block2, DEFAULT_PAGE)).thenReturn(buildResponse(block2, 0));
@@ -113,9 +129,9 @@ public class AddressAPIUtilTest {
         addressAPIUtil.setLookAhead(INITIAL_GAP_LIMIT);
 
 
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 0);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 0);
 
-        verify(wallet).fillBlock(HDWallet.EXTERNAL, 5, 20);
+        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 20);
         verify(apiClient).queryAddressesFor(block2, DEFAULT_PAGE);
     }
 
@@ -124,9 +140,9 @@ public class AddressAPIUtilTest {
         mockIndex22AllAddressesUsed();
         mockLookAhead();
 
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 22);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
-        verify(wallet).fillBlock(HDWallet.EXTERNAL, 27, 5);
+        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 27, 5);
         verify(apiClient).queryAddressesFor(block3, DEFAULT_PAGE);
     }
 
@@ -134,7 +150,7 @@ public class AddressAPIUtilTest {
     public void sets_deravation_path_on_addresses_returned_from_CN() {
         mockIndex2();
 
-        List<GsonAddress> addresses = addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 2);
+        List<GsonAddress> addresses = addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 2);
 
         assertThat(addresses.size(), equalTo(2));
         assertThat(addresses.get(0).getDerivationIndex(), equalTo(0));
@@ -144,20 +160,20 @@ public class AddressAPIUtilTest {
     @Test
     public void findsIndex() {
         mockIndex0();
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 0);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 0);
         assertThat(addressAPIUtil.getLargestIndexConsumed(), equalTo(0));
 
         mockIndex2();
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 2);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 2);
         assertThat(addressAPIUtil.getLargestIndexConsumed(), equalTo(1));
 
         mockIndex22();
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 22);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
         assertThat(addressAPIUtil.getLargestIndexConsumed(), equalTo(24));
 
         mockIndex22AllAddressesUsed();
         mockLookAhead();
-        addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 22);
+        addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
         assertThat(addressAPIUtil.getLargestIndexConsumed(), equalTo(26));
     }
 
@@ -165,7 +181,7 @@ public class AddressAPIUtilTest {
     public void requests_next_pages_for_fetching_addresses() {
         mockIndex22with3Pages();
 
-        List<GsonAddress> addresses = addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL, 0, 22);
+        List<GsonAddress> addresses = addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
         verify(apiClient).queryAddressesFor(block1, 1);
         verify(apiClient).queryAddressesFor(block1, 2);
@@ -178,7 +194,7 @@ public class AddressAPIUtilTest {
     public void look_ahead_will_recurse_unitl_empty_block() {
         mockPatchyWallet();
 
-        List<GsonAddress> addresses = addressAPIUtil.fetchAddresses(wallet, HDWallet.EXTERNAL,
+        List<GsonAddress> addresses = addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL,
                 0, 0);
 
         verify(apiClient).queryAddressesFor(block1, 1);
@@ -203,11 +219,15 @@ public class AddressAPIUtilTest {
         block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 5, 10);
         block3 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 9, 14);
         block4 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 12, 17);
+        metaBlock1 = toMetaBlock(block1);
+        metaBlock2 = toMetaBlock(block2);
+        metaBlock3 = toMetaBlock(block3);
+        metaBlock4 = toMetaBlock(block4);
 
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 5)).thenReturn(block1);
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 5, 5)).thenReturn(block2);
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 9, 5)).thenReturn(block3);
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 12, 5)).thenReturn(block4);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 5)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 5)).thenReturn(metaBlock2);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 9, 5)).thenReturn(metaBlock3);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 12, 5)).thenReturn(metaBlock4);
 
         when(apiClient.queryAddressesFor(block1, 1)).thenReturn(buildResponse(block1, block1.length));
 
@@ -232,9 +252,11 @@ public class AddressAPIUtilTest {
         mockLookAhead();
         block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, ADDRESSES_TO_QUERY_AT_A_TIME);
         block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), ADDRESSES_TO_QUERY_AT_A_TIME, 27);
+        metaBlock1 = toMetaBlock(block1);
+        metaBlock2 = toMetaBlock(block2);
 
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 25)).thenReturn(block1);
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 25, 2)).thenReturn(block2);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
 
         when(apiClient.queryAddressesFor(block1, 1)).thenReturn(buildResponse(block1, block1.length,
                 true));
@@ -247,23 +269,26 @@ public class AddressAPIUtilTest {
 
     private void mockLookAhead() {
         block3 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 27, 27 + AddressAPIUtil.LOOK_AHEAD);
+        metaBlock3 = toMetaBlock(block3);
 
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 27, AddressAPIUtil.LOOK_AHEAD)).thenReturn(block3);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 27, AddressAPIUtil.LOOK_AHEAD)).thenReturn(metaBlock3);
         when(apiClient.queryAddressesFor(block3, DEFAULT_PAGE)).thenReturn(buildResponse(block3, 0));
     }
 
     private void mockIndex0() {
         block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, AddressAPIUtil.LOOK_AHEAD);
+        metaBlock1 = toMetaBlock(block1);
 
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 5)).thenReturn(block1);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 5)).thenReturn(metaBlock1);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, 0));
     }
 
     private void mockIndex2() {
         block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, 7);
+        metaBlock1 = toMetaBlock(block1);
 
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 7)).thenReturn(block1);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 7)).thenReturn(metaBlock1);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, 2));
     }
@@ -271,9 +296,11 @@ public class AddressAPIUtilTest {
     private void mockIndex22() {
         block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, ADDRESSES_TO_QUERY_AT_A_TIME);
         block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), ADDRESSES_TO_QUERY_AT_A_TIME, 27);
+        metaBlock1 = toMetaBlock(block1);
+        metaBlock2 = toMetaBlock(block2);
 
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 25)).thenReturn(block1);
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 25, 2)).thenReturn(block2);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, block1.length));
         when(apiClient.queryAddressesFor(block2, DEFAULT_PAGE)).thenReturn(buildResponse(block2, 0));
@@ -282,9 +309,11 @@ public class AddressAPIUtilTest {
     private void mockIndex22AllAddressesUsed() {
         block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, ADDRESSES_TO_QUERY_AT_A_TIME);
         block2 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), ADDRESSES_TO_QUERY_AT_A_TIME, 27);
+        metaBlock1 = toMetaBlock(block1);
+        metaBlock2 = toMetaBlock(block2);
 
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 0, 25)).thenReturn(block1);
-        when(wallet.fillBlock(HDWallet.EXTERNAL, 25, 2)).thenReturn(block2);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, block1.length));
         when(apiClient.queryAddressesFor(block2, DEFAULT_PAGE)).thenReturn(buildResponse(block2, block2.length));
@@ -316,4 +345,12 @@ public class AddressAPIUtilTest {
         return Response.success(addressses);
     }
 
+    private MetaAddress[] toMetaBlock(String[] block) {
+        MetaAddress[] metaBlock = new MetaAddress[block.length];
+        for (int i = 0; i < block.length; i++) {
+            metaBlock[i] = new MetaAddress(block[i], String.format("pubkey %s", i),
+                    new DerivationPath(49, 0, 0, 0, i));
+        }
+        return metaBlock;
+    }
 }

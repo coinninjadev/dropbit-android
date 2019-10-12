@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/request_dialog_background">
+
+    <ImageView
+        android:id="@+id/close"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="8dp"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="20dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_close"
+        tools:ignore="ContentDescription" />
+
+    <com.coinninja.coinkeeper.view.widget.DefaultCurrencyDisplayView
+        android:id="@+id/default_currency_view"
+        style="@style/transactionDetailBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="24dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/qr_code"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/request_expires_label"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <ImageView
+        android:id="@+id/qr_code"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:minWidth="@dimen/qr_image_scale_min"
+        android:minHeight="@dimen/qr_image_scale_min"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/memo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/default_currency_view"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/qrcode_static"
+        tools:srcCompat="@drawable/qrcode_static"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/memo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/request_copy_button"
+        app:layout_constraintEnd_toEndOf="@+id/request_funds"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/request_funds"
+        app:layout_constraintTop_toBottomOf="@+id/qr_code"
+        tools:text="example memo"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/request_expires_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/primary_expires_pill"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="@string/expires_in_48_hours"
+        android:textAppearance="@style/TextAppearance.Error.Pill"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/request_header_label" />
+
+    <TextView
+        android:id="@+id/request_header_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/lightning_invoice"
+        android:textAppearance="@style/Dialog.Header"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/request_footer_copy_description_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/tap_address_to_save_to_clipboard"
+        android:textSize="@dimen/text_size_small"
+        app:layout_constraintBottom_toTopOf="@+id/request_funds"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
+
+    <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
+        android:id="@+id/request_funds"
+        style="@style/Button.Lightning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/send_request"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.coinninja.coinkeeper.view.button.CopyToBufferButton
+        android:id="@+id/request_copy_button"
+        style="@style/Button.InputBox.Small"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:singleLine="true"
+        android:ellipsize="middle"
+        app:layout_constraintBottom_toTopOf="@+id/request_footer_copy_description_txt"
+        app:layout_constraintEnd_toEndOf="@+id/request_funds"
+        app:layout_constraintStart_toStartOf="@+id/request_funds"
+        tools:text="13uhkJ5kmYOK45YuJKP09GLLVBDF67s7A"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

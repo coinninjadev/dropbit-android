@@ -91,6 +91,7 @@ constructor(internal val dropbitAccountHelper: DropbitAccountHelper,
 
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun syncIdentities() {
         val response = apiClient.identities
         val ids = mutableListOf<String>()

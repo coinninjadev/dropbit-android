@@ -54,11 +54,11 @@ public class PinConfirmFragmentTest {
     @Test
     public void onResume_update_activity_label() {
         ActionBarController actionBarController = mock(ActionBarController.class);
-        ((BaseActivity) fragment.getActivity()).actionBarController = actionBarController;
+        ((BaseActivity) fragment.getActivity()).setActionBarController(actionBarController);
 
         fragment.onResume();
 
-        verify(actionBarController).updateTitle("Re-Enter Pin");
+        verify(actionBarController).displayTitle((BaseActivity) fragment.getActivity(), "Re-Enter Pin");
     }
 
     @Test

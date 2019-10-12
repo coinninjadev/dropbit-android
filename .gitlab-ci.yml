@@ -1,4 +1,5 @@
-image: registry.coinninja.net/engineering/android-sdk:latest
+#image: registry.coinninja.net/engineering/android-sdk:latest
+image: registry.coinninja.net/engineering/android-ndk:tooling-update
 
 variables:
   GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle
@@ -24,7 +25,6 @@ cache:
   paths:
     - .gradle/
 
-
 .build_and_sign: &build_and_sign
   before_script:
     - export APP_VERSION=`./sh/appversion_lookup.sh $HOCKEY_APP_API_TOKEN`
@@ -45,12 +45,32 @@ cache:
 test-dropbit:
   stage: test
   tags:
-    - linux
+    - large
   script:
-    - ./gradlew app:lintProductionDebug app:testProductionDebugUnitTest app:assembleDebug --stacktrace
+    - ./gradlew app:testProductionDebugUnitTest
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
+    paths:
+      - ./app/build/outputs/apk/production/debug/*.apk
+      - ./app/build/outputs/apk/staging/debug/*.apk
+
+lint-dropbit:
+  stage: build
+  tags:
+    - android
+  script:
+    - ./gradlew app:lintProductionDebug
+
+assemble-dropbit:
+  stage: build
+  tags:
+    - android
+  script:
+    - ./gradlew app:assembleDebug
+  artifacts:
+    when: always
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/debug/*.apk
       - ./app/build/outputs/apk/staging/debug/*.apk
@@ -58,26 +78,51 @@ test-dropbit:
 test-common:
   stage: test
   tags:
-    - linux
+    - android
   script:
     - ./gradlew common:lintRelease common:testReleaseUnitTest
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./common/build/outputs/aar/*.aar
 
 test-twitter:
   stage: test
   tags:
-    - linux
+    - android
   script:
     - ./gradlew twitter:lintRelease twitter:testReleaseUnitTest
   artifacts:
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./twitter/build/outputs/aar/*.aar
+
+test-persistance:
+  stage: test
+  tags:
+    - android
+  script:
+    - ./gradlew persistance:lintRelease persistance:testReleaseUnitTest
+  artifacts:
+    when: always
+    expire_in: '8 hours'
+    paths:
+      - ./persistance/build/outputs/aar/*.aar
+
+
+test-thunderdome:
+  stage: test
+  tags:
+    - android
+  script:
+    - ./gradlew thunderdome:lintRelease thunderdome:testReleaseUnitTest
+  artifacts:
+    when: always
+    expire_in: '8 hours'
+    paths:
+      - ./thunderdome/build/outputs/aar/*.aar
 
 release-candidate:
   stage: deploy
@@ -86,11 +131,11 @@ release-candidate:
   environment:
     name: internal
   tags:
-    - linux
+    - android
   artifacts:
     name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/**/*.apk
   <<: *build_and_sign
@@ -106,13 +151,13 @@ production-debug:
     - develop@cn/dropbit-android
     - /^[\d\.]+RC$/@cn/dropbit-android
   tags:
-    - linux
+    - android
   environment:
     name: internal
   artifacts:
     name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/debug/*.apk
 
@@ -124,12 +169,30 @@ staging-debug:
     - develop@cn/dropbit-android
     - /^[\d\.]+RC$/@cn/dropbit-android
   tags:
-    - linux
+    - android
   environment:
     name: internal
   artifacts:
     name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
     when: always
-    expire_in: '1 week'
+    expire_in: '8 hours'
+    paths:
+      - ./app/build/outputs/apk/production/debug/*.apk
+
+regtest-debug:
+  stage: deploy
+  script:
+    - ./gradlew uploadRegtestDebugToHockeyApp
+  only:
+    - develop@cn/dropbit-android
+    - /^[\d\.]+RC$/@cn/dropbit-android
+  tags:
+    - android
+  environment:
+    name: internal
+  artifacts:
+    name: "manualInstallableAPK-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
+    when: always
+    expire_in: '8 hours'
     paths:
       - ./app/build/outputs/apk/production/debug/*.apk

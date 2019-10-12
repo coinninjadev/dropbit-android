@@ -4,17 +4,24 @@ import android.os.Bundle;
 
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.view.animation.StartScreenAnimation;
 
 import javax.inject.Inject;
 
-public class StartActivity extends SecuredActivity {
+public class StartActivity extends BaseActivity {
 
     private StartScreenAnimation startScreenAnimation;
 
-    @Inject
-    CNWalletManager cnWalletManager;
+    @Override
+    public void onBackPressed() {
+        startScreenAnimation.animateOut();
+        super.onBackPressed();
+    }
+
+    void setStartScreenAnimation(StartScreenAnimation startScreenAnimation) {
+        this.startScreenAnimation = startScreenAnimation;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,24 +33,14 @@ public class StartActivity extends SecuredActivity {
         setStartScreenAnimation(new StartScreenAnimation(this));
     }
 
-    private void inviteButtonClicked() {
-        startInviteFlow();
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
         startScreenAnimation.animateIn();
     }
 
-    @Override
-    public void onBackPressed() {
-        startScreenAnimation.animateOut();
-        super.onBackPressed();
-    }
-
-    void setStartScreenAnimation(StartScreenAnimation startScreenAnimation) {
-        this.startScreenAnimation = startScreenAnimation;
+    private void inviteButtonClicked() {
+        startInviteFlow();
     }
 
     private void newWalletButtonClicked() {

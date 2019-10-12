@@ -2,31 +2,29 @@ package com.coinninja.coinkeeper.service
 
 import android.app.IntentService
 import android.content.Intent
+import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import com.coinninja.coinkeeper.CoinKeeperApplication
 import com.coinninja.coinkeeper.cn.service.PushNotificationDeviceManager
 import com.coinninja.coinkeeper.cn.service.PushNotificationEndpointManager
+import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
-import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.twitter.MyTwitterProfile
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
-import com.coinninja.coinkeeper.util.android.PreferencesUtil
 import dagger.android.AndroidInjection
 import javax.inject.Inject
 
 class DeleteWalletService @JvmOverloads constructor(name: String = TAG) : IntentService(name) {
     @Inject
-    lateinit var preferenceUtil: PreferencesUtil
+    internal lateinit var cnWalletManager: CNWalletManager
     @Inject
     internal lateinit var pushNotificationDeviceManager: PushNotificationDeviceManager
     @Inject
     internal lateinit var pushNotificationEndpointManager: PushNotificationEndpointManager
     @Inject
     internal lateinit var apiClient: SignedCoinKeeperApiClient
-    @Inject
-    internal lateinit var daoSessionManager: DaoSessionManager
     @Inject
     internal lateinit var analytics: Analytics
     @Inject
@@ -37,6 +35,8 @@ class DeleteWalletService @JvmOverloads constructor(name: String = TAG) : Intent
     internal lateinit var syncWalletManager: SyncWalletManager
     @Inject
     internal lateinit var myTwitterProfile: MyTwitterProfile
+    @Inject
+    internal lateinit var thunderDomeRepository: ThunderDomeRepository
 
     override fun onCreate() {
         AndroidInjection.inject(this)
@@ -52,10 +52,10 @@ class DeleteWalletService @JvmOverloads constructor(name: String = TAG) : Intent
         }
         pushNotificationDeviceManager.removeCNDevice()
         apiClient.resetWallet()
-        daoSessionManager.resetAll()
+        cnWalletManager.deleteWallet()
+        thunderDomeRepository.deleteAll()
         resetAnalyticsProperties()
         myTwitterProfile.clear()
-        preferenceUtil.removeAll()
         localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_ON_WALLET_DELETED)
     }
 

@@ -3,7 +3,6 @@ package com.coinninja.coinkeeper.di.component;
 import android.app.Application;
 
 import com.coinninja.coinkeeper.TestCoinKeeperApplication;
-import com.coinninja.coinkeeper.di.builder.AndroidServiceBuilder;
 import com.coinninja.coinkeeper.di.interfaces.CoinkeeperApplicationScope;
 import com.coinninja.coinkeeper.di.module.ApiClientTestModule;
 import com.coinninja.coinkeeper.di.module.DaoSessionManagerTestModule;
@@ -21,7 +20,7 @@ import dagger.android.AndroidInjector;
         TestAppModule.class,
         ApiClientTestModule.class,
         DaoSessionManagerTestModule.class,
-        AndroidServiceBuilder.class,
+        TestAndroidServiceBuilder.class,
         TestAndroidReceiverBuilder.class,
         TestAndroidFragmentBuilder.class,
         TestAndroidActivityBuilder.class
