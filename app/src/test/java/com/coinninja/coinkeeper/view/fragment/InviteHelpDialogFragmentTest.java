@@ -21,22 +21,21 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static com.coinninja.android.helpers.Views.clickOn;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.shadows.ShadowView.clickOn;
 
 @RunWith(AndroidJUnit4.class)
 public class InviteHelpDialogFragmentTest {
 
     private static final String PHONE_NUMBER_INTERNATIONAL = "+1 330-555-1111";
     private static final String PHONE_NUMBER = "+13305551111";
-    private PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER);
     private static final String DISPLAY_NAME = "Joe Blow";
-
+    private PhoneNumber phoneNumber = new PhoneNumber(PHONE_NUMBER);
     private InviteHelpDialogFragment dialog;
 
     private Identity identity = new Identity(new Contact(phoneNumber, DISPLAY_NAME, false));
@@ -61,13 +60,6 @@ public class InviteHelpDialogFragmentTest {
         scenario.close();
     }
 
-
-    private void setupDialog() {
-        dialog = (InviteHelpDialogFragment) InviteHelpDialogFragment.newInstance(userPreferences, identity, onInviteHelpAcceptedCallback);
-        scenario = ActivityScenario.launch(SplashActivity.class);
-        scenario.onActivity(activity -> dialog.show(activity.getSupportFragmentManager(), InviteHelpDialogFragment.TAG));
-    }
-
     @Test
     public void notifies_caller_that_user_acknowledged_invite_message_when_skipping() {
         setupDialog();
@@ -81,7 +73,7 @@ public class InviteHelpDialogFragmentTest {
     @Test
     public void notifies_caller_that_user_acknowledged_invite_message_when_not_skipping() {
         setupDialog();
-        clickOn(dialog.getView(), R.id.done);
+        clickOn(dialog.getView().findViewById(R.id.done));
 
         verify(onInviteHelpAcceptedCallback).onInviteHelpAccepted();
     }
@@ -90,7 +82,7 @@ public class InviteHelpDialogFragmentTest {
     public void does_not_save_permission_when_permission_is_not_checked() {
         setupDialog();
 
-        clickOn(dialog.getView(), R.id.done);
+        clickOn(dialog.getView().findViewById(R.id.done));
 
         verify(userPreferences, times(0)).skipInviteHelpScreen(any(PreferencesUtil.Callback.class));
     }
@@ -100,7 +92,7 @@ public class InviteHelpDialogFragmentTest {
         setupDialog();
         ((CheckBox) dialog.getView().findViewById(R.id.permission)).setChecked(true);
 
-        clickOn(dialog.getView(), R.id.done);
+        clickOn(dialog.getView().findViewById(R.id.done));
 
         verify(userPreferences).skipInviteHelpScreen(any(PreferencesUtil.Callback.class));
     }
@@ -129,6 +121,12 @@ public class InviteHelpDialogFragmentTest {
         String message = ((TextView) dialog.getView().findViewById(R.id.message)).getText().toString();
 
         assertThat(message, containsString(DISPLAY_NAME));
+    }
+
+    private void setupDialog() {
+        dialog = (InviteHelpDialogFragment) InviteHelpDialogFragment.newInstance(userPreferences, identity, onInviteHelpAcceptedCallback);
+        scenario = ActivityScenario.launch(SplashActivity.class);
+        scenario.onActivity(activity -> dialog.show(activity.getSupportFragmentManager(), InviteHelpDialogFragment.TAG));
     }
 
 }

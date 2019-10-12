@@ -2,8 +2,8 @@ package com.coinninja.coinkeeper.view.adapter.util
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.SendState
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.equalTo
@@ -78,12 +78,16 @@ class BindableTransactionTest {
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.SEND))
         bindableTransaction.sendState = SendState.FAILED_TO_BROADCAST_SEND
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.SEND))
+        bindableTransaction.sendState = SendState.LOAD_LIGHTNING
+        assertThat(bindableTransaction.basicDirection, equalTo(SendState.SEND))
 
         bindableTransaction.sendState = SendState.RECEIVE
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.RECEIVE))
         bindableTransaction.sendState = SendState.RECEIVE_CANCELED
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.RECEIVE))
         bindableTransaction.sendState = SendState.FAILED_TO_BROADCAST_RECEIVE
+        assertThat(bindableTransaction.basicDirection, equalTo(SendState.RECEIVE))
+        bindableTransaction.sendState = SendState.UNLOAD_LIGHTNING
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.RECEIVE))
 
         bindableTransaction.sendState = SendState.TRANSFER

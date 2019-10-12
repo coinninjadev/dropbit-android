@@ -1,6 +1,8 @@
 package com.coinninja.coinkeeper.service.runner
 
+import app.coinninja.cn.thunderdome.repository.ThunderDomeRepository
 import app.dropbit.annotations.Mockable
+import com.coinninja.coinkeeper.model.db.enums.Type
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.ReceivedInvite
@@ -11,6 +13,7 @@ import javax.inject.Inject
 class GetIncomingInviteRunner @Inject constructor(
         internal val client: SignedCoinKeeperApiClient,
         internal val inviteTransactionSummaryHelper: InviteTransactionSummaryHelper,
+        internal val thunderDomeRepository: ThunderDomeRepository,
         internal val logger: CNLogger
 ) : Runnable {
 
@@ -26,9 +29,17 @@ class GetIncomingInviteRunner @Inject constructor(
         }
     }
 
-    private fun writeInvitesToDatabase(receivedInvites: List<ReceivedInvite>) {
+    internal fun writeInvitesToDatabase(receivedInvites: List<ReceivedInvite>) {
         for (invite in receivedInvites) {
-            inviteTransactionSummaryHelper.saveReceivedInviteTransaction(invite)
+            saveInvite(invite)
+        }
+    }
+
+    internal fun saveInvite(invite: ReceivedInvite) {
+        inviteTransactionSummaryHelper.saveReceivedInviteTransaction(invite)?.let { invite ->
+            if (invite.type == Type.LIGHTNING_RECEIVED) {
+                thunderDomeRepository.createSettlementForInvite(invite.id, invite.toUser.id, invite.fromUser.id, invite.sentDate)
+            }
         }
     }
 

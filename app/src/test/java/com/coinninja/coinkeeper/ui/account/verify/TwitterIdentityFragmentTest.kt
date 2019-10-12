@@ -144,7 +144,7 @@ class TwitterIdentityFragmentTest {
         start()
 
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.remove_verification))
+            clickOn(fragment.findViewById(R.id.remove_verification))
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
@@ -164,7 +164,7 @@ class TwitterIdentityFragmentTest {
         whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.remove_verification))
+            clickOn(fragment.findViewById(R.id.remove_verification))
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
@@ -185,7 +185,7 @@ class TwitterIdentityFragmentTest {
         whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.remove_verification))
+            clickOn(fragment.findViewById(R.id.remove_verification))
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
@@ -215,7 +215,7 @@ class TwitterIdentityFragmentTest {
         whenever(application.dropbitAccountHelper.twitterIdentity()).thenReturn(identity)
         start()
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.remove_verification))
+            clickOn(fragment.findViewById(R.id.remove_verification))
         }
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
@@ -288,7 +288,7 @@ class TwitterIdentityFragmentTest {
         Intents.intending(toPackage(application.packageName)).respondWith(result)
 
         scenario.onFragment { fragment ->
-            clickOn(withId(fragment.view, R.id.verify_button))
+            clickOn(fragment.findViewById(R.id.verify_button))
         }
 
         assertThat(Intents.getIntents()[0].component.className, equalTo(TwitterLoginActivity::class.java.name))

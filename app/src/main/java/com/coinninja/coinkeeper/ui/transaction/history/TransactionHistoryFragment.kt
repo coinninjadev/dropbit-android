@@ -21,12 +21,8 @@ import com.coinninja.coinkeeper.ui.transaction.DefaultCurrencyChangeViewNotifier
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DropbitIntents
-import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.currency.USDCurrency
-import com.coinninja.coinkeeper.view.widget.TransactionEmptyStateView
 import org.greenrobot.greendao.query.LazyList
 import javax.inject.Inject
 
@@ -34,8 +30,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
 
     @Inject
     internal lateinit var localBroadCastUtil: LocalBroadCastUtil
-    @Inject
-    internal lateinit var bitcoinUtil: BitcoinUtil
     @Inject
     internal lateinit var walletHelper: WalletHelper
     @Inject
@@ -51,7 +45,9 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     @Inject
     internal lateinit var syncManagerViewNotifier: SyncManagerViewNotifier
 
-    internal val intentFilter = IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED)
+    internal val intentFilter = IntentFilter(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED).also {
+        it.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED)
+    }
 
     internal lateinit var transactions: LazyList<TransactionsInvitesSummary>
 
@@ -75,12 +71,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         syncWalletManager.syncNow()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        intentFilter.addAction(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED)
-
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_transaction_history, container, false)
     }
@@ -88,7 +78,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     override fun onStart() {
         super.onStart()
         transactions = walletHelper.transactionsLazily
-        setupNewWalletButtons()
     }
 
     override fun onResume() {
@@ -100,7 +89,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         transactionHistoryDataAdapter.setDefaultCurrencyChangeViewNotifier(defaultCurrencyChangeViewNotifier)
         syncManagerViewNotifier.observeSyncManagerChange(this)
         setupHistoryList()
-        presentTransactions()
         setupSwipeToRefresh()
 
     }
@@ -109,11 +97,6 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         super.onPause()
         transactionHistoryDataAdapter.setOnItemClickListener(null)
         localBroadCastUtil.unregisterReceiver(receiver)
-    }
-
-    //TODO Trigger by ViewModel
-    fun onPriceReceived(price: USDCurrency) {
-        transactionHistoryDataAdapter.notifyDataSetChanged()
     }
 
     //TODO Trigger by ViewModel
@@ -126,42 +109,14 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
         transactions.close()
     }
 
-    private fun setupNewWalletButtons() {
-        context?.let { context ->
-            val transactionEmptyStateView = findViewById<TransactionEmptyStateView>(R.id.empty_state_view)
-
-            transactionEmptyStateView?.setGetBitcoinButtonClickListener {
-                analytics.trackEvent(Analytics.EVENT_GET_BITCOIN)
-                activityNavigationUtil.navigateToBuyBitcoin(context)
-            }
-
-            transactionEmptyStateView?.setLearnBitcoinButtonClickListener {
-                analytics.trackEvent(Analytics.EVENT_LEARN_BITCOIN)
-                activityNavigationUtil.navigateToLearnBitcoin(context)
-            }
-
-            transactionEmptyStateView?.setSpendBitcoinButtonClickListener {
-                analytics.trackEvent(Analytics.EVENT_SPEND_BITCOIN)
-                activityNavigationUtil.navigateToSpendBitcoin(context)
-            }
-        }
-    }
-
-
     private fun refreshTransactions() {
         transactions.close()
         transactions = walletHelper.transactionsLazily
         transactionHistoryDataAdapter.setTransactions(transactions)
-        presentTransactions()
         findViewById<RecyclerView>(R.id.transaction_history)?.let {
             it.adapter = transactionHistoryDataAdapter
         }
     }
-
-    private fun presentTransactions() {
-        findViewById<TransactionEmptyStateView>(R.id.empty_state_view)?.setupUIForWallet(walletHelper)
-    }
-
 
     private fun setupHistoryList() {
         val transactionHistory = findViewById<RecyclerView>(R.id.transaction_history)
@@ -174,11 +129,11 @@ class TransactionHistoryFragment : BaseFragment(), TransactionHistoryDataAdapter
     }
 
     private fun setupSwipeToRefresh() {
-        findViewById<SwipeRefreshLayout>(R.id.pull_refresh_container)?.setOnRefreshListener(this)
+        findViewById<SwipeRefreshLayout>(R.id.pull_to_refresh)?.setOnRefreshListener(this)
     }
 
     override fun onSyncStatusChanged() {
-        view?.findViewById<SwipeRefreshLayout>(R.id.pull_refresh_container)?.isRefreshing = false
+        view?.findViewById<SwipeRefreshLayout>(R.id.pull_to_refresh)?.isRefreshing = false
         refreshTransactions()
     }
 

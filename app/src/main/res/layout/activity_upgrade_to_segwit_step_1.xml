@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/upgrade_background"
+    android:padding="16dp"
+    android:paddingTop="23dp">
+
+
+    <View
+        android:id="@+id/background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/rounded_lightning_upgrade_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.coinninja.coinkeeper.view.button.HelpLinkButton
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:textSize="13sp"
+        app:url="@string/upgrade_now_help_url"
+        app:layout_constraintTop_toTopOf="@id/background"
+        app:layout_constraintEnd_toEndOf="@id/background" />
+
+    <ImageView
+        android:id="@+id/lightning"
+        android:layout_width="58dp"
+        android:layout_height="84dp"
+        android:layout_marginBottom="32dp"
+        android:minWidth="58dp"
+        android:minHeight="84dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/lightning_is_here"
+        app:layout_constraintBottom_toBottomOf="@+id/header"
+        app:layout_constraintEnd_toEndOf="@id/background"
+        app:layout_constraintStart_toStartOf="@id/background"
+        app:layout_constraintTop_toTopOf="@id/background"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/lightning_is_here"
+        android:textAppearance="@style/TextAppearance.Lightning.Upgrade.Header"
+        app:layout_constraintBottom_toTopOf="@+id/upgrade_notice"
+        app:layout_constraintEnd_toEndOf="@+id/background"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/background"
+        app:layout_constraintTop_toBottomOf="@+id/lightning" />
+
+    <TextView
+        android:id="@+id/upgrade_notice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:lineSpacingExtra="8sp"
+        android:gravity="center_horizontal"
+        android:text="@string/upgrade_notice"
+        android:textAppearance="@style/TextAppearance.Lightning.Upgrade.Notice"
+        app:layout_constraintBottom_toTopOf="@+id/new_words_permission"
+        app:layout_constraintEnd_toEndOf="@+id/background"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/background"
+        app:layout_constraintTop_toBottomOf="@+id/header" />
+
+    <CheckBox
+        android:id="@+id/new_words_permission"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/rounded_lightning_upgrade_acknowledgement_background"
+        android:checked="false"
+        android:paddingStart="6dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="2dp"
+        android:paddingBottom="16dp"
+        android:text="@string/new_recovery_words_notice"
+        android:textAppearance="@style/TextAppearance.Lightning.Upgrade.Acknowledgement"
+        android:textColor="@color/font_white"
+        android:theme="@style/CheckBox.Lightning.Upgrade"
+        app:layout_constraintBottom_toTopOf="@+id/transfer_permission"
+        app:layout_constraintEnd_toEndOf="@+id/background"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/background"
+        app:layout_constraintTop_toBottomOf="@+id/upgrade_notice" />
+
+
+    <CheckBox
+        android:id="@+id/transfer_permission"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/rounded_lightning_upgrade_acknowledgement_background"
+        android:checked="false"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="2dp"
+        android:textColor="@color/font_white"
+        android:text="@string/transfer_wallet_funds_notice"
+        android:textAppearance="@style/TextAppearance.Lightning.Upgrade.Acknowledgement"
+        android:theme="@style/CheckBox.Lightning.Upgrade"
+        app:layout_constraintBottom_toTopOf="@+id/sync_progress"
+        app:layout_constraintEnd_toEndOf="@+id/background"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/background"
+        app:layout_constraintTop_toBottomOf="@+id/new_words_permission" />
+
+
+    <ProgressBar
+        android:id="@+id/sync_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/upgrade_progress_tint"
+        app:layout_constraintBottom_toTopOf="@+id/upgrade_button"
+        app:layout_constraintEnd_toEndOf="@+id/background"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/background"
+        app:layout_constraintTop_toBottomOf="@+id/transfer_permission"
+        tools:visibility="gone" />
+
+    <Button
+        android:id="@+id/upgrade_button"
+        style="@style/Button.Lightning.Upgrade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="40dp"
+        android:text="@string/upgrade_now"
+        app:layout_constraintBottom_toBottomOf="@+id/background"
+        app:layout_constraintEnd_toEndOf="@+id/background"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/background" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

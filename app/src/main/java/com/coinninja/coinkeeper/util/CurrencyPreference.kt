@@ -2,14 +2,12 @@ package com.coinninja.coinkeeper.util
 
 import android.content.Intent
 import app.dropbit.annotations.Mockable
-
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.Currency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.factory.CurrencyFactory
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.PreferencesUtil
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.Currency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
-
 import javax.inject.Inject
 
 @Mockable

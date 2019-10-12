@@ -11,22 +11,16 @@ import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.PhoneNumber
 import com.coinninja.coinkeeper.service.SyncDropBitService
 import com.coinninja.coinkeeper.text.TextInputNotifierWatcher
+import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.dropbit.me.DropbitMeConfiguration
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.analytics.Analytics
-import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import javax.inject.Inject
 
-class VerifyPhoneVerificationCodeActivity : SecuredActivity(), TextInputNotifierWatcher.OnInputEventListener, View.OnFocusChangeListener, DialogInterface.OnClickListener {
+class VerifyPhoneVerificationCodeActivity : BaseActivity(), TextInputNotifierWatcher.OnInputEventListener, View.OnFocusChangeListener, DialogInterface.OnClickListener {
 
-    @Inject
-    internal lateinit var activityNavigationUtil: ActivityNavigationUtil
-    @Inject
-    internal lateinit var localBroadCastUtil: LocalBroadCastUtil
     @Inject
     internal lateinit var dropbitMeConfiguration: DropbitMeConfiguration
     @Inject

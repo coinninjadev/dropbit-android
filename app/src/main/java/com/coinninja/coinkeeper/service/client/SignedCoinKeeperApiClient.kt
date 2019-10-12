@@ -1,7 +1,12 @@
 package com.coinninja.coinkeeper.service.client
 
+import app.coinninja.cn.libbitcoin.enum.AddressType
+import app.coinninja.cn.libbitcoin.model.Transaction
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.util.removeRange
+import com.coinninja.coinkeeper.bitcoin.BroadcastProvider
+import com.coinninja.coinkeeper.bitcoin.BroadcastingClient
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.service.client.model.*
@@ -16,7 +21,9 @@ import retrofit2.Response
 
 @Mockable
 @Suppress("UNCHECKED_CAST")
-class SignedCoinKeeperApiClient(client: CoinKeeperClient, private val fcmAppId: String) : CoinKeeperApiClient(client) {
+class SignedCoinKeeperApiClient(
+        client: CoinKeeperClient, private val fcmAppId: String
+) : CoinKeeperApiClient(client), BroadcastingClient {
 
     val cnWalletAddresses: Response<List<CNWalletAddress>>
         get() = executeCall(client.walletAddresses)
@@ -54,19 +61,24 @@ class SignedCoinKeeperApiClient(client: CoinKeeperClient, private val fcmAppId: 
         return executeCall(client.queryUsers(query))
     }
 
-    fun addAddress(address: String, publicKey: String): Response<CNWalletAddress> {
-        val json = JsonObject()
-        json.addProperty("address", address)
-        json.addProperty("address_pubkey", publicKey)
-        return executeCall(client.addAddressToCNWallet(json))
+    fun addAddress(addressBody: AddAddressBodyRequest): Response<CNWalletAddress> {
+        return executeCall(client.addAddressToCNWallet(addressBody))
     }
 
-    fun queryWalletAddress(phoneHash: String): Response<List<AddressLookupResult>> {
+    fun queryWalletAddress(phoneHash: String, mode: AccountMode): Response<List<AddressLookupResult>> {
         val numbers = JsonArray()
         numbers.add(phoneHash)
         val request = createQuery("phone_number_hash", numbers)
         val query = request.getAsJsonObject("query")
         query.addProperty("address_pubkey", true)
+        when (mode) {
+            AccountMode.LIGHTNING -> {
+                query.addProperty("address_type", "lightning")
+            }
+            else -> {
+                query.addProperty("address_type", "btc")
+            }
+        }
         return executeCall(client.queryWalletAddress(request))
     }
 
@@ -74,12 +86,13 @@ class SignedCoinKeeperApiClient(client: CoinKeeperClient, private val fcmAppId: 
         return executeCall(client.inviteUser(inviteUserPayload))
     }
 
-    fun sendAddressForInvite(inviteId: String, btcAddress: String, addressPubKey: String): Response<CNWalletAddress> {
+    fun sendAddressForInvite(inviteId: String, btcAddress: String, addressPubKey: String, addressType: String): Response<CNWalletAddress> {
         val query = JsonObject()
 
         query.addProperty("wallet_address_request_id", inviteId)
         query.addProperty("address", btcAddress)
         query.addProperty("address_pubkey", addressPubKey)
+        query.addProperty("address_type", addressType)
 
         return executeCall(client.sendAddress(query))
     }
@@ -124,6 +137,14 @@ class SignedCoinKeeperApiClient(client: CoinKeeperClient, private val fcmAppId: 
 
     fun verifyWallet(): Response<CNWallet> {
         return executeCall(client.verifyWallet())
+    }
+
+    fun disableWallet(): Response<CNWallet> {
+        return executeCall(client.disableWallet(DisableWalletRequest()))
+    }
+
+    fun replaceWalletWith(replaceWalletRequest: ReplaceWalletRequest): Response<CNWallet> {
+        return executeCall(client.replaceWalletWith(replaceWalletRequest))
     }
 
     fun verifyAccount(): Response<CNUserAccount> {
@@ -240,9 +261,13 @@ class SignedCoinKeeperApiClient(client: CoinKeeperClient, private val fcmAppId: 
         return response
     }
 
-    fun broadcastTransaction(rawTx: String): Response<ResponseBody> {
-        val requestBody = RequestBody.create(MediaType.parse("text/plain"), rawTx)
+    override fun broadcastTransaction(transaction: Transaction): Response<ResponseBody> {
+        val requestBody = RequestBody.create(MediaType.parse("text/plain"), transaction.encodedTransaction)
         return executeCall(client.broadcastTransaction(requestBody))
+    }
+
+    override fun broadcastProvider(): BroadcastProvider {
+        return BroadcastProvider.COIN_NINJA
     }
 
     private fun buildWalletSubscriptionBody(deviceEndpoint: String): JsonObject {
@@ -250,5 +275,6 @@ class SignedCoinKeeperApiClient(client: CoinKeeperClient, private val fcmAppId: 
         jsonObject.addProperty("device_endpoint_id", deviceEndpoint)
         return jsonObject
     }
+
 
 }

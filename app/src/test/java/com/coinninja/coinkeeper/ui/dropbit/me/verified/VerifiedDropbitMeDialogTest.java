@@ -48,8 +48,6 @@ public class VerifiedDropbitMeDialogTest {
     private ActivityScenario<HomeActivity> scenario;
 
     @Mock
-    private WalletHelper walletHelper;
-    @Mock
     private LazyList transactions;
 
     @Mock
@@ -69,12 +67,11 @@ public class VerifiedDropbitMeDialogTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         application = ApplicationProvider.getApplicationContext();
-        application.walletHelper = walletHelper;
         application.activityNavigationUtil = activityNavigationUtil;
         application.dropbitMeConfiguration = dropbitMeConfiguration;
         application.serviceWorkUtil = serviceWorkUtil;
         application.localBroadCastUtil = localBroadCastUtil;
-        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        when(application.walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(0);
 
         when(dropbitMeConfiguration.isDisabled()).thenReturn(false).thenReturn(true);
@@ -89,7 +86,6 @@ public class VerifiedDropbitMeDialogTest {
     @After
     public void tearDown() {
         scenario.close();
-        walletHelper = null;
         transactions = null;
         activityNavigationUtil = null;
         dropbitMeConfiguration = null;

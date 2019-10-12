@@ -17,7 +17,10 @@ data class CNWallet(
         @SerializedName("updated_at")
         internal var updatedDate: Long = 0,
 
-        var flags: Long = 0
+        var flags: Long = 0,
+
+        @SerializedName("user_id")
+        var userId: String = ""
 ) {
     val updatedAtMillis: Long get() = updatedDate * 1000
     val createdAtMillis: Long get() = createdDate * 1000
@@ -34,6 +37,7 @@ data class CNWallet(
         if (createdDate != other.createdDate) return false
         if (updatedDate != other.updatedDate) return false
         if (flags != other.flags) return false
+        if (userId != other.userId) return false
 
         return true
     }
@@ -44,6 +48,9 @@ data class CNWallet(
         result = 31 * result + createdDate.hashCode()
         result = 31 * result + updatedDate.hashCode()
         result = 31 * result + flags.hashCode()
+        result = 31 * result + userId.hashCode()
         return result
     }
+
+
 }

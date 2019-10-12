@@ -1,7 +1,7 @@
 package com.coinninja.coinkeeper.service.client
 
-import com.coinninja.coinkeeper.cn.wallet.DataSigner
 import com.coinninja.coinkeeper.cn.wallet.WalletFlags
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.Contact
 import com.coinninja.coinkeeper.model.db.DropbitMeIdentity
 import com.coinninja.coinkeeper.service.client.model.*
@@ -30,7 +30,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class SignedCoinKeeperApiClientTest {
-    private var dataSigner: DataSigner = mock()
     private var client: CoinKeeperClient = mock()
     private var webServer: MockWebServer = MockWebServer()
     private lateinit var signedCoinKeeperApiClient: SignedCoinKeeperApiClient
@@ -38,7 +37,6 @@ class SignedCoinKeeperApiClientTest {
     @Before
     fun setUp() {
         signedCoinKeeperApiClient = createClient(webServer.url("").toString())
-
     }
 
     @After
@@ -104,49 +102,30 @@ class SignedCoinKeeperApiClientTest {
 
     @Test
     fun querys_for_contacts_address() {
-        val json = "{" +
-                "  \"query\": {" +
-                "    \"terms\": {" +
-                "      \"phone_number_hash\": [" +
-                "        \"9906c77c0aa1f6e4760a68719c79bdf605d1f7819a15d06bc6dfc216c047339f\"" +
-                "      ]" +
-                "    }," +
-                "    \"address_pubkey\": true" +
-                "  }" +
-                "}"
-
-
-        val call = mock<Call<List<AddressLookupResult>>>()
-        whenever(call.execute()).thenReturn(Response.success(mock()))
-        whenever(client.queryWalletAddress(any())).thenReturn(call)
-        val captor = argumentCaptor<JsonObject>()
-        val apiClient = SignedCoinKeeperApiClient(client, FCM_APP_ID)
-        val phoneHash = "9906c77c0aa1f6e4760a68719c79bdf605d1f7819a15d06bc6dfc216c047339f"
-        apiClient.queryWalletAddress(phoneHash)
-
-        verify(client).queryWalletAddress(captor.capture())
-
-        assertThat(captor.firstValue.toString(), equalTo(json.replace("\\s".toRegex(), "")))
-    }
-
-    @Test
-    fun deserializes_results_for_contacts_address() {
         val json = "[\n" +
                 "  {\n" +
                 "    \"phone_number_hash\": \"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\",\n" +
                 "    \"address\": \"1JbJbAkCXtxpko39nby44hpPenpC1xKGYw\",\n" +
-                "    \"address_pubkey\": \"04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc\"\n" +
+                "    \"address_pubkey\": \"04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc\",\n" +
+                "    \"address_type\": \"btc\"\n" +
                 "  }\n" +
                 "]"
 
         webServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
-        val response = signedCoinKeeperApiClient.queryWalletAddress("--phone-hash--")
-        val results = response.body() as List<AddressLookupResult>
-        val (phoneNumberHash, address, addressPubKey) = results[0]
 
-        assertThat<String>(address, equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"))
-        assertThat<String>(phoneNumberHash, equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"))
-        assertThat<String>(addressPubKey, equalTo("04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc"))
+        val response = signedCoinKeeperApiClient.queryWalletAddress(
+                "498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49",
+                AccountMode.BLOCKCHAIN
+        )
+        val takeRequest = webServer.takeRequest()
+        val results = response.body() as List<AddressLookupResult>
+        val result: AddressLookupResult = results[0]
+
+        assertThat(takeRequest.body.readUtf8(), equalTo("{\"query\":{\"terms\":{\"phone_number_hash\":[\"498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49\"]},\"address_pubkey\":true,\"address_type\":\"btc\"}}"))
+        assertThat(result.address, equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"))
+        assertThat(result.phoneNumberHash, equalTo("498803d5964adce8037d2c53da0c7c7a96ce0e0f99ab99e9905f0dda59fb2e49"))
+        assertThat(result.addressPubKey, equalTo("04cf39eab1213ad4a94e755fadaac4c8f2a256d7fa6b4044c7980113f7df60e24d5c1156b794d46652de2493013c6495469fbbac39d8c86495f1eebd65c7a6bddc"))
+        assertThat(result.addressType, equalTo("btc"))
     }
 
     @Test
@@ -193,14 +172,25 @@ class SignedCoinKeeperApiClientTest {
                 "  \"wallet_id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\"\n" +
                 "}"
         webServer.enqueue(MockResponse().setResponseCode(201).setBody(json))
-        val response = signedCoinKeeperApiClient.addAddress("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw", "--pub-key--")
+        val response = signedCoinKeeperApiClient.addAddress(
+                AddAddressBodyRequest(
+                        address = "--address--",
+                        pubKey = "--pub-key--",
+                        addressType = "btc"
+                ))
+        val recordedRequest = webServer.takeRequest()
+        assertThat(recordedRequest.method, equalTo("POST"))
+        assertThat(recordedRequest.path, equalTo("/wallet/addresses"))
+        assertThat(recordedRequest.body.readUtf8(), equalTo("{\"address\":\"--address--\"," +
+                "\"address_pubkey\":\"--pub-key--\"," +
+                "\"address_type\":\"btc\"}"))
         assertThat(response.code(), equalTo(201))
         val walletAddress = response.body() as CNWalletAddress
 
         assertThat(walletAddress.address, equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"))
         assertThat(walletAddress.id, equalTo("6d1d7318-81b9-492c-b3f3-9d1b24f91d14"))
-        assertThat(walletAddress.createdAt, equalTo(1531921356000L))
-        assertThat(walletAddress.updateAt, equalTo(1531921357000L))
+        assertThat(walletAddress.createdAt, equalTo(1531921356L))
+        assertThat(walletAddress.updateAt, equalTo(1531921357L))
         assertThat(walletAddress.walletId, equalTo("f8e8c20e-ba44-4bac-9a96-44f3b7ae955d"))
     }
 
@@ -350,7 +340,7 @@ class SignedCoinKeeperApiClientTest {
         assertThat(recordedRequest.body.readUtf8(), equalTo("{\"amount\":{\"btc\":120000000,\"usd\":8292280}," +
                 "\"sender\":{\"type\":\"phone\",\"identity\":\"15554441234\"}," +
                 "\"receiver\":{\"type\":\"phone\",\"identity\":\"15554440000\"}," +
-                "\"request_id\":\"--request-id--\"}"))
+                "\"request_id\":\"--request-id--\",\"suppress\":false,\"address_type\":\"btc\"}"))
     }
 
     @Test
@@ -407,12 +397,14 @@ class SignedCoinKeeperApiClientTest {
                 "}"
 
         webServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
-        val response = signedCoinKeeperApiClient.sendAddressForInvite("6d1d7318-81b9-492c-b3f3-9d1b24f91d14", "1JbJbAkCXtxpko39nby44hpPenpC1xKGYw", addressPubKey)
+        val response = signedCoinKeeperApiClient.sendAddressForInvite(
+                "6d1d7318-81b9-492c-b3f3-9d1b24f91d14",
+                "1JbJbAkCXtxpko39nby44hpPenpC1xKGYw", addressPubKey,"btc")
         val cnWalletAddress = response.body() as CNWalletAddress
 
         assertThat(response.code(), equalTo(200))
         assertThat(cnWalletAddress.address, equalTo("1JbJbAkCXtxpko39nby44hpPenpC1xKGYw"))
-        assertThat(cnWalletAddress.createdAt, equalTo(1531921356000L))
+        assertThat(cnWalletAddress.createdAt, equalTo(1531921356L))
         assertThat(cnWalletAddress.id, equalTo("6d1d7318-81b9-492c-b3f3-9d1b24f91d14"))
     }
 
@@ -521,7 +513,8 @@ class SignedCoinKeeperApiClientTest {
         val inviteID = "a1bb1d88-bfc8-4085-8966-e0062278237c"
 
         webServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
-        val response = signedCoinKeeperApiClient.sendAddressForInvite(inviteID, addressToSend, addressPubKey)
+        val response = signedCoinKeeperApiClient.sendAddressForInvite(inviteID,
+                addressToSend, addressPubKey, "btc")
 
 
         assertThat(response.code(), equalTo(200))
@@ -1263,7 +1256,6 @@ class SignedCoinKeeperApiClientTest {
     }
 
     @Test
-    @Throws(InterruptedException::class)
     fun fetchingNewsWithOffsetTrimsList() {
         val json = TEST_DATA_PRICING.news
         val expectedResponse = MockResponse().setResponseCode(200).setBody(json)
@@ -1278,6 +1270,58 @@ class SignedCoinKeeperApiClientTest {
         assertThat(response.code(), equalTo(200))
         assertThat(articles.size, equalTo(2))
         assertThat<String>(articles[0].title, equalTo("Italy to Lead European Blockchain Partnership Until July 2020"))
+    }
+
+    @Test
+    fun marks_wallet_as_depricated() {
+        val json = "{\n" +
+                "\"id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\",\n" +
+                "\"public_key_string\": \"02262233847a69026f8f3ae027af347f2501adf008fe4f6087d31a1d975fd41473\",\n" +
+                "\"flags\": 257,\n" +
+                "\"created_at\": 1531921356,\n" +
+                "\"updated_at\": 1531921356,\n" +
+                "\"user_id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\"\n" +
+                "}"
+        val expectedResponse = MockResponse().setResponseCode(200).setBody(json)
+        webServer.enqueue(expectedResponse)
+
+        val response = signedCoinKeeperApiClient.disableWallet()
+        val walletResponse = response.body() as CNWallet
+        val recordedRequest = webServer.takeRequest()
+
+        assertThat(recordedRequest.path, equalTo("/wallet"))
+        assertThat(recordedRequest.method, equalTo("PATCH"))
+        assertThat(response.code(), equalTo(200))
+        assertThat(recordedRequest.body.readUtf8(), equalTo("{\"flags\":257}"))
+    }
+
+    @Test
+    fun replaces_wallet() {
+        val json = "{\n" +
+                "  \"id\": \"f8e8c20e-ba44-4bac-9a96-44f3b7ae955d\",\n" +
+                "  \"public_key_string\": \"02262233847a69026f8f3ae027af347f2501adf008fe4f6087d31a1d975fd41473\",\n" +
+                "  \"flags\": 18,\n" +
+                "  \"created_at\": 1531921356,\n" +
+                "  \"updated_at\": 1531921356,\n" +
+                "  \"user_id\": \"ad983e63-526d-4679-a682-c4ab052b20e1\"\n" +
+                "}"
+        val expectedResponse = MockResponse().setResponseCode(200).setBody(json)
+        webServer.enqueue(expectedResponse)
+
+        val response = signedCoinKeeperApiClient.replaceWalletWith(
+                ReplaceWalletRequest(
+                        "--pub-key--",
+                        WalletFlags.purpose84v2,
+                        "2019-09-17T17:19:56.762Z",
+                        "--signature--"
+                ))
+        val walletResponse = response.body() as CNWallet
+        val recordedRequest = webServer.takeRequest()
+
+        assertThat(recordedRequest.path, equalTo("/wallet"))
+        assertThat(recordedRequest.method, equalTo("PUT"))
+        assertThat(response.code(), equalTo(200))
+        assertThat(recordedRequest.body.readUtf8(), equalTo("{\"public_key_string\":\"--pub-key--\",\"flags\":18,\"timestamp\":\"2019-09-17T17:19:56.762Z\",\"signature\":\"--signature--\"}"))
     }
 
     private fun createClient(host: String): SignedCoinKeeperApiClient {

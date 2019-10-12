@@ -16,8 +16,7 @@ import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.List;
 
-import static com.coinninja.android.helpers.Views.shakeInError;
-import static com.coinninja.android.helpers.Views.withId;
+import static com.coinninja.android.helpers.ViewsKt.shakeInError;
 
 public class PhoneVerificationView extends ConstraintLayout {
 
@@ -104,7 +103,7 @@ public class PhoneVerificationView extends ConstraintLayout {
     }
 
     private void onExampleNumberChanged(String exampleNumber) {
-        TextView exampleView = withId(this, R.id.example_number);
+        TextView exampleView = findViewById(R.id.example_number);
         exampleView.setText(getContext().getString(R.string.verification_example, exampleNumber));
     }
 

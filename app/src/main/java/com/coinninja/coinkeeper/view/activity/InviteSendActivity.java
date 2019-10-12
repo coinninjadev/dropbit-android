@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -18,18 +17,19 @@ import com.coinninja.coinkeeper.model.dto.PendingInviteDTO;
 import com.coinninja.coinkeeper.presenter.activity.InviteContactPresenter;
 import com.coinninja.coinkeeper.service.SaveInviteService;
 import com.coinninja.coinkeeper.service.client.model.InvitedContact;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
+import com.coinninja.coinkeeper.ui.twitter.TransactionTweetCallback;
 import com.coinninja.coinkeeper.ui.twitter.TransactionTweetDialog;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
 import javax.inject.Inject;
 
-public class InviteSendActivity extends SecuredActivity implements InviteContactPresenter.View {
+public class InviteSendActivity extends BaseActivity implements InviteContactPresenter.View, TransactionTweetCallback {
     public static final String RATE_LIMIT_DROPBIT_FRAGMENT_TAG = "EXPIRED_CODE_FRAGMENT_TAG";
     static final String RESTORE_STATE = "RESTORE_STATE";
 
@@ -53,7 +53,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
         TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
         TextView transactionIdLink = findViewById(R.id.transaction_id_link);
-        ImageView transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
 
         sendingProgressView.setProgress(0);
@@ -61,7 +60,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
         transactionIdLabel.setVisibility(View.INVISIBLE);
         transactionIdLink.setVisibility(View.INVISIBLE);
-        transactionIdIcon.setVisibility(View.INVISIBLE);
         transactionActionBtn.setVisibility(View.INVISIBLE);
 
         sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_label));
@@ -69,7 +67,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         transactionIdLink.setText("");
         transactionActionBtn.setOnClickListener(null);
         transactionIdLink.setOnClickListener(null);
-        transactionIdIcon.setOnClickListener(null);
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
 
@@ -77,7 +74,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         TextView sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
         TextView transactionIdLabel = findViewById(R.id.transaction_id_label);
         TextView transactionIdLink = findViewById(R.id.transaction_id_link);
-        ImageView transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         Button transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
 
         sendingProgressView.setProgress(100);
@@ -85,7 +81,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
         transactionIdLabel.setVisibility(View.VISIBLE);
         transactionIdLink.setVisibility(View.INVISIBLE);
-        transactionIdIcon.setVisibility(View.INVISIBLE);
         transactionActionBtn.setVisibility(View.INVISIBLE);
 
         sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_failed));
@@ -93,7 +88,6 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
         transactionIdLabel.setText(getResources().getText(R.string.invite_failed));
 
         transactionIdLink.setOnClickListener(null);
-        transactionIdIcon.setOnClickListener(null);
     }
 
     @Override
@@ -252,6 +246,7 @@ public class InviteSendActivity extends SecuredActivity implements InviteContact
 
     private void saveInvite(InvitedContact invitedContact) {
         Intent intent = new Intent(this, SaveInviteService.class);
+
         CompletedInviteDTO completedInviteDTO = pendingInviteDTO.completeInviteWith(invitedContact);
         intent.putExtra(DropbitIntents.EXTRA_COMPLETED_INVITE_DTO, completedInviteDTO);
         startService(intent);

@@ -13,9 +13,9 @@ import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
 import com.coinninja.coinkeeper.ui.base.TestableActivity;
 import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
-import com.coinninja.coinkeeper.util.image.CircleTransform;
+import com.coinninja.coinkeeper.util.analytics.Analytics;
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
+import com.coinninja.coinkeeper.util.image.TwitterCircleTransform;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.ConfirmationState;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction.SendState;
@@ -34,7 +34,9 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.USDCurrency;
+
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
@@ -59,7 +61,11 @@ public class TransactionHistoryDataBinderTest {
     @Mock
     private Picasso picasso;
     @Mock
-    private CircleTransform circleTransform;
+    private TwitterCircleTransform circleTransform;
+    @Mock
+    private Analytics analytics;
+    @Mock
+    private ActivityNavigationUtil activityNavigationUtil;
 
     private View view;
     private TransactionHistoryDataAdapter.ViewHolder viewHolder;
@@ -72,13 +78,15 @@ public class TransactionHistoryDataBinderTest {
         MockitoAnnotations.initMocks(this);
         when(transactions.isEmpty()).thenReturn(false);
         when(transactions.isClosed()).thenReturn(false);
+        when(transactions.size()).thenReturn(2);
         when(transactions.get(0)).thenReturn(transaction);
         TestableActivity activity = Robolectric.setupActivity(TestableActivity.class);
         ViewGroup parent = activity.findViewById(R.id.test_root);
         bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         when(transactionAdapterUtil.translateTransaction(any(TransactionsInvitesSummary.class))).thenReturn(bindableTransaction);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
-        adapter = new TransactionHistoryDataAdapter(transactionAdapterUtil, defaultCurrencies, picasso, circleTransform);
+        adapter = new TransactionHistoryDataAdapter(transactionAdapterUtil, defaultCurrencies,
+                picasso, circleTransform, walletHelper, analytics, activityNavigationUtil);
         adapter.setOnItemClickListener(onClickListener);
         adapter.setTransactions(transactions);
         bindableTransaction.setSendState(SendState.SEND);
@@ -137,7 +145,7 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView memoView = withId(view, R.id.transaction_memo);
+        TextView memoView = view.findViewById(R.id.transaction_memo);
         assertThat(memoView, hasText(""));
         assertThat(memoView, isGone());
     }
@@ -150,7 +158,7 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        TextView memoView = withId(view, R.id.transaction_memo);
+        TextView memoView = view.findViewById(R.id.transaction_memo);
         assertThat(memoView, hasText("memo"));
         assertThat(memoView, isVisible());
     }
@@ -282,33 +290,38 @@ public class TransactionHistoryDataBinderTest {
     }
 
     @Test
+    public void sets_lightning_deposit_image_for_icon() {
+        setupSend();
+        bindableTransaction.setSendState(SendState.LOAD_LIGHTNING);
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        ImageView icon = view.findViewById(R.id.icon);
+        assertThat(icon.getTag(), equalTo(R.drawable.ic_transfer_out));
+        TextView address = view.findViewById(R.id.address);
+        assertThat(address.getText().toString(), equalTo("Load Lightning"));
+    }
+
+    @Test
+    public void sets_lightning_withdraw_image_for_icon() {
+        setupReceive();
+        bindableTransaction.setSendState(SendState.UNLOAD_LIGHTNING);
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        ImageView icon = view.findViewById(R.id.icon);
+        assertThat(icon.getTag(), equalTo(R.drawable.ic_transfer_in));
+        TextView address = view.findViewById(R.id.address);
+        assertThat(address.getText().toString(), equalTo("Lightning Withdraw"));
+    }
+
+    @Test
     public void sets_receive_image_for_icon() {
         setupReceive();
         adapter.onBindViewHolder(viewHolder, 0);
 
         ImageView icon = view.findViewById(R.id.icon);
         assertThat(icon.getTag(), equalTo(R.drawable.ic_transaction_receive));
-    }
-
-    @Test
-    public void zero_time_means() {
-        setupReceive();
-        bindableTransaction.setTxTime("");
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView time = view.findViewById(R.id.blocktime);
-        assertThat(time.getText().toString(), equalTo(""));
-    }
-
-    @Test
-    public void formats_time_to_date() {
-        setupReceive();
-
-        adapter.onBindViewHolder(viewHolder, 0);
-
-        TextView time = view.findViewById(R.id.blocktime);
-        assertThat(time.getText().toString(), equalTo("April 24, 2018 01:24am"));
     }
 
     @Test
@@ -531,6 +544,6 @@ public class TransactionHistoryDataBinderTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
 
-        assertThat(withId(view, R.id.address), hasText("Jeff"));
+        assertThat(view.findViewById(R.id.address), hasText("Jeff"));
     }
 }

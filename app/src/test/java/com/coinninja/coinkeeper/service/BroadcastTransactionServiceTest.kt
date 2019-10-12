@@ -2,7 +2,7 @@ package com.coinninja.coinkeeper.service
 
 import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.coinninja.bindings.TransactionData
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO

@@ -46,6 +46,25 @@
         </activity>
 
         <activity
+            android:name=".ui.segwit.UpgradeToSegwitActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.NoActionBar" />
+
+        <activity
+            android:name=".ui.segwit.PerformSegwitUpgradeActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:noHistory="true"
+            android:theme="@style/CoinKeeperTheme.NoActionBar" />
+
+        <activity
+            android:name=".ui.segwit.UpgradeToSegwitCompleteActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.NoActionBar" />
+
+        <activity
             android:name=".ui.settings.AdjustableFeesActivity"
             android:label="@string/adjustable_fees"
             android:noHistory="true"
@@ -100,11 +119,16 @@
             android:theme="@style/CoinKeeperTheme.UpOn.SkipOn"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <activity
+            android:name=".ui.market.MarketScreenActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
+        <activity
             android:name=".ui.home.HomeActivity"
             android:configChanges=""
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.Drawer"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn.ChartsOn"
             android:windowSoftInputMode="adjustPan|adjustNothing">
             <intent-filter>
                 <data android:scheme="bitcoin" />
@@ -114,11 +138,40 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
+            android:name=".ui.payment.request.PayRequestActivity"
+            />
+
+        <activity
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
+            android:name=".ui.payment.request.LndInvoiceRequestActivity"
+            />
+
+        <activity
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
+            android:name=".ui.payment.create.CreatePaymentActivity"
+            />
+
+        <activity
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
+            android:name=".ui.payment.confirm.ConfirmPaymentActivity"
+            />
+
         <activity
             android:name=".ui.transaction.details.TransactionDetailsActivity"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/CoinKeeperTheme.UpOn" />
+            android:theme="@style/CoinKeeperTheme.UpOn.BalanceOn" />
         <activity
             android:name=".view.activity.QrScanActivity"
             android:label=""
@@ -156,10 +209,22 @@
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOff.CloseOn" />
         <activity
+            android:name=".ui.lightning.broadcast.BroadcastLightningPaymentActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.UpOff" />
+        <activity
             android:name=".view.activity.BroadcastActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOff" />
+
+        <activity
+            android:name=".ui.payment.invite.InviteContactActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.UpOff" />
+
         <activity
             android:name=".view.activity.InviteSendActivity"
             android:label=""
@@ -222,6 +287,24 @@
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.UpOn" />
+
+        <activity
+            android:name=".ui.lightning.deposit.LightningDepositActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn" />
+
+        <activity
+            android:name=".ui.lightning.withdrawal.LightningWithdrawalActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn" />
+
+        <activity
+            android:name=".ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn" />
 
         <activity
             android:name=".ui.backup.BackupRecoveryWordsStartActivity"
@@ -357,10 +440,6 @@
 
         <service
             android:name=".service.blockchain.BlockChainService"
-            android:exported="false" />
-
-        <service
-            android:name=".cn.wallet.service.CNWalletAddressRequestService"
             android:exported="false" />
 
         <service

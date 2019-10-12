@@ -7,6 +7,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
@@ -20,10 +22,7 @@ import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.crypto.BitcoinUtil
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
 import com.coinninja.matchers.IntentFilterMatchers
-import com.coinninja.matchers.ViewMatcher
 import com.nhaarman.mockitokotlin2.whenever
 import org.greenrobot.greendao.query.LazyList
 import org.hamcrest.MatcherAssert.assertThat
@@ -40,7 +39,7 @@ import org.mockito.Mockito.*
 class TransactionHistoryFragmentTest {
 
     private val conversionCurrency = USDCurrency(1000.0)
-    private val application = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()
+    private val application get() = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()
 
     private fun setupFragment(numTransactions: Int = 12): FragmentScenario<TransactionHistoryFragment> {
         setupDI(numTransactions)
@@ -59,6 +58,7 @@ class TransactionHistoryFragmentTest {
         whenever(transactions[ArgumentMatchers.anyInt()]).thenReturn(transaction)
         whenever(walletHelper.transactionsLazily).thenReturn(transactions)
         whenever(walletHelper.latestPrice).thenReturn(conversionCurrency)
+        whenever(walletHelper.balance).thenReturn(BTCCurrency(1000))
         val defaultCurrencies = DefaultCurrencies(BTCCurrency(), USDCurrency())
         application.walletHelper = walletHelper
         application.localBroadCastUtil = mock(LocalBroadCastUtil::class.java)
@@ -189,7 +189,7 @@ class TransactionHistoryFragmentTest {
 
             verify(fragment.transactionHistoryDataAdapter).setTransactions(transactions)
             verify(fragment.transactionHistoryDataAdapter).setTransactions(updatedTransactions)
-            verify(fragment.walletHelper, times(5)).transactionsLazily
+            verify(fragment.walletHelper, times(3)).transactionsLazily
 
         }
     }
@@ -215,33 +215,6 @@ class TransactionHistoryFragmentTest {
     }
 
     @Test
-    fun shows_empty_state_view() {
-        val scenario = setupFragment(0)
-
-        scenario.onFragment { fragment ->
-            val empty = fragment.findViewById<View>(R.id.empty_transaction_history)
-
-            assertNotNull(empty)
-            assertThat(empty, ViewMatcher.isVisible())
-        }
-    }
-
-    @Test
-    fun has_list_view_for_transactions() {
-        val scenario = setupFragment()
-
-        scenario.onFragment { fragment ->
-            val empty = fragment.findViewById<View>(R.id.empty_transaction_history)
-            val list = fragment.findViewById<View>(R.id.transaction_history)
-
-            assertNotNull(empty)
-            assertNotNull(list)
-            assertThat(empty, ViewMatcher.isGone())
-            assertThat(list, ViewMatcher.isVisible())
-        }
-    }
-
-    @Test
     fun refreshes_transactions_on_transaction_data_change() {
         val scenario = setupFragment(12)
         val application = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()
@@ -256,7 +229,7 @@ class TransactionHistoryFragmentTest {
             fragment.receiver.onReceive(fragment.context!!, Intent(DropbitIntents.ACTION_TRANSACTION_DATA_CHANGED))
 
             verify(fragment.transactionHistoryDataAdapter, times(2)).setTransactions(transactions)
-            verify(fragment.walletHelper, times(5)).transactionsLazily
+            verify(fragment.walletHelper, times(3)).transactionsLazily
         }
     }
 

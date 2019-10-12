@@ -2,15 +2,9 @@ package com.coinninja.coinkeeper.util.ui;
 
 import android.widget.ImageView;
 
-import javax.inject.Inject;
-
 import androidx.appcompat.widget.Toolbar;
 
 public class BadgeRenderer {
-    @Inject
-    BadgeRenderer() {
-
-    }
 
     public void renderBadge(ImageView imageView) {
         if (imageView.getDrawable() instanceof BadgeOverlay)

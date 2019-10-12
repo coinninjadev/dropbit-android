@@ -7,15 +7,13 @@ import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.coinninja.bindings.TransactionBroadcastResult;
-import com.coinninja.bindings.TransactionData;
 import com.coinninja.coinkeeper.R;
+import com.coinninja.coinkeeper.bitcoin.BroadcastResult;
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager;
 import com.coinninja.coinkeeper.interactor.UserPreferences;
 import com.coinninja.coinkeeper.model.db.enums.IdentityType;
@@ -23,20 +21,22 @@ import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO;
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO;
 import com.coinninja.coinkeeper.presenter.activity.BroadcastTransactionPresenter;
 import com.coinninja.coinkeeper.service.BroadcastTransactionService;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil;
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder;
 import com.coinninja.coinkeeper.util.uri.UriUtil;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
 import com.coinninja.coinkeeper.view.progress.SendingProgressView;
 
 import javax.inject.Inject;
 
+import app.coinninja.cn.libbitcoin.model.TransactionData;
+
 import static com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION;
 
-public class BroadcastActivity extends SecuredActivity implements BroadcastTransactionPresenter.View {
+public class BroadcastActivity extends BaseActivity implements BroadcastTransactionPresenter.View {
     static final String RESTORE_STATE = "RESTORE_STATE";
     static final String TRANSACTION_ID = "TRANSACTION_ID";
     private static final String TAG = BroadcastActivity.class.getSimpleName();
@@ -58,7 +58,6 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     private TextView sendingProgressLabel;
     private TextView transactionIdLabel;
     private TextView transactionIdLink;
-    private ImageView transactionIdIcon;
     private Button transactionActionBtn;
     private String transactionId;
 
@@ -67,14 +66,12 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         sendingProgressView.resetView();
         transactionIdLabel.setVisibility(View.INVISIBLE);
         transactionIdLink.setVisibility(View.INVISIBLE);
-        transactionIdIcon.setVisibility(View.INVISIBLE);
         transactionActionBtn.setVisibility(View.INVISIBLE);
         sendingProgressLabel.setText("");
         transactionActionBtn.setText("");
         transactionIdLink.setText("");
         transactionActionBtn.setOnClickListener(null);
         transactionIdLink.setOnClickListener(null);
-        transactionIdIcon.setOnClickListener(null);
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
 
@@ -85,14 +82,14 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     }
 
     @Override
-    public void showBroadcastFail(TransactionBroadcastResult transactionBroadcastResult) {
-        Log.e(TAG, "showBroadcastFail: " + transactionBroadcastResult.getMessage());
+    public void showBroadcastFail(BroadcastResult broadcastResult) {
+        Log.e(TAG, "showBroadcastFail: " + broadcastResult.getMessage());
         genericFail();
     }
 
     @Override
-    public void showBroadcastSuccessful(TransactionBroadcastResult transactionBroadcastResult) {
-        transactionId = transactionBroadcastResult.getTxId();
+    public void showBroadcastSuccessful(BroadcastResult broadcastResult) {
+        transactionId = broadcastResult.getTxid();
         CompletedBroadcastDTO completedBroadcastActivityDTO = new CompletedBroadcastDTO(broadcastDTO, transactionId);
         finalizeTransaction(completedBroadcastActivityDTO);
         showInitTransaction();
@@ -116,10 +113,24 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         sendingProgressLabel = findViewById(R.id.broadcast_sending_progress_label);
         transactionIdLabel = findViewById(R.id.transaction_id_label);
         transactionIdLink = findViewById(R.id.transaction_id_link);
-        transactionIdIcon = findViewById(R.id.transaction_id_link_image);
         transactionActionBtn = findViewById(R.id.transaction_complete_action_button);
         if (getIntent().hasExtra(DropbitIntents.EXTRA_BROADCAST_DTO)) {
             broadcastDTO = getIntent().getParcelableExtra(DropbitIntents.EXTRA_BROADCAST_DTO);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        switch (sendState) {
+            case INIT:
+                startBroadcast(broadcastDTO.getTransactionData());
+                break;
+            case COMPLETED_SUCCESS:
+                showSuccess();
+                break;
+            case COMPLETED_FAILED:
+                genericFail();
         }
     }
 
@@ -133,7 +144,7 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
     @Override
     protected void onStop() {
         super.onStop();
-        syncWalletManager.schedule60SecondSync();
+        syncWalletManager.schedule30SecondSync();
     }
 
     @Override
@@ -154,21 +165,6 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         outState.putInt(RESTORE_STATE, sendState.value);
         if (transactionId != null) {
             outState.putString(TRANSACTION_ID, transactionId);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        switch (sendState) {
-            case INIT:
-                startBroadcast(broadcastDTO.getTransactionData());
-                break;
-            case COMPLETED_SUCCESS:
-                showSuccess();
-                break;
-            case COMPLETED_FAILED:
-                genericFail();
         }
     }
 
@@ -204,14 +200,12 @@ public class BroadcastActivity extends SecuredActivity implements BroadcastTrans
         sendingProgressLabel.setVisibility(View.VISIBLE);
         transactionIdLabel.setVisibility(View.VISIBLE);
         transactionIdLink.setVisibility(View.VISIBLE);
-        transactionIdIcon.setVisibility(View.VISIBLE);
         transactionActionBtn.setVisibility(View.VISIBLE);
         sendingProgressLabel.setText(getResources().getText(R.string.broadcast_sent_label));
         transactionActionBtn.setText(getResources().getText(R.string.broadcast_sent_ok));
         transactionIdLink.setText(transactionId);
         transactionActionBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
         transactionIdLink.setOnClickListener(view -> exploreBlock(view.getContext(), transactionId));
-        transactionIdIcon.setOnClickListener(view -> exploreBlock(view.getContext(), transactionId));
         transactionActionBtn.setOnClickListener(view -> activityNavigationUtil.navigateToHome(this));
         sendState = SendState.COMPLETED_SUCCESS;
         showTwitterShareCardIfNecessary();

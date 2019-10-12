@@ -2,23 +2,22 @@ package com.coinninja.coinkeeper.util.android
 
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.dropbit.DropBitService
-import com.coinninja.coinkeeper.cn.wallet.service.CNWalletAddressRequestService
+import com.coinninja.coinkeeper.cn.wallet.service.CNWalletService
 import com.coinninja.coinkeeper.di.interfaces.ApplicationContext
 import com.coinninja.coinkeeper.model.PhoneNumber
+import com.coinninja.coinkeeper.service.DeleteWalletService
+import com.coinninja.coinkeeper.service.PushNotificationEndpointRegistrationService
 import com.coinninja.coinkeeper.util.DropbitIntents
+import com.coinninja.coinkeeper.util.android.app.JobIntentService.JobServiceScheduler
 import javax.inject.Inject
 
 @Mockable
 class ServiceWorkUtil @Inject
-internal constructor(@ApplicationContext internal val context: Context) {
+internal constructor(@ApplicationContext internal val context: Context, val jobServiceScheduler: JobServiceScheduler) {
 
-    fun lookupAddressForPhoneNumberHash(phoneNumberHash: String) {
-        val intent = Intent(context, CNWalletAddressRequestService::class.java)
-        intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_HASH, phoneNumberHash)
-        context.startService(intent)
-    }
 
     fun registerUsersPhone(phoneNumber: PhoneNumber) {
         val intent = Intent(context, DropBitService::class.java)
@@ -71,4 +70,21 @@ internal constructor(@ApplicationContext internal val context: Context) {
         intent.putExtra(DropbitIntents.EXTRA_PHONE_NUMBER_CODE, code)
         context.startService(intent)
     }
+
+    fun bindToCNWalletService(serviceConnection: ServiceConnection) {
+        context.bindService(Intent(context, CNWalletService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    fun registerForPushNotifications() {
+        jobServiceScheduler.enqueueWork(
+                context,
+                PushNotificationEndpointRegistrationService::class.java,
+                JobServiceScheduler.ENDPOINT_REGISTRATION_SERVICE_JOB_ID,
+                Intent(context, PushNotificationEndpointRegistrationService::class.java))
+    }
+
+    fun deleteWallet() {
+        context.startService(Intent(context, DeleteWalletService::class.java))
+    }
+
 }

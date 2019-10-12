@@ -12,46 +12,23 @@ import com.coinninja.coinkeeper.ui.dropbit.me.verified.DisabledDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.NewlyVerifiedDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.VerifiedDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verify.VerifyDropBitMeDialog
-import com.coinninja.coinkeeper.ui.market.MarketChartModule
-import com.coinninja.coinkeeper.ui.market.MarketChartsFragment
-import com.coinninja.coinkeeper.ui.market.MarketScreenFragment
-import com.coinninja.coinkeeper.ui.news.MarketNewsFragment
-import com.coinninja.coinkeeper.ui.news.MarketNewsModule
+import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragment
+import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragmentModule
+import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
+import com.coinninja.coinkeeper.ui.lightning.locked.LightningLockedFragment
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
-import com.coinninja.coinkeeper.ui.payment.request.PayRequestFragment
-import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragment
-import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragmentModule
-import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog
 import com.coinninja.coinkeeper.ui.twitter.TransactionTweetDialog
 import com.coinninja.coinkeeper.ui.twitter.TwitterTweetModule
 import com.coinninja.coinkeeper.view.fragment.*
+import com.coinninja.coinkeeper.viewModel.WalletViewModelModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 
 @Module
 abstract class AndroidFragmentBuilder {
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [MarketChartModule::class])
-    internal abstract fun marketChartsFragment(): MarketChartsFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [MarketNewsModule::class])
-    internal abstract fun marketNewsFragment(): MarketNewsFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun payRequestScreenFragment(): PayRequestScreenFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun marketScreenFragment(): MarketScreenFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [PayRequestScreenFragmentModule::class])
-    internal abstract fun payRequestFragment(): PayRequestFragment
 
     @ActivityScope
     @ContributesAndroidInjector
@@ -107,23 +84,11 @@ abstract class AndroidFragmentBuilder {
 
     @ActivityScope
     @ContributesAndroidInjector
-    internal abstract fun confirmPayDialogFragment(): ConfirmPayDialogFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
     internal abstract fun fingerprintAuthDialog(): FingerprintAuthDialog
 
     @ActivityScope
     @ContributesAndroidInjector
     internal abstract fun inviteHelpDialogFragment(): InviteHelpDialogFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun payDialogFragment(): PayDialogFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun requestDialogFragment(): RequestDialogFragment
 
     @ActivityScope
     @ContributesAndroidInjector
@@ -149,4 +114,15 @@ abstract class AndroidFragmentBuilder {
     @ContributesAndroidInjector
     internal abstract fun twitterIdentityFragment(): TwitterIdentityFragment
 
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [LightningHistoryFragmentModule::class, WalletViewModelModule::class])
+    internal abstract fun lightningHistoryFragment(): LightningHistoryFragment
+
+    @ActivityScope
+    @ContributesAndroidInjector()
+    internal abstract fun lightningLoadingOptionsDialog(): LightningLoadingOptionsDialog
+
+    @ActivityScope
+    @ContributesAndroidInjector()
+    internal abstract fun lightningLockedFragment(): LightningLockedFragment
 }

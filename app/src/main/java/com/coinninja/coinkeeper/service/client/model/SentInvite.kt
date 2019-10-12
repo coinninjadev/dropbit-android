@@ -15,7 +15,8 @@ class SentInvite (
         var txid: String? = null,
         var wallet_id: String? = null,
         var addressPubKey: String? = null,
-        var delivery_id: String = ""
+        var delivery_id: String = "",
+        var address_type: String = ""
 ) {
 
     val created_at_millis: Long get() =  created_at * 1000

@@ -49,7 +49,6 @@ public class NewlyVerifiedDropbitMeDialogTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         application = ApplicationProvider.getApplicationContext();
-        application.walletHelper = walletHelper;
         application.activityNavigationUtil = activityNavigationUtil;
         application.dropbitMeConfiguration = dropbitMeConfiguration;
         when(walletHelper.getTransactionsLazily()).thenReturn(transactions);

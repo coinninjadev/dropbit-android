@@ -22,8 +22,6 @@ import com.coinninja.coinkeeper.ui.base.DropbitMeDialogFactory;
 
 import javax.inject.Inject;
 
-import static com.coinninja.android.helpers.Views.withId;
-
 public abstract class DropBitMeDialog extends BaseDialogFragment {
     public static String TAG = DropBitMeDialog.class.getName();
 
@@ -96,13 +94,13 @@ public abstract class DropBitMeDialog extends BaseDialogFragment {
         setCancelable(true);
         setupCloseButton(view);
         setupTitle(view);
-        configurePrimaryCallToAction(withId(view, R.id.dialog_primary_button));
-        configureSecondaryButton(withId(view, R.id.dialog_secondary_button));
+        configurePrimaryCallToAction(findViewById(R.id.dialog_primary_button));
+        configureSecondaryButton(findViewById(R.id.dialog_secondary_button));
     }
 
     private void setupTitle(View view) {
         String titleText = getTitleText();
-        TextView title = withId(view, R.id.dialog_title);
+        TextView title = findViewById(R.id.dialog_title);
         if (titleText == null || "".equals(titleText)) {
             title.setVisibility(View.GONE);
         } else {
@@ -111,7 +109,7 @@ public abstract class DropBitMeDialog extends BaseDialogFragment {
     }
 
     private void setupCloseButton(View view) {
-        View closeButton = withId(view, R.id.dialog_close);
+        View closeButton = findViewById(R.id.dialog_close);
         if (shouldShowClose()) {
             closeButton.setOnClickListener(v -> dismiss());
         } else {

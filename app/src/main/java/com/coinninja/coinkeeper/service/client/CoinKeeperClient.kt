@@ -39,8 +39,14 @@ interface CoinKeeperClient {
     @POST("wallet")
     fun createWallet(@Body walletRegistrationPayload: WalletRegistrationPayload): Call<CNWallet>
 
+    @PATCH("wallet")
+    fun disableWallet(@Body disableWalletRequest: DisableWalletRequest): Call<CNWallet>
+
+    @PUT("wallet")
+    fun replaceWalletWith(@Body replaceWalletRequest: ReplaceWalletRequest): Call<CNWallet>
+
     @POST("wallet/addresses")
-    fun addAddressToCNWallet(@Body address: JsonObject): Call<CNWalletAddress>
+    fun addAddressToCNWallet(@Body addAddressBodyRequest: AddAddressBodyRequest): Call<CNWalletAddress>
 
     @DELETE("wallet/addresses/{address}")
     fun removeAddress(@Path("address") address: String): Call<Map<String, String>>

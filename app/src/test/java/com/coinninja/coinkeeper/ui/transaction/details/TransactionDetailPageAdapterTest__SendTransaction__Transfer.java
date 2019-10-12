@@ -14,9 +14,6 @@ import com.coinninja.android.helpers.Resources;
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary;
 import com.coinninja.coinkeeper.model.helpers.WalletHelper;
-import com.coinninja.coinkeeper.util.DefaultCurrencies;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 import com.coinninja.coinkeeper.view.ConfirmationsView;
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction;
 import com.coinninja.coinkeeper.view.adapter.util.TransactionAdapterUtil;
@@ -33,7 +30,8 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import static com.coinninja.android.helpers.Views.withId;
+import app.dropbit.commons.currency.USDCurrency;
+
 import static com.coinninja.matchers.ConfirmationViewMatcher.configuredForTransaction;
 import static com.coinninja.matchers.ConfirmationViewMatcher.stageIs;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -70,7 +68,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         activity = Robolectric.setupActivity(A.class);
-        page = withId(activity, R.id.page);
+        page = activity.findViewById(R.id.page);
         when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(1000.00d));
         bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         when(adapterUtil.translateTransaction(any())).thenReturn(bindableTransaction);
@@ -78,7 +76,6 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
         when(transactions.get(anyInt())).thenReturn(transaction);
         adapter.refreshData();
         adapter.setShowTransactionDetailRequestObserver(observer);
-        adapter.onDefaultCurrencyChanged(new DefaultCurrencies(new USDCurrency(), new BTCCurrency()));
 
         bindableTransaction.setHistoricalInviteUSDValue(0L);
         bindableTransaction.setHistoricalTransactionUSDValue(0L);
@@ -102,7 +99,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     public void renders_send_icon_for_transfer() {
         adapter.bindTo(page, bindableTransaction, 0);
 
-        ImageView icon = withId(page, R.id.ic_send_state);
+        ImageView icon = page.findViewById(R.id.ic_send_state);
         assertThat(icon, hasTag(R.drawable.ic_transaction_send));
     }
 
@@ -112,8 +109,8 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView confirmations = withId(page, R.id.confirmations);
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
+        TextView confirmations = page.findViewById(R.id.confirmations);
+        ConfirmationsView confirmationsView = page.findViewById(R.id.confirmation_beads);
 
         assertThat(confirmationsView, configuredForTransaction());
         assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_PENDING));
@@ -126,11 +123,8 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView confirmations = withId(page, R.id.confirmations);
-        ConfirmationsView confirmationsView = withId(page, R.id.confirmation_beads);
+        TextView confirmations = page.findViewById(R.id.confirmations);
 
-        assertThat(confirmationsView, configuredForTransaction());
-        assertThat(confirmationsView, stageIs(ConfirmationsView.STAGE_COMPLETE));
         assertThat(confirmations, hasText(Resources.INSTANCE.getString(confirmations.getContext(), R.string.confirmations_view_stage_5)));
     }
 
@@ -140,14 +134,14 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
         bindableTransaction.setTxID("-- txid --");
 
         adapter.bindTo(page, bindableTransaction, 0);
-        Button seeDetails = withId(page, R.id.call_to_action);
+        Button seeDetails = page.findViewById(R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer).onTransactionDetailsRequested(bindableTransaction);
 
         bindableTransaction.setConfirmationState(BindableTransaction.ConfirmationState.CONFIRMED);
         adapter.bindTo(page, bindableTransaction, 1);
-        seeDetails = withId(page, R.id.call_to_action);
+        seeDetails = page.findViewById(R.id.call_to_action);
         assertThat(seeDetails, isVisible());
         seeDetails.performClick();
         verify(observer, times(2)).onTransactionDetailsRequested(bindableTransaction);
@@ -160,7 +154,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        TextView contact = withId(page, R.id.identity);
+        TextView contact = page.findViewById(R.id.identity);
         assertThat(contact, hasText(bindableTransaction.getIdentity()));
     }
 
@@ -171,7 +165,7 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
 
         adapter.bindTo(page, bindableTransaction, 0);
 
-        DefaultCurrencyDisplayView view = withId(page, R.id.default_currency_view);
+        DefaultCurrencyDisplayView view = page.findViewById(R.id.default_currency_view);
         assertThat(view.getFiatValue().toLong(), equalTo(10L));
         assertThat(view.getTotalCrypto().toLong(), equalTo(10000L));
     }

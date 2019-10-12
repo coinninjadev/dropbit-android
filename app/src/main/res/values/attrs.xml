@@ -4,6 +4,7 @@
     <attr name="actionBarTitleStyle" format="reference" />
     <attr name="actionBarMenuType" format="reference" />
     <attr name="confirmations" format="reference" />
+    <attr name="appbarBalance" format="reference" />
     <attr name="phoneNumberInput" format="reference" />
     <attr name="cn_background" format="reference" />
 
@@ -30,13 +31,28 @@
         <attr name="textAppearance" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="HelpLinkButton">
+        <attr name="url" format="string|reference" />
+    </declare-styleable>
+
     <declare-styleable name="DefaultCurrencyDisplayView">
         <attr name="sentTextAppearance" format="reference" />
         <attr name="receivedTextAppearance" format="reference" />
         <attr name="secondaryTextAppearance" format="reference" />
+        <attr name="receivedTextAppearanceLarge" format="reference" />
+        <attr name="secondaryTextAppearanceLarge" format="reference" />
+        <attr name="fiatTextColor" format="color|reference" />
+        <attr name="cryptoTextColor" format="color|reference" />
         <attr name="useCryptoIcon" format="boolean" />
+        <attr name="useLargeStyles" format="boolean" />
+        <attr name="primaryBackgroundReceived" format="reference" />
+        <attr name="primaryBackgroundSent" format="reference" />
+        <attr name="primaryForegroundColor" format="color|reference" />
         <attr name="useCryptoSymbol" format="boolean" />
         <attr name="primaryCryptoIconScale" format="float" />
+        <attr name="primaryCryptoIconLargeScale" format="float" />
         <attr name="secondaryCryptoIconScale" format="float" />
+        <attr name="horizontalPillPadding" format="dimension" />
+        <attr name="verticalPillPadding" format="dimension" />
     </declare-styleable>
 </resources>

@@ -10,9 +10,9 @@ import android.widget.TextView;
 
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.Lifecycle;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.coinninja.coinkeeper.R;
-import com.coinninja.coinkeeper.TestCoinKeeperApplication;
 import com.coinninja.coinkeeper.presenter.fragment.AuthenticateFragmentPresenter;
 import com.coinninja.coinkeeper.presenter.fragment.FingerprintAuthPresenter;
 
@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowFingerprintManager;
 
@@ -39,8 +38,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(application = TestCoinKeeperApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class AuthenticateFragmentTest {
     @Mock
     FingerprintAuthPresenter fingerprintAuthPresenter;
@@ -59,6 +57,7 @@ public class AuthenticateFragmentTest {
             manager.setIsHardwareDetected(true);
             manager.setDefaultFingerprints(2);
         });
+
     }
 
     @Before
@@ -94,6 +93,7 @@ public class AuthenticateFragmentTest {
         });
 
         verify(authPresenter).startAuth(anyBoolean());
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -103,6 +103,7 @@ public class AuthenticateFragmentTest {
         });
 
         verify(authPresenter, times(0)).startAuth(anyBoolean());
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -117,6 +118,7 @@ public class AuthenticateFragmentTest {
             assertThat(input.isEnabled(), equalTo(true));
             assertThat(input.getVisibility(), equalTo(View.VISIBLE));
         });
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -133,6 +135,7 @@ public class AuthenticateFragmentTest {
             assertThat(input.getVisibility(), equalTo(View.INVISIBLE));
             assertThat(error.getVisibility(), equalTo(View.INVISIBLE));
         });
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -140,6 +143,7 @@ public class AuthenticateFragmentTest {
         scenario.onFragment(fragment -> {
             assertNotNull(fragment.getView().findViewById(R.id.logo_fragment_pin));
         });
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -151,6 +155,7 @@ public class AuthenticateFragmentTest {
             assertTrue(fingerprintBtn.isEnabled());
             assertThat(fingerprintBtn.getVisibility(), equalTo(View.VISIBLE));
         });
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -161,6 +166,7 @@ public class AuthenticateFragmentTest {
         });
 
         verify(fingerprintAuthPresenter).captureFingerprintAuth();
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -174,7 +180,7 @@ public class AuthenticateFragmentTest {
             assertFalse(fingerprintBtn.isEnabled());
             assertThat(fingerprintBtn.getVisibility(), equalTo(View.INVISIBLE));
         });
-
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -187,6 +193,7 @@ public class AuthenticateFragmentTest {
 
             assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
         });
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -200,6 +207,7 @@ public class AuthenticateFragmentTest {
             assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
             assertNull(fragment.getFragmentManager().findFragmentByTag("DIALOG_PREF_FINGERPRINT"));
         });
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -211,6 +219,7 @@ public class AuthenticateFragmentTest {
         });
 
         verify(fingerprintAuthPresenter).captureFingerprintAuth();
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -223,6 +232,7 @@ public class AuthenticateFragmentTest {
             assertThat(pinErrorDisplay.getText(), equalTo(resources.getText(R.string.pin_mismatch_error)));
             assertThat(pinErrorDisplay.getVisibility(), equalTo(View.VISIBLE));
         });
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -232,6 +242,7 @@ public class AuthenticateFragmentTest {
 
             assertThat(fragment.getFingerprintManager(), equalTo(fingerprintManager));
         });
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -239,6 +250,7 @@ public class AuthenticateFragmentTest {
     public void willReturnNullForFingerprintOnNonSupportedSDKs() {
         verifyZeroInteractions(fingerPrintAuthDialog);
         verifyZeroInteractions(fingerprintAuthPresenter);
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 
     @Test
@@ -260,5 +272,6 @@ public class AuthenticateFragmentTest {
         scenario.moveToState(Lifecycle.State.RESUMED);
 
         verify(fingerprintAuthPresenter).captureFingerprintAuth();
+        scenario.moveToState(Lifecycle.State.DESTROYED);
     }
 }

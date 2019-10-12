@@ -37,14 +37,13 @@ import org.mockito.MockitoAnnotations;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtraWithKey;
-import static com.coinninja.android.helpers.Views.clickOn;
-import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.shadows.ShadowView.clickOn;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -135,7 +134,7 @@ public class InviteSendActivityTest {
     public void clicking_action_confirming_transaction_navigates_home() {
         scenario.onActivity(activity -> {
             activity.showInviteSuccessful(mock(InvitedContact.class));
-            clickOn(withId(activity, R.id.transaction_complete_action_button));
+            clickOn(activity.findViewById(R.id.transaction_complete_action_button));
             verify(activityNavigationUtil).navigateToHome(any());
         });
     }

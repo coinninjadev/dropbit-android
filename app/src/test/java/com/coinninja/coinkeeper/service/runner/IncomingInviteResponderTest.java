@@ -1,10 +1,11 @@
 package com.coinninja.coinkeeper.service.runner;
 
 import com.coinninja.coinkeeper.cn.account.AccountManager;
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
-import com.coinninja.coinkeeper.model.PhoneNumber;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.db.Address;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
+import com.coinninja.coinkeeper.model.db.Wallet;
+import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
@@ -13,7 +14,6 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 import com.google.gson.Gson;
 
 import org.junit.Before;
@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath;
+import app.dropbit.commons.currency.BTCCurrency;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -63,6 +65,8 @@ public class IncomingInviteResponderTest {
     private AccountManager accountManager;
     @Mock
     private CNLogger cnLogger;
+    @Mock
+    private HDWalletWrapper hdWalletWrapper;
 
     @InjectMocks
     private IncomingInviteResponder incomingInviteResponder;
@@ -78,14 +82,13 @@ public class IncomingInviteResponderTest {
     private HashMap<String, AddressDTO> addresstoDTO = new HashMap<>();
     private List<InviteTransactionSummary> sampleInvites;
 
-    @Mock
-    private PhoneNumber phoneNumber;
 
     public static final String FORMATTED_PHONE = "(222) 111-3333";
 
     private AddressDTO setupAddress(String address, String pubKey) {
-        Address newAddress = new Address();
-        newAddress.setAddress(address);
+        Address newAddress = mock(Address.class);
+        when(newAddress.getAddress()).thenReturn(address);
+        when(newAddress.getDerivationPath()).thenReturn(mock(DerivationPath.class));
         return new AddressDTO(newAddress, pubKey);
     }
 
@@ -94,13 +97,36 @@ public class IncomingInviteResponderTest {
         addresstoDTO.put(addressOne, setupAddress(addressOne, addressOnePubKey));
         addresstoDTO.put(addressTwo, setupAddress(addressTwo, addressTwoPubKey));
         sampleInvites = buildSampleInvites(sampleInviteServerID);
-        when(accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, sampleInvites.size())).thenReturn(addresstoDTO);
+        when(accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, sampleInvites.size())).thenReturn(addresstoDTO);
         when(walletHelper.getIncompleteReceivedInvites()).thenReturn(sampleInvites);
     }
 
     @Test
+    public void send_generate_to_server_for_lightning_invite() {
+        List<InviteTransactionSummary> sampleInvites = new ArrayList<>();
+        InviteTransactionSummary sampleInvite = mock(InviteTransactionSummary.class);
+        when(sampleInvite.getServerId()).thenReturn("--server--id--");
+        when(sampleInvite.getValueSatoshis()).thenReturn(4521568L);
+        when(sampleInvite.getLocaleFriendlyDisplayIdentityForSender()).thenReturn(FORMATTED_PHONE);
+        when(sampleInvite.getType()).thenReturn(Type.LIGHTNING_RECEIVED);
+        sampleInvites.add(sampleInvite);
+        when(walletHelper.getIncompleteReceivedInvites()).thenReturn(sampleInvites);
+        Wallet wallet = mock(Wallet.class);
+        when(walletHelper.getPrimaryWallet()).thenReturn(wallet);
+        when(walletHelper.getPrimaryWallet().getPurpose()).thenReturn(84);
+        when(hdWalletWrapper.getVerificationKey()).thenReturn("--42-pub-key--");
+        when(accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, sampleInvites.size())).thenReturn(addresstoDTO);
+        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString(), anyString())).thenReturn(getResponse(response));
+
+        incomingInviteResponder.run();
+
+        verify(apiClient).sendAddressForInvite("--server--id--", "generate",
+                "--42-pub-key--", "lightning");
+    }
+
+    @Test
     public void send_address_to_server_show_internal_notification_test() {
-        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString())).thenReturn(getResponse(response));
+        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString(), anyString())).thenReturn(getResponse(response));
         String expectedNotificationMessage =
                 "We have sent a Bitcoin address to "
                         + FORMATTED_PHONE
@@ -116,7 +142,7 @@ public class IncomingInviteResponderTest {
 
     @Test
     public void reports_address_provided() {
-        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString())).thenReturn(getResponse(response));
+        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString(), anyString())).thenReturn(getResponse(response));
         incomingInviteResponder.run();
 
         verify(analytics).trackEvent(Analytics.Companion.EVENT_DROPBIT_ADDRESS_PROVIDED);
@@ -124,7 +150,7 @@ public class IncomingInviteResponderTest {
 
     @Test
     public void send_address_to_server_server_fails_nothing_happens_test() {
-        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString())).thenReturn(getBadResponse(404));
+        when(apiClient.sendAddressForInvite(anyString(), anyString(), anyString(), anyString())).thenReturn(getBadResponse(404));
 
         incomingInviteResponder.run();
 

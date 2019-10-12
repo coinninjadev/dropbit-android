@@ -9,7 +9,6 @@ import com.coinninja.coinkeeper.service.client.model.TransactionFee;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.DropbitIntents;
 import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
+import app.dropbit.commons.currency.USDCurrency;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import retrofit2.Response;

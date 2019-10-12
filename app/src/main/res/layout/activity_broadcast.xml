@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,64 +9,68 @@
         android:id="@+id/broadcast_sending_progress_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/broadcast_sending_progress"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/broadcast_sending_progress_margin"
+        android:layout_marginBottom="24dp"
         android:text="@string/broadcast_sent_label"
         android:textColor="@color/broadcast_sending_progress_label_text_color"
         android:textSize="@dimen/broadcast_sending_progress_label_text"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/broadcast_sending_progress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
 
     <com.coinninja.coinkeeper.view.progress.SendingProgressView
         android:id="@+id/broadcast_sending_progress"
         android:layout_width="@dimen/broadcast_sending_progress_size"
         android:layout_height="@dimen/broadcast_sending_progress_size"
-        android:layout_centerInParent="true" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/transaction_id_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/broadcast_sending_progress"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/broadcast_sending_progress_margin"
+        android:layout_marginTop="32dp"
         android:text="@string/transaction_id"
         android:textColor="@color/broadcast_sending_progress_label_text_color"
         android:textSize="@dimen/broadcast_sending_progress_normal_text"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/broadcast_sending_progress"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/transaction_id_link"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/transaction_id_label"
-        android:layout_marginLeft="36dp"
-        android:layout_marginTop="11dp"
-        android:layout_toLeftOf="@+id/transaction_id_link_image"
-        android:ellipsize="end"
-        android:maxLines="1"
+        android:layout_marginTop="16dp"
+        android:ellipsize="middle"
+        android:singleLine="true"
         android:textColor="@color/primary"
         android:textSize="@dimen/broadcast_sending_progress_small_text"
-        android:visibility="invisible" />
-
-    <ImageView
-        android:id="@+id/transaction_id_link_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/transaction_id_link"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="@dimen/broadcast_sending_progress_margin_bottom_small"
-        android:layout_marginRight="@dimen/broadcast_sending_progress_margin_right"
-        android:contentDescription="@string/transaction_success_indicator"
-        app:srcCompat="@drawable/ic_link" />
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/transaction_complete_action_button"
+        app:layout_constraintStart_toStartOf="@+id/transaction_complete_action_button"
+        app:layout_constraintTop_toBottomOf="@+id/transaction_id_label"
+        tools:text="2d6e2c788b149f0d5ba8731d67c05ffba73…"
+        tools:visibility="visible" />
 
     <Button
         android:id="@+id/transaction_complete_action_button"
+        style="@style/Button.Bitcoin"
         android:layout_width="@dimen/broadcast_sending_progress_action_btn_width"
         android:layout_height="@dimen/broadcast_sending_progress_action_btn_height"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/broadcast_sending_progress_margin_bottom"
+        android:layout_marginBottom="32dp"
         android:text="@string/ok"
-        android:textAllCaps="true" />
-</RelativeLayout>
+        android:textAllCaps="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

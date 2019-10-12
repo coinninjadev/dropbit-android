@@ -5,7 +5,7 @@
     android:id="@+id/memo_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/rounded_view"
+    android:background="@drawable/rounded_with_stroke"
     android:minHeight="100dp"
     android:orientation="vertical"
     android:windowSoftInputMode="stateVisible">

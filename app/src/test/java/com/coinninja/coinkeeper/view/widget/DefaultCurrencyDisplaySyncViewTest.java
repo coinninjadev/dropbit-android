@@ -11,9 +11,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 public class DefaultCurrencyDisplaySyncViewTest {
@@ -23,20 +22,20 @@ public class DefaultCurrencyDisplaySyncViewTest {
     @Before
     public void setUp() {
         TestableActivity activity = Robolectric.setupActivity(TestableActivity.class);
-        activity.appendLayout(R.layout.appbar_layout);
-        defaultCurrencyDisplayView = withId(activity, R.id.balance);
+        activity.appendLayout(R.layout.cn_base_layout);
+        defaultCurrencyDisplayView = activity.findViewById(R.id.appbar_balance);
     }
 
     @Test
     public void updates_syncing_ui_correctly_when_shown() {
         defaultCurrencyDisplayView.showSyncingUI();
-        assertThat(withId(defaultCurrencyDisplayView, R.id.syncing_image).getVisibility(), equalTo(View.VISIBLE));
+        assertThat(defaultCurrencyDisplayView.findViewById(R.id.syncing_image).getVisibility(), equalTo(View.VISIBLE));
     }
 
     @Test
     public void updates_syncing_ui_correctly_when_hiding() {
         defaultCurrencyDisplayView.hideSyncingUI();
-        assertThat(withId(defaultCurrencyDisplayView, R.id.syncing_image).getVisibility(), equalTo(View.GONE));
+        assertThat(defaultCurrencyDisplayView.findViewById(R.id.syncing_image).getVisibility(), equalTo(View.GONE));
     }
 
 }

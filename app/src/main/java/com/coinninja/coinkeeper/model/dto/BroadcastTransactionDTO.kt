@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.model.dto
 
 import android.os.Parcelable
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionData
 import com.coinninja.coinkeeper.model.Identity
 import kotlinx.android.parcel.Parcelize
 
@@ -12,7 +12,7 @@ data class BroadcastTransactionDTO(
         var transactionData: TransactionData,
         var isMemoShared: Boolean = false,
         var memo: String? = "",
-        var identity: Identity?,
+        var identity: Identity? = null,
         var publicKey: String? = null
 ) : Parcelable {
 

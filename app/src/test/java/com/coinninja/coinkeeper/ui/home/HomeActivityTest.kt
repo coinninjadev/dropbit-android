@@ -1,29 +1,29 @@
 package com.coinninja.coinkeeper.ui.home
 
 import android.content.Intent
+import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.viewpager.widget.ViewPager
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
+import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
-import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
-import com.coinninja.coinkeeper.util.currency.BTCCurrency
-import com.coinninja.coinkeeper.util.currency.USDCurrency
-import com.google.android.material.tabs.TabLayout
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import junit.framework.Assert.assertEquals
-import org.hamcrest.Matchers.equalTo
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.robolectric.Robolectric
 
 @RunWith(AndroidJUnit4::class)
 internal class HomeActivityTest {
@@ -38,11 +38,92 @@ internal class HomeActivityTest {
         return scenario
     }
 
+    private fun flush() {
+        Robolectric.flushBackgroundThreadScheduler()
+        Robolectric.flushForegroundThreadScheduler()
+    }
+
+
     private fun setupDI() {
         val defaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
         application.activityNavigationUtil = Mockito.mock(ActivityNavigationUtil::class.java)
         application.currencyPreference = Mockito.mock(CurrencyPreference::class.java)
         whenever(application.currencyPreference.currenciesPreference).thenReturn(defaultCurrencies)
+    }
+
+    @Test
+    fun schedules_30_second_sync() {
+        val scenario = setupActivity()
+
+        scenario.onActivity { activity ->
+            verify(activity.syncWalletManager).schedule30SecondSync()
+            flush()
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Ignore
+    @Test
+    fun locks_lighting_when_locked() {
+        val scenario = setupActivity()
+
+        scenario.onActivity { activity ->
+            activity.isLightningLockedObserver.onChanged(true)
+
+            // TODO control visibility of transfer button
+
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Ignore
+    @Test
+    fun unlocks_lighting_when_not_locked() {
+        val scenario = setupActivity()
+
+        scenario.onActivity { activity ->
+            activity.isLightningLockedObserver.onChanged(false)
+
+            // TODO control visibility of transfer button
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun payment_bar_is_hidden_when_on_locked_lightning_screen() {
+        val scenario = setupActivity()
+
+        scenario.onActivity { activity ->
+            activity.isLightningLockedObserver.onChanged(true)
+            flush()
+
+            activity.tabs.selectTab(activity.tabs.getTabAt(1))
+            flush()
+            assertThat(activity.paymentBarFragment.view!!.visibility).isEqualTo(View.GONE)
+
+            activity.tabs.selectTab(activity.tabs.getTabAt(0))
+            flush()
+            assertThat(activity.paymentBarFragment.view!!.visibility).isEqualTo(View.VISIBLE)
+
+            activity.isLightningLockedObserver.onChanged(false)
+
+            activity.tabs.selectTab(activity.tabs.getTabAt(1))
+            flush()
+            assertThat(activity.paymentBarFragment.view!!.visibility).isEqualTo(View.VISIBLE)
+
+            activity.tabs.selectTab(activity.tabs.getTabAt(0))
+            flush()
+            assertThat(activity.paymentBarFragment.view!!.visibility).isEqualTo(View.VISIBLE)
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
     }
 
     @Test
@@ -53,64 +134,54 @@ internal class HomeActivityTest {
 
         scenario.onActivity { activity ->
 
-            Mockito.verify(application.activityNavigationUtil).showTransactionDetail(activity, txid = txid)
+            verify(application.activityNavigationUtil).showTransactionDetail(activity, txid = txid)
             Assert.assertFalse(activity.intent.hasExtra(DropbitIntents.EXTRA_TRANSACTION_ID))
+
+            flush()
         }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
     }
 
     @Test
-    fun configures_pager_and_tabs() {
-        setupActivity().onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-            val tabs = activity.findViewById<TabLayout>(R.id.pager_tabs)
-            Assert.assertThat(pager.currentItem, equalTo(1))
-            assertEquals(pager.adapter, activity.homePagerAdapterProvider.provide(activity.supportFragmentManager, activity.lifecycle.currentState))
-            Assert.assertThat(tabs.selectedTabPosition, equalTo(1))
-        }
-    }
-
-    @Test
-    fun shows_market_selection_when_observer_called() {
-        setupActivity().onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-
-            Assert.assertThat(pager.currentItem, equalTo(1))
-
-            activity.showMarketPage()
-
-            Assert.assertThat(pager.currentItem, equalTo(0))
-        }
-    }
-
-    @Test
-    fun restores_state_when_resuming_session() {
+    fun changing_tabs_changes_account_modes() {
         val scenario = setupActivity()
         scenario.onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-            val tabs = activity.findViewById<TabLayout>(R.id.pager_tabs)
-            pager.setCurrentItem(0, false)
-            Assert.assertThat(pager.currentItem, equalTo(0))
-            Assert.assertThat(tabs.selectedTabPosition, equalTo(0))
-        }
 
-        scenario.recreate()
+            activity.tabs.selectTab(activity.tabs.getTabAt(1))
+            flush()
+            verify(activity.walletViewModel).setMode(AccountMode.LIGHTNING)
 
-        scenario.onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-            Assert.assertThat(pager.currentItem, equalTo(0))
+            activity.tabs.selectTab(activity.tabs.getTabAt(0))
+            flush()
+            verify(activity.walletViewModel).setMode(AccountMode.BLOCKCHAIN)
+            flush()
         }
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
     }
 
     @Test
-    fun observes_market_page_being_selected() {
-        setupActivity().onActivity { activity ->
-            val pager = activity.findViewById<ViewPager>(R.id.home_pager)
-            Assert.assertThat(pager.currentItem, equalTo(1))
-
-            activity.showMarketPage()
-
-            Assert.assertThat(pager.currentItem, equalTo(0))
-            verify(activity.analytics).trackEvent(Analytics.EVENT_CHARTS_OPENED)
+    fun adds_tabs_to_appbar() {
+        val scenario = setupActivity()
+        scenario.onActivity {
+            verify(it.actionBarController).addTab(it, R.layout.home_appbar_tab_1, 0)
+            Robolectric.flushBackgroundThreadScheduler()
+            flush()
         }
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun sets_matches_mode_when_resumed() {
+        val scenario = setupActivity()
+        scenario.onActivity { activity ->
+            assertThat(activity.tabs.selectedTabPosition).isEqualTo(1)
+            flush()
+        }
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
     }
 }

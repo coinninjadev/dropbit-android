@@ -7,7 +7,7 @@ import app.dropbit.annotations.Mockable
 
 @Mockable
 class HomePagerAdapterProvider {
-    fun provide(fragmentManager: FragmentManager, state: Lifecycle.State): PagerAdapter? {
+    fun provide(fragmentManager: FragmentManager, state: Lifecycle.State): HomePagerAdapter {
         return HomePagerAdapter(fragmentManager, state.ordinal)
     }
 

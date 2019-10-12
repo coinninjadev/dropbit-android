@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.view.util.AlertDialogBuilder
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -17,6 +18,10 @@ open class BaseDialogFragment : DialogFragment(), HasSupportFragmentInjector {
 
     @Inject
     internal lateinit var childFragmentInjector: DispatchingAndroidInjector<Fragment>
+
+    @Inject
+    lateinit var activityNavigationUtil: ActivityNavigationUtil
+
 
     private var progressSpinner: AlertDialog? = null
 

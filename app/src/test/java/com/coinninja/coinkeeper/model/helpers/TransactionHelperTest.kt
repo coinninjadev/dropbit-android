@@ -1,14 +1,15 @@
 package com.coinninja.coinkeeper.model.helpers
 
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.TransactionData
-import com.coinninja.bindings.UnspentTransactionOutput
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO
 import com.coinninja.coinkeeper.service.client.model.*
+import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Test
 
@@ -23,7 +24,7 @@ class TransactionHelperTest {
         val transaction: TransactionSummary = mock()
         val gsonAddress = GsonAddress(txid = "--txid--")
         val wallet: Wallet = mock()
-        whenever(helper.walletHelper.wallet).thenReturn(wallet)
+        whenever(helper.walletHelper.primaryWallet).thenReturn(wallet)
 
         helper.initializeTransaction(transaction, gsonAddress)
 
@@ -185,7 +186,7 @@ class TransactionHelperTest {
                 vInList = listOf(),
                 vOutList = listOf()
         )
-        whenever(helper.walletHelper.wallet).thenReturn(mock())
+        whenever(helper.walletHelper.primaryWallet).thenReturn(mock())
 
         helper.updateTransaction(transaction, detail, 100)
 
@@ -197,7 +198,7 @@ class TransactionHelperTest {
         ordered.verify(transaction).memPoolState = MemPoolState.MINED
         ordered.verify(transaction).numInputs = 0
         ordered.verify(transaction).numOutputs = 0
-        ordered.verify(transaction).wallet = helper.walletHelper.wallet
+        ordered.verify(transaction).wallet = helper.walletHelper.primaryWallet
         ordered.verify(transaction).update()
         ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction)
     }
@@ -321,6 +322,38 @@ class TransactionHelperTest {
     }
 
     @Test
+    fun can_save_coinbase_transaction_outputs() {
+        val helper = createHelper()
+        val detail: TransactionDetail = Gson().fromJson(coinbaseTX, TransactionDetail::class.java)
+        val transaction: TransactionSummary = mock()
+        val targetStat: TargetStat = mock()
+        whenever(transaction.memPoolState).thenReturn(MemPoolState.ACKNOWLEDGE)
+        whenever(helper.targetStatHelper.getOrCreateTargetStat(transaction, detail.vOutList[1], "Coinbase")).thenReturn(targetStat)
+
+        helper.saveOut(detail, transaction, detail.vOutList[1])
+
+        verify(helper.targetStatHelper).getOrCreateTargetStat(transaction, detail.vOutList[1], "Coinbase")
+        verify(targetStat).state = TargetStat.State.ACKNOWLEDGE
+        verify(targetStat).update()
+    }
+
+    @Test
+    fun can_save_coinbase_transaction_inputs() {
+        val helper = createHelper()
+        val detail: TransactionDetail = Gson().fromJson(coinbaseTX, TransactionDetail::class.java)
+        val transaction: TransactionSummary = mock()
+        val fundingStat: FundingStat = mock()
+        whenever(transaction.memPoolState).thenReturn(MemPoolState.ACKNOWLEDGE)
+        whenever(helper.fundingStatHelper.getOrCreateFundingStat(transaction, detail.vInList[0], "Coinbase")).thenReturn(fundingStat)
+
+        helper.saveIn(detail, transaction, detail.vInList[0])
+
+        verify(helper.fundingStatHelper).getOrCreateFundingStat(transaction, detail.vInList[0], "Coinbase")
+        verify(fundingStat).state = FundingStat.State.ACKNOWLEDGE
+        verify(fundingStat).update()
+    }
+
+    @Test
     fun updates_transaction_ouptuts_from_transaction_details__saves_reference_to_our_address() {
         val helper = createHelper()
         val transaction: TransactionSummary = mock()
@@ -403,7 +436,7 @@ class TransactionHelperTest {
         )
         val transaction: TransactionSummary = mock()
         whenever(helper.daoSessionManager.newTransactionSummary()).thenReturn(transaction)
-        whenever(helper.walletHelper.wallet).thenReturn(mock())
+        whenever(helper.walletHelper.primaryWallet).thenReturn(mock())
         whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(System.currentTimeMillis())
         whenever(helper.dateUtil.getCurrentTimeInMillis()).thenReturn(System.currentTimeMillis())
         whenever(identity.identityType).thenReturn(IdentityType.TWITTER)
@@ -416,7 +449,7 @@ class TransactionHelperTest {
 
         val ordered = inOrder(transaction, helper.daoSessionManager, helper.transactionInviteSummaryHelper, settlement, helper.fundingStatHelper, helper.targetStatHelper)
         ordered.verify(transaction).txid = completedBroadcastDTO.transactionId
-        ordered.verify(transaction).wallet = helper.walletHelper.wallet
+        ordered.verify(transaction).wallet = helper.walletHelper.primaryWallet
         ordered.verify(transaction).memPoolState = MemPoolState.PENDING
         ordered.verify(transaction).txTime = helper.dateUtil.getCurrentTimeInMillis()
         ordered.verify(helper.daoSessionManager).insert(transaction)

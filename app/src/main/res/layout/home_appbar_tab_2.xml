@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:background="@drawable/home_tab_2_background"
+    android:drawableStart="@drawable/ic_lightning_symbol"
+    android:drawablePadding="10dp"
+    android:gravity="center"
+    android:minWidth="130dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:text="@string/app_tab_bar_lightning"
+    android:textColor="@color/home_tab_color_selector"
+    app:drawableTint="@color/home_tab_color_selector" />

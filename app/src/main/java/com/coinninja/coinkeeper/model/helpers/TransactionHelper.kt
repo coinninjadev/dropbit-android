@@ -45,9 +45,10 @@ class TransactionHelper @Inject constructor(
     }
 
     fun initializeTransaction(transaction: TransactionSummary, gsonAddress: GsonAddress) {
-        transaction.wallet = walletHelper.wallet
+        transaction.wallet = walletHelper.primaryWallet
         transaction.txid = gsonAddress.txid
         transaction.memPoolState = MemPoolState.PENDING
+        transaction.blockhash = ""
         daoSessionManager.insert(transaction)
     }
 
@@ -136,14 +137,14 @@ class TransactionHelper @Inject constructor(
         transaction.memPoolState = detail.mempoolState
         transaction.numInputs = detail.numberOfInputs
         transaction.numOutputs = detail.numberOfOutputs
-        transaction.wallet = walletHelper.wallet
+        transaction.wallet = walletHelper.primaryWallet
 
         try {
             for (input in detail.vInList) {
-                saveIn(transaction, input)
+                saveIn(detail, transaction, input)
             }
             for (out in detail.vOutList) {
-                saveOut(transaction, out)
+                saveOut(detail, transaction, out)
             }
         } catch (e: IllegalArgumentException) {
             return
@@ -153,15 +154,19 @@ class TransactionHelper @Inject constructor(
     }
 
     @Throws(IllegalArgumentException::class)
-    internal fun saveOut(transaction: TransactionSummary, output: VOut) {
+    internal fun saveOut(detail: TransactionDetail, transaction: TransactionSummary, output: VOut) {
         val addresses = output.scriptPubKey.addresses
-        if (addresses.isEmpty())
+        if (addresses.isEmpty() && !detail.isCoinbase) {
             throw IllegalArgumentException()
+        }
 
-        val target = targetStatHelper.getOrCreateTargetStat(transaction, output)
-        addressHelper.addressForPubKey(addresses[0])?.let {
-            target.address = it
-            target.wallet = transaction.wallet
+        val target = targetStatHelper.getOrCreateTargetStat(transaction, output, if (detail.isCoinbase && addresses.isNullOrEmpty()) "Coinbase" else null)
+
+        if (!addresses.isNullOrEmpty()) {
+            addressHelper.addressForPubKey(addresses[0])?.let {
+                target.address = it
+                target.wallet = transaction.wallet
+            }
         }
 
         val targetState: TargetStat.State =
@@ -179,16 +184,19 @@ class TransactionHelper @Inject constructor(
     }
 
     @Throws(IllegalArgumentException::class)
-    internal fun saveIn(transaction: TransactionSummary, input: VIn) {
+    internal fun saveIn(detail: TransactionDetail, transaction: TransactionSummary, input: VIn) {
+        val addresses = input.previousOutput.scriptPubKey.addresses ?: emptyArray()
 
-        val addresses = input.previousOutput.scriptPubKey.addresses
-        if (addresses.isEmpty())
+        if (addresses.isEmpty() && !detail.isCoinbase) {
             throw IllegalArgumentException()
+        }
 
-        val funder: FundingStat = fundingStatHelper.getOrCreateFundingStat(transaction, input)
-        addressHelper.addressForPubKey(addresses[0])?.let {
-            funder.address = it
-            funder.wallet = transaction.wallet
+        val funder: FundingStat = fundingStatHelper.getOrCreateFundingStat(transaction, input, if (detail.isCoinbase && addresses.isNullOrEmpty()) "Coinbase" else null)
+        if (!addresses.isNullOrEmpty()) {
+            addressHelper.addressForPubKey(addresses[0])?.let {
+                funder.address = it
+                funder.wallet = transaction.wallet
+            }
         }
 
         val fundingState: FundingStat.State =
@@ -221,9 +229,10 @@ class TransactionHelper @Inject constructor(
         val identity = completedBroadcastActivityDTO.identity
         val transaction = daoSessionManager.newTransactionSummary()
         transaction.txid = transactionId
-        transaction.wallet = walletHelper.wallet
+        transaction.wallet = walletHelper.primaryWallet
         transaction.memPoolState = MemPoolState.PENDING
         transaction.txTime = dateUtil.getCurrentTimeInMillis()
+        transaction.blockhash = ""
         daoSessionManager.insert(transaction)
         fundingStatHelper.createInputsFor(transaction, completedBroadcastActivityDTO.transactionData)
         targetStatHelper.createOutputsFor(transaction, completedBroadcastActivityDTO.transactionData)

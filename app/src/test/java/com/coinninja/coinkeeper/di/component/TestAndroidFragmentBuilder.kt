@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.di.component
 
 import com.coinninja.coinkeeper.di.interfaces.ActivityScope
 import com.coinninja.coinkeeper.di.module.TestPicassoModule
-import com.coinninja.coinkeeper.di.module.TestRequestScreenFragmentModule
 import com.coinninja.coinkeeper.ui.account.UserServerAddressesFragment
 import com.coinninja.coinkeeper.ui.account.verify.PhoneIdentityFragment
 import com.coinninja.coinkeeper.ui.account.verify.TwitterIdentityFragment
@@ -15,16 +14,12 @@ import com.coinninja.coinkeeper.ui.dropbit.me.verified.DisabledDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.NewlyVerifiedDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verified.VerifiedDropbitMeDialog
 import com.coinninja.coinkeeper.ui.dropbit.me.verify.VerifyDropBitMeDialog
-import com.coinninja.coinkeeper.ui.market.MarketChartsFragment
-import com.coinninja.coinkeeper.ui.market.MarketScreenFragment
-import com.coinninja.coinkeeper.ui.market.TestMarketChartModule
-import com.coinninja.coinkeeper.ui.news.MarketNewsFragment
-import com.coinninja.coinkeeper.ui.news.TestMarketNewsModule
+import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragment
+import com.coinninja.coinkeeper.ui.lightning.history.LightningHistoryFragmentTest
+import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
+import com.coinninja.coinkeeper.ui.lightning.locked.LightningLockedFragment
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragmentTest
-import com.coinninja.coinkeeper.ui.payment.request.PayRequestFragment
-import com.coinninja.coinkeeper.ui.payment.request.PayRequestScreenFragment
-import com.coinninja.coinkeeper.ui.payment.request.RequestDialogFragment
 import com.coinninja.coinkeeper.ui.transaction.history.TransactionHistoryFragment
 import com.coinninja.coinkeeper.ui.twitter.ShareTransactionDialog
 import com.coinninja.coinkeeper.ui.twitter.TransactionTweetDialog
@@ -34,25 +29,6 @@ import dagger.android.ContributesAndroidInjector
 
 @Module
 abstract class TestAndroidFragmentBuilder {
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [TestMarketChartModule::class])
-    internal abstract fun marketChartsFragment(): MarketChartsFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [TestMarketNewsModule::class])
-    internal abstract fun marketNewsFragment(): MarketNewsFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun PayRequestScreenFragment(): PayRequestScreenFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun marketScreenFragment(): MarketScreenFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [TestRequestScreenFragmentModule::class])
-    internal abstract fun payRequestFragment(): PayRequestFragment
 
     @ActivityScope
     @ContributesAndroidInjector
@@ -107,24 +83,12 @@ abstract class TestAndroidFragmentBuilder {
     internal abstract fun baseDialogFragment(): BaseDialogFragment
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [ConfirmPayDialogFragmentTest.TestConfirmPayDialogModule::class])
-    internal abstract fun confirmPayDialogFragment(): ConfirmPayDialogFragment
-
-    @ActivityScope
     @ContributesAndroidInjector
     internal abstract fun fingerprintAuthDialog(): FingerprintAuthDialog
 
     @ActivityScope
     @ContributesAndroidInjector
     internal abstract fun inviteHelpDialogFragment(): InviteHelpDialogFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [PayDialogFragmentTest.TestPayDialogFragmentModule::class])
-    internal abstract fun payDialogFragment(): PayDialogFragment
-
-    @ActivityScope
-    @ContributesAndroidInjector
-    internal abstract fun requestDialogFragment(): RequestDialogFragment
 
     @ActivityScope
     @ContributesAndroidInjector
@@ -150,4 +114,15 @@ abstract class TestAndroidFragmentBuilder {
     @ContributesAndroidInjector
     internal abstract fun twitterIdentityFragment(): TwitterIdentityFragment
 
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [LightningHistoryFragmentTest.FragmentModule::class])
+    abstract fun LightningHistoryFragment(): LightningHistoryFragment
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [])
+    abstract fun lightningLoadingOptionsDialog(): LightningLoadingOptionsDialog
+
+    @ActivityScope
+    @ContributesAndroidInjector()
+    internal abstract fun lightningLockedFragment(): LightningLockedFragment
 }

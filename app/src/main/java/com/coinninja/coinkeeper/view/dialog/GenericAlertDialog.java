@@ -6,12 +6,12 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 
-import com.coinninja.coinkeeper.R;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+
+import com.coinninja.coinkeeper.R;
 
 public class GenericAlertDialog extends DialogFragment {
 
@@ -29,6 +29,10 @@ public class GenericAlertDialog extends DialogFragment {
 
     public static GenericAlertDialog newInstance(String message) {
         return newInstance(null, message, null, null, null, true, true);
+    }
+
+    public static GenericAlertDialog newInstance(String message, String positiveLabel, DialogInterface.OnClickListener clickListener) {
+        return newInstance(null, message, positiveLabel, null, clickListener, false, false);
     }
 
     public static GenericAlertDialog newInstance(String message, String positiveLabel, String negativeLabel, DialogInterface.OnClickListener clickListener) {

@@ -106,4 +106,14 @@ class WalletFlagsTest {
     fun getter_for_purpose49_version1() {
         assertThat(WalletFlags.purpose49v1).isEqualTo(1)
     }
+
+    @Test
+    fun getter_for_purpose49_version1_disabled() {
+        assertThat(WalletFlags.purpose49v1Disabled).isEqualTo(257)
+    }
+
+    @Test
+    fun getter_for_purpose84_version2() {
+        assertThat(WalletFlags.purpose84v2).isEqualTo(18)
+    }
 }

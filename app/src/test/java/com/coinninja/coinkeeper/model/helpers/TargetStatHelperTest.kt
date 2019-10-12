@@ -1,9 +1,9 @@
 package com.coinninja.coinkeeper.model.helpers
 
-import com.coinninja.bindings.DerivationPath
-import com.coinninja.bindings.TransactionData
-import com.coinninja.bindings.UnspentTransactionOutput
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
+import app.coinninja.cn.libbitcoin.HDWallet
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey
@@ -20,9 +20,41 @@ class TargetStatHelperTest {
 
     private fun createHelper(): TargetStatHelper {
         val statHelper = TargetStatHelper(mock(), mock(), mock(), mock())
-        whenever(statHelper.walletHelper.wallet).thenReturn(mock())
-        whenever(statHelper.walletHelper.wallet.id).thenReturn(1L)
+        whenever(statHelper.walletHelper.primaryWallet).thenReturn(mock())
+        whenever(statHelper.walletHelper.primaryWallet.id).thenReturn(1L)
         return statHelper
+    }
+
+    @Test
+    fun updates_existing_output_with_current_details__coinbase() {
+        val helper = createHelper()
+        val transaction = mock<TransactionSummary>()
+        val output = VOut(
+                value = 1000,
+                index = 1,
+                scriptPubKey = ScriptPubKey(
+                        addresses = emptyArray()
+                )
+        )
+        val targetStat = mock<TargetStat>()
+        whenever(targetStat.id).thenReturn(1)
+        whenever(transaction.txTime).thenReturn(System.currentTimeMillis())
+        val queryBuilder: QueryBuilder<TargetStat> = mock()
+        whenever(helper.daoSessionManager.targetStatDao).thenReturn(mock())
+        whenever(helper.daoSessionManager.targetStatDao.queryBuilder()).thenReturn(queryBuilder)
+        whenever(queryBuilder.where(any(), any(), any(), any())).thenReturn(queryBuilder)
+        whenever(queryBuilder.limit(1)).thenReturn(queryBuilder)
+        whenever(queryBuilder.unique()).thenReturn(targetStat)
+
+        helper.getOrCreateTargetStat(transaction, output, "Coinbase")
+
+        val ordered = inOrder(targetStat)
+        ordered.verify(targetStat).addr = "Coinbase"
+        ordered.verify(targetStat).position = 1
+        ordered.verify(targetStat).transaction = transaction
+        ordered.verify(targetStat).value = 1000
+        ordered.verify(targetStat).txTime = transaction.txTime
+        ordered.verify(targetStat).update()
     }
 
     @Test
@@ -101,22 +133,23 @@ class TargetStatHelperTest {
         whenever(targetStat.transaction).thenReturn(mock())
         whenever(targetStat.transaction.txid).thenReturn("--txid--")
         whenever(targetStat.transaction.isReplaceable).thenReturn(true)
-        val address = Address()
-        address.changeIndex = 1
-        address.index = 50
+        val address = mock<Address>()
+        whenever(address.changeIndex).thenReturn(1)
+        whenever(address.index).thenReturn(50)
+        whenever(address.derivationPath).thenReturn(DerivationPath(49, 0, 0, 1, 50))
         whenever(targetStat.address).thenReturn(address)
 
         val unspentTransactionOutput = targetStat.toUnspentTransactionOutput()
 
         assertThat(unspentTransactionOutput.amount).isEqualTo(1000L)
         assertThat(unspentTransactionOutput.index).isEqualTo(1)
-        assertThat(unspentTransactionOutput.isReplaceable).isEqualTo(true)
-        assertThat(unspentTransactionOutput.txId).isEqualTo("--txid--")
-        assertThat(unspentTransactionOutput.path.purpose).isEqualTo(49)
-        assertThat(unspentTransactionOutput.path.coinType).isEqualTo(0)
-        assertThat(unspentTransactionOutput.path.account).isEqualTo(0)
-        assertThat(unspentTransactionOutput.path.change).isEqualTo(1)
-        assertThat(unspentTransactionOutput.path.index).isEqualTo(50)
+        assertThat(unspentTransactionOutput.replaceable).isEqualTo(true)
+        assertThat(unspentTransactionOutput.txid).isEqualTo("--txid--")
+        assertThat(unspentTransactionOutput.path!!.purpose).isEqualTo(49)
+        assertThat(unspentTransactionOutput.path!!.coin).isEqualTo(0)
+        assertThat(unspentTransactionOutput.path!!.account).isEqualTo(0)
+        assertThat(unspentTransactionOutput.path!!.chain).isEqualTo(1)
+        assertThat(unspentTransactionOutput.path!!.index).isEqualTo(50)
     }
 
     @Test

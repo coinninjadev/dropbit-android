@@ -90,7 +90,6 @@
     <string name="drawer_close_descritpion">sidebar closed</string>
 
     <!-- PaymentBar Buttons -->
-    <string name="bc1_error_message">Bech 32 addresses are not supported at this time. Support is coming soon</string>
     <string name="pay_label">Send</string>
     <string name="request_label">Receive</string>
 
@@ -128,11 +127,17 @@
     <string name="send_to_self">Sent to myself</string>
     <string name="share_transaction_intent_title">Share Transaction</string>
     <string name="history_failed_to_broadcast">Failed to Broadcast</string>
+    <string name="failed">failed</string>
+    <string name="expired">expired</string>
+    <string name="canceled">canceled</string>
 
     <!-- Request -->
     <string name="request_copied_message">Bitcoin Request copied to clipboard</string>
     <string name="tap_address_to_save_to_clipboard">Tap address to save to clipboard</string>
     <string name="send_request">Send Request</string>
+    <string name="create_invoice">create invoice</string>
+    <string name="add_receive_amount">Add Receive Amount</string>
+    <string name="add_a_memo">Add a memo</string>
 
     <!-- Pay -->
     <string name="pay_not_enough_funds_error">Not enough spendable funds</string>
@@ -140,7 +145,6 @@
     <string name="pay_not_attempting_to_send">Attempting to send </string>
     <string name="invalid_bitcoin_address_error">Invalid BTC address</string>
     <string name="clipboard_empty_error_message">Nothing to paste</string>
-    <string name="invalid_btc_adddress__base58">Address Failed Base 58 check</string>
 
     <!-- Confirm Pay -->
     <string name="confirm_pay_hold_label_message_successful">TAP AND HOLD TO SEND</string>
@@ -192,6 +196,7 @@
     <string name="recover_wallet_label">Recovery Words</string>
     <string name="dust_protection">Dust Protection</string>
     <string name="settings_bitcoin_yearly_high_price_notification">Bitcoin Yearly High Price Notification</string>
+    <string name="settings_legacy_words">Legacy Words</string>
 
     <!-- Message System -->
     <string name="message_system_no_internet">Not connected. Please refresh to try again</string>
@@ -205,16 +210,22 @@
     <string name="broadcast_sent_try_again">Try Again</string>
     <string name="loading_dialog">Loading....</string>
 
-    <!-- Payment dialog -->
+    <!-- Create Payment Screen -->
     <string name="pay_error_add_valid_bitcoin_address">Please add valid bitcoin address or phone number</string>
     <string name="pay_error_invalid_amount">Invalid amount</string>
     <string name="pay_error_too_little_transaction">Can not spend less than $1</string>
+    <string name="pay_error_insufficient_funds">Attempting to send %s. Not enough spendable funds.  Currently only %s available</string>
     <string name="payment_error_too_much_sent_to_contact">For security reasons we limit invite transactions to $100. Once your contact has the DropBit app there are no transaction limits.</string>
     <string name="payment_memo">What’s it for?</string>
     <string name="send_max">send max</string>
+    <string name="your_twitter_account_is_not_verified">Your twitter account is not verified, please verify.</string>
+    <string name="your_phone_is_not_verified">You do not have a verified account, please verify.</string>
+    <string name="not_now">Not now</string>
+    <string name="verify_now">Verify</string>
 
     <!-- Delete Auth Message -->
     <string name="authorize_delete_message">Enter pin to confirm deletion of your wallet.</string>
+    <string name="authorize_view_legacy_words">Enter pin to view your legacy words.</string>
 
     <!-- Contacts -->
     <string name="search_hint">Search</string>
@@ -435,4 +446,106 @@
     <!-- Market News -->
     <string name="news">News</string>
     <string name="news_source_published_separator">-</string>
+    <string name="show_market_data">Show Market News</string>
+    <string name="market_charts">market charts</string>
+
+
+    <!-- Home Activity -->
+    <string name="app_tab_bar_bitcoin">Bitcoin</string>
+    <string name="app_tab_bar_lightning">Lightning</string>
+
+
+    <!--- Lightning Empty State -->
+    <string name="_5_dollars">$5</string>
+    <string name="_20_dollars">$20</string>
+    <string name="_50_dollars">$50</string>
+    <string name="_100_dollars">$100</string>
+    <string name="oh_and_we_ll_cover_the_fees_every_time_you_load">OH, and we’ll cover the fees every time you load</string>
+    <string name="nothing_s_here_yet_load_your_lightning_wallet">NOTHING’S HERE YET, LOAD
+        YOUR LIGHTNING WALLET</string>
+    <string name="custom_amount">Custom Amount</string>
+
+    <!--- Lightning Invoice History -->
+    <string name="tx_history_transfer_lightning_in">Load Lightning</string>
+    <string name="tx_history_transfer_lightning_out">Lightning Withdraw</string>
+    <string name="tx_history_lightning_out">Paid Invoice</string>
+    <string name="tx_history_lightning_in">Lightning Invoice</string>
+    <string name="lnd_state_pending">pending</string>
+
+    <!--- Lightning Deposit Screen -->
+    <string name="load_lightning">LOAD LIGHTNING</string>
+    <string name="load_lightning_invalid_amount">Must deposit at least %s.</string>
+    <string name="load_lightning_insufficient_funds">Attempting to deposit %s. Not enough spendable funds.</string>
+    <string name="load_lightning_over_max_limit">
+        Attempting to deposit %s which would put your account over the maximum balance.
+        Your current balance is %s.
+        Maximum balance allowed at this time is %s.</string>
+    <string name="load_lightning_under_min_deposit">Attempting to deposit %s. Minimum deposit size at this time is %s.</string>
+
+    <!--- Lightning Transfer Options Overlay -->
+    <string name="cancel_loading_lightning">cancel</string>
+    <string name="loading_option_load_lightning">Load Lightning Wallet</string>
+    <string name="loading_option_unload_lightning">Withdraw from Lightning Wallet</string>
+
+    <!--- Lightning Withdrawal Screen -->
+    <string name="withdrawal_lightning">WITHDRAW FROM LIGHTNING</string>
+    <string name="unload_minimum_amount_required">
+        Please enter an amount to withdrawal.
+    </string>
+    <string name="unload_lightning_insufficient_funds">
+        Attempting to withdrawal %s. Not enough funds in lightning account.
+    </string>
+    <string name="unload_minimum_amount_notification">Must withdraw at least %s sats.</string>
+    <string name="network_fee">Network Fee</string>
+    <string name="dropbit_fee">DropBit Fee</string>
+    <string name="lightning_fee_value">%s sats (%s)</string>
+    <string name="na">NA</string>
+
+    <!--- Segwit Wallet Upgrade -->
+    <string name="upgrade_notice">We are upgrading all DropBit wallets for Lightning support. Your new SegWit wallet will allow you to send Bitcoin faster, cheaper and with increased security.</string>
+    <string name="lightning_is_here">LIGHTNING IS HERE!</string>
+    <string name="upgrade_now">upgrade now</string>
+    <string name="new_recovery_words_notice">I understand that with this upgrade <b>I will be getting a new set of 12 recovery words</b> to write down on paper and store safely.</string>
+    <string name="transfer_wallet_funds_notice">I understand that DropBit will be transferring my <b>funds of %s with a transaction fee of %s</b> to my upgraded wallet.</string>
+    <string name="upgrade_now_help_url">https://dropbit.app/upgrade</string>
+    <string name="default_help_link_label">?</string>
+    <string name="creating_new_wallet">Creating new wallet</string>
+    <string name="updating_to_segwit">Updating to SegWit</string>
+    <string name="transferring_funds">Transferring Funds </string>
+    <string name="do_not_close">DO NOT CLOSE</string>
+    <string name="go_to_wallet">go to wallet</string>
+    <string name="upgrade_complete">Upgrade Complete!</string>
+    <string name="your_upgraded_wallet_is_lightning_ready">Your upgraded wallet is lightning ready!</string>
+    <string name="upgrade_failed_message">Upgrade failed. Please try again later.</string>
+    <string name="go_to_recovery_words">GET NEW RECOVERY WORDS</string>
+    <string name="recovered_wallet_already_upgraded"> You have entered recovery words from a legacy DropBit wallet. We are upgrading all wallets to a new version
+    of DropBit for enhanced security, lower transaction fees, and Lightning support. Please enter the new
+        recovery words you were given upon upgrading, or create a new wallet.</string>
+    <string name="recovered_wallet_requires_upgrade"> You have entered recovery words from a legacy DropBit wallet. We are upgrading all wallets to a new version
+    of DropBit for enhanced security, lower transaction fees, and Lightning support.</string>
+
+
+    <!--- Locked Lightning Screen -->
+    <string name="your_in_line">You’re in line!</string>
+    <string name="check_back_every_day_to_see_if_you_re_unlocked">Check back every day to see if you’re unlocked!</string>
+    <string name="want_to_skip_the_line">Want to skip the line?</string>
+    <string name="find_a_dropbit_lightning_user">Find a DropBit Lightning user to send you a few sats using your verified phone number or Twitter handle</string>
+
+
+    <!-- Account Mode Selection Toggle button view -->
+    <string name="bitcoin">Bitcoin</string>
+    <string name="lightning">Lightning</string>
+
+    <!--- LND Invoice Request Screen -->
+    <string name="lightning_invoice">LIGHTNING INVOICE</string>
+    <string name="expires_in_48_hours">expires in 48 hours</string>
+    <string name="tap_invoice_to_save_to_clipboard">Tap invoice to save to clipboard</string>
+
+
+    <!--- LND Down for Maintenance -->
+    <string name="thunderdome_unavailable">We are currently updating our servers. Don’t worry, your funds are safe, but please check back again shortly.</string>
+    <string name="tx_history_load_lightning">Load Lightning</string>
+    <string name="tx_history_withdraw_lightning">Lightning Withdraw</string>
+    <string name="transaction_details_load_lightning">Load Lightning</string>
+    <string name="transaction_details_withdraw_from_lightning">Withdraw from Lightning</string>
 </resources>

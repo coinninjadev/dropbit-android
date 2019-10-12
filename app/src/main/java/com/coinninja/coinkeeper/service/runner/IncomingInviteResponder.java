@@ -1,8 +1,9 @@
 package com.coinninja.coinkeeper.service.runner;
 
 import com.coinninja.coinkeeper.cn.account.AccountManager;
-import com.coinninja.coinkeeper.cn.wallet.HDWallet;
+import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper;
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary;
+import com.coinninja.coinkeeper.model.db.enums.Type;
 import com.coinninja.coinkeeper.model.dto.AddressDTO;
 import com.coinninja.coinkeeper.model.helpers.InternalNotificationHelper;
 import com.coinninja.coinkeeper.model.helpers.InviteTransactionSummaryHelper;
@@ -11,7 +12,6 @@ import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient;
 import com.coinninja.coinkeeper.service.client.model.CNWalletAddress;
 import com.coinninja.coinkeeper.util.CNLogger;
 import com.coinninja.coinkeeper.util.analytics.Analytics;
-import com.coinninja.coinkeeper.util.currency.BTCCurrency;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import app.dropbit.commons.currency.BTCCurrency;
 import retrofit2.Response;
 
 public class IncomingInviteResponder implements Runnable {
@@ -29,6 +30,7 @@ public class IncomingInviteResponder implements Runnable {
     private final WalletHelper walletHelper;
     private final AccountManager accountManager;
     private final InviteTransactionSummaryHelper inviteTransactionSummaryHelper;
+    private final HDWalletWrapper hdWalletWrapper;
     private final Analytics analytics;
     private final CNLogger logger;
 
@@ -37,12 +39,14 @@ public class IncomingInviteResponder implements Runnable {
                                    InternalNotificationHelper internalNotificationHelper,
                                    WalletHelper walletHelper, AccountManager accountManager,
                                    InviteTransactionSummaryHelper inviteTransactionSummaryHelper,
+                                   HDWalletWrapper hdWalletWrapper,
                                    Analytics analytics, CNLogger logger) {
         this.client = client;
         this.walletHelper = walletHelper;
         notificationHelper = internalNotificationHelper;
         this.accountManager = accountManager;
         this.inviteTransactionSummaryHelper = inviteTransactionSummaryHelper;
+        this.hdWalletWrapper = hdWalletWrapper;
         this.analytics = analytics;
         this.logger = logger;
     }
@@ -50,21 +54,28 @@ public class IncomingInviteResponder implements Runnable {
     @Override
     public void run() {
         List<InviteTransactionSummary> invites = walletHelper.getIncompleteReceivedInvites();
-        HashMap<String, AddressDTO> unusedAddressesToPubKey = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, invites.size());
+        HashMap<String, AddressDTO> unusedAddressesToPubKey = accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, invites.size());
         ArrayList<String> addresses = new ArrayList(unusedAddressesToPubKey.keySet());
 
         InviteTransactionSummary invite;
         String address;
         String pubkey;
+        String addressType = "btc";
         AddressDTO addressDTO;
 
         for (int i = 0; i < invites.size(); i++) {
             invite = invites.get(i);
-            address = addresses.get(i % addresses.size());
-            addressDTO = unusedAddressesToPubKey.get(address);
-            pubkey = addressDTO.getUncompressedPublicKey();
+            if (invite.getType() == Type.LIGHTNING_RECEIVED && walletHelper.getPrimaryWallet().getPurpose() == 84) {
+                address = "generate";
+                pubkey = hdWalletWrapper.getVerificationKey();
+                addressType = "lightning";
+            } else {
+                address = addresses.get(i % addresses.size());
+                addressDTO = unusedAddressesToPubKey.get(address);
+                pubkey = addressDTO.getUncompressedPublicKey();
+            }
 
-            CNWalletAddress cnAddress = postAddress(address, invite, pubkey);
+            CNWalletAddress cnAddress = postAddress(address, invite, pubkey, addressType);
             if (cnAddress != null) {
                 analytics.trackEvent(Analytics.Companion.EVENT_DROPBIT_ADDRESS_PROVIDED);
                 inviteTransactionSummaryHelper.updateInviteAddressTransaction(invite.getServerId(), address);
@@ -73,8 +84,8 @@ public class IncomingInviteResponder implements Runnable {
         }
     }
 
-    private CNWalletAddress postAddress(String sendAddress, InviteTransactionSummary invite, String addressPubKey) {
-        Response response = client.sendAddressForInvite(invite.getServerId(), sendAddress, addressPubKey);
+    private CNWalletAddress postAddress(String sendAddress, InviteTransactionSummary invite, String addressPubKey, String addressType) {
+        Response response = client.sendAddressForInvite(invite.getServerId(), sendAddress, addressPubKey, addressType);
 
         if (response.isSuccessful()) {
             return (CNWalletAddress) response.body();

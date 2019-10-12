@@ -9,21 +9,18 @@ import android.view.View
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.ui.account.UserServerAddressesFragment
+import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.RemoteAddressLocalCache
-import com.coinninja.coinkeeper.util.android.LocalBroadCastUtil
 import com.coinninja.coinkeeper.util.android.PreferencesUtil
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity
 import javax.inject.Inject
 
-class UserAccountVerificationActivity : SecuredActivity() {
+class UserAccountVerificationActivity : BaseActivity() {
 
     val intentFilter = IntentFilter(DropbitIntents.ACTION_LOCAL_ADDRESS_CACHE_POPULATED)
 
     @Inject
     lateinit var dropbitAccountHelper: DropbitAccountHelper
-    @Inject
-    lateinit var localBroadCastUtil: LocalBroadCastUtil
     @Inject
     lateinit var preferencesUtil: PreferencesUtil
     @Inject

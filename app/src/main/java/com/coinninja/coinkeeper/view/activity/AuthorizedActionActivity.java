@@ -5,19 +5,19 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.coinninja.coinkeeper.R;
 import com.coinninja.coinkeeper.interactor.PinInteractor;
-import com.coinninja.coinkeeper.view.activity.base.SecuredActivity;
+import com.coinninja.coinkeeper.ui.base.BaseActivity;
 import com.coinninja.coinkeeper.view.edittext.PinEditText;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import static com.coinninja.coinkeeper.util.DropbitIntents.EXTRA_AUTHORIZED_ACTION_MESSAGE;
 
-public class AuthorizedActionActivity extends SecuredActivity implements PinEditText.OnSixDigitsEnteredListener {
+public class AuthorizedActionActivity extends BaseActivity implements PinEditText.OnSixDigitsEnteredListener {
 
     public static final int MAX_ATTEMPTS = 2;
 

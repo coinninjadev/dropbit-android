@@ -6,30 +6,58 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.thunderdome.model.RequestInvoice
+import app.coinninja.cn.thunderdome.model.WithdrawalRequest
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Resources
 import com.coinninja.coinkeeper.R
+import com.coinninja.coinkeeper.model.Identity
+import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.model.PhoneNumber
+import com.coinninja.coinkeeper.model.db.enums.IdentityType
+import com.coinninja.coinkeeper.model.dto.BroadcastTransactionDTO
 import com.coinninja.coinkeeper.ui.backup.BackupRecoveryWordsStartActivity
 import com.coinninja.coinkeeper.ui.home.HomeActivity
+import com.coinninja.coinkeeper.ui.lightning.broadcast.BroadcastLightningPaymentActivity
+import com.coinninja.coinkeeper.ui.lightning.deposit.LightningDepositActivity
+import com.coinninja.coinkeeper.ui.lightning.loading.LightningLoadingOptionsDialog
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalActivity
+import com.coinninja.coinkeeper.ui.lightning.withdrawal.LightningWithdrawalBroadcastActivity
+import com.coinninja.coinkeeper.ui.market.MarketScreenActivity
+import com.coinninja.coinkeeper.ui.payment.confirm.ConfirmPaymentActivity
+import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
+import com.coinninja.coinkeeper.ui.payment.invite.InviteContactActivity
+import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequest
+import com.coinninja.coinkeeper.ui.payment.request.LndInvoiceRequestActivity
+import com.coinninja.coinkeeper.ui.payment.request.PayRequestActivity
 import com.coinninja.coinkeeper.ui.phone.verification.VerificationActivity
+import com.coinninja.coinkeeper.ui.segwit.PerformSegwitUpgradeActivity
+import com.coinninja.coinkeeper.ui.segwit.UpgradeToSegwitActivity
+import com.coinninja.coinkeeper.ui.segwit.UpgradeToSegwitCompleteActivity
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
+import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.Shuffler
 import com.coinninja.coinkeeper.util.TwitterUtil
 import com.coinninja.coinkeeper.util.analytics.Analytics
+import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.util.uri.CoinNinjaUriBuilder
 import com.coinninja.coinkeeper.util.uri.DropbitUriBuilder
 import com.coinninja.coinkeeper.util.uri.parameter.CoinNinjaParameter
 import com.coinninja.coinkeeper.util.uri.routes.CoinNinjaRoute.TRANSACTION
-import com.coinninja.coinkeeper.view.activity.CoinKeeperSupportActivity
-import com.coinninja.coinkeeper.view.activity.StartActivity
-import com.coinninja.coinkeeper.view.activity.VerifyPhoneVerificationCodeActivity
-import com.coinninja.coinkeeper.view.activity.VerifyRecoverywordsActivity
+import com.coinninja.coinkeeper.view.activity.*
 import com.coinninja.matchers.ActivityMatchers.activityWithIntentStarted
 import com.google.i18n.phonenumbers.Phonenumber
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
+import junit.framework.Assert.assertNotNull
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Assert
@@ -60,6 +88,7 @@ class ActivityNavigationUtilTest {
 
     @After
     fun tearDown() {
+        scenario.moveToState(Lifecycle.State.DESTROYED)
         scenario.close()
     }
 
@@ -91,7 +120,7 @@ class ActivityNavigationUtilTest {
         activityNavigationUtil.navigateToHome(activity)
 
         val intent = Intent(activity, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         assertThat(activity, activityWithIntentStarted(intent))
     }
 
@@ -358,4 +387,296 @@ class ActivityNavigationUtilTest {
         }
     }
 
+    @Test
+    fun shows_market_charts() {
+        createActivityNavigationUtil().also {
+            it.showMarketCharts(activity)
+
+            assertThat(activity, activityWithIntentStarted(Intent(activity, MarketScreenActivity::class.java)))
+        }
+    }
+
+    @Test
+    fun shows_lightning_deposit_screen_with_no_amount() {
+        createActivityNavigationUtil().also {
+            it.showLoadLightningWith(activity)
+
+            assertThat(activity, activityWithIntentStarted(Intent(activity, LightningDepositActivity::class.java)))
+        }
+    }
+
+    @Test
+    fun shows_lightning_deposit_screen_with_amount() {
+        createActivityNavigationUtil().also {
+            val amount = USDCurrency(5_00)
+            it.showLoadLightningWith(activity, amount)
+
+            val intent = Intent(activity, LightningDepositActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_AMOUNT, amount)
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun shows_withdrawal_lighting_screen() {
+        createActivityNavigationUtil().also {
+            it.showWithdrawalLightning(activity)
+
+            val intent = Intent(activity, LightningWithdrawalActivity::class.java)
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun shows_loading_lightning_options() {
+        createActivityNavigationUtil().also {
+            it.showLoadLightningOptions(activity)
+
+            assertNotNull(activity.supportFragmentManager.findFragmentByTag(LightningLoadingOptionsDialog::class.java.simpleName))
+        }
+    }
+
+    @Test
+    fun navigates_to_broadcast() {
+        createActivityNavigationUtil().also {
+            val broadcastDTO = BroadcastTransactionDTO(TransactionData())
+
+            it.navigateToBroadcast(activity, broadcastDTO)
+
+            val intent = Intent(activity, BroadcastActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_BROADCAST_DTO, broadcastDTO)
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun shows_withdrawal_completed_screen() {
+        createActivityNavigationUtil().also {
+            val withdrawalRequest = WithdrawalRequest(BTCCurrency(100000), BTCCurrency(500), BTCCurrency(5000))
+            it.showWithdrawalCompleted(activity, withdrawalRequest)
+
+            val intent = Intent(activity, LightningWithdrawalBroadcastActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_WITHDRAWAL_REQUEST, withdrawalRequest)
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_start_screen() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, StartActivity::class.java)
+
+            it.navigateToStartActivity(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_upgrade_segwit() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, UpgradeToSegwitActivity::class.java)
+
+            it.navigateToUpgradeToSegwit(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_upgrade_segwit__step_two() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, PerformSegwitUpgradeActivity::class.java)
+
+            it.navigateToUpgradeToSegwitStepTwo(activity, null)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_upgrade_segwit__step_two__with_transaction_transfer() {
+        createActivityNavigationUtil().also {
+            val transactionData: TransactionData = TransactionData(emptyArray(), 10_000, 1_000, 0,
+                    DerivationPath(49, 0, 0, 0, 0), "--address--")
+            val intent = Intent(activity, PerformSegwitUpgradeActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_TRANSACTION_DATA, transactionData)
+
+            it.navigateToUpgradeToSegwitStepTwo(activity, transactionData)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_upgrade_to_segwit_success() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, UpgradeToSegwitCompleteActivity::class.java)
+
+            it.navigateToUpgradeToSegwitSuccess(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_verification_activity() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, VerificationActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_SHOW_TWITTER_VERIFY_BUTTON, true)
+
+            it.showVerificationActivity(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_restore_wallet_activity() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, RestoreWalletActivity::class.java)
+
+            it.navigateToRestoreWallet(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_payment_reqeust_screen() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, PayRequestActivity::class.java)
+
+            it.navigateToPaymentRequestScreen(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigate_to_review_created_invoice() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, LndInvoiceRequestActivity::class.java)
+            val lndInvoiceRequest = LndInvoiceRequest("--lnd-encoded_invoice", BTCCurrency(10_000), "--memo--")
+            intent.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, lndInvoiceRequest)
+
+            it.navigateToShowLndInvoice(activity, lndInvoiceRequest)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_create_payment_transaction() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, CreatePaymentActivity::class.java)
+
+            it.navigateToPaymentCreateScreen(activity)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_create_payment_transaction__for_scan_intent() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, CreatePaymentActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_SHOULD_SCAN, true)
+
+            it.navigateToPaymentCreateScreen(activity, withScan = true)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_create_payment_transaction__with_bitcoin_uri_intent() {
+        createActivityNavigationUtil().also {
+            val uri = "bitcoin:--address--"
+            val bitcoinUri = mock<BitcoinUri>()
+            whenever(bitcoinUri.toString()).thenReturn(uri)
+            val intent = Intent(activity, CreatePaymentActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_BITCOIN_URI, uri)
+
+            it.navigateToPaymentCreateScreen(activity, bitcoinUri = bitcoinUri)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun picks_contact_from_contact_picker() {
+        createActivityNavigationUtil().also {
+            val intent = Intent(activity, PickUserActivity::class.java)
+            intent.action = DropbitIntents.ACTION_TWITTER_SELECTION
+
+            it.startPickContactActivity(activity, DropbitIntents.ACTION_TWITTER_SELECTION)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_confirm_payment() {
+        createActivityNavigationUtil().also {
+            val holder = PaymentHolder(
+                    evaluationCurrency = USDCurrency(10_000_00),
+                    isSharingMemo = true,
+                    publicKey = "--pub-key--",
+                    memo = "--memo--",
+                    defaultCurrencies = DefaultCurrencies(BTCCurrency(1), USDCurrency(10_000_00)),
+                    toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = true)
+            )
+            val intent = Intent(activity, ConfirmPaymentActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, holder)
+
+            it.navigateToConfirmPaymentScreen(activity, holder)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_pay_lightning_invoice() {
+        createActivityNavigationUtil().also {
+            val holder = PaymentHolder(
+                    evaluationCurrency = USDCurrency(10_000_00),
+                    isSharingMemo = true,
+                    publicKey = "--pub-key--",
+                    memo = "--memo--",
+                    defaultCurrencies = DefaultCurrencies(BTCCurrency(1), USDCurrency(10_000_00)),
+                    toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = true)
+            )
+            holder.requestInvoice = RequestInvoice(numSatoshis = 10843)
+            holder.requestInvoice!!.encoded = "ld-encoded"
+
+            val intent = Intent(activity, BroadcastLightningPaymentActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, holder)
+
+            it.navigateToLightningBroadcast(activity, holder)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_invite_contact() {
+        createActivityNavigationUtil().also {
+            val holder = PaymentHolder(
+                    evaluationCurrency = USDCurrency(10_000_00),
+                    isSharingMemo = true,
+                    publicKey = "--pub-key--",
+                    memo = "--memo--",
+                    defaultCurrencies = DefaultCurrencies(BTCCurrency(1), USDCurrency(10_000_00)),
+                    toUser = Identity(IdentityType.PHONE, "+13305551111", "--hash--", "Joe Smoe", isVerified = true)
+            )
+
+            val intent = Intent(activity, InviteContactActivity::class.java)
+            intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, holder)
+
+            it.navigateToInviteContactScreen(activity, holder)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
 }

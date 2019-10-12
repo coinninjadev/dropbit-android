@@ -30,13 +30,11 @@ import org.robolectric.shadows.ShadowView;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.coinninja.android.helpers.Views.clickOn;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -46,6 +44,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
+import static org.robolectric.shadows.ShadowView.clickOn;
 
 @RunWith(AndroidJUnit4.class)
 public class VerifyRecoverywordsActivityFragmentTest {
@@ -100,7 +99,7 @@ public class VerifyRecoverywordsActivityFragmentTest {
     @Test
     public void itPopulatesFirstRandomWord() {
         assertNotNull(fragment.getView());
-        TextView view = Views.withId(fragment.getView(), R.id.challenge_1);
+        TextView view = Views.INSTANCE.withId(fragment.getView(), R.id.challenge_1);
 
         clickOn(view);
 
@@ -111,7 +110,7 @@ public class VerifyRecoverywordsActivityFragmentTest {
     @Test
     public void itPopulatesSecondRandomWord() {
         assertNotNull(fragment.getView());
-        TextView view = Views.withId(fragment.getView(), R.id.challenge_2);
+        TextView view = Views.INSTANCE.withId(fragment.getView(), R.id.challenge_2);
 
         clickOn(view);
 

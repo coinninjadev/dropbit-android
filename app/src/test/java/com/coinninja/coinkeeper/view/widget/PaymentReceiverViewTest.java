@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.coinninja.android.helpers.Views.withId;
 import static com.coinninja.matchers.TextViewMatcher.hasText;
 import static com.coinninja.matchers.ViewMatcher.isGone;
 import static com.coinninja.matchers.ViewMatcher.isVisible;
@@ -49,9 +48,9 @@ public class PaymentReceiverViewTest {
     public void setUp() {
         activity = Robolectric.setupActivity(TestableActivity.class);
         activity.appendLayout(R.layout.fragment_pay_dialog);
-        phoneNumberInputView = withId(activity, R.id.phone_number_input);
-        showPhoneInput = withId(activity, R.id.show_phone_input);
-        scanButton = withId(activity, R.id.scan_button);
+        phoneNumberInputView = activity.findViewById(R.id.phone_number_input);
+        showPhoneInput = activity.findViewById(R.id.show_phone_input);
+        scanButton = activity.findViewById(R.id.scan_button);
         paymentReceiverView = (PaymentReceiverView) showPhoneInput.getParent();
         countryCodeLocales = new ArrayList<>();
         countryCodeLocales.add(new CountryCodeLocale(new Locale("en", "GB"), 44));

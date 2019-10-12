@@ -41,4 +41,9 @@ class DropBitCancellationManager @Inject internal constructor(
         markAsCanceled(inviteTransactionSummaryHelper.unfulfilledSentInvites)
         cnWalletManager.updateBalances()
     }
+
+    fun markUnfulfilledLightningAsCanceled() {
+        markAsCanceled(inviteTransactionSummaryHelper.unfulfilledLightningSentInvites)
+        cnWalletManager.updateBalances()
+    }
 }

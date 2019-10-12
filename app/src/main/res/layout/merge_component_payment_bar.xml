@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout" >
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
 
     <com.coinninja.coinkeeper.view.analytics.AnalyticsButton
@@ -15,7 +15,7 @@
         android:layout_marginEnd="0dp"
         android:layout_marginRight="0dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/request_btn"
+        android:background="@drawable/btc_payment_bar_request_button"
         android:text="@string/request_label"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/scan_btn"
@@ -31,7 +31,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="3dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/scan_btn"
+        android:background="@drawable/payment_bar_scan_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,7 +47,7 @@
         android:layout_marginEnd="0dp"
         android:layout_marginRight="0dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/pay_btn"
+        android:background="@drawable/payment_bar_send_button"
         android:text="@string/pay_label"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

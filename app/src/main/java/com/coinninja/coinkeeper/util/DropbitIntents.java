@@ -4,6 +4,8 @@ import android.net.Uri;
 
 import com.coinninja.coinkeeper.BuildConfig;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,10 +29,6 @@ public class DropbitIntents {
     public static final String PREFERENCES_ADJUSTABLE_FEES_ENABLED = "PREFERENCES_ADJUSTABLE_FEES_ENABLED";
     public static final String PREFERENCES_ADJUSTABLE_FEES_TYPE = "PREFERENCES_ADJUSTABLE_FEES_TYPE";
     public static final long PREFERENCES_LAST_CN_MESSAGES_DEFAULT_TIME = 0l;
-    /* PATTERNS */
-    public static final String BITCOIN_ADDRESS_PATTERN = "((?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
-    public static final String BITCOIN_URI_PATTERN = BITCOIN_ADDRESS_PATTERN + "(\\?.*&?(?:amount=)((?:[0-9]{0,8})(?:\\.[0-9]{1,8})?))?";
-
     /* RESULTS */
     public static final int RESULT_SCAN_OK = 221;
     public static final int RESULT_SCAN_ERROR = 400;
@@ -61,7 +59,6 @@ public class DropbitIntents {
     public static final String ACTION_PHONE_VERIFICATION__RATE_LIMIT_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION_RATE_LIMIT_ERROR";
     public static final String ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__CN_HTTP_ERROR";
     public static final String ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__CN_BLACKLIST_ERROR";
-
     public static final String ACTION_PHONE_VERIFICATION__SUCCESS = BuildConfig.APPLICATION_ID + "ACTION_PHONE_VERIFICATION__SUCCESS";
     public static final String ACTION_LOCAL_ADDRESS_CACHE_POPULATED = BuildConfig.APPLICATION_ID + ".ACTION_LOCAL_ADDRESS_CACHE_POPULATED";
     public static final String ACTION_LOCAL_ADDRESS_CACHE_CLEARED = BuildConfig.APPLICATION_ID + ".ACTION_LOCAL_ADDRESS_CACHE_CLEARED";
@@ -78,14 +75,14 @@ public class DropbitIntents {
     public static final String ACTION_ON_SERVICE_CONNECTION_BOUNDED = BuildConfig.APPLICATION_ID + ".ACTION_ON_SERVICE_CONNECTION_BOUNDED";
     public static final String ACTION_ON_USER_AUTH_SUCCESSFULLY = BuildConfig.APPLICATION_ID + ".ACTION_ON_USER_AUTH_SUCCESSFULLY";
     public static final String ACTION_WALLET_REGISTRATION_COMPLETE = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_REGISTRATION_COMPLETE";
+    public static final String ACTION_WALLET_REQUIRES_UPGRADE = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_REQUIRES_UPGRADE";
+    public static final String ACTION_WALLET_ALREADY_UPGRADED = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_ALREADY_UPGRADED";
     public static final String ACTION_ON_APPLICATION_START = BuildConfig.APPLICATION_ID + ".ACTION_ON_APPLICATION_START";
     public static final String ACTION_WALLET_CREATED = BuildConfig.APPLICATION_ID + ".ACTION_WALLET_CREATED";
     public static final String ACTION_TRANSACTION_DATA_CHANGED = BuildConfig.APPLICATION_ID + ".ACTION_TRANSACTION_DATA_CHANGED";
-    public static final String ACTION_WALLET_ADDRESS_RETRIEVED =
-            BuildConfig.APPLICATION_ID + ".ACTION_WALLET_ADDRESS_RETRIEVED";
     public static final String ACTION_CURRENCY_PREFERENCE_CHANGED = BuildConfig.APPLICATION_ID + ".ACTION_CURRENCY_PREFERENCE_CHANGED";
-
     /* EXTRAS */
+    public static final String EXTRA_TRANSACTION_DATA = "EXTRA_TRANSACTION_DATA";
     public static final String EXTRA_TRANSACTION_ID = "EXTRA_TRANSACTION_ID";
     public static final String EXTRA_TRANSACTION_RECORD_ID = "EXTRA_TRANSACTION_RECORD_ID";
     public static final String EXTRA_IDENTITY = "EXTRA_IDENTITY";
@@ -107,18 +104,23 @@ public class DropbitIntents {
     public static final String EXTRA_BROADCAST_DTO = "EXTRA_BROADCAST_DTO";
     public static final String EXTRA_COMPLETED_BROADCAST_DTO = "EXTRA_COMPLETED_BROADCAST_DTO";
     public static final String EXTRA_INVITE_DTO = "EXTRA_COMPLETED_BROADCAST_DTO";
-    public static final String EXTRA_PHONE_NUMBER_HASH = "EXTRA_PHONE_NUMBER_HASH";
-    public static final String EXTRA_ADDRESS_LOOKUP_RESULT = "EXTRA_ADDRESS_LOOKUP_RESULT";
+    @NotNull
+    public static final String EXTRA_PAYMENT_HOLDER = "EXTRA_PAYMENT_HOLDER";
     public static final String EXTRA_PREFERENCE = "EXTRA_PREFERENCE";
     public static final String EXTRA_ON_COMPLETION = "EXTRA_ON_COMPLETION";
     public static final String EXTRA_HIDE_SKIP_BUTTON = "EXTRA_HIDE_SKIP_BUTTON";
     public static final String EXTRA_SHOW_TWITTER_VERIFY_BUTTON = "EXTRA_SHOW_TWITTER_VERIFY_BUTTON";
     public static final String EXTRA_TWITTER_SNOWFLAKE = "EXTRA_TWITTER_SNOWFLAKE";
-
+    public static final String EXTRA_AMOUNT = "EXTRA_AMOUNT";
+    public static final String EXTRA_WITHDRAWAL_REQUEST = "EXTRA_WITHDRAWAL_REQUEST";
+    @NotNull
+    public static final String EXTRA_SHOULD_SCAN = "EXTRA_SHOULD_SCAN";
+    @NotNull
+    public static final String EXTRA_BITCOIN_URI = "EXTRA_BITCOIN_URI";
     /* Dropbit Service Intents */
     public static final String EXTRA_DROPBIT_TXID = "EXTRA_DROPBIT_TXID";
     public static final String EXTRA_DROPBIT_MEMO = "EXTRA_DROPBIT_MEMO";
-
+    public static final String EXTRA_LND_INVOICE_REQUEST = "EXTRA_LND_INVOICE_REQUEST";
     /* CN Rest API KEYS */
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ALL = "all";
     public static final String CN_API_ELASTIC_SEARCH_PLATFORM_ANDROID = "android";
@@ -140,11 +142,24 @@ public class DropbitIntents {
     public static final String CN_API_CREATE_DEVICE_APPLICATION_NAME = "DropBit";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_ANDROID = "android";
     public static final String CN_API_CREATE_DEVICE_PLATFORM_IOS = "ios";
-
     /* REQUESTS */
-    public static final int REQUEST_QR_FRAGMENT_SCAN = 222;
+    public static final int REQUEST_QR_SCAN = 222;
     public static final int REQUEST_PERMISSIONS_CAMERA = 524;
     public static final int REQUEST_PERMISSIONS_LOCATION = 333;
+    public static final int REQUEST_PICK_CONTACT = 1001;
+
+    /* PATTERNS */
+    public static final String BITCOIN_ADDRESS_PATTERN;
+
+    static {
+        if (BuildConfig.COIN_TYPE == 1) {
+            BITCOIN_ADDRESS_PATTERN = "((?:bc1|tb1|[123])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
+        } else {
+            BITCOIN_ADDRESS_PATTERN = "((?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}(?![a-zA-HJ-NP-Z0-9]))";
+        }
+    }
+
+    public static final String BITCOIN_URI_PATTERN = BITCOIN_ADDRESS_PATTERN + "(\\?.*&?(?:amount=)((?:[0-9]{0,8})(?:\\.[0-9]{1,8})?))?";
 
     static {
         Map<String, String> aMap = new LinkedHashMap<>();

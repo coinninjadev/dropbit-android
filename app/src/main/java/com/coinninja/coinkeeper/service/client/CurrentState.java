@@ -1,7 +1,8 @@
 package com.coinninja.coinkeeper.service.client;
 
 import com.coinninja.coinkeeper.service.client.model.TransactionFee;
-import com.coinninja.coinkeeper.util.currency.USDCurrency;
+
+import app.dropbit.commons.currency.USDCurrency;
 
 public class CurrentState {
 
@@ -11,10 +12,10 @@ public class CurrentState {
 
     Pricing pricing;
 
-    public CurrentState(){
+    public CurrentState() {
     }
 
-    public CurrentState(int blockheight, TransactionFee fees, Pricing pricing){
+    public CurrentState(int blockheight, TransactionFee fees, Pricing pricing) {
         this.blockheight = blockheight;
         this.fees = fees;
         this.pricing = pricing;
@@ -29,7 +30,7 @@ public class CurrentState {
         return fees;
     }
 
-    public Pricing getPricing(){
+    public Pricing getPricing() {
         return pricing;
     }
 

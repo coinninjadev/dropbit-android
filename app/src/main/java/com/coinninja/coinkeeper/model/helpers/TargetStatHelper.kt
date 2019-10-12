@@ -1,8 +1,8 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import app.coinninja.cn.libbitcoin.HDWallet
+import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.TransactionData
-import com.coinninja.coinkeeper.cn.wallet.HDWallet
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
 import com.coinninja.coinkeeper.model.db.TargetStat
 import com.coinninja.coinkeeper.model.db.TargetStatDao
@@ -21,19 +21,21 @@ class TargetStatHelper @Inject constructor(
         internal val dustProtectionPreference: DustProtectionPreference
 ) {
 
-    fun targetStatFor(transactionId: Long, output: VOut): TargetStat? =
+    fun targetStatFor(transactionId: Long, output: VOut, address: String? = null): TargetStat? =
             daoSessionManager.targetStatDao.queryBuilder()
                     .where(
                             TargetStatDao.Properties.Tsid.eq(transactionId),
                             TargetStatDao.Properties.Value.eq(output.value),
                             TargetStatDao.Properties.Position.eq(output.index),
-                            TargetStatDao.Properties.Addr.eq(output.scriptPubKey.addresses[0])
+                            TargetStatDao.Properties.Addr.eq(address
+                                    ?: output.scriptPubKey.addresses[0])
                     )
                     .unique()
 
-    fun getOrCreateTargetStat(transaction: TransactionSummary, output: VOut): TargetStat =
-            (targetStatFor(transaction.id, output) ?: daoSessionManager.newTargetStat()).also {
-                it.addr = output.scriptPubKey.addresses[0]
+    fun getOrCreateTargetStat(transaction: TransactionSummary, output: VOut, address: String? = null): TargetStat =
+            (targetStatFor(transaction.id, output, address)
+                    ?: daoSessionManager.newTargetStat()).also {
+                it.addr = address ?: output.scriptPubKey.addresses[0]
                 it.position = output.index
                 it.transaction = transaction
                 it.value = output.value
@@ -82,9 +84,37 @@ class TargetStatHelper @Inject constructor(
     }
 
 
+    val allUnspentOutputs: List<TargetStat>
+        get() {
+            val wallet = walletHelper.primaryWallet
+            val dao = daoSessionManager.targetStatDao
+            val queryBuilder = dao.queryBuilder()
+            val transactionSummaryJoin = queryBuilder.join(TargetStatDao.Properties.Tsid, TransactionSummary::class.java)
+            transactionSummaryJoin.where(
+                    TransactionSummaryDao.Properties.MemPoolState.notIn(
+                            MemPoolState.FAILED_TO_BROADCAST.id,
+                            MemPoolState.DOUBLE_SPEND.id,
+                            MemPoolState.ORPHANED
+                    )
+            )
+
+            queryBuilder.where(
+                    TargetStatDao.Properties.State.notEq(TargetStat.State.CANCELED.id),
+                    TargetStatDao.Properties.WalletId.eq(wallet.id),
+                    TargetStatDao.Properties.FundingId.isNull,
+                    TargetStatDao.Properties.Value.gt(spendableMinimum),
+                    TargetStatDao.Properties.AddressId.isNotNull
+            )
+
+
+            queryBuilder.orderAsc(TargetStatDao.Properties.TxTime)
+            return queryBuilder.list()
+        }
+
+
     val spendableTargets: List<TargetStat>
         get() {
-            val wallet = walletHelper.wallet
+            val wallet = walletHelper.primaryWallet
             val dao = daoSessionManager.targetStatDao
             val queryBuilder = dao.queryBuilder()
             val transactionSummaryJoin = queryBuilder.join(TargetStatDao.Properties.Tsid, TransactionSummary::class.java)

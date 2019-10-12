@@ -42,17 +42,14 @@ public class DropbitMeFragmentTest {
     @Mock
     LazyList transactions;
     @Mock
-    WalletHelper walletHelper;
-    @Mock
     DropbitMeConfiguration dropbitMeConfiguration;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         TestCoinKeeperApplication application = ApplicationProvider.getApplicationContext();
-        application.walletHelper = walletHelper;
         application.dropbitMeConfiguration = dropbitMeConfiguration;
-        when(walletHelper.getTransactionsLazily()).thenReturn(transactions);
+        when(application.walletHelper.getTransactionsLazily()).thenReturn(transactions);
         when(transactions.size()).thenReturn(0);
         when(dropbitMeConfiguration.hasVerifiedAccount()).thenReturn(false);
         application.yearlyHighViewModel = mock(YearlyHighViewModel.class);
@@ -63,7 +60,6 @@ public class DropbitMeFragmentTest {
     @After
     public void tearDown() {
         transactions = null;
-        walletHelper = null;
     }
 
     @Test

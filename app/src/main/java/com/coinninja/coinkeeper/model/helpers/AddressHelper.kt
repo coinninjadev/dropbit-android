@@ -1,7 +1,8 @@
 package com.coinninja.coinkeeper.model.helpers
 
+import app.coinninja.cn.libbitcoin.model.DerivationPath
+import app.coinninja.cn.libbitcoin.model.MetaAddress
 import app.dropbit.annotations.Mockable
-import com.coinninja.bindings.DerivationPath
 import com.coinninja.coinkeeper.model.db.Address
 import com.coinninja.coinkeeper.model.db.Address.addressesIn
 import com.coinninja.coinkeeper.model.db.AddressDao
@@ -28,7 +29,7 @@ class AddressHelper @Inject constructor(
     fun addressForPath(derivationPath: DerivationPath): Address? =
             daoSessionManager.addressDao.queryBuilder()
                     .where(
-                            AddressDao.Properties.ChangeIndex.eq(derivationPath.change),
+                            AddressDao.Properties.ChangeIndex.eq(derivationPath.chain),
                             AddressDao.Properties.Index.eq(derivationPath.index)
                     )
                     .unique()
@@ -39,7 +40,7 @@ class AddressHelper @Inject constructor(
         addresses.forEach {
             if (!savedAddresses.contains(it.address) && !containsAddress(it.address)) {
                 savedAddresses.add(it.address)
-                daoSessionManager.newAddressFrom(it, walletHelper.wallet, changeIndex)
+                daoSessionManager.newAddressFrom(it, walletHelper.primaryWallet, changeIndex)
             }
         }
 
@@ -100,23 +101,26 @@ class AddressHelper @Inject constructor(
                 .where(AddressDao.Properties.ChangeIndex.eq(chainIndex)).count().toInt()
     }
 
-    fun saveAddress(chainIndex: Int, derivationIndex: Int, addr: String) {
-        var address: Address? = daoSessionManager.addressDao.queryBuilder()
-                .where(
-                        AddressDao.Properties.ChangeIndex.eq(chainIndex),
-                        AddressDao.Properties.Index.eq(derivationIndex),
-                        AddressDao.Properties.Address.eq(addr)
-                )
-                .unique()
+    fun saveAddress(metaAddress: MetaAddress) {
+        metaAddress.derivationPath?.let { derivationPath ->
+            var address: Address? = daoSessionManager.addressDao.queryBuilder()
+                    .where(
+                            AddressDao.Properties.ChangeIndex.eq(derivationPath.chain),
+                            AddressDao.Properties.Index.eq(derivationPath.index),
+                            AddressDao.Properties.Address.eq(metaAddress.address)
+                    )
+                    .unique()
 
-        if (null != address) return
+            if (null != address) return
 
-        address = Address()
-        address.address = addr
-        address.wallet = walletHelper.wallet
-        address.changeIndex = chainIndex
-        address.index = derivationIndex
-        daoSessionManager.addressDao.insert(address)
+            address = Address()
+            address.address = metaAddress.address
+            address.wallet = walletHelper.primaryWallet
+            address.changeIndex = derivationPath.chain
+            address.index = derivationPath.index
+            daoSessionManager.addressDao.insert(address)
+
+        }
     }
 
     fun getUnusedAddressesFor(chainIndex: Int): List<Address> {

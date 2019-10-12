@@ -10,7 +10,11 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.cn.wallet.runner.SaveRecoveryWordsRunner
 import com.coinninja.coinkeeper.service.runner.FullSyncWalletRunner
 import com.coinninja.coinkeeper.ui.transaction.SyncManagerViewNotifier
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import dagger.Module
+import dagger.Provides
 import junit.framework.TestCase.assertNotNull
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -22,16 +26,13 @@ import org.robolectric.Robolectric
 
 @RunWith(AndroidJUnit4::class)
 class CNWalletServiceTest {
-    private val valid_words get() = arrayOf("mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse")
+    private val validWords get() = arrayOf("mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse", "mickeymouse")
 
-    fun createService(): CNWalletService {
+    private fun createService(): CNWalletService {
         val application = ApplicationProvider.getApplicationContext<TestCoinKeeperApplication>()
         application.handler = mock(Handler::class.java)
         application.syncManagerViewNotifier = mock(SyncManagerViewNotifier::class.java)
-        val service = Robolectric.setupService(CNWalletService::class.java)
-        service.fullSyncWalletRunner = mock(FullSyncWalletRunner::class.java)
-        service.saveRecoveryWordsRunner = mock(SaveRecoveryWordsRunner::class.java)
-        return service
+        return Robolectric.setupService(CNWalletService::class.java)
     }
 
     @Test
@@ -59,24 +60,24 @@ class CNWalletServiceTest {
 
     @Test
     fun saves_provided_words__only_queues_one_message() {
-        val argumentCaptor = ArgumentCaptor.forClass(Message::class.java)
+        val argumentCaptor = argumentCaptor<Message>()
         val service = createService()
         val saveRecoveryWordsRunner = service.saveRecoveryWordsRunner
         val orderedOperations = inOrder(saveRecoveryWordsRunner)
         whenever(service.workHandler.hasMessages(35)).thenReturn(false).thenReturn(true)
 
-        service.saveSeedWords(valid_words)
-        service.saveSeedWords(valid_words)
+        service.saveSeedWords(validWords)
+        service.saveSeedWords(validWords)
 
         verify(service.workHandler).sendMessage(argumentCaptor.capture())
 
-        val message = argumentCaptor.value
+        val message = argumentCaptor.firstValue
         assertNotNull(message)
         assertThat(message.what, equalTo(35))
 
         message.callback.run()
 
-        orderedOperations.verify(saveRecoveryWordsRunner).setWords(valid_words)
+        orderedOperations.verify(saveRecoveryWordsRunner).setWords(validWords)
         orderedOperations.verify(saveRecoveryWordsRunner).run()
         orderedOperations.verify(saveRecoveryWordsRunner).setWords(emptyArray())
     }
@@ -91,7 +92,7 @@ class CNWalletServiceTest {
 
     @Test
     fun on_destroy_stop_background_threads_test() {
-        val looper = mock(Looper::class.java)
+        val looper = mock<Looper>()
         val service = createService()
         whenever(service.workHandler.looper).thenReturn(looper)
 
@@ -100,4 +101,13 @@ class CNWalletServiceTest {
         verify(looper).quitSafely()
     }
 
+
+    @Module
+    class TestCNWalletServiceModule {
+        @Provides
+        fun provideSaveRecoveryWordsRunner(): SaveRecoveryWordsRunner = mock()
+
+        @Provides
+        fun provideFullSyncWalletRunner(): FullSyncWalletRunner = mock()
+    }
 }

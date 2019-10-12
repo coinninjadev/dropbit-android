@@ -5,6 +5,7 @@ import android.graphics.Color
 import app.dropbit.annotations.Mockable
 
 import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
 import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
@@ -17,7 +18,9 @@ class QRGeneratorUtil(private val qrCodeWriter: QRCodeWriter) {
 
     @Throws(WriterException::class)
     fun generateFrom(data: String): ByteArray {
-        val bitmap = toBitmap(qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, QR_WIDTH, QR_HEIGHT))
+        val hints = mutableMapOf<EncodeHintType, Any>()
+        hints.put(EncodeHintType.MARGIN, 0)
+        val bitmap = toBitmap(qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, QR_WIDTH, QR_HEIGHT, hints))
         val byteStream = ByteArrayOutputStream()
         compress(bitmap, byteStream)
 

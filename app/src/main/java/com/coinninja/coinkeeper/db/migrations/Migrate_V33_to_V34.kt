@@ -10,9 +10,9 @@ import org.greenrobot.greendao.database.Database
 class Migrate_V33_to_V34 : AbstractMigration() {
     private val hasher: Hasher = Hasher()
 
-    override fun getMigratedVersion(): Int {
-        return 34
-    }
+    override val targetVersion: Int = 33
+    override val previousMigration: Migration? = Migrate_V32_to_V33()
+    override val migratedVersion: Int = 34
 
     override fun applyMigration(db: Database, currentVersion: Int) {
         createUserIdentityTable(db)
@@ -94,7 +94,7 @@ class Migrate_V33_to_V34 : AbstractMigration() {
                 var toUser: Long
                 var fromUser: Long
 
-                if (type == Type.SENT.id) {
+                if (type == Type.BLOCKCHAIN_SENT.id) {
                     toUser = getOrCreateUserIdentityRecord(db = db, identity = receiverPhone, name = inviteName)
                     fromUser = getOrCreateUserIdentityRecord(db = db, identity = sendersPhone)
                 } else {
@@ -268,14 +268,6 @@ class Migrate_V33_to_V34 : AbstractMigration() {
         }
 
         return recordId
-    }
-
-    override fun getTargetVersion(): Int {
-        return 33
-    }
-
-    override fun getPreviousMigration(): Migration {
-        return Migrate_V32_to_V33()
     }
 
 }
