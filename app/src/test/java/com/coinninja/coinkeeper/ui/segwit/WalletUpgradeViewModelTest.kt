@@ -11,6 +11,7 @@ import com.coinninja.coinkeeper.service.client.model.CNWallet
 import com.coinninja.coinkeeper.service.client.model.ReplaceWalletRequest
 import com.coinninja.rules.CoroutinesTestRule
 import com.coinninja.rules.Retry
+import com.coinninja.rules.RetryRule
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,10 +29,8 @@ class WalletUpgradeViewModelTest {
     @get:Rule
     var coroutinesTestRule = CoroutinesTestRule()
 
-/*
     @get:Rule
     val retryRule = RetryRule(10)
-*/
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()

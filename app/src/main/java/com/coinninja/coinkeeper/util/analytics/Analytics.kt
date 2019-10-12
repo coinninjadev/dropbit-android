@@ -28,7 +28,7 @@ interface Analytics {
     companion object {
         const val OS = "Android"
 
-        // EVEN
+        // EVENTS
         const val ENTERED_DEACTIVATED_WORDS: String = "EnteredDeactivatedWords"
 
         // -- BROADCASTING
