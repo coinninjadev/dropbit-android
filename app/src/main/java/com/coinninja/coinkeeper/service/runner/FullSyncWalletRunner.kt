@@ -8,6 +8,7 @@ import com.coinninja.coinkeeper.cn.service.runner.AccountDeverificationServiceRu
 import com.coinninja.coinkeeper.cn.transaction.LightningInviteLinker
 import com.coinninja.coinkeeper.cn.transaction.LightningWithdrawalLinker
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
+import com.coinninja.coinkeeper.model.helpers.DaoSessionManager
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.receiver.WalletSyncCompletedReceiver
 import com.coinninja.coinkeeper.util.DropbitIntents
@@ -47,7 +48,6 @@ class FullSyncWalletRunner constructor(internal val cnWalletManager: CNWalletMan
             syncDropbits()
 
             syncRunnable.run()
-
             if (!cnWalletManager.isSegwitUpgradeRequired) {
                 thunderDomeRepository.sync()
             }

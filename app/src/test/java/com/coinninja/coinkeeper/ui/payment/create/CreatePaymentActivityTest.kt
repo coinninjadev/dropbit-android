@@ -311,10 +311,40 @@ class CreatePaymentActivityTest {
 
     // CONTACT Lookup
     @Test
+    fun contact_lookup__verify_account_prompt__when_valid_phone_input__given_not_verified() {
+        val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+            activity.memoToggleView.toggleSharingMemo()
+            whenever(activity.dropbitAccountHelper.isPhoneVerified).thenReturn(false)
+            assertThat(activity.memoToggleView.isSharing).isFalse()
+
+            val phoneNumber: Phonenumber.PhoneNumber = mock()
+            whenever(phoneNumber.countryCode).thenReturn(1)
+            whenever(phoneNumber.nationalNumber).thenReturn(3305551111)
+
+            activity.onValidPhoneNumberInput(phoneNumber)
+
+            val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
+            assertThat(dialog.message).isEqualTo(activity.getString(R.string.your_phone_is_not_verified))
+            assertThat(dialog.alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).text).isEqualTo(activity.getString(R.string.not_now))
+            assertThat(dialog.alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).text).isEqualTo(activity.getString(R.string.verify_now))
+
+            assertThat(dialog.alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).performClick())
+            assertThat(activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag)).isNull()
+
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
     fun contact_lookup__shares_memo__when_contact_set__phone_input() {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
+            whenever(activity.dropbitAccountHelper.isPhoneVerified).thenReturn(true)
             activity.memoToggleView.toggleSharingMemo()
             assertThat(activity.memoToggleView.isSharing).isFalse()
 
@@ -338,6 +368,7 @@ class CreatePaymentActivityTest {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
+            whenever(activity.dropbitAccountHelper.isPhoneVerified).thenReturn(true)
             activity.memoToggleView.toggleSharingMemo()
             assertThat(activity.memoToggleView.isSharing).isFalse()
 
@@ -359,6 +390,7 @@ class CreatePaymentActivityTest {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
+            whenever(activity.dropbitAccountHelper.isPhoneVerified).thenReturn(true)
             val phoneNumber: Phonenumber.PhoneNumber = mock()
             whenever(phoneNumber.countryCode).thenReturn(1)
             whenever(phoneNumber.nationalNumber).thenReturn(3305551111)

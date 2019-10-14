@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.util.DateUtil
 import app.dropbit.commons.util.isNotNull
@@ -19,10 +20,13 @@ import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.CNWallet
 import com.coinninja.coinkeeper.service.client.model.ReplaceWalletRequest
+import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.lang.Thread.sleep
 
 @Mockable
@@ -39,6 +43,7 @@ class WalletUpgradeViewModel : ViewModel() {
     internal lateinit var cnClient: SignedCoinKeeperApiClient
     internal lateinit var serviceWorkUtil: ServiceWorkUtil
     internal lateinit var dateUtil: DateUtil
+    internal lateinit var analytics: Analytics
 
     internal var delay: Long = 700
 
@@ -117,10 +122,14 @@ class WalletUpgradeViewModel : ViewModel() {
         if (attempt > 3) return BroadcastResult()
 
         return transactionData.let { data ->
-            transactionBroadcaster.broadcast(hdWalletWrapper.transactionFrom(data)).let { broadcastResult ->
+            val transaction = hdWalletWrapper.transactionFrom(data)
+            transactionBroadcaster.broadcast(transaction).let { broadcastResult ->
                 if (!broadcastResult.isSuccess) {
+                    analytics.trackEvent(Analytics.EVENT_LIGHTNING_UPGRADE_TRANSFER_BROADCAST_FAIL,
+                            JSONObject(Gson().toJson(DebugTransactionData(transactionData, broadcastResult))))
                     executeTransferWithRetry(transactionData, attempt + 1)
                 } else {
+                    analytics.trackEvent(Analytics.EVENT_LIGHTNING_UPGRADE_TRANSFER_BROADCAST_SUCCESS)
                     broadcastResult
                 }
             }
@@ -137,6 +146,40 @@ class WalletUpgradeViewModel : ViewModel() {
 
     private fun gotoSleep() {
         if (delay > 0) sleep(delay)
+    }
+
+    class DebugTransactionData(transactionData: TransactionData, broadcastResult: BroadcastResult) {
+        var utxos: Array<UnspentTransactionOutput> = emptyArray()
+        var numUtxos: Int = 0
+        var txValue: Long = 0
+        var feeValue: Long = 0
+        var changeValue: Long = 0
+        var changePath: String = ""
+        var replaceableOption: String = ""
+
+        var txid: String = ""
+        var encodedTX: String = ""
+
+        var requestCode: Int = 0
+        var requestMessage: String = ""
+        var requestProvider: String = ""
+
+        init {
+            utxos = transactionData.utxos
+            numUtxos = transactionData.utxos.size
+            txValue = transactionData.amount
+            feeValue = transactionData.feeAmount
+            changeValue = transactionData.changeAmount
+            changePath = transactionData.changePath.toString()
+            replaceableOption = transactionData.replaceableOption.name
+
+            txid = broadcastResult.transaction.txid
+            encodedTX = broadcastResult.transaction.encodedTransaction
+
+            requestCode = broadcastResult.responseCode
+            requestMessage = broadcastResult.message
+            requestProvider = broadcastResult.provider.name
+        }
     }
 
     internal suspend fun updateState(state: UpgradeState) = withContext(Dispatchers.Main) {

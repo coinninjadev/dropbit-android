@@ -58,7 +58,7 @@ class AnalyticUtil @Inject constructor(
         analytics.people.set(propertyName, value)
     }
 
-    override fun setUserProperty(propertyName: String , value: Long) {
+    override fun setUserProperty(propertyName: String, value: Long) {
         analytics.people.set(propertyName, value)
     }
 

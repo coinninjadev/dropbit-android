@@ -52,32 +52,40 @@ data class LedgerSettlementDetail(
 ) {
 
     val cryptoAmount: BTCCurrency
-        get() =
-            inviteValue?.toBTCCurrency()
+        get() = when (paymentType) {
+
+            PaymentType.TransferOut -> {
+                BTCCurrency((invoiceValue ?: 0L)
+                        + (invoiceProcessingFee ?: 0L)
+                        + (invoiceNetworkFee ?: 0L))
+            }
+            else -> inviteValue?.toBTCCurrency()
                     ?: invoiceValue?.toBTCCurrency()
                     ?: 0L.toBTCCurrency()
+        }
 
     fun usdValueConsidering(marketValue: USDCurrency): USDCurrency {
         return inviteUsdValue?.toUSDCurrency()
                 ?: cryptoAmount.toUSD(marketValue)
     }
 
-    val avatar: String? get() = when (paymentType) {
-        PaymentType.ReceivedInvite,
-        PaymentType.PendingReceiveInvoice,
-        PaymentType.CompletedReceiveInvoice,
-        PaymentType.ExpiredInvoice,
-        PaymentType.ExpiredReceivedInvite,
-        PaymentType.CanceledReceivedInvite -> fromUserAvatar
+    val avatar: String?
+        get() = when (paymentType) {
+            PaymentType.ReceivedInvite,
+            PaymentType.PendingReceiveInvoice,
+            PaymentType.CompletedReceiveInvoice,
+            PaymentType.ExpiredInvoice,
+            PaymentType.ExpiredReceivedInvite,
+            PaymentType.CanceledReceivedInvite -> fromUserAvatar
 
-        PaymentType.FailedInvoice,
-        PaymentType.CompletedPayment,
-        PaymentType.ExpiredSentInvite,
-        PaymentType.SentInvite,
-        PaymentType.CanceledSentInvite -> toUserAvatar
+            PaymentType.FailedInvoice,
+            PaymentType.CompletedPayment,
+            PaymentType.ExpiredSentInvite,
+            PaymentType.SentInvite,
+            PaymentType.CanceledSentInvite -> toUserAvatar
 
-        else -> null
-    }
+            else -> null
+        }
 
     fun identityFormatted(): String? = when (paymentType) {
         PaymentType.ReceivedInvite,

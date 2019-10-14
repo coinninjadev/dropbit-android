@@ -217,7 +217,9 @@ class LightningHistoryAdapterTest {
         val invoice = LedgerSettlementDetail(
                 invoiceDirection = LedgerDirection.OUT,
                 invoiceType = LedgerType.BTC,
-                invoiceValue = 10000,
+                invoiceValue = 100_000,
+                invoiceNetworkFee = 1_000,
+                invoiceProcessingFee = 100,
                 invoiceStatus = LedgerStatus.COMPLETED,
                 invoiceMemo = "Withdraw 10,000...",
                 createdAt = Date(System.currentTimeMillis())
@@ -232,9 +234,9 @@ class LightningHistoryAdapterTest {
         assertThat(holder.itemView.findViewById<TextView>(R.id.confirmations).visibility).isEqualTo(View.GONE)
         assertThat(holder.itemView.findViewById<TextView>(R.id.transaction_memo).visibility).isEqualTo(View.GONE)
         assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
-                .totalCrypto.toLong()).isEqualTo(10000)
+                .totalCrypto.toLong()).isEqualTo(101_100)
         assertThat(holder.itemView.findViewById<DefaultCurrencyDisplayView>(R.id.default_currency_view)
-                .fiatValue.toLong()).isEqualTo(100)
+                .fiatValue.toLong()).isEqualTo(10_11)
     }
 
     @Test

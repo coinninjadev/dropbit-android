@@ -141,6 +141,15 @@ interface Analytics {
         const val EVENT_CHARTS_OPENED = "ChartsOpened"
         const val EVENT_NEWS_ARTICLE_OPENED = "NewsArticleOpened"
 
+        // LIGHTNING UPGRADE EVENTS
+        const val EVENT_LIGHTNING_UPGRADE_TRANSFER_BROADCAST_SUCCESS = "LightningUpgradedTransferBroadcastSuccess"
+        const val EVENT_LIGHTNING_UPGRADE_TRANSFER_BROADCAST_FAIL = "LightningUpgradedTransferBroadcastFailure"
+        const val EVENT_LIGHTNING_UPGRADE_STARTED = "LightningUpgradeStarted"
+        const val EVENT_LIGHTNING_UPGRADE_COMPLETED = "LightningUpgradeCompleted"
+        const val EVENT_LIGHTNING_UPGRADE_STEP_ONE_COMPLETE = "LightningStepOneComplete"
+        const val EVENT_LIGHTNING_UPGRADE_STEP_TWO_COMPLETE = "LightningStepTwoComplete"
+        const val EVENT_LIGHTNING_UPGRADE_STEP_THREE_COMPLETE = "LightningStepThreeComplete"
+
         // PROPERTIES
         const val PROPERTY_HAS_WALLET = "Has Wallet"
         const val PROPERTY_HAS_WALLET_BACKUP = "Backed Up"
