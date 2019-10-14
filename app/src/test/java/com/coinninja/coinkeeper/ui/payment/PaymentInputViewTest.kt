@@ -6,11 +6,11 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.SatoshiCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.Views.clickOn
 import com.coinninja.android.helpers.Views.withId
 import com.coinninja.coinkeeper.R
-import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.ui.base.TestableActivity
 import com.coinninja.coinkeeper.util.DefaultCurrencies
@@ -98,9 +98,9 @@ class PaymentInputViewTest {
     }
 
     @Test
-    fun updating_primary_currency_converts_to_secondary__LIGHTNING_MODE() {
+    fun updating_primary_currency_converts_to_secondary__Satoshi_currency() {
         paymentInputView.paymentHolder = paymentHolder
-        paymentInputView.accountMode = AccountMode.LIGHTNING
+        paymentInputView.paymentHolder.defaultCurrencies = DefaultCurrencies(USDCurrency(), SatoshiCurrency())
 
         paymentInputView.primaryCurrency.setText("1.15")
 
@@ -212,8 +212,8 @@ class PaymentInputViewTest {
 
     @Test
     fun does_not_show_btc_icon_when_secondary_and_lightning_mode() {
+        paymentHolder.defaultCurrencies = DefaultCurrencies(USDCurrency(), SatoshiCurrency())
         paymentHolder.updateValue(USDCurrency(5000.00))
-        paymentInputView.accountMode =AccountMode.LIGHTNING
         paymentInputView.paymentHolder = paymentHolder
 
         val primaryCompoundDrawables = paymentInputView.primaryCurrency.compoundDrawables

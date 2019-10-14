@@ -91,7 +91,7 @@ class SignedRequestInterceptorTest {
     fun signs_timestamp_for_thunder_dome_endpoints() {
         val interceptor = createInterceptor()
         interceptor.isThunderDome = true
-        val body = Gson().toJson(WithdrawalRequest(BTCCurrency(0), BTCCurrency(0), BTCCurrency(0), "--addr--").forPost())
+        val body = Gson().toJson(WithdrawalRequest(0, 0, 0, "--addr--").forPost())
         var request = Request.Builder().url("http://localhost:8080/api/v1/thunderdome/withdraw").method("POST",
                 RequestBody.create(MediaType.parse("application/json"), body)).build()
         whenever(interceptor.hdWallet.sign(CURRENT_TIME)).thenReturn(SIGNED_TIME_STAMP)

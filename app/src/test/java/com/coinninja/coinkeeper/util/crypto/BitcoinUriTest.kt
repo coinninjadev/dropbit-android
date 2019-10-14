@@ -61,7 +61,7 @@ class BitcoinUriTest {
     fun builds_with_amount_param() {
         val builder = createBuilder()
         val address = "35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa"
-        val btc = BTCCurrency("1.0")
+        val btc = BTCCurrency(1.0)
         val parameters = HashMap<BitcoinParameter, String>()
         parameters[AMOUNT] = btc.toUriFormattedString()
 
@@ -134,7 +134,6 @@ class BitcoinUriTest {
 
         assertThat(builder.clear().build().toString()).isEqualTo("bitcoin:")
     }
-
 
     // --------------
     // PARSING

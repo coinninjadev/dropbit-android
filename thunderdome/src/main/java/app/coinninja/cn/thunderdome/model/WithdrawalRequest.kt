@@ -3,31 +3,30 @@ package app.coinninja.cn.thunderdome.model
 import android.os.Parcel
 import android.os.Parcelable
 import app.dropbit.annotations.Mockable
-import app.dropbit.commons.currency.BTCCurrency
 
 
 @Mockable
 class WithdrawalRequest(
-        val amount: BTCCurrency = BTCCurrency(0),
-        val dropbitFee: BTCCurrency = BTCCurrency(0),
-        val networkFee: BTCCurrency = BTCCurrency(0),
+        val amount: Long = 0,
+        val dropbitFee: Long = 0,
+        val networkFee: Long = 0,
         var address: String = "",
         var isEstimate: Boolean = false
 ) : Parcelable {
 
 
     constructor(parcel: Parcel) : this(
-            parcel.readParcelable(BTCCurrency::class.java.classLoader) ?: BTCCurrency(0),
-            parcel.readParcelable(BTCCurrency::class.java.classLoader) ?: BTCCurrency(0),
-            parcel.readParcelable(BTCCurrency::class.java.classLoader) ?: BTCCurrency(0),
+            parcel.readLong(),
+            parcel.readLong(),
+            parcel.readLong(),
             parcel.readString() ?: "",
             parcel.readInt() == 1
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeParcelable(amount, flags)
-        parcel.writeParcelable(dropbitFee, flags)
-        parcel.writeParcelable(networkFee, flags)
+        parcel.writeLong(amount)
+        parcel.writeLong(dropbitFee)
+        parcel.writeLong(networkFee)
         parcel.writeString(address)
         parcel.writeInt(if (isEstimate) 1 else 0)
     }
@@ -42,9 +41,9 @@ class WithdrawalRequest(
 
         other as WithdrawalRequest
 
-        if (amount.toLong() != other.amount.toLong()) return false
-        if (dropbitFee.toLong() != other.dropbitFee.toLong()) return false
-        if (networkFee.toLong() != other.networkFee.toLong()) return false
+        if (amount != other.amount) return false
+        if (dropbitFee != other.dropbitFee) return false
+        if (networkFee != other.networkFee) return false
         if (address != other.address) return false
         if (isEstimate != other.isEstimate) return false
 
@@ -71,7 +70,7 @@ class WithdrawalRequest(
     }
 
     fun forPost(): WithdrawalPostRequest = WithdrawalPostRequest(
-            value = amount.toLong(),
+            value = amount,
             address = address,
             estimate = isEstimate
     )

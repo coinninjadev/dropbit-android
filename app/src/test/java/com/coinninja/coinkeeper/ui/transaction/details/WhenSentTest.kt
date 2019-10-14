@@ -25,6 +25,7 @@ class WhenSentTest {
             ApplicationProvider.getApplicationContext(), mock()
     ).also {
         it.sendState = BindableTransaction.SendState.SEND
+        whenever(it.walletHelper.getLatestPrice()).thenReturn(USDCurrency(10_500_00L));
     }
 
     private fun createPageAdapter(bindableTransaction: BindableTransaction): TransactionDetailPageAdapter

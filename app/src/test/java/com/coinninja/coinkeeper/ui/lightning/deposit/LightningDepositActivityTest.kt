@@ -69,7 +69,7 @@ class LightningDepositActivityTest {
 
             val depositValueView = activity.depositAmountView
             assertThat(depositValueView.paymentHolder.fiat.toLong()).isEqualTo(amount.toLong())
-            assertThat(depositValueView.paymentHolder.cryptoCurrency.toLong()).isEqualTo(btcAmount.toSatoshis())
+            assertThat(depositValueView.paymentHolder.crypto.toLong()).isEqualTo(btcAmount.toLong())
         }
     }
 
@@ -144,7 +144,7 @@ class LightningDepositActivityTest {
             activity.latestPriceObserver.onChanged(latestPrice)
             activity.onConfirmationCompleted()
 
-            val transactionData = TransactionData(arrayOf(mock()), btcAmount.toSatoshis(), 0, 0, mock(), "")
+            val transactionData = TransactionData(arrayOf(mock()), btcAmount.toLong(), 0, 0, mock(), "")
             activity.transactionDataObserver.onChanged(transactionData)
 
             verify(activity.activityNavigationUtil).navigateToBroadcast(activity, BroadcastTransactionDTO(transactionData))

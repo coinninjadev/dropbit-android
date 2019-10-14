@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.ui.lightning.deposit
 
 import android.os.Bundle
 import android.widget.ImageButton
-import androidx.annotation.CallSuper
 import androidx.lifecycle.Observer
 import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.commons.currency.CryptoCurrency
@@ -134,7 +133,7 @@ class LightningDepositActivity : BaseActivity() {
     private fun initWithAmount() {
         intent.getParcelableExtra<USDCurrency>(DropbitIntents.EXTRA_AMOUNT)?.let { amount ->
             paymentHolder.updateValue(amount)
-            fundingViewModel.fundLightningDeposit(paymentHolder.cryptoCurrency.toLong())
+            fundingViewModel.fundLightningDeposit(paymentHolder.crypto.toLong())
             intent.removeExtra(DropbitIntents.EXTRA_AMOUNT)
         }
     }
@@ -152,7 +151,7 @@ class LightningDepositActivity : BaseActivity() {
         GenericAlertDialog.newInstance(
                 getString(
                         R.string.load_lightning_insufficient_funds,
-                        paymentHolder.cryptoCurrency.toFormattedCurrency()
+                        paymentHolder.crypto.toFormattedCurrency()
                 )
         ).show(supportFragmentManager, "NON_SUFFICIENT_FUNDS_DIALOG")
     }
@@ -181,7 +180,7 @@ class LightningDepositActivity : BaseActivity() {
 
     internal fun onConfirmationCompleted() {
         confirmed = true
-        fundingViewModel.fundLightningDeposit(paymentHolder.cryptoCurrency.toLong())
+        fundingViewModel.fundLightningDeposit(paymentHolder.crypto.toLong())
     }
 
     private fun onConfirmationStarted() {

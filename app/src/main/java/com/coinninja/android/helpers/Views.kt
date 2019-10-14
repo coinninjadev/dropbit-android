@@ -144,11 +144,12 @@ object Views {
 
     fun renderBTCIconOnCurrencyViewPair(context: Context, defaultCurrencies: DefaultCurrencies, primaryCurrencyView: TextView,
                                         primaryScale: Double, secondaryCurrencyView: TextView, secondaryScale: Double) {
-        val drawable = defaultCurrencies.crypto.getSymbolDrawable(context)
-        if (defaultCurrencies.primaryCurrency.isCrypto) {
-            drawSymbol(primaryCurrencyView, secondaryCurrencyView, primaryScale, drawable)
-        } else {
-            drawSymbol(secondaryCurrencyView, primaryCurrencyView, secondaryScale, drawable)
+        defaultCurrencies.crypto.getSymbolDrawable(context)?.let { drawable ->
+            if (defaultCurrencies.primaryCurrency.isCrypto) {
+                drawSymbol(primaryCurrencyView, secondaryCurrencyView, primaryScale, drawable)
+            } else {
+                drawSymbol(secondaryCurrencyView, primaryCurrencyView, secondaryScale, drawable)
+            }
         }
     }
 

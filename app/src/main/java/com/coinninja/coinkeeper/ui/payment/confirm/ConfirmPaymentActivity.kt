@@ -9,8 +9,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import app.coinninja.cn.libbitcoin.model.TransactionData
-import app.dropbit.commons.currency.BTCCurrency
-import app.dropbit.commons.currency.USDCurrency
 import app.dropbit.commons.currency.toBTCCurrency
 import com.coinninja.android.helpers.gone
 import com.coinninja.android.helpers.show
@@ -239,8 +237,8 @@ class ConfirmPaymentActivity : BaseActivity() {
 
     private fun renderAmount() {
         amountView.renderValues(
-                DefaultCurrencies(USDCurrency(), BTCCurrency()),
-                paymentHolder.cryptoCurrency,
+                DefaultCurrencies(paymentHolder.fiat, paymentHolder.crypto),
+                paymentHolder.crypto,
                 paymentHolder.fiat
         )
     }

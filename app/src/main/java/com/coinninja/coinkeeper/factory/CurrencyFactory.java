@@ -21,8 +21,8 @@ public class CurrencyFactory {
 
     private void setupDataSource() {
         Map<String, Currency> aMap = new HashMap<>();
-        aMap.put(BTCCurrency.SYMBOL, new BTCCurrency());
-        aMap.put(USDCurrency.SYMBOL, new USDCurrency());
+        aMap.put(BTCCurrency.symbol, new BTCCurrency());
+        aMap.put(USDCurrency.symbol, new USDCurrency());
         currencyMap = Collections.unmodifiableMap(aMap);
     }
 

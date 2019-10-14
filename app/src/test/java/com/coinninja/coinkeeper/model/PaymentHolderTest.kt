@@ -8,6 +8,7 @@ import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.SatoshiCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.db.enums.IdentityType
@@ -114,7 +115,7 @@ class PaymentHolderTest {
 
         holder.updateValue(USDCurrency(5000_00L))
 
-        assertThat(holder.cryptoCurrency.toLong(), equalTo(100000000L))
+        assertThat(holder.crypto.toLong(), equalTo(100000000L))
     }
 
     @Test
@@ -166,14 +167,17 @@ class PaymentHolderTest {
         val holder = createHolder()
         holder.spendableBalance = BTCCurrency(1000L)
 
-        assertThat(holder.spendableBalance.toSatoshis(), equalTo(1000L))
+        assertThat(holder.spendableBalance.toLong(), equalTo(1000L))
     }
+
+    // Currency conversions
 
 
     @Test
     fun given_btc_to_spend_converts_to_fiat() {
         val holder = createHolder()
         holder.toggleCurrencies()
+
         val usd = holder.updateValue(BTCCurrency(1.0))
 
         assertThat(usd.toFormattedCurrency(), equalTo("$5,000.00"))
@@ -184,7 +188,27 @@ class PaymentHolderTest {
         val holder = createHolder()
         holder.updateValue(USDCurrency(25.0))
         holder.toggleCurrencies()
-        assertThat(holder.btcCurrency.toSatoshis(), equalTo(500000L))
+        assertThat(holder.btcCurrency.toLong(), equalTo(500000L))
+    }
+
+    @Test
+    fun given__usd_primary__satoshi_secondary__converts_when_updated() {
+        val holder = createHolder()
+        holder.defaultCurrencies = DefaultCurrencies(USDCurrency(), SatoshiCurrency())
+
+        holder.updateValue(USDCurrency(25_00))
+
+        assertThat(holder.crypto.toFormattedCurrency(), equalTo("500,000 sats"))
+    }
+
+    @Test
+    fun given__satoshi_primary__usd_secondary__converts_when_updated() {
+        val holder = createHolder()
+        holder.defaultCurrencies = DefaultCurrencies(SatoshiCurrency(), USDCurrency())
+
+        holder.updateValue(SatoshiCurrency(500_000))
+
+        assertThat(holder.fiat.toFormattedCurrency(), equalTo("$25.00"))
     }
 
     @Test
@@ -232,11 +256,11 @@ class PaymentHolderTest {
     fun updating_evaluation_value_invalidates_secondary_value() {
         val holder = createHolder()
         holder.updateValue(USDCurrency(5000_00L))
-        assertThat(holder.cryptoCurrency.toLong(), equalTo(100000000L))
+        assertThat(holder.crypto.toLong(), equalTo(100000000L))
 
         holder.evaluationCurrency = USDCurrency(4000_00)
 
-        assertThat(holder.cryptoCurrency.toLong(), equalTo(125000000L))
+        assertThat(holder.crypto.toLong(), equalTo(125000000L))
     }
 
     @Test

@@ -136,4 +136,12 @@ object Testdata {
             "  \"code\": 3,\n" +
             "  \"message\": \"Max request value is 500000\"\n" +
             "}"
+
+    const val maxRequestAmountError: String = """
+        {
+            "error": "Max invoice value is 500,000",
+            "code": 3,
+            "message": "Max invoice value is 500,000"
+        }
+    """
 }

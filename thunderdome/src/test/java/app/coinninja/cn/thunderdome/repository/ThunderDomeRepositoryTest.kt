@@ -9,7 +9,6 @@ import app.coinninja.cn.persistance.model.LightningAccount
 import app.coinninja.cn.persistance.model.LightningInvoice
 import app.coinninja.cn.thunderdome.client.Testdata
 import app.coinninja.cn.thunderdome.model.*
-import app.dropbit.commons.currency.BTCCurrency
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.*
@@ -129,12 +128,7 @@ class ThunderDomeRepositoryTest {
     @Test
     fun posts_withdrawal_request() {
         val repository = createRepository()
-        val withdrawalRequest = WithdrawalRequest(
-                BTCCurrency(10_000),
-                BTCCurrency(500),
-                BTCCurrency(50),
-                "--address--"
-        )
+        val withdrawalRequest = WithdrawalRequest(10_000, 500, 50, "--address--")
 
         val withdrawalResponse = Gson().fromJson<WithdrawalResponse>(Testdata.withdrawalRequest, WithdrawalResponse::class.java)
         val ledgerItem = withdrawalResponse.result.toLightningLedger()
@@ -156,12 +150,7 @@ class ThunderDomeRepositoryTest {
     @Test
     fun posts_withdrawal_request_for_estimate() {
         val repository = createRepository()
-        val withdrawalRequest = WithdrawalRequest(
-                BTCCurrency(10_000),
-                BTCCurrency(500),
-                BTCCurrency(50),
-                "--address--"
-        )
+        val withdrawalRequest = WithdrawalRequest(10_000, 500, 50, "--address--")
 
         val withdrawalResponse = Gson().fromJson<WithdrawalResponse>(Testdata.withdrawalRequest, WithdrawalResponse::class.java)
         val ledgerItem = withdrawalResponse.result.toLightningLedger()
@@ -197,12 +186,25 @@ class ThunderDomeRepositoryTest {
     }
 
     @Test
-    fun creates_lad_invoice_for_payment_requests() {
+    fun create_lad_invoice__for_valid_amount() {
         val expectedResponse = "ln--invoice-id--"
         val repository = createRepository()
         whenever(repository.apiClient.createInvoiceFor(150_000, "--memo--")).thenReturn(Response.success(CreateInvoiceResponse(expectedResponse)))
 
-        assertThat(repository.createInvoiceFor(150_000, "--memo--")).isEqualTo(expectedResponse)
+        assertThat(repository.createInvoiceFor(150_000, "--memo--")?.request).isEqualTo(expectedResponse)
+    }
+
+    @Test
+    fun create_lad_invoice__for_invalid_amount() {
+        val expectedResponse = "ln--invoice-id--"
+        val repository = createRepository()
+        val response = Response.error<CreateInvoiceResponse>(
+                400, ResponseBody.create(
+                MediaType.parse("plain/text"), Testdata.maxRequestAmountError))
+        whenever(repository.apiClient.createInvoiceFor(72_150_000, "--memo--")).thenReturn(response)
+
+        assertThat(repository.createInvoiceFor(72_150_000, "--memo--")?.errorMessage)
+                .isEqualTo("Max invoice value is 500,000")
     }
 
     @Test

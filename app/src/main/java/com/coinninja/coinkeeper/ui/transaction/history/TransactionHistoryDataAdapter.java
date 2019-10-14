@@ -127,7 +127,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
 
     private void bindToFooter(ViewHolder holder) {
         TransactionEmptyStateView emptyStateView = holder.itemView.findViewById(R.id.empty_state_view);
-        emptyStateView.setupUIForWallet(transactions.size(), walletHelper.getBalance().toSatoshis());
+        emptyStateView.setupUIForWallet(transactions.size(), walletHelper.getBalance().toLong());
         emptyStateView.setGetBitcoinButtonClickListener(v -> {
             analytics.trackEvent(Analytics.EVENT_GET_BITCOIN);
             activityNavigationUtil.navigateToBuyBitcoin(v.getContext());

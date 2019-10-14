@@ -7,6 +7,7 @@ import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
 import app.dropbit.commons.currency.toBTCCurrency
 import app.dropbit.commons.currency.toUSDCurrency
+import app.dropbit.commons.util.isNotNullOrEmpty
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import java.util.*
@@ -122,7 +123,7 @@ data class LedgerSettlementDetail(
                                      identity: String?,
                                      displayName: String?,
                                      fromUserHandle: String?
-    ): String? = displayName ?: when (type) {
+    ): String? = if (displayName.isNotNullOrEmpty()) displayName else when (type) {
         IdentityType.PHONE -> {
             identity.let {
                 try {
@@ -131,7 +132,7 @@ data class LedgerSettlementDetail(
                     util.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL)
                 } catch (e: NumberParseException) {
                     e.printStackTrace()
-                    null
+                    it
                 }
             }
         }

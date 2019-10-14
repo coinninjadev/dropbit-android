@@ -452,7 +452,7 @@ class ActivityNavigationUtilTest {
     @Test
     fun shows_withdrawal_completed_screen() {
         createActivityNavigationUtil().also {
-            val withdrawalRequest = WithdrawalRequest(BTCCurrency(100000), BTCCurrency(500), BTCCurrency(5000))
+            val withdrawalRequest = WithdrawalRequest(100000, 500, 5000)
             it.showWithdrawalCompleted(activity, withdrawalRequest)
 
             val intent = Intent(activity, LightningWithdrawalBroadcastActivity::class.java)
@@ -557,7 +557,7 @@ class ActivityNavigationUtilTest {
     fun navigate_to_review_created_invoice() {
         createActivityNavigationUtil().also {
             val intent = Intent(activity, LndInvoiceRequestActivity::class.java)
-            val lndInvoiceRequest = LndInvoiceRequest("--lnd-encoded_invoice", BTCCurrency(10_000), "--memo--")
+            val lndInvoiceRequest = LndInvoiceRequest("--lnd-encoded_invoice", 10_000, "--memo--")
             intent.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, lndInvoiceRequest)
 
             it.navigateToShowLndInvoice(activity, lndInvoiceRequest)
