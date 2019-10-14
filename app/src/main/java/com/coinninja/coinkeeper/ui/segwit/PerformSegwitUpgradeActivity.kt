@@ -71,16 +71,19 @@ class PerformSegwitUpgradeActivity : BaseActivity() {
         uncheck(stepOneCheckBox, stepTwoCheckBox, stepThreeCheckBox)
         analytics.setUserProperty(Analytics.PROPERTY_LIGHTNING_UPGRADE_STARTED, true)
         analytics.setUserProperty(Analytics.PROPERTY_LIGHTNING_UPGRADE_COMPLETED, false)
+        analytics.trackEvent(Analytics.EVENT_LIGHTNING_UPGRADE_STARTED)
         walletUpgradeViewModel.performStepOne()
     }
 
     private fun onStepOneCompleted() {
         check(stepOneCheckBox)
+        analytics.trackEvent(Analytics.EVENT_LIGHTNING_UPGRADE_STEP_ONE_COMPLETE)
         walletUpgradeViewModel.performStepTwo()
     }
 
     private fun onStepTwoCompleted() {
         check(stepOneCheckBox, stepTwoCheckBox)
+        analytics.trackEvent(Analytics.EVENT_LIGHTNING_UPGRADE_STEP_TWO_COMPLETE)
         analytics.setUserProperty(Analytics.PROPERTY_LIGHTNING_UPGRADE_WITH_FUNDS, transactionData?.isFunded()
                 ?: false)
         walletUpgradeViewModel.performStepThree(transactionData)
@@ -88,11 +91,15 @@ class PerformSegwitUpgradeActivity : BaseActivity() {
 
     private fun onStepThreeCompleted() {
         check(stepOneCheckBox, stepTwoCheckBox, stepThreeCheckBox)
+        if (transactionData?.isFunded() == true) {
+            analytics.trackEvent(Analytics.EVENT_LIGHTNING_UPGRADE_STEP_THREE_COMPLETE)
+        }
         walletUpgradeViewModel.cleanUp()
     }
 
     private fun onUpgradeComplete() {
         analytics.setUserProperty(Analytics.PROPERTY_LIGHTNING_UPGRADE_COMPLETED, true)
+        analytics.trackEvent(Analytics.EVENT_LIGHTNING_UPGRADE_COMPLETED)
         activityNavigationUtil.navigateToUpgradeToSegwitSuccess(this)
     }
 

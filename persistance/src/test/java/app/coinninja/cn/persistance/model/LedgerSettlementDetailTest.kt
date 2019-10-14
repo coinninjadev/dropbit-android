@@ -10,6 +10,32 @@ import org.junit.runner.RunWith
 class LedgerSettlementDetailTest {
 
     @Test
+    fun returns_requested_value___Deposit() {
+        val settlement = LedgerSettlementDetail(
+                invoiceType = LedgerType.BTC,
+                invoiceDirection = LedgerDirection.IN,
+                invoiceValue = 100_000,
+                invoiceNetworkFee = 1_000,
+                invoiceProcessingFee = 100
+        )
+
+        assertThat(settlement.cryptoAmount.toLong()).isEqualTo(100_000)
+    }
+
+    @Test
+    fun returns_requested_value___withdraw() {
+        val settlement = LedgerSettlementDetail(
+                invoiceType = LedgerType.BTC,
+                invoiceDirection = LedgerDirection.OUT,
+                invoiceValue = 100_000,
+                invoiceNetworkFee = 1_000,
+                invoiceProcessingFee = 100
+        )
+
+        assertThat(settlement.cryptoAmount.toLong()).isEqualTo(101_100)
+    }
+
+    @Test
     fun returns_avatar_for_settlement() {
         var settlement = LedgerSettlementDetail(
                 inviteState = BTCState.UNFULFILLED,

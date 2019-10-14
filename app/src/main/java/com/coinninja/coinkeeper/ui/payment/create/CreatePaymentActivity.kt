@@ -356,12 +356,16 @@ class CreatePaymentActivity : BaseActivity() {
 
     internal fun onValidPhoneNumberInput(it: Phonenumber.PhoneNumber?) {
         val value = PhoneNumber(it)
-        clearPaymentInput(clearPaymentView = false)
-        paymentHolder.toUser = Identity(IdentityType.PHONE, value.toInternationalDisplayText(), value.toHash())
-        paymentHolder.toUser?.let {
-            fundingViewModel.lookupIdentityHash(it.hashForType, accountModeToggle.mode)
+        if (dropbitAccountHelper.isPhoneVerified) {
+            clearPaymentInput(clearPaymentView = false)
+            paymentHolder.toUser = Identity(IdentityType.PHONE, value.toInternationalDisplayText(), value.toHash())
+            paymentHolder.toUser?.let {
+                fundingViewModel.lookupIdentityHash(it.hashForType, accountModeToggle.mode)
+            }
+            memoToggleView.showSharedMemoViews()
+        } else {
+            showVerificationMessage(getString(R.string.your_phone_is_not_verified))
         }
-        memoToggleView.showSharedMemoViews()
     }
 
     private fun initScanner() {
