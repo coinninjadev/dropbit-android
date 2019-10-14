@@ -4,12 +4,10 @@ import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
 import com.coinninja.coinkeeper.ui.base.TestableActivity
-import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.view.ConfirmationsView
 import com.coinninja.coinkeeper.view.adapter.util.BindableTransaction
 import com.google.common.truth.Truth.assertThat
@@ -26,14 +24,14 @@ class ConfirmationBeadsTest {
             ApplicationProvider.getApplicationContext(), mock()
     ).also {
         it.sendState = BindableTransaction.SendState.SEND
+        whenever(it.walletHelper.latestPrice).thenReturn(USDCurrency(10_500_00))
     }
 
     private fun createPageAdapter(bindableTransaction: BindableTransaction): TransactionDetailPageAdapter =
             TransactionDetailPageAdapter(mock(), mock(), mock(), mock(), mock()).also {
 
-        whenever(it.transactionAdapterUtil.translateTransaction(any<TransactionsInvitesSummary>())).thenReturn(bindableTransaction)
-        whenever(it.walletHelper.latestPrice).thenReturn(USDCurrency(1000.00))
-    }
+                whenever(it.transactionAdapterUtil.translateTransaction(any<TransactionsInvitesSummary>())).thenReturn(bindableTransaction)
+            }
 
     private fun createScenario(): ActivityScenario<TestableActivity> = ActivityScenario.launch(TestableActivity::class.java).also {
         it.onActivity {

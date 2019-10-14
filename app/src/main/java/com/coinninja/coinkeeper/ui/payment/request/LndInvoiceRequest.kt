@@ -3,22 +3,21 @@ package com.coinninja.coinkeeper.ui.payment.request
 import android.os.Parcel
 import android.os.Parcelable
 import app.dropbit.annotations.Mockable
-import app.dropbit.commons.currency.BTCCurrency
 
 @Mockable
 data class LndInvoiceRequest(
         val request: String,
-        val btcCurrency: BTCCurrency,
+        val amount: Long,
         val memo: String) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readString() ?: "",
-            BTCCurrency(parcel.readLong()),
+            parcel.readLong(),
             parcel.readString() ?: "")
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(request)
-        parcel.writeLong(btcCurrency.toLong())
+        parcel.writeLong(amount)
         parcel.writeString(memo)
     }
 
@@ -33,7 +32,7 @@ data class LndInvoiceRequest(
         other as LndInvoiceRequest
 
         if (request != other.request) return false
-        if (btcCurrency.toLong() != other.btcCurrency.toLong()) return false
+        if (amount != amount) return false
         if (memo != other.memo) return false
 
         return true
@@ -41,7 +40,7 @@ data class LndInvoiceRequest(
 
     override fun hashCode(): Int {
         var result = request.hashCode()
-        result = 31 * result + btcCurrency.hashCode()
+        result = 31 * result + amount.hashCode()
         result = 31 * result + memo.hashCode()
         return result
     }

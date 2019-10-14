@@ -21,12 +21,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class LightningWithdrawalBroadcastActivityTest {
-    private val withdrawalRequest
-        get() = WithdrawalRequest(
-                BTCCurrency(1_000_000),
-                BTCCurrency(50_000),
-                BTCCurrency(5_000)
-        )
+    private val withdrawalRequest get() = WithdrawalRequest( 1_000_000, 50_000, 5_000 )
 
     private fun createScenario(): ActivityScenario<LightningWithdrawalBroadcastActivity> {
         val intent = Intent(ApplicationProvider.getApplicationContext(), LightningWithdrawalBroadcastActivity::class.java)

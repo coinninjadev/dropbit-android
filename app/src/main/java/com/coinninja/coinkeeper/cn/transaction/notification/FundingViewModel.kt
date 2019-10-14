@@ -79,7 +79,7 @@ class FundingViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 thunderDomeRepository.estimateWithdrawal(
                         WithdrawalRequest(
-                                amount = BTCCurrency(btcAmount),
+                                amount = btcAmount,
                                 address = fundingModel.nextReceiveAddress
                         )
                 )?.let { ledgerInvoice ->
@@ -223,7 +223,7 @@ class FundingViewModel : ViewModel() {
             InvitedContact()
         } else {
             val payload = InviteUserPayload(
-                    Amount(paymentHolder.cryptoCurrency.toLong(), paymentHolder.fiat.toLong()),
+                    Amount(paymentHolder.crypto.toLong(), paymentHolder.fiat.toLong()),
                     getSenderForIdentityInvite(invite.fromUser),
                     getReceiverFromIdentity(invite.toUser),
                     paymentHolder.requestId,

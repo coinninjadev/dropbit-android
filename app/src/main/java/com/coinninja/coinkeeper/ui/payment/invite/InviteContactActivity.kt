@@ -1,7 +1,6 @@
 package com.coinninja.coinkeeper.ui.payment.invite
 
 import android.os.Bundle
-import android.provider.Telephony
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -105,7 +104,7 @@ class InviteContactActivity : BaseActivity() {
             finish()
         }
 
-        if (paymentHolder.cryptoCurrency.isZero) {
+        if (paymentHolder.crypto.isZero) {
             Toast.makeText(this, "Missing Payment Data", Toast.LENGTH_LONG).show()
             finish()
         }

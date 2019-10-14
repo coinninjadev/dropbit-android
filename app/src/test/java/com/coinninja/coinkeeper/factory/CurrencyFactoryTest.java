@@ -19,7 +19,7 @@ public class CurrencyFactoryTest {
 
     @Test
     public void creates_from_btc() {
-        assertTrue(factory.fromSymbol(BTCCurrency.SYMBOL) instanceof BTCCurrency);
+        assertTrue(factory.fromSymbol(BTCCurrency.symbol) instanceof BTCCurrency);
     }
 
     @Test

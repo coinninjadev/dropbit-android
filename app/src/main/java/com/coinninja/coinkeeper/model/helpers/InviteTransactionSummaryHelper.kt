@@ -114,7 +114,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         return paymentHolder.toUser?.let { user ->
             return saveTemporaryInvite(
                     user,
-                    paymentHolder.cryptoCurrency.toLong(),
+                    paymentHolder.crypto.toLong(),
                     paymentHolder.transactionData.feeAmount,
                     paymentHolder.fiat.toLong(),
                     paymentHolder.requestId,

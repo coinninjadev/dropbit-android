@@ -34,37 +34,37 @@ class CurrencyPreferenceTest {
     @Test
     fun provides_access_to_currency_preference() {
         val currencyPreference = createCurrencyPreference()
-        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.SYMBOL))
-                .thenReturn(USDCurrency.SYMBOL)
-        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.SYMBOL))
-                .thenReturn(BTCCurrency.SYMBOL)
+        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.symbol))
+                .thenReturn(USDCurrency.symbol)
+        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.symbol))
+                .thenReturn(BTCCurrency.symbol)
 
-        whenever(currencyPreference.currencyFactory.fromSymbol(BTCCurrency.SYMBOL)).thenReturn(BTCCurrency())
-        whenever(currencyPreference.currencyFactory.fromSymbol(USDCurrency.SYMBOL)).thenReturn(USDCurrency())
+        whenever(currencyPreference.currencyFactory.fromSymbol(BTCCurrency.symbol)).thenReturn(BTCCurrency())
+        whenever(currencyPreference.currencyFactory.fromSymbol(USDCurrency.symbol)).thenReturn(USDCurrency())
 
         val defaultCurrencies = currencyPreference.currenciesPreference
 
-        assertThat(defaultCurrencies.primaryCurrency.symbol, equalTo(USDCurrency.SYMBOL))
-        assertThat(defaultCurrencies.secondaryCurrency.symbol, equalTo(BTCCurrency.SYMBOL))
+        assertThat(defaultCurrencies.primaryCurrency.symbol, equalTo(USDCurrency.symbol))
+        assertThat(defaultCurrencies.secondaryCurrency.symbol, equalTo(BTCCurrency.symbol))
     }
 
     @Test
     fun allows_toggling_of_default() {
         val currencyPreference = createCurrencyPreference()
-        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.SYMBOL))
-                .thenReturn(BTCCurrency.SYMBOL)
-        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.SYMBOL))
-                .thenReturn(USDCurrency.SYMBOL)
+        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.symbol))
+                .thenReturn(BTCCurrency.symbol)
+        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.symbol))
+                .thenReturn(USDCurrency.symbol)
 
-        whenever(currencyPreference.currencyFactory.fromSymbol(BTCCurrency.SYMBOL)).thenReturn(BTCCurrency())
-        whenever(currencyPreference.currencyFactory.fromSymbol(USDCurrency.SYMBOL)).thenReturn(USDCurrency())
+        whenever(currencyPreference.currencyFactory.fromSymbol(BTCCurrency.symbol)).thenReturn(BTCCurrency())
+        whenever(currencyPreference.currencyFactory.fromSymbol(USDCurrency.symbol)).thenReturn(USDCurrency())
 
         val defaultCurrencies = currencyPreference.toggleDefault()
 
-        verify(currencyPreference.preferencesUtil).savePreference(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.SYMBOL)
-        verify(currencyPreference.preferencesUtil).savePreference(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.SYMBOL)
-        assertThat(defaultCurrencies.primaryCurrency.symbol, equalTo(USDCurrency.SYMBOL))
-        assertThat(defaultCurrencies.secondaryCurrency.symbol, equalTo(BTCCurrency.SYMBOL))
+        verify(currencyPreference.preferencesUtil).savePreference(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.symbol)
+        verify(currencyPreference.preferencesUtil).savePreference(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.symbol)
+        assertThat(defaultCurrencies.primaryCurrency.symbol, equalTo(USDCurrency.symbol))
+        assertThat(defaultCurrencies.secondaryCurrency.symbol, equalTo(BTCCurrency.symbol))
     }
 
     @Test
@@ -74,12 +74,12 @@ class CurrencyPreferenceTest {
         val defaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
         val expected = Intent(DropbitIntents.ACTION_CURRENCY_PREFERENCE_CHANGED)
         expected.putExtra(DropbitIntents.EXTRA_PREFERENCE, defaultCurrencies)
-        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.SYMBOL))
-                .thenReturn(USDCurrency.SYMBOL)
-        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.SYMBOL))
-                .thenReturn(BTCCurrency.SYMBOL)
-        whenever(currencyPreference.currencyFactory.fromSymbol(BTCCurrency.SYMBOL)).thenReturn(BTCCurrency())
-        whenever(currencyPreference.currencyFactory.fromSymbol(USDCurrency.SYMBOL)).thenReturn(USDCurrency())
+        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_PRIMARY_CURRENCY, USDCurrency.symbol))
+                .thenReturn(USDCurrency.symbol)
+        whenever(currencyPreference.preferencesUtil.getString(CurrencyPreference.PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.symbol))
+                .thenReturn(BTCCurrency.symbol)
+        whenever(currencyPreference.currencyFactory.fromSymbol(BTCCurrency.symbol)).thenReturn(BTCCurrency())
+        whenever(currencyPreference.currencyFactory.fromSymbol(USDCurrency.symbol)).thenReturn(USDCurrency())
 
         currencyPreference.setCurrencies(defaultCurrencies.primaryCurrency, defaultCurrencies.secondaryCurrency)
 

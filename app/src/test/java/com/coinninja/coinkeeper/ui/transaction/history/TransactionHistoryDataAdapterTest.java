@@ -70,6 +70,7 @@ public class TransactionHistoryDataAdapterTest {
         bindableTransaction = new BindableTransaction(ApplicationProvider.getApplicationContext(), walletHelper);
         when(transactions.isEmpty()).thenReturn(false);
         when(transactions.isClosed()).thenReturn(false);
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency(10_500_00L));
         activity = Robolectric.setupActivity(TestableActivity.class);
         activity.appendLayout(R.layout.fragment_transaction_history);
         adapter = new TransactionHistoryDataAdapter(transactionUtil, defaultCurrencies, picasso,

@@ -18,8 +18,8 @@ class CurrencyPreference @Inject constructor(internal val preferencesUtil: Prefe
 
     val currenciesPreference: DefaultCurrencies
         get() {
-            val primarySymbol = preferencesUtil.getString(PREFERENCE_PRIMARY_CURRENCY, USDCurrency.SYMBOL)
-            val secondarySymbol = preferencesUtil.getString(PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.SYMBOL)
+            val primarySymbol = preferencesUtil.getString(PREFERENCE_PRIMARY_CURRENCY, USDCurrency.symbol)
+            val secondarySymbol = preferencesUtil.getString(PREFERENCE_SECONDARY_CURRENCY, BTCCurrency.symbol)
             val primaryCurrency = currencyFactory.fromSymbol(primarySymbol)
             val secondaryCurrency = currencyFactory.fromSymbol(secondarySymbol)
             return DefaultCurrencies(primaryCurrency, secondaryCurrency)

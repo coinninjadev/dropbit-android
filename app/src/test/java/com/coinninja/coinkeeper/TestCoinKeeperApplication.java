@@ -208,6 +208,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
     public void beforeTest(Method method) {
         when(walletHelper.getUserAccount()).thenReturn(account);
         when(walletHelper.getSpendableBalance()).thenReturn(new BTCCurrency(0));
+        when(walletHelper.getLatestPrice()).thenReturn(new USDCurrency());
         PhoneNumber phoneNumber = new PhoneNumber("+15550123456");
         when(account.getPhoneNumber()).thenReturn(phoneNumber);
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -234,7 +235,7 @@ public class TestCoinKeeperApplication extends CoinKeeperApplication implements 
             // pass
         }
         injector = null;
-        USDCurrency.MAX_DOLLAR_AMOUNT = Long.MAX_VALUE;
+        USDCurrency.maxLongValue = Long.MAX_VALUE;
         twitter = null;
         locationUtil = null;
         appComponent = null;
