@@ -233,7 +233,7 @@ dependencies {
 
     implementation group: 'org.cryptonode.jncryptor', name: 'jncryptor', version: '1.0.1'
     implementation 'com.coinninja.messaging:cn_messaging-release:1.1.2'
-    implementation "app.coinninja.cn.libbitcoin:cnlibbitcoin-release:1.2.7"
+    implementation "app.coinninja.cn.libbitcoin:cnlibbitcoin-release:1.2.8"
 
 
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta2"
