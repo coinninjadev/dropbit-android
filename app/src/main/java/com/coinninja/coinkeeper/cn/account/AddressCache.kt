@@ -15,7 +15,7 @@ class AddressCache @Inject internal constructor(
         internal val hdWallet: HDWalletWrapper,
         internal val addressHelper: AddressHelper,
         internal val walletHelper: WalletHelper,
-        @param:NumAddressesToCache internal val numAddressesToCache: Int
+        @NumAddressesToCache internal val numAddressesToCache: Int
 ) {
     fun getUncompressedPublicKey(path: DerivationPath): String {
         return hdWallet.getAddressForPath(path).pubKey
@@ -24,37 +24,36 @@ class AddressCache @Inject internal constructor(
     /**
      * @param chainIndex EXTERNAL=0, INTERNAL=1
      */
-    internal fun cacheAddressesFor(chainIndex: Int) {
-        if (!shouldCacheAddressesForChain(chainIndex)) return
-        val wallet: Wallet = walletHelper.primaryWallet
-        val addresses: Array<MetaAddress> = hdWallet.fillBlock(
+    internal fun cacheAddressesFor(wallet: Wallet, chainIndex: Int) {
+        if (!shouldCacheAddressesForChain(wallet, chainIndex)) return
+        val addresses: Array<MetaAddress> = hdWallet.fillBlock(wallet,
                 wallet.purpose, wallet.coinType, wallet.accountIndex, chainIndex, 0,
-                largestAddressIndexReportedFor(chainIndex) + numAddressesToCache
+                largestAddressIndexReportedFor(wallet, chainIndex) + numAddressesToCache
         )
 
         addresses.forEach {
-            addressHelper.saveAddress(it)
+            addressHelper.saveAddress(wallet, it)
         }
     }
 
     /**
      * @param chainIndex EXTERNAL=0, INTERNAL=1
      */
-    private fun largestAddressIndexReportedFor(chainIndex: Int): Int {
+    private fun largestAddressIndexReportedFor(wallet: Wallet, chainIndex: Int): Int {
         return when (chainIndex) {
-            HDWalletWrapper.EXTERNAL -> walletHelper.currentExternalIndex
-            HDWalletWrapper.INTERNAL -> walletHelper.currentInternalIndex
+            HDWalletWrapper.EXTERNAL -> wallet.externalIndex
+            HDWalletWrapper.INTERNAL -> wallet.internalIndex
             else -> throw IllegalArgumentException("Expected 0 or 1")
         }
     }
 
-    private fun shouldCacheAddressesForChain(chainIndex: Int): Boolean {
-        val numAddressesToHaveCached = calcNumAddressesToHaveCached(chainIndex)
-        return addressHelper.getAddressCountFor(chainIndex) < numAddressesToHaveCached
+    private fun shouldCacheAddressesForChain(wallet: Wallet, chainIndex: Int): Boolean {
+        val numAddressesToHaveCached = calcNumAddressesToHaveCached(wallet, chainIndex)
+        return addressHelper.getAddressCountFor(wallet, chainIndex) < numAddressesToHaveCached
     }
 
 
-    private fun calcNumAddressesToHaveCached(chainIndex: Int): Int {
-        return largestAddressIndexReportedFor(chainIndex) + numAddressesToCache
+    private fun calcNumAddressesToHaveCached(wallet: Wallet, chainIndex: Int): Int {
+        return largestAddressIndexReportedFor(wallet, chainIndex) + numAddressesToCache
     }
 }

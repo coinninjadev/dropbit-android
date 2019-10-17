@@ -5,6 +5,7 @@ import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.account.AccountManager
 import com.coinninja.coinkeeper.cn.wallet.CNWalletManager
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
+import com.coinninja.coinkeeper.model.db.Wallet
 import com.coinninja.coinkeeper.model.helpers.AddressHelper
 import com.coinninja.coinkeeper.model.helpers.TransactionHelper
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
@@ -30,12 +31,17 @@ class SyncRunnable @Inject internal constructor(
         if (!cnWalletManager.hasWallet)
             return
 
-        addressAPIUtil.setWallet(walletHelper.primaryWallet)
-        accountManager.cacheAddresses()
+        syncWallet(walletHelper.legacyWallet)
+        syncWallet(walletHelper.primaryWallet)
+    }
+
+    fun syncWallet(nullableWallet: Wallet?) = nullableWallet?.let { wallet ->
+        addressAPIUtil.setWallet(wallet)
+        accountManager.cacheAddresses(wallet)
         setGapLimit()
 
         Log.d("SYNC", "fetching addresses")
-        fetchAllAddresses()
+        fetchAllAddresses(wallet)
 
         Log.d("SYNC", "fetching incomplete transactions")
         fetchIncompleteTransactions()
@@ -53,11 +59,11 @@ class SyncRunnable @Inject internal constructor(
         fetchHistoricPricesForTransactionsIfNeeded()
 
         Log.d("SYNC", "calculating wallet balance")
-        calculateBalance()
+        calculateBalance(wallet)
 
         Log.d("SYNC", "updating last sync time")
         cnWalletManager.syncCompleted()
-        accountManager.cacheAddresses()
+        accountManager.cacheAddresses(wallet)
         walletHelper.linkStatsWithAddressBook()
 
         if (addressHelper.hasReceivedTransaction()) {
@@ -69,16 +75,16 @@ class SyncRunnable @Inject internal constructor(
         addressHelper.updateSpentTransactions()
     }
 
-    private fun fetchAllAddresses() {
+    private fun fetchAllAddresses(wallet: Wallet) {
         // Can Optimize address lookup by checking address stats
         // and only refreshing addresses that have new transactions
         // we can then start at our next index seek 5 ahead
         // and then scan AddressStats for any need to update further
         Log.d("SYNC", "fetching external addresses")
-        findExternalAddresses()
+        findExternalAddresses(wallet)
 
         Log.d("SYNC", "fetching internal addresses")
-        findInternalAddresses()
+        findInternalAddresses(wallet)
     }
 
     private fun setGapLimit() {
@@ -91,37 +97,37 @@ class SyncRunnable @Inject internal constructor(
         }
     }
 
-    private fun findInternalAddresses(): List<GsonAddress> {
-        val addresses = findAddresses(HDWalletWrapper.INTERNAL, accountManager.largestReportedChangeAddress + 1)
-        saveInternalIndexTo(addressAPIUtil.largestIndexConsumed)
+    private fun findInternalAddresses(wallet: Wallet): List<GsonAddress> {
+        val addresses = findAddresses(wallet, HDWalletWrapper.INTERNAL, accountManager.largestReportedChangeAddress(wallet) + 1)
+        saveInternalIndexTo(wallet, addressAPIUtil.largestIndexConsumed)
         return addresses
     }
 
-    private fun findExternalAddresses(): List<GsonAddress> {
-        val addresses = findAddresses(HDWalletWrapper.EXTERNAL, accountManager.largestReportedReceiveAddress + 1)
-        saveExternalIndexTo(addressAPIUtil.largestIndexConsumed)
+    private fun findExternalAddresses(wallet: Wallet): List<GsonAddress> {
+        val addresses = findAddresses(wallet, HDWalletWrapper.EXTERNAL, accountManager.largestReportedReceiveAddress(wallet) + 1)
+        saveExternalIndexTo(wallet, addressAPIUtil.largestIndexConsumed)
         return addresses
     }
 
-    private fun findAddresses(change: Int, currentIndex: Int): List<GsonAddress> {
+    private fun findAddresses(wallet: Wallet, change: Int, currentIndex: Int): List<GsonAddress> {
         // Fetch addresses
         val addresses = addressAPIUtil.fetchAddresses(hdWallet, change, 0, currentIndex)
 
         // Save Fetched Addresses
-        addressHelper.addAddresses(addresses, change)
+        addressHelper.addAddresses(wallet, addresses, change)
 
         // save reference transactions
-        transactionHelper.initTransactions(addresses)
+        transactionHelper.initTransactions(wallet, addresses)
 
         return addresses
     }
 
-    private fun saveExternalIndexTo(index: Int) {
-        accountManager.reportLargestReceiveIndexConsumed(index)
+    private fun saveExternalIndexTo(wallet: Wallet, index: Int) {
+        accountManager.reportLargestReceiveIndexConsumed(wallet, index)
     }
 
-    private fun saveInternalIndexTo(index: Int) {
-        accountManager.reportLargestChangeIndexConsumed(index)
+    private fun saveInternalIndexTo(wallet: Wallet, index: Int) {
+        accountManager.reportLargestChangeIndexConsumed(wallet, index)
     }
 
     private fun fetchIncompleteTransactions() {
@@ -144,9 +150,9 @@ class SyncRunnable @Inject internal constructor(
         }
     }
 
-    private fun calculateBalance() {
-        walletHelper.updateBalances()
-        walletHelper.updateSpendableBalances()
+    private fun calculateBalance(wallet: Wallet) {
+        walletHelper.updateBalances(wallet)
+        walletHelper.updateSpendableBalances(wallet)
     }
 
 }

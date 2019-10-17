@@ -1,5 +1,6 @@
 package com.coinninja.coinkeeper.service.runner
 
+import com.coinninja.coinkeeper.model.db.Wallet
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -11,6 +12,7 @@ class NegativeBalanceRunnerTest {
     @Test
     fun on_negative_lightning_cancel() {
         val runner = createRunner()
+        whenever(runner.walletHelper.primaryWallet).thenReturn(mock())
         whenever(runner.thunderDomeRepository.availableBalance).thenReturn(-1L)
 
         runner.run()
@@ -21,7 +23,9 @@ class NegativeBalanceRunnerTest {
     @Test
     fun on_negative_cancel() {
         val runner = createRunner()
-        whenever(runner.walletHelper.buildBalances(false)).thenReturn(-1L)
+        val wallet: Wallet = mock()
+        whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
+        whenever(runner.walletHelper.buildBalances(wallet, false)).thenReturn(-1L)
 
         runner.run()
 
@@ -31,7 +35,9 @@ class NegativeBalanceRunnerTest {
     @Test
     fun not_negative_NOOP() {
         val runner = createRunner()
-        whenever(runner.walletHelper.buildBalances(false)).thenReturn(1L)
+        val wallet: Wallet = mock()
+        whenever(runner.walletHelper.primaryWallet).thenReturn(wallet)
+        whenever(runner.walletHelper.buildBalances(wallet, false)).thenReturn(1L)
 
         runner.run()
 

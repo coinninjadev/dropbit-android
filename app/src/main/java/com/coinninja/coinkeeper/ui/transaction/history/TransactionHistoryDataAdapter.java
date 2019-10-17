@@ -190,6 +190,8 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
                 view.setText(R.string.tx_history_load_lightning);
             } else if (transaction.getSendState() == BindableTransaction.SendState.UNLOAD_LIGHTNING) {
                 view.setText(R.string.tx_history_withdraw_lightning);
+            } else if (transaction.getSendState() == BindableTransaction.SendState.LIGHTNING_UPGRADE) {
+                view.setText(R.string.tx_history_lightning_upgrade);
             }
         }
 
@@ -228,6 +230,7 @@ public class TransactionHistoryDataAdapter extends Adapter<TransactionHistoryDat
 
         private void bindIcon(ImageView icon, BindableTransaction transaction, Picasso picasso, TwitterCircleTransform circleTransform) {
             switch (transaction.getSendState()) {
+                case LIGHTNING_UPGRADE:
                 case TRANSFER:
                 case SEND:
                     icon.setTag(R.drawable.ic_transaction_send);

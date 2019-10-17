@@ -39,7 +39,7 @@ import static com.coinninja.coinkeeper.view.util.TransactionUtil.isTargetNotSpen
 
 public class WalletHelper {
     private static final String TAG = WalletHelper.class.getSimpleName();
-    private final DaoSessionManager daoSessionManager;
+    public final DaoSessionManager daoSessionManager;
     private final WalletDao walletDao;
 
     private final WalletQueryManager walletQueryManager;
@@ -97,10 +97,6 @@ public class WalletHelper {
         }
     }
 
-    public TransactionFee getLatestFee() {
-        return feesManager.fees();
-    }
-
     public void setLatestFee(TransactionFee transactionFee) {
         if (getPrimaryWallet() == null || transactionFee == null || transactionFee.getSlow() <= 0.0D) {
             return;
@@ -110,8 +106,18 @@ public class WalletHelper {
     }
 
     public Wallet getPrimaryWallet() {
-        return walletQueryManager.getPrimaryWallet();
+        Wallet wallet = walletQueryManager.getPrimaryWallet();
+        if (wallet == null) {
+            wallet = definePrimary();
+        }
+        return wallet;
     }
+
+    @Nullable
+    public Wallet getSegwitWallet() {
+        return walletQueryManager.getSegwitWallet();
+    }
+
 
     @Nullable
     public Wallet getLegacyWallet() {
@@ -119,14 +125,11 @@ public class WalletHelper {
     }
 
     public void linkStatsWithAddressBook() {
-        daoSessionManager.runRaw("update TARGET_STAT set ADDRESS_ID = (select _id from ADDRESS where address = TARGET_STAT.ADDR)");
+        daoSessionManager.runRaw("update TARGET_STAT set ADDRESS_ID = (select _id from ADDRESS where address = TARGET_STAT.ADDR); ");
+        daoSessionManager.runRaw("update TARGET_STAT set WALLET_ID = (select ADDRESS.WALLET_ID from ADDRESS where address = TARGET_STAT.ADDR);");
         daoSessionManager.runRaw("update FUNDING_STAT set ADDRESS_ID = (select _id from ADDRESS where address = FUNDING_STAT.ADDR);");
-        daoSessionManager.runRaw("update TARGET_STAT set WALLET_ID = (select _id from WALLET limit 1)" +
-                " where _id in (select _id from TARGET_STAT where WALLET_ID is null and ADDRESS_ID is not null)");
-        daoSessionManager.runRaw("update FUNDING_STAT set WALLET_ID = (select _id from WALLET limit 1)" +
-                " where _id in (select _id from FUNDING_STAT where WALLET_ID is null and ADDRESS_ID is not null);");
+        daoSessionManager.runRaw("update FUNDING_STAT set WALLET_ID = (select ADDRESS.WALLET_ID from ADDRESS where address = FUNDING_STAT.ADDR);");
     }
-
 
     public LazyList<TransactionsInvitesSummary> getTransactionsLazily() {
         return daoSessionManager.getTransactionsInvitesSummaryDao().queryBuilder()
@@ -174,29 +177,33 @@ public class WalletHelper {
         return segwitWallet;
     }
 
-    public void rotateWallets(@NotNull Wallet newPrimary, Wallet oldPrimary) {
+    public void rotateAccount(@NotNull Wallet segwitWallet, @Nullable Wallet legacyWallet) {
         Account account = getUserAccount();
         if (account != null) {
-            account.setWallet(newPrimary);
+            account.setWallet(segwitWallet);
             account.update();
         }
-        daoSessionManager.getTransactionsInvitesSummaryDao().deleteAll();
-        daoSessionManager.getInviteTransactionSummaryDao().deleteAll();
-        daoSessionManager.getTransactionSummaryDao().deleteAll();
-        daoSessionManager.getTargetStatDao().deleteAll();
-        daoSessionManager.getFundingStatDao().deleteAll();
-        daoSessionManager.getAddressDao().deleteAll();
-        long oldId = oldPrimary.getId();
-        long newId = newPrimary.getId();
-        long replacementId = newId + 1;
-        daoSessionManager.runRaw(String.format("UPDATE Wallet set _ID = %s where _ID = %s", replacementId, oldId));
-        daoSessionManager.runRaw(String.format("UPDATE Word set WALLET_ID = %s where WALLET_ID = %s", replacementId, oldId));
-        oldPrimary.setId(replacementId);
-        oldPrimary.update();
+
+        if (legacyWallet != null) {
+            legacyWallet.setIsPrimary(false);
+            legacyWallet.update();
+        }
+
+        segwitWallet.setIsPrimary(true);
+        segwitWallet.update();
     }
 
     public void deleteAll() {
         daoSessionManager.resetAll();
+    }
+
+    public void deleteAllTransactionData() {
+        daoSessionManager.getInviteTransactionSummaryDao().deleteAll();
+        daoSessionManager.getTransactionsInvitesSummaryDao().deleteAll();
+        daoSessionManager.getTransactionSummaryDao().deleteAll();
+        daoSessionManager.getTargetStatDao().deleteAll();
+        daoSessionManager.getFundingStatDao().deleteAll();
+        daoSessionManager.getAddressDao().deleteAll();
     }
 
     public void removeCurrentCnRegistration() {
@@ -225,28 +232,23 @@ public class WalletHelper {
         return account;
     }
 
-    public void updateBalances() {
-        boolean useUnSpendableTargetStat = true;
-        long balance = buildBalances(useUnSpendableTargetStat);
+    public void updateBalances(Wallet wallet) {
+        long balance = buildBalances(wallet, true);
 
-        Wallet wallet = getPrimaryWallet();
         wallet.setBalance(Math.max(balance, 0));
         wallet.update();
     }
 
-    public void updateSpendableBalances() {
-        boolean useUnSpendableTargetStat = false;
-        long balance = buildBalances(useUnSpendableTargetStat);
+    public void updateSpendableBalances(Wallet wallet) {
+        long balance = buildBalances(wallet, false);
 
-        Wallet wallet = getPrimaryWallet();
         wallet.setSpendableBalance(Math.max(balance, 0));
         wallet.update();
     }
 
-    public long buildBalances(boolean useUnSpendableTargetStat) {
+    public long buildBalances(Wallet wallet, boolean useUnSpendableTargetStat) {
         long balance = 0L;
         // invalidate memory caches
-        Wallet wallet = getPrimaryWallet();
         wallet.refresh();
         wallet.resetFundingStats();
         wallet.resetTargetStats();
@@ -283,26 +285,6 @@ public class WalletHelper {
         }
 
         return balance;
-    }
-
-    public int getCurrentExternalIndex() {
-        return getPrimaryWallet().getExternalIndex();
-    }
-
-    public int getCurrentInternalIndex() {
-        return getPrimaryWallet().getInternalIndex();
-    }
-
-    public void setExternalIndex(int position) {
-        Wallet wallet = getPrimaryWallet();
-        wallet.setExternalIndex(position);
-        wallet.update();
-    }
-
-    public void setInternalIndex(int index) {
-        Wallet wallet = getPrimaryWallet();
-        wallet.setInternalIndex(index);
-        wallet.update();
     }
 
     public void updateBlockHeight(int blockheight) {
@@ -376,6 +358,24 @@ public class WalletHelper {
         }
 
         return value + fee;
+    }
+
+    private Wallet definePrimary() {
+        Wallet segwit = walletQueryManager.getSegwitWallet();
+        Wallet legacy = walletQueryManager.getLegacyWallet();
+
+        if (segwit != null && segwit.getLastSync() != 0) {
+            if (legacy != null) {
+                legacy.setIsPrimary(false);
+                legacy.update();
+            }
+            segwit.setIsPrimary(true);
+            segwit.update();
+        } else if (legacy != null) {
+            legacy.setIsPrimary(true);
+            legacy.update();
+        }
+        return walletQueryManager.getPrimaryWallet();
     }
 
     private void clearRegistration(boolean clearId) {

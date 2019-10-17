@@ -546,6 +546,7 @@
     <string name="thunderdome_unavailable">We are currently updating our servers. Don’t worry, your funds are safe, but please check back again shortly.</string>
     <string name="tx_history_load_lightning">Load Lightning</string>
     <string name="tx_history_withdraw_lightning">Lightning Withdraw</string>
+    <string name="tx_history_lightning_upgrade">Lightning Upgrade</string>
     <string name="transaction_details_load_lightning">Load Lightning</string>
     <string name="transaction_details_withdraw_from_lightning">Withdraw from Lightning</string>
 </resources>

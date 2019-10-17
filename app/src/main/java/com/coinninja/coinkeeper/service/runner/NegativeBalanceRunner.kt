@@ -13,7 +13,7 @@ class NegativeBalanceRunner @Inject constructor(
         internal val walletHelper: WalletHelper
 ) : Runnable {
     override fun run() {
-        if (walletHelper.buildBalances(false) < 0) {
+        if (walletHelper.buildBalances(walletHelper.primaryWallet, false) < 0) {
             cancellationService.markUnfulfilledAsCanceled()
         }
 

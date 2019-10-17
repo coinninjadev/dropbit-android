@@ -2,6 +2,7 @@ package com.coinninja.coinkeeper.view.adapter.util
 
 import app.coinninja.cn.libbitcoin.HDWallet
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.util.isNotNull
 import com.coinninja.coinkeeper.di.interfaces.LightningDepositAddress
 import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.BTCState
@@ -45,26 +46,36 @@ class TransactionAdapterUtil @Inject constructor(
     }
 
     internal fun setSendState(transaction: TransactionSummary) {
-        var isSend = false
-        var isReceive = false
+        var sendAddress: Address? = null
         for (fundingStat in transaction.funder) {
-            if (fundingStat.address != null) {
-                isSend = true
-            }
+            sendAddress = fundingStat.address
         }
 
-        var address: Address?
+        var receiveAddress: Address? = null
         for (targetStat in transaction.receiver) {
-            address = targetStat.address
-            if (address != null && address.changeIndex != HDWallet.INTERNAL) {
-                isReceive = true
+            receiveAddress = targetStat.address
+
+            if (sendAddress?.walletId == receiveAddress?.walletId && receiveAddress?.changeIndex == HDWallet.INTERNAL) {
+                receiveAddress = null
+            } else if (receiveAddress.isNotNull() && sendAddress == null) {
+                break
             }
         }
 
         when {
-            transaction.isLightningWithdraw -> bindableTransaction.sendState = SendState.UNLOAD_LIGHTNING
-            isSend && isReceive -> bindableTransaction.sendState = SendState.TRANSFER
-            isSend -> bindableTransaction.sendState = SendState.SEND
+            transaction.isLightningWithdraw -> {
+                bindableTransaction.sendState = SendState.UNLOAD_LIGHTNING
+            }
+            (sendAddress.isNotNull() && receiveAddress.isNotNull() && sendAddress?.walletId != receiveAddress?.walletId) -> {
+                bindableTransaction.targetAddress = receiveAddress?.address
+                bindableTransaction.sendState = SendState.LIGHTNING_UPGRADE
+            }
+            (sendAddress?.walletId == receiveAddress?.walletId) -> {
+                bindableTransaction.sendState = SendState.TRANSFER
+            }
+            sendAddress.isNotNull() -> {
+                bindableTransaction.sendState = SendState.SEND
+            }
             else -> bindableTransaction.sendState = SendState.RECEIVE
         }
     }
