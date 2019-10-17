@@ -2,10 +2,7 @@ package com.coinninja.coinkeeper.model.helpers
 
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.model.Identity
-import com.coinninja.coinkeeper.model.db.FundingStat
-import com.coinninja.coinkeeper.model.db.TargetStat
-import com.coinninja.coinkeeper.model.db.TransactionSummary
-import com.coinninja.coinkeeper.model.db.TransactionsInvitesSummary
+import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.model.dto.CompletedBroadcastDTO
 import com.coinninja.coinkeeper.model.query.TransactionQueryManager
@@ -44,22 +41,22 @@ class TransactionHelper @Inject constructor(
         return transactionQueryManager.pendingTransactionsOlderThan(olderThanMillis)
     }
 
-    fun initializeTransaction(transaction: TransactionSummary, gsonAddress: GsonAddress) {
-        transaction.wallet = walletHelper.primaryWallet
+    fun initializeTransaction(wallet:Wallet, transaction: TransactionSummary, gsonAddress: GsonAddress) {
+        transaction.wallet = wallet
         transaction.txid = gsonAddress.txid
         transaction.memPoolState = MemPoolState.PENDING
         transaction.blockhash = ""
         daoSessionManager.insert(transaction)
     }
 
-    fun initTransactions(addresses: List<GsonAddress>) {
+    fun initTransactions(wallet: Wallet, addresses: List<GsonAddress>) {
         val txids: MutableList<String> = mutableListOf()
 
         for (address in addresses) {
             val txid = address.txid
             if (txids.contains(txid) || transactionQueryManager.transactionByTxid(txid) != null) continue
             txids.add(txid)
-            initializeTransaction(daoSessionManager.newTransactionSummary(), address)
+            initializeTransaction(wallet, daoSessionManager.newTransactionSummary(), address)
         }
 
         txids.clear()
@@ -137,7 +134,6 @@ class TransactionHelper @Inject constructor(
         transaction.memPoolState = detail.mempoolState
         transaction.numInputs = detail.numberOfInputs
         transaction.numOutputs = detail.numberOfOutputs
-        transaction.wallet = walletHelper.primaryWallet
 
         try {
             for (input in detail.vInList) {
@@ -234,8 +230,10 @@ class TransactionHelper @Inject constructor(
         transaction.txTime = dateUtil.getCurrentTimeInMillis()
         transaction.blockhash = ""
         daoSessionManager.insert(transaction)
-        fundingStatHelper.createInputsFor(transaction, completedBroadcastActivityDTO.transactionData)
-        targetStatHelper.createOutputsFor(transaction, completedBroadcastActivityDTO.transactionData)
+        try {
+            fundingStatHelper.createInputsFor(transaction, completedBroadcastActivityDTO.transactionData)
+            targetStatHelper.createOutputsFor(transaction, completedBroadcastActivityDTO.transactionData)
+        } catch (e:java.lang.Exception) { }
 
         transactionInviteSummaryHelper.getOrCreateParentSettlementFor(transaction).also {
             addUserIdentitiesToTransaction(identity, it)

@@ -24,51 +24,55 @@ class AddressCacheTest {
         val addressCache = createAddressCache()
         val externalIndex = 22
         val internalIndex = 2
-        whenever(addressCache.walletHelper.currentExternalIndex).thenReturn(externalIndex)
-        whenever(addressCache.walletHelper.currentInternalIndex).thenReturn(internalIndex)
-        whenever(addressCache.hdWallet.fillBlock(any(), any(), any(), any(), any(), any())).thenReturn(emptyArray())
+        val wallet = addressCache.walletHelper.primaryWallet
+        whenever(wallet.externalIndex).thenReturn(externalIndex)
+        whenever(wallet.internalIndex).thenReturn(internalIndex)
+        whenever(addressCache.hdWallet.fillBlock(any(), any(), any(), any(), any(), any(), any())).thenReturn(emptyArray())
 
-        addressCache.cacheAddressesFor(HDWallet.EXTERNAL)
-        verify(addressCache.hdWallet).fillBlock(49, 0, 0, HDWallet.EXTERNAL, 0, externalIndex + numAddressesToCache)
-        addressCache.cacheAddressesFor(HDWallet.INTERNAL)
-        verify(addressCache.hdWallet).fillBlock(49, 0, 0, HDWallet.INTERNAL, 0, internalIndex + numAddressesToCache)
+        addressCache.cacheAddressesFor(wallet, HDWallet.EXTERNAL)
+        verify(addressCache.hdWallet).fillBlock(wallet, 49, 0, 0, HDWallet.EXTERNAL, 0, externalIndex + numAddressesToCache)
+        addressCache.cacheAddressesFor(wallet, HDWallet.INTERNAL)
+        verify(addressCache.hdWallet).fillBlock(wallet, 49, 0, 0, HDWallet.INTERNAL, 0, internalIndex + numAddressesToCache)
     }
 
     @Test
     fun caches_addresses_generated_by_hd_wallet() {
         val addressCache = createAddressCache()
         val externalIndex = 5
-        whenever(addressCache.walletHelper.currentExternalIndex).thenReturn(externalIndex)
+        val wallet = addressCache.walletHelper.primaryWallet
+        whenever(wallet.externalIndex).thenReturn(externalIndex)
 
         val addresses: Array<MetaAddress> = createMockAddresses(0, 15)
-        whenever(addressCache.hdWallet.fillBlock(49, 0, 0, HDWallet.EXTERNAL, 0, 15)).thenReturn(addresses)
-        addressCache.cacheAddressesFor(HDWallet.EXTERNAL)
+        whenever(addressCache.hdWallet.fillBlock(wallet, 49, 0, 0, HDWallet.EXTERNAL, 0, 15)).thenReturn(addresses)
+        addressCache.cacheAddressesFor(wallet, HDWallet.EXTERNAL)
 
         addresses.forEach {
-            verify(addressCache.addressHelper).saveAddress(it)
+            verify(addressCache.addressHelper).saveAddress(wallet, it)
         }
 
-        verify(addressCache.addressHelper, times(15)).saveAddress(any())
+        verify(addressCache.addressHelper, times(15)).saveAddress(any(), any())
     }
 
     @Test
     fun creates_internal_cache_only_when_necessary() {
         val addressCache = createAddressCache()
         val internalIndex = 2
-        whenever(addressCache.walletHelper.currentInternalIndex).thenReturn(internalIndex)
-        whenever(addressCache.addressHelper.getAddressCountFor(HDWallet.INTERNAL)).thenReturn(12)
-        addressCache.cacheAddressesFor(HDWallet.INTERNAL)
-        verify(addressCache.hdWallet, times(0)).fillBlock(any(), any(), any(), any(), any(), any())
+        val wallet: Wallet = mock()
+        whenever(wallet.externalIndex).thenReturn(internalIndex)
+        whenever(addressCache.addressHelper.getAddressCountFor(wallet, HDWallet.INTERNAL)).thenReturn(12)
+        addressCache.cacheAddressesFor(wallet, HDWallet.INTERNAL)
+        verify(addressCache.hdWallet, times(0)).fillBlock(any(), any(), any(), any(), any(), any(), any())
     }
 
     @Test
     fun creates_external_cache_only_when_necessary() {
         val addressCache = createAddressCache()
         val externalIndex = 22
-        whenever(addressCache.walletHelper.currentExternalIndex).thenReturn(externalIndex)
-        whenever(addressCache.addressHelper.getAddressCountFor(HDWallet.EXTERNAL)).thenReturn(32)
-        addressCache.cacheAddressesFor(HDWallet.EXTERNAL)
-        verify(addressCache.hdWallet, times(0)).fillBlock(any(), any(), any(), any(), any(), any())
+        val wallet: Wallet = mock()
+        whenever(wallet.externalIndex).thenReturn(externalIndex)
+        whenever(addressCache.addressHelper.getAddressCountFor(wallet, HDWallet.EXTERNAL)).thenReturn(32)
+        addressCache.cacheAddressesFor(wallet, HDWallet.EXTERNAL)
+        verify(addressCache.hdWallet, times(0)).fillBlock(any(), any(), any(), any(), any(), any(), any())
     }
 
     private fun createMockAddresses(start: Int, end: Int): Array<MetaAddress> {

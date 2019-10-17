@@ -139,7 +139,7 @@ public class AddressAPIUtil {
     }
 
     private String[] getBlockToRequest(int startIndex) {
-        return toAddresses(hdWallet.fillBlock(wallet.getPurpose(), wallet.getCoinType(), wallet.getAccountIndex(), changeIndex, startIndex, calcBufferSize()));
+        return toAddresses(hdWallet.fillBlock(wallet, wallet.getPurpose(), wallet.getCoinType(), wallet.getAccountIndex(), changeIndex, startIndex, calcBufferSize()));
     }
 
     private String[] toAddresses(MetaAddress[] metaAddresses) {

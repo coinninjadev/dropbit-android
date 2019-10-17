@@ -44,7 +44,7 @@ kapt {
 }
 
 greendao {
-    schemaVersion 40
+    schemaVersion 41
 }
 
 hockeyapp {

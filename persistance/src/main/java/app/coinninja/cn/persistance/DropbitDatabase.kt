@@ -39,7 +39,7 @@ import app.coinninja.cn.persistance.model.*
             Wallet::class,
             Word::class
         ],
-        version = 40,
+        version = 41,
         exportSchema = true
 )
 

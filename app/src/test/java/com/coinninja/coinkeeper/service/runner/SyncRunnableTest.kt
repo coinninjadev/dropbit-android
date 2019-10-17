@@ -20,7 +20,7 @@ class SyncRunnableTest {
 
     private fun createRunner(): SyncRunnable = SyncRunnable(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock()).also {
         whenever(it.addressAPIUtil.fetchAddresses(any(), any(), any(), any())).thenReturn(mutableListOf())
-        whenever(it.addressHelper.addAddresses(any(), any())).thenReturn(mutableListOf())
+        whenever(it.addressHelper.addAddresses(any(), any(), any())).thenReturn(mutableListOf())
         whenever(it.cnWalletManager.hasWallet).thenReturn(true)
         whenever(it.walletHelper.primaryWallet).thenReturn(mock())
 
@@ -98,7 +98,7 @@ class SyncRunnableTest {
         val runner = createRunner()
         runner.run()
 
-        verify(runner.walletHelper).updateBalances()
+        verify(runner.walletHelper).updateBalances(runner.walletHelper.primaryWallet)
     }
 
     @Test
@@ -168,7 +168,7 @@ class SyncRunnableTest {
 
         runner.run()
 
-        verify(runner.transactionHelper).initTransactions(responseAddresses)
+        verify(runner.transactionHelper).initTransactions(runner.walletHelper.primaryWallet, responseAddresses)
     }
 
     @Test
@@ -182,7 +182,7 @@ class SyncRunnableTest {
 
         runner.run()
 
-        verify(runner.addressHelper).addAddresses(responseAddresses, HDWallet.EXTERNAL)
+        verify(runner.addressHelper).addAddresses(runner.walletHelper.primaryWallet, responseAddresses, HDWallet.EXTERNAL)
     }
 
     @Test
@@ -196,34 +196,36 @@ class SyncRunnableTest {
 
         runner.run()
 
-        verify(runner.addressHelper).addAddresses(responseAddresses, HDWallet.INTERNAL)
+        verify(runner.addressHelper).addAddresses(runner.walletHelper.primaryWallet, responseAddresses, HDWallet.INTERNAL)
     }
 
     @Test
     fun setsInternalAddressToCorrectIndex() {
         val runner = createRunner()
+        val wallet = runner.walletHelper.primaryWallet
         whenever(runner.addressAPIUtil.largestIndexConsumed).thenReturn(3)
 
         runner.run()
 
-        verify(runner.accountManager).reportLargestChangeIndexConsumed(3)
+        verify(runner.accountManager).reportLargestChangeIndexConsumed(wallet, 3)
 
 
         whenever(runner.addressAPIUtil.largestIndexConsumed).thenReturn(0)
 
         runner.run()
 
-        verify(runner.accountManager).reportLargestChangeIndexConsumed(0)
+        verify(runner.accountManager).reportLargestChangeIndexConsumed(wallet, 0)
     }
 
     @Test
     fun setsExternalAddressToCorrectPositionWhenAddressesAreFetched() {
         val runner = createRunner()
+        val wallet = runner.walletHelper.primaryWallet
         whenever(runner.addressAPIUtil.largestIndexConsumed).thenReturn(5)
 
         runner.run()
 
-        verify(runner.accountManager).reportLargestReceiveIndexConsumed(5)
+        verify(runner.accountManager).reportLargestReceiveIndexConsumed(wallet, 5)
     }
 
     @Test
@@ -239,7 +241,8 @@ class SyncRunnableTest {
     @Test
     fun fetchesExternalAddresses() {
         val runner = createRunner()
-        whenever(runner.accountManager.largestReportedReceiveAddress).thenReturn(5)
+        val wallet = runner.walletHelper.primaryWallet
+        whenever(runner.accountManager.largestReportedReceiveAddress(wallet)).thenReturn(5)
 
         runner.run()
 
@@ -249,7 +252,8 @@ class SyncRunnableTest {
     @Test
     fun fetchesInternalAddresses() {
         val runner = createRunner()
-        whenever(runner.accountManager.largestReportedChangeAddress).thenReturn(2)
+        val wallet = runner.walletHelper.primaryWallet
+        whenever(runner.accountManager.largestReportedChangeAddress(wallet)).thenReturn(2)
 
         runner.run()
 
@@ -263,7 +267,7 @@ class SyncRunnableTest {
         runner.run()
 
         inOrder.verify(runner.cnWalletManager).syncCompleted()
-        inOrder.verify(runner.accountManager).cacheAddresses()
+        inOrder.verify(runner.accountManager).cacheAddresses(runner.walletHelper.primaryWallet)
     }
 
     @Test

@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.dropbit.DropbitTwitterInviteTweetSuppressionCheck
 import com.coinninja.coinkeeper.model.Identity
+import com.coinninja.coinkeeper.model.db.enums.IdentityType
 import com.coinninja.coinkeeper.ui.twitter.TransactionTweetCallback
 import com.coinninja.coinkeeper.ui.twitter.TransactionTweetDialog
 import com.google.common.truth.Truth.assertThat
@@ -90,9 +91,7 @@ class TransactionTweetDialogTest {
 
     @Test
     fun tweet_yourself_sends_mention_to_open_twitter__configuration_no_tweet() {
-        val identity = mock<Identity>()
-        whenever(identity.handle).thenReturn("@receiversHandle")
-        whenever(identity.avatarUrl).thenReturn("http://avatar/uri")
+        val identity = Identity(identityType = IdentityType.TWITTER, value = "", handle = "@receiversHandle", avatarUrl = "http://avatar/uri")
         val callback = mock<TransactionTweetCallback>()
         val dialog = setupDialog(identity, callback)
 
@@ -109,9 +108,7 @@ class TransactionTweetDialogTest {
 
     @Test
     fun tweet_yourself_sends_mention_to_open_twitter__configuration_manual_tweet() {
-        val identity = mock<Identity>()
-        whenever(identity.handle).thenReturn("@receiversHandle")
-        whenever(identity.avatarUrl).thenReturn("http://avatar/uri")
+        val identity = Identity(identityType = IdentityType.TWITTER, value = "", handle = "receiversHandle", avatarUrl = "http://avatar/uri")
         val callback = mock<TransactionTweetCallback>()
         val dialog = setupDialog(identity, callback)
 

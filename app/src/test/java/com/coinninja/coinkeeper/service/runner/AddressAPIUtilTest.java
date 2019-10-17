@@ -35,9 +35,9 @@ import static org.mockito.Mockito.when;
 public class AddressAPIUtilTest {
 
     private static final int DEFAULT_PAGE = 1;
+    Wallet wallet = mock(Wallet.class);
     @InjectMocks
     private AddressAPIUtil addressAPIUtil;
-
     @Mock
     private CoinKeeperApiClient apiClient;
     @Mock
@@ -46,7 +46,6 @@ public class AddressAPIUtilTest {
     private String[] block2;
     private String[] block3;
     private String[] block4;
-
     private MetaAddress[] metaBlock1;
     private MetaAddress[] metaBlock2;
     private MetaAddress[] metaBlock3;
@@ -54,7 +53,6 @@ public class AddressAPIUtilTest {
 
     @Before
     public void setUp() {
-        Wallet wallet = mock(Wallet.class);
         when(wallet.getPurpose()).thenReturn(49);
         when(wallet.getCoinType()).thenReturn(0);
         when(wallet.getAccountIndex()).thenReturn(0);
@@ -78,7 +76,7 @@ public class AddressAPIUtilTest {
 
         addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
-        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
+        verify(hdWallet).fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
     }
 
     @Test
@@ -87,7 +85,7 @@ public class AddressAPIUtilTest {
 
         addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 2);
 
-        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 7);
+        verify(hdWallet).fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 7);
     }
 
     @Test
@@ -105,8 +103,8 @@ public class AddressAPIUtilTest {
 
         addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
-        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
-        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2);
+        verify(hdWallet).fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, ADDRESSES_TO_QUERY_AT_A_TIME);
+        verify(hdWallet).fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2);
 
         verify(apiClient).queryAddressesFor(block1, DEFAULT_PAGE);
         verify(apiClient).queryAddressesFor(block2, DEFAULT_PAGE);
@@ -120,8 +118,8 @@ public class AddressAPIUtilTest {
         metaBlock1 = toMetaBlock(block1);
         metaBlock2 = toMetaBlock(block2);
 
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 20)).thenReturn(metaBlock1);
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 20)).thenReturn(metaBlock2);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 20)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 20)).thenReturn(metaBlock2);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, 5));
         when(apiClient.queryAddressesFor(block2, DEFAULT_PAGE)).thenReturn(buildResponse(block2, 0));
@@ -131,7 +129,7 @@ public class AddressAPIUtilTest {
 
         addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 0);
 
-        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 20);
+        verify(hdWallet).fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 20);
         verify(apiClient).queryAddressesFor(block2, DEFAULT_PAGE);
     }
 
@@ -142,7 +140,7 @@ public class AddressAPIUtilTest {
 
         addressAPIUtil.fetchAddresses(hdWallet, HDWalletWrapper.EXTERNAL, 0, 22);
 
-        verify(hdWallet).fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 27, 5);
+        verify(hdWallet).fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 27, 5);
         verify(apiClient).queryAddressesFor(block3, DEFAULT_PAGE);
     }
 
@@ -224,10 +222,10 @@ public class AddressAPIUtilTest {
         metaBlock3 = toMetaBlock(block3);
         metaBlock4 = toMetaBlock(block4);
 
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 5)).thenReturn(metaBlock1);
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 5)).thenReturn(metaBlock2);
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 9, 5)).thenReturn(metaBlock3);
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 12, 5)).thenReturn(metaBlock4);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 5)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 5, 5)).thenReturn(metaBlock2);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 9, 5)).thenReturn(metaBlock3);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 12, 5)).thenReturn(metaBlock4);
 
         when(apiClient.queryAddressesFor(block1, 1)).thenReturn(buildResponse(block1, block1.length));
 
@@ -255,8 +253,8 @@ public class AddressAPIUtilTest {
         metaBlock1 = toMetaBlock(block1);
         metaBlock2 = toMetaBlock(block2);
 
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
 
         when(apiClient.queryAddressesFor(block1, 1)).thenReturn(buildResponse(block1, block1.length,
                 true));
@@ -271,7 +269,7 @@ public class AddressAPIUtilTest {
         block3 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 27, 27 + AddressAPIUtil.LOOK_AHEAD);
         metaBlock3 = toMetaBlock(block3);
 
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 27, AddressAPIUtil.LOOK_AHEAD)).thenReturn(metaBlock3);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 27, AddressAPIUtil.LOOK_AHEAD)).thenReturn(metaBlock3);
         when(apiClient.queryAddressesFor(block3, DEFAULT_PAGE)).thenReturn(buildResponse(block3, 0));
     }
 
@@ -279,7 +277,7 @@ public class AddressAPIUtilTest {
         block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, AddressAPIUtil.LOOK_AHEAD);
         metaBlock1 = toMetaBlock(block1);
 
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 5)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 5)).thenReturn(metaBlock1);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, 0));
     }
@@ -288,7 +286,7 @@ public class AddressAPIUtilTest {
         block1 = Arrays.copyOfRange(TestData.INSTANCE.getEXTERNAL_ADDRESSES(), 0, 7);
         metaBlock1 = toMetaBlock(block1);
 
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 7)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 7)).thenReturn(metaBlock1);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, 2));
     }
@@ -299,8 +297,8 @@ public class AddressAPIUtilTest {
         metaBlock1 = toMetaBlock(block1);
         metaBlock2 = toMetaBlock(block2);
 
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, block1.length));
         when(apiClient.queryAddressesFor(block2, DEFAULT_PAGE)).thenReturn(buildResponse(block2, 0));
@@ -312,8 +310,8 @@ public class AddressAPIUtilTest {
         metaBlock1 = toMetaBlock(block1);
         metaBlock2 = toMetaBlock(block2);
 
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
-        when(hdWallet.fillBlock(49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 0, 25)).thenReturn(metaBlock1);
+        when(hdWallet.fillBlock(wallet, 49, 0, 0, HDWalletWrapper.EXTERNAL, 25, 2)).thenReturn(metaBlock2);
 
         when(apiClient.queryAddressesFor(block1, DEFAULT_PAGE)).thenReturn(buildResponse(block1, block1.length));
         when(apiClient.queryAddressesFor(block2, DEFAULT_PAGE)).thenReturn(buildResponse(block2, block2.length));

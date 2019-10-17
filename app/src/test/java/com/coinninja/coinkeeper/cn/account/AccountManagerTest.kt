@@ -12,76 +12,109 @@ import java.util.*
 
 class AccountManagerTest {
 
-    private fun createManager(): AccountManager = AccountManager(mock(), mock(), mock(), mock())
+    private fun createManager(): AccountManager {
+        val manager = AccountManager(mock(), mock(), mock(), mock())
+        whenever(manager.walletHelper.primaryWallet).thenReturn(mock())
+        return manager
+    }
 
     @Test
     fun instructs_address_cache_to_build_for_both_internal_and_external_chains() {
         val accountManager = createManager()
-        accountManager.cacheAddresses()
+        val wallet: Wallet = mock()
+        accountManager.cacheAddresses(wallet)
 
-        verify(accountManager.addressCache).cacheAddressesFor(HDWallet.EXTERNAL)
-        verify(accountManager.addressCache).cacheAddressesFor(HDWallet.INTERNAL)
+        verify(accountManager.addressCache).cacheAddressesFor(wallet, HDWallet.EXTERNAL)
+        verify(accountManager.addressCache).cacheAddressesFor(wallet, HDWallet.INTERNAL)
     }
 
     @Test
     fun reportLargestChangeIndexConsumed_when_less_than_current() {
         val accountManager = createManager()
-        whenever(accountManager.walletHelper.currentInternalIndex).thenReturn(22)
-        accountManager.reportLargestChangeIndexConsumed(20)
-        verify(accountManager.walletHelper, times(0)).setInternalIndex(any())
+        val wallet: Wallet = mock()
+        whenever(wallet.id).thenReturn(2)
+        whenever(wallet.internalIndex).thenReturn(22)
+
+        accountManager.reportLargestChangeIndexConsumed(wallet, 20)
+        verify(wallet, times(0)).internalIndex = any()
+        verify(wallet, times(0)).update()
     }
 
     @Test
     fun reportLargestChangeIndexConsumed_when_same_as_current() {
         val accountManager = createManager()
-        whenever(accountManager.walletHelper.currentInternalIndex).thenReturn(22)
-        accountManager.reportLargestChangeIndexConsumed(22)
-        verify(accountManager.walletHelper).setInternalIndex(23)
+        val wallet: Wallet = mock()
+        whenever(wallet.id).thenReturn(2)
+        whenever(wallet.internalIndex).thenReturn(22)
+
+        accountManager.reportLargestChangeIndexConsumed(wallet, 23)
+        verify(wallet).internalIndex = 23
+        verify(wallet).update()
     }
 
     @Test
     fun reportLargestChangeIndexConsumed_when_greater_than_current() {
         val accountManager = createManager()
-        whenever(accountManager.walletHelper.currentInternalIndex).thenReturn(22)
-        accountManager.reportLargestChangeIndexConsumed(23)
-        verify(accountManager.walletHelper).setInternalIndex(24)
+        val wallet: Wallet = mock()
+        whenever(wallet.id).thenReturn(2)
+        whenever(wallet.internalIndex).thenReturn(22)
+
+        accountManager.reportLargestChangeIndexConsumed(wallet, 24)
+
+        verify(wallet).internalIndex = 24
+        verify(wallet).update()
     }
 
     @Test
     fun reportLargestReceiveIndexConsumed_when_less_than_current() {
         val accountManager = createManager()
-        whenever(accountManager.walletHelper.currentExternalIndex).thenReturn(22)
-        accountManager.reportLargestReceiveIndexConsumed(20)
-        verify(accountManager.walletHelper, times(0)).setExternalIndex(any())
+        val wallet: Wallet = mock()
+        whenever(wallet.id).thenReturn(2)
+        whenever(wallet.externalIndex).thenReturn(22)
+
+        accountManager.reportLargestReceiveIndexConsumed(wallet, 20)
+
+        verify(wallet, times(0)).externalIndex = any()
+        verify(wallet, times(0)).update()
     }
 
     @Test
     fun reportLargestReceiveIndexConsumed_when_same_as_current() {
         val accountManager = createManager()
-        whenever(accountManager.walletHelper.currentExternalIndex).thenReturn(22)
-        accountManager.reportLargestReceiveIndexConsumed(22)
-        verify(accountManager.walletHelper).setExternalIndex(23)
+        val wallet: Wallet = mock()
+        whenever(wallet.id).thenReturn(2)
+        whenever(wallet.externalIndex).thenReturn(22)
+
+        accountManager.reportLargestReceiveIndexConsumed(wallet, 23)
+
+        verify(wallet).externalIndex = 23
+        verify(wallet).update()
     }
 
     @Test
     fun reportLargestReceiveIndexConsumed_when_greater_than_current() {
         val accountManager = createManager()
-        whenever(accountManager.walletHelper.currentExternalIndex).thenReturn(22)
-        accountManager.reportLargestReceiveIndexConsumed(23)
-        verify(accountManager.walletHelper).setExternalIndex(24)
+        val wallet: Wallet = mock()
+        whenever(wallet.id).thenReturn(2)
+        whenever(wallet.externalIndex).thenReturn(22)
+
+        accountManager.reportLargestReceiveIndexConsumed(wallet, 24)
+
+        verify(wallet).externalIndex = 24
+        verify(wallet).update()
     }
 
     @Test
     fun returns_first_receive_address_when_address_cache_empty() {
         val accountManager = createManager()
-        val path = DerivationPath(49, 0, 0, 0, 0)
+        val path = DerivationPath(84, 0, 0, 0, 0)
         val address = MetaAddress("--address--", "--pubkey--", path)
         val addresses = ArrayList<Address>()
-        val wallet = mock<Wallet>()
-        whenever(wallet.purpose).thenReturn(49)
+        val wallet: Wallet = mock()
+        whenever(wallet.purpose).thenReturn(84)
         whenever(wallet.coinType).thenReturn(0)
         whenever(wallet.accountIndex).thenReturn(0)
-        whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)
+        whenever(accountManager.addressHelper.getUnusedAddressesFor(wallet, HDWallet.EXTERNAL)).thenReturn(addresses)
         whenever(accountManager.walletHelper.primaryWallet).thenReturn(wallet)
         whenever(accountManager.hdWallet.getAddressForPath(path)).thenReturn(address)
 
@@ -92,7 +125,9 @@ class AccountManagerTest {
     fun returns_next_change_address_from_hd_wallet_when_cache_is_empty() {
         val accountManager = createManager()
         val addresses = ArrayList<Address>()
-        whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.INTERNAL)).thenReturn(addresses)
+        val wallet: Wallet = mock()
+        whenever(wallet.id).thenReturn(2)
+        whenever(accountManager.addressHelper.getUnusedAddressesFor(wallet, HDWallet.INTERNAL)).thenReturn(addresses)
 
         assertThat(accountManager.nextChangeIndex).isEqualTo(0)
     }
@@ -116,7 +151,7 @@ class AccountManagerTest {
         addresses.add(address1)
         addresses.add(address2)
 
-        whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.INTERNAL)).thenReturn(addresses)
+        whenever(accountManager.addressHelper.getUnusedAddressesFor(accountManager.walletHelper.primaryWallet, HDWallet.INTERNAL)).thenReturn(addresses)
 
         assertThat(accountManager.nextChangeIndex).isEqualTo(7)
     }
@@ -134,7 +169,8 @@ class AccountManagerTest {
         addresses.add(address1)
         addresses.add(address2)
 
-        whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)
+        whenever(accountManager.addressHelper.getUnusedAddressesFor(accountManager.walletHelper.primaryWallet,
+                HDWallet.EXTERNAL)).thenReturn(addresses)
 
         assertThat(accountManager.nextReceiveIndex).isEqualTo(5)
     }
@@ -151,8 +187,11 @@ class AccountManagerTest {
         val addresses = ArrayList<Address>()
         addresses.add(address1)
         addresses.add(address2)
+        val wallet: Wallet = mock()
+        whenever(wallet.id).thenReturn(2)
+        whenever(accountManager.walletHelper.primaryWallet).thenReturn(wallet)
 
-        whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)
+        whenever(accountManager.addressHelper.getUnusedAddressesFor(wallet, HDWallet.EXTERNAL)).thenReturn(addresses)
         val nextAddress = "---- address 1 ----"
         val address = accountManager.nextReceiveAddress
 
@@ -176,7 +215,8 @@ class AccountManagerTest {
         whenever(addressFour.derivationPath).thenReturn(DerivationPath.from("M/49/0/0/0/8"))
 
         val addresses = listOf(addressOne, addressTwo, addressThree, addressFour)
-        whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)
+        whenever(accountManager.addressHelper.getUnusedAddressesFor(accountManager.walletHelper.primaryWallet,
+                HDWallet.EXTERNAL)).thenReturn(addresses)
         whenever(accountManager.addressCache.getUncompressedPublicKey(any())).thenReturn("")
 
         val block = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 3)
@@ -198,7 +238,8 @@ class AccountManagerTest {
         whenever(addressTwo.derivationPath).thenReturn(DerivationPath.from("M/49/0/0/0/4"))
 
         val addresses = listOf(addressOne, addressTwo)
-        whenever(accountManager.addressHelper.getUnusedAddressesFor(HDWallet.EXTERNAL)).thenReturn(addresses)
+
+        whenever(accountManager.addressHelper.getUnusedAddressesFor(accountManager.walletHelper.primaryWallet, HDWallet.EXTERNAL)).thenReturn(addresses)
         whenever(accountManager.addressCache.getUncompressedPublicKey(any())).thenReturn("")
 
         val block = accountManager.unusedAddressesToPubKey(HDWallet.EXTERNAL, 3)

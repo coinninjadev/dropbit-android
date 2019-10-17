@@ -81,6 +81,8 @@ public class Wallet {
     @Property
     private long flags;
 
+    @Property
+    private boolean isPrimary;
 
     /**
      * Used to resolve relations
@@ -115,10 +117,10 @@ public class Wallet {
     public Wallet() {
     }
 
-    @Generated(hash = 369162676)
+    @Generated(hash = 470085200)
     public Wallet(Long id, int hdIndex, Long userId, long lastSync, int internalIndex,
             int externalIndex, long balance, long spendableBalance, int blockTip, long lastUSDPrice,
-            int purpose, int coinType, int accountIndex, long flags) {
+            int purpose, int coinType, int accountIndex, long flags, boolean isPrimary) {
         this.id = id;
         this.hdIndex = hdIndex;
         this.userId = userId;
@@ -133,6 +135,7 @@ public class Wallet {
         this.coinType = coinType;
         this.accountIndex = accountIndex;
         this.flags = flags;
+        this.isPrimary = isPrimary;
     }
 
     public Long getId() {
@@ -478,6 +481,14 @@ public class Wallet {
 
     public void setFlags(long flags) {
         this.flags = flags;
+    }
+
+    public boolean getIsPrimary() {
+        return this.isPrimary;
+    }
+
+    public void setIsPrimary(boolean isPrimary) {
+        this.isPrimary = isPrimary;
     }
 
     /** called by internal mechanisms, do not call yourself. */

@@ -303,7 +303,7 @@ class ThunderDomeRepositoryTest {
                 400, ResponseBody.create(MediaType.parse("application/json"), Testdata.maxRequestError))
         whenever(repository.apiClient.pay(paymentRequest)).thenReturn(response)
 
-        assertThat(repository.pay(encodedInvoice, 10_000)).isEqualTo(LedgerInvoice(error = "Max request value is 500000"))
+        assertThat(repository.pay(encodedInvoice, 10_000)).isEqualTo(LedgerInvoice(error = "Max request value is 500,000"))
     }
 
     private fun createRepository(): ThunderDomeRepository = ThunderDomeRepository(mock(), mock())

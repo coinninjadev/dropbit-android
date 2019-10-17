@@ -112,7 +112,7 @@ class CNWalletManagerTest {
     @Test
     fun allows_user_to_skip_backup() {
         val manager = createManager()
-        val wallet:Wallet = mock()
+        val wallet: Wallet = mock()
         whenever(manager.walletHelper.primaryWallet).thenReturn(wallet)
         whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
         manager.skipBackup(validWords)
@@ -139,7 +139,7 @@ class CNWalletManagerTest {
     fun verifying_words_saves_words() {
         val manager = createManager()
         whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
-        val wallet:Wallet = mock()
+        val wallet: Wallet = mock()
         whenever(manager.walletHelper.primaryWallet).thenReturn(wallet)
 
         manager.userVerifiedWords(validWords)
@@ -154,13 +154,16 @@ class CNWalletManagerTest {
     @Test
     fun caches_addresses_after_wallet_saved() {
         val manager = createManager()
+        val wallet: Wallet = mock()
+        whenever(manager.walletHelper.primaryWallet).thenReturn(wallet)
         val inOrder = inOrder(manager.walletHelper, manager.accountManager, manager.localBroadCastUtil)
+        whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
         whenever(manager.walletHelper.seedWords).thenReturn(emptyArray())
 
         manager.userVerifiedWords(validWords)
 
         inOrder.verify(manager.walletHelper).saveWords(validWords)
-        inOrder.verify(manager.accountManager).cacheAddresses()
+        inOrder.verify(manager.accountManager).cacheAddresses(wallet)
         inOrder.verify(manager.localBroadCastUtil).sendGlobalBroadcast(any(), any())
     }
 
@@ -291,11 +294,13 @@ class CNWalletManagerTest {
     @Test
     fun updating_wallet_balances_notifies_balance_change() {
         val manager = createManager()
+        val wallet: Wallet = mock()
+        whenever(manager.walletHelper.primaryWallet).thenReturn(wallet)
 
         manager.updateBalances()
 
-        verify(manager.walletHelper).updateBalances()
-        verify(manager.walletHelper).updateSpendableBalances()
+        verify(manager.walletHelper).updateBalances(wallet)
+        verify(manager.walletHelper).updateSpendableBalances(wallet)
         verify(manager.localBroadCastUtil).sendBroadcast(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE)
     }
 
@@ -347,12 +352,12 @@ class CNWalletManagerTest {
         val segwitWallet: Wallet = mock()
         val legacyWallet: Wallet = mock()
         whenever(manager.walletHelper.getOrCreateSegwitWalletForUpdate(any())).thenReturn(segwitWallet)
-        whenever(manager.walletHelper.primaryWallet).thenReturn(legacyWallet)
+        whenever(manager.walletHelper.legacyWallet).thenReturn(legacyWallet)
 
         manager.replaceLegacyWithSegwit()
 
         verify(manager.preferencesUtil).savePreference(CNWalletManager.PREFERENCE_SKIPPED_BACKUP, true)
-        verify(manager.walletHelper).rotateWallets(segwitWallet, legacyWallet)
+        verify(manager.walletHelper).rotateAccount(segwitWallet, legacyWallet)
     }
 
     @Test
