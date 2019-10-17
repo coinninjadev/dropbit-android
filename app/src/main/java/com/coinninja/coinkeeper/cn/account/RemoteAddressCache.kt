@@ -2,7 +2,6 @@ package com.coinninja.coinkeeper.cn.account
 
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
-import com.coinninja.coinkeeper.cn.wallet.WalletFlags
 import com.coinninja.coinkeeper.model.dto.AddressDTO
 import com.coinninja.coinkeeper.model.helpers.WalletHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
@@ -37,16 +36,20 @@ class RemoteAddressCache @Inject internal constructor(
 
     private fun addLightning(cachedAddresses: List<CNWalletAddress>) {
         var hasLightning = false
-        cachedAddresses.forEach { walletAddress ->
-            if (walletAddress.address == "generate") {
-                hasLightning = true
+        walletHelper.segwitWallet?.let { wallet ->
+            cachedAddresses.forEach { walletAddress ->
+                if (walletAddress.address == "generate" && walletAddress.publicKey == hdWalletWrapper.verificationKeyFor(wallet)) {
+                    hasLightning = true
+                } else if (walletAddress.address == "generate") {
+                    apiClient.removeAddress("generate")
+                }
+            }
+
+            if (!hasLightning && wallet.purpose == 84) {
+                apiClient.addAddress(AddAddressBodyRequest(pubKey = hdWalletWrapper.verificationKeyFor(wallet), addressType = "lightning"))
             }
         }
 
-        val wallet = walletHelper.primaryWallet
-        if (!hasLightning && wallet.purpose == 84) {
-            apiClient.addAddress(AddAddressBodyRequest(pubKey = hdWalletWrapper.verificationKey, addressType = "lightning"))
-        }
     }
 
     private fun cacheUnusedAddressesLocally(unusedAddresses: List<AddressDTO>) {
@@ -63,6 +66,7 @@ class RemoteAddressCache @Inject internal constructor(
 
     private fun removeUsedAddresses(cachedAddresses: List<CNWalletAddress>, localCache: HashMap<String, AddressDTO>) {
         for (walletAddress in cachedAddresses) {
+            if (walletAddress.address == "generate") continue
             if (!localCache.keys.contains(walletAddress.address))
                 apiClient.removeAddress(walletAddress.address)
         }
