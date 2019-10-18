@@ -112,7 +112,7 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun onLightningLockChanged() {
-        if (isLightningLocked) {
+        if (isLightningLocked && accountModeManger.accountMode == AccountMode.LIGHTNING) {
             pager.postDelayed({
                 if (isLightningLocked)
                     try {
@@ -133,7 +133,7 @@ class HomeActivity : BaseActivity() {
         intent.removeExtra(DropbitIntents.EXTRA_TRANSACTION_ID)
     }
 
-    private fun selectTabForMode() {
+    internal fun selectTabForMode() {
         when (accountModeManger.accountMode) {
             AccountMode.LIGHTNING -> {
                 val tabs = tabs
