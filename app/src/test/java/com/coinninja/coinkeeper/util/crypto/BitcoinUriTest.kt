@@ -21,6 +21,39 @@ class BitcoinUriTest {
         return BitcoinUri.Builder(bitcoinUtil)
     }
 
+    //---------------
+    // BC1 parsing / building
+    //---------------
+    @Test
+    fun bc1__upper_case_from_builder__add_address() {
+        val builder = createBuilder()
+        val address = "BC1Q8JPENEN7X5CLWX9396T3S9Z5LR8YH88ZKKUSJZ"
+
+        val uri = builder.setAddress(address).build()
+
+        assertThat(uri.toString()).isEqualTo("bitcoin:bc1q8jpenen7x5clwx9396t3s9z5lr8yh88zkkusjz")
+        assertThat(uri.address).isEqualTo("bc1q8jpenen7x5clwx9396t3s9z5lr8yh88zkkusjz")
+        assertThat(uri.scheme).isEqualTo("bitcoin")
+        assertThat(uri.memo).isEqualTo("")
+        assertThat(uri.isBip70).isFalse()
+        assertThat(uri.isValidPaymentAddress).isTrue()
+    }
+
+    @Test
+    fun bc1__upper_case_from_builder__parse_uri_string() {
+        val builder = createBuilder()
+        val uriString = "bitcoin:bc1q8jpenen7x5clwx9396t3s9z5lr8yh88zkkusjz"
+
+        val uri = builder.parse(uriString)
+
+        assertThat(uri.toString()).isEqualTo("bitcoin:bc1q8jpenen7x5clwx9396t3s9z5lr8yh88zkkusjz")
+        assertThat(uri.address).isEqualTo("bc1q8jpenen7x5clwx9396t3s9z5lr8yh88zkkusjz")
+        assertThat(uri.scheme).isEqualTo("bitcoin")
+        assertThat(uri.memo).isEqualTo("")
+        assertThat(uri.isBip70).isFalse()
+        assertThat(uri.isValidPaymentAddress).isTrue()
+    }
+
     // --------------
     // Building
     // --------------

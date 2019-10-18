@@ -87,7 +87,9 @@ class BitcoinUri {
             return this
         }
 
-        fun setAddress(address: String): Builder {
+        fun setAddress(value: String): Builder {
+            val address = if (value.startsWith("BC1")) value.toLowerCase() else value
+
             if (bitcoinUtil.isValidBTCAddress(address)) {
                 _address = address
             }
