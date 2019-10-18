@@ -8,10 +8,7 @@ import com.coinninja.coinkeeper.ui.base.BaseFragment
 import com.coinninja.coinkeeper.viewModel.WalletViewModel
 import com.coinninja.coinkeeper.viewModel.WalletViewModelProvider
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import dagger.Module
 import dagger.Provides
 import org.junit.Test
@@ -72,6 +69,17 @@ class LightningHistoryFragmentTest {
         }
     }
 
+    @Test
+    fun checks_lock_status_after_each_sync() {
+        createFragment().onFragment { fragment ->
+            whenever(fragment.syncManagerViewNotifier.isSyncing).thenReturn(true).thenReturn(false)
+
+            fragment.syncManagerChangeObserver.onSyncStatusChanged()
+            fragment.syncManagerChangeObserver.onSyncStatusChanged()
+
+            verify(fragment.walletViewModel, times(2)).checkLightningLock()
+        }
+    }
 
     // Sync
 

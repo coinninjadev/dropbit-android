@@ -50,14 +50,7 @@ class HomeActivity : BaseActivity() {
             when (tabs.selectedTabPosition) {
                 1 -> {
                     changeAccountMode(AccountMode.LIGHTNING)
-                    if (isLightningLocked)
-                        pager.postDelayed({
-                            if (isLightningLocked)
-                                try {
-                                    paymentBarFragment.hide()
-                                } catch (e: Exception) {
-                                }
-                        }, 300)
+                    onLightningLockChanged()
                 }
                 else -> {
                     changeAccountMode(AccountMode.BLOCKCHAIN)
@@ -115,6 +108,22 @@ class HomeActivity : BaseActivity() {
     override fun onLightningLockedChanged(isLightningLocked: Boolean) {
         super.onLightningLockedChanged(isLightningLocked)
         this.isLightningLocked = isLightningLocked
+        onLightningLockChanged()
+    }
+
+    private fun onLightningLockChanged() {
+        if (isLightningLocked) {
+            pager.postDelayed({
+                if (isLightningLocked)
+                    try {
+                        paymentBarFragment.hide()
+                    } catch (e: Exception) {
+                    }
+            }, 200)
+        } else {
+            pager.removeCallbacks(null)
+            paymentBarFragment.show()
+        }
     }
 
     private fun showDetailWithInitialIntent() {
