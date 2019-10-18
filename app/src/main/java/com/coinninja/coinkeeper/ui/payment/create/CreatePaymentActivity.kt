@@ -464,9 +464,13 @@ class CreatePaymentActivity : BaseActivity() {
     }
 
     private fun showInsufficientFundsMessage() {
-        GenericAlertDialog.newInstance(getString(R.string.pay_error_insufficient_funds,
-                amountInputView.paymentHolder.fiat.toFormattedCurrency(),
-                holdingsWorth.toFormattedCurrency()
+        val value :String = if (accountModeToggle.mode == AccountMode.LIGHTNING) {
+            holdings.toSats(paymentHolder.evaluationCurrency).toFormattedCurrency()
+        } else {
+            holdings.toBTC(paymentHolder.evaluationCurrency).toFormattedCurrency()
+        }
+        GenericAlertDialog.newInstance(
+                getString(R.string.pay_error_insufficient_funds, value
         )).show(supportFragmentManager, errorDialogTag)
     }
 

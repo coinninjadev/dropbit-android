@@ -519,7 +519,32 @@ class CreatePaymentActivityTest {
     // Payment Validation
 
     @Test
-    fun validation__error__non_sufficient_funds() {
+    fun validation__error__non_sufficient_funds__blockchain() {
+        val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+
+            activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
+            activity.paymentHolder.paymentAddress = "--payment-address--"
+            activity.amountInputView.primaryCurrency.setText("$100.00")
+            activity.onHoldingsWorthChanged(USDCurrency(50_00))
+            activity.onHoldingsChanged(BTCCurrency(500_000))
+            activity.onLatestPriceChanged(USDCurrency(10_000_00))
+            activity.nextButton.performClick()
+            activity.paymentHolder.paymentAddress = "--address--"
+
+            activity.transactionDataObserver.onChanged(TransactionData())
+
+            val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
+            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, activity.holdings.toFormattedCurrency()))
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun validation__error__non_sufficient_funds__Lightning() {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
@@ -535,7 +560,8 @@ class CreatePaymentActivityTest {
             activity.transactionDataObserver.onChanged(TransactionData())
 
             val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, "$100.00", "$50.00"))
+            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds,
+                    activity.holdings.toSats(activity.paymentHolder.evaluationCurrency).toFormattedCurrency()))
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -580,7 +606,7 @@ class CreatePaymentActivityTest {
 
             verifyZeroInteractions(activity.activityNavigationUtil)
             val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, "$10.00", "$9.00"))
+            assertThat(dialog.message).isEqualTo("Amount exceeds usable balance of 90,000 sats.")
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -603,7 +629,7 @@ class CreatePaymentActivityTest {
 
             verifyZeroInteractions(activity.activityNavigationUtil)
             val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, "$10.00", "$9.00"))
+            assertThat(dialog.message).isEqualTo("Amount exceeds usable balance of 90,000 sats.")
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
