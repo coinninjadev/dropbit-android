@@ -118,7 +118,7 @@ class LightningWithdrawalActivity : BaseActivity() {
 
     override fun onLightningBalanceChanged(balance: CryptoCurrency) {
         super.onLightningBalanceChanged(balance)
-        lightningBalance = balance
+        lightningBalance = balance.toSats(paymentHolder.evaluationCurrency)
     }
 
     internal fun processWithdrawal() {
@@ -164,7 +164,7 @@ class LightningWithdrawalActivity : BaseActivity() {
         GenericAlertDialog.newInstance(
                 getString(
                         R.string.unload_lightning_insufficient_funds,
-                        totalWithdrawalAmount.toUSD(paymentHolder.evaluationCurrency).toFormattedCurrency()
+                        lightningBalance.toFormattedCurrency()
 
                 )
         ).show(supportFragmentManager, "INVALID_WITHDRAWAL")

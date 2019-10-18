@@ -146,7 +146,7 @@ class LightningWithdrawalActivityTest {
             activity.processWithdrawal()
 
             val dialog = activity.supportFragmentManager.findFragmentByTag("INVALID_WITHDRAWAL") as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo("Attempting to withdrawal $21.00. Not enough funds in lightning account.")
+            assertThat(dialog.message).isEqualTo("Amount exceeds usable Lightning balance of 190,476 sats.")
             assertThat(activity.confirmed).isFalse()
         }
         scenario.close()
