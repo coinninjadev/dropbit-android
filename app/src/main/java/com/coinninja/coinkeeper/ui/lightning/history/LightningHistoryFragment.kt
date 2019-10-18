@@ -67,8 +67,10 @@ class LightningHistoryFragment : BaseFragment() {
     }
 
     val syncManagerChangeObserver = SyncManagerChangeObserver {
-        if (!syncManagerViewNotifier.isSyncing)
+        if (!syncManagerViewNotifier.isSyncing) {
             swipeToRefresh?.isRefreshing = false
+            walletViewModel.checkLightningLock()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -78,7 +80,6 @@ class LightningHistoryFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
         walletViewModel = walletViewModelProvider.provide(this)
-        walletViewModel.isLightningLocked.observe(this, isLightningLockedObserver)
         walletViewModel.checkLightningLock()
     }
 
@@ -93,6 +94,7 @@ class LightningHistoryFragment : BaseFragment() {
         }
         swipeToRefresh?.setOnRefreshListener(onRefreshListener)
         syncManagerViewNotifier.observeSyncManagerChange(syncManagerChangeObserver)
+        walletViewModel.isLightningLocked.observe(this, isLightningLockedObserver)
         lightningHistoryViewModel.loadInvoices().observe(this, invoiceChangeObserver)
         renderLockedState()
     }
