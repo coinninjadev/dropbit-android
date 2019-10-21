@@ -24,9 +24,8 @@ class TransactionHelperTest {
         val transaction: TransactionSummary = mock()
         val gsonAddress = GsonAddress(txid = "--txid--")
         val wallet: Wallet = mock()
-        whenever(helper.walletHelper.primaryWallet).thenReturn(wallet)
 
-        helper.initializeTransaction(transaction, gsonAddress)
+        helper.initializeTransaction(wallet, transaction, gsonAddress)
 
         val ordered = inOrder(transaction, helper.daoSessionManager)
         ordered.verify(transaction).wallet = wallet
@@ -38,13 +37,14 @@ class TransactionHelperTest {
     @Test
     fun initializing_transactions_process_transactions_already_consumed() {
         val helper = createHelper()
+        val wallet: Wallet = mock()
         val addresses: List<GsonAddress> = listOf(
                 GsonAddress(address = "--address-1", txid = "--txid-1--")
         )
         whenever(helper.daoSessionManager.newTransactionSummary()).thenReturn(mock())
         whenever(helper.transactionQueryManager.transactionByTxid("--txid-1--")).thenReturn(mock())
 
-        helper.initTransactions(addresses)
+        helper.initTransactions(wallet, addresses)
 
         verify(helper.daoSessionManager, times(0)).newTransactionSummary()
         verify(helper.daoSessionManager, times(0)).insert(any<TransactionSummary>())
@@ -53,6 +53,7 @@ class TransactionHelperTest {
     @Test
     fun initializing_transactions_will_not_produce_duplicates() {
         val helper = createHelper()
+        val wallet: Wallet = mock()
         val addresses: List<GsonAddress> = listOf(
                 GsonAddress(address = "--address-1", txid = "--txid-1-"),
                 GsonAddress(address = "--address-1", txid = "--txid-2-"),
@@ -61,7 +62,7 @@ class TransactionHelperTest {
         )
         whenever(helper.daoSessionManager.newTransactionSummary()).thenReturn(mock())
 
-        helper.initTransactions(addresses)
+        helper.initTransactions(wallet, addresses)
 
         verify(helper.daoSessionManager, times(3)).newTransactionSummary()
         verify(helper.daoSessionManager, times(3)).insert(any<TransactionSummary>())
@@ -186,7 +187,6 @@ class TransactionHelperTest {
                 vInList = listOf(),
                 vOutList = listOf()
         )
-        whenever(helper.walletHelper.primaryWallet).thenReturn(mock())
 
         helper.updateTransaction(transaction, detail, 100)
 
@@ -198,7 +198,6 @@ class TransactionHelperTest {
         ordered.verify(transaction).memPoolState = MemPoolState.MINED
         ordered.verify(transaction).numInputs = 0
         ordered.verify(transaction).numOutputs = 0
-        ordered.verify(transaction).wallet = helper.walletHelper.primaryWallet
         ordered.verify(transaction).update()
         ordered.verify(helper.transactionInviteSummaryHelper).getOrCreateParentSettlementFor(transaction)
     }

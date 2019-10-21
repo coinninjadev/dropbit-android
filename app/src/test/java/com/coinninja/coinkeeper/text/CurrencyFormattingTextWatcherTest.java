@@ -15,6 +15,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import app.dropbit.commons.currency.BTCCurrency;
+import app.dropbit.commons.currency.SatoshiCurrency;
 import app.dropbit.commons.currency.USDCurrency;
 
 import static com.coinninja.matchers.TextViewMatcher.hasText;
@@ -41,6 +42,31 @@ public class CurrencyFormattingTextWatcherTest {
         watcher.setCallback(callback);
 
         editText.addTextChangedListener(watcher);
+    }
+
+    @Test
+    public void formats_Satoshis() {
+        watcher.setCurrency(new SatoshiCurrency());
+        editText.setText("1");
+        assertThat(editText, hasText("1 sats"));
+
+        editText.setText("1,");
+        assertThat(editText, hasText("1 sats"));
+
+        editText.setText("1000");
+        assertThat(editText, hasText("1,000 sats"));
+
+        editText.setText("1,0000 sats");
+        assertThat(editText, hasText("10,000 sats"));
+
+        editText.setText("1,0000. sats");
+        assertThat(editText, hasText("10,000 sats"));
+
+        editText.setText("1,0000.9 sats");
+        assertThat(editText, hasText("10,000 sats"));
+
+        editText.setText("10,000 sats0");
+        assertThat(editText, hasText("100,000 sats"));
     }
 
     @Test
@@ -71,12 +97,19 @@ public class CurrencyFormattingTextWatcherTest {
         editText.setText("1.12345678");
         assertThat(editText, hasText("1.12345678"));
 
+        editText.setText("0.00");
+        assertThat(editText, hasText("0.00"));
+    }
+
+    @Test
+    public void formatter_undoes_last_character_when_not_valid() {
+        watcher.setCurrency(new BTCCurrency());
+
         editText.setText("1.123456789");
+
         assertThat(editText, hasText("1.12345678"));
         verify(callback).onInvalid("1.123456789");
 
-        editText.setText("0.00");
-        assertThat(editText, hasText("0.00"));
     }
 
     @Test

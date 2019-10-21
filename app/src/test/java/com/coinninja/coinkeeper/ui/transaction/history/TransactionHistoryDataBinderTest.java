@@ -278,6 +278,26 @@ public class TransactionHistoryDataBinderTest {
                 equalTo(view.getResources().getString(R.string.history_invite_expired)));
     }
 
+    // Lightning Upgrade
+
+    @Test
+    public void send__for_lightning_upgrade() {
+        setupSend();
+        bindableTransaction.setSendState(SendState.LIGHTNING_UPGRADE);
+        bindableTransaction.setFee(1154L);
+
+        adapter.onBindViewHolder(viewHolder, 0);
+
+        ImageView icon = view.findViewById(R.id.icon);
+        assertThat(icon.getTag(), equalTo(R.drawable.ic_transaction_send));
+        TextView address = view.findViewById(R.id.address);
+        assertThat(address.getText().toString(), equalTo("Lightning Upgrade"));
+
+        DefaultCurrencyDisplayView displayView = view.findViewById(R.id.default_currency_view);
+        assertThat(displayView.getTotalCrypto().toLong(), equalTo(bindableTransaction.totalCryptoForSendState().toLong()));
+        assertThat(displayView.getFiatValue().toLong(), equalTo(bindableTransaction.totalFiatForSendState().toLong()));
+    }
+
     // Send To Contact
     @Test
     public void sets_send_image_for_icon() {

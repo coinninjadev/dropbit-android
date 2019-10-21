@@ -97,21 +97,32 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
 
     @NotNull
     private String undoChange(String value) {
-        value = value.substring(0, value.length() - 1);
-        if (!currency.update(value)) {
+        if (value == null || value.isEmpty()) {
+            value = "0";
+        } else {
+            value = value.substring(0, value.length() - 1);
+        }
+
+        if (!isValid(value) || !currency.update(value)) {
             value = undoChange(value);
         }
+
         return value;
     }
 
     private boolean isValid(String value) {
-        return !containsMultipleDecimals(value) &&
+        return !containsUnwantedPrecision(value) &&
+                !containsMultipleDecimals(value) &&
                 !hasGroupingAfterPrecision(value);
     }
 
     private boolean hasGroupingAfterPrecision(String value) {
         int locationOfDecimalSeparator = value.lastIndexOf(decimalSeparator);
         return (locationOfDecimalSeparator != -1) && (locationOfDecimalSeparator < value.lastIndexOf(groupingSeparator));
+    }
+
+    private boolean containsUnwantedPrecision(String value) {
+        return value.indexOf(decimalSeparator) > 0 && currency.getMaxNumSubValues() == 0;
     }
 
     private boolean containsMultipleDecimals(String value) {
@@ -126,7 +137,11 @@ public class CurrencyFormattingTextWatcher implements TextWatcher {
         editable.append(text);
         checkZero(text);
 
-        Selection.setSelection(editable, text.length());
+        if (text.indexOf(currency.getSymbol()) < 1)
+            Selection.setSelection(editable, text.length());
+        else
+            Selection.setSelection(editable, text.indexOf(currency.getSymbol()));
+
         selfChanged = false;
     }
 

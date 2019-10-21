@@ -37,6 +37,7 @@ class CNWalletManager @Inject internal constructor(
         internal val walletConfiguration: WalletConfiguration
 ) {
 
+    val legacyWallet: Wallet? get() = walletHelper.legacyWallet
     val segwitWalletForUpgrade: Wallet get() = walletHelper.getOrCreateSegwitWalletForUpdate(seedWordGenerator.generate())
     val walletPurpose: Int get() = walletHelper.primaryWallet.purpose
     val isSegwitUpgradeRequired: Boolean get() = hasWallet && walletPurpose != walletConfiguration.purpose
@@ -103,8 +104,9 @@ class CNWalletManager @Inject internal constructor(
     }
 
     fun updateBalances() {
-        walletHelper.updateBalances()
-        walletHelper.updateSpendableBalances()
+        val primaryWallet = walletHelper.primaryWallet
+        walletHelper.updateBalances(primaryWallet)
+        walletHelper.updateSpendableBalances(primaryWallet)
         localBroadCastUtil.sendBroadcast(DropbitIntents.ACTION_WALLET_SYNC_COMPLETE)
         analytics.setUserProperty(Analytics.PROPERTY_HAS_BTC_BALANCE, hasBalance)
         analytics.setUserProperty(Analytics.PROPERTY_RELATIVE_WALLET_RANGE, AnalyticsBalanceRange.fromBalance(walletHelper.balance.toLong()).label)
@@ -126,7 +128,7 @@ class CNWalletManager @Inject internal constructor(
     }
 
     fun replaceLegacyWithSegwit() {
-        walletHelper.rotateWallets(segwitWalletForUpgrade, walletHelper.primaryWallet)
+        walletHelper.rotateAccount(segwitWalletForUpgrade, legacyWallet)
         markWalletBackupAsSkipped()
     }
 
@@ -140,7 +142,7 @@ class CNWalletManager @Inject internal constructor(
             true
         } else {
             walletHelper.saveWords(recoveryWords)
-            accountManager.cacheAddresses()
+            accountManager.cacheAddresses(walletHelper.primaryWallet)
             localBroadCastUtil.sendGlobalBroadcast(WalletCreatedBroadCastReceiver::class.java, DropbitIntents.ACTION_WALLET_CREATED)
             val primaryWallet = walletHelper.primaryWallet
             primaryWallet.flags = walletConfiguration.walletConfigurationFlags

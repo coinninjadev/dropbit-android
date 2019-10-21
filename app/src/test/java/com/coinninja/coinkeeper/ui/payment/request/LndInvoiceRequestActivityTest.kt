@@ -8,7 +8,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.util.DropbitIntents
@@ -26,7 +25,7 @@ import java.io.ByteArrayInputStream
 
 @RunWith(AndroidJUnit4::class)
 class LndInvoiceRequestActivityTest {
-    private val lndInvoiceRequest get() = LndInvoiceRequest("ln-encoded-invoice", BTCCurrency(0), "")
+    private val lndInvoiceRequest get() = LndInvoiceRequest("ln-encoded-invoice", 0, "")
     private val creationIntent: Intent
         get() = Intent(ApplicationProvider.getApplicationContext(), LndInvoiceRequestActivity::class.java).also {
             it.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, lndInvoiceRequest)
@@ -87,7 +86,7 @@ class LndInvoiceRequestActivityTest {
     @Test
     fun sets_memo_when_it_is_present() {
         val scenario = createScenario(creationIntent.also {
-            it.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, LndInvoiceRequest("ln-encoded", BTCCurrency(0), "--memo--"))
+            it.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, LndInvoiceRequest("ln-encoded", 0, "--memo--"))
         })
 
         scenario.onActivity { activity ->
@@ -101,7 +100,7 @@ class LndInvoiceRequestActivityTest {
     @Test
     fun sets_amount_when_present() {
         val scenario = createScenario(creationIntent.also {
-            it.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, LndInvoiceRequest("ln-encoded", BTCCurrency(150_000_000), ""))
+            it.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, LndInvoiceRequest("ln-encoded", 150_000_000, ""))
         })
 
         scenario.onActivity { activity ->
@@ -116,7 +115,7 @@ class LndInvoiceRequestActivityTest {
     @Test
     fun renders_price_when_price_is_fetched() {
         val scenario = createScenario(creationIntent.also {
-            it.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, LndInvoiceRequest("ln-encoded", BTCCurrency(150_000_000), ""))
+            it.putExtra(DropbitIntents.EXTRA_LND_INVOICE_REQUEST, LndInvoiceRequest("ln-encoded", 150_000_000, ""))
         })
 
         scenario.onActivity { activity ->

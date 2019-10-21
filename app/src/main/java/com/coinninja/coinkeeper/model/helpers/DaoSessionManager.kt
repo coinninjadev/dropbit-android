@@ -31,6 +31,7 @@ class DaoSessionManager(
             it.purpose = walletConfiguration.purpose
             it.coinType = walletConfiguration.coin
             it.accountIndex = walletConfiguration.account
+            it.isPrimary = true
         }
         val walletId = walletDao.insert(wallet)
         wallet.id = walletId

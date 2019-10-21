@@ -44,6 +44,7 @@ class MigrationExecutor @Inject internal constructor() {
             38 -> Migrate_V37_to_V38().runMigration(db, oldVersion)
             39 -> Migrate_V38_to_V39().runMigration(db, oldVersion)
             40 -> Migrate_V39_to_V40().runMigration(db, oldVersion)
+            41 -> Migrate_V40_to_V41().runMigration(db, oldVersion)
         }
     }
 }

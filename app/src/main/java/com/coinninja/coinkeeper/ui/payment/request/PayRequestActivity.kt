@@ -8,7 +8,12 @@ import android.widget.Button
 import android.widget.ImageView
 import androidx.lifecycle.Observer
 import app.coinninja.cn.thunderdome.CreateInvoiceViewModel
+import app.coinninja.cn.thunderdome.model.CreateInvoiceResponse
+import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.FiatCurrency
+import app.dropbit.commons.currency.SatoshiCurrency
+import app.dropbit.commons.currency.USDCurrency
+import app.dropbit.commons.util.isNotNullOrEmpty
 import com.coinninja.android.helpers.*
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.cn.account.AccountManager
@@ -18,8 +23,10 @@ import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.memo.MemoCreator
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView
 import com.coinninja.coinkeeper.util.CNLogger
+import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.view.button.CopyToBufferButton
+import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import com.coinninja.coinkeeper.view.widget.AccountModeToggleButton
 import com.coinninja.coinkeeper.viewModel.QrViewModel
 import kotlinx.android.synthetic.main.fragment_pay_dialog.*
@@ -66,13 +73,20 @@ class PayRequestActivity : BaseActivity() {
         }
     }
 
-    val createInvoiceRequestObserver: Observer<String?> = Observer {
-        it?.let { request ->
-            val paymentHolder = amountInputView.paymentHolder
-            val memo: String = memoForInvoice()
-            activityNavigationUtil.navigateToShowLndInvoice(this, LndInvoiceRequest(
-                    request, paymentHolder.btcCurrency, memo))
-            finish()
+    val createInvoiceRequestObserver: Observer<CreateInvoiceResponse> = Observer { response ->
+
+        if (response.errorMessage.isNotNullOrEmpty()) {
+            response.errorMessage?.let {
+                showErrorMessage(it)
+            }
+        } else {
+            response.request?.let { request ->
+                val paymentHolder = amountInputView.paymentHolder
+                val memo: String = memoForInvoice()
+                activityNavigationUtil.navigateToShowLndInvoice(this, LndInvoiceRequest(
+                        request, paymentHolder.crypto.toLong(), memo))
+                finish()
+            }
         }
     }
 
@@ -135,7 +149,6 @@ class PayRequestActivity : BaseActivity() {
 
     override fun onAccountModeChanged(mode: AccountMode) {
         super.onAccountModeChanged(mode)
-        amountInputView.accountMode = mode
         when (mode) {
             AccountMode.BLOCKCHAIN -> showBlockChain()
             AccountMode.LIGHTNING -> showLightning()
@@ -165,6 +178,7 @@ class PayRequestActivity : BaseActivity() {
 
     private fun showLightning() {
         qrViewModel.qrCodeUri.removeObserver(qrCodeUriObserver)
+        amountInputView.paymentHolder.defaultCurrencies = DefaultCurrencies(USDCurrency(), SatoshiCurrency())
         amountInputView.paymentHolder.clearPayment()
         amountInputView.paymentHolder = amountInputView.paymentHolder
         amountInputView.hideKeyboard()
@@ -190,6 +204,7 @@ class PayRequestActivity : BaseActivity() {
 
     private fun showBlockChain() {
         accountModeManager.changeMode(AccountMode.BLOCKCHAIN)
+        amountInputView.paymentHolder.defaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
         amountInputView.paymentHolder.clearPayment()
         amountInputView.paymentHolder = amountInputView.paymentHolder
         amountInputView.invalidate()
@@ -215,7 +230,7 @@ class PayRequestActivity : BaseActivity() {
 
     private fun createInvoice() {
         createInvoiceViewModel.request.observe(this, createInvoiceRequestObserver)
-        createInvoiceViewModel.createInvoiceFor(amountInputView.paymentHolder.btcCurrency.toLong(), memoForInvoice())
+        createInvoiceViewModel.createInvoiceFor(amountInputView.paymentHolder.crypto.toLong(), memoForInvoice())
     }
 
     private fun memoForInvoice(): String {
@@ -246,6 +261,10 @@ class PayRequestActivity : BaseActivity() {
             startActivity(Intent.createChooser(intent, "Request Bitcoin"))
         }
 
+    }
+
+    private fun showErrorMessage(message: String) {
+        GenericAlertDialog.newInstance(message).show(supportFragmentManager, "errorMessage")
     }
 
     companion object {

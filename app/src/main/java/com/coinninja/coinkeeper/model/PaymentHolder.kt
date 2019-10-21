@@ -50,7 +50,7 @@ class PaymentHolder(
     var isSendingMax = false
 
     val btcCurrency: BTCCurrency
-        get() = cryptoCurrency as BTCCurrency
+        get() = crypto as BTCCurrency
 
     val primaryCurrency: Currency
         get() = defaultCurrencies.primaryCurrency
@@ -61,7 +61,7 @@ class PaymentHolder(
     val fiat: FiatCurrency
         get() = defaultCurrencies.fiat
 
-    val cryptoCurrency: CryptoCurrency
+    val crypto: CryptoCurrency
         get() = defaultCurrencies.crypto
 
     var paymentAddress: String
@@ -103,10 +103,13 @@ class PaymentHolder(
         primaryCurrency.update(formattedAmount)
         val secondaryCurrency: Currency
 
-        if (primaryCurrency.isCrypto) {
-            secondaryCurrency = primaryCurrency.toUSD(evaluationCurrency)
+        secondaryCurrency = if (primaryCurrency.isCrypto) {
+            primaryCurrency.toUSD(evaluationCurrency)
         } else {
-            secondaryCurrency = primaryCurrency.toBTC(evaluationCurrency)
+            if (crypto is BTCCurrency)
+                primaryCurrency.toBTC(evaluationCurrency)
+            else
+                primaryCurrency.toSats(evaluationCurrency)
         }
 
         defaultCurrencies.secondaryCurrency.update(secondaryCurrency.toFormattedString())
@@ -135,7 +138,7 @@ class PaymentHolder(
     }
 
     fun setMaxLimitForFiat() {
-        USDCurrency.setMaxLimit(evaluationCurrency as USDCurrency?)
+        USDCurrency.setMaxLimit(evaluationCurrency as USDCurrency)
     }
 
 

@@ -90,7 +90,7 @@ class WalletViewModelTest {
         verify(holdingsObserver, atLeastOnce()).onChanged(btcBalance)
         verify(holdingsWorthObserver, atLeastOnce()).onChanged(chainWorth)
         verify(currentPriceObserver, atLeastOnce()).onChanged(currentPrice)
-        assertThat(viewModel.holdings.value?.toLong()).isEqualTo(btcBalance.toSatoshis())
+        assertThat(viewModel.holdings.value?.toLong()).isEqualTo(btcBalance.toLong())
         assertThat(viewModel.holdingsWorth.value?.toFormattedCurrency()).isEqualTo("$100.00")
         assertThat(viewModel.currentPrice.value?.toFormattedCurrency()).isEqualTo("$10,000.00")
     }
@@ -108,7 +108,7 @@ class WalletViewModelTest {
         viewModel.loadHoldingBalances()
 
         verify(viewModel.syncWalletManager, never()).syncNow()
-        assertThat(viewModel.holdings.value?.toLong()).isEqualTo(btcBalance.toSatoshis())
+        assertThat(viewModel.holdings.value?.toLong()).isEqualTo(btcBalance.toLong())
         assertThat(viewModel.holdingsWorth.value?.toFormattedCurrency()).isEqualTo("$1,000.00")
         assertThat(viewModel.currentPrice.value?.toFormattedCurrency()).isEqualTo("$10,000.00")
     }
@@ -127,7 +127,7 @@ class WalletViewModelTest {
         viewModel.loadHoldingBalances()
 
         verify(viewModel.syncWalletManager).syncNow()
-        assertThat(viewModel.holdings.value?.toLong()).isEqualTo(btcBalance.toSatoshis())
+        assertThat(viewModel.holdings.value?.toLong()).isEqualTo(btcBalance.toLong())
         assertThat(viewModel.holdingsWorth.value?.toFormattedCurrency()).isEqualTo("$0.00")
     }
 

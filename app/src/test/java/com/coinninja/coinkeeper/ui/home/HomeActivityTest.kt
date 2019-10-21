@@ -19,7 +19,6 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -64,31 +63,38 @@ internal class HomeActivityTest {
         scenario.close()
     }
 
-    @Ignore
     @Test
-    fun locks_lighting_when_locked() {
+    fun lock_status_change__hides_payment_bar__when_account_mode_lightning() {
         val scenario = setupActivity()
 
         scenario.onActivity { activity ->
+            whenever(activity.accountModeManger.accountMode).thenReturn(AccountMode.LIGHTNING)
+            activity.selectTabForMode()
+
             activity.isLightningLockedObserver.onChanged(true)
+            flush()
 
-            // TODO control visibility of transfer button
 
+            assertThat(activity.paymentBarFragment.view?.visibility).isEqualTo(View.GONE)
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
         scenario.close()
     }
 
-    @Ignore
     @Test
-    fun unlocks_lighting_when_not_locked() {
+    fun lock_status_change__does_not_hide_payment_bar__when_account_mode_blockchain() {
         val scenario = setupActivity()
 
         scenario.onActivity { activity ->
-            activity.isLightningLockedObserver.onChanged(false)
+            whenever(activity.accountModeManger.accountMode).thenReturn(AccountMode.BLOCKCHAIN)
+            activity.selectTabForMode()
+            flush()
 
-            // TODO control visibility of transfer button
+            activity.isLightningLockedObserver.onChanged(true)
+
+
+            assertThat(activity.paymentBarFragment.view?.visibility).isEqualTo(View.VISIBLE)
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)

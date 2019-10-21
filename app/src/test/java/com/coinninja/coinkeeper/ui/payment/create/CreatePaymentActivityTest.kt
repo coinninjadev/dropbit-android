@@ -12,6 +12,7 @@ import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.LedgerInvoice
 import app.coinninja.cn.thunderdome.model.RequestInvoice
 import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.SatoshiCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
@@ -195,18 +196,22 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.paymentHolder.isSendingMax = true
             activity.onAccountModeChanged(AccountMode.LIGHTNING)
-            assertThat(activity.amountInputView.accountMode).isEqualTo(AccountMode.LIGHTNING)
-            assertThat(activity.amountInputView.canToggleCurrencies).isFalse()
+            assertThat(activity.amountInputView.canToggleCurrencies).isTrue()
             assertThat(activity.amountInputView.canSendMax).isFalse()
             assertThat(activity.paymentHolder.isSendingMax).isFalse()
             assertThat(activity.accountModeToggle.mode).isEqualTo(AccountMode.LIGHTNING)
             assertThat(activity.paymentHolder.accountMode).isEqualTo(AccountMode.LIGHTNING)
+            assertThat(activity.paymentHolder.primaryCurrency).isInstanceOf(USDCurrency::class.java)
+            assertThat(activity.paymentHolder.secondaryCurrency).isInstanceOf(SatoshiCurrency::class.java)
 
             activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
-            assertThat(activity.amountInputView.accountMode).isEqualTo(AccountMode.BLOCKCHAIN)
             assertThat(activity.amountInputView.canToggleCurrencies).isTrue()
+            assertThat(activity.amountInputView.canSendMax).isTrue()
+            assertThat(activity.paymentHolder.isSendingMax).isFalse()
             assertThat(activity.accountModeToggle.mode).isEqualTo(AccountMode.BLOCKCHAIN)
             assertThat(activity.paymentHolder.accountMode).isEqualTo(AccountMode.BLOCKCHAIN)
+            assertThat(activity.paymentHolder.primaryCurrency).isInstanceOf(USDCurrency::class.java)
+            assertThat(activity.paymentHolder.secondaryCurrency).isInstanceOf(BTCCurrency::class.java)
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -256,6 +261,7 @@ class CreatePaymentActivityTest {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
+            activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
             activity.amountInputView.sendMax.performClick()
             assertThat(activity.paymentHolder.isSendingMax).isTrue()
 
@@ -266,7 +272,7 @@ class CreatePaymentActivityTest {
                     0
             ))
 
-            assertThat(activity.paymentHolder.cryptoCurrency.toLong()).isEqualTo(100_000)
+            assertThat(activity.paymentHolder.crypto.toLong()).isEqualTo(100_000)
             assertThat(activity.amountInputView.primaryCurrency.text.toString()).isEqualTo("0.001")
         }
 
@@ -513,7 +519,32 @@ class CreatePaymentActivityTest {
     // Payment Validation
 
     @Test
-    fun validation__error__non_sufficient_funds() {
+    fun validation__error__non_sufficient_funds__blockchain() {
+        val scenario = createScenario()
+
+        scenario.onActivity { activity ->
+
+            activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
+            activity.paymentHolder.paymentAddress = "--payment-address--"
+            activity.amountInputView.primaryCurrency.setText("$100.00")
+            activity.onHoldingsWorthChanged(USDCurrency(50_00))
+            activity.onHoldingsChanged(BTCCurrency(500_000))
+            activity.onLatestPriceChanged(USDCurrency(10_000_00))
+            activity.nextButton.performClick()
+            activity.paymentHolder.paymentAddress = "--address--"
+
+            activity.transactionDataObserver.onChanged(TransactionData())
+
+            val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
+            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, activity.holdings.toFormattedCurrency()))
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun validation__error__non_sufficient_funds__Lightning() {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
@@ -529,7 +560,8 @@ class CreatePaymentActivityTest {
             activity.transactionDataObserver.onChanged(TransactionData())
 
             val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, "$100.00", "$50.00"))
+            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds,
+                    activity.holdings.toSats(activity.paymentHolder.evaluationCurrency).toFormattedCurrency()))
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -565,7 +597,7 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.changeAccountMode(AccountMode.LIGHTNING)
             activity.amountInputView.primaryCurrency.setText("$10.00")
-            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
+            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.crypto.toLong() - 10_000))
             activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
             activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult())
@@ -574,7 +606,7 @@ class CreatePaymentActivityTest {
 
             verifyZeroInteractions(activity.activityNavigationUtil)
             val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, "$10.00", "$9.00"))
+            assertThat(dialog.message).isEqualTo("Amount exceeds usable balance of 90,000 sats.")
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -588,16 +620,16 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.changeAccountMode(AccountMode.LIGHTNING)
             activity.amountInputView.primaryCurrency.setText("$10.00")
-            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
+            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.crypto.toLong() - 10_000))
             activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
             activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
             activity.nextButton.performClick()
-            activity.pendingLedgerInvoiceObserver.onChanged(LedgerInvoice(value = activity.paymentHolder.cryptoCurrency.toLong()))
+            activity.pendingLedgerInvoiceObserver.onChanged(LedgerInvoice(value = activity.paymentHolder.crypto.toLong()))
 
             verifyZeroInteractions(activity.activityNavigationUtil)
             val dialog = activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag) as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo(activity.getString(R.string.pay_error_insufficient_funds, "$10.00", "$9.00"))
+            assertThat(dialog.message).isEqualTo("Amount exceeds usable balance of 90,000 sats.")
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -611,7 +643,7 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.changeAccountMode(AccountMode.LIGHTNING)
             activity.amountInputView.primaryCurrency.setText("$10.00")
-            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
+            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.crypto.toLong() - 10_000))
             activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
             activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
@@ -792,6 +824,7 @@ class CreatePaymentActivityTest {
         val scenario = createScenario()
 
         scenario.onActivity { activity ->
+            activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.amountInputView.sendMax.performClick()
             assertThat(activity.paymentHolder.isSendingMax).isTrue()
@@ -843,7 +876,7 @@ class CreatePaymentActivityTest {
             activity.validRequestInvoiceObserver.onChanged(requestInvoice)
             activity.nextButton.performClick()
 
-            verify(activity.fundingViewModel).estimateLightningPayment(requestInvoice.encoded, activity.paymentHolder.cryptoCurrency.toLong())
+            verify(activity.fundingViewModel).estimateLightningPayment(requestInvoice.encoded, activity.paymentHolder.crypto.toLong())
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -857,13 +890,13 @@ class CreatePaymentActivityTest {
         scenario.onActivity { activity ->
             activity.changeAccountMode(AccountMode.LIGHTNING)
             activity.amountInputView.primaryCurrency.setText("$10.00")
-            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.cryptoCurrency.toLong() - 10_000))
+            activity.onHoldingsChanged(BTCCurrency(activity.paymentHolder.crypto.toLong() - 10_000))
             activity.onHoldingsWorthChanged(activity.holdings.toUSD(activity.paymentHolder.evaluationCurrency))
             activity.paymentHolder.toUser = Identity(IdentityType.PHONE, "+13305551111")
             activity.accountLookupResultObserver.onChanged(AddressLookupResult(phoneNumberHash = "--hash--", address = "ln-address", addressType = "lightning"))
             activity.nextButton.performClick()
 
-            verify(activity.fundingViewModel).estimateLightningPayment("ln-address", activity.paymentHolder.cryptoCurrency.toLong())
+            verify(activity.fundingViewModel).estimateLightningPayment("ln-address", activity.paymentHolder.crypto.toLong())
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -945,11 +978,11 @@ class CreatePaymentActivityTest {
             activity.validRequestInvoiceObserver.onChanged(requestInvoice)
             activity.nextButton.performClick()
             activity.pendingLedgerInvoiceObserver.onChanged(
-                    LedgerInvoice(value = activity.paymentHolder.cryptoCurrency.toLong()))
+                    LedgerInvoice(value = activity.paymentHolder.crypto.toLong()))
 
             assertThat(activity.paymentHolder.requestInvoice).isNotNull()
             assertThat(activity.paymentHolder.requestInvoice!!.encoded).isEqualTo("ln--encoded")
-            assertThat(activity.paymentHolder.requestInvoice!!.numSatoshis).isEqualTo(activity.paymentHolder.cryptoCurrency.toLong())
+            assertThat(activity.paymentHolder.requestInvoice!!.numSatoshis).isEqualTo(activity.paymentHolder.crypto.toLong())
             verify(activity.activityNavigationUtil).navigateToConfirmPaymentScreen(activity, activity.paymentHolder)
             assertThat(activity.supportFragmentManager.findFragmentByTag(CreatePaymentActivity.errorDialogTag)).isNull()
         }
@@ -977,7 +1010,7 @@ class CreatePaymentActivityTest {
 
             activity.nextButton.performClick()
             activity.pendingLedgerInvoiceObserver.onChanged(
-                    LedgerInvoice(value = activity.paymentHolder.cryptoCurrency.toLong()))
+                    LedgerInvoice(value = activity.paymentHolder.crypto.toLong()))
 
             assertThat(activity.paymentHolder.requestInvoice).isNotNull()
             assertThat(activity.paymentHolder.requestInvoice!!.encoded).isEqualTo("ln--address--")
@@ -1036,7 +1069,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.nextButton.performClick()
             activity.transactionDataObserver.onChanged(TransactionData(arrayOf(mock()),
-                    activity.paymentHolder.cryptoCurrency.toLong(), 1_000))
+                    activity.paymentHolder.crypto.toLong(), 1_000))
 
 
             assertThat(activity.supportFragmentManager.findFragmentByTag(InviteHelpDialogFragment.TAG)).isNotNull()
@@ -1057,7 +1090,7 @@ class CreatePaymentActivityTest {
             activity.amountInputView.primaryCurrency.setText("$10.00")
             activity.nextButton.performClick()
             activity.transactionDataObserver.onChanged(TransactionData(arrayOf(mock()),
-                    activity.paymentHolder.cryptoCurrency.toLong(), 1_000))
+                    activity.paymentHolder.crypto.toLong(), 1_000))
 
             verify(activity.activityNavigationUtil).navigateToConfirmPaymentScreen(activity, activity.paymentHolder)
 
@@ -1322,9 +1355,10 @@ class CreatePaymentActivityTest {
             assertThat(activity.contactNumber.visibility).isEqualTo(View.INVISIBLE)
             assertThat(activity.paymentReceiverView.visibility).isEqualTo(View.VISIBLE)
             assertThat(activity.paymentReceiverView.paymentAddress).isEqualTo(requestInvoice.encoded)
-            assertThat(activity.paymentHolder.cryptoCurrency.toLong()).isEqualTo(1_000_000)
+            assertThat(activity.paymentHolder.crypto).isInstanceOf(SatoshiCurrency::class.java)
+            assertThat(activity.paymentHolder.crypto.toLong()).isEqualTo(1_000_000)
             assertThat(activity.paymentHolder.toUser).isNull()
-            assertThat(activity.amountInputView.primaryCurrency.text.toString()).isEqualTo("0.01")
+            assertThat(activity.amountInputView.primaryCurrency.text.toString()).isEqualTo("1,000,000")
             assertThat(activity.amountInputView.secondaryCurrency.text.toString()).isEqualTo("$100.00")
             assertThat(activity.memoToggleView.memo).isEqualTo("--description--")
             assertThat(activity.amountInputView.primaryCurrency.isEnabled).isFalse()
@@ -1464,7 +1498,7 @@ class CreatePaymentActivityTest {
         whenever(bitcoinUri.address).thenReturn("35t99geKQGdRyJC7fKQ4GeJrV5YvYCo7xa")
 
         scenario.onActivity { activity ->
-            activity.changeAccountMode(AccountMode.BLOCKCHAIN)
+            activity.onAccountModeChanged(AccountMode.BLOCKCHAIN)
             activity.amountInputView.primaryCurrency.setText("$10.00")
 
             assertThat(activity.paymentHolder.fiat.toLong()).isEqualTo(10_00)

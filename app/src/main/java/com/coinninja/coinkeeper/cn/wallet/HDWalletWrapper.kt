@@ -41,9 +41,10 @@ class HDWalletWrapper constructor(
 
     fun sign(data: String): String = wallet.sign(data)
 
-    fun fillBlock(purpose: Int, coin: Int, account: Int, chainIndex: Int,
+    fun fillBlock(wallet:Wallet, purpose: Int, coin: Int, account: Int, chainIndex: Int,
                   startingIndex: Int, bufferSize: Int
-    ): Array<MetaAddress> = wallet.fillBlock(purpose, coin, account, chainIndex, startingIndex, bufferSize)
+    ): Array<MetaAddress> = HDWallet(walletHelper.getSeedWordsForWallet(wallet), network)
+            .fillBlock(purpose, coin, account, chainIndex, startingIndex, bufferSize)
 
     fun encryptionKeys(uncompressedPublicKey: ByteArray): EncryptionKeys =
             wallet.encryptionKeys(uncompressedPublicKey)

@@ -12,6 +12,9 @@ import java.util.*
 @Dao
 @Mockable
 abstract class LedgerSettlementDao {
+    @Query(""" select * from LEDGER_SETTLEMENT order by CREATED_AT DESC; """)
+    abstract fun all(): List<LedgerSettlement>
+
     @Query("""
 select INVITE.VALUE_SATOSHIS  `inviteValue`,
        INVITE.HISTORIC_VALUE  `inviteUsdValue`,
@@ -43,9 +46,8 @@ from LEDGER_SETTLEMENT LS
        left outer join INVITE_TRANSACTION_SUMMARY INVITE on LS.INVITE_ID = INVITE._id
        left outer join USER_IDENTITY TO_USER on LS.TO_USER_IDENTITY_ID = TO_USER._id
        left outer join USER_IDENTITY FROM_USER on LS.FROM_USER_IDENTITY_ID = FROM_USER._id
-order by createdAt DESC;
-    """)
-    abstract fun all(): List<LedgerSettlementDetail>
+order by date(createdAt) DESC;    """)
+    abstract fun allDetails(): List<LedgerSettlementDetail>
 
     @Query("""
 select INVITE.VALUE_SATOSHIS  `inviteValue`,
@@ -80,7 +82,7 @@ from LEDGER_SETTLEMENT LS
        left outer join USER_IDENTITY FROM_USER on LS.FROM_USER_IDENTITY_ID = FROM_USER._id
 where LI.IS_HIDDEN = 0
    or LI.IS_HIDDEN is null
-order by createdAt DESC;    """)
+order by date(createdAt) DESC;    """)
     abstract fun allVisible(): List<LedgerSettlementDetail>
 
     @Query("""
@@ -116,7 +118,7 @@ from LEDGER_SETTLEMENT LS
        left outer join USER_IDENTITY FROM_USER on LS.FROM_USER_IDENTITY_ID = FROM_USER._id
 where LI.IS_HIDDEN = 0
    or LI.IS_HIDDEN is null
-order by createdAt DESC;
+order by date(createdAt) DESC;
     """)
     abstract fun allVisibleLive(): LiveData<List<LedgerSettlementDetail>>
 

@@ -20,6 +20,7 @@ import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
 import com.coinninja.coinkeeper.service.client.model.CNWallet
 import com.coinninja.coinkeeper.service.client.model.ReplaceWalletRequest
+import com.coinninja.coinkeeper.service.runner.SyncRunnable
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
 import com.google.gson.Gson
@@ -42,6 +43,7 @@ class WalletUpgradeViewModel : ViewModel() {
     internal lateinit var hdWalletWrapper: HDWalletWrapper
     internal lateinit var cnClient: SignedCoinKeeperApiClient
     internal lateinit var serviceWorkUtil: ServiceWorkUtil
+    internal lateinit var syncRunnable: SyncRunnable
     internal lateinit var dateUtil: DateUtil
     internal lateinit var analytics: Analytics
 
@@ -87,11 +89,25 @@ class WalletUpgradeViewModel : ViewModel() {
         }
 
         if (transferSuccess) {
+            executeSyncWithRetry() // sync old wallet to get transfer record
             executeWalletReplacement()
+            executeSyncWithRetry() // sync new wallet to new transactions
             gotoSleep()
             UpgradeState.StepThreeCompleted
         } else {
             UpgradeState.Error
+        }
+    }
+
+    internal fun executeSyncWithRetry(count: Int = 0): Boolean {
+        if (count == 3) return false
+
+        syncRunnable.run()
+        val balance:Long = cnWalletManager.legacyWallet?.balance ?: 0
+        return if (balance  == 0L) {
+            true
+        } else {
+            return executeSyncWithRetry(count + 1)
         }
     }
 

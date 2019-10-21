@@ -10,6 +10,7 @@ import com.coinninja.coinkeeper.cn.wallet.HDWalletWrapper
 import com.coinninja.coinkeeper.cn.wallet.SyncWalletManager
 import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.service.client.SignedCoinKeeperApiClient
+import com.coinninja.coinkeeper.service.runner.SyncRunnable
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.ServiceWorkUtil
@@ -25,6 +26,7 @@ class WalletUpgradeModelProvider @Inject constructor(
         internal val transactionBroadcaster: TransactionBroadcaster,
         internal val hdWalletWrapper: HDWalletWrapper,
         internal val serviceWorkUtil: ServiceWorkUtil,
+        internal val syncRunnable: SyncRunnable,
         internal val analytics: Analytics
 ) {
 
@@ -41,6 +43,7 @@ class WalletUpgradeModelProvider @Inject constructor(
         walletUpgradeViewModel.hdWalletWrapper = hdWalletWrapper
         walletUpgradeViewModel.cnClient = cnClient
         walletUpgradeViewModel.serviceWorkUtil = serviceWorkUtil
+        walletUpgradeViewModel.syncRunnable = syncRunnable
         walletUpgradeViewModel.analytics = analytics
         walletUpgradeViewModel.dateUtil = DateUtil()
         return walletUpgradeViewModel

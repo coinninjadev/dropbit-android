@@ -5,9 +5,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
-import app.dropbit.commons.currency.BTCCurrency
-import app.dropbit.commons.currency.CryptoCurrency
-import app.dropbit.commons.currency.FiatCurrency
+import app.dropbit.commons.currency.*
 import app.dropbit.commons.util.decimalFormat
 import com.coinninja.android.helpers.showKeyboard
 import com.coinninja.coinkeeper.R
@@ -18,6 +16,7 @@ import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView
 import com.coinninja.coinkeeper.util.CurrencyPreference
+import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.view.button.ConfirmHoldButton
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import javax.inject.Inject
@@ -32,16 +31,16 @@ class LightningWithdrawalActivity : BaseActivity() {
 
     lateinit var fundingViewModel: FundingViewModel
 
-    internal val paymentHolder = PaymentHolder()
+    internal val paymentHolder = PaymentHolder(defaultCurrencies = DefaultCurrencies(SatoshiCurrency(), USDCurrency()))
 
     internal var confirmed: Boolean = false
-    internal var lightningBalance: CryptoCurrency = BTCCurrency(0)
-    internal var dropBitFeeValue: BTCCurrency = BTCCurrency(0)
-    internal var networkFeeValue: BTCCurrency = BTCCurrency(0)
+    internal var lightningBalance: CryptoCurrency = SatoshiCurrency(0)
+    internal var dropBitFeeValue: SatoshiCurrency = SatoshiCurrency(0)
+    internal var networkFeeValue: SatoshiCurrency = SatoshiCurrency(0)
 
     val onValidEntryObserver = object : PaymentInputView.OnValidEntryObserver {
         override fun onValidEntry() {
-            val amount = paymentHolder.cryptoCurrency.toLong()
+            val amount = paymentHolder.crypto.toLong()
             zeroFees()
             if (amount >= minWithdrawAmount) {
                 fundingViewModel.fundLightningWithdrawal(amount)
@@ -49,19 +48,19 @@ class LightningWithdrawalActivity : BaseActivity() {
         }
     }
 
-    internal val dropbitFeeObserver: Observer<BTCCurrency> = Observer {
-        dropBitFeeValue = it
+    internal val dropbitFeeObserver: Observer<CryptoCurrency> = Observer {
+        dropBitFeeValue = it.toSats(paymentHolder.evaluationCurrency)
         dropbitFee.text = getString(
-                R.string.lightning_fee_value, it.toSatoshis().decimalFormat(),
+                R.string.lightning_fee_value, it.toLong().decimalFormat(),
                 it.toUSD(paymentHolder.evaluationCurrency).toFormattedCurrency()
         )
     }
 
-    internal val networkFeeObserver: Observer<BTCCurrency> = Observer {
-        networkFeeValue = it
+    internal val networkFeeObserver: Observer<CryptoCurrency> = Observer {
+        networkFeeValue = it.toSats(paymentHolder.evaluationCurrency)
         networkFee.text = getString(
                 R.string.lightning_fee_value,
-                it.toSatoshis().decimalFormat(),
+                it.toLong().decimalFormat(),
                 it.toUSD(paymentHolder.evaluationCurrency).toFormattedCurrency()
         )
     }
@@ -83,8 +82,9 @@ class LightningWithdrawalActivity : BaseActivity() {
         fundingViewModel = fundingViewModelProvider.provide(this)
         closeButton.setOnClickListener { onBackPressed() }
         withdrawalAmount.postDelayed({ accountModeManager.changeMode(AccountMode.LIGHTNING) }, 300)
+        withdrawalAmount.paymentHolder = paymentHolder
         withdrawalAmount.canSendMax = false
-        withdrawalAmount.accountMode = AccountMode.LIGHTNING
+        withdrawalAmount.canToggleCurrencies = true
         withdrawalAmount.onValidEntryObserver = onValidEntryObserver
     }
 
@@ -108,19 +108,23 @@ class LightningWithdrawalActivity : BaseActivity() {
 
     override fun onLatestPriceChanged(currentPrice: FiatCurrency) {
         super.onLatestPriceChanged(currentPrice)
-        paymentHolder.evaluationCurrency = currentPrice
-        withdrawalAmount.paymentHolder = paymentHolder
+        if (paymentHolder.evaluationCurrency.isZero) {
+            paymentHolder.evaluationCurrency = currentPrice
+            withdrawalAmount.paymentHolder = paymentHolder
+        } else {
+            paymentHolder.evaluationCurrency = currentPrice
+        }
     }
 
     override fun onLightningBalanceChanged(balance: CryptoCurrency) {
         super.onLightningBalanceChanged(balance)
-        lightningBalance = balance
+        lightningBalance = balance.toSats(paymentHolder.evaluationCurrency)
     }
 
     internal fun processWithdrawal() {
         if (isValidWithdrawal) {
             activityNavigationUtil.showWithdrawalCompleted(this,
-                    WithdrawalRequest(paymentHolder.btcCurrency, dropBitFeeValue, networkFeeValue))
+                    WithdrawalRequest(paymentHolder.crypto.toLong(), dropBitFeeValue.toLong(), networkFeeValue.toLong()))
         } else {
             confirmed = false
         }
@@ -133,10 +137,10 @@ class LightningWithdrawalActivity : BaseActivity() {
 
     private val isValidWithdrawal: Boolean
         get() =
-            if (paymentHolder.cryptoCurrency.isZero) {
+            if (paymentHolder.crypto.isZero) {
                 showWithdrawingZeroMessage()
                 false
-            } else if (paymentHolder.cryptoCurrency.toLong() < minWithdrawAmount) {
+            } else if (paymentHolder.crypto.toLong() < minWithdrawAmount) {
                 showWithdrawingBelowMinimum()
                 false
             } else if (!isFunded) {
@@ -146,11 +150,11 @@ class LightningWithdrawalActivity : BaseActivity() {
                 true
             }
 
-    private val totalWithdrawalAmount: BTCCurrency get() = paymentHolder.cryptoCurrency as BTCCurrency
+    private val totalWithdrawalAmount: Currency get() = paymentHolder.crypto
 
     private val isFunded: Boolean
         get() {
-            if (!lightningBalance.isZero() && !dropBitFeeValue.isZero && !networkFeeValue.isZero && !paymentHolder.cryptoCurrency.isZero) {
+            if (!lightningBalance.isZero && !dropBitFeeValue.isZero && !networkFeeValue.isZero && !paymentHolder.crypto.isZero) {
                 return totalWithdrawalAmount.toLong() <= lightningBalance.toLong()
             }
             return false
@@ -160,7 +164,7 @@ class LightningWithdrawalActivity : BaseActivity() {
         GenericAlertDialog.newInstance(
                 getString(
                         R.string.unload_lightning_insufficient_funds,
-                        totalWithdrawalAmount.toUSD(paymentHolder.evaluationCurrency).toFormattedCurrency()
+                        lightningBalance.toFormattedCurrency()
 
                 )
         ).show(supportFragmentManager, "INVALID_WITHDRAWAL")

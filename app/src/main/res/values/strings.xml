@@ -214,7 +214,9 @@
     <string name="pay_error_add_valid_bitcoin_address">Please add valid bitcoin address or phone number</string>
     <string name="pay_error_invalid_amount">Invalid amount</string>
     <string name="pay_error_too_little_transaction">Can not spend less than $1</string>
-    <string name="pay_error_insufficient_funds">Attempting to send %s. Not enough spendable funds.  Currently only %s available</string>
+    <string name="pay_error_insufficient_funds">
+        Amount exceeds usable balance of %s.
+    </string>
     <string name="payment_error_too_much_sent_to_contact">For security reasons we limit invite transactions to $100. Once your contact has the DropBit app there are no transaction limits.</string>
     <string name="payment_memo">What’s it for?</string>
     <string name="send_max">send max</string>
@@ -474,12 +476,13 @@
 
     <!--- Lightning Deposit Screen -->
     <string name="load_lightning">LOAD LIGHTNING</string>
-    <string name="load_lightning_invalid_amount">Must deposit at least %s.</string>
-    <string name="load_lightning_insufficient_funds">Attempting to deposit %s. Not enough spendable funds.</string>
+    <string name="load_lightning_invalid_amount">
+        Unable to load Lightning wallet, requested amount is below %s minimum.
+    </string>
+    <string name="load_lightning_insufficient_funds">Amount exceeds usable balance of %s.</string>
     <string name="load_lightning_over_max_limit">
-        Attempting to deposit %s which would put your account over the maximum balance.
-        Your current balance is %s.
-        Maximum balance allowed at this time is %s.</string>
+        Unable to load Lightning wallet via DropBit when Lightning balance would exceed %s.
+    </string>
     <string name="load_lightning_under_min_deposit">Attempting to deposit %s. Minimum deposit size at this time is %s.</string>
 
     <!--- Lightning Transfer Options Overlay -->
@@ -493,7 +496,7 @@
         Please enter an amount to withdrawal.
     </string>
     <string name="unload_lightning_insufficient_funds">
-        Attempting to withdrawal %s. Not enough funds in lightning account.
+        Amount exceeds usable Lightning balance of %s.
     </string>
     <string name="unload_minimum_amount_notification">Must withdraw at least %s sats.</string>
     <string name="network_fee">Network Fee</string>
@@ -546,6 +549,7 @@
     <string name="thunderdome_unavailable">We are currently updating our servers. Don’t worry, your funds are safe, but please check back again shortly.</string>
     <string name="tx_history_load_lightning">Load Lightning</string>
     <string name="tx_history_withdraw_lightning">Lightning Withdraw</string>
+    <string name="tx_history_lightning_upgrade">Lightning Upgrade</string>
     <string name="transaction_details_load_lightning">Load Lightning</string>
     <string name="transaction_details_withdraw_from_lightning">Withdraw from Lightning</string>
 </resources>

@@ -4,10 +4,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.SatoshiCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.cn.transaction.FundingViewModelProvider
 import com.coinninja.coinkeeper.cn.transaction.notification.FundingViewModel
-import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -42,7 +42,6 @@ class LightningWithdrawalActivityTest {
         val scenario = createScenario()
         scenario.onActivity { activity ->
             assertThat(activity.withdrawalAmount.canSendMax).isFalse()
-            assertThat(activity.withdrawalAmount.accountMode).isEqualTo(AccountMode.LIGHTNING)
             verify(activity.fundingViewModel.lightningWithdrawalDropbitFee).observe(activity, activity.dropbitFeeObserver)
             verify(activity.fundingViewModel.lightningWithdrawalNetworkFee).observe(activity, activity.networkFeeObserver)
 
@@ -59,7 +58,7 @@ class LightningWithdrawalActivityTest {
     fun calculates_fees_on_user_input() {
         val scenario = createScenario()
         scenario.onActivity { activity ->
-            activity.paymentHolder.updateValue(BTCCurrency(50000))
+            activity.paymentHolder.updateValue(SatoshiCurrency(50000))
 
             activity.onValidEntryObserver.onValidEntry()
 
@@ -99,10 +98,10 @@ class LightningWithdrawalActivityTest {
         val scenario = createScenario()
         scenario.onActivity { activity ->
             activity.latestPriceObserver.onChanged(USDCurrency(10_500_00))
-            activity.paymentHolder.updateValue(BTCCurrency(39_000))
-            activity.dropbitFeeObserver.onChanged(BTCCurrency(5_000))
-            activity.networkFeeObserver.onChanged(BTCCurrency(50_000))
-            activity.lightningBalanceObserver.onChanged(BTCCurrency(155_000))
+            activity.paymentHolder.updateValue(SatoshiCurrency(39_000))
+            activity.dropbitFeeObserver.onChanged(SatoshiCurrency(5_000))
+            activity.networkFeeObserver.onChanged(SatoshiCurrency(50_000))
+            activity.lightningBalanceObserver.onChanged(SatoshiCurrency(155_000))
             activity.onValidEntryObserver.onValidEntry()
 
             activity.processWithdrawal()
@@ -140,14 +139,14 @@ class LightningWithdrawalActivityTest {
         scenario.onActivity { activity ->
             activity.latestPriceObserver.onChanged(USDCurrency(10_500_00))
             activity.lightningBalanceObserver.onChanged(USDCurrency(20_00).toBTC(activity.paymentHolder.evaluationCurrency))
-            activity.paymentHolder.updateValue(USDCurrency(21_00).toBTC(activity.paymentHolder.evaluationCurrency))
+            activity.paymentHolder.updateValue(USDCurrency(21_00).toSats(activity.paymentHolder.evaluationCurrency))
             activity.dropbitFeeObserver.onChanged(USDCurrency(10).toBTC(activity.paymentHolder.evaluationCurrency))
             activity.networkFeeObserver.onChanged(USDCurrency(50).toBTC(activity.paymentHolder.evaluationCurrency))
 
             activity.processWithdrawal()
 
             val dialog = activity.supportFragmentManager.findFragmentByTag("INVALID_WITHDRAWAL") as GenericAlertDialog
-            assertThat(dialog.message).isEqualTo("Attempting to withdrawal $21.00. Not enough funds in lightning account.")
+            assertThat(dialog.message).isEqualTo("Amount exceeds usable Lightning balance of 190,476 sats.")
             assertThat(activity.confirmed).isFalse()
         }
         scenario.close()
@@ -158,14 +157,15 @@ class LightningWithdrawalActivityTest {
         val scenario = createScenario()
         scenario.onActivity { activity ->
             activity.latestPriceObserver.onChanged(USDCurrency(10_500_00))
-            activity.paymentHolder.updateValue(BTCCurrency(150_000))
+            activity.paymentHolder.updateValue(SatoshiCurrency(150_000))
             activity.dropbitFeeObserver.onChanged(BTCCurrency(5_000))
             activity.networkFeeObserver.onChanged(BTCCurrency(50_000))
             activity.lightningBalanceObserver.onChanged(BTCCurrency(205_000))
 
             activity.processWithdrawal()
 
-            val expectedRequest = WithdrawalRequest(activity.paymentHolder.btcCurrency, activity.dropBitFeeValue, activity.networkFeeValue)
+            val expectedRequest = WithdrawalRequest(activity.paymentHolder.crypto.toLong(),
+                    activity.dropBitFeeValue.toLong(), activity.networkFeeValue.toLong())
             verify(activity.activityNavigationUtil).showWithdrawalCompleted(activity, expectedRequest)
         }
         scenario.close()

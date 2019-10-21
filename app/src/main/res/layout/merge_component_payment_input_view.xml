@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:clickable="true"
-        android:digits="0123456789,.$"
+        android:digits="0123456789,.$ sats"
         android:drawablePadding="10dp"
         android:focusable="true"
         android:focusableInTouchMode="true"

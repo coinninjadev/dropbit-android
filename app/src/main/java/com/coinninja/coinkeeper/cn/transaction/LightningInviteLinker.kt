@@ -51,7 +51,7 @@ class LightningInviteLinker @Inject constructor(
     }
 
     private fun linkSettlements(inviteSettlement: LedgerSettlement, invoiceSettlement: LedgerSettlement, invoice: LightningInvoice) {
-        if (inviteSettlement != invoiceSettlement) {
+        if (inviteSettlement.id != invoiceSettlement.id) {
             inviteSettlement.invoiceId = invoice.id
             dropbitDatabase.ledgerSettlementDao.update(inviteSettlement)
             dropbitDatabase.ledgerSettlementDao.delete(invoiceSettlement)

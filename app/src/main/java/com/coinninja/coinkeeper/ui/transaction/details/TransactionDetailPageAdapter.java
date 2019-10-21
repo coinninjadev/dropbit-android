@@ -168,7 +168,9 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
             confirmations.setText(R.string.transaction_details_withdraw_from_lightning);
         } else if (sendState == BindableTransaction.SendState.LOAD_LIGHTNING) {
             confirmations.setText(R.string.transaction_details_load_lightning);
-
+        } else if (sendState == BindableTransaction.SendState.LIGHTNING_UPGRADE) {
+            TextView identity = page.findViewById(R.id.identity);
+            identity.setText(R.string.tx_history_lightning_upgrade);
         }
     }
 
@@ -384,6 +386,7 @@ public class TransactionDetailPageAdapter extends PagerAdapter {
         Context context = icon.getContext();
 
         switch (bindableTransaction.getSendState()) {
+            case LIGHTNING_UPGRADE:
             case TRANSFER:
             case SEND:
                 icon.setImageDrawable(Resources.INSTANCE.getDrawable(context, R.drawable.ic_transaction_send));
