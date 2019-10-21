@@ -94,5 +94,7 @@ class BindableTransactionTest {
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.TRANSFER))
         bindableTransaction.sendState = SendState.FAILED_TO_BROADCAST_TRANSFER
         assertThat(bindableTransaction.basicDirection, equalTo(SendState.TRANSFER))
+        bindableTransaction.sendState = SendState.LIGHTNING_UPGRADE
+        assertThat(bindableTransaction.basicDirection, equalTo(SendState.TRANSFER))
     }
 }

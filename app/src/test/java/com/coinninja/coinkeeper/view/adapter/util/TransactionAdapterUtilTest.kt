@@ -23,10 +23,10 @@ class TransactionAdapterUtilTest {
     }
 
     private fun createMockTransaction(): TransactionSummary {
-        val transaction = mock(TransactionSummary::class.java)
-        val fundingStat = mock(FundingStat::class.java)
-        val targetStat = mock(TargetStat::class.java)
-        val changeStat = mock(TargetStat::class.java)
+        val transaction: TransactionSummary = mock()
+        val fundingStat: FundingStat = mock()
+        val targetStat: TargetStat = mock()
+        val changeStat: TargetStat = mock()
         whenever(transaction.funder).thenReturn(listOf(fundingStat))
         whenever(transaction.receiver).thenReturn(listOf(targetStat, changeStat))
         whenever(transaction.receiver.get(0).addr).thenReturn("-- to addr 1 --")
@@ -55,27 +55,35 @@ class TransactionAdapterUtilTest {
         whenever(address.changeIndex).thenReturn(HDWallet.INTERNAL)
         whenever(transaction.receiver.get(1).address).thenReturn(address)
         whenever(transaction.funder.get(0).address).thenReturn(mock(Address::class.java))
+        whenever(transaction.receiver.get(1).address.walletId).thenReturn(1)
+        whenever(transaction.funder.get(0).address.walletId).thenReturn(1)
         return transaction
     }
 
     private fun mockTransferredTransaction(): TransactionSummary {
         val transaction = createMockTransaction()
-        whenever(transaction.receiver.get(0).address).thenReturn(mock(Address::class.java))
+        whenever(transaction.receiver.get(0).address).thenReturn(mock())
         val address = mock(Address::class.java)
         whenever(address.changeIndex).thenReturn(HDWallet.INTERNAL)
         whenever(transaction.receiver.get(1).address).thenReturn(address)
-        whenever(transaction.funder.get(0).address).thenReturn(mock(Address::class.java))
+        whenever(transaction.receiver.get(1).address.walletId).thenReturn(1)
+        whenever(transaction.receiver.get(1).address.changeIndex).thenReturn(HDWallet.EXTERNAL)
+        whenever(transaction.funder.get(0).address).thenReturn(mock())
+        whenever(transaction.receiver.get(0).address.walletId).thenReturn(1)
+        whenever(transaction.funder.get(0).address.walletId).thenReturn(1)
         return transaction
     }
 
     private fun mockReceivedTransaction(): TransactionSummary {
         val transaction = createMockTransaction()
-        whenever(transaction.receiver.get(0).address).thenReturn(mock(Address::class.java))
+        whenever(transaction.receiver.get(0).address).thenReturn(mock())
+        whenever(transaction.receiver.get(0).address.changeIndex).thenReturn(HDWallet.EXTERNAL)
+        whenever(transaction.receiver.get(0).address.walletId).thenReturn(1)
         return transaction
     }
 
     @Test
-    fun `resets bindable transaction is translated`() {
+    fun resets_bindable_transaction_is_translated() {
         val util = createUtil()
 
         util.translateTransaction(mock(TransactionsInvitesSummary::class.java))
@@ -84,7 +92,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `binds txid`() {
+    fun binds_txid() {
         val util = createUtil()
         val transaction = mockSentTransaction()
         whenever(transaction.txid).thenReturn("--txid--")
@@ -95,7 +103,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `binds fee for transaction`() {
+    fun binds_fee_for_transaction() {
         val util = createUtil()
         val transaction = mockSentTransaction()
         whenever(transaction.fee).thenReturn(100L)
@@ -106,7 +114,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `binds historical rate for transaction`() {
+    fun binds_historical_rate_for_transaction() {
         val util = createUtil()
         val transaction = mockSentTransaction()
         whenever(transaction.historicPrice).thenReturn(5000L)
@@ -118,7 +126,7 @@ class TransactionAdapterUtilTest {
 
     // Identity Assignment
     @Test
-    fun `sets identity to receiver when transaction is sent`() {
+    fun sets_identity_to_receiver_when_transaction_is_sent() {
         val util = createUtil()
         whenever(util.bindableTransaction.basicDirection).thenReturn(SendState.SEND)
         val summary = mock(TransactionsInvitesSummary::class.java)
@@ -133,7 +141,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `sets identity to sender when transaction received`() {
+    fun sets_identity_to_sender_when_transaction_received() {
         val util = createUtil()
         whenever(util.bindableTransaction.basicDirection).thenReturn(SendState.RECEIVE)
         val summary = mock(TransactionsInvitesSummary::class.java)
@@ -148,7 +156,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `sets identity type when setting contact -- Send`() {
+    fun sets_identity_type_when_setting_contact____Send() {
         val util = createUtil()
         whenever(util.bindableTransaction.basicDirection).thenReturn(SendState.SEND)
         val summary = mock(TransactionsInvitesSummary::class.java)
@@ -165,7 +173,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `sets identity type when setting contact -- Receive`() {
+    fun sets_identity_type_when_setting_contact____Receive() {
         val util = createUtil()
         whenever(util.bindableTransaction.basicDirection).thenReturn(SendState.RECEIVE)
         val summary = mock(TransactionsInvitesSummary::class.java)
@@ -183,7 +191,7 @@ class TransactionAdapterUtilTest {
 
     // Send State Assignment
     @Test
-    fun `infers send state to SEND when one input and one output`() {
+    fun infers_send_state_to_SEND_when_one_input_and_one_output() {
         val util = createUtil()
         val transaction = mockSentTransaction()
 
@@ -193,7 +201,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `infers send state to RECEIVE when one input and no outputs`() {
+    fun infers_send_state_to_RECEIVE_when_one_input_and_no_outputs() {
         val util = createUtil()
         val transaction = mockReceivedTransaction()
 
@@ -203,7 +211,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `infers send state to TRANSFER when one input and one output`() {
+    fun infers_send_state_to_TRANSFER_when_one_input_and_one_output() {
         val util = createUtil()
         val transaction = mockTransferredTransaction()
 
@@ -214,7 +222,7 @@ class TransactionAdapterUtilTest {
 
     // MempoolStates
     @Test
-    fun `send edge conditions`() {
+    fun send_edge_conditions() {
         val util = createUtil()
         val transaction = mockSentTransaction()
         whenever(util.bindableTransaction.sendState).thenReturn(SendState.SEND)
@@ -232,7 +240,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `transfer edge conditions`() {
+    fun transfer_edge_conditions() {
         val util = createUtil()
         val transaction = mockTransferredTransaction()
         whenever(util.bindableTransaction.sendState).thenReturn(SendState.TRANSFER)
@@ -265,6 +273,28 @@ class TransactionAdapterUtilTest {
         util.translateMempoolState(transaction)
 
         verify(util.bindableTransaction, times(3)).sendState = SendState.FAILED_TO_BROADCAST_RECEIVE
+    }
+
+    @Test
+    fun builds_Transaction_details_for_LIGHTNING_UPGRADE() {
+        val util = createUtil()
+        val transaction = mockSentTransaction()
+        val segwitAddress: Address = mock()
+        val legacyAddress: Address = mock()
+        whenever(segwitAddress.walletId).thenReturn(2)
+        whenever(legacyAddress.walletId).thenReturn(1)
+        val receiver: TargetStat = mock()
+        whenever(receiver.address).thenReturn(segwitAddress)
+        whenever(receiver.address.address).thenReturn("--segwit-address--")
+        whenever(transaction.funder[0].address).thenReturn(legacyAddress)
+        whenever(transaction.receiver).thenReturn(listOf(receiver))
+
+        util.setSendState(transaction)
+
+        verify(util.bindableTransaction).targetAddress = "--segwit-address--"
+
+        val ordered = inOrder(util.bindableTransaction)
+        ordered.verify(util.bindableTransaction).sendState = SendState.LIGHTNING_UPGRADE
     }
 
     @Test
@@ -540,7 +570,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `binds invite type normal`() {
+    fun binds_invite_type_normal() {
         val util = createUtil()
         val invite = createMockInvite()
 
@@ -555,7 +585,7 @@ class TransactionAdapterUtilTest {
     }
 
     @Test
-    fun `binds invite type expired`() {
+    fun binds_invite_type_expired() {
         val util = createUtil()
         val invite = createMockInvite()
 
@@ -572,7 +602,7 @@ class TransactionAdapterUtilTest {
 
 
     @Test
-    fun `binds invite type canceled`() {
+    fun binds_invite_type_canceled() {
         val util = createUtil()
         val invite = createMockInvite()
 

@@ -1,6 +1,5 @@
 package com.coinninja.coinkeeper.ui.twitter
 
-import android.content.Context
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -12,7 +11,6 @@ import com.coinninja.coinkeeper.cn.dropbit.ShouldManuallyMentionCallback
 import com.coinninja.coinkeeper.model.Identity
 import com.coinninja.coinkeeper.ui.base.BaseBottomDialogFragment
 import com.coinninja.coinkeeper.util.analytics.Analytics
-import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
 import com.coinninja.coinkeeper.util.image.CircleTransform
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_transaction_tweet.*
@@ -73,7 +71,7 @@ class TransactionTweetDialog : BaseBottomDialogFragment() {
     override fun onResume() {
         super.onResume()
         picasso.load(identity.avatarUrl).transform(circleTransform).into(avatar)
-        sendingTweetTextView?.text = getString(R.string.tweet_sent_bitcoin, identity.handle)
+        sendingTweetTextView?.text = getString(R.string.tweet_sent_bitcoin, identity.displayableHandle)
         twitterHandle?.text = identity.secondaryDisplayName
         userSendsTweet?.setOnClickListener { tweetYourselfButtonClicked() }
         suppressionCheck.shouldManuallySendTwitterMention(inviteId, shouldManuallyMentionCallback)
@@ -84,7 +82,7 @@ class TransactionTweetDialog : BaseBottomDialogFragment() {
     }
 
     private fun setupUIForDuplicateTweet() {
-        sendingTweetTextView?.text = getString(R.string.twitter_reminder, identity.handle)
+        sendingTweetTextView?.text = getString(R.string.twitter_reminder, identity.displayableHandle)
         dropbitSendsTweet?.text = getString(R.string.ok)
         dropbitSendsTweet?.setOnClickListener { dismiss() }
         tweet_yourself_button.text = getString(R.string.ill_send_tweet)
@@ -95,7 +93,7 @@ class TransactionTweetDialog : BaseBottomDialogFragment() {
         activity?.let {
             activityNavigationUtil.shareWithTwitter(it,
                     getString(R.string.just_sent_bitcoin_invite,
-                            identity.handle,
+                            identity.displayableHandle,
                             getString(R.string.dropbit_download_url)
                     )
             )

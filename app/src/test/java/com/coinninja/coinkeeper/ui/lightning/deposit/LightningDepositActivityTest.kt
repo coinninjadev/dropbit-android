@@ -69,7 +69,7 @@ class LightningDepositActivityTest {
 
             val depositValueView = activity.depositAmountView
             assertThat(depositValueView.paymentHolder.fiat.toLong()).isEqualTo(amount.toLong())
-            assertThat(depositValueView.paymentHolder.cryptoCurrency.toLong()).isEqualTo(btcAmount.toSatoshis())
+            assertThat(depositValueView.paymentHolder.crypto.toLong()).isEqualTo(btcAmount.toLong())
         }
     }
 
@@ -106,6 +106,7 @@ class LightningDepositActivityTest {
 
         createScenario().onActivity { activity ->
             val latestPrice = USDCurrency(10_000_00)
+            activity.onHoldingsChanged(BTCCurrency(100_000))
             activity.latestPriceObserver.onChanged(latestPrice)
             activity.confirmed = true
             activity.transactionDataObserver.onChanged(TransactionData(emptyArray(), 0, 0, 0, mock(), ""))
@@ -113,7 +114,7 @@ class LightningDepositActivityTest {
             val dialog = activity.supportFragmentManager.findFragmentByTag("NON_SUFFICIENT_FUNDS_DIALOG") as GenericAlertDialog
 
             assertThat(dialog).isNotNull()
-            assertThat(dialog.message).isEqualTo("Attempting to deposit 0.002. Not enough spendable funds.")
+            assertThat(dialog.message).isEqualTo("Amount exceeds usable balance of 0.001.")
             assertThat(activity.confirmed).isFalse()
         }
     }
@@ -144,7 +145,7 @@ class LightningDepositActivityTest {
             activity.latestPriceObserver.onChanged(latestPrice)
             activity.onConfirmationCompleted()
 
-            val transactionData = TransactionData(arrayOf(mock()), btcAmount.toSatoshis(), 0, 0, mock(), "")
+            val transactionData = TransactionData(arrayOf(mock()), btcAmount.toLong(), 0, 0, mock(), "")
             activity.transactionDataObserver.onChanged(transactionData)
 
             verify(activity.activityNavigationUtil).navigateToBroadcast(activity, BroadcastTransactionDTO(transactionData))
@@ -234,9 +235,7 @@ class LightningDepositActivityTest {
             val dialog = activity.supportFragmentManager.findFragmentByTag("INVALID_DEPOSIT_DIALOG")!! as GenericAlertDialog
 
             assertThat(dialog).isNotNull()
-            assertThat(dialog.message).isEqualTo("Attempting to deposit ${usdCurrency.toFormattedCurrency()} which would put your account over the maximum balance." +
-                    " Your current balance is ${balanceValue.toFormattedCurrency()}. Maximum balance allowed at " +
-                    "this time is ${LightningDepositActivity.MAX_DEPOSIT_AMOUNT.toFormattedCurrency()}.")
+            assertThat(dialog.message).isEqualTo("Unable to load Lightning wallet via DropBit when Lightning balance would exceed \$200.00.")
             assertThat(activity.confirmed).isFalse()
         }
     }
@@ -255,7 +254,7 @@ class LightningDepositActivityTest {
             val dialog = activity.supportFragmentManager.findFragmentByTag("INVALID_DEPOSIT_DIALOG")!! as GenericAlertDialog
 
             assertThat(dialog).isNotNull()
-            assertThat(dialog.message).isEqualTo("Must deposit at least ${LightningDepositActivity.MIN_DEPOSIT_AMOUNT.toFormattedCurrency()}.")
+            assertThat(dialog.message).isEqualTo("Unable to load Lightning wallet, requested amount is below \$5.00 minimum.")
             assertThat(activity.confirmed).isFalse()
         }
     }

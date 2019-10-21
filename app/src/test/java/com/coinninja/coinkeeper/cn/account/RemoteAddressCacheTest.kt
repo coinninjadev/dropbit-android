@@ -28,6 +28,7 @@ class RemoteAddressCacheTest {
     }
 
     private fun createRemoteCache(): RemoteAddressCache = RemoteAddressCache(mock(), mock(), mock(), mock(), mock()).also {
+        val wallet: Wallet = mock()
         addressToPubKey["-- addr 0"] = setupAddress("-- addr 0", "-- addr pub key 0")
         addressToPubKey["-- addr 1"] = setupAddress("-- addr 1", "-- addr pub key 1")
         addressToPubKey["-- addr 2"] = setupAddress("-- addr 2", "-- addr pub key 2")
@@ -35,10 +36,9 @@ class RemoteAddressCacheTest {
         addressToPubKey["-- addr 4"] = setupAddress("-- addr 4", "-- addr pub key 4")
         whenever(it.accountManager.unusedAddressesToPubKey(HDWalletWrapper.EXTERNAL, 5)).thenReturn(addressToPubKey)
         whenever(it.apiClient.cnWalletAddresses).thenReturn(Response.success(cachedAddresses))
-        whenever(it.hdWalletWrapper.verificationKey).thenReturn("--verification-key--")
-        val wallet: Wallet = mock()
-        whenever(it.walletHelper.primaryWallet).thenReturn(wallet)
-        whenever(wallet.purpose).thenReturn(49)
+        whenever(it.hdWalletWrapper.verificationKeyFor(wallet)).thenReturn("--verification-key--")
+        whenever(it.walletHelper.segwitWallet).thenReturn(wallet)
+        whenever(wallet.purpose).thenReturn(84)
 
         addressToPubKey.keys.forEachIndexed { index, addr ->
             val address = CNWalletAddress(address = addr, publicKey = addressToPubKey[addr]?.uncompressedPublicKey)
@@ -71,7 +71,7 @@ class RemoteAddressCacheTest {
     fun sends_five_addresses_when_no_addresses_does_not_cache_generated_lnd__when_wallet_is_49() {
         val remoteCache = createRemoteCache()
         whenever(remoteCache.apiClient.cnWalletAddresses).thenReturn(Response.success(emptyList()))
-        whenever(remoteCache.walletHelper.primaryWallet.purpose).thenReturn(49)
+        whenever(remoteCache.walletHelper.segwitWallet).thenReturn(null)
 
         remoteCache.cacheAddresses()
 
@@ -87,7 +87,6 @@ class RemoteAddressCacheTest {
     fun sends_five_addresses_when_no_addresses_cached_plus_generated_lnd__when_wallet_84() {
         val remoteCache = createRemoteCache()
         whenever(remoteCache.apiClient.cnWalletAddresses).thenReturn(Response.success(emptyList()))
-        whenever(remoteCache.walletHelper.primaryWallet.purpose).thenReturn(84)
 
         remoteCache.cacheAddresses()
 
@@ -102,8 +101,8 @@ class RemoteAddressCacheTest {
     @Test
     fun does_not_cache_lightning_when_it_already_is_cached() {
         val remoteCache = createRemoteCache()
-        whenever(remoteCache.walletHelper.primaryWallet.purpose).thenReturn(84)
-        whenever(remoteCache.apiClient.cnWalletAddresses).thenReturn(Response.success(listOf(CNWalletAddress(address = "generate"))))
+        whenever(remoteCache.apiClient.cnWalletAddresses).thenReturn(
+                Response.success(listOf(CNWalletAddress(address = "generate", publicKey = "--verification-key--"))))
 
         remoteCache.cacheAddresses()
 
@@ -116,14 +115,34 @@ class RemoteAddressCacheTest {
     }
 
     @Test
-    fun removes_addresses_that_do_not_align_with_unused_block() {
+    fun removes_generated_wallet_address_when_pubkeys_do_not_match() {
         val remoteCache = createRemoteCache()
-        cachedAddresses[3].publicKey = "-- addr pub key 3"
+        cachedAddresses.add(CNWalletAddress(address = "generate", publicKey = "--wrong-verification-key--"))
+
+        remoteCache.cacheAddresses()
+
+        verify(remoteCache.apiClient).removeAddress("generate")
+        verify(remoteCache.apiClient).addAddress(AddAddressBodyRequest(address = "generate", pubKey = "--verification-key--", addressType = "lightning"))
+    }
+
+    @Test
+    fun removes_addresses_that_do_not_align_with_unused_block__does_not_remove_lightning() {
+        val remoteCache = createRemoteCache()
         cachedAddresses[4].address = "-- addr 5"
 
         remoteCache.cacheAddresses()
 
         verify(remoteCache.apiClient).removeAddress("-- addr 5")
+    }
+
+    @Test
+    fun removes_addresses_that_do_not_align_with_unused_block() {
+        val remoteCache = createRemoteCache()
+        cachedAddresses.add(CNWalletAddress(address = "generate", publicKey = "--verification-key--"))
+
+        remoteCache.cacheAddresses()
+
+        verify(remoteCache.apiClient, times(0)).removeAddress("generate")
     }
 
     @Test

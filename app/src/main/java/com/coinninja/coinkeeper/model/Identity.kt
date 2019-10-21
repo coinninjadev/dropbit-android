@@ -22,6 +22,12 @@ data class Identity(val identityType: IdentityType, val value: String, val hash:
 
     constructor(twitterUser: TwitterUser) : this(identityType = IdentityType.TWITTER, value = twitterUser.userId.toString(), displayName = twitterUser.name, handle = twitterUser.displayScreenName(), isVerified = false, avatarUrl = twitterUser.profileImage)
 
+    val displayableHandle: String
+        get() {
+            val handle = handle?.replaceFirst("@", "") ?: ""
+            return if (handle.isEmpty()) "" else "@${handle}"
+        }
+
     val hashForType: String
         get() {
             return hash ?: generateHashForType()

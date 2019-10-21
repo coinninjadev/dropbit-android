@@ -114,7 +114,7 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
         return paymentHolder.toUser?.let { user ->
             return saveTemporaryInvite(
                     user,
-                    paymentHolder.cryptoCurrency.toLong(),
+                    paymentHolder.crypto.toLong(),
                     paymentHolder.transactionData.feeAmount,
                     paymentHolder.fiat.toLong(),
                     paymentHolder.requestId,
@@ -236,10 +236,14 @@ constructor(internal val inviteSummaryQueryManager: InviteSummaryQueryManager,
 
     fun updateInviteAddressTransaction(sentInvite: SentInvite): InviteTransactionSummary? {
         val invite: InviteTransactionSummary? = inviteSummaryQueryManager.getInviteSummaryByCnId(sentInvite.id)
+        val btcState = BTCState.from(sentInvite.status)
+        if (btcState == BTCState.UNACKNOWLEDGED) return invite
+
         invite?.let {
             it.pubkey = sentInvite.addressPubKey
             it.address = sentInvite.address
             it.btcTransactionId = sentInvite.txid
+            it.btcState = btcState
 
             if (it.type == Type.BLOCKCHAIN_SENT || it.type == Type.BLOCKCHAIN_RECEIVED)
                 transactionInviteSummaryHelper.updateSentTimeFrom(it)

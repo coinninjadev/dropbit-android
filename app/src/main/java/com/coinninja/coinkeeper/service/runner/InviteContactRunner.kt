@@ -62,7 +62,7 @@ class InviteContactRunner @Inject internal constructor(
 
             val sendingValue = BTCCurrency(pendingDTO.inviteAmount)
             val payload = InviteUserPayload(
-                    Amount(sendingValue.toSatoshis(), sendingValue.toUSD(USDCurrency(pendingDTO.bitcoinPrice)).toLong()),
+                    Amount(sendingValue.toLong(), sendingValue.toUSD(USDCurrency(pendingDTO.bitcoinPrice)).toLong()),
                     getSenderForIdentityInvite(identity),
                     getReceiverFromIdentity(identity),
                     pendingDTO.requestId

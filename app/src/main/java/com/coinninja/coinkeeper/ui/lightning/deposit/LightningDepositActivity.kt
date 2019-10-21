@@ -2,9 +2,9 @@ package com.coinninja.coinkeeper.ui.lightning.deposit
 
 import android.os.Bundle
 import android.widget.ImageButton
-import androidx.annotation.CallSuper
 import androidx.lifecycle.Observer
 import app.coinninja.cn.libbitcoin.model.TransactionData
+import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.CryptoCurrency
 import app.dropbit.commons.currency.FiatCurrency
 import app.dropbit.commons.currency.USDCurrency
@@ -39,6 +39,7 @@ class LightningDepositActivity : BaseActivity() {
     internal var confirmed: Boolean = false
     internal var transactionData: TransactionData? = null
     internal var lightningBalance: CryptoCurrency? = null
+    internal var availableBalance: CryptoCurrency = BTCCurrency(0)
 
     internal val transactionDataObserver: Observer<TransactionData> = Observer {
         transactionData = it
@@ -125,6 +126,11 @@ class LightningDepositActivity : BaseActivity() {
         lightningBalance = balance
     }
 
+    override fun onHoldingsChanged(balance: CryptoCurrency) {
+        super.onHoldingsChanged(balance)
+        availableBalance = balance
+    }
+
     override fun onPause() {
         fundingViewModel.transactionData.removeObserver(transactionDataObserver)
         accountModeManager.clearOverrides()
@@ -134,7 +140,7 @@ class LightningDepositActivity : BaseActivity() {
     private fun initWithAmount() {
         intent.getParcelableExtra<USDCurrency>(DropbitIntents.EXTRA_AMOUNT)?.let { amount ->
             paymentHolder.updateValue(amount)
-            fundingViewModel.fundLightningDeposit(paymentHolder.cryptoCurrency.toLong())
+            fundingViewModel.fundLightningDeposit(paymentHolder.crypto.toLong())
             intent.removeExtra(DropbitIntents.EXTRA_AMOUNT)
         }
     }
@@ -152,7 +158,7 @@ class LightningDepositActivity : BaseActivity() {
         GenericAlertDialog.newInstance(
                 getString(
                         R.string.load_lightning_insufficient_funds,
-                        paymentHolder.cryptoCurrency.toFormattedCurrency()
+                        availableBalance.toFormattedString()
                 )
         ).show(supportFragmentManager, "NON_SUFFICIENT_FUNDS_DIALOG")
     }
@@ -168,12 +174,9 @@ class LightningDepositActivity : BaseActivity() {
     }
 
     private fun notifyOfToMuchToDeposit() {
-        val balance = lightningBalance?.toFiat(paymentHolder.evaluationCurrency) ?: USDCurrency(0)
         GenericAlertDialog.newInstance(
                 getString(
                         R.string.load_lightning_over_max_limit,
-                        paymentHolder.fiat.toFormattedCurrency(),
-                        balance.toFormattedCurrency(),
                         MAX_DEPOSIT_AMOUNT.toFormattedCurrency()
                 )
         ).show(supportFragmentManager, "INVALID_DEPOSIT_DIALOG")
@@ -181,7 +184,7 @@ class LightningDepositActivity : BaseActivity() {
 
     internal fun onConfirmationCompleted() {
         confirmed = true
-        fundingViewModel.fundLightningDeposit(paymentHolder.cryptoCurrency.toLong())
+        fundingViewModel.fundLightningDeposit(paymentHolder.crypto.toLong())
     }
 
     private fun onConfirmationStarted() {

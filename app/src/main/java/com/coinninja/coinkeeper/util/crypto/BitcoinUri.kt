@@ -33,10 +33,12 @@ class BitcoinUri {
     val isValidPaymentAddress: Boolean get() = address.isNotEmpty() || isBip70
 
     val satoshiAmount: Long
-        get() =
-            BTCCurrency(
-                    baseUri.getQueryParameter(BitcoinParameter.AMOUNT.parameterKey) ?: ""
-            ).toSatoshis()
+        get() = if (baseUri.getQueryParameter(BitcoinParameter.AMOUNT.parameterKey).isNotNullOrEmpty()) {
+        BTCCurrency(baseUri.getQueryParameter(BitcoinParameter.AMOUNT.parameterKey)?.toDouble() ?: 0.0).toLong()
+    } else {
+        0L
+    }
+
     val memo: String
         get() = baseUri.getQueryParameter(BitcoinParameter.MEMO.parameterKey)?.urlDecode() ?: ""
 
@@ -85,7 +87,9 @@ class BitcoinUri {
             return this
         }
 
-        fun setAddress(address: String): Builder {
+        fun setAddress(value: String): Builder {
+            val address = if (value.startsWith("BC1")) value.toLowerCase() else value
+
             if (bitcoinUtil.isValidBTCAddress(address)) {
                 _address = address
             }

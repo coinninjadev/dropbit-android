@@ -147,7 +147,7 @@ public class WalletHelperTest {
         when(wallet.getFundingStats()).thenReturn(fundingStats);
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
-        walletHelper.updateBalances();
+        walletHelper.updateBalances(wallet);
 
         verify(wallet).setBalance(expectedBalance);
     }
@@ -177,7 +177,7 @@ public class WalletHelperTest {
         when(wallet.getFundingStats()).thenReturn(fundingStats);
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
-        walletHelper.updateBalances();
+        walletHelper.updateBalances(wallet);
 
         verify(wallet).setBalance(expectedBalance);
     }
@@ -208,7 +208,7 @@ public class WalletHelperTest {
         when(wallet.getFundingStats()).thenReturn(fundingStats);
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
-        walletHelper.updateBalances();
+        walletHelper.updateBalances(wallet);
 
         verify(wallet).setBalance(expectedBalance);
     }
@@ -239,7 +239,7 @@ public class WalletHelperTest {
         when(wallet.getFundingStats()).thenReturn(fundingStats);
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
-        walletHelper.updateBalances();
+        walletHelper.updateBalances(wallet);
 
         verify(wallet).setBalance(expectedBalance);
     }
@@ -270,7 +270,7 @@ public class WalletHelperTest {
         when(wallet.getFundingStats()).thenReturn(fundingStats);
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
-        walletHelper.updateBalances();
+        walletHelper.updateBalances(wallet);
 
         verify(wallet).setBalance(expectedBalance);
     }
@@ -288,7 +288,7 @@ public class WalletHelperTest {
         when(wallet.getFundingStats()).thenReturn(fundingStats);
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
-        walletHelper.updateSpendableBalances();
+        walletHelper.updateSpendableBalances(wallet);
 
         verify(wallet).setSpendableBalance(expectedBalance);
     }
@@ -339,7 +339,7 @@ public class WalletHelperTest {
         invite.setValueFeesSatoshis(5l);
         invites.add(invite);
 
-        walletHelper.updateBalances();//with the above data the user balance = -20//but we should be protected from - balances
+        walletHelper.updateBalances(wallet);//with the above data the user balance = -20//but we should be protected from - balances
 
         verify(wallet).setBalance(expectedBalance);
     }
@@ -360,7 +360,7 @@ public class WalletHelperTest {
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
 
-        long balanceCalculation = walletHelper.buildBalances(true);
+        long balanceCalculation = walletHelper.buildBalances(wallet, true);
 
 
         assertThat(balanceCalculation, equalTo(-985l));
@@ -382,7 +382,7 @@ public class WalletHelperTest {
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
 
-        walletHelper.updateBalances();
+        walletHelper.updateBalances(wallet);
 
         verify(wallet).setBalance(0);//the real value of this wallet is -985l but we only show 0
     }
@@ -403,7 +403,7 @@ public class WalletHelperTest {
         when(wallet.getInviteTransactionSummaries()).thenReturn(invites);
 
 
-        walletHelper.updateSpendableBalances();
+        walletHelper.updateSpendableBalances(wallet);
 
         verify(wallet).setSpendableBalance(0);//the real spendable value of this wallet is -985l but we only show 0
     }
@@ -427,12 +427,12 @@ public class WalletHelperTest {
 
 
         when(canceledTargetStat.getState()).thenReturn(TargetStat.State.ACKNOWLEDGE);
-        long balanceCalculation = walletHelper.buildBalances(true);
+        long balanceCalculation = walletHelper.buildBalances(wallet, true);
         assertThat(balanceCalculation, equalTo(25L));//with the canceledTargetStat added in the balances is 25 satoshis
 
 
         when(canceledTargetStat.getState()).thenReturn(TargetStat.State.CANCELED);
-        long newBalanceCalculation = walletHelper.buildBalances(true);
+        long newBalanceCalculation = walletHelper.buildBalances(wallet, true);
         assertThat(newBalanceCalculation, equalTo(15L));//without the canceledTargetStat added in the balances is 15 satoshis
     }
 
@@ -453,14 +453,14 @@ public class WalletHelperTest {
 
         when(canceledFundingStat.getState()).thenReturn(FundingStat.State.ACKNOWLEDGE);
 
-        long balanceCalculation = walletHelper.buildBalances(true);
+        long balanceCalculation = walletHelper.buildBalances(wallet, true);
 
         assertThat(balanceCalculation, equalTo(5L));//with the canceledFundingStat added in the balances is 5 satoshis
 
 
         when(canceledFundingStat.getState()).thenReturn(FundingStat.State.CANCELED);
 
-        long newBalanceCalculation = walletHelper.buildBalances(true);
+        long newBalanceCalculation = walletHelper.buildBalances(wallet, true);
 
         assertThat(newBalanceCalculation, equalTo(15L));//without the canceledFundingStat added in the balances is 15 satoshis
     }

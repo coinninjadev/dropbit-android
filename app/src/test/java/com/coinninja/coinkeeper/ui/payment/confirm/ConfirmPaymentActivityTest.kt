@@ -317,7 +317,7 @@ class ConfirmPaymentActivityTest {
 
             assertThat(activity.paymentHolder.transactionData.feeAmount).isEqualTo(10_500)
             assertThat(activity.paymentHolder.transactionData.amount).isEqualTo(900_500)
-            assertThat(activity.paymentHolder.cryptoCurrency.toLong()).isEqualTo(900_500)
+            assertThat(activity.paymentHolder.crypto.toLong()).isEqualTo(900_500)
             assertThat(activity.estimatedDeliveryTime.text).isEqualTo(activity.getString(R.string.approx_hour_wait))
             assertThat(activity.feePreference).isEqualTo(FeesManager.FeeType.SLOW)
         }

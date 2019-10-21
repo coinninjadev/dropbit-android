@@ -266,7 +266,7 @@ class InviteTransactionSummaryHelperTest {
         verify(invite).toUser = toUser
         verify(invite).fromUser = fromUser
         verify(invite).btcState = BTCState.UNACKNOWLEDGED
-        verify(invite).valueSatoshis = paymentHolder.cryptoCurrency.toLong()
+        verify(invite).valueSatoshis = paymentHolder.crypto.toLong()
         verify(invite).valueFeesSatoshis = paymentHolder.transactionData.feeAmount
         verify(invite).wallet = helper.walletHelper.primaryWallet
         verify(invite).type = Type.LIGHTNING_SENT

@@ -3,11 +3,8 @@ package com.coinninja.coinkeeper.model.helpers
 import app.coinninja.cn.libbitcoin.model.DerivationPath
 import app.coinninja.cn.libbitcoin.model.MetaAddress
 import app.dropbit.annotations.Mockable
-import com.coinninja.coinkeeper.model.db.Address
+import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.Address.addressesIn
-import com.coinninja.coinkeeper.model.db.AddressDao
-import com.coinninja.coinkeeper.model.db.FundingStatDao
-import com.coinninja.coinkeeper.model.db.TargetStatDao
 import com.coinninja.coinkeeper.service.client.model.GsonAddress
 import java.util.*
 import javax.inject.Inject
@@ -34,13 +31,13 @@ class AddressHelper @Inject constructor(
                     )
                     .unique()
 
-    fun addAddresses(addresses: List<GsonAddress>, changeIndex: Int): List<Address> {
+    fun addAddresses(wallet:Wallet, addresses: List<GsonAddress>, changeIndex: Int): List<Address> {
         val savedAddresses: MutableList<String> = mutableListOf()
 
         addresses.forEach {
             if (!savedAddresses.contains(it.address) && !containsAddress(it.address)) {
                 savedAddresses.add(it.address)
-                daoSessionManager.newAddressFrom(it, walletHelper.primaryWallet, changeIndex)
+                daoSessionManager.newAddressFrom(it, wallet, changeIndex)
             }
         }
 
@@ -96,12 +93,15 @@ class AddressHelper @Inject constructor(
         return hasReceived
     }
 
-    fun getAddressCountFor(chainIndex: Int): Int {
+    fun getAddressCountFor(wallet: Wallet, chainIndex: Int): Int {
         return daoSessionManager.addressDao.queryBuilder()
-                .where(AddressDao.Properties.ChangeIndex.eq(chainIndex)).count().toInt()
+                .where(
+                        AddressDao.Properties.WalletId.eq(wallet.id),
+                        AddressDao.Properties.ChangeIndex.eq(chainIndex)
+                ).count().toInt()
     }
 
-    fun saveAddress(metaAddress: MetaAddress) {
+    fun saveAddress(wallet:Wallet, metaAddress: MetaAddress) {
         metaAddress.derivationPath?.let { derivationPath ->
             var address: Address? = daoSessionManager.addressDao.queryBuilder()
                     .where(
@@ -115,7 +115,7 @@ class AddressHelper @Inject constructor(
 
             address = Address()
             address.address = metaAddress.address
-            address.wallet = walletHelper.primaryWallet
+            address.wallet = wallet
             address.changeIndex = derivationPath.chain
             address.index = derivationPath.index
             daoSessionManager.addressDao.insert(address)
@@ -123,23 +123,27 @@ class AddressHelper @Inject constructor(
         }
     }
 
-    fun getUnusedAddressesFor(chainIndex: Int): List<Address> {
-        return daoSessionManager.addressDao.queryRaw("" +
-                " LEFT JOIN TARGET_STAT on T._id = TARGET_STAT.ADDRESS_ID" +
-                " LEFT JOIN FUNDING_STAT on T._id = FUNDING_STAT.ADDRESS_ID" +
-                " WHERE T.CHANGE_INDEX = " + chainIndex.toString() +
-                " AND  FUNDING_STAT.ADDRESS_ID IS NULL " +
-                " AND TARGET_STAT.ADDRESS_ID IS NULL "
-        )
+    fun getUnusedAddressesFor(wallet: Wallet, chainIndex: Int): List<Address> {
+        return daoSessionManager.addressDao.queryRaw("""
+                LEFT JOIN TARGET_STAT on T._id = TARGET_STAT.ADDRESS_ID 
+                LEFT JOIN FUNDING_STAT on T._id = FUNDING_STAT.ADDRESS_ID 
+                WHERE T.CHANGE_INDEX =  $chainIndex 
+                AND T.WALLET_ID = ${wallet.id}
+                AND  FUNDING_STAT.ADDRESS_ID IS NULL 
+                AND TARGET_STAT.ADDRESS_ID IS NULL 
+        """)
     }
 
-    fun getLargestDerivationIndexReportedFor(chainIndex: Int): Int {
-        val chainAddresses = daoSessionManager.addressDao.queryRaw("" +
-                " LEFT JOIN TARGET_STAT on T._id = TARGET_STAT.ADDRESS_ID" +
-                " LEFT JOIN FUNDING_STAT on T._id = FUNDING_STAT.ADDRESS_ID" +
-                " WHERE T.CHANGE_INDEX = " + chainIndex.toString() +
-                " AND FUNDING_STAT.ADDRESS_ID IS NOT NULL " +
-                " OR TARGET_STAT.ADDRESS_ID IS NOT NULL "
+    fun getLargestDerivationIndexReportedFor(wallet: Wallet, chainIndex: Int): Int {
+        val chainAddresses = daoSessionManager.addressDao.queryRaw("""
+                LEFT JOIN TARGET_STAT on T._id = TARGET_STAT.ADDRESS_ID
+                LEFT JOIN FUNDING_STAT on T._id = FUNDING_STAT.ADDRESS_ID
+                WHERE T.CHANGE_INDEX = $chainIndex
+                AND T.WALLET_ID = ${wallet.id}
+                AND FUNDING_STAT.ADDRESS_ID IS NOT NULL 
+                OR TARGET_STAT.ADDRESS_ID IS NOT NULL 
+            
+        """
         )
 
         val comparator = { e1: Address, e2: Address -> e1.index.compareTo(e2.index) }

@@ -96,6 +96,19 @@ public class TransactionDetailPageAdapterTest__SendTransaction__Transfer {
     }
 
     @Test
+    public void renders_lightning_upgrade() {
+        bindableTransaction.setSendState(BindableTransaction.SendState.LIGHTNING_UPGRADE);
+
+        adapter.bindTo(page, bindableTransaction, 0);
+
+        ImageView icon = page.findViewById(R.id.ic_send_state);
+        assertThat(icon, hasTag(R.drawable.ic_transaction_send));
+
+        TextView identity = page.findViewById(R.id.identity);
+        assertThat(identity.getText(), equalTo("Lightning Upgrade"));
+    }
+
+    @Test
     public void renders_send_icon_for_transfer() {
         adapter.bindTo(page, bindableTransaction, 0);
 

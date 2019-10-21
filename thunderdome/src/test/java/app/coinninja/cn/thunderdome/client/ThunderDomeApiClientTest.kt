@@ -2,7 +2,6 @@ package app.coinninja.cn.thunderdome.client
 
 import app.coinninja.cn.persistance.model.LedgerStatus
 import app.coinninja.cn.thunderdome.model.*
-import app.dropbit.commons.currency.BTCCurrency
 import com.google.common.truth.Truth.assertThat
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -51,9 +50,9 @@ class ThunderDomeApiClientTest {
     fun post_withdrawal() {
         val client = createClient()
         val withdrawalRequest = WithdrawalRequest(
-                BTCCurrency(10_000),
-                BTCCurrency(500),
-                BTCCurrency(50),
+                10_000,
+                500,
+                50,
                 "--address--",
                 false
         )
@@ -77,9 +76,9 @@ class ThunderDomeApiClientTest {
     fun post_withdrawal_estimate() {
         val client = createClient()
         val withdrawalRequest = WithdrawalRequest(
-                BTCCurrency(10_000),
-                BTCCurrency(500),
-                BTCCurrency(50),
+                10_000,
+                500,
+                50,
                 "--address--",
                 true
         )

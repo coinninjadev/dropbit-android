@@ -12,10 +12,7 @@ import androidx.lifecycle.Observer
 import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.LedgerInvoice
 import app.coinninja.cn.thunderdome.model.RequestInvoice
-import app.dropbit.commons.currency.BTCCurrency
-import app.dropbit.commons.currency.CryptoCurrency
-import app.dropbit.commons.currency.FiatCurrency
-import app.dropbit.commons.currency.USDCurrency
+import app.dropbit.commons.currency.*
 import app.dropbit.commons.util.isNotNull
 import app.dropbit.commons.util.isNotNullOrEmpty
 import com.coinninja.android.helpers.*
@@ -34,6 +31,7 @@ import com.coinninja.coinkeeper.model.helpers.DropbitAccountHelper
 import com.coinninja.coinkeeper.service.client.model.AddressLookupResult
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.payment.PaymentInputView
+import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
 import com.coinninja.coinkeeper.view.activity.QrScanActivity
@@ -96,8 +94,8 @@ class CreatePaymentActivity : BaseActivity() {
     var holdings: CryptoCurrency = BTCCurrency(0)
 
     val validRawInputObserver: Observer<BitcoinUri> = Observer {
-        clearPaymentInput()
         changeAccountMode(AccountMode.BLOCKCHAIN)
+        onAccountModeChanged(AccountMode.BLOCKCHAIN)
         bitcoinUri = it
         memoToggleView.hideSharedMemoViews()
         contactName.hide()
@@ -108,6 +106,7 @@ class CreatePaymentActivity : BaseActivity() {
     val validRequestInvoiceObserver: Observer<RequestInvoice> = Observer {
         clearPaymentInput()
         changeAccountMode(AccountMode.LIGHTNING)
+        onAccountModeChanged(AccountMode.LIGHTNING)
         contactName.hide()
         contactNumber.hide()
         paymentReceiverView.show()
@@ -118,7 +117,7 @@ class CreatePaymentActivity : BaseActivity() {
             memoToggleView.setText(it.description)
 
         if (it.numSatoshis > 0) {
-            paymentHolder.updateValue(BTCCurrency(it.numSatoshis))
+            paymentHolder.updateValue(SatoshiCurrency(it.numSatoshis))
             //paymentHolder.updateValue(paymentHolder.fiat)
             amountInputView.paymentHolder = paymentHolder
             amountInputView.primaryCurrency.disable()
@@ -283,7 +282,6 @@ class CreatePaymentActivity : BaseActivity() {
 
     override fun onAccountModeChanged(mode: AccountMode) {
         super.onAccountModeChanged(mode)
-        amountInputView.accountMode = mode
         paymentHolder.accountMode = mode
 
         if (accountModeToggle.mode != mode) {
@@ -376,7 +374,7 @@ class CreatePaymentActivity : BaseActivity() {
     }
 
     private fun onNextPressed() {
-        if (paymentHolder.primaryCurrency.isZero()) {
+        if (paymentHolder.primaryCurrency.isZero) {
             showEnterValidAmount()
             return
         }
@@ -402,20 +400,20 @@ class CreatePaymentActivity : BaseActivity() {
         if (paymentHolder.isSendingMax) {
             fundingViewModel.fundMax(paymentHolder.paymentAddress)
         } else if (paymentHolder.hasPaymentAddress()) {
-            fundingViewModel.fundTransaction(paymentHolder.paymentAddress, paymentHolder.cryptoCurrency.toLong())
+            fundingViewModel.fundTransaction(paymentHolder.paymentAddress, paymentHolder.crypto.toLong())
         } else if (paymentHolder.requestInvoice.isNotNull() && paymentHolder.requestInvoice?.encoded.isNotNull()) {
             paymentHolder.requestInvoice?.encoded?.let {
-                fundingViewModel.estimateLightningPayment(it, paymentHolder.cryptoCurrency.toLong())
+                fundingViewModel.estimateLightningPayment(it, paymentHolder.crypto.toLong())
             }
         } else if (paymentHolder.toUser != null && accountModeToggle.mode == AccountMode.LIGHTNING) {
-            if (paymentHolder.cryptoCurrency.toLong() > holdings.toLong()) {
+            if (paymentHolder.crypto.toLong() > holdings.toLong()) {
                 showInsufficientFundsMessage()
             } else {
                 paymentHolder.toUser?.let { startContactInviteFlow(it) }
             }
 
         } else if (paymentHolder.toUser != null) {
-            fundingViewModel.fundTransactionForDropbit(paymentHolder.cryptoCurrency.toLong())
+            fundingViewModel.fundTransactionForDropbit(paymentHolder.crypto.toLong())
         }
 
 
@@ -466,9 +464,13 @@ class CreatePaymentActivity : BaseActivity() {
     }
 
     private fun showInsufficientFundsMessage() {
-        GenericAlertDialog.newInstance(getString(R.string.pay_error_insufficient_funds,
-                amountInputView.paymentHolder.fiat.toFormattedCurrency(),
-                holdingsWorth.toFormattedCurrency()
+        val value :String = if (accountModeToggle.mode == AccountMode.LIGHTNING) {
+            holdings.toSats(paymentHolder.evaluationCurrency).toFormattedCurrency()
+        } else {
+            holdings.toBTC(paymentHolder.evaluationCurrency).toFormattedCurrency()
+        }
+        GenericAlertDialog.newInstance(
+                getString(R.string.pay_error_insufficient_funds, value
         )).show(supportFragmentManager, errorDialogTag)
     }
 
@@ -483,6 +485,7 @@ class CreatePaymentActivity : BaseActivity() {
         pasteButton.styleAsBitcoin()
         amountInputView.primaryCurrency.enable()
         if (accountModeToggle.mode != AccountMode.BLOCKCHAIN) {
+            paymentHolder.defaultCurrencies = DefaultCurrencies(USDCurrency(), BTCCurrency())
             paymentHolder.clearPayment()
             amountInputView.showKeyboard()
         }
@@ -498,12 +501,13 @@ class CreatePaymentActivity : BaseActivity() {
         phoneButton.styleAsLightning()
         pasteButton.styleAsLightning()
         if (accountModeToggle.mode != AccountMode.LIGHTNING) {
+            paymentHolder.defaultCurrencies = DefaultCurrencies(USDCurrency(), SatoshiCurrency())
             paymentHolder.clearPayment()
             paymentHolder.updateValue(USDCurrency())
             amountInputView.showKeyboard()
         }
         accountModeToggle.mode = AccountMode.LIGHTNING
-        amountInputView.canToggleCurrencies = false
+        amountInputView.canToggleCurrencies = true
         amountInputView.canSendMax = false
         paymentHolder.isSendingMax = false
         amountInputView.paymentHolder = paymentHolder

@@ -52,5 +52,8 @@ data class Wallet(
         var accountIndex: Int = 0,
 
         @ColumnInfo(name = "FLAGS")
-        var flags: Long = 0
+        var flags: Long = 0,
+
+        @ColumnInfo(name = "IS_PRIMARY")
+        var isPrimary: Long = 0
 )

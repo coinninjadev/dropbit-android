@@ -60,7 +60,10 @@ class BindableTransaction @Inject constructor(
             return when (sendState) {
                 SendState.LOAD_LIGHTNING, SendState.FAILED_TO_BROADCAST_SEND,
                 SendState.SEND_CANCELED, SendState.SEND -> SendState.SEND
-                SendState.FAILED_TO_BROADCAST_TRANSFER, SendState.TRANSFER -> SendState.TRANSFER
+
+                SendState.LIGHTNING_UPGRADE, SendState.FAILED_TO_BROADCAST_TRANSFER,
+                SendState.TRANSFER -> SendState.TRANSFER
+
                 SendState.UNLOAD_LIGHTNING, SendState.FAILED_TO_BROADCAST_RECEIVE,
                 SendState.RECEIVE_CANCELED, SendState.RECEIVE -> SendState.RECEIVE
                 else -> return SendState.RECEIVE
@@ -115,7 +118,8 @@ class BindableTransaction @Inject constructor(
         FAILED_TO_BROADCAST_RECEIVE,
         DOUBLESPEND_SEND,
         LOAD_LIGHTNING,
-        UNLOAD_LIGHTNING
+        UNLOAD_LIGHTNING,
+        LIGHTNING_UPGRADE,
     }
 
     enum class ConfirmationState {

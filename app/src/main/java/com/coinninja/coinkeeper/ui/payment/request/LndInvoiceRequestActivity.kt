@@ -8,8 +8,8 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.Observer
-import app.dropbit.commons.currency.BTCCurrency
 import app.dropbit.commons.currency.FiatCurrency
+import app.dropbit.commons.currency.SatoshiCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.gone
 import com.coinninja.android.helpers.show
@@ -74,7 +74,7 @@ class LndInvoiceRequestActivity : BaseActivity() {
 
         renderAmount()
 
-        if (lndInvoiceRequest.memo.isNullOrEmpty()) {
+        if (lndInvoiceRequest.memo.isEmpty()) {
             memo.gone()
         } else {
             memo.text = lndInvoiceRequest.memo
@@ -98,12 +98,14 @@ class LndInvoiceRequestActivity : BaseActivity() {
     private fun renderAmount() {
         val view = amountDisplayView
         view.setAccountMode(AccountMode.LIGHTNING)
-        val btcCurrency = lndInvoiceRequest.btcCurrency
-        if (btcCurrency.toLong() > 0) {
+        val amount = lndInvoiceRequest.amount
+        val crypto = SatoshiCurrency(amount)
+
+        if (amount > 0) {
             view.renderValues(
-                    DefaultCurrencies(USDCurrency(), BTCCurrency()),
-                    btcCurrency,
-                    btcCurrency.toUSD(latestPrice)
+                    DefaultCurrencies(USDCurrency(), SatoshiCurrency()),
+                    crypto,
+                    crypto.toUSD(latestPrice)
             )
             view.show()
         } else {
@@ -120,7 +122,7 @@ class LndInvoiceRequestActivity : BaseActivity() {
             intent.type = Intent.normalizeMimeType("image/*")
 
 
-            qrImageUri?.let { uri ->
+            qrImageUri.let { uri ->
                 try {
                     intent.putExtra(Intent.EXTRA_STREAM, uri)
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

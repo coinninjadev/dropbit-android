@@ -12,13 +12,11 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import app.dropbit.commons.currency.*
-import app.dropbit.commons.util.decimalFormat
 import com.coinninja.android.helpers.Input
 import com.coinninja.android.helpers.Views.clearCompoundDrawablesOn
 import com.coinninja.android.helpers.Views.renderBTCIconOnCurrencyViewPair
 import com.coinninja.android.helpers.shakeInError
 import com.coinninja.coinkeeper.R
-import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.model.PaymentHolder
 import com.coinninja.coinkeeper.text.CurrencyFormattingTextWatcher
 import com.coinninja.coinkeeper.util.DefaultCurrencies
@@ -31,11 +29,6 @@ class PaymentInputView @JvmOverloads constructor(
         defStyleAttr
 ), CurrencyFormattingTextWatcher.Callback {
 
-    var accountMode: AccountMode = AccountMode.BLOCKCHAIN
-        set(value) {
-            field = value
-            invalidate()
-        }
     var canSendMax = true
         set(value) {
             field = value
@@ -230,18 +223,16 @@ class PaymentInputView @JvmOverloads constructor(
     @SuppressLint("SetTextI18n")
     private fun updateSecondaryCurrencyWith(value: Currency) {
         if (value.isCrypto) {
-            value.currencyFormat = CryptoCurrency.NO_SYMBOL_FORMAT
+            if (value is BTCCurrency)
+                value.currencyFormat = CryptoCurrency.NO_SYMBOL_FORMAT
+
             secondaryCurrency.setTextColor(cryptoFontColor)
         } else {
             secondaryCurrency.setTextColor(defaultSecondaryFontColor)
         }
 
         secondaryCurrency.visibility = View.VISIBLE
-        if (value.isCrypto && accountMode == AccountMode.LIGHTNING) {
-            secondaryCurrency.text = "${value.toLong().decimalFormat()} sats"
-        } else {
-            secondaryCurrency.text = value.toFormattedCurrency()
-        }
+        secondaryCurrency.text = value.toFormattedCurrency()
 
     }
 
@@ -259,7 +250,7 @@ class PaymentInputView @JvmOverloads constructor(
         clearCompoundDrawablesOn(primaryCurrency)
         clearCompoundDrawablesOn(secondaryCurrency)
 
-        if (accountMode == AccountMode.BLOCKCHAIN) {
+        if (paymentHolder.crypto is BTCCurrency) {
             renderBTCIconOnCurrencyViewPair(context, paymentHolder.defaultCurrencies,
                     primaryCurrency, PRIMARY_SCALE, secondaryCurrency, SECONDARY_SCALE)
 

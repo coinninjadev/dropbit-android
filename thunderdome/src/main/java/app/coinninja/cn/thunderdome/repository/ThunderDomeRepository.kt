@@ -75,12 +75,23 @@ class ThunderDomeRepository(
         return null
     }
 
-    fun createInvoiceFor(amount: Long, memo: String? = null): String? {
+    fun createInvoiceFor(amount: Long, memo: String? = null): CreateInvoiceResponse? {
         apiClient.createInvoiceFor(amount, memo ?: "").let { response ->
-            return if (response.isSuccessful) {
-                response.body()?.request
-            } else {
-                null
+            return when (response.code()) {
+                200 -> {
+                    response.body()
+                }
+                400 -> {
+                    response.errorBody()?.let { errorBody ->
+                        try {
+                            val error = Gson().fromJson<PayErrorResponse>(errorBody.string(), PayErrorResponse::class.java)
+                            CreateInvoiceResponse(errorMessage = error.message)
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+                else -> null
             }
         }
     }

@@ -9,6 +9,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.coinninja.cn.thunderdome.CreateInvoiceViewModel
+import app.coinninja.cn.thunderdome.model.CreateInvoiceResponse
+import app.dropbit.commons.currency.BTCCurrency
+import app.dropbit.commons.currency.SatoshiCurrency
 import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.android.helpers.gone
 import com.coinninja.android.helpers.show
@@ -17,6 +20,7 @@ import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
 import com.coinninja.coinkeeper.ui.memo.MemoCreator
 import com.coinninja.coinkeeper.util.crypto.BitcoinUri
+import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import com.coinninja.coinkeeper.viewModel.QrViewModel
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
@@ -254,7 +258,7 @@ class PayRequestActivityTest {
             activity.payment_input_view.primaryCurrency.setText("10.00")
 
 
-            verify(activity.bitcoinUriBuilder, times(0)).setAmount(activity.payment_input_view.paymentHolder.btcCurrency)
+            verify(activity.bitcoinUriBuilder, times(0)).setAmount(any())
             verify(activity.qrViewModel, times(0)).requestQrCodeFor(activity.requestAddress)
         }
 
@@ -273,7 +277,7 @@ class PayRequestActivityTest {
             activity.requestFundsButton.performClick()
 
             verify(activity.createInvoiceViewModel.request).observe(activity, activity.createInvoiceRequestObserver)
-            verify(activity.createInvoiceViewModel).createInvoiceFor(activity.amountInputView.paymentHolder.btcCurrency.toLong(), "-- memo --")
+            verify(activity.createInvoiceViewModel).createInvoiceFor(activity.amountInputView.paymentHolder.crypto.toLong(), "-- memo --")
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -288,18 +292,38 @@ class PayRequestActivityTest {
             activity.payment_input_view.primaryCurrency.setText("10.00")
             activity.addMemoButton.setText("-- memo --")
 
-            activity.createInvoiceRequestObserver.onChanged("ln--encoded_invoice")
+            activity.createInvoiceRequestObserver.onChanged(CreateInvoiceResponse(request = "ln--encoded_invoice"))
 
             verify(activity.activityNavigationUtil).navigateToShowLndInvoice(activity,
                     LndInvoiceRequest(
                             "ln--encoded_invoice",
-                            activity.payment_input_view.paymentHolder.btcCurrency,
+                            activity.payment_input_view.paymentHolder.crypto.toLong(),
                             "-- memo --"
                     ))
             assertThat(activity.isFinishing).isTrue()
         }
 
         scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun notifies_user_when_requesting_too_much() {
+        val scenario = createScenario()
+        scenario.onActivity { activity ->
+            activity.payment_input_view.primaryCurrency.setText("10.00")
+            activity.addMemoButton.setText("-- memo --")
+
+            activity.createInvoiceRequestObserver.onChanged(
+                    CreateInvoiceResponse(
+                            errorMessage = "You are requesting too much money!! Slow your roll"
+                    )
+            )
+
+            val dialog = activity.supportFragmentManager.findFragmentByTag("errorMessage") as GenericAlertDialog
+            assertThat(dialog.message).isEqualTo("You are requesting too much money!! Slow your roll")
+            assertThat(activity.isFinishing).isFalse()
+        }
         scenario.close()
     }
 
@@ -347,8 +371,6 @@ class PayRequestActivityTest {
         scenario.moveToState(Lifecycle.State.DESTROYED)
         scenario.close()
     }
-
-
     //Toggling between modes
 
     @Test
@@ -457,6 +479,41 @@ class PayRequestActivityTest {
         scenario.close()
     }
 
+    // AMOUNTS
+
+    @Test
+    fun amount__lightning__adding_amount_updates_value_in_satoshi() {
+        val scenario = createScenario(AccountMode.LIGHTNING)
+
+        scenario.onActivity { activity ->
+            activity.addAmountButton.performClick()
+
+            activity.amountInputView.primaryCurrency.setText("$10.00")
+
+            assertThat(activity.amountInputView.paymentHolder.secondaryCurrency).isInstanceOf(SatoshiCurrency::class.java)
+            assertThat(activity.amountInputView.secondaryCurrency.text).isEqualTo("95,238 sats")
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
+
+    @Test
+    fun amount__blockchain__adding_amount_updates_value_in_btc() {
+        val scenario = createScenario(AccountMode.BLOCKCHAIN)
+
+        scenario.onActivity { activity ->
+            activity.addAmountButton.performClick()
+
+            activity.amountInputView.primaryCurrency.setText("$10.00")
+
+            assertThat(activity.amountInputView.paymentHolder.secondaryCurrency).isInstanceOf(BTCCurrency::class.java)
+            assertThat(activity.amountInputView.secondaryCurrency.text).isEqualTo("0.00095238")
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
+    }
 
     @Module
     class PayRequestActivityTestModule {
