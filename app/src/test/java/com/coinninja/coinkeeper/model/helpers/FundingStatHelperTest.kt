@@ -6,6 +6,7 @@ import app.coinninja.cn.libbitcoin.model.UnspentTransactionOutput
 import com.coinninja.coinkeeper.model.db.Address
 import com.coinninja.coinkeeper.model.db.FundingStat
 import com.coinninja.coinkeeper.model.db.TransactionSummary
+import com.coinninja.coinkeeper.model.db.Wallet
 import com.coinninja.coinkeeper.service.client.model.ScriptPubKey
 import com.coinninja.coinkeeper.service.client.model.VIn
 import com.coinninja.coinkeeper.service.client.model.VOut
@@ -172,6 +173,7 @@ class FundingStatHelperTest {
     @Test
     fun creates_and_populates_input_from_provided_utxo() {
         val helper = createHelper()
+        val wallet: Wallet = mock()
         val derivationPath = DerivationPath(49, 0, 0, 0, 1)
         val utxo = UnspentTransactionOutput("--proof-txid-1--", 1, 100000,
                 derivationPath
@@ -179,10 +181,10 @@ class FundingStatHelperTest {
         val address = mock<Address>()
         val input: FundingStat = mock()
         whenever(helper.daoSessionManager.newFundingStat()).thenReturn(input)
-        whenever(helper.addressHelper.addressForPath(derivationPath)).thenReturn(address)
+        whenever(helper.addressHelper.addressForPath(wallet, derivationPath)).thenReturn(address)
         whenever(address.address).thenReturn("--address--")
 
-        assertThat(helper.createInputFor(utxo)).isEqualTo(input)
+        assertThat(helper.createInputFor(wallet, utxo)).isEqualTo(input)
         val ordered = inOrder(input)
         ordered.verify(input).fundedTransaction = "--proof-txid-1--"
         ordered.verify(input).position = 1
