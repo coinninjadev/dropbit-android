@@ -1,6 +1,7 @@
 package app.dropbit.commons.util
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
@@ -39,6 +40,7 @@ fun String.urlDecode(): String {
     return URLDecoder.decode(this, "UTF-8")
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun String.toTimeInMillis(): Long = toDate()?.toMillis() ?: 0
 
 fun String.toDate(): LocalDateTime? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
