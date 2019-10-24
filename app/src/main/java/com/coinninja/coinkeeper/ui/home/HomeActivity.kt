@@ -1,6 +1,8 @@
 package com.coinninja.coinkeeper.ui.home
 
+import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.viewpager.widget.ViewPager
@@ -13,6 +15,7 @@ import com.coinninja.coinkeeper.cn.wallet.mode.AccountModeManager
 import com.coinninja.coinkeeper.ui.base.BaseActivity
 import com.coinninja.coinkeeper.ui.payment.PaymentBarFragment
 import com.coinninja.coinkeeper.util.DropbitIntents
+import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 
@@ -20,6 +23,7 @@ class HomeActivity : BaseActivity() {
 
     companion object {
         const val currentPageKey = "current_page"
+        const val wyreTransferDialog: String = "wyreTransferDialog"
     }
 
     @Inject
@@ -81,6 +85,7 @@ class HomeActivity : BaseActivity() {
 
         tabs.addOnTabSelectedListener(onTabSelectedListener)
         syncWalletManager.schedule30SecondSync()
+        processCreationIntent()
     }
 
     override fun onResume() {
@@ -131,6 +136,25 @@ class HomeActivity : BaseActivity() {
 
         activityNavigationUtil.showTransactionDetail(this, txid = intent.getStringExtra(DropbitIntents.EXTRA_TRANSACTION_ID))
         intent.removeExtra(DropbitIntents.EXTRA_TRANSACTION_ID)
+    }
+
+    private fun processCreationIntent() {
+        intent.data?.let {
+            if (it.scheme == "dropbit" && it.authority == "wyre") {
+                it.getQueryParameter("transferId")?.let { transferId ->
+
+                    val view = LayoutInflater.from(this).inflate(R.layout.dialog_wyre_transfer,
+                            null, false)
+                    view.findViewById<View>(R.id.track_button).setOnClickListener {
+                        activityNavigationUtil.openUrl(this, Uri.parse("https://dash.sendwyre.com/track/${transferId}"))
+                    }
+                    val dialog = GenericAlertDialog.newInstance(view, true, true)
+                    dialog.asWide()
+                    dialog.show(supportFragmentManager, wyreTransferDialog)
+                }
+                intent.data = null
+            }
+        }
     }
 
     internal fun selectTabForMode() {

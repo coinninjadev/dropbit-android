@@ -58,7 +58,7 @@ abstract class AndroidActivityBuilder {
     internal abstract fun spendBitcoinActivity(): SpendBitcoinActivity
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [BaseActivityModule::class])
+    @ContributesAndroidInjector(modules = [BaseActivityModule::class, CreatePaymentModule::class])
     internal abstract fun buyBitcoinActivity(): BuyBitcoinActivity
 
     @ActivityScope

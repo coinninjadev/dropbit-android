@@ -36,6 +36,7 @@ import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivity
 import com.coinninja.coinkeeper.ui.settings.AdjustableFeesActivityTest
 import com.coinninja.coinkeeper.ui.settings.SettingsActivity
 import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivity
+import com.coinninja.coinkeeper.ui.spending.BuyBitcoinActivityTest
 import com.coinninja.coinkeeper.ui.spending.SpendBitcoinActivity
 import com.coinninja.coinkeeper.ui.transaction.details.TransactionDetailsActivity
 import com.coinninja.coinkeeper.view.activity.*
@@ -66,7 +67,7 @@ abstract class TestAndroidActivityBuilder {
     internal abstract fun spendBitcoinActivity(): SpendBitcoinActivity
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class])
+    @ContributesAndroidInjector(modules = [TestBaseActivityModule::class, BuyBitcoinActivityTest.BuyBitcoinActivityTestModule::class])
     internal abstract fun buyBitcoinActivity(): BuyBitcoinActivity
 
     @ActivityScope
