@@ -21,8 +21,8 @@ class LedgerInvoiceTest {
 
         assertThat(invoices[0].id).isEqualTo("3228fe64710af215840ec2fa96a0cbde4ca9dd15e6931743fe68d0259cba432d:0")
         assertThat(invoice.serverId).isEqualTo("3228fe64710af215840ec2fa96a0cbde4ca9dd15e6931743fe68d0259cba432d")
-        assertThat(invoice.createdAt!!.time).isEqualTo(1566513767530)
-        assertThat(invoice.updatedAt!!.time).isEqualTo(1566514605254)
+        assertThat(invoice.createdAt).isEqualTo("2019-08-22T22:34:46.481530Z")
+        assertThat(invoice.updatedAt).isEqualTo("2019-08-22T22:41:42.903254Z")
         assertThat(invoice.expiresAt).isNull()
         assertThat(invoice.status).isEqualTo(LedgerStatus.COMPLETED)
         assertThat(invoice.type).isEqualTo(LedgerType.BTC)
