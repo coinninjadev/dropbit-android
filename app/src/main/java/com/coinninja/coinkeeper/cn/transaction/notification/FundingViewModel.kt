@@ -59,6 +59,21 @@ class FundingViewModel : ViewModel() {
         invitedContactResponse = MutableLiveData()
     }
 
+    fun fetchLightningDepositAddress(): LiveData<String> {
+        val depositAddress: MutableLiveData<String> = MutableLiveData()
+        viewModelScope.launch {
+            val data: String = withContext(Dispatchers.IO) {
+                thunderDomeRepository.lightningAccount?.address ?: ""
+
+            }
+            withContext(Dispatchers.Main) {
+                depositAddress.value = data
+            }
+        }
+        return depositAddress
+    }
+
+
     fun fundLightningDeposit(btcAmount: Long): LiveData<TransactionData> {
         viewModelScope.launch(Dispatchers.Main) {
             transactionData.value = withContext(Dispatchers.IO) {

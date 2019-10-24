@@ -23,11 +23,12 @@ class AddressHelper @Inject constructor(
             daoSessionManager.addressDao.queryBuilder()
                     .where(AddressDao.Properties.Address.eq(address)).unique()
 
-    fun addressForPath(derivationPath: DerivationPath): Address? =
+    fun addressForPath(wallet:Wallet, derivationPath: DerivationPath): Address? =
             daoSessionManager.addressDao.queryBuilder()
                     .where(
                             AddressDao.Properties.ChangeIndex.eq(derivationPath.chain),
-                            AddressDao.Properties.Index.eq(derivationPath.index)
+                            AddressDao.Properties.Index.eq(derivationPath.index),
+                            AddressDao.Properties.WalletId.eq(wallet.id)
                     )
                     .unique()
 
