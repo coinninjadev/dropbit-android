@@ -564,4 +564,5 @@
     <!-- Wyre -->
     <string name="your_payment_is_being_processed">Your payment is being processed. Please check back shortly.</string>
     <string name="track_purchase">Track Purchase</string>
+    <string name="when_purchasing_bitcoin">When purchasing Bitcoin please be sure to use the address below to deposit it directly into your Bitcoin wallet.</string>
 </resources>
