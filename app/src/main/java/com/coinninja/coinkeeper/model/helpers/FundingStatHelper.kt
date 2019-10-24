@@ -6,6 +6,7 @@ import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.model.db.FundingStat
 import com.coinninja.coinkeeper.model.db.FundingStatDao
 import com.coinninja.coinkeeper.model.db.TransactionSummary
+import com.coinninja.coinkeeper.model.db.Wallet
 import com.coinninja.coinkeeper.service.client.model.VIn
 import javax.inject.Inject
 
@@ -39,12 +40,12 @@ class FundingStatHelper @Inject constructor(
                 }
             }
 
-    internal fun createInputFor(utxo: UnspentTransactionOutput): FundingStat = daoSessionManager.newFundingStat().apply {
+    internal fun createInputFor(wallet: Wallet, utxo: UnspentTransactionOutput): FundingStat = daoSessionManager.newFundingStat().apply {
         utxo.path?.let { path ->
             fundedTransaction = utxo.txid
             position = utxo.index
             value = utxo.amount
-            addressHelper.addressForPath(path)?.let {
+            addressHelper.addressForPath(wallet, path)?.let {
                 address = it
                 addr = it.address
             }
@@ -53,8 +54,9 @@ class FundingStatHelper @Inject constructor(
     }
 
     fun createInputsFor(transaction: TransactionSummary, transactionData: TransactionData) {
+        val wallet = transaction.wallet
         transactionData.utxos.forEach {
-            val input = createInputFor(it)
+            val input = createInputFor(wallet,it)
             input.transaction = transaction
             input.wallet = transaction.wallet
             input.state = FundingStat.State.PENDING

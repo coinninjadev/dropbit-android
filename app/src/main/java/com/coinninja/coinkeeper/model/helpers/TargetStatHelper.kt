@@ -4,10 +4,7 @@ import app.coinninja.cn.libbitcoin.HDWallet
 import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.dropbit.annotations.Mockable
 import com.coinninja.coinkeeper.cn.wallet.dust.DustProtectionPreference
-import com.coinninja.coinkeeper.model.db.TargetStat
-import com.coinninja.coinkeeper.model.db.TargetStatDao
-import com.coinninja.coinkeeper.model.db.TransactionSummary
-import com.coinninja.coinkeeper.model.db.TransactionSummaryDao
+import com.coinninja.coinkeeper.model.db.*
 import com.coinninja.coinkeeper.model.db.enums.MemPoolState
 import com.coinninja.coinkeeper.service.client.model.VOut
 import java.util.*
@@ -47,9 +44,9 @@ class TargetStatHelper @Inject constructor(
                 }
             }
 
-    internal fun createChangeOutput(transactionData: TransactionData): TargetStat? {
+    internal fun createChangeOutput(wallet: Wallet, transactionData: TransactionData): TargetStat? {
         transactionData.changePath?.let { changePath ->
-            addressHelper.addressForPath(changePath)?.let { changeAddress ->
+            addressHelper.addressForPath(wallet, changePath)?.let { changeAddress ->
                 if (transactionData.changeAmount > 0) {
                     return daoSessionManager.newTargetStat().apply {
                         address = changeAddress
@@ -75,7 +72,7 @@ class TargetStatHelper @Inject constructor(
             this.transaction = transaction
             daoSessionManager.insert(this)
         }
-        createChangeOutput(transactionData)?.apply {
+        createChangeOutput(transaction.wallet, transactionData)?.apply {
             state = TargetStat.State.PENDING
             this.transaction = transaction
             wallet = transaction.wallet
