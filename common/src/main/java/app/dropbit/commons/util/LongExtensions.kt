@@ -1,6 +1,7 @@
 package app.dropbit.commons.util
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -21,4 +22,5 @@ fun Long.toRFC3339(): String =
             formatter.format(Date(this))
         }
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun Long.toLocalDateTimeUTC(): LocalDateTime = Instant.ofEpochMilli(this).atZone(UTC).toLocalDateTime()
