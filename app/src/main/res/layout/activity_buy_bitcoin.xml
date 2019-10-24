@@ -1,36 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="@dimen/horizontal_margin_xxlarge"
-    android:layout_marginRight="@dimen/horizontal_margin_xxlarge"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:visibility="visible">
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/buy_with_g_pay_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:gravity="center_horizontal"
+        android:letterSpacing="0.06"
+        android:text="@string/bitcoin_purchased_with_google_pay"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/buy_with_g_pay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:visibility="gone" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/buy_with_g_pay"
+        style="@style/buyButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/copy_bitcoin_address_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buy_with_g_pay_label"
+        tools:visibility="gone">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/buy_with"
+            android:textAppearance="@style/TextAppearance.Gpay"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageView2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_g_pay"
+            app:layout_constraintBottom_toBottomOf="@+id/textView2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textView2"
+            app:layout_constraintTop_toTopOf="@+id/textView2" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <com.coinninja.coinkeeper.view.button.CopyToBufferButton
+        android:id="@+id/copy_blockchain_address"
+        style="@style/Button.InputBox.Small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="32dp"
+        android:drawableStart="@drawable/ic_btc_symbol"
+        android:drawableTint="@color/bitcoin_orange"
+        android:ellipsize="middle"
+        android:singleLine="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buy_at_atm"
+        tools:text="bc1m3lkdh80ne…17ukdfjdkmLKEp39" />
+
+    <TextView
+        android:id="@+id/copy_bitcoin_address_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="@string/when_purchasing_bitcoin"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/buy_at_atm"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buy_with_g_pay" />
 
     <Button
         android:id="@+id/buy_at_atm"
-        android:layout_width="match_parent"
-        android:layout_marginBottom="30dp"
-        android:drawableLeft="@drawable/map_pin"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="FIND BITCOIN ATM" />
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="32dp"
+        android:drawableStart="@drawable/map_pin"
+        android:drawablePadding="8dp"
+        android:text="@string/find_bitcoin_atm"
+        app:layout_constraintBottom_toTopOf="@+id/copy_blockchain_address"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/copy_bitcoin_address_label" />
 
-    <Button
-        android:id="@+id/buy_with_credit_card"
-        android:layout_width="match_parent"
-        android:drawableLeft="@drawable/circle_money"
-        android:backgroundTint="@color/primary_green"
-        android:layout_height="wrap_content"
-        android:text="WITH CREDIT CARD" />
-
-    <Button
-        android:id="@+id/buy_with_gift_card"
-        android:layout_width="match_parent"
-        android:layout_marginTop="30dp"
-        android:drawableLeft="@drawable/card_logo"
-        android:backgroundTint="@color/primary_orange"
-        android:layout_height="wrap_content"
-        android:text="WITH GIFT CARD" />
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

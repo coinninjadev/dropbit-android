@@ -21,7 +21,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 def versionMajor = 3
-def versionMinor = 0
+def versionMinor = 1
 def versionPatch = System.getenv("VERSION_PATCH") ? System.getenv("VERSION_PATCH") : 0
 def APP_VERSION = System.getenv("APP_VERSION") ? Integer.parseInt(System.getenv("APP_VERSION")) : 10480
 def hockeyAppApiToken = System.getenv("HOCKEY_APP_API_TOKEN") ? System.getenv("HOCKEY_APP_API_TOKEN") : HOCKEY_APP_API_TOKEN
@@ -148,7 +148,7 @@ android {
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE__STAGING}\""
             buildConfigField "String", "THUNDERDOME_API_BASE", "\"${THUNDERDOME_API_BASE__STAGING}\""
-            buildConfigField "boolean", "IS_PRODUCTION", "true"
+            buildConfigField "boolean", "IS_PRODUCTION", "false"
             versionNameSuffix "-staging"
             buildConfigField "String", "FCM_APPLICATION_KEY", "\"${DEBUG_FCM_APP_KEY}\""
         }

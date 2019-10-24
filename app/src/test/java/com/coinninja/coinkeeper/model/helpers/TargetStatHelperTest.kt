@@ -328,6 +328,7 @@ class TargetStatHelperTest {
     fun creates_outputs_for_saved_transactions() {
         val helper = createHelper()
         val transaction: TransactionSummary = mock()
+        val wallet:Wallet = mock()
         val changePath = DerivationPath(49, 0, 0, 1, 0)
         val transactionData = TransactionData(
                 utxos = arrayOf(
@@ -342,8 +343,8 @@ class TargetStatHelperTest {
         val address = mock<Address>()
         whenever(address.address).thenReturn("--change-address--")
         whenever(helper.daoSessionManager.newTargetStat()).thenReturn(receiverOutput).thenReturn(changeOutput)
-        whenever(helper.addressHelper.addressForPath(changePath)).thenReturn(address)
-        whenever(transaction.wallet).thenReturn(mock())
+        whenever(helper.addressHelper.addressForPath(wallet, changePath)).thenReturn(address)
+        whenever(transaction.wallet).thenReturn(wallet)
 
         helper.createOutputsFor(transaction, transactionData)
 
@@ -370,6 +371,7 @@ class TargetStatHelperTest {
     @Test
     fun creates_change_output_for_sent_transaction() {
         val helper = createHelper()
+        val wallet: Wallet = Wallet()
         val changePath = DerivationPath(49, 0, 0, 1, 0)
         val transactionData = TransactionData(
                 utxos = arrayOf(
@@ -384,9 +386,9 @@ class TargetStatHelperTest {
         val address = mock<Address>()
         whenever(address.address).thenReturn("--change-address--")
         whenever(helper.daoSessionManager.newTargetStat()).thenReturn(output)
-        whenever(helper.addressHelper.addressForPath(changePath)).thenReturn(address)
+        whenever(helper.addressHelper.addressForPath(wallet, changePath)).thenReturn(address)
 
-        assertThat(helper.createChangeOutput(transactionData)).isEqualTo(output)
+        assertThat(helper.createChangeOutput(wallet, transactionData)).isEqualTo(output)
 
         val ordered = inOrder(output)
         ordered.verify(output).address = address
@@ -398,6 +400,7 @@ class TargetStatHelperTest {
     @Test
     fun only_creates_change_output_when_there_is_change() {
         val helper = createHelper()
+        val wallet:Wallet = mock()
         val transactionData = TransactionData(
                 utxos = arrayOf(
                         UnspentTransactionOutput("--proof-txid-1--", 1, 100000,
@@ -407,7 +410,7 @@ class TargetStatHelperTest {
                 paymentAddress = "--pay-to-address--"
         )
 
-        assertThat(helper.createChangeOutput(transactionData)).isNull()
+        assertThat(helper.createChangeOutput(wallet, transactionData)).isNull()
     }
 
     @Test

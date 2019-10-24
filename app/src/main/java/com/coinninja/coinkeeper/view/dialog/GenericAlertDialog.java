@@ -26,6 +26,7 @@ public class GenericAlertDialog extends DialogFragment {
     private View view;
     private boolean showAsWide = false;
     private AlertDialog alertDialog;
+    private boolean isTransaparent = false;
 
     public static GenericAlertDialog newInstance(String message) {
         return newInstance(null, message, null, null, null, true, true);
@@ -102,15 +103,14 @@ public class GenericAlertDialog extends DialogFragment {
         if (showAsWide)
             alertDialog.getContext().setTheme(R.style.WideDialogTheme);
 
+        if (isTransaparent)
+            alertDialog.getContext().setTheme(R.style.TransparentDialog);
+
         return alertDialog;
     }
 
     public void setDialogBuilder(AlertDialog.Builder builder) {
         this.builder = builder;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public void setPositiveLabel(String positiveLabel) {
@@ -139,8 +139,16 @@ public class GenericAlertDialog extends DialogFragment {
         showAsWide = true;
     }
 
+    public void asTransparent() {
+        isTransaparent = true;
+    }
+
     public String getMessage() {
         return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public AlertDialog getAlertDialog() {

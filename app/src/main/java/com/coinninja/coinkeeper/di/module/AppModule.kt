@@ -47,6 +47,7 @@ import com.coinninja.coinkeeper.service.runner.SharedMemoRetrievalRunner
 import com.coinninja.coinkeeper.util.*
 import com.coinninja.coinkeeper.util.analytics.Analytics
 import com.coinninja.coinkeeper.util.android.PreferencesUtil
+import com.coinninja.coinkeeper.util.android.activity.BuyBitcoinUriBuilder
 import com.coinninja.coinkeeper.util.encryption.MessageEncryptor
 import com.coinninja.coinkeeper.util.uuid.UuidFactory
 import com.coinninja.coinkeeper.view.widget.phonenumber.CountryCodeLocale
@@ -68,6 +69,11 @@ class AppModule {
         @IsProduction
         @Provides
         get() = BuildConfig.IS_PRODUCTION
+
+    @Provides
+    internal fun buyBitcoinUriBuilder(): BuyBitcoinUriBuilder {
+        return BuyBitcoinUriBuilder(BuildConfig.IS_PRODUCTION)
+    }
 
     @Provides
     @CoinkeeperApplicationScope
