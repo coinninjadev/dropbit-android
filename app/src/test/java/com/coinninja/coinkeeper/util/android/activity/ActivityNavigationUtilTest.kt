@@ -83,7 +83,7 @@ class ActivityNavigationUtilTest {
         val coinNinjaUriBuilder = CoinNinjaUriBuilder()
         val dropbitUriBuilder = DropbitUriBuilder()
         val twitterUtil = TwitterUtil(ApplicationProvider.getApplicationContext(), Shuffler())
-        return ActivityNavigationUtil(dropbitUriBuilder, coinNinjaUriBuilder, Mockito.mock(Analytics::class.java), twitterUtil)
+        return ActivityNavigationUtil(dropbitUriBuilder, coinNinjaUriBuilder, mock(), mock(), twitterUtil)
     }
 
     @After
@@ -675,6 +675,19 @@ class ActivityNavigationUtilTest {
             intent.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, holder)
 
             it.navigateToInviteContactScreen(activity, holder)
+
+            assertThat(activity, activityWithIntentStarted(intent))
+        }
+    }
+
+    @Test
+    fun navigates_to_buy_btc() {
+        createActivityNavigationUtil().also {
+            val uri: Uri = Uri.parse("https://example.com/buy/btc")
+            whenever(it.buyBitcoinUriBuilder.build("--payment-address--")).thenReturn(uri)
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+
+            it.buyBitcoin(activity, "--payment-address--")
 
             assertThat(activity, activityWithIntentStarted(intent))
         }

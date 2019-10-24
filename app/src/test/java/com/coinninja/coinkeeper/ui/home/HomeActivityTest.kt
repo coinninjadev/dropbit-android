@@ -1,6 +1,7 @@
 package com.coinninja.coinkeeper.ui.home
 
 import android.content.Intent
+import android.net.Uri
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -11,10 +12,12 @@ import app.dropbit.commons.currency.USDCurrency
 import com.coinninja.coinkeeper.R
 import com.coinninja.coinkeeper.TestCoinKeeperApplication
 import com.coinninja.coinkeeper.cn.wallet.mode.AccountMode
+import com.coinninja.coinkeeper.ui.payment.create.CreatePaymentActivity
 import com.coinninja.coinkeeper.util.CurrencyPreference
 import com.coinninja.coinkeeper.util.DefaultCurrencies
 import com.coinninja.coinkeeper.util.DropbitIntents
 import com.coinninja.coinkeeper.util.android.activity.ActivityNavigationUtil
+import com.coinninja.coinkeeper.view.dialog.GenericAlertDialog
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -48,6 +51,22 @@ internal class HomeActivityTest {
         application.activityNavigationUtil = Mockito.mock(ActivityNavigationUtil::class.java)
         application.currencyPreference = Mockito.mock(CurrencyPreference::class.java)
         whenever(application.currencyPreference.currenciesPreference).thenReturn(defaultCurrencies)
+    }
+
+    @Test
+    fun intents_with_wyre_uri_show_dialog__with_transfer_id() {
+        val uri = Uri.parse("dropbit://wyre?transferId=tID")
+        creationIntent.data = uri
+
+        val scenario = setupActivity()
+        scenario.onActivity { activity ->
+            val dialog = activity.supportFragmentManager.findFragmentByTag(HomeActivity.wyreTransferDialog) as GenericAlertDialog
+            assertThat(dialog).isNotNull()
+            assertThat(creationIntent.data).isNull()
+        }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        scenario.close()
     }
 
     @Test

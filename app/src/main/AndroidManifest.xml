@@ -131,6 +131,13 @@
             android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn.ChartsOn"
             android:windowSoftInputMode="adjustPan|adjustNothing">
             <intent-filter>
+                <data android:scheme="dropbit"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter>
                 <data android:scheme="bitcoin" />
                 <action android:name="android.intent.action.VIEW" />
 
@@ -143,29 +150,25 @@
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
-            android:name=".ui.payment.request.PayRequestActivity"
-            />
+            android:name=".ui.payment.request.PayRequestActivity" />
 
         <activity
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
-            android:name=".ui.payment.request.LndInvoiceRequestActivity"
-            />
+            android:name=".ui.payment.request.LndInvoiceRequestActivity" />
 
         <activity
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
-            android:name=".ui.payment.create.CreatePaymentActivity"
-            />
+            android:name=".ui.payment.create.CreatePaymentActivity" />
 
         <activity
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/CoinKeeperTheme.Drawer.BalanceOn"
-            android:name=".ui.payment.confirm.ConfirmPaymentActivity"
-            />
+            android:name=".ui.payment.confirm.ConfirmPaymentActivity" />
 
         <activity
             android:name=".ui.transaction.details.TransactionDetailsActivity"

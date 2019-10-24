@@ -8,8 +8,6 @@ import android.location.Location
 import android.net.Uri
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
 import app.coinninja.cn.libbitcoin.model.TransactionData
 import app.coinninja.cn.thunderdome.model.WithdrawalRequest
 import app.dropbit.annotations.Mockable
@@ -63,6 +61,7 @@ import javax.inject.Inject
 class ActivityNavigationUtil @Inject constructor(
         internal val dropbitUriBuilder: DropbitUriBuilder,
         internal val coinNinjaUriBuilder: CoinNinjaUriBuilder,
+        internal val buyBitcoinUriBuilder: BuyBitcoinUriBuilder,
         internal val analytics: Analytics,
         internal val twitterUtil: TwitterUtil) {
 
@@ -179,10 +178,6 @@ class ActivityNavigationUtil @Inject constructor(
     fun navigateToBuyBitcoinWithGiftCard(activity: Activity) {
         openUrl(activity, coinNinjaUriBuilder.build(BUY_BITCOIN, "giftcards"))
         analytics.trackEvent(Analytics.EVENT_BUY_BITCOIN_GIFT_CARD)
-    }
-
-    fun showDialogWithTag(fragmentManager: FragmentManager, dialogFragment: DialogFragment, tag: String) {
-        dialogFragment.show(fragmentManager, tag)
     }
 
     fun shareWithTwitter(activity: Activity, tweet: String) {
@@ -362,5 +357,9 @@ class ActivityNavigationUtil @Inject constructor(
             it.putExtra(DropbitIntents.EXTRA_PAYMENT_HOLDER, paymentHolder)
             activity.startActivity(it)
         }
+    }
+
+    fun buyBitcoin(activity: Activity, address: String) {
+        openUrl(activity, buyBitcoinUriBuilder.build(address))
     }
 }

@@ -148,7 +148,7 @@ android {
             signingConfig signingConfigs.release
             buildConfigField "String", "COIN_NINJA_API_BASE", "\"${COIN_NINJA_API_BASE__STAGING}\""
             buildConfigField "String", "THUNDERDOME_API_BASE", "\"${THUNDERDOME_API_BASE__STAGING}\""
-            buildConfigField "boolean", "IS_PRODUCTION", "true"
+            buildConfigField "boolean", "IS_PRODUCTION", "false"
             versionNameSuffix "-staging"
             buildConfigField "String", "FCM_APPLICATION_KEY", "\"${DEBUG_FCM_APP_KEY}\""
         }
