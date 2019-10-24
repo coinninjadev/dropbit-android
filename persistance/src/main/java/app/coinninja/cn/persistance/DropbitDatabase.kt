@@ -7,7 +7,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import app.coinninja.cn.persistance.converter.BTCCurrencyConverter
-import app.coinninja.cn.persistance.converter.DateTimeConverter
 import app.coinninja.cn.persistance.converter.USDCurrencyConverter
 import app.coinninja.cn.persistance.converter.UriConverter
 import app.coinninja.cn.persistance.dao.LedgerSettlementDao
@@ -46,8 +45,7 @@ import app.coinninja.cn.persistance.model.*
 @TypeConverters(
         BTCCurrencyConverter::class,
         USDCurrencyConverter::class,
-        UriConverter::class,
-        DateTimeConverter::class
+        UriConverter::class
 )
 abstract class DropbitDatabase : RoomDatabase() {
 

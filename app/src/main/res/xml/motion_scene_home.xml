@@ -139,10 +139,11 @@
         <Constraint
             android:id="@+id/home_pager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="6dp"
             android:layout_marginTop="100dp"
             android:layout_marginEnd="6dp"
+            app:layout_constraintBottom_toTopOf="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -6,6 +6,7 @@ import app.coinninja.cn.persistance.model.*
 import app.coinninja.cn.thunderdome.client.ThunderDomeApiClient
 import app.coinninja.cn.thunderdome.model.*
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.util.toRFC3339
 import com.google.gson.Gson
 import java.util.*
 
@@ -183,7 +184,7 @@ class ThunderDomeRepository(
                 inviteId,
                 toUserId,
                 fromUserId,
-                Date(createdMillis)
+                createdMillis.toRFC3339()
         )
     }
 

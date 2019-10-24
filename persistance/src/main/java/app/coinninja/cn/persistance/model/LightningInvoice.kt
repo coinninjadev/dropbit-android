@@ -6,7 +6,6 @@ import app.coinninja.cn.persistance.converter.LedgerStatusConverter
 import app.coinninja.cn.persistance.converter.LedgerTypeConverter
 import app.dropbit.annotations.Mockable
 import app.dropbit.commons.currency.BTCCurrency
-import java.util.*
 
 @Mockable
 @Entity(
@@ -48,13 +47,13 @@ data class LightningInvoice(
         var accountId: Long? = null,
 
         @ColumnInfo(name = "CREATED_AT")
-        var createdAt: Date? = null,
+        var createdAt: String? = null,
 
         @ColumnInfo(name = "UPDATED_AT")
-        var updatedAt: Date? = null,
+        var updatedAt: String? = null,
 
         @ColumnInfo(name = "EXPIRES_AT")
-        var expiresAt: Date? = null,
+        var expiresAt: String? = null,
 
         @ColumnInfo(name = "STATUS")
         var status: LedgerStatus? = null,
@@ -101,9 +100,9 @@ data class LightningInvoice(
         if (id != other.id) return false
         if (serverId != other.serverId) return false
         if (accountId != other.accountId) return false
-        if (createdAt?.time != other.createdAt?.time) return false
-        if (updatedAt?.time != other.updatedAt?.time) return false
-        if (expiresAt?.time != other.expiresAt?.time) return false
+        if (createdAt != other.createdAt) return false
+        if (updatedAt != other.updatedAt) return false
+        if (expiresAt != other.expiresAt) return false
         if (status != other.status) return false
         if (type != other.type) return false
         if (direction != other.direction) return false

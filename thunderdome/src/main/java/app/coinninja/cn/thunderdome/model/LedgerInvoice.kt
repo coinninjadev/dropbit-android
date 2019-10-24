@@ -52,9 +52,9 @@ data class LedgerInvoice(
     fun toLightningLedger(): LightningInvoice {
         return LightningInvoice(
                 serverId = id.split(":")[0],
-                createdAt = createdAt.asDateOrNow(),
-                updatedAt = updatedAt.asDateOrNow(),
-                expiresAt = expiresAt?.asDateOrNow(),
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+                expiresAt = expiresAt,
                 status = LedgerStatus.from(status),
                 type = LedgerType.from(type),
                 direction = LedgerDirection.from(direction),
