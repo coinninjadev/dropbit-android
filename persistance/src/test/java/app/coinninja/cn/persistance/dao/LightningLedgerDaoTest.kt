@@ -8,7 +8,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.coinninja.cn.persistance.DropbitDatabase
 import app.coinninja.cn.persistance.model.*
 import app.dropbit.commons.currency.BTCCurrency
-import app.dropbit.commons.util.asDateOrNull
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -56,9 +55,9 @@ class LightningLedgerDaoTest {
         val invoice = LightningInvoice(
                 accountId = account.id,
                 serverId = "3228fe64710af215840ec2fa96a0cbde4ca9dd15e6931743fe68d0259cba432d:0",
-                updatedAt = "2019-08-22T22:41:42.903254Z".asDateOrNull(),
-                createdAt = "2019-08-22T22:34:46.481530Z".asDateOrNull(),
-                expiresAt = "2019-08-23T22:34:46.481530Z".asDateOrNull(),
+                updatedAt = "2019-08-22T22:41:42.903254Z",
+                createdAt = "2019-08-22T22:34:46.481530Z",
+                expiresAt = "2019-08-23T22:34:46.481530Z",
                 status = LedgerStatus.PENDING,
                 direction = LedgerDirection.IN,
                 type = LedgerType.LIGHTNING,
@@ -76,9 +75,9 @@ class LightningLedgerDaoTest {
         assertThat(invoices.size).isEqualTo(1)
         assertThat(invoices[0].accountId).isEqualTo(account.id)
         assertThat(invoices[0].serverId).isEqualTo(invoice.serverId)
-        assertThat(invoices[0].updatedAt!!.time).isEqualTo(invoice.updatedAt!!.time)
-        assertThat(invoices[0].createdAt!!.time).isEqualTo(invoice.createdAt!!.time)
-        assertThat(invoices[0].expiresAt!!.time).isEqualTo(invoice.expiresAt!!.time)
+        assertThat(invoices[0].updatedAt).isEqualTo(invoice.updatedAt)
+        assertThat(invoices[0].createdAt).isEqualTo(invoice.createdAt)
+        assertThat(invoices[0].expiresAt).isEqualTo(invoice.expiresAt)
         assertThat(invoices[0].status).isEqualTo(invoice.status)
         assertThat(invoices[0].type).isEqualTo(invoice.type)
         assertThat(invoices[0].direction).isEqualTo(invoice.direction)
@@ -96,9 +95,9 @@ class LightningLedgerDaoTest {
         val invoice = LightningInvoice(
                 accountId = account.id,
                 serverId = "3228fe64710af215840ec2fa96a0cbde4ca9dd15e6931743fe68d0259cba432d:0",
-                updatedAt = "2019-08-22T22:41:42.903254Z".asDateOrNull(),
-                createdAt = "2019-08-22T22:34:46.481530Z".asDateOrNull(),
-                expiresAt = "2019-08-23T22:34:46.481530Z".asDateOrNull(),
+                updatedAt = "2019-08-22T22:41:42.903254Z",
+                createdAt = "2019-08-22T22:34:46.481530Z",
+                expiresAt = "2019-08-23T22:34:46.481530Z",
                 status = LedgerStatus.PENDING,
                 direction = LedgerDirection.IN,
                 type = LedgerType.LIGHTNING,
@@ -122,9 +121,9 @@ class LightningLedgerDaoTest {
         assertThat(invoices.size).isEqualTo(1)
         assertThat(invoices[0].accountId).isEqualTo(account.id)
         assertThat(invoices[0].serverId).isEqualTo(invoice.serverId)
-        assertThat(invoices[0].updatedAt!!.time).isEqualTo(invoice.updatedAt!!.time)
-        assertThat(invoices[0].createdAt!!.time).isEqualTo(invoice.createdAt!!.time)
-        assertThat(invoices[0].expiresAt!!.time).isEqualTo(invoice.expiresAt!!.time)
+        assertThat(invoices[0].updatedAt).isEqualTo(invoice.updatedAt)
+        assertThat(invoices[0].createdAt).isEqualTo(invoice.createdAt)
+        assertThat(invoices[0].expiresAt).isEqualTo(invoice.expiresAt)
         assertThat(invoices[0].status).isEqualTo(LedgerStatus.COMPLETED)
         assertThat(invoices[0].type).isEqualTo(invoice.type)
         assertThat(invoices[0].direction).isEqualTo(invoice.direction)

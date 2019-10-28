@@ -38,7 +38,7 @@ class LedgerSettlementDaoTest {
             db.lightningInvoiceDao().ledgerByServerId(invoice.serverId)
         }
 
-        val settlement = LedgerSettlement(createdAt = Date(System.currentTimeMillis()))
+        val settlement = LedgerSettlement(createdAt = "2019-09-24T10:10:12Z")
         settlement.invoiceId = ledger?.id
         settlement.createdAt = invoice?.createdAt
         db.ledgerSettlementDao.insert(settlement)
@@ -54,7 +54,7 @@ class LedgerSettlementDaoTest {
                 direction = LedgerDirection.OUT,
                 type = LedgerType.LIGHTNING,
                 status = LedgerStatus.COMPLETED,
-                createdAt = Date(System.currentTimeMillis()),
+                createdAt = "2019-09-24T10:10:12Z",
                 serverId = "--server-id-1--",
                 memo = "--memo-1--"
         )
@@ -84,7 +84,7 @@ class LedgerSettlementDaoTest {
                 direction = LedgerDirection.OUT,
                 type = LedgerType.LIGHTNING,
                 status = LedgerStatus.COMPLETED,
-                createdAt = Date(System.currentTimeMillis()),
+                createdAt = "2019-09-24T10:10:12Z",
                 serverId = "--server-id-1--",
                 memo = "--memo-1--",
                 isHidden = false
@@ -99,7 +99,7 @@ class LedgerSettlementDaoTest {
                 direction = LedgerDirection.IN,
                 type = LedgerType.LIGHTNING,
                 status = LedgerStatus.EXPIRED,
-                createdAt = Date(System.currentTimeMillis()),
+                createdAt = "2019-09-24T10:10:12Z",
                 serverId = "--server-id-2--",
                 memo = "--memo-2--",
                 isHidden = true)
@@ -121,7 +121,7 @@ class LedgerSettlementDaoTest {
                 direction = LedgerDirection.OUT,
                 type = LedgerType.LIGHTNING,
                 status = LedgerStatus.COMPLETED,
-                createdAt = Date(System.currentTimeMillis()),
+                createdAt = "2019-09-24T10:10:12Z",
                 serverId = "--server-id-1--",
                 memo = "--memo-1--",
                 isHidden = false
