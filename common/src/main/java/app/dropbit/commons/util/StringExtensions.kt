@@ -1,8 +1,12 @@
 package app.dropbit.commons.util
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 fun String.hexToBytes(): ByteArray =
@@ -19,7 +23,7 @@ fun String.asDateOrNow(): Date? {
 }
 
 fun String.asDateOrNull(): Date? {
-    val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'")
+    val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'", Locale.getDefault())
     formatter.timeZone = TimeZone.getTimeZone("GMT")
     try {
         return formatter.parse(this)
@@ -34,4 +38,14 @@ fun String.urlEncode(): String {
 
 fun String.urlDecode(): String {
     return URLDecoder.decode(this, "UTF-8")
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun String.toTimeInMillis(): Long = toDate()?.toMillis() ?: 0
+
+fun String.toDate(): LocalDateTime? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'")
+    LocalDateTime.parse(this, formatter)
+} else {
+    null
 }

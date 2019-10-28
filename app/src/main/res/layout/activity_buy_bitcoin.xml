@@ -14,14 +14,12 @@
         android:gravity="center_horizontal"
         android:letterSpacing="0.06"
         android:text="@string/bitcoin_purchased_with_google_pay"
-        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/buy_with_g_pay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:visibility="gone" />
+        app:layout_constraintVertical_chainStyle="packed" />
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -34,13 +32,11 @@
         android:layout_marginEnd="32dp"
         android:gravity="center"
         android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/copy_bitcoin_address_label"
+        app:layout_constraintBottom_toTopOf="@+id/copy_blockchain_address"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buy_with_g_pay_label"
-        tools:visibility="gone">
+        app:layout_constraintTop_toBottomOf="@id/buy_with_g_pay_label">
 
         <TextView
             android:id="@+id/textView2"
@@ -66,7 +62,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/textView2"
-            app:layout_constraintTop_toTopOf="@+id/textView2" />
+            app:layout_constraintTop_toTopOf="@+id/textView2"
+            tools:ignore="ContentDescription" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -84,41 +81,30 @@
         android:drawableTint="@color/bitcoin_orange"
         android:ellipsize="middle"
         android:singleLine="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buy_at_atm"
-        tools:text="bc1m3lkdh80ne…17ukdfjdkmLKEp39" />
-
-    <TextView
-        android:id="@+id/copy_bitcoin_address_label"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:text="@string/when_purchasing_bitcoin"
-        android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/buy_at_atm"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buy_with_g_pay" />
+        app:layout_constraintTop_toBottomOf="@+id/buy_with_g_pay"
+        tools:text="bc1m3lkdh80ne…17ukdfjdkmLKEp39"
+        tools:targetApi="m" />
+
 
     <Button
         android:id="@+id/buy_at_atm"
-        android:layout_width="0dp"
+        style="@style/FlatButton.Accent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
         android:layout_marginEnd="32dp"
+        android:layout_marginBottom="24dp"
         android:drawableStart="@drawable/map_pin"
         android:drawablePadding="8dp"
         android:text="@string/find_bitcoin_atm"
-        app:layout_constraintBottom_toTopOf="@+id/copy_blockchain_address"
+        app:drawableTint="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/copy_bitcoin_address_label" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

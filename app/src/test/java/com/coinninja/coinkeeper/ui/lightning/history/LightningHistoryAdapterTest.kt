@@ -20,7 +20,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class LightningHistoryAdapterTest {
@@ -137,7 +136,7 @@ class LightningHistoryAdapterTest {
                 invoiceValue = 10000,
                 invoiceStatus = LedgerStatus.PENDING,
                 invoiceMemo = "Deposit 10,000...",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(settlement)
@@ -163,7 +162,7 @@ class LightningHistoryAdapterTest {
                 invoiceValue = 10000,
                 invoiceStatus = LedgerStatus.PENDING,
                 invoiceMemo = "Deposit 10,000...",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -192,7 +191,7 @@ class LightningHistoryAdapterTest {
                 invoiceValue = 10000,
                 invoiceStatus = LedgerStatus.COMPLETED,
                 invoiceMemo = "Withdraw 10,000...",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -222,7 +221,7 @@ class LightningHistoryAdapterTest {
                 invoiceProcessingFee = 100,
                 invoiceStatus = LedgerStatus.COMPLETED,
                 invoiceMemo = "Withdraw 10,000...",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -250,7 +249,7 @@ class LightningHistoryAdapterTest {
                 invoiceValue = 10000,
                 invoiceStatus = LedgerStatus.PENDING,
                 invoiceMemo = "--memo--",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -279,7 +278,7 @@ class LightningHistoryAdapterTest {
                 invoiceValue = 10000,
                 invoiceStatus = LedgerStatus.EXPIRED,
                 invoiceMemo = "--memo--",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -310,7 +309,7 @@ class LightningHistoryAdapterTest {
                 invoiceValue = 10000,
                 invoiceStatus = LedgerStatus.FAILED,
                 invoiceMemo = "--memo--",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -341,7 +340,7 @@ class LightningHistoryAdapterTest {
                 invoiceValue = 10000,
                 invoiceStatus = LedgerStatus.COMPLETED,
                 invoiceMemo = "--memo--",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -370,7 +369,7 @@ class LightningHistoryAdapterTest {
                 invoiceValue = 10000,
                 invoiceStatus = LedgerStatus.COMPLETED,
                 invoiceMemo = "--memo--",
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -402,7 +401,7 @@ class LightningHistoryAdapterTest {
                 toUserType = IdentityType.PHONE,
                 fromUserIdentity = "+13305551111",
                 fromUserType = IdentityType.PHONE,
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -431,7 +430,7 @@ class LightningHistoryAdapterTest {
                 toUserType = IdentityType.PHONE,
                 fromUserIdentity = "+13305551111",
                 fromUserType = IdentityType.PHONE,
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -460,7 +459,7 @@ class LightningHistoryAdapterTest {
                 toUserType = IdentityType.PHONE,
                 fromUserIdentity = "+13305551111",
                 fromUserType = IdentityType.PHONE,
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -492,7 +491,7 @@ class LightningHistoryAdapterTest {
                 toUserDisplayName = "Joe",
                 fromUserIdentity = "+13305551111",
                 fromUserType = IdentityType.PHONE,
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -523,7 +522,7 @@ class LightningHistoryAdapterTest {
                 toUserType = IdentityType.PHONE,
                 fromUserIdentity = "+13305551111",
                 fromUserType = IdentityType.PHONE,
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -552,7 +551,7 @@ class LightningHistoryAdapterTest {
                 toUserType = IdentityType.PHONE,
                 fromUserIdentity = "+13305551111",
                 fromUserType = IdentityType.PHONE,
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -582,7 +581,7 @@ class LightningHistoryAdapterTest {
                 fromUserIdentity = "+13305551111",
                 fromUserDisplayName = "[-_-]",
                 fromUserType = IdentityType.PHONE,
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)
@@ -613,7 +612,7 @@ class LightningHistoryAdapterTest {
                 toUserType = IdentityType.PHONE,
                 fromUserIdentity = "+13305551111",
                 fromUserType = IdentityType.PHONE,
-                createdAt = Date(System.currentTimeMillis())
+                createdAt = "2019-09-17T17:19:56.762Z"
         )
 
         adapter.settlements = listOf(invoice)

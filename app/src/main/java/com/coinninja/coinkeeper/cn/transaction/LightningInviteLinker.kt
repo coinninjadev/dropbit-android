@@ -4,9 +4,9 @@ import app.coinninja.cn.persistance.DropbitDatabase
 import app.coinninja.cn.persistance.model.LedgerSettlement
 import app.coinninja.cn.persistance.model.LightningInvoice
 import app.dropbit.annotations.Mockable
+import app.dropbit.commons.util.toRFC3339
 import com.coinninja.coinkeeper.model.db.InviteTransactionSummary
 import com.coinninja.coinkeeper.model.query.InviteSummaryQueryManager
-import java.util.*
 import javax.inject.Inject
 
 
@@ -45,7 +45,7 @@ class LightningInviteLinker @Inject constructor(
                 inviteId = invite.id,
                 toUserId = invite.toUser.id,
                 fromUserId = invite.fromUser.id,
-                date = Date(invite.sentDate)
+                createdAt = invite.sentDate.toRFC3339()
         )
         return dropbitDatabase.ledgerSettlementDao.settlementByInviteId(invite.id)!!
     }

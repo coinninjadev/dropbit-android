@@ -7,7 +7,6 @@ import app.coinninja.cn.persistance.model.LedgerSettlement
 import app.coinninja.cn.persistance.model.LedgerSettlementDetail
 import app.coinninja.cn.persistance.model.LightningInvoice
 import app.dropbit.annotations.Mockable
-import java.util.*
 
 @Dao
 @Mockable
@@ -16,7 +15,9 @@ abstract class LedgerSettlementDao {
     abstract fun all(): List<LedgerSettlement>
 
     @Query("""
-select INVITE.VALUE_SATOSHIS  `inviteValue`,
+select
+       LS.CREATED_AT          `createdAt`,
+       INVITE.VALUE_SATOSHIS  `inviteValue`,
        INVITE.HISTORIC_VALUE  `inviteUsdValue`,
        INVITE.TYPE            `inviteType`,
        INVITE.BTC_STATE       `inviteState`,
@@ -37,8 +38,7 @@ select INVITE.VALUE_SATOSHIS  `inviteValue`,
        LI.TYPE                `invoiceType`,
        LI.STATUS              `invoiceStatus`,
        LI.MEMO                `invoiceMemo`,
-       LI.CREATED_AT          `invoiceCreatedAt`,
-       LS.CREATED_AT          `createdAt`
+       LI.CREATED_AT          `invoiceCreatedAt`
 
 
 from LEDGER_SETTLEMENT LS
@@ -46,11 +46,13 @@ from LEDGER_SETTLEMENT LS
        left outer join INVITE_TRANSACTION_SUMMARY INVITE on LS.INVITE_ID = INVITE._id
        left outer join USER_IDENTITY TO_USER on LS.TO_USER_IDENTITY_ID = TO_USER._id
        left outer join USER_IDENTITY FROM_USER on LS.FROM_USER_IDENTITY_ID = FROM_USER._id
-order by date(createdAt) DESC;    """)
+order by datetime(LS.CREATED_AT) DESC;""")
     abstract fun allDetails(): List<LedgerSettlementDetail>
 
     @Query("""
-select INVITE.VALUE_SATOSHIS  `inviteValue`,
+select
+       LS.CREATED_AT          `createdAt`,
+       INVITE.VALUE_SATOSHIS  `inviteValue`,
        INVITE.HISTORIC_VALUE  `inviteUsdValue`,
        INVITE.TYPE            `inviteType`,
        INVITE.BTC_STATE       `inviteState`,
@@ -71,8 +73,7 @@ select INVITE.VALUE_SATOSHIS  `inviteValue`,
        LI.TYPE                `invoiceType`,
        LI.STATUS              `invoiceStatus`,
        LI.MEMO                `invoiceMemo`,
-       LI.CREATED_AT          `invoiceCreatedAt`,
-       LS.CREATED_AT          `createdAt`
+       LI.CREATED_AT          `invoiceCreatedAt`
 
 
 from LEDGER_SETTLEMENT LS
@@ -82,11 +83,13 @@ from LEDGER_SETTLEMENT LS
        left outer join USER_IDENTITY FROM_USER on LS.FROM_USER_IDENTITY_ID = FROM_USER._id
 where LI.IS_HIDDEN = 0
    or LI.IS_HIDDEN is null
-order by date(createdAt) DESC;    """)
+order by datetime(LS.CREATED_AT) DESC;""")
     abstract fun allVisible(): List<LedgerSettlementDetail>
 
     @Query("""
-select INVITE.VALUE_SATOSHIS  `inviteValue`,
+select
+       LS.CREATED_AT          `createdAt`,
+       INVITE.VALUE_SATOSHIS  `inviteValue`,
        INVITE.HISTORIC_VALUE  `inviteUsdValue`,
        INVITE.TYPE            `inviteType`,
        INVITE.BTC_STATE       `inviteState`,
@@ -107,8 +110,7 @@ select INVITE.VALUE_SATOSHIS  `inviteValue`,
        LI.TYPE                `invoiceType`,
        LI.STATUS              `invoiceStatus`,
        LI.MEMO                `invoiceMemo`,
-       LI.CREATED_AT          `invoiceCreatedAt`,
-       LS.CREATED_AT          `createdAt`
+       LI.CREATED_AT          `invoiceCreatedAt`
 
 
 from LEDGER_SETTLEMENT LS
@@ -118,7 +120,7 @@ from LEDGER_SETTLEMENT LS
        left outer join USER_IDENTITY FROM_USER on LS.FROM_USER_IDENTITY_ID = FROM_USER._id
 where LI.IS_HIDDEN = 0
    or LI.IS_HIDDEN is null
-order by date(createdAt) DESC;
+order by datetime(LS.CREATED_AT) DESC;
     """)
     abstract fun allVisibleLive(): LiveData<List<LedgerSettlementDetail>>
 
@@ -152,13 +154,13 @@ order by date(createdAt) DESC;
         }
     }
 
-    fun createSettlementForInvite(inviteId: Long, toUserId: Long, fromUserId: Long, date: Date) {
+    fun createSettlementForInvite(inviteId: Long, toUserId: Long, fromUserId: Long, createdAt: String) {
         if (settlementByInviteId(inviteId) == null) {
             insert(LedgerSettlement(
                     inviteId = inviteId,
                     toUserIdentityId = toUserId,
                     fromUserIdentityId = fromUserId,
-                    createdAt = date
+                    createdAt = createdAt
             ))
         }
     }

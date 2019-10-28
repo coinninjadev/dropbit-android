@@ -29,7 +29,7 @@ data class LedgerSettlementDetail(
         val invoiceDirection: LedgerDirection? = null,
         val invoiceType: LedgerType? = null,
         val invoiceStatus: LedgerStatus? = null,
-        val invoiceCreatedAt: Date? = null,
+        val invoiceCreatedAt: String? = null,
         val invoiceMemo: String? = null,
 
         val inviteValue: Long? = null,
@@ -49,7 +49,7 @@ data class LedgerSettlementDetail(
         val fromUserHandle: String? = null,
         val fromUserAvatar: String? = null,
 
-        val createdAt: Date? = null
+        val createdAt: String? = null
 ) {
 
     val cryptoAmount: BTCCurrency

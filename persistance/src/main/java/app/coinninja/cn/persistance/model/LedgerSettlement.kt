@@ -84,7 +84,7 @@ class LedgerSettlement(
         var transactionNotificationId: Long? = null,
 
         @ColumnInfo(name = "CREATED_AT")
-        var createdAt: Date? = null
+        var createdAt: String? = null
 ) {
 
     override fun equals(other: Any?): Boolean {
